@@ -139,7 +139,7 @@ Status: Gap | Partial | Compliant
 
 | الإدارة (owner) | routes/controllers | البيانات والتبعيات | Request/Policy | UI | Tests | الحالة |
 |---|---|---|---|---|---|---|
-| Companies | `companies.*` · `BusinessCenter\Company\CompanyController`, `Archive\Company\CompanyArchiveController` | tenant companies/files | CRUD requests + CompanyPolicy + CompanyService + archive actions | DT + forms/archive | F,U,I,S | Compliant ([بطاقة الإدارة](tenant-administration-cards/companies.md)) |
+
 
 ## 5. Tenant — assignments, assets, collections, communication and domains
 

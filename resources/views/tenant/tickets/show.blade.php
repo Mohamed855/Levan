@@ -3,11 +3,11 @@
 @section('title', 'تفاصيل التذكرة #' . $ticket->ticket_number)
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/css/tenant/tickets/show.css'])
+    @vite(['resources/assets/css/tenant/tickets/show.css'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/js/tenant/tickets/show.js'])
+    @vite(['resources/assets/js/tenant/tickets/show.js'])
 
     @if ($ticket->status === 'resolved_pending_survey')
         <script>
@@ -31,81 +31,67 @@
 
 @section('content')
     {{-- مودال تقييم التذكرة --}}
-    <div class="modal fade" id="ticketSurveyModal" tabindex="-1" aria-labelledby="ticketSurveyModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
+    <x-bootstrap.modal id="ticketSurveyModal" title="تقييم التذكرة #{{ $ticket->ticket_number }}" icon="ti-star" size="lg">
+        <form action="{{ tenant_route_name('tickets.survey.submit', $ticket->ticket_number) }}" method="POST"
+            novalidate data-form-validate
+            data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+            @csrf
 
-                <div class="modal-header">
-                    <h5 class="modal-title" id="ticketSurveyModalLabel">
-                        <i class="ti ti-star text-warning me-2"></i>
-                        تقييم التذكرة #{{ $ticket->ticket_number }}
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+            <div class="text-center py-2">
+                <p class="mb-3 fw-bold fs-5">
+                    شاركنا تجربتك! هل تم حل مشكلتك بنجاح؟
+                </p>
+                <div class="d-flex justify-content-center gap-3 mb-4 choice-buttons" data-form-field
+                    data-field-name="solved">
+                    <input type="radio" class="btn-check" name="solved" id="solvedYes" value="1"
+                        autocomplete="off" required data-form-control {{ old('solved') == '1' ? 'checked' : '' }}>
+                    <label class="btn btn-outline-success" for="solvedYes">
+                        نعم، تم الحل
+                    </label>
+
+                    <input type="radio" class="btn-check" name="solved" id="solvedNo" value="0"
+                        autocomplete="off" required data-form-control {{ old('solved') == '0' ? 'checked' : '' }}>
+                    <label class="btn btn-outline-danger" for="solvedNo">
+                        لا، لم تُحل
+                    </label>
                 </div>
 
-                <form action="{{ tenant_route_name('tickets.survey.submit', $ticket->ticket_number) }}" method="POST"
-                    novalidate data-form-validate
-                    data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
-                    @csrf
+                <div id="ratingSection" style="display: {{ old('solved') == '1' ? 'block' : 'none' }};">
+                    <hr class="my-4">
 
-                    <div class="modal-body text-center">
-                        <p class="mb-3 fw-bold fs-5">
-                            شاركنا تجربتك! هل تم حل مشكلتك بنجاح؟
-                        </p>
-                        <div class="d-flex justify-content-center gap-3 mb-4 choice-buttons" data-form-field
-                            data-field-name="solved">
-                            <input type="radio" class="btn-check" name="solved" id="solvedYes" value="1"
-                                autocomplete="off" required data-form-control {{ old('solved') == '1' ? 'checked' : '' }}>
-                            <label class="btn btn-outline-success" for="solvedYes">
-                                نعم، تم الحل
-                            </label>
+                    @foreach ($surveyQuestions as $field => $label)
+                        <div class="my-4">
+                            <label class="form-label d-block mb-2 fw-semibold">{{ $label }}</label>
 
-                            <input type="radio" class="btn-check" name="solved" id="solvedNo" value="0"
-                                autocomplete="off" required data-form-control {{ old('solved') == '0' ? 'checked' : '' }}>
-                            <label class="btn btn-outline-danger" for="solvedNo">
-                                لا، لم تُحل
-                            </label>
-                        </div>
+                            <input type="hidden" name="{{ $field }}" value="{{ old($field) }}"
+                                data-validation-skip />
 
-                        <div id="ratingSection" style="display: {{ old('solved') == '1' ? 'block' : 'none' }};">
-                            <hr class="my-4">
-
-                            @foreach ($surveyQuestions as $field => $label)
-                                <div class="my-4">
-                                    <label class="form-label d-block mb-2 fw-semibold">{{ $label }}</label>
-
-                                    <input type="hidden" name="{{ $field }}" value="{{ old($field) }}"
-                                        data-validation-skip />
-
-                                    <div class="d-flex justify-content-center">
-                                        <div class="survey-stars" data-target="{{ $field }}">
-                                            @for ($i = 1; $i <= 5; $i++)
-                                                <span class="survey-star" data-value="{{ $i }}">★</span>
-                                            @endfor
-                                        </div>
-                                    </div>
+                            <div class="d-flex justify-content-center">
+                                <div class="survey-stars" data-target="{{ $field }}">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <span class="survey-star" data-value="{{ $i }}">★</span>
+                                    @endfor
                                 </div>
-                            @endforeach
+                            </div>
                         </div>
+                    @endforeach
+                </div>
 
-                        <hr class="my-4">
-                        <div class="mt-3">
-                            <textarea name="comment" class="form-control" data-form-control rows="3"
-                                placeholder="شاركنا رأيك أو أي ملاحظات لديك...">{{ old('comment') }}</textarea>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
-                        <button type="submit" class="btn btn-primary" id="submitSurveyBtn">
-                            <i class="ti ti-send me-1"></i> إرسال التقييم
-                        </button>
-                    </div>
-                </form>
-
+                <hr class="my-4">
+                <div class="mt-3">
+                    <textarea name="comment" class="form-control" data-form-control rows="3"
+                        placeholder="شاركنا رأيك أو أي ملاحظات لديك...">{{ old('comment') }}</textarea>
+                </div>
             </div>
-        </div>
-    </div>
+
+            <x-slot:footer>
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="submit" class="btn btn-primary" id="submitSurveyBtn">
+                    <i class="ti ti-send me-1"></i> إرسال التقييم
+                </button>
+            </x-slot:footer>
+        </form>
+    </x-bootstrap.modal>
 
     {{-- رأس الصفحة --}}
     <div class="d-flex justify-content-between align-items-center mb-4">

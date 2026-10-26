@@ -10,20 +10,6 @@ class ArchivedUsersDataTable extends AbstractDataTable
 {
     private $route = 'archive.users';
 
-    /*
-    |--------------------------------------------------------------------------
-    | Build DataTable
-    |--------------------------------------------------------------------------
-    | Build the DataTable response and mark raw columns.
-    */
-    public function dataTable($query)
-    {
-        $datatable = datatables()->eloquent($query)->addIndexColumn();
-
-        $this->addCustomColumns($datatable);
-
-        return $datatable->rawColumns($this->rawColumns());
-    }
 
     /*
     |--------------------------------------------------------------------------

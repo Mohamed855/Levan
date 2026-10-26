@@ -12,7 +12,11 @@ final class AuctionReportDataBuilder
     /** @return array<string, mixed> */
     public function build(Auction $auction): array
     {
-        $auction->loadMissing(['assignment', 'properties', 'attachments']);
+        $auction->loadMissing([
+            'assignment',
+            'properties.galleryAttachments',
+            'attachments' => fn ($query) => $query->orderBy('report_section')->orderBy('display_order')->orderBy('id'),
+        ]);
 
         $properties = $auction->properties->map(function ($property): array {
             $pivot = $property->pivot;
@@ -20,6 +24,17 @@ final class AuctionReportDataBuilder
             if (is_string($boardData)) {
                 $boardData = json_decode($boardData, true) ?: [];
             }
+
+            $images = collect([$property->main_image ? ['disk' => 'tenant_public', 'path' => $property->main_image] : null])
+                ->merge($property->galleryAttachments->map(fn ($attachment): array => [
+                    'disk' => $attachment->disk ?: 'tenant_public',
+                    'path' => $attachment->file_path,
+                ]))
+                ->filter()
+                ->map(fn (array $image): ?string => $this->dataUri($image['path'], $image['disk']))
+                ->filter()
+                ->values()
+                ->all();
 
             return [
                 'id' => (int) $property->id,
@@ -29,8 +44,10 @@ final class AuctionReportDataBuilder
                 'city' => (string) ($property->city ?: '-'),
                 'district' => (string) ($property->district ?: '-'),
                 'area' => $property->area !== null ? (float) $property->area : null,
+                'deed_number' => (string) ($property->deed_number ?: '-'),
                 'estimated_value' => $property->estimated_value !== null ? (float) $property->estimated_value : null,
-                'image' => $this->dataUri($property->main_image),
+                'image' => $images[0] ?? null,
+                'images' => $images,
                 'result_status' => $pivot?->result_status ?: 'pending',
                 'opening_price' => $pivot?->opening_price !== null ? (float) $pivot->opening_price : null,
                 'sale_price' => $pivot?->sale_price !== null ? (float) $pivot->sale_price : null,
@@ -46,6 +63,9 @@ final class AuctionReportDataBuilder
             'section' => $attachment->report_section,
             'property_id' => $attachment->property_id ? (int) $attachment->property_id : null,
             'display_order' => (int) $attachment->display_order,
+            'mime' => Storage::disk('tenant_public')->exists($attachment->file_path)
+                ? Storage::disk('tenant_public')->mimeType($attachment->file_path)
+                : null,
             'uri' => $this->dataUri($attachment->file_path),
         ])->groupBy('section')->map->values()->all();
 
@@ -89,14 +109,14 @@ final class AuctionReportDataBuilder
         ];
     }
 
-    private function dataUri(?string $path): ?string
+    private function dataUri(?string $path, string $disk = 'tenant_public'): ?string
     {
-        if (blank($path) || ! Storage::disk('tenant_public')->exists($path)) {
+        if (blank($path) || ! Storage::disk($disk)->exists($path)) {
             return null;
         }
 
-        $contents = Storage::disk('tenant_public')->get($path);
-        $mime = Storage::disk('tenant_public')->mimeType($path) ?: 'application/octet-stream';
+        $contents = Storage::disk($disk)->get($path);
+        $mime = Storage::disk($disk)->mimeType($path) ?: 'application/octet-stream';
 
         return 'data:'.$mime.';base64,'.base64_encode($contents);
     }

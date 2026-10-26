@@ -3,11 +3,11 @@
 @section('title', 'تفاصيل الباقة - ' . $plan->name)
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/css/shared/tab.css'])
+    @vite(['resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/css/shared/tab.css'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/js/tenant/settings/tab.js'])
+    @vite(['resources/assets/js/tenant/settings/tab.js'])
 @endsection
 
 @section('content')
@@ -467,7 +467,6 @@
                                     <table class="table table-hover table-striped border">
                                         <thead class="table-light">
                                             <tr>
-                                                <th>#</th>
                                                 <th>رقم الاشتراك</th>
                                                 <th>اسم الشركة</th>
                                                 <th>معرف العميل</th>
@@ -480,9 +479,8 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($subscriptions as $index => $subscription)
+                                            @foreach ($subscriptions as $subscription)
                                                 <tr>
-                                                    <td>{{ $index + 1 }}</td>
                                                     <td>
                                                         <span
                                                             class="font-monospace fw-bold">{{ $subscription->subscription_number ?? 'SUB-' . $subscription->id }}</span>

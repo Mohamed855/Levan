@@ -2,13 +2,7 @@
 
 @section('title', 'تفاصيل طلب التجربة')
 
-@section('vendor-style')
-    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
-@endsection
 
-@section('vendor-script')
-    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
-@endsection
 
 @section('toastr')
     @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])

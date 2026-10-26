@@ -36,7 +36,6 @@ class AdminTicketsDataTable extends AbstractDataTable
                 'width' => '10px',
                 'titleAttr' => 'تحديد الكل',
             ],
-            ['data' => 'DT_RowIndex',   'name' => 'DT_RowIndex',   'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '30px'],
             ['data' => 'ticket_number', 'name' => 'ticket_number', 'title' => 'رقم التذكرة'],
             ['data' => 'tenant_name',   'name' => 'tenant_name',   'title' => 'المستأجر'],
             ['data' => 'customer_name', 'name' => 'customer_name', 'title' => 'صاحب التذكرة'],

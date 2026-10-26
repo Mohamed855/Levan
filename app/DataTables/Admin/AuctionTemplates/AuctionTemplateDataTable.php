@@ -51,7 +51,7 @@ class AuctionTemplateDataTable extends AbstractDataTable
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم القالب', 'className' => 'text-start'],
             ['data' => 'type', 'name' => 'type', 'title' => 'النوع', 'className' => 'text-center'],
             ['data' => 'version', 'name' => 'current_version', 'title' => 'الإصدار الحالي', 'className' => 'text-center'],
-            ['data' => 'status', 'name' => 'status', 'title' => 'حالة النشر', 'className' => 'text-center'],
+            ['data' => 'publication_status', 'name' => 'status', 'title' => 'حالة النشر', 'className' => 'text-center'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإضافة', 'className' => 'text-center'],
             ['data' => 'is_active', 'name' => 'is_active', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
@@ -84,7 +84,7 @@ class AuctionTemplateDataTable extends AbstractDataTable
                     : '<span class="text-muted">—</span>';
             })
 
-            ->addColumn('status', function ($row) {
+            ->addColumn('publication_status', function ($row) {
                 $isPublished = $row->status === 'published';
                 return '<span class="badge '.($isPublished ? 'bg-label-success' : 'bg-label-warning').'">'
                     .($isPublished ? 'منشور' : 'مسودة').'</span>';
@@ -127,7 +127,7 @@ class AuctionTemplateDataTable extends AbstractDataTable
             'name',
             'type',
             'version',
-            'status',
+            'publication_status',
             'created_at',
             'is_active',
             'actions',

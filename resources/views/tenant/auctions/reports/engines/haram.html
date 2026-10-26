@@ -64,16 +64,46 @@ function shapeText(text,font){
 const measure=document.createElement('canvas').getContext('2d');
 function drawText(parent,meta,value,options={}){
  if(value==='')return;
- const font=fonts.get(meta.font)||pack.fonts[0],size=meta.sy||meta.size;
- const x=options.center??(meta.rtl?meta.x+meta.width:meta.x),y=options.y??meta.y;
- const width=options.width??Math.max(meta.width,meta.size*2),anchor=options.center!==undefined?'middle':meta.rtl?'end':'start';
+ const font=fonts.get(meta.font)||pack.fonts[0];
+ let size=options.size||meta.sy||meta.size;
+ if(meta.id==='f21'||meta.id==='f22')size=42;
+ const isRtl=meta.rtl||/[\u0600-\u06ff]/.test(value);
+ const width=options.width??Math.max(meta.width,size*2);
  const shapedResult=shapeText(value,font),shaped=shapedResult.text,family=shapedResult.fallback?'Tahoma,Arial,sans-serif':`${font.css},Tahoma,Arial,sans-serif`;
  if(shapedResult.fallback)warnings.add(`تم استخدام خط عربي بديل للنص «${value.slice(0,35)}»؛ أرفق ${font.name} الكامل لاستعادة نفس الخط.`);
- const text=svgNode('text',{x,y,fill:meta.color,'font-family':family,'font-size':size,'font-weight':font.weight||400,'text-anchor':anchor,'direction':meta.rtl?'rtl':'ltr','unicode-bidi':'plaintext','font-kerning':'none','data-replacement':meta.id});
- if(meta.size!==size)text.setAttribute('transform',`translate(${x} 0) scale(${meta.size/size} 1) translate(${-x} 0)`);
+
+ const isCentered=options.center!==undefined||options.align==='center'||meta.align==='center'||(meta.width>280&&meta.y<450);
+ let anchor='start',x=meta.x,y=options.y??meta.y;
+
+ if(options.center!==undefined){
+  anchor='middle';
+  x=options.center;
+ }else if(isCentered){
+  anchor='middle';
+  x=meta.x+meta.width/2;
+ }else if(isRtl){
+  x=meta.x+meta.width;
+  anchor='start';
+ }else{
+  x=meta.x;
+  anchor='start';
+ }
+
  const lines=shaped.split('\n');
  measure.font=`${size}px ${family}`;
- lines.forEach((line,i)=>{const t=svgNode('tspan',{x,dy:i?size*1.17:0});t.textContent=line;text.append(t);if(measure.measureText(line).width>width+1)warnings.add(`النص «${value.slice(0,35)}» أطول من المساحة الأصلية؛ راجع عرضه قبل الطباعة.`);});
+ const maxLineWidth=Math.max(...lines.map(l=>measure.measureText(l).width));
+ if(maxLineWidth>width&&width>20){
+  const scale=Math.max(0.68,width/maxLineWidth);
+  size=Math.round(size*scale*10)/10;
+  measure.font=`${size}px ${family}`;
+ }
+
+ const text=svgNode('text',{x,y,fill:meta.color,'font-family':family,'font-size':size,'font-weight':font.weight||400,'text-anchor':anchor,'direction':isRtl?'rtl':'ltr','unicode-bidi':'plaintext','font-kerning':'none','data-replacement':meta.id});
+ lines.forEach((line,i)=>{
+  const t=svgNode('tspan',{x,dy:i?size*1.17:0});
+  t.textContent=line;
+  text.append(t);
+ });
  parent.append(text);
  return text;
 }
@@ -139,9 +169,17 @@ function renderPage(instance,segment=0,interactive=false){
   }
  }
  for(const [iid,uri]of Object.entries(instance.images||{})){
-  const image=svg.querySelector(`[data-image-def="${iid}"]`);if(!image)continue;
-  image.setAttributeNS(XL,'xlink:href',uri);image.setAttribute('preserveAspectRatio','xMidYMid slice');
-  if(model.raster){const info=model.images.find(i=>i.id===iid),b=info.bbox;const photo=svgNode('image',{x:b[0],y:b[1],width:b[2]-b[0],height:b[3]-b[1],preserveAspectRatio:'xMidYMid slice'});photo.setAttributeNS(XL,'xlink:href',uri);svg.insertBefore(photo,svg.children[2]||overlay);}
+  const images=svg.querySelectorAll(`[data-image-def="${iid}"]`);
+  if(!images.length)continue;
+  if(!uri||uri==='none'||uri==='hidden'){
+   for(const img of images)img.setAttribute('visibility','hidden');
+   continue;
+  }
+  for(const img of images){
+   img.setAttributeNS(XL,'xlink:href',uri);
+   img.setAttribute('preserveAspectRatio','xMidYMid slice');
+   img.removeAttribute('visibility');
+  }
  }
  if(interactive){
   for(const f of model.fields){

@@ -58,8 +58,7 @@ class TicketsDataTable extends AbstractDataTable
     public function dataTable($query)
     {
         $datatable = datatables()
-            ->collection($query)
-            ->addIndexColumn();
+            ->collection($query);
 
         $this->addCustomColumns($datatable);
 
@@ -69,8 +68,6 @@ class TicketsDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'DT_RowIndex',           'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '50px'],
-
             ['data' => 'ticket_number',         'title' => 'رقم التذكرة', 'className' => 'text-start'],
             ['data' => 'title',                 'title' => 'العنوان', 'className' => 'text-start'],
             ['data' => 'ticketing_sections_id', 'title' => 'التصنيف', 'className' => 'text-start'],

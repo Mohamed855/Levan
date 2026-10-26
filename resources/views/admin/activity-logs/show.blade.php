@@ -3,11 +3,11 @@
 @section('title', 'تفاصيل النشاط')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/css/shared/tab.css'])
+    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/css/shared/tab.css'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/js/tenant/settings/tab.js', 'resources/assets/js/tenant/settings/system-settings.js'])
+    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/js/tenant/settings/tab.js', 'resources/assets/js/tenant/settings/system-settings.js'])
 @endsection
 
 @section('content')

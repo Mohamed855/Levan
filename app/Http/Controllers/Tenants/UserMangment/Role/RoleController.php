@@ -74,7 +74,6 @@ class RoleController extends Controller
                 }
 
                 return DataTables::of($query)
-                    ->addIndexColumn()
                     ->addColumn('checkbox', function ($row) {
                         return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
                     })

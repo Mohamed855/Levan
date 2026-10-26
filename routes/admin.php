@@ -3,43 +3,68 @@
 use App\Http\Controllers\Admin\ActivityLog\AdminActivityLogController;
 use App\Http\Controllers\Admin\AdminMangment\Roles\AdminRoleController;
 use App\Http\Controllers\Admin\AdminMangment\Users\AdminUserController;
-use App\Http\Controllers\Admin\Auth\AdminAuthController;
-use App\Http\Controllers\Admin\Auth\AdminTwoFactorChallengeController;
-use App\Http\Controllers\Admin\Auth\AdminTwoFactorSettingsController;
-use App\Http\Controllers\Admin\AuctionTemplates\AuctionTemplateController;
-use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\Archive\AdminUser\AdminUserController as AdminUserAdminUserController;
 use App\Http\Controllers\Admin\Archive\Bill\BillArchiveController;
 use App\Http\Controllers\Admin\Archive\Coupon\CouponArchiveController;
 use App\Http\Controllers\Admin\Archive\Plan\PlanArchiveController;
 use App\Http\Controllers\Admin\Archive\Tenant\TenantArchiveController;
+use App\Http\Controllers\Admin\AuctionTemplates\AuctionTemplateController;
+use App\Http\Controllers\Admin\Auth\AdminAuthController;
+use App\Http\Controllers\Admin\Auth\AdminTwoFactorChallengeController;
+use App\Http\Controllers\Admin\Auth\AdminTwoFactorSettingsController;
 use App\Http\Controllers\Admin\Bills\AdminBillsController;
 use App\Http\Controllers\Admin\Clients\ClientController;
 use App\Http\Controllers\Admin\Coupons\AdminCouponController;
 use App\Http\Controllers\Admin\Dashboard\DashboardController;
 use App\Http\Controllers\Admin\DeleteBulk\AdminMassDeleteController;
+use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\Plans\PlanController;
+use App\Http\Controllers\Admin\PublicRequests\ContactRequestController;
+use App\Http\Controllers\Admin\PublicRequests\TrialRequestController;
 use App\Http\Controllers\Admin\Settings\Bank\SettingsBankController;
 use App\Http\Controllers\Admin\Settings\Domain\SettingsDomainController;
 use App\Http\Controllers\Admin\Settings\SettingsController;
 use App\Http\Controllers\Admin\SubscriptionManagement\SubscriptionManagementController;
 use App\Http\Controllers\Admin\Subscriptions\SubscriptionController as CentralSubscriptionController;
 use App\Http\Controllers\Admin\Tickets\AdminTicketController;
-use App\Http\Controllers\Admin\PublicRequests\ContactRequestController;
-use App\Http\Controllers\Admin\PublicRequests\TrialRequestController;
 use App\Http\Controllers\Shared\Wizard\WizardDraftController;
 use App\Http\Controllers\Tenants\Auth\NewPasswordController;
 use Illuminate\Support\Facades\Route;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Route::name('password.reset')->get('reset-password/{token}', [NewPasswordController::class, 'create']);
 
 Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active', 'admin.2fa.force'])->group(function () {
     Route::prefix('wizard-drafts')->name('wizard-drafts.')->group(function () {
         Route::get('/', [WizardDraftController::class, 'show'])->name('index');
-        Route::get('file', [WizardDraftController::class, 'showFile'])->name('file.show');
-        Route::match(['post', 'put', 'patch'], '/', [WizardDraftController::class, 'store'])->name('store');
         Route::delete('/', [WizardDraftController::class, 'destroy'])->name('destroy');
-        Route::delete('file', [WizardDraftController::class, 'destroyFile'])->name('file.destroy');
+        Route::prefix('file')->name('file.')->group(function () {
+            Route::get('/', [WizardDraftController::class, 'showFile'])->name('show');
+            Route::delete('/', [WizardDraftController::class, 'destroyFile'])->name('destroy');
+        });
+        Route::match(['post', 'put', 'patch'], '/', [WizardDraftController::class, 'store'])->name('store');
         Route::match(['post', 'put', 'patch'], 'validate-step', [WizardDraftController::class, 'validateStep'])->name('validate-step');
     });
 
@@ -59,12 +84,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
             Route::patch('{domain}/toggle-status', [SettingsDomainController::class, 'toggleStatus'])->name('toggle-status');
         });
 
-        // اعدادات النظاام
         Route::get('/', [SettingsController::class, 'index'])->name('index');
         Route::put('/', [SettingsController::class, 'update'])->name('update');
     });
 
-    // تنبيهات الاشتراكات
     Route::prefix('subscription-manage')->name('subscriptionManage.')->group(function () {
         Route::middleware('can:subscriptions.pending.view')->group(function () {
             Route::get('pending', [SubscriptionManagementController::class, 'pending'])->name('pending');
@@ -104,7 +127,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
         Route::get('plans/{plan}/duration', [ClientController::class, 'planDuration'])->name('plan-duration');
         Route::resource('/', ClientController::class)->parameters(['' => 'client']);
     });
-
 
     // ادارة الاشتراكات
     Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
@@ -181,7 +203,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
             ->parameters(['' => 'bill']);
     });
 
-    // Tickets Management
     Route::prefix('tickets')->name('tickets.')->group(function () {
         Route::post('/toggle-service', [AdminTicketController::class, 'toggleService'])->name('toggleService');
         Route::post('/{ticket}/reply', [AdminTicketController::class, 'reply'])->name('reply');
@@ -244,7 +265,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('guest:admin')->group(function () {
         Route::match(['post', 'put', 'patch'], 'form-validation', [WizardDraftController::class, 'validateStep'])
             ->defaults('shared_form_validation_actions', [
-                AdminAuthController::class . '@login',
+                AdminAuthController::class.'@login',
             ])
             ->name('form-validation');
 

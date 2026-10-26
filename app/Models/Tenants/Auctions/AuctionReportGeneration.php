@@ -36,4 +36,14 @@ final class AuctionReportGeneration extends Model
     {
         return $this->status === 'ready' && filled($this->outputs_path) && filled($this->report_path);
     }
+
+    public function isProcessing(): bool
+    {
+        return in_array($this->status, ['queued', 'processing'], true);
+    }
+
+    public function isFailed(): bool
+    {
+        return $this->status === 'failed';
+    }
 }

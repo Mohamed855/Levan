@@ -185,21 +185,19 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>#</th>
                                 <th>اسم المالك</th>
                                 <th>رقم الهوية / السجل التجاري</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($property->owners as $idx => $owner)
+                            @forelse($property->owners as $owner)
                                 <tr>
-                                    <td>{{ $idx + 1 }}</td>
                                     <td class="fw-medium">{{ $owner->owner_name }}</td>
                                     <td><code>{{ $owner->national_id_or_cr }}</code></td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="text-center py-4 text-muted">لم يتم تسجيل ملاك للعقار.</td>
+                                    <td colspan="2" class="text-center py-4 text-muted">لم يتم تسجيل ملاك للعقار.</td>
                                 </tr>
                             @endforelse
                         </tbody>

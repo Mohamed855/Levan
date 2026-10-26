@@ -6,7 +6,6 @@ use App\Http\Controllers\Shared\Wizard\WizardDraftController;
 use App\Http\Controllers\Tenants\activity_log\ActivityLogController;
 use App\Http\Controllers\Tenants\Archive\Assignment\AssignmentArchiveController;
 use App\Http\Controllers\Tenants\Archive\Auction\AuctionArchiveController;
-use App\Http\Controllers\Tenants\Archive\Company\CompanyArchiveController;
 use App\Http\Controllers\Tenants\Archive\Property\PropertyArchiveController;
 use App\Http\Controllers\Tenants\Archive\User\UserArchiveController;
 use App\Http\Controllers\Tenants\Assignments\AssignmentsController;
@@ -24,7 +23,6 @@ use App\Http\Controllers\Tenants\Auth\RegisteredUserController;
 use App\Http\Controllers\Tenants\Auth\VerifyEmailController;
 use App\Http\Controllers\Tenants\Auth\PasswordController;
 use App\Http\Controllers\Tenants\Bills\BillsController;
-use App\Http\Controllers\Tenants\BusinessCenter\Company\CompanyController;
 use App\Http\Controllers\Tenants\ChartSetting\ChartSettingController;
 use App\Http\Controllers\Tenants\Dashboard\DashboardController;
 use App\Http\Controllers\Tenants\DeleteBulk\MassDeleteController;
@@ -70,8 +68,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 RoleController::class.'@store',
                 RoleController::class.'@update',
                 SettingsController::class.'@update',
-                CompanyController::class.'@store',
-                CompanyController::class.'@update',
                 AssignmentsController::class.'@store',
                 AssignmentsController::class.'@update',
                 PropertiesController::class.'@store',
@@ -336,21 +332,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         Route::resource('auctions', AuctionsController::class)
             ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Company Management (الشركات / العملاء)
-        |--------------------------------------------------------------------------
-        */
-        Route::prefix('companies')->name('companies.')->group(function () {
-            Route::name('index')->get('/', [CompanyController::class, 'index']);
-            Route::name('create')->get('create', [CompanyController::class, 'create']);
-            Route::name('store')->post('/', [CompanyController::class, 'store']);
-            Route::name('show')->get('{company}', [CompanyController::class, 'show']);
-            Route::name('edit')->get('{company}/edit', [CompanyController::class, 'edit']);
-            Route::name('update')->put('{company}', [CompanyController::class, 'update']);
-            Route::name('destroy')->delete('{company}', [CompanyController::class, 'destroy']);
-            Route::name('toggle-status')->patch('{company}/toggle-status', [CompanyController::class, 'toggleStatus']);
-        });
 
         /*
         |--------------------------------------------------------------------------
@@ -388,14 +369,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('archive')->name('archive.')->group(function () {
-            // Company Archive
-            Route::prefix('companies')->name('companies.')->group(function () {
-                Route::name('index')->get('/', [CompanyArchiveController::class, 'index']);
-                Route::name('restore')->patch('{company}/restore', [CompanyArchiveController::class, 'restore']);
-                Route::name('force-delete')->delete('{company}/force-delete', [CompanyArchiveController::class, 'forceDelete']);
-                Route::name('mass-restore')->post('mass-restore', [CompanyArchiveController::class, 'massRestore']);
-                Route::name('mass-force-delete')->delete('mass-force-delete', [CompanyArchiveController::class, 'massForceDelete']);
-            });
 
             // User Archive
             Route::prefix('users')->name('users.')->group(function () {

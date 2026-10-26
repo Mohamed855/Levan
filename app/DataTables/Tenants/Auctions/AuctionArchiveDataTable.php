@@ -10,14 +10,6 @@ class AuctionArchiveDataTable extends AbstractDataTable
 {
     private string $route = 'archive.auctions';
 
-    public function dataTable($query)
-    {
-        $datatable = datatables()->eloquent($query)->addIndexColumn();
-        $this->addCustomColumns($datatable);
-
-        return $datatable->rawColumns($this->rawColumns());
-    }
-
     protected function getTableId(): string
     {
         return 'auctions-archive-table';
@@ -39,7 +31,6 @@ class AuctionArchiveDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم المزاد'],
             ['data' => 'assignment_name', 'name' => 'assignment.name', 'title' => 'الإسناد المرتبط'],
             ['data' => 'city', 'name' => 'city', 'title' => 'المدينة'],

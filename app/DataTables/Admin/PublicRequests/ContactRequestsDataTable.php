@@ -22,7 +22,7 @@ final class ContactRequestsDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id', 'name' => 'id', 'title' => '#'],
+            ['data' => 'id', 'name' => 'id', 'title' => 'رقم الطلب'],
             ['data' => 'customer_name', 'name' => 'customer_name', 'title' => 'الاسم'],
             ['data' => 'customer_email', 'name' => 'customer_email', 'title' => 'البريد'],
             ['data' => 'status', 'name' => 'status', 'title' => 'الحالة'],

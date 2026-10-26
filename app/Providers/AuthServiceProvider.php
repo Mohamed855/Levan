@@ -19,7 +19,6 @@ use App\Models\Admin\Tenants\Tenant;
 use App\Models\Admin\Tickets\Ticket;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
-use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Policies\Admin\AuctionTemplates\AuctionTemplatePolicy;
@@ -40,7 +39,6 @@ use App\Policies\Shared\RolePolicy;
 use App\Policies\Tenants\ActivityLog\ActivityLogPolicy;
 use App\Policies\Tenants\Assignments\AssignmentPolicy;
 use App\Policies\Tenants\Auctions\AuctionPolicy;
-use App\Policies\Tenants\BusinessCenter\Company\CompanyPolicy;
 use App\Policies\Tenants\Properties\PropertyPolicy;
 use App\Policies\Tenants\UserManagement\User\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -72,7 +70,6 @@ class AuthServiceProvider extends ServiceProvider
         Assignment::class => AssignmentPolicy::class,
         Property::class => PropertyPolicy::class,
         Auction::class => AuctionPolicy::class,
-        Company::class => CompanyPolicy::class,
         User::class => UserPolicy::class,
         Activity::class => ActivityLogPolicy::class,
         Role::class => RolePolicy::class,

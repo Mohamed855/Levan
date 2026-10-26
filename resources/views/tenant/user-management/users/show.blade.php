@@ -3,7 +3,7 @@
 @section('title', 'الملف الشخصي للمستخدم')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+    @vite(['resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss'])
 @endsection
 
 @section('page-style')
@@ -11,7 +11,7 @@
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js'])
 @endsection
 
 @section('toastr')

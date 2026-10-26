@@ -41,7 +41,6 @@ trait CommonSettingController
                 ]);
 
                 return datatables()->of($setting)
-                    ->addIndexColumn() // إضافة الترقيم التلقائي
                     ->addColumn('checkbox', function ($row) {
                         return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
                     })

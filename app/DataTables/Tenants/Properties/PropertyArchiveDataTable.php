@@ -10,14 +10,6 @@ class PropertyArchiveDataTable extends AbstractDataTable
 {
     private string $route = 'archive.properties';
 
-    public function dataTable($query)
-    {
-        $datatable = datatables()->eloquent($query)->addIndexColumn();
-        $this->addCustomColumns($datatable);
-
-        return $datatable->rawColumns($this->rawColumns());
-    }
-
     protected function getTableId(): string
     {
         return 'properties-archive-table';
@@ -39,7 +31,6 @@ class PropertyArchiveDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
             ['data' => 'property_number', 'name' => 'property_number', 'title' => 'رقم العقار'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم العقار'],
             ['data' => 'assignment_name', 'name' => 'assignment.name', 'title' => 'الإسناد التابع له'],

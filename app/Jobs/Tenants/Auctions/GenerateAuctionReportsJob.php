@@ -10,6 +10,7 @@ use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionReportGeneration;
 use App\Services\Tenants\Auctions\Reports\AuctionReportDataBuilder;
 use App\Services\Tenants\Auctions\Reports\AuctionReportRenderer;
+use App\Services\Tenants\Auctions\Reports\AuctionReportService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -39,9 +40,13 @@ class GenerateAuctionReportsJob implements ShouldQueue
         AuctionReportRenderer $renderer,
         BrowserDocumentRenderer $pdfRenderer,
     ): void {
-        $alreadyInitialized = tenancy()->initialized && tenant('id') === $this->tenantId;
+        $previousTenant = tenancy()->initialized ? tenant() : null;
+        $alreadyInitialized = $previousTenant && (string) $previousTenant->getTenantKey() === $this->tenantId;
 
         if (! $alreadyInitialized) {
+            if (tenancy()->initialized) {
+                tenancy()->end();
+            }
             $tenant = Tenant::findOrFail($this->tenantId);
             tenancy()->initialize($tenant);
         }
@@ -51,6 +56,9 @@ class GenerateAuctionReportsJob implements ShouldQueue
         } finally {
             if (! $alreadyInitialized) {
                 tenancy()->end();
+                if ($previousTenant) {
+                    tenancy()->initialize($previousTenant);
+                }
             }
         }
     }
@@ -76,13 +84,20 @@ class GenerateAuctionReportsJob implements ShouldQueue
             ->max('id');
 
         if ($latestId > $this->generationId) {
-            return; // إصدار قديم — لا يلغي الأحدث
+            $generation->update(['status' => 'superseded', 'completed_at' => now()]);
+            return;
         }
 
         $generation->update([
             'status' => 'processing',
             'started_at' => now(),
         ]);
+
+        $baseDir = 'auction-reports/'.$this->auctionId.'/'.$this->revisionToken;
+        $outputsPath = $baseDir.'/outputs.pdf';
+        $reportPath = $baseDir.'/report.pdf';
+        $outputsTmp = sys_get_temp_dir().'/auction-outputs-'.$this->revisionToken.'.pdf';
+        $reportTmp = sys_get_temp_dir().'/auction-report-'.$this->revisionToken.'.pdf';
 
         try {
             /** @var Auction $auction */
@@ -92,38 +107,34 @@ class GenerateAuctionReportsJob implements ShouldQueue
 
             $snapshot = $generation->snapshot ?? $dataBuilder->build($auction);
 
-            // إنشاء مسارات التخزين المعزولة
-            $baseDir = 'auctions/reports/' . $this->auctionId . '/' . $this->revisionToken;
-            $outputsPath = $baseDir . '/outputs.pdf';
-            $reportPath = $baseDir . '/report.pdf';
-
-            // توليد HTML لكل تصميم
             $outputsHtml = $renderer->html($snapshot, 'outputs');
-            $reportHtml = $renderer->html($snapshot, 'report');
-
-            // مسارات الملفات المؤقتة للتوليد
-            $outputsTmp = sys_get_temp_dir() . '/auction-outputs-' . $this->revisionToken . '.pdf';
-            $reportTmp = sys_get_temp_dir() . '/auction-report-' . $this->revisionToken . '.pdf';
-
-            // توليد PDF عبر Browsershot
             $pdfRenderer->pdf($outputsHtml, $outputsTmp);
+            unset($outputsHtml);
+
+            $reportHtml = $renderer->html($snapshot, 'report');
             $pdfRenderer->pdf($reportHtml, $reportTmp);
+            unset($reportHtml);
 
-            // تخزين الملفات في مسار معزول بـ UUID
-            Storage::disk('tenant_public')->putFileAs(
-                $baseDir,
-                new \Illuminate\Http\File($outputsTmp),
-                'outputs.pdf',
-            );
-            Storage::disk('tenant_public')->putFileAs(
-                $baseDir,
-                new \Illuminate\Http\File($reportTmp),
-                'report.pdf',
-            );
+            $this->assertPdfWasWritten($outputsTmp);
+            $this->assertPdfWasWritten($reportTmp);
 
-            // تنظيف الملفات المؤقتة
-            @unlink($outputsTmp);
-            @unlink($reportTmp);
+            if (! $this->isLatestGeneration()) {
+                $generation->update(['status' => 'superseded', 'completed_at' => now()]);
+                return;
+            }
+
+            $disk = Storage::disk('tenant_private');
+            $outputsWritten = $disk->put($outputsPath, file_get_contents($outputsTmp));
+            $reportWritten = $disk->put($reportPath, file_get_contents($reportTmp));
+            if (! $outputsWritten || ! $reportWritten || ! $disk->exists($outputsPath) || ! $disk->exists($reportPath)) {
+                throw new \RuntimeException('تعذر حفظ ملفي تقرير المزاد في التخزين الخاص.');
+            }
+
+            if (! $this->isLatestGeneration()) {
+                $disk->delete([$outputsPath, $reportPath]);
+                $generation->update(['status' => 'superseded', 'completed_at' => now()]);
+                return;
+            }
 
             $generation->update([
                 'status' => 'ready',
@@ -134,13 +145,33 @@ class GenerateAuctionReportsJob implements ShouldQueue
                 'error_message' => null,
             ]);
         } catch (Throwable $e) {
+            Storage::disk('tenant_private')->delete([$outputsPath, $reportPath]);
             $generation->update([
                 'status' => 'failed',
+                'outputs_path' => null,
+                'report_path' => null,
                 'error_message' => $e->getMessage(),
                 'completed_at' => now(),
             ]);
 
             throw $e; // أعد الرمي لكي يُعاد تشغيل الـ Job بعد backoff
+        } finally {
+            @unlink($outputsTmp);
+            @unlink($reportTmp);
+        }
+    }
+
+    private function isLatestGeneration(): bool
+    {
+        return (int) AuctionReportGeneration::query()
+            ->where('auction_id', $this->auctionId)
+            ->max('id') === $this->generationId;
+    }
+
+    private function assertPdfWasWritten(string $path): void
+    {
+        if (! is_file($path) || filesize($path) < 5) {
+            throw new \RuntimeException('محرك PDF لم يُنتج ملفًا صالحًا.');
         }
     }
 
@@ -149,21 +180,8 @@ class GenerateAuctionReportsJob implements ShouldQueue
      */
     public static function dispatchAfterCommit(Auction $auction, string $tenantId): AuctionReportGeneration
     {
-        $dataBuilder = app(AuctionReportDataBuilder::class);
-        $snapshot = $dataBuilder->build($auction);
-        $revisionToken = (string) Str::uuid();
-
-        /** @var AuctionReportGeneration $generation */
-        $generation = $auction->reportGenerations()->create([
-            'revision_token' => $revisionToken,
-            'status' => 'queued',
-            'snapshot' => $snapshot,
-        ]);
-
-        static::dispatch($tenantId, $auction->id, $generation->id, $revisionToken)
-            ->afterCommit();
-
-        return $generation;
+        return app(AuctionReportService::class)->requestGeneration($auction, $tenantId)
+            ?? throw new \RuntimeException('تعذر إنشاء إصدار تقارير المزاد.');
     }
 
     /**

@@ -10,14 +10,6 @@ class AssignmentArchiveDataTable extends AbstractDataTable
 {
     private string $route = 'archive.assignments';
 
-    public function dataTable($query)
-    {
-        $datatable = datatables()->eloquent($query)->addIndexColumn();
-        $this->addCustomColumns($datatable);
-
-        return $datatable->rawColumns($this->rawColumns());
-    }
-
     protected function getTableId(): string
     {
         return 'assignments-archive-table';
@@ -40,7 +32,6 @@ class AssignmentArchiveDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
             ['data' => 'assignment_number', 'name' => 'assignment_number', 'title' => 'رقم الإسناد'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم الإسناد'],
             ['data' => 'issuing_entity', 'name' => 'issuing_entity', 'title' => 'الجهة المسندة'],

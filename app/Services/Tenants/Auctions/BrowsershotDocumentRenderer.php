@@ -28,11 +28,11 @@ final class BrowsershotDocumentRenderer implements BrowserDocumentRenderer
         $timeout = max(180, (int) config('auction-renderer.timeout', 180));
 
         $instance->timeout($timeout)
-            ->format('A4')
+            ->paperSize(8.2766667, 11.6933333, 'in')
+            ->setOption('preferCSSPageSize', true)
             ->margins(0, 0, 0, 0)
             ->showBackground()
             ->waitUntilNetworkIdle()
-            ->waitForFunction('document.body.getAttribute("data-report-ready") === "true"')
             ->save($outputPath);
 
         return $outputPath;

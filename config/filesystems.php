@@ -64,6 +64,14 @@ return [
             'throw'      => false,
         ],
 
+        'tenant_private' => [
+            'driver' => 'local',
+            'root' => env('TENANT_PRIVATE_STORAGE_ROOT', storage_path('app/tenants-private')),
+            'visibility' => 'private',
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

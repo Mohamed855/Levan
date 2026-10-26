@@ -87,8 +87,7 @@ abstract class AbstractDataTable extends DataTable
     protected function buildEloquentDataTable($query)
     {
         $datatable = datatables()
-            ->eloquent($query)
-            ->addIndexColumn();
+            ->eloquent($query);
 
         $this->addCustomColumns($datatable);
 
@@ -106,7 +105,6 @@ abstract class AbstractDataTable extends DataTable
 
         return datatables()
             ->collection($rows)
-            ->addIndexColumn()
             ->rawColumns($this->rawColumns());
     }
 

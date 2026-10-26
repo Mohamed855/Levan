@@ -8,6 +8,8 @@ use Carbon\Carbon;
 
 final class AuctionTemplateDataBuilder
 {
+    private const TRANSPARENT_PIXEL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAA=';
+
     private static ?string $almaraiRegularBase64 = null;
     private static ?string $almaraiBoldBase64 = null;
 
@@ -23,6 +25,8 @@ final class AuctionTemplateDataBuilder
         $assignment = $snapshot['assignment'] ?? [];
         $properties = $snapshot['properties'] ?? [];
         $totals = $snapshot['totals'] ?? [];
+        $evidence = $snapshot['evidence'] ?? [];
+        $marketing = $snapshot['marketing'] ?? [];
 
         $name = (string) ($auction['name'] ?? 'مزاد عقاري');
         $manager = (string) ($auction['project_manager_name'] ?? 'إدارة المزادات');
@@ -37,6 +41,11 @@ final class AuctionTemplateDataBuilder
         $startDateStr = $this->formatDate($auction['start_date'] ?? null);
         $endDateStr = $this->formatDate($auction['end_date'] ?? null);
         $dateRange = $startDateStr . ' - ' . $endDateStr;
+
+        $coverImage = $auction['cover_image'] ?? $auction['report_image'] ?? null;
+        $propImages = collect($properties)->pluck('image')->filter()->values()->all();
+        $billboardAttachments = collect($evidence['billboards'] ?? ($evidence['marketing'] ?? []))->pluck('uri')->filter()->values()->all();
+        $brokerAttachments = collect($evidence['brokers'] ?? [])->pluck('uri')->filter()->values()->all();
 
         // Properties table rows
         $propRows = [];
@@ -112,7 +121,6 @@ final class AuctionTemplateDataBuilder
             }
         }
 
-        // Keep at least one placeholder if empty to avoid rendering errors
         if (empty($soldRows)) {
             $soldRows[] = [
                 'source' => 0,
@@ -126,84 +134,124 @@ final class AuctionTemplateDataBuilder
             ];
         }
 
+        $pages = [];
+
+        // Page 0 (Cover)
+        $coverImg0 = $coverImage ?: ($propImages[0] ?? self::TRANSPARENT_PIXEL);
+        $coverImg1 = ($propImages[0] ?? $coverImage) ?: self::TRANSPARENT_PIXEL;
+
+        $pages[] = [
+            'template' => 0,
+            'values' => [
+                'f3' => $name,
+                'f4' => 'مخرجات ' . $name,
+                'f5' => $dateRange,
+                'f6' => (string) count($properties),
+                'f7' => \Illuminate\Support\Str::limit($manager, 12),
+                'f8' => \Illuminate\Support\Str::limit($assignmentName, 12),
+                'f14' => '- ' . $name,
+            ],
+            'images' => [
+                'i0' => $coverImg0,
+                'i1' => $coverImg1,
+            ],
+            'tables' => (object)[],
+        ];
+
+        // Page 1 (Properties list)
+        $pages[] = [
+            'template' => 1,
+            'values' => [
+                'f5' => $manager,
+                'f6' => $name,
+                'f7' => $assignmentName,
+                'f11' => $endDateStr . ' م',
+                'f12' => $startDateStr . ' م',
+                'f89' => 'مخرجات المزاد - ' . $name,
+            ],
+            'images' => (object)[],
+            'tables' => [
+                'properties' => $propRows,
+            ],
+        ];
+
+        // Page 2 (Sales summary & Unsold)
+        $pages[] = [
+            'template' => 2,
+            'values' => [
+                'f7' => 'نظمت شركة ليفان العقارية مزاد ”' . $name . '“ وفق أعلى معايير الشفافية والتنظيم الاحترافي تحت إشراف مركز الإسناد والتصفية (إنفاذ).',
+                'f84' => 'مخرجات المزاد - ' . $name,
+            ],
+            'images' => (object)[],
+            'tables' => [
+                'sold' => $soldRows,
+                'unsold' => $unsoldRows,
+            ],
+        ];
+
+        // Page 3 (Marketing) - include only if marketing data or evidence exists
+        $hasMarketingData = !empty($marketing) || !empty($evidence['marketing'] ?? null);
+        if ($hasMarketingData) {
+            $mImages = [];
+            for ($i = 0; $i <= 8; $i++) {
+                $mImages['i' . $i] = self::TRANSPARENT_PIXEL;
+            }
+            $pages[] = [
+                'template' => 3,
+                'values' => [
+                    'f69' => 'مخرجات المزاد - ' . $name,
+                ],
+                'images' => $mImages,
+                'tables' => (object)[],
+            ];
+        }
+
+        // Page 4 (Billboards) - include only if billboard attachments exist
+        if (!empty($billboardAttachments)) {
+            $bbImages = [];
+            for ($i = 0; $i <= 10; $i++) {
+                $bbImages['i' . $i] = $billboardAttachments[$i] ?? self::TRANSPARENT_PIXEL;
+            }
+            $pages[] = [
+                'template' => 4,
+                'values' => [
+                    'f8' => 'مخرجات المزاد - ' . $name,
+                ],
+                'images' => $bbImages,
+                'tables' => (object)[],
+            ];
+        }
+
+        // Page 5 (Broker partners) - include only if broker attachments exist
+        if (!empty($brokerAttachments)) {
+            $brImages = [];
+            for ($i = 0; $i <= 2; $i++) {
+                $brImages['i' . $i] = $brokerAttachments[$i] ?? self::TRANSPARENT_PIXEL;
+            }
+            $pages[] = [
+                'template' => 5,
+                'values' => [
+                    'f6' => 'مخرجات المزاد - ' . $name,
+                ],
+                'images' => $brImages,
+                'tables' => (object)[],
+            ];
+        }
+
+        // Page 6 (Closing)
+        $pages[] = [
+            'template' => 6,
+            'values' => [
+                'f6' => '- ' . $name,
+            ],
+            'images' => (object)[],
+            'tables' => (object)[],
+        ];
+
         return [
             'version' => 1,
             'template' => 'haram',
-            'pages' => [
-                [
-                    'template' => 0,
-                    'values' => [
-                        'f3' => $name,
-                        'f4' => 'مخرجات ' . $name,
-                        'f5' => $dateRange,
-                        'f6' => (string) count($properties),
-                        'f7' => $manager,
-                        'f8' => $assignmentName,
-                        'f14' => '- ' . $name,
-                    ],
-                    'images' => (object)[],
-                    'tables' => (object)[],
-                ],
-                [
-                    'template' => 1,
-                    'values' => [
-                        'f5' => $manager,
-                        'f6' => $name,
-                        'f7' => $assignmentName,
-                        'f11' => $endDateStr . ' م',
-                        'f12' => $startDateStr . ' م',
-                        'f89' => 'مخرجات المزاد - ' . $name,
-                    ],
-                    'images' => (object)[],
-                    'tables' => [
-                        'properties' => $propRows,
-                    ],
-                ],
-                [
-                    'template' => 2,
-                    'values' => [
-                        'f7' => 'نظمت شركة ليفان العقارية مزاد ”' . $name . '“ وفق أعلى معايير الشفافية والتنظيم الاحترافي تحت إشراف مركز الإسناد والتصفية (إنفاذ).',
-                        'f84' => 'مخرجات المزاد - ' . $name,
-                    ],
-                    'images' => (object)[],
-                    'tables' => [
-                        'sold' => $soldRows,
-                        'unsold' => $unsoldRows,
-                    ],
-                ],
-                [
-                    'template' => 3,
-                    'values' => [
-                        'f69' => 'مخرجات المزاد - ' . $name,
-                    ],
-                    'images' => (object)[],
-                    'tables' => (object)[],
-                ],
-                [
-                    'template' => 4,
-                    'values' => [
-                        'f8' => 'مخرجات المزاد - ' . $name,
-                    ],
-                    'images' => (object)[],
-                    'tables' => (object)[],
-                ],
-                [
-                    'template' => 5,
-                    'values' => [
-                        'f6' => 'مخرجات المزاد - ' . $name,
-                    ],
-                    'images' => (object)[],
-                    'tables' => (object)[],
-                ],
-                [
-                    'template' => 6,
-                    'values' => [
-                        'f6' => '- ' . $name,
-                    ],
-                    'images' => (object)[],
-                    'tables' => (object)[],
-                ],
-            ],
+            'pages' => $pages,
             'customFonts' => $this->getCustomFonts('haram'),
         ];
     }
@@ -219,6 +267,8 @@ final class AuctionTemplateDataBuilder
         $auction = $snapshot['auction'] ?? [];
         $assignment = $snapshot['assignment'] ?? [];
         $properties = $snapshot['properties'] ?? [];
+        $totals = $snapshot['totals'] ?? [];
+        $evidence = $snapshot['evidence'] ?? [];
 
         $name = (string) ($auction['name'] ?? 'مزاد عقاري');
         $manager = (string) ($auction['project_manager_name'] ?? 'إدارة المزادات');
@@ -232,6 +282,25 @@ final class AuctionTemplateDataBuilder
 
         $startDateStr = $this->formatDate($auction['start_date'] ?? null);
         $endDateStr = $this->formatDate($auction['end_date'] ?? null);
+
+        $startCarbon = !empty($auction['start_date']) ? Carbon::parse($auction['start_date'])->locale('ar') : null;
+        $endCarbon = !empty($auction['end_date']) ? Carbon::parse($auction['end_date'])->locale('ar') : null;
+
+        $startDayNum = $startCarbon ? $startCarbon->translatedFormat('d') : '—';
+        $startMonth = $startCarbon ? $startCarbon->translatedFormat('F') : '—';
+        $startYear = $startCarbon ? $startCarbon->translatedFormat('Y') : '—';
+        $startDayName = $startCarbon ? 'يوم ' . $startCarbon->translatedFormat('l') : '—';
+        $startTime = !empty($auction['start_time']) ? 'الساعة ' . $auction['start_time'] : 'الساعة 10:00 صباحاً';
+
+        $endDayNum = $endCarbon ? $endCarbon->translatedFormat('d') : '—';
+        $endMonth = $endCarbon ? $endCarbon->translatedFormat('F') : '—';
+        $endYear = $endCarbon ? $endCarbon->translatedFormat('Y') : '—';
+        $endDayName = $endCarbon ? 'يوم ' . $endCarbon->translatedFormat('l') : '—';
+        $endTime = !empty($auction['end_time']) ? 'الساعة ' . $auction['end_time'] : 'الساعة 05:00 مساءً';
+
+        $coverImage = $auction['cover_image'] ?? $auction['report_image'] ?? null;
+        $propImages = collect($properties)->pluck('image')->filter()->values()->all();
+        $billboardAttachments = collect($evidence['billboards'] ?? ($evidence['marketing'] ?? []))->pluck('uri')->filter()->values()->all();
 
         // Properties table rows
         $propRows = [];
@@ -325,26 +394,45 @@ final class AuctionTemplateDataBuilder
 
         $pages = [];
 
-        // Page 0 (Cover)
-        $pages[0] = [
+        // Page 0 (Cover) - replace all cover image layers (top watermark and bottom landscape)
+        $coverImgUri = $coverImage ?: ($propImages[0] ?? self::TRANSPARENT_PIXEL);
+        $pages[] = [
             'template' => 0,
             'values' => [
                 'f0' => $name,
                 'f1' => 'التقرير النهائي لمزاد ' . $name,
             ],
-            'images' => (object)[],
+            'images' => [
+                'i0' => $coverImgUri,
+                'i2' => $coverImgUri,
+                'i3' => $coverImgUri,
+                'i5' => $coverImgUri,
+            ],
             'tables' => (object)[],
         ];
 
         // Page 1 (Project details & Properties)
-        $pages[1] = [
+        $pages[] = [
             'template' => 1,
             'values' => [
                 'f3' => $manager,
                 'f4' => $name,
-                'f5' => $assignmentName,
+                'f5' => \Illuminate\Support\Str::limit($assignmentName, 26),
+                'f9' => $endDayName,
+                'f11' => $startDayName,
+                'f12' => $endMonth,
+                'f13' => $startMonth,
                 'f14' => $endDateStr,
                 'f15' => $startDateStr,
+                'f16' => '',
+                'f17' => $endYear,
+                'f18' => $startYear,
+                'f19' => $endTime,
+                'f20' => $startTime,
+                'f21' => $endDayNum,
+                'f22' => $startDayNum,
+                'f23' => '',
+                'f24' => '', // Hide duplicate glued header string
             ],
             'images' => (object)[],
             'tables' => [
@@ -353,7 +441,7 @@ final class AuctionTemplateDataBuilder
         ];
 
         // Page 2 (Intro)
-        $pages[2] = [
+        $pages[] = [
             'template' => 2,
             'values' => [
                 'f0' => 'قـامت شركــة ليفـان  العقــاريـة بالتحضيـر',
@@ -363,18 +451,38 @@ final class AuctionTemplateDataBuilder
             'tables' => (object)[],
         ];
 
-        // Fill pages 3 to 17 as standard design pages
-        for ($i = 3; $i <= 17; $i++) {
-            $pages[$i] = [
-                'template' => $i,
+        // Page 7 (Property Photos) - include only if property images exist
+        if (!empty($propImages)) {
+            $pImages = [];
+            for ($i = 2; $i <= 7; $i++) {
+                $idx = $i - 2;
+                $pImages['i' . $i] = $propImages[$idx] ?? ($propImages[0] ?? self::TRANSPARENT_PIXEL);
+            }
+            $pages[] = [
+                'template' => 7,
                 'values' => (object)[],
-                'images' => (object)[],
+                'images' => $pImages,
+                'tables' => (object)[],
+            ];
+        }
+
+        // Page 8 (Billboard Photos) - include only if billboard evidence exists
+        if (!empty($billboardAttachments)) {
+            $bImages = [];
+            for ($i = 2; $i <= 9; $i++) {
+                $idx = $i - 2;
+                $bImages['i' . $i] = $billboardAttachments[$idx] ?? self::TRANSPARENT_PIXEL;
+            }
+            $pages[] = [
+                'template' => 8,
+                'values' => (object)[],
+                'images' => $bImages,
                 'tables' => (object)[],
             ];
         }
 
         // Page 18 (Sold results)
-        $pages[18] = [
+        $pages[] = [
             'template' => 18,
             'values' => (object)[],
             'images' => (object)[],
@@ -383,18 +491,20 @@ final class AuctionTemplateDataBuilder
             ],
         ];
 
-        // Page 19 (Unsold results)
-        $pages[19] = [
-            'template' => 19,
-            'values' => (object)[],
-            'images' => (object)[],
-            'tables' => [
-                'unsold' => $unsoldRows,
-            ],
-        ];
+        // Page 19 (Unsold results) - include only if there are unsold properties
+        if (($totals['unsold_count'] ?? 0) > 0) {
+            $pages[] = [
+                'template' => 19,
+                'values' => (object)[],
+                'images' => (object)[],
+                'tables' => [
+                    'unsold' => $unsoldRows,
+                ],
+            ];
+        }
 
         // Page 20 (Closing)
-        $pages[20] = [
+        $pages[] = [
             'template' => 20,
             'values' => (object)[],
             'images' => (object)[],
@@ -452,9 +562,9 @@ final class AuctionTemplateDataBuilder
     private function loadAlmaraiFonts(): void
     {
         if (self::$almaraiRegularBase64 === null) {
-            $regPath = public_path('static/fonts/almarai/Almarai-Regular.ttf');
-            if (file_exists($regPath)) {
-                self::$almaraiRegularBase64 = base64_encode(file_get_contents($regPath));
+            $regularPath = public_path('static/fonts/almarai/Almarai-Regular.ttf');
+            if (file_exists($regularPath)) {
+                self::$almaraiRegularBase64 = base64_encode(file_get_contents($regularPath));
             } else {
                 self::$almaraiRegularBase64 = '';
             }
@@ -477,7 +587,8 @@ final class AuctionTemplateDataBuilder
         }
 
         try {
-            return Carbon::parse($date)->translatedFormat('d F Y');
+            $carbon = Carbon::parse($date)->locale('ar');
+            return $carbon->translatedFormat('d F Y');
         } catch (\Throwable) {
             return (string) $date;
         }

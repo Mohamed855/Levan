@@ -5,18 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Tenants\Auctions;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\Tenants\Auctions\GenerateAuctionReportsJob;
 use App\Models\Tenants\Auctions\Auction;
-use App\Models\Tenants\Auctions\AuctionReportGeneration;
+use App\Services\Tenants\Auctions\Reports\AuctionReportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class AuctionReportController extends Controller
 {
-    public function __construct()
+    public function __construct(private readonly AuctionReportService $reportService)
     {
         $this->middleware('auth:tenant');
         $this->middleware('can:auctions.view');
@@ -73,14 +71,14 @@ final class AuctionReportController extends Controller
         );
 
         abort_unless(
-            Storage::disk('tenant_public')->exists($generation->outputs_path),
+            Storage::disk('tenant_private')->exists($generation->outputs_path),
             404,
             'الملف غير موجود على القرص.',
         );
 
         $fileName = 'مخرجات-مزاد-' . $auction->id . '.pdf';
 
-        return Storage::disk('tenant_public')->download($generation->outputs_path, $fileName);
+        return Storage::disk('tenant_private')->download($generation->outputs_path, $fileName);
     }
 
     /**
@@ -99,36 +97,33 @@ final class AuctionReportController extends Controller
         );
 
         abort_unless(
-            Storage::disk('tenant_public')->exists($generation->report_path),
+            Storage::disk('tenant_private')->exists($generation->report_path),
             404,
             'الملف غير موجود على القرص.',
         );
 
         $fileName = 'تقرير-مزاد-' . $auction->id . '.pdf';
 
-        return Storage::disk('tenant_public')->download($generation->report_path, $fileName);
+        return Storage::disk('tenant_private')->download($generation->report_path, $fileName);
     }
 
     /**
      * إعادة محاولة / بدء توليد ملفات المزاد.
      */
-    public function retry(Request $request, Auction $auction): JsonResponse
+    public function retry(Auction $auction): JsonResponse
     {
-        $this->authorize('view', $auction);
+        $this->authorize('update', $auction);
 
         $tenantId = (string) (tenant('id') ?: tenant()?->id);
 
         try {
-            $generation = GenerateAuctionReportsJob::dispatchSyncNow(
-                $auction->loadMissing(['assignment', 'properties', 'attachments']),
-                $tenantId,
-            );
+            $generation = $this->reportService->retryLatest($auction, $tenantId);
 
             return response()->json([
                 'success' => true,
                 'status' => $generation->status,
-                'message' => $generation->isReady() ? 'تم تجهيز ملفات المزاد بنجاح.' : 'تمت معالجة طلب التجهيز.',
-            ]);
+                'message' => 'تمت جدولة إعادة تجهيز ملفات المزاد.',
+            ], 202);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,

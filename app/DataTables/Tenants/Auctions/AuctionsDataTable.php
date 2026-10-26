@@ -28,7 +28,6 @@ class AuctionsDataTable extends AbstractDataTable
     {
         return [
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
-            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم المزاد', 'width' => '200px'],
             ['data' => 'assignment', 'name' => 'assignment_id', 'title' => 'الإسناد', 'width' => '150px'],
             ['data' => 'start_date', 'name' => 'start_date', 'title' => 'تاريخ البداية', 'width' => '130px'],

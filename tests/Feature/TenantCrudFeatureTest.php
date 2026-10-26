@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Admin\Tenants\Tenant;
-use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -173,87 +172,14 @@ class TenantCrudFeatureTest extends TestCase
     }
 
     /**
-     * Test 5: Companies CRUD & Archive Lifecycle (Create -> Edit -> Show -> Soft Delete -> Restore -> Permanently Delete)
-     */
-    public function test_companies_crud_and_archive_lifecycle(): void
-    {
-        Storage::fake('public');
-
-        // 1. Index
-        $indexResponse = $this->get($this->tenantUrl('companies'));
-        $indexResponse->assertStatus(200);
-
-        // 2. Create view
-        $createResponse = $this->get($this->tenantUrl('companies/create'));
-        $createResponse->assertStatus(200);
-
-        // 3. Store
-        $companyName = 'شركة الاختبار المتحدة ' . rand(100, 999);
-        $fakeLogo = UploadedFile::fake()->image('company_logo.png', 100, 100);
-        $storeResponse = $this->post($this->tenantUrl('companies'), [
-            'name'              => $companyName,
-            'logo'              => $fakeLogo,
-            'target_percentage' => 75,
-            'status'            => 'active',
-        ]);
-        $storeResponse->assertStatus(302);
-
-        $company = Company::where('name', $companyName)->first();
-        $this->assertNotNull($company, 'Company was not created in database.');
-
-        // 4. Show view (renders with all tabs and relations)
-        $showResponse = $this->get($this->tenantUrl("companies/{$company->id}"));
-        $showResponse->assertStatus(200);
-
-        // 5. Edit view
-        $editResponse = $this->get($this->tenantUrl("companies/{$company->id}/edit"));
-        $editResponse->assertStatus(200);
-
-        // 6. Update
-        $updatedCompanyName = $companyName . ' محدثة';
-        $updateResponse = $this->put($this->tenantUrl("companies/{$company->id}"), [
-            'name'              => $updatedCompanyName,
-            'target_percentage' => 85,
-            'status'            => 'active',
-        ]);
-        $updateResponse->assertStatus(302);
-        $company->refresh();
-        $this->assertEquals($updatedCompanyName, $company->name);
-
-        // 7. Soft Delete (Destroy)
-        $destroyResponse = $this->delete($this->tenantUrl("companies/{$company->id}"));
-        $destroyResponse->assertStatus(302);
-        $company->refresh();
-        $this->assertNotNull($company->deleted_at, 'Company was not soft-deleted.');
-
-        // 8. Archive Index
-        $archiveIndexResponse = $this->get($this->tenantUrl('archive/companies'));
-        $archiveIndexResponse->assertStatus(200);
-
-        // 9. Restore
-        $restoreResponse = $this->patch($this->tenantUrl("archive/companies/{$company->id}/restore"));
-        $restoreResponse->assertStatus(302);
-        $company->refresh();
-        $this->assertNull($company->deleted_at, 'Company was not restored.');
-
-        // 10. Force Delete (Permanently Delete)
-        $this->delete($this->tenantUrl("companies/{$company->id}"));
-        $forceDeleteResponse = $this->delete($this->tenantUrl("archive/companies/{$company->id}/force-delete"));
-        $forceDeleteResponse->assertStatus(302);
-        $this->assertDatabaseMissing('companies', ['id' => $company->id]);
-    }
-
-    /**
-     * Test 6: Verify DataTables AJAX endpoints return JSON data correctly
+     * Test 5: Verify DataTables AJAX endpoints return JSON data correctly
      */
     public function test_datatables_ajax_returns_json_and_records(): void
     {
         $endpoints = [
             'users',
             'roles',
-            'companies',
             'archive/users',
-            'archive/companies',
         ];
 
         foreach ($endpoints as $endpoint) {

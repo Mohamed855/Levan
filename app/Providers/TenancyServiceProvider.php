@@ -7,6 +7,7 @@ namespace App\Providers;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use Stancl\JobPipeline\JobPipeline;
 use Stancl\Tenancy\Events;
@@ -125,9 +126,18 @@ class TenancyServiceProvider extends ServiceProvider
                 'filesystems.disks.tenant_public.url',
                 url("tenants/{$tenantId}/public")
             );
+            Config::set(
+                'filesystems.disks.tenant_private.root',
+                storage_path("app/tenants/{$tenantId}/private")
+            );
+            Storage::forgetDisk('tenant_public');
+            Storage::forgetDisk('tenant_private');
         });
 
         Event::listen(TenancyEnded::class, function () {
+            Storage::forgetDisk('tenant_public');
+            Storage::forgetDisk('tenant_private');
+
             if (! app()->runningInConsole()) {
                 Config::set('session.cookie', config('session.cookie')); // ← من config الأصلي
                 Config::set('session.path', '/');

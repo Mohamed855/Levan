@@ -9,20 +9,6 @@ class NotificationsDataTable extends AbstractDataTable
 {
     private $route = 'notifications.all';
 
-    /*
-    |--------------------------------------------------------------------------
-    | Build DataTable
-    |--------------------------------------------------------------------------
-    | Build the DataTable response and mark raw columns.
-    */
-    public function dataTable($query)
-    {
-        $datatable = datatables()->eloquent($query)->addIndexColumn();
-
-        $this->addCustomColumns($datatable);
-
-        return $datatable->rawColumns($this->rawColumns());
-    }
 
     /*
     |--------------------------------------------------------------------------

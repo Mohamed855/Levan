@@ -6,18 +6,13 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
-
 Route::prefix('central')->middleware(['web'])->group(function () {
-    //خاص للتحقق من الكوبون
     Route::prefix('coupon')->group(function () {
         Route::post('validate-coupon', [SubscriptionController::class, 'validateCoupon']);
         Route::post('remove-coupon', [SubscriptionController::class, 'removeCoupon']);
     });
 });
 
-
-
-// الترقية
 Route::post('tenants/{tenantId}/upgrade', function (Request $request, string $tenantId) {
     $requestId = (string) $request->attributes->get('tenant_upgrade_request_id');
 
@@ -28,7 +23,7 @@ Route::post('tenants/{tenantId}/upgrade', function (Request $request, string $te
         ]);
 
         if ($exitCode !== 0) {
-            throw new \RuntimeException('فشل تشغيل migrations');
+            throw new RuntimeException('فشل تشغيل migrations');
         }
 
         return response()->json([
@@ -37,7 +32,7 @@ Route::post('tenants/{tenantId}/upgrade', function (Request $request, string $te
             'tenant_id' => $tenantId,
             'request_id' => $requestId,
         ]);
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         Log::error('Tenant upgrade migration failed.', [
             'tenant_id' => $tenantId,
             'request_id' => $requestId,

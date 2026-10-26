@@ -11,11 +11,13 @@ use App\Http\Requests\Tenants\Auctions\UpdateAuctionRequest;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
+use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Route as RouteFacade;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Permission;
 use Tests\Support\TenantAuctionReportTestCase;
 
 final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
@@ -170,6 +172,73 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
             $auction->attachments()->whereIn('report_section', ['board_before', 'board_after'])
                 ->orderBy('report_section')->pluck('property_id')->all(),
         );
+    }
+
+    public function test_http_create_stores_the_required_report_image(): void
+    {
+        Storage::fake('tenant_public');
+
+        $owner = User::query()->where('email', 'demo@levan.com')->firstOrFail();
+        $property = Property::query()->whereNotNull('assignment_id')->firstOrFail();
+        $assignment = Assignment::query()->findOrFail($property->assignment_id);
+        $payload = $this->validPayload($assignment) + [
+            'name' => 'مزاد HTTP '.uniqid(),
+            'report_image' => UploadedFile::fake()->image('http-report.webp'),
+            'property_ids' => [$property->id],
+        ];
+
+        $response = $this->actingAs($owner, 'tenant')
+            ->post('http://test.localhost/auctions', $payload);
+
+        $response->assertSessionHasNoErrors();
+        $auction = Auction::query()->where('name', $payload['name'])->latest('id')->firstOrFail();
+        $response->assertRedirect('http://test.localhost/auctions/'.$auction->id);
+        self::assertNotNull($auction->report_image);
+        Storage::disk('tenant_public')->assertExists($auction->report_image);
+    }
+
+    public function test_report_queue_failure_does_not_rollback_a_successful_auction_save(): void
+    {
+        Storage::fake('tenant_public');
+        config(['auction-renderer.queue_connection' => 'missing-auction-report-connection']);
+
+        $assignment = $this->assignment('QUEUE-FAILURE');
+
+        $auction = app(CreateAuctionAction::class)->execute(
+            $this->validPayload($assignment),
+            null,
+            null,
+            [],
+            UploadedFile::fake()->image('report.webp'),
+        );
+
+        self::assertTrue($auction->exists);
+        self::assertDatabaseHas('auctions', ['id' => $auction->id, 'report_image' => $auction->report_image]);
+        Storage::disk('tenant_public')->assertExists($auction->report_image);
+    }
+
+    public function test_user_with_view_permission_cannot_retry_report_generation(): void
+    {
+        $assignment = $this->assignment('RETRY-AUTH');
+        $auction = $this->auction($assignment);
+        $owner = User::query()->where('email', 'demo@levan.com')->firstOrFail();
+        $permission = Permission::query()->firstOrCreate([
+            'name' => 'auctions.view',
+            'guard_name' => 'tenant',
+        ]);
+        $viewer = User::query()->create([
+            'name' => 'مشاهد تقارير المزاد',
+            'employee_number' => 'REPORT-VIEWER-'.uniqid(),
+            'email' => 'report-viewer-'.uniqid().'@levan.test',
+            'password' => bcrypt('Password123!'),
+            'status' => 'active',
+            'license_seat_id' => $owner->license_seat_id,
+        ]);
+        $viewer->givePermissionTo($permission);
+
+        $this->actingAs($viewer, 'tenant')
+            ->postJson('http://test.localhost/auctions/'.$auction->id.'/reports/retry')
+            ->assertForbidden();
     }
 
     public function test_update_retains_or_replaces_report_image_without_losing_results(): void

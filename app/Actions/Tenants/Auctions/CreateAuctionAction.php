@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Actions\Tenants\Auctions;
 
 use App\Enums\Tenants\Auctions\AuctionStatus;
-use App\Jobs\Tenants\Auctions\GenerateAuctionReportsJob;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Auctions\AuctionReportInputService;
+use App\Services\Tenants\Auctions\Reports\AuctionReportService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -21,6 +21,7 @@ final class CreateAuctionAction
 {
     public function __construct(
         private readonly AuctionReportInputService $reportInputs,
+        private readonly AuctionReportService $reportService,
     ) {}
 
     /**
@@ -59,7 +60,7 @@ final class CreateAuctionAction
         $storedPaths = [];
 
         try {
-            return DB::transaction(function () use ($data, $creatorId, $coverImage, $attachments, $reportImage, $marketingEvidence, $boardImagesBefore, $boardImagesAfter, &$storedPaths): Auction {
+            $auction = DB::transaction(function () use ($data, $creatorId, $coverImage, $attachments, $reportImage, $marketingEvidence, $boardImagesBefore, $boardImagesAfter, &$storedPaths): Auction {
                 $assignmentId = (int) ($data['assignment_id'] ?? 0);
                 $assignment = Assignment::query()
                     ->whereKey($assignmentId)
@@ -144,18 +145,18 @@ final class CreateAuctionAction
 
                 return $auction->load(['properties', 'attachments', 'assignment']);
             });
-
-            if (tenancy()->initialized && tenant('id')) {
-                GenerateAuctionReportsJob::dispatchAfterCommit($auction, (string) tenant('id'));
-            }
-
-            return $auction;
         } catch (Throwable $e) {
             if (! empty($storedPaths)) {
                 Storage::disk('tenant_public')->delete($storedPaths);
             }
             throw $e;
         }
+
+        if (tenancy()->initialized && tenant('id')) {
+            $this->reportService->requestGeneration($auction, (string) tenant('id'));
+        }
+
+        return $auction;
     }
 
 }

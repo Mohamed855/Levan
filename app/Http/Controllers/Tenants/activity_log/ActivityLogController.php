@@ -59,7 +59,6 @@ class ActivityLogController extends Controller
             $this->applyFilters($query, $request);
 
             return DataTables::of($query)
-                ->addIndexColumn()
                 ->addColumn('checkbox', function ($activity) {
                     return '<input type="checkbox" class="row-checkbox" value="'.$activity->id.'">';
                 })
