@@ -80,20 +80,15 @@
                 const id = $(this).data('id');
                 const form = document.getElementById('delete-form-' + id);
 
-                Swal.fire({
+                if (!form) return;
+
+                window.confirmAction({
                     title: 'هل أنت متأكد من حذف هذا العميل؟',
                     text: 'سيتم نقل العميل للأرشيف وحذف جميع اشتراكاته نهائياً.',
-                    icon: 'warning',
-                    showCancelButton: true,
                     confirmButtonText: 'نعم، حذف العميل',
-                    cancelButtonText: 'إلغاء',
-                    customClass: {
-                        confirmButton: 'btn btn-danger me-3',
-                        cancelButton: 'btn btn-secondary'
-                    },
-                    buttonsStyling: false
-                }).then(function(result) {
-                    if (result.isConfirmed && form) {
+                    confirmButtonClass: 'btn btn-danger',
+                    icon: 'ti ti-alert-triangle text-danger',
+                    onConfirm: function() {
                         form.submit();
                     }
                 });

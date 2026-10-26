@@ -39,83 +39,52 @@ window.toggleLicense = async function (element, userId) {
 async function showConfirmationDialog(isChecked) {
     const actionText = isChecked ? 'تفعيل' : 'إلغاء';
 
-    const result = await Swal.fire({
+    return await window.confirmActionAsync({
         title: `تأكيد ${actionText} الترخيص`,
         text: `هل أنت متأكد من ${actionText} الترخيص لهذا المستخدم؟`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'تأكيد',
-        cancelButtonText: 'إلغاء',
-        reverseButtons: false,
-        buttonsStyling: false,
-        customClass: {
-            confirmButton: 'btn btn-success me-2',
-            cancelButton: 'btn btn-danger',
-            popup: 'custom-popup',
-            title: 'custom-title',
-            text: 'custom-text'
-        }
+        variant: isChecked ? 'primary' : 'warning',
+        icon: isChecked ? 'ti-check' : 'ti-alert-triangle',
+        confirmText: 'تأكيد',
+        confirmClass: isChecked ? 'btn btn-primary px-4' : 'btn btn-warning px-4 text-white',
+        cancelText: 'إلغاء',
     });
-
-    return result.isConfirmed;
 }
 
 
 function showLoadingDialog(isChecked) {
-    Swal.fire({
-        title: isChecked ? 'جاري تفعيل الترخيص...' : 'جاري إلغاء الترخيص...',
-        text: 'الرجاء الانتظار...',
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showConfirmButton: false,
-        didOpen: () => Swal.showLoading(),
-        customClass: {
-            popup: 'custom-popup',
-            title: 'custom-title',
-            text: 'custom-text'
-        }
-    });
+    if (typeof toastr !== 'undefined') {
+        toastr.info(isChecked ? 'جاري تفعيل الترخيص...' : 'جاري إلغاء الترخيص...');
+    }
 }
 
 
 function showSuccessMessage(isChecked, message) {
-    Swal.fire({
-        icon: 'success',
-        title: isChecked ? 'تم التفعيل بنجاح!' : 'تم الإلغاء بنجاح!',
-        text: message || '',
-        timer: 2500,
-        showConfirmButton: false,
-        customClass: {
-            popup: 'custom-popup',
-            title: 'custom-title',
-            text: 'custom-text'
-        }
-    });
+    if (typeof toastr !== 'undefined') {
+        toastr.success(message || (isChecked ? 'تم التفعيل بنجاح!' : 'تم الإلغاء بنجاح!'));
+    }
 }
 
 
 function showErrorDialog(message, icon, title, showUpgradeButton) {
-    Swal.fire({
-        icon,
-        title,
-        text: message,
-        showCancelButton: showUpgradeButton,
-        showConfirmButton: true,
-        confirmButtonText: showUpgradeButton ? 'شراء تراخيص جديدة' : 'حسناً',
-        cancelButtonText: 'إلغاء',
-        buttonsStyling: false,
-        customClass: {
-            confirmButton: showUpgradeButton ? 'btn btn-primary' : 'btn btn-danger',
-            cancelButton: 'btn btn-secondary ms-2',
-            popup: 'custom-popup',
-            title: 'custom-title',
-            text: 'custom-text'
-        }
-    }).then((result) => {
-        if (result.isConfirmed && showUpgradeButton) {
-            redirectToSubscriptions();
-        }
-    });
+    if (showUpgradeButton) {
+        window.confirmAction({
+            title: title || 'تنبيه',
+            text: message,
+            variant: 'warning',
+            icon: 'ti-shopping-cart',
+            confirmText: 'شراء تراخيص جديدة',
+            confirmClass: 'btn btn-primary px-4',
+            cancelText: 'إلغاء',
+            onConfirm: function() {
+                redirectToSubscriptions();
+            }
+        });
+        return;
+    }
+
+    if (typeof toastr !== 'undefined') {
+        toastr.error(message || 'حدث خطأ');
+    }
 }
 
 
@@ -161,8 +130,6 @@ function performLicenseAction(element, userId, isChecked, originalState) {
 */
 
 function handleSuccess(response, isChecked, element, originalState) {
-    Swal.close();
-
     if (response.success) {
         showSuccessMessage(isChecked, response.message);
         reloadUsersTable();
@@ -176,7 +143,7 @@ function handleSuccess(response, isChecked, element, originalState) {
 
 
 function handleError(xhr, status, element, originalState) {
-    Swal.close();
+    element.checked = originalState;
     element.checked = originalState;
 
     if (status === 'timeout') {

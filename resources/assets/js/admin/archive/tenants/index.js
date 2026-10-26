@@ -72,25 +72,13 @@ function confirmRestore(id) {
         return;
     }
 
-    Swal.fire({
+    window.confirmAction({
         title: 'هل أنت متأكد؟',
         text: 'سيتم استرجاع هذا العميل من الأرشيف',
-        icon: 'question',
-        showCancelButton: true,
-        showConfirmButton: true,
-        showDenyButton: false,
-        buttonsStyling: false,
-        customClass: {
-            popup: 'custom-popup',
-            title: 'custom-title',
-            text: 'custom-text',
-            confirmButton: 'btn btn-success custom-confirm',
-            cancelButton: 'btn btn-danger custom-cancel'
-        },
         confirmButtonText: 'نعم، استرجع',
-        cancelButtonText: 'إلغاء',
-    }).then((result) => {
-        if (result.isConfirmed) {
+        confirmButtonClass: 'btn btn-primary',
+        icon: 'ti ti-refresh text-primary',
+        onConfirm: function () {
             executeRestore(id);
         }
     });
@@ -108,25 +96,13 @@ function confirmForceDelete(userId) {
         return;
     }
 
-    Swal.fire({
+    window.confirmAction({
         title: 'تحذير!',
-        text: 'سيتم حذف هذا الكوبون نهائياً ولا يمكن استرجاعها',
-        icon: 'warning',
-        showCancelButton: true,
-        showConfirmButton: true,
-        showDenyButton: false,
-        buttonsStyling: false,
-        customClass: {
-            popup: 'custom-popup',
-            title: 'custom-title',
-            text: 'custom-text',
-            confirmButton: 'btn btn-success custom-confirm',
-            cancelButton: 'btn btn-danger custom-cancel'
-        },
+        text: 'سيتم حذف هذا العميل نهائياً ولا يمكن استرجاعه',
         confirmButtonText: 'نعم، احذف نهائياً',
-        cancelButtonText: 'إلغاء',
-    }).then((result) => {
-        if (result.isConfirmed) {
+        confirmButtonClass: 'btn btn-danger',
+        icon: 'ti ti-trash text-danger',
+        onConfirm: function () {
             executeForceDelete(userId);
         }
     });
@@ -145,25 +121,13 @@ function handleMassRestore() {
         return;
     }
 
-    Swal.fire({
+    window.confirmAction({
         title: 'استعادة جماعية',
-        text: `سيتم استرجاع ${selectedIds.length} شركة من الأرشيف`,
-        icon: 'question',
-        showCancelButton: true,
-        showConfirmButton: true,
-        showDenyButton: false,
-        buttonsStyling: false,
-        customClass: {
-            popup: 'custom-popup',
-            title: 'custom-title',
-            text: 'custom-text',
-            confirmButton: 'btn btn-success custom-confirm',
-            cancelButton: 'btn btn-danger custom-cancel'
-        },
+        text: `سيتم استرجاع ${selectedIds.length} عميل من الأرشيف`,
         confirmButtonText: 'استرجع الكل',
-        cancelButtonText: 'إلغاء',
-    }).then((result) => {
-        if (result.isConfirmed) {
+        confirmButtonClass: 'btn btn-primary',
+        icon: 'ti ti-refresh text-primary',
+        onConfirm: function () {
             executeMassRestore(selectedIds);
         }
     });
@@ -197,50 +161,13 @@ function handleMassForceDelete() {
         return;
     }
 
-    Swal.fire({
+    window.confirmAction({
         title: 'تحذير خطير!',
-        text: `سيتم حذف ${selectedIds.length} شركة نهائياً ولا يمكن استرجاعها`,
-        icon: 'warning',
-        showCancelButton: true,
-        showConfirmButton: true,
-        showDenyButton: false,
-        buttonsStyling: false,
-        customClass: {
-            popup: 'custom-popup',
-            title: 'custom-title',
-            text: 'custom-text',
-            confirmButton: 'btn btn-success custom-confirm',
-            cancelButton: 'btn btn-danger custom-cancel'
-        },
+        text: `سيتم حذف ${selectedIds.length} عميل نهائياً ولا يمكن استرجاعهم. هل أنت متأكد؟`,
         confirmButtonText: 'نعم، احذف الكل نهائياً',
-        cancelButtonText: 'إلغاء',
-    }).then((result) => {
-        if (result.isConfirmed) {
-            confirmFinalDeletion(selectedIds);
-        }
-    });
-}
-
-function confirmFinalDeletion(selectedIds) {
-    Swal.fire({
-        title: 'تأكيد أخير',
-        text: 'هل أنت متأكد تماماً من هذا الإجراء؟',
-        icon: 'warning',
-        showCancelButton: true,
-        showConfirmButton: true,
-        showDenyButton: false,
-        buttonsStyling: false,
-        customClass: {
-            popup: 'custom-popup',
-            title: 'custom-title',
-            text: 'custom-text',
-            confirmButton: 'btn btn-success custom-confirm',
-            cancelButton: 'btn btn-danger custom-cancel'
-        },
-        confirmButtonText: 'نعم، احذف نهائياً',
-        cancelButtonText: 'إلغاء',
-    }).then((result) => {
-        if (result.isConfirmed) {
+        confirmButtonClass: 'btn btn-danger',
+        icon: 'ti ti-alert-triangle text-danger',
+        onConfirm: function () {
             executeMassForceDelete(selectedIds);
         }
     });
@@ -363,25 +290,13 @@ function showWarning(message) {
 }
 
 function showLoadingSpinner(message = 'جاري المعالجة...') {
-    Swal.fire({
-        title: message,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showConfirmButton: false,
-        buttonsStyling: false,
-        customClass: {
-            popup: 'custom-popup',
-            title: 'custom-title',
-            text: 'custom-text'
-        },
-        willOpen: () => {
-            Swal.showLoading();
-        }
-    });
+    if (typeof toastr !== 'undefined') {
+        toastr.info(message);
+    }
 }
 
 function hideLoadingSpinner() {
-    Swal.close();
+    // Handled by toastr auto-timeout
 }
 
 window.confirmRestore = confirmRestore;

@@ -2,13 +2,6 @@
 
 @section('title', 'مفتاح API وسجل الاستخدام')
 
-@section('vendor-style')
-    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
-@endsection
-
-@section('vendor-script')
-    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
-@endsection
 
 @section('toastr')
     @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
@@ -144,23 +137,15 @@
             const regenerateBtn = document.getElementById('regenerateApiTokenBtn');
             if (regenerateBtn) {
                 regenerateBtn.addEventListener('click', function() {
-                    Swal.fire({
+                    window.confirmAction({
                         title: 'هل أنت متأكد؟',
                         text: 'سيتوقف عمل أي نظام خارجي يستخدم التوكن الحالي فوراً بعد التوليد.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        buttonsStyling: false,
-                        customClass: {
-                            popup: 'custom-popup',
-                            title: 'custom-title',
-                            text: 'custom-text',
-                            confirmButton: 'btn btn-danger custom-confirm',
-                            cancelButton: 'btn btn-secondary custom-cancel'
-                        },
-                        confirmButtonText: 'توليد الآن',
-                        cancelButtonText: 'تراجع'
-                    }).then(function(result) {
-                        if (result.isConfirmed) {
+                        variant: 'warning',
+                        icon: 'ti-alert-triangle',
+                        confirmText: 'توليد الآن',
+                        confirmClass: 'btn btn-danger px-4',
+                        cancelText: 'تراجع',
+                        onConfirm: function() {
                             document.getElementById('regenerateApiTokenForm').submit();
                         }
                     });

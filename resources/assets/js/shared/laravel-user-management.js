@@ -325,48 +325,24 @@ $(function () {
       dtrModal.modal('hide');
     }
 
-    // sweetalert for confirmation of delete
-    Swal.fire({
+    // Bootstrap confirmation for delete
+    window.confirmAction({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
       confirmButtonText: 'Yes, delete it!',
-      customClass: {
-        confirmButton: 'btn btn-primary me-3',
-        cancelButton: 'btn btn-secondary'
-      },
-      buttonsStyling: false
-    }).then(function (result) {
-      if (result.value) {
-        // delete the data
+      confirmButtonClass: 'btn btn-danger',
+      onConfirm: function () {
         $.ajax({
           type: 'DELETE',
           url: `${baseUrl}user-list/${user_id}`,
           success: function () {
             dt_user.draw();
+            if (typeof toastr !== 'undefined') {
+              toastr.success('The user has been deleted!');
+            }
           },
           error: function (error) {
             console.log(error);
-          }
-        });
-
-        // success sweetalert
-        Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: 'The user has been deleted!',
-          customClass: {
-            confirmButton: 'btn btn-success'
-          }
-        });
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        Swal.fire({
-          title: 'Cancelled',
-          text: 'The User is not deleted!',
-          icon: 'error',
-          customClass: {
-            confirmButton: 'btn btn-success'
           }
         });
       }
@@ -469,27 +445,15 @@ $(function () {
       success: function (status) {
         dt_user.draw();
         offCanvasForm.offcanvas('hide');
-
-        // sweetalert
-        Swal.fire({
-          icon: 'success',
-          title: `Successfully ${status}!`,
-          text: `User ${status} Successfully.`,
-          customClass: {
-            confirmButton: 'btn btn-success'
-          }
-        });
+        if (typeof toastr !== 'undefined') {
+          toastr.success(`User ${status} Successfully.`);
+        }
       },
       error: function (err) {
         offCanvasForm.offcanvas('hide');
-        Swal.fire({
-          title: 'Duplicate Entry!',
-          text: 'Your email should be unique.',
-          icon: 'error',
-          customClass: {
-            confirmButton: 'btn btn-success'
-          }
-        });
+        if (typeof toastr !== 'undefined') {
+          toastr.error('Your email should be unique.');
+        }
       }
     });
   });

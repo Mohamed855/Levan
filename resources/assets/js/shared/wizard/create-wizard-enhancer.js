@@ -205,32 +205,16 @@ function fillDraft(form, values, prefix = '') {
 }
 
 async function shouldRestoreDraft() {
-  if (!window.Swal) {
-    await Promise.all([
-      import('../../../assets/vendor/libs/sweetalert2/sweetalert2.js'),
-      import('../../../assets/vendor/libs/sweetalert2/sweetalert2.scss'),
-    ]);
-  }
-
-  if (window.Swal) {
-    const result = await window.Swal.fire({
+  if (typeof window.confirmActionAsync === 'function') {
+    return await window.confirmActionAsync({
       title: 'مسودة محفوظة',
       text: 'توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'نعم، استعادة المسودة',
-      cancelButtonText: 'تجاهل والبدء من جديد',
-      customClass: {
-        popup: 'custom-popup',
-        title: 'custom-title text-center',
-        htmlContainer: 'custom-text text-center',
-        confirmButton: 'btn btn-primary me-2',
-        cancelButton: 'btn btn-secondary',
-      },
-      buttonsStyling: false,
+      variant: 'primary',
+      icon: 'ti-file-pencil',
+      confirmText: 'نعم، استعادة المسودة',
+      confirmClass: 'btn btn-primary px-4',
+      cancelText: 'تجاهل والبدء من جديد',
     });
-
-    return result.isConfirmed;
   }
 
   return window.confirm('توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟');

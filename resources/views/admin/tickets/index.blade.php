@@ -34,15 +34,15 @@
         <input type="hidden" name="tickets_enabled" value="{{ $ticketsEnabled ? '0' : '1' }}">
     </form>
 
-    <x-ui.validation-errors class="mb-4" />
+    <x-ui.validation-errors />
 
     <x-data-table.page table-id="admin-tickets-table">
         <x-slot:stats>
             <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي التذاكر" :value="number_format($stats['total'] ?? 0)" subtitle="إجمالي التذاكر المسجلة"
                 icon="ti-messages" color="primary" />
 
-            <x-ui.stat-card col="col-sm-6 col-xl" title="تذاكر جديدة" :value="number_format($stats['open'] ?? 0)"
-                subtitle="تحتاج للرد والمعالجة" icon="ti-bell-ringing" color="warning" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="تذاكر جديدة" :value="number_format($stats['open'] ?? 0)" subtitle="تحتاج للرد والمعالجة"
+                icon="ti-bell-ringing" color="warning" />
 
             <x-ui.stat-card col="col-sm-6 col-xl" title="قيد المعالجة" :value="number_format($stats['in_progress'] ?? 0)" subtitle="جارٍ العمل عليها"
                 icon="ti-clock" color="info" />
@@ -56,10 +56,10 @@
 
         <x-slot:filters>
             <x-data-table.filters table="#admin-tickets-table">
-                <x-filter.select id="filter-status" filterKey="status" label="حالة التذكرة"
-                    placeholder="اختر حالة التذكرة" :options="$filterOptions['statuses'] ?? []" />
-                <x-filter.select id="filter-section" filterKey="section" label="القسم"
-                    placeholder="اختر القسم" :options="$filterOptions['sections'] ?? []" />
+                <x-filter.select id="filter-status" filterKey="status" label="حالة التذكرة" placeholder="اختر حالة التذكرة"
+                    :options="$filterOptions['statuses'] ?? []" />
+                <x-filter.select id="filter-section" filterKey="section" label="القسم" placeholder="اختر القسم"
+                    :options="$filterOptions['sections'] ?? []" />
                 <x-filter.select id="filter-tenant" filterKey="tenant_id" label="الشركة / المستأجر"
                     placeholder="اختر الشركة" :options="$filterOptions['tenants'] ?? []" />
             </x-data-table.filters>

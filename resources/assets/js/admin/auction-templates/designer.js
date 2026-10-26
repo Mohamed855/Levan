@@ -393,21 +393,15 @@ function initTemplateDesigners() {
         const hasExisting = schema.pages.some((p) => p.elements.length > 0);
         if (hasExisting) {
           let confirmed = false;
-          if (window.Swal) {
-            const res = await window.Swal.fire({
+          if (typeof window.confirmActionAsync === 'function') {
+            confirmed = await window.confirmActionAsync({
               title: 'تطبيق النموذج الجاهز؟',
               text: `هل ترغب في تطبيق نموذج "${sample.title}"؟ سيتم استبدال التصميم الحالي بمحتويات النموذج المختار.`,
-              icon: 'question',
-              showCancelButton: true,
               confirmButtonText: 'نعم، تطبيق النموذج',
               cancelButtonText: 'إلغاء',
-              customClass: {
-                confirmButton: 'btn btn-primary me-2',
-                cancelButton: 'btn btn-label-secondary',
-              },
-              buttonsStyling: false,
+              confirmButtonClass: 'btn btn-primary',
+              icon: 'ti ti-layout-grid-add text-primary',
             });
-            confirmed = res.isConfirmed;
           } else {
             confirmed = window.confirm(`هل ترغب في تطبيق نموذج "${sample.title}"؟ سيتم استبدال التصميم الحالي.`);
           }

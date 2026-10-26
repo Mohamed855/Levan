@@ -45,7 +45,7 @@
             </div>
 
             <x-form.wizard.stepper id="client-edit-stepper" :steps="$steps">
-                <x-ui.validation-errors class="mb-4" />
+                <x-ui.validation-errors />
 
                 <form id="client-edit-form" action="{{ route('admin.clients.update', $target) }}" method="POST"
                     autocomplete="off" data-form-validate

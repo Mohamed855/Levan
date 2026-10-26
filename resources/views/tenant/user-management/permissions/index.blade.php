@@ -3,55 +3,47 @@
 @section('title', 'قائمة الصلاحيات')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/animate-css/animate.scss'])
 @endsection
-
 
 @section('content')
     <x-ui.validation-errors />
 
-    @if (session('success'))
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                Swal.fire({
-                    title: 'تم!',
-                    text: '{{ session('success') }}',
-                    icon: 'success',
-                    confirmButtonText: 'موافق'
-                });
-            });
-        </script>
-    @endif
-
     <!-- Add Permission Modal -->
-    <div class="modal fade" id="addPermissionModal" tabindex="-1" aria-labelledby="addPermissionModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addPermissionModalLabel">
-                        <i class="ti ti-key text-primary me-2"></i>إضافة صلاحية جديدة
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-                </div>
-                <form id="addPermissionForm" action="{{ tenant_route_name('permissions.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <p class="text-muted mb-3">صلاحيات يمكن استخدامها وتعيينها لمستخدميك.</p>
-                        <div class="mb-3">
-                            <label class="form-label" for="modalPermissionName">اسم الصلاحية <span class="text-danger">*</span></label>
-                            <input type="text" id="modalPermissionName" name="name" class="form-control"
-                                placeholder="مثال: properties.view" required />
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
-                        <button type="submit" class="btn btn-primary">إضافة الصلاحية</button>
-                    </div>
-                </form>
+    <x-bootstrap.modal id="addPermissionModal" title="إضافة صلاحية جديدة" icon="ti-key">
+        <form id="addPermissionForm" action="{{ tenant_route_name('permissions.store') }}" method="POST">
+            @csrf
+            <p class="text-muted mb-3">صلاحيات يمكن استخدامها وتعيينها لمستخدميك.</p>
+            <div class="mb-3">
+                <label class="form-label" for="modalPermissionName">اسم الصلاحية <span class="text-danger">*</span></label>
+                <input type="text" id="modalPermissionName" name="name" class="form-control"
+                    placeholder="مثال: properties.view" required />
             </div>
-        </div>
-    </div>
+            <x-slot:footer>
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="submit" class="btn btn-primary">إضافة الصلاحية</button>
+            </x-slot:footer>
+        </form>
+    </x-bootstrap.modal>
     <!--/ Add Permission Modal -->
+
+    <!-- Edit Permission Modal (Single instance outside loop) -->
+    <x-bootstrap.modal id="editPermissionModal" title="تعديل الصلاحية" icon="ti-edit">
+        <form id="editPermissionForm" method="POST" action="">
+            @csrf
+            @method('PUT')
+            <p class="text-muted mb-3">تعديل تفاصيل الصلاحية الحالية.</p>
+            <div class="mb-3">
+                <label class="form-label" for="editModalPermissionName">اسم الصلاحية <span class="text-danger">*</span></label>
+                <input type="text" id="editModalPermissionName" name="name" class="form-control" required />
+            </div>
+            <x-slot:footer>
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="submit" class="btn btn-primary">تحديث الصلاحية</button>
+            </x-slot:footer>
+        </form>
+    </x-bootstrap.modal>
+    <!--/ Edit Permission Modal -->
 
     <div class="card">
         <div class="card-header">
@@ -68,9 +60,9 @@
                     <p>&nbsp;</p>
                 </div>
                 <div class="col-md-3 text-end">
-                    <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPermissionModal">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPermissionModal">
                         <i class="fas fa-plus-circle me-1"></i> إضافة صلاحية جديدة
-                    </a>
+                    </button>
                 </div>
             </div>
 
@@ -98,12 +90,16 @@
                                 <td>{{ $permission->created_at }}</td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
-                                        <a href="#" class="btn btn-icon btn-label-primary" data-bs-toggle="modal"
-                                            data-bs-target="#editPermissionModal-{{ $permission->id }}">
+                                        <button type="button" class="btn btn-icon btn-label-primary js-edit-permission-btn"
+                                            data-id="{{ $permission->id }}"
+                                            data-name="{{ $permission->name }}"
+                                            data-action="{{ tenant_route_name('permissions.update', $permission->id) }}"
+                                            title="تعديل">
                                             <i class="ti ti-edit"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-icon btn-label-primary"
-                                            onclick="confirmDelete({{ $permission->id }})">
+                                        </button>
+                                        <button type="button" class="btn btn-icon btn-label-danger"
+                                            onclick="confirmDelete({{ $permission->id }})"
+                                            title="حذف">
                                             <i class="ti ti-trash"></i>
                                         </button>
                                     </div>
@@ -115,40 +111,6 @@
                                     </form>
                                 </td>
                             </tr>
-
-                            <!-- Edit Permission Modal -->
-                            <div class="modal fade" id="editPermissionModal-{{ $permission->id }}" tabindex="-1"
-                                aria-labelledby="editPermissionModalLabel-{{ $permission->id }}" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="editPermissionModalLabel-{{ $permission->id }}">
-                                                <i class="ti ti-edit text-primary me-2"></i>تعديل الصلاحية
-                                            </h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-                                        </div>
-                                        <form id="editPermissionForm-{{ $permission->id }}"
-                                            action="{{ tenant_route_name('permissions.update', $permission->id) }}"
-                                            method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <div class="modal-body">
-                                                <p class="text-muted mb-3">تعديل تفاصيل الصلاحية الحالية.</p>
-                                                <div class="mb-3">
-                                                    <label class="form-label" for="modalPermissionName-{{ $permission->id }}">اسم الصلاحية <span class="text-danger">*</span></label>
-                                                    <input type="text" id="modalPermissionName-{{ $permission->id }}" name="name"
-                                                        class="form-control" value="{{ $permission->name }}" required />
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
-                                                <button type="submit" class="btn btn-primary">تحديث الصلاحية</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                            <!--/ Edit Permission Modal -->
                         @endforeach
                     @endif
                 </tbody>
@@ -164,21 +126,24 @@
     </div>
 
     <script>
-        function confirmDelete(id) {
-            Swal.fire({
-                title: 'هل أنت متأكد?',
-                text: "لن تتمكن من التراجع عن هذا!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'نعم، احذفه!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('delete-form-' + id).submit();
-                }
-            });
-        }
+        // فتح مودال التعديل وملء البيانات ديناميكياً
+        $(document).on('click', '.js-edit-permission-btn', function (e) {
+            e.preventDefault();
+            const id = $(this).data('id');
+            const name = $(this).data('name');
+            const action = $(this).data('action');
+
+            const form = document.getElementById('editPermissionForm');
+            if (form) form.action = action;
+
+            const input = document.getElementById('editModalPermissionName');
+            if (input) input.value = name;
+
+            const modalEl = document.getElementById('editPermissionModal');
+            if (modalEl) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            }
+        });
 
         // الفلترة والبحث الحي
         function fetchPermissions(page = 1) {
@@ -203,11 +168,11 @@
             });
         }
 
-        document.getElementById('rows-per-page').addEventListener('change', function() {
+        document.getElementById('rows-per-page')?.addEventListener('change', function() {
             fetchPermissions(1);
         });
 
-        document.getElementById('filter-search').addEventListener('keyup', function() {
+        document.getElementById('filter-search')?.addEventListener('keyup', function() {
             fetchPermissions(1);
         });
 

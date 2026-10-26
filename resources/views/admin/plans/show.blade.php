@@ -589,37 +589,21 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'success',
-                                title: response.message || 'تم تحديث حالة الباقة بنجاح',
-                                showConfirmButton: false,
-                                timer: 1500
-                            }).then(() => {
-                                window.location.reload();
-                            });
-                        } else {
-                            window.location.reload();
+                        if (typeof toastr !== 'undefined') {
+                            toastr.success(response.message || 'تم تحديث حالة الباقة بنجاح');
                         }
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1200);
                     } else {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'خطأ',
-                                text: response.message || 'تعذر تحديث حالة الباقة'
-                            });
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(response.message || 'تعذر تحديث حالة الباقة');
                         }
                     }
                 },
                 error: function(xhr) {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'خطأ',
-                            text: xhr.responseJSON?.message || 'حدث خطأ أثناء تحديث حالة الباقة'
-                        });
+                    if (typeof toastr !== 'undefined') {
+                        toastr.error(xhr.responseJSON?.message || 'حدث خطأ أثناء تحديث حالة الباقة');
                     }
                 },
                 complete: function() {

@@ -65,9 +65,9 @@
                     @if ($trialRequest->status->value === 'pending')
                         <p class="text-muted">اختر الإجراء المطلوب لهذا الطلب.</p>
                         <div class="d-flex align-items-center gap-2">
-                            <form method="POST" action="{{ route('admin.trial-requests.approve', $trialRequest) }}" class="m-0 d-inline-flex">
+                            <form id="approveTrialForm" method="POST" action="{{ route('admin.trial-requests.approve', $trialRequest) }}" class="m-0 d-inline-flex">
                                 @csrf
-                                <button type="submit" class="btn btn-sm btn-success">
+                                <button type="button" class="btn btn-sm btn-success js-approve-trial-btn">
                                     <i class="ti ti-check me-1"></i> موافقة وإنشاء شركة
                                 </button>
                             </form>
@@ -86,29 +86,36 @@
     </div>
 
     @if ($trialRequest->status->value === 'pending')
-        <div class="modal fade" id="rejectTrialModal" tabindex="-1" aria-labelledby="rejectTrialModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="rejectTrialModalLabel">
-                            <i class="ti ti-x text-danger me-2"></i>رفض طلب التجربة
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-                    </div>
-                    <form method="POST" action="{{ route('admin.trial-requests.reject', $trialRequest) }}"
-                        data-form-validate>
-                        @csrf
-                        <div class="modal-body">
-                            <p class="text-muted mb-3">يرجى توضيح سبب الرفض ليتم إشعار العميل وتسجيله في الطلب.</p>
-                            <x-form.controls.textarea name="rejection_reason" label="سبب الرفض" rows="4" required />
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
-                            <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+        <x-bootstrap.modal id="rejectTrialModal" title="رفض طلب التجربة" icon="ti-x">
+            <form method="POST" action="{{ route('admin.trial-requests.reject', $trialRequest) }}"
+                data-form-validate>
+                @csrf
+                <p class="text-muted mb-3">يرجى توضيح سبب الرفض ليتم إشعار العميل وتسجيله في الطلب.</p>
+                <x-form.controls.textarea name="rejection_reason" label="سبب الرفض" rows="4" required />
+                <x-slot:footer>
+                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
+                </x-slot:footer>
+            </form>
+        </x-bootstrap.modal>
     @endif
+@endsection
+
+@section('page-script')
+    <script>
+        $(document).on('click', '.js-approve-trial-btn', function(e) {
+            e.preventDefault();
+            window.confirmAction({
+                title: 'الموافقة على طلب التجربة',
+                text: 'هل أنت متأكد من رغبتك في الموافقة على هذا الطلب وإنشاء حساب الشركة والنطاق الفرعي؟',
+                variant: 'success',
+                icon: 'ti-building',
+                confirmText: 'نعم، موافقة وإنشاء',
+                confirmClass: 'btn btn-success px-4',
+                onConfirm: function() {
+                    document.getElementById('approveTrialForm')?.submit();
+                }
+            });
+        });
+    </script>
 @endsection

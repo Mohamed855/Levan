@@ -7,12 +7,6 @@
 @endsection
 
 @section('page-script')
-    {{-- Temporarily disabled reCAPTCHA.
-    <script>
-        window.recaptchaSiteKey = @json(config('services.recaptcha.site_key'));
-    </script>
-    <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
-    --}}
     @vite(['resources/assets/js/shared/form-validation.js'])
 @endsection
 
@@ -33,7 +27,6 @@
     @endif
 
     <main class="site-main">
-        <!-- 1. Hero Section -->
         <section id="home" class="hero-section">
             <div class="container">
                 <div class="hero-grid">
@@ -176,7 +169,6 @@
             </div>
         </section>
 
-        <!-- 4. Call to Action Banner -->
         <section id="call-action" class="cta-section">
             <div class="container">
                 <div class="cta-content scroll-revealed">
@@ -196,146 +188,6 @@
             </div>
         </section>
 
-        {{-- <!-- 5. Portfolios Section -->
-    <section id="portfolios" class="section-area">
-        <div class="container">
-            <x-web.section-header
-                title="المحافظ الشريكة"
-                subtitle="محافظ معتمدة"
-                desc="نفخر بثقة المحافظ والجهات الاستثمارية التي تعتمد على تقنياتنا لتشغيل وإدارة أصولها."
-            />
-
-            <div class="logos-grid">
-                @forelse ($portfolios as $portfolio)
-                    <div class="logo-item scroll-revealed">
-                        <img src="{{ asset('storage/' . $portfolio->logo) }}" alt="{{ $portfolio->name }}" loading="lazy">
-                    </div>
-                @empty
-                    <div class="logos-empty">لا يوجد محافظ معروضة حالياً</div>
-                @endforelse
-            </div>
-        </div>
-    </section>
-
-    <!-- 6. Clients Section -->
-    <section id="clients" class="section-area section-area--alt">
-        <div class="container">
-            <x-web.section-header
-                title="شركاء النجاح"
-                subtitle="عملاؤنا"
-                desc="شراكات نعتز بها ومسيرة مستمرة من النجاح مع كبرى الجهات والشركات."
-            />
-
-            <div class="logos-grid">
-                @forelse ($ourClients as $client)
-                    <div class="logo-item scroll-revealed">
-                        <img src="{{ asset('storage/' . $client->logo) }}" alt="{{ $client->name }}" loading="lazy">
-                    </div>
-                @empty
-                    <div class="logos-empty">لا يوجد عملاء معروضون حالياً</div>
-                @endforelse
-            </div>
-        </div>
-    </section>
-
-    <!-- 7. Testimonials Section -->
-    <section id="testimonials" class="testimonials-section section-area">
-        <div class="container">
-            <x-web.section-header
-                title="ماذا يقول عملاؤنا"
-                subtitle="آراء وتجارب"
-                desc="تجارب حقيقية تعكس الجودة والاحترافية التي نحرص على تقديمها لعملائنا في كل خطوة."
-            />
-
-            <div class="swiper testimonial-carousel scroll-revealed">
-                <div class="swiper-wrapper">
-                    <!-- Slide 1 -->
-                    <div class="swiper-slide">
-                        <div class="testimonial-card">
-                            <p class="testimonial-text">
-                                "قبل منصة لوت كنا نتابع المزادات والإجراءات يدوياً، والآن أصبح كل شيء واضحاً بنقرة واحدة وفي مكان موحد. وفّرت علينا مئات ساعات العمل."
-                            </p>
-                            <div class="testimonial-author">
-                                <h4 class="author-name">خالد العتيبي</h4>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Slide 2 -->
-                    <div class="swiper-slide">
-                        <div class="testimonial-card">
-                            <p class="testimonial-text">
-                                "التقارير التفصيلية ولوحة المؤشرات ساعدتنا في اتخاذ قرارات دقيقة وسريعة. تحسّن مستوى إدارة الأصول والمتابعة بشكل ملموس جداً."
-                            </p>
-                            <div class="testimonial-author">
-                                <h4 class="author-name">نورة الشمري</h4>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Slide 3 -->
-                    <div class="swiper-slide">
-                        <div class="testimonial-card">
-                            <p class="testimonial-text">
-                                "الواجهة عصرية وسهلة الاستخدام، وفريق العمل تمكّن من التعامل مع النظام دون الحاجة لتدريب معقد. تجربة استثنائية بكل المقاييس."
-                            </p>
-                            <div class="testimonial-author">
-                                <h4 class="author-name">فهد القحطاني</h4>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Slide 4 -->
-                    <div class="swiper-slide">
-                        <div class="testimonial-card">
-                            <p class="testimonial-text">
-                                "منذ بدأنا العمل مع لوت أصبحت كامل الوثائق والمستندات مؤرشفة ومنظمة بدقة، وفريق الدعم الفني متجاوب وسريع في تلبية كل المتطلبات."
-                            </p>
-                            <div class="testimonial-author">
-                                <h4 class="author-name">سارة الدوسري</h4>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Slide 5 -->
-                    <div class="swiper-slide">
-                        <div class="testimonial-card">
-                            <p class="testimonial-text">
-                                "ربط المنصة وإطلاق حسابنا تم بسلاسة وسرعة فائقة. التقارير المالية والتشغيلية في لوت ذات مستوى احترافي عالي جداً."
-                            </p>
-                            <div class="testimonial-author">
-                                <h4 class="author-name">عبدالله الزهراني</h4>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Slide 6 -->
-                    <div class="swiper-slide">
-                        <div class="testimonial-card">
-                            <p class="testimonial-text">
-                                "إدارة المزادات والمحافظ المتعددة من لوحة واحدة غيّرت طريقة تنظيمنا بالكامل. نوصي بها لأي جهة تبحث عن الكفاءة والاحترافية."
-                            </p>
-                            <div class="testimonial-author">
-                                <h4 class="author-name">منى الحربي</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Navigation Controls -->
-                <div class="swiper-controls">
-                    <button type="button" class="swiper-btn swiper-button-prev" aria-label="السابق">
-                        <i class="ti ti-arrow-right"></i>
-                    </button>
-                    <button type="button" class="swiper-btn swiper-button-next" aria-label="التالي">
-                        <i class="ti ti-arrow-left"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section> --}}
-
-        <!-- 8. FAQ Section -->
         <section id="faq" class="section-area section-area--alt">
             <div class="container">
                 <x-web.section-header title="الأسئلة الشائعة" subtitle="إجابات واضحة"
@@ -343,10 +195,13 @@
 
                 <div class="faq-grid">
                     @foreach ($faqs as $faq)
-                    <div class="faq-item scroll-revealed">
-                        <div class="faq-icon-wrap"><i class="ti ti-help-circle"></i></div>
-                        <div class="faq-body"><h3 class="faq-question">{{ $faq->question }}</h3><p class="faq-answer">{{ $faq->answer }}</p></div>
-                    </div>
+                        <div class="faq-item scroll-revealed">
+                            <div class="faq-icon-wrap"><i class="ti ti-help-circle"></i></div>
+                            <div class="faq-body">
+                                <h3 class="faq-question">{{ $faq->question }}</h3>
+                                <p class="faq-answer">{{ $faq->answer }}</p>
+                            </div>
+                        </div>
                     @endforeach
                 </div>
             </div>
@@ -370,15 +225,13 @@
             </div>
         </section>
 
-        <!-- 10. Map Section -->
         @php($googleMapsEmbedUrl = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('google_maps_embed_url'))
         @if ($googleMapsEmbedUrl)
-        <section id="map" class="map-section">
-            <iframe
-                src="{{ $googleMapsEmbedUrl }}"
-                allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="موقع لوت LOT">
-            </iframe>
-        </section>
+            <section id="map" class="map-section">
+                <iframe src="{{ $googleMapsEmbedUrl }}" allowfullscreen="" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade" title="موقع لوت LOT">
+                </iframe>
+            </section>
         @endif
     </main>
 

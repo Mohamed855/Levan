@@ -521,37 +521,15 @@ async function restoreDraft(form) {
     }
 
     let shouldRestore = false;
-    let swalInstance = window.Swal;
-    if (!swalInstance && typeof window.Swal === 'undefined') {
-      for (let i = 0; i < 20; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 50));
-        if (window.Swal) {
-          swalInstance = window.Swal;
-          break;
-        }
-      }
-    }
-
-    if (swalInstance) {
-      const result = await swalInstance.fire({
+    if (typeof window.confirmActionAsync === 'function') {
+      shouldRestore = await window.confirmActionAsync({
         title: 'مسودة محفوظة',
         text: 'توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟',
-        icon: 'question',
-        showCancelButton: true,
         confirmButtonText: 'نعم، استعادة المسودة',
         cancelButtonText: 'تجاهل والبدء من جديد',
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        customClass: {
-          popup: 'custom-popup',
-          title: 'custom-title text-center',
-          htmlContainer: 'custom-text text-center',
-          confirmButton: 'btn btn-primary me-2',
-          cancelButton: 'btn btn-secondary',
-        },
-        buttonsStyling: false,
+        confirmButtonClass: 'btn btn-primary',
+        icon: 'ti ti-file-text text-primary',
       });
-      shouldRestore = Boolean(result.isConfirmed);
     } else {
       shouldRestore = Boolean(window.confirm('توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟'));
     }

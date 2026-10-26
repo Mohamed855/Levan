@@ -261,10 +261,10 @@
                             يرجى مراجعة الإيصال قبل التأكيد أو الرفض.
                         </p>
                         <div class="d-flex gap-2">
-                            <form action="{{ route('admin.bills.verify', $bill->id) }}" method="POST"
+                            <form id="verifyBillForm" action="{{ route('admin.bills.verify', $bill->id) }}" method="POST"
                                 class="m-0 flex-fill">
                                 @csrf
-                                <button type="submit" class="btn btn-success btn-sm w-100">
+                                <button type="button" class="btn btn-success btn-sm w-100 js-verify-bill-btn">
                                     <i class="ti ti-check me-1"></i> تأكيد
                                 </button>
                             </form>
@@ -277,34 +277,22 @@
                 </div>
 
                 {{-- Modal الرفض --}}
-                <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="rejectModalLabel">
-                                    <i class="ti ti-ban text-danger me-2"></i>تأكيد الرفض
-                                </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="إغلاق"></button>
-                            </div>
-                            <form action="{{ route('admin.bills.reject', $bill->id) }}" method="POST">
-                                @csrf
-                                <div class="modal-body">
-                                    <label for="reject_reason" class="form-label">سبب الرفض <span
-                                            class="text-danger">*</span></label>
-                                    <textarea class="form-control" id="reject_reason" name="reject_reason" rows="3"
-                                        placeholder="يرجى كتابة سبب رفض الفاتورة..." required></textarea>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-label-secondary"
-                                        data-bs-dismiss="modal">إلغاء</button>
-                                    <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
-                                </div>
-                            </form>
+                <x-bootstrap.modal id="rejectModal" title="تأكيد الرفض" icon="ti-ban">
+                    <form action="{{ route('admin.bills.reject', $bill->id) }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="reject_reason" class="form-label">سبب الرفض <span
+                                    class="text-danger">*</span></label>
+                            <textarea class="form-control" id="reject_reason" name="reject_reason" rows="3"
+                                placeholder="يرجى كتابة سبب رفض الفاتورة..." required></textarea>
                         </div>
-                    </div>
-                </div>
+                        <x-slot:footer>
+                            <button type="button" class="btn btn-label-secondary"
+                                data-bs-dismiss="modal">إلغاء</button>
+                            <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
+                        </x-slot:footer>
+                    </form>
+                </x-bootstrap.modal>
             @endif
 
             {{-- ── بيانات العميل ── --}}
@@ -364,4 +352,23 @@
 
         </div>
     </div>
+@endsection
+
+@section('page-script')
+    <script>
+        $(document).on('click', '.js-verify-bill-btn', function(e) {
+            e.preventDefault();
+            window.confirmAction({
+                title: 'تأكيد الإيصال البنكي',
+                text: 'هل أنت متأكد من صحة الإيصال وتأكيد دفع الفاتورة؟',
+                variant: 'success',
+                icon: 'ti-check',
+                confirmText: 'نعم، تأكيد الدفع',
+                confirmClass: 'btn btn-success px-4',
+                onConfirm: function() {
+                    document.getElementById('verifyBillForm')?.submit();
+                }
+            });
+        });
+    </script>
 @endsection

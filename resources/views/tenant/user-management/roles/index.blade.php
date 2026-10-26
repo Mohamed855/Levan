@@ -163,54 +163,41 @@
     </div>
 
     <!-- مودال تعديل الدور والحالة -->
-    <div class="modal fade" id="editRoleModal" tabindex="-1" aria-labelledby="editRoleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <form id="updateRoleForm">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editRoleModalLabel">
-                            <i class="ti ti-user-shield text-primary me-2"></i>تعديل دور المستخدم والحالة
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-                    </div>
+    <x-bootstrap.modal id="editRoleModal" title="تعديل دور المستخدم والحالة" icon="ti-user-shield">
+        <form id="updateRoleForm">
+            <input type="hidden" id="user-id" name="user_id">
 
-                    <div class="modal-body">
-                        <input type="hidden" id="user-id" name="user_id">
+            <!-- اختيار الدور -->
+            <div class="mb-3">
+                <label for="user-role" class="form-label">
+                    الدور
+                    <span data-toggle="tooltip" data-placement="top"
+                        title="عند تحديث دور المستخدم، سيتم حذف جميع الصلاحيات المضافة فردياً والصلاحيات المنزوعة، وسيتم الاعتماد على صلاحيات الدور الجديد."
+                        class="text-primary-color">
+                        <i class="fa fa-question-circle fa-lg" aria-hidden="true"></i>
+                    </span>
+                </label>
+                <select id="user-role" name="role" class="form-control select2" required>
+                    <option value=""></option>
+                    @foreach ($roles as $role)
+                        <option value="{{ $role->id }}">{{ $role->name }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-                        <!-- اختيار الدور -->
-                        <div class="mb-3">
-                            <label for="user-role" class="form-label">
-                                الدور
-                                <span data-toggle="tooltip" data-placement="top"
-                                    title="عند تحديث دور المستخدم، سيتم حذف جميع الصلاحيات المضافة فردياً والصلاحيات المنزوعة، وسيتم الاعتماد على صلاحيات الدور الجديد."
-                                    class="text-primary-color">
-                                    <i class="fa fa-question-circle fa-lg" aria-hidden="true"></i>
-                                </span>
-                            </label>
-                            <select id="user-role" name="role" class="form-control select2" required>
-                                <option value=""></option>
-                                @foreach ($roles as $role)
-                                    <option value="{{ $role->id }}">{{ $role->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+            <!-- تحديث الحالة (مخفية حالياً) -->
+            <div class="mb-3 d-hidden">
+                <label for="user-status" class="form-label">الحالة</label>
+                <select id="user-status" name="status" class="form-control select2" required>
+                    <option value=""></option>
+                    <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivityStatus::class" />
+                </select>
+            </div>
 
-                        <!-- تحديث الحالة (مخفية حالياً) -->
-                        <div class="mb-3 d-hidden">
-                            <label for="user-status" class="form-label">الحالة</label>
-                            <select id="user-status" name="status" class="form-control select2" required>
-                                <option value=""></option>
-                                <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivityStatus::class" />
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
-                        <button type="submit" class="btn btn-primary">تحديث</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+            <x-slot:footer>
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="submit" class="btn btn-primary">تحديث</button>
+            </x-slot:footer>
+        </form>
+    </x-bootstrap.modal>
 @endsection

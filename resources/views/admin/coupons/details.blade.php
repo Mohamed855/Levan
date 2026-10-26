@@ -611,26 +611,12 @@
                     }, 2000);
                 }
 
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'تم نسخ الكود: ' + code,
-                        showConfirmButton: false,
-                        timer: 2000
-                    });
+                if (typeof toastr !== 'undefined') {
+                    toastr.success('تم نسخ الكود: ' + code);
                 }
             }, function() {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'تعذر نسخ الكود',
-                        showConfirmButton: false,
-                        timer: 2000
-                    });
+                if (typeof toastr !== 'undefined') {
+                    toastr.error('تعذر نسخ الكود');
                 }
             });
         }
@@ -651,37 +637,21 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'success',
-                                title: response.message || 'تم تحديث الحالة بنجاح',
-                                showConfirmButton: false,
-                                timer: 1500
-                            }).then(() => {
-                                window.location.reload();
-                            });
-                        } else {
-                            window.location.reload();
+                        if (typeof toastr !== 'undefined') {
+                            toastr.success(response.message || 'تم تحديث الحالة بنجاح');
                         }
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1200);
                     } else {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'خطأ',
-                                text: response.message || 'تعذر تحديث الحالة'
-                            });
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(response.message || 'تعذر تحديث الحالة');
                         }
                     }
                 },
                 error: function(xhr) {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'خطأ',
-                            text: xhr.responseJSON?.message || 'حدث خطأ أثناء تحديث الحالة'
-                        });
+                    if (typeof toastr !== 'undefined') {
+                        toastr.error(xhr.responseJSON?.message || 'حدث خطأ أثناء تحديث الحالة');
                     }
                 },
                 complete: function() {

@@ -7,9 +7,16 @@
                 <div class="site-error-code">403</div>
                 <h1 class="site-error-title">غير مصرح لك بالدخول</h1>
                 <p class="site-error-desc">ليس لديك الصلاحية الكافية للوصول إلى هذه الصفحة.</p>
-                <div class="site-error-actions"><a href="{{ route('site.index') }}" class="site-error-btn">العودة
-                        للرئيسية</a><a href="{{ route('site.index') }}#contact" class="site-error-btn-outline">تواصل مع
-                        الدعم</a></div>
+                <div class="site-error-actions">
+                    <a href="{{ route('site.index') }}" class="site-error-btn">
+                        <i class="ti ti-home"></i>
+                        <span>العودة للرئيسية</span>
+                    </a>
+                    <a href="{{ route('site.index') }}#contact" class="site-error-btn-outline">
+                        <i class="ti ti-headset"></i>
+                        <span>تواصل مع الدعم</span>
+                    </a>
+                </div>
             </article>
         </div>
 </main>@endsection

@@ -1,3 +1,5 @@
+<x-bootstrap.confirm-modal />
+
 <!-- BEGIN: Vendor JS-->
 @vite([
     'resources/assets/vendor/libs/jquery/jquery.js',
@@ -8,7 +10,6 @@
     'resources/assets/vendor/libs/hammer/hammer.js',
     'resources/assets/vendor/libs/typeahead-js/typeahead.js',
     'resources/assets/vendor/js/menu.js',
-    'resources/assets/vendor/libs/sweetalert2/sweetalert2.js',
     'resources/assets/js/shared/app.js',
 ])
 

@@ -28,7 +28,7 @@
     @vite(['resources/assets/js/admin/plans/index.js'])
 @endsection
 @section('content')
-    <x-ui.validation-errors class="mb-4" />
+    <x-ui.validation-errors />
 
     <x-data-table.page table-id="plans-table">
         <x-slot:stats>
@@ -36,12 +36,12 @@
                 color="primary" col="col-sm-6 col-xl" />
             <x-ui.stat-card title="الباقات النشطة" :value="$activePlans" subtitle="متاحة للاشتراك" icon="ti-bolt" color="success"
                 col="col-sm-6 col-xl" />
-            <x-ui.stat-card title="الباقات غير النشطة" :value="$inactivePlans" subtitle="غير متاحة للاشتراك" icon="ti-calendar-off"
-                color="warning" col="col-sm-6 col-xl" />
+            <x-ui.stat-card title="الباقات غير النشطة" :value="$inactivePlans" subtitle="غير متاحة للاشتراك"
+                icon="ti-calendar-off" color="warning" col="col-sm-6 col-xl" />
             <x-ui.stat-card title="متاحة الآن" :value="$availablePlans" subtitle="ضمن تاريخ الإتاحة" icon="ti-circle-check"
                 color="info" col="col-sm-6 col-xl" />
-            <x-ui.stat-card title="مجدولة" :value="$futurePlans" subtitle="تتاح مستقبلاً" icon="ti-calendar-time"
-                color="danger" col="col-sm-6 col-xl" />
+            <x-ui.stat-card title="مجدولة" :value="$futurePlans" subtitle="تتاح مستقبلاً" icon="ti-calendar-time" color="danger"
+                col="col-sm-6 col-xl" />
         </x-slot:stats>
 
         <x-slot:filters>

@@ -2,13 +2,6 @@
 
 @section('title', 'المصادقة الثنائية')
 
-@section('vendor-style')
-    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
-@endsection
-
-@section('vendor-script')
-    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
-@endsection
 
 @section('toastr')
     @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
@@ -245,74 +238,58 @@
             });
 
             $('#disable2faBtn').on('click', function() {
-                Swal.fire({
+                window.confirmAction({
                     title: 'هل أنت متأكد؟',
                     text: 'سيتم إلغاء تفعيل المصادقة الثنائية لحسابك.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    buttonsStyling: false,
-                    customClass: {
-                        popup: 'custom-popup',
-                        title: 'custom-title',
-                        text: 'custom-text',
-                        confirmButton: 'btn btn-success custom-confirm',
-                        cancelButton: 'btn btn-danger custom-cancel'
-                    },
-                    confirmButtonText: 'إلغاء التفعيل',
-                    cancelButtonText: 'تراجع'
-                }).then(function(result) {
-                    if (!result.isConfirmed) return;
-
-                    $.ajax({
-                        url: routes.disable,
-                        method: 'DELETE',
-                        data: {
-                            _token: csrfToken
-                        },
-                        success: function() {
-                            toastr.success('تم إلغاء تفعيل المصادقة الثنائية');
-                            markDisabled();
-                        },
-                        error: function() {
-                            toastr.error('حدث خطأ أثناء إلغاء التفعيل');
-                        }
-                    });
+                    variant: 'danger',
+                    icon: 'ti-shield-off',
+                    confirmText: 'إلغاء التفعيل',
+                    confirmClass: 'btn btn-danger px-4',
+                    cancelText: 'تراجع',
+                    onConfirm: function() {
+                        $.ajax({
+                            url: routes.disable,
+                            method: 'DELETE',
+                            data: {
+                                _token: csrfToken
+                            },
+                            success: function() {
+                                toastr.success('تم إلغاء تفعيل المصادقة الثنائية');
+                                markDisabled();
+                            },
+                            error: function() {
+                                toastr.error('حدث خطأ أثناء إلغاء التفعيل');
+                            }
+                        });
+                    }
                 });
             });
 
             $('#showRecoveryBtn').on('click', function() {
-                Swal.fire({
+                window.confirmAction({
                     title: 'توليد أكواد استرجاع جديدة؟',
                     text: 'سيتم إلغاء أي أكواد سابقة نهائيًا، واستبدالها بأكواد جديدة. احفظها فور ظهورها.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    buttonsStyling: false,
-                    customClass: {
-                        popup: 'custom-popup',
-                        title: 'custom-title',
-                        text: 'custom-text',
-                        confirmButton: 'btn btn-success custom-confirm',
-                        cancelButton: 'btn btn-danger custom-cancel'
-                    },
-                    confirmButtonText: 'توليد الآن',
-                    cancelButtonText: 'تراجع'
-                }).then(function(result) {
-                    if (!result.isConfirmed) return;
-
-                    $.ajax({
-                        url: routes.recoveryCodes,
-                        method: 'POST',
-                        data: {
-                            _token: csrfToken
-                        },
-                        success: function(codes) {
-                            renderRecoveryCodes(codes);
-                            toastr.warning('احفظ هذه الأكواد الآن - لن تظهر مرة أخرى');
-                        },
-                        error: function() {
-                            toastr.error('حدث خطأ أثناء توليد الأكواد');
-                        }
-                    });
+                    variant: 'warning',
+                    icon: 'ti-refresh',
+                    confirmText: 'توليد الآن',
+                    confirmClass: 'btn btn-primary px-4',
+                    cancelText: 'تراجع',
+                    onConfirm: function() {
+                        $.ajax({
+                            url: routes.recoveryCodes,
+                            method: 'POST',
+                            data: {
+                                _token: csrfToken
+                            },
+                            success: function(codes) {
+                                renderRecoveryCodes(codes);
+                                toastr.warning('احفظ هذه الأكواد الآن - لن تظهر مرة أخرى');
+                            },
+                            error: function() {
+                                toastr.error('حدث خطأ أثناء توليد الأكواد');
+                            }
+                        });
+                    }
                 });
             });
 

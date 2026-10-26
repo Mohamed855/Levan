@@ -375,34 +375,3 @@ function updateUserRole() {
 }
 
 
-/**
- * تأكيد الحذف
- */
-function confirmDelete(roleId) {
-    Swal.fire({
-        title: 'هل أنت متأكد من عملية الحذف؟',
-        text: "لا يمكن التراجع عن هذا الإجراء!",
-        icon: 'warning',
-        showCancelButton: true,
-        showConfirmButton: true,
-        showDenyButton: false,
-        buttonsStyling: false,
-        customClass: {
-            popup: 'custom-popup',
-            title: 'custom-title',
-            text: 'custom-text',
-            confirmButton: 'btn btn-success custom-confirm',
-            cancelButton: 'btn btn-danger custom-cancel'
-        },
-        confirmButtonText: 'تأكيد',
-        cancelButtonText: 'إلغاء',
-        reverseButtons: false,
-    }).then((result) => {
-        if (result.isConfirmed) {
-            document.getElementById('delete-form-' + roleId).submit();
-        }
-    });
-}
-
-// تصدير الدوال للاستخدام العام
-window.confirmDelete = confirmDelete;

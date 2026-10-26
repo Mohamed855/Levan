@@ -137,26 +137,15 @@ function deleteNotification(notificationId) {
         return;
     }
 
-    Swal.fire({
-        title: 'هل أنت متأكد من عملية الحذف؟',
-        text: " لا يمكن التراجع عن هذا الإجراء!",
-        icon: 'warning',
-        showCancelButton: true,
-        showConfirmButton: true,
-        showDenyButton: false,
-        buttonsStyling: false,
-        customClass: {
-            popup: 'custom-popup',
-            title: 'custom-title',
-            text: 'custom-text',
-            confirmButton: 'btn btn-success custom-confirm',
-            cancelButton: 'btn btn-danger custom-cancel'
-        },
-        confirmButtonText: 'تأكيد',
-        cancelButtonText: 'إلغاء',
-        reverseButtons: false,
-    }).then((result) => {
-        if (result.isConfirmed) {
+    window.confirmAction({
+        title: 'تأكيد حذف الإشعار',
+        text: 'هل أنت متأكد من عملية الحذف؟ لا يمكن التراجع عن هذا الإجراء!',
+        variant: 'danger',
+        icon: 'ti-trash',
+        confirmText: 'نعم، احذف',
+        confirmClass: 'btn btn-danger px-4',
+        cancelText: 'إلغاء',
+        onConfirm: function () {
             const url = window.routes.deleteNotification.replace('__ID__', notificationId);
 
             $.ajax({

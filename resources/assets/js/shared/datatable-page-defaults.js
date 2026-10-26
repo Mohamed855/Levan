@@ -88,45 +88,37 @@ $(function () {
         const entityTitle = $btn.data('title') || 'هذا السجل';
         const confirmMessage = $btn.data('message') || 'لن تتمكن من استرجاع ' + entityTitle + ' مجدداً!';
 
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: 'هل أنت متأكد من الحذف النهائي؟',
-                text: confirmMessage,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'نعم، احذف نهائياً',
-                cancelButtonText: 'إلغاء',
-                customClass: {
-                    confirmButton: 'btn btn-danger me-3',
-                    cancelButton: 'btn btn-secondary'
-                },
-                buttonsStyling: false
-            }).then(function (result) {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: url,
-                        type: 'DELETE',
-                        data: {
-                            _token: $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                if (typeof toastr !== 'undefined') {
-                                    toastr.success(response.message || 'تم الحذف النهائي بنجاح');
-                                }
-                                reloadClosestDataTable($btn);
-                            }
-                        },
-                        error: function (xhr) {
-                            const errorMsg = xhr.responseJSON?.message || 'حدث خطأ أثناء الحذف النهائي';
+        window.confirmAction({
+            title: 'تأكيد الحذف النهائي',
+            text: confirmMessage,
+            variant: 'danger',
+            icon: 'ti-trash',
+            confirmText: 'نعم، احذف نهائياً',
+            confirmClass: 'btn btn-danger px-4',
+            onConfirm: function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (response) {
+                        if (response.success) {
                             if (typeof toastr !== 'undefined') {
-                                toastr.error(errorMsg);
+                                toastr.success(response.message || 'تم الحذف النهائي بنجاح');
                             }
+                            reloadClosestDataTable($btn);
                         }
-                    });
-                }
-            });
-        }
+                    },
+                    error: function (xhr) {
+                        const errorMsg = xhr.responseJSON?.message || 'حدث خطأ أثناء الحذف النهائي';
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(errorMsg);
+                        }
+                    }
+                });
+            }
+        });
     });
 
     // 7. Global Archive Restore Delegation (.js-restore)
@@ -138,45 +130,37 @@ $(function () {
 
         const entityTitle = $btn.data('title') || 'هذا السجل';
 
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: 'تأكيد الاستعادة',
-                text: 'هل أنت متأكد من رغبتك في استعادة ' + entityTitle + '؟',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'نعم، استعادة',
-                cancelButtonText: 'إلغاء',
-                customClass: {
-                    confirmButton: 'btn btn-primary me-3',
-                    cancelButton: 'btn btn-secondary'
-                },
-                buttonsStyling: false
-            }).then(function (result) {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: url,
-                        type: 'PATCH',
-                        data: {
-                            _token: $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                if (typeof toastr !== 'undefined') {
-                                    toastr.success(response.message || 'تمت الاستعادة بنجاح');
-                                }
-                                reloadClosestDataTable($btn);
-                            }
-                        },
-                        error: function (xhr) {
-                            const errorMsg = xhr.responseJSON?.message || 'حدث خطأ أثناء الاستعادة';
+        window.confirmAction({
+            title: 'تأكيد الاستعادة',
+            text: 'هل أنت متأكد من رغبتك في استعادة ' + entityTitle + '؟',
+            variant: 'primary',
+            icon: 'ti-rotate-clockwise',
+            confirmText: 'نعم، استعادة',
+            confirmClass: 'btn btn-primary px-4',
+            onConfirm: function () {
+                $.ajax({
+                    url: url,
+                    type: 'PATCH',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (response) {
+                        if (response.success) {
                             if (typeof toastr !== 'undefined') {
-                                toastr.error(errorMsg);
+                                toastr.success(response.message || 'تمت الاستعادة بنجاح');
                             }
+                            reloadClosestDataTable($btn);
                         }
-                    });
-                }
-            });
-        }
+                    },
+                    error: function (xhr) {
+                        const errorMsg = xhr.responseJSON?.message || 'حدث خطأ أثناء الاستعادة';
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(errorMsg);
+                        }
+                    }
+                });
+            }
+        });
     });
 });
 

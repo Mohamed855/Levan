@@ -141,27 +141,17 @@ class AdminTicketsDataTable extends AbstractDataTable
             'action' => "function() {
                 var form = document.getElementById('toggle-service-form');
                 if (!form) return;
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        title: 'تأكيد تغيير حالة الخدمة',
-                        text: 'هل أنت متأكد من تغيير حالة خدمة التذاكر؟',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'نعم، قم بالتغيير',
-                        cancelButtonText: 'إلغاء',
-                        customClass: {
-                            confirmButton: 'btn btn-primary me-2',
-                            cancelButton: 'btn btn-secondary'
-                        },
-                        buttonsStyling: false
-                    }).then(function(result) {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                } else {
-                    form.submit();
-                }
+                window.confirmAction({
+                    title: 'تأكيد تغيير حالة الخدمة',
+                    text: 'هل أنت متأكد من تغيير حالة خدمة التذاكر في النظام؟',
+                    variant: 'warning',
+                    icon: 'ti-settings',
+                    confirmText: 'نعم، تغيير الحالة',
+                    confirmClass: 'btn btn-primary px-4',
+                    onConfirm: function() {
+                        form.submit();
+                    }
+                });
             }",
         ];
     }

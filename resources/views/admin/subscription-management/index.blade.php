@@ -32,7 +32,7 @@
 @endsection
 
 @section('content')
-    <x-ui.validation-errors class="mb-4" />
+    <x-ui.validation-errors />
 
     <x-data-table.page table-id="subscriptions-table">
         <x-slot:stats>
@@ -55,8 +55,8 @@
         @if (!($isPendingPage ?? false) && !($isExpiringPage ?? false) && !($isExpiredPage ?? false))
             <x-slot:filters>
                 <x-data-table.filters table="#subscriptions-table">
-                    <x-filter.select id="filter-status" filterKey="status" label="حالة الشركات" placeholder="اختر حالة الشركة"
-                        :enum="\App\Enums\Admin\Subscriptions\SubscriptionStatus::class" />
+                    <x-filter.select id="filter-status" filterKey="status" label="حالة الشركات"
+                        placeholder="اختر حالة الشركة" :enum="\App\Enums\Admin\Subscriptions\SubscriptionStatus::class" />
                 </x-data-table.filters>
             </x-slot:filters>
         @endif

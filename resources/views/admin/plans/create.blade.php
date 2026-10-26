@@ -31,7 +31,7 @@
     <div class="row g-4 align-items-start">
         <div class="col-lg-9" data-plan-form-column>
             <x-form.wizard.stepper id="plan-wizard" class="h-100" :steps="$steps">
-                <x-ui.validation-errors class="mb-4" />
+                <x-ui.validation-errors />
 
                 <form id="plan-wizard-form" action="{{ route('admin.plans.store') }}" method="POST" autocomplete="off"
                     data-form-validate data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"

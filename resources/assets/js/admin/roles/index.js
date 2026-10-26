@@ -203,29 +203,3 @@ function updateUserStatus(userId, newStatus) {
     });
 }
 
-/**
- * ==============================
- * 🔹 تأكيد الحذف
- * ==============================
- */
-function confirmDelete(roleId) {
-    Swal.fire({
-        title: 'هل أنت متأكد من عملية الحذف؟',
-        text: 'لا يمكن التراجع عن هذا الإجراء!',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'تأكيد',
-        cancelButtonText: 'إلغاء',
-        buttonsStyling: false,
-        customClass: {
-            confirmButton: 'btn btn-success me-2',
-            cancelButton: 'btn btn-danger'
-        }
-    }).then(result => {
-        if (result.isConfirmed) {
-            document.getElementById('delete-form-' + roleId).submit();
-        }
-    });
-}
-
-window.confirmDelete = confirmDelete;

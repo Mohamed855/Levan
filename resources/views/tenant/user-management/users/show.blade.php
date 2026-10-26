@@ -85,75 +85,46 @@
                             </div>
                         </div>
                         <!-- Modal لتغيير الصورة الشخصية -->
-                        <div class="modal fade" id="changeProfileImageModal" tabindex="-1"
-                            aria-labelledby="changeProfileImageModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="changeProfileImageModalLabel">
-                                            <i class="ti ti-photo text-primary me-2"></i>تغيير الصورة الشخصية
-                                        </h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="إغلاق"></button>
-                                    </div>
-                                    <form id="changeProfileImageForm" method="POST" enctype="multipart/form-data"
-                                        novalidate data-form-validate data-validation-submit="ajax"
-                                        action="{{ tenant_route_name('users.update-image', $user->id) }}"
-                                        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
-                                        @csrf
-                                        <div class="modal-body">
-                                            <x-form.controls.file name="profile_image" id="profile_image" label="اختر صورة شخصية جديدة"
-                                                :value="$user->image ? tasset($user->image) : null"
-                                                accept="image/*" help="الصيغ المسموح بها: JPG, PNG, GIF. الحد الأقصى: 2MB"
-                                                :max-size="2" col="col-12" />
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-label-secondary"
-                                                data-bs-dismiss="modal">إلغاء</button>
-                                            <button type="submit" class="btn btn-primary">
-                                                <i class="ti ti-device-floppy me-1"></i> حفظ التغييرات
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+                        <x-bootstrap.modal id="changeProfileImageModal" title="تغيير الصورة الشخصية" icon="ti-photo">
+                            <form id="changeProfileImageForm" method="POST" enctype="multipart/form-data"
+                                novalidate data-form-validate data-validation-submit="ajax"
+                                action="{{ tenant_route_name('users.update-image', $user->id) }}"
+                                data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+                                @csrf
+                                <x-form.controls.file name="profile_image" id="profile_image" label="اختر صورة شخصية جديدة"
+                                    :value="$user->image ? tasset($user->image) : null"
+                                    accept="image/*" help="الصيغ المسموح بها: JPG, PNG, GIF. الحد الأقصى: 2MB"
+                                    :max-size="2" col="col-12" />
+                                <x-slot:footer>
+                                    <button type="button" class="btn btn-label-secondary"
+                                        data-bs-dismiss="modal">إلغاء</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="ti ti-device-floppy me-1"></i> حفظ التغييرات
+                                    </button>
+                                </x-slot:footer>
+                            </form>
+                        </x-bootstrap.modal>
 
-                        <!-- edit background imag -->
-                        <div class="modal fade" id="editBackgroundImageModal" tabindex="-1"
-                            aria-labelledby="editBackgroundImageModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <form id="changeBackgroundImageForm" method="POST" enctype="multipart/form-data" novalidate
-                                    data-form-validate data-validation-submit="ajax"
-                                    action="{{ tenant_route_name('users.update-background', $user->id) }}"
-                                    data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
-                                    @csrf
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="editBackgroundImageModalLabel">
-                                                <i class="ti ti-photo-edit text-primary me-2"></i>تحديث صورة الخلفية
-                                            </h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="إغلاق"></button>
-                                        </div>
-
-                                        <div class="modal-body">
-                                            <x-form.controls.file name="background_image" id="background_image" label="اختر صورة خلفية جديدة"
-                                                :value="$user->background_image ? asset('storage/' . $user->background_image) : asset('static/dashboard/backgrounds/cta-bg-secondary3.png')"
-                                                accept="image/*" required help="الأبعاد الموصى بها: 1693 × 376 بكسل"
-                                                :max-size="5" col="col-12" />
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-label-secondary"
-                                                data-bs-dismiss="modal">إلغاء</button>
-                                            <button type="submit" class="btn btn-primary" id="submitBackgroundBtn">
-                                                <i class="ti ti-device-floppy me-1"></i> تحديث
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+                        <!-- edit background image -->
+                        <x-bootstrap.modal id="editBackgroundImageModal" title="تحديث صورة الخلفية" icon="ti-photo-edit">
+                            <form id="changeBackgroundImageForm" method="POST" enctype="multipart/form-data" novalidate
+                                data-form-validate data-validation-submit="ajax"
+                                action="{{ tenant_route_name('users.update-background', $user->id) }}"
+                                data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+                                @csrf
+                                <x-form.controls.file name="background_image" id="background_image" label="اختر صورة خلفية جديدة"
+                                    :value="$user->background_image ? asset('storage/' . $user->background_image) : asset('static/dashboard/backgrounds/cta-bg-secondary3.png')"
+                                    accept="image/*" required help="الأبعاد الموصى بها: 1693 × 376 بكسل"
+                                    :max-size="5" col="col-12" />
+                                <x-slot:footer>
+                                    <button type="button" class="btn btn-label-secondary"
+                                        data-bs-dismiss="modal">إلغاء</button>
+                                    <button type="submit" class="btn btn-primary" id="submitBackgroundBtn">
+                                        <i class="ti ti-device-floppy me-1"></i> تحديث
+                                    </button>
+                                </x-slot:footer>
+                            </form>
+                        </x-bootstrap.modal>
 
                         <div class="row">
                             <div class="col-md-12">

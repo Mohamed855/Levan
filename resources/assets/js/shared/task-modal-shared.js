@@ -519,26 +519,15 @@ function loadTaskComments(taskId) {
                             const commentItem =
                                 e.target.closest(".comment-item");
                             const commentId = commentItem.dataset.commentId;
-                            Swal.fire({
-                                title: "هل أنت متأكد من عملية الحذف؟",
+                            window.confirmAction({
+                                title: "تأكيد حذف التعليق",
                                 text: "لا يمكن التراجع عن هذا الإجراء!",
-                                icon: "warning",
-                                showCancelButton: true,
-                                confirmButtonText: "تأكيد",
-                                cancelButtonText: "إلغاء",
-                                customClass: {
-                                    popup: "custom-popup",
-                                    title: "custom-title",
-                                    text: "custom-text",
-                                    confirmButton:
-                                        "btn btn-success custom-confirm",
-                                    cancelButton:
-                                        "btn btn-danger custom-cancel",
-                                },
-                                buttonsStyling: false,
-                                reverseButtons: false,
-                            }).then((result) => {
-                                if (result.isConfirmed) {
+                                variant: "danger",
+                                icon: "ti-trash",
+                                confirmText: "نعم، احذف",
+                                confirmClass: "btn btn-danger px-4",
+                                cancelText: "إلغاء",
+                                onConfirm: function() {
                                     deleteComment(commentId, taskId);
                                 }
                             });
@@ -678,25 +667,15 @@ $(document).on("click", ".delete-attachment", function (e) {
     const attachmentId = $(this).data("attachment-id");
     const $btn = $(this);
     // الحصول على معرف المهمة من العنصر الأب (attachment-item)
-    const taskId = $btn.closest(".attachment-item").data("task-id");
-    Swal.fire({
-        title: "هل أنت متأكد من عملية الحذف؟",
+    window.confirmAction({
+        title: "تأكيد حذف المرفق",
         text: "لا يمكن التراجع عن هذا الإجراء!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "تأكيد",
-        cancelButtonText: "إلغاء",
-        customClass: {
-            popup: "custom-popup",
-            title: "custom-title",
-            text: "custom-text",
-            confirmButton: "btn btn-success custom-confirm",
-            cancelButton: "btn btn-danger custom-cancel",
-        },
-        buttonsStyling: false,
-        reverseButtons: false,
-    }).then((result) => {
-        if (result.isConfirmed) {
+        variant: "danger",
+        icon: "ti-trash",
+        confirmText: "نعم، احذف",
+        confirmClass: "btn btn-danger px-4",
+        cancelText: "إلغاء",
+        onConfirm: function () {
             fetch(
                 `/projects/${window.projectId}/sectors/${window.sectorId}/tasks/${taskId}/attachments/${attachmentId}`,
                 {
@@ -1026,25 +1005,15 @@ $(document).on("change", ".module-select-checkbox", function () {
 //*******  الدوال الخاصة بالتحديد في الجدول الرئيسي  والجداول الفرعية  *******//
 // دالة الحذف الفردي الخاصة بالمهام في جدول
 function confirmDelete(taskId) {
-    Swal.fire({
-        title: "هل أنت متأكد من عملية الحذف؟",
+    window.confirmAction({
+        title: "تأكيد حذف المهمة",
         text: "لا يمكن التراجع عن هذا الإجراء!",
-        icon: "warning",
-        showCancelButton: true,
-        showConfirmButton: true,
-        buttonsStyling: false,
-        customClass: {
-            popup: "custom-popup",
-            title: "custom-title",
-            text: "custom-text",
-            confirmButton: "btn btn-success custom-confirm",
-            cancelButton: "btn btn-danger custom-cancel",
-        },
-        confirmButtonText: "تأكيد",
-        cancelButtonText: "إلغاء",
-        reverseButtons: false,
-    }).then((result) => {
-        if (result.isConfirmed) {
+        variant: "danger",
+        icon: "ti-trash",
+        confirmText: "نعم، احذف",
+        confirmClass: "btn btn-danger px-4",
+        cancelText: "إلغاء",
+        onConfirm: function () {
             // إرسال طلب حذف المهمة بشكل غير متزامن
             $.ajax({
                 url: `/projects/{{ $project->id }}/sectors/{{ $sector->id }}/tasks/${taskId}`,

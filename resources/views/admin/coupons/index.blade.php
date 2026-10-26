@@ -29,7 +29,7 @@
 @endsection
 
 @section('content')
-    <x-ui.validation-errors class="mb-4" />
+    <x-ui.validation-errors />
 
     <x-data-table.page table-id="coupon-table">
         <x-slot:stats>
@@ -49,8 +49,8 @@
             <x-data-table.filters table="#coupon-table">
                 <x-filter.select id="filter-status" filterKey="is_active" label="حالة الكوبونات"
                     placeholder="اختر حالة الكوبون" :options="$filterOptions['statuses'] ?? []" />
-                <x-filter.select id="filter-type" filterKey="discount_type" label="نوع الخصم"
-                    placeholder="اختر نوع الخصم" :options="$filterOptions['types'] ?? []" />
+                <x-filter.select id="filter-type" filterKey="discount_type" label="نوع الخصم" placeholder="اختر نوع الخصم"
+                    :options="$filterOptions['types'] ?? []" />
             </x-data-table.filters>
         </x-slot:filters>
 

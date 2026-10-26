@@ -6,11 +6,12 @@
 
 
 <!-- Vendor Styles -->
-@vite(['resources/assets/css/shared/demo.css',
-'resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.scss',
- 'resources/assets/vendor/libs/typeahead-js/typeahead.scss' , 
-  'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss',
-  'resources/assets/css/shared/main.css'])
+@vite([
+    'resources/assets/css/shared/demo.css',
+    'resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.scss',
+    'resources/assets/vendor/libs/typeahead-js/typeahead.scss',
+    'resources/assets/css/shared/main.css'
+])
 @yield('vendor-style')
 
 <!-- Custom Design System -->

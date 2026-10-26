@@ -371,27 +371,17 @@
                     },
                     success: function(res) {
                         checkbox.prop('disabled', false);
-                        Swal.fire({
-                            icon: 'success',
-                            title: res.message || 'تم تحديث حالة الاشتراك بنجاح',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 2500
-                        });
+                        if (typeof toastr !== 'undefined') {
+                            toastr.success(res.message || 'تم تحديث حالة الاشتراك بنجاح');
+                        }
                         location.reload();
                     },
                     error: function() {
                         checkbox.prop('disabled', false);
                         checkbox.prop('checked', !checkbox.prop('checked'));
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'حدث خطأ أثناء تغيير حالة الاشتراك',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000
-                        });
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error('حدث خطأ أثناء تغيير حالة الاشتراك');
+                        }
                     }
                 });
             });
@@ -403,21 +393,15 @@
                 const number = $(this).data('number');
                 const form = document.getElementById('delete-sub-form-' + id);
 
-                Swal.fire({
-                    title: 'هل أنت متأكد من حذف الاشتراك نهائياً؟',
+                window.confirmAction({
+                    title: 'حذف نهائي للاشتراك؟',
                     text: 'سيتم حذف الاشتراك رقم (' + number + ') نهائياً مع كافة فتراته ومقاعده.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'نعم، حذف نهائي',
-                    cancelButtonText: 'إلغاء',
-                    customClass: {
-                        confirmButton: 'btn btn-danger me-3',
-                        cancelButton: 'btn btn-secondary'
-                    },
-                    buttonsStyling: false
-                }).then(function(result) {
-                    if (result.isConfirmed && form) {
-                        form.submit();
+                    variant: 'danger',
+                    icon: 'ti-trash',
+                    confirmText: 'نعم، حذف نهائي',
+                    confirmClass: 'btn btn-danger px-4',
+                    onConfirm: function() {
+                        if (form) form.submit();
                     }
                 });
             });

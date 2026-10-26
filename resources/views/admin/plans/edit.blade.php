@@ -43,7 +43,7 @@
     @endif
 
     <x-form.wizard.stepper id="plan-wizard" :steps="$steps">
-        <x-ui.validation-errors class="mb-4" />
+        <x-ui.validation-errors />
 
         <form id="plan-wizard-form" action="{{ route('admin.plans.update', $plan->id) }}" method="POST" autocomplete="off"
             data-form-validate data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}">
@@ -183,8 +183,7 @@
                         label="إدارة الدومينات" required :value="$plan->domain_management_enabled ? '1' : '0'" col="col-md-6" :enum="\App\Enums\Shared\ActivationStatus::class" />
                 </div>
                 <x-form.wizard.actions><x-form.wizard.previous-button />
-                    <div class="d-flex gap-2"><x-form.wizard.next-button
-                            text="التالي للمراجعة" /></div>
+                    <div class="d-flex gap-2"><x-form.wizard.next-button text="التالي للمراجعة" /></div>
                 </x-form.wizard.actions>
             </x-form.wizard.step>
 

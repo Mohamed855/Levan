@@ -63,7 +63,7 @@
     <div class="row">
         <div class="col-12">
             <x-form.wizard.stepper id="client-wizard" :steps="$steps">
-                <x-ui.validation-errors class="mb-4" />
+                <x-ui.validation-errors />
 
                 <form id="client-wizard-form" action="{{ route('admin.clients.store') }}" method="POST"
                     enctype="multipart/form-data" autocomplete="off" data-form-validate

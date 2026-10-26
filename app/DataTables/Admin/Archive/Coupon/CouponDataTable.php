@@ -164,7 +164,7 @@ class CouponDataTable extends AbstractDataTable
     |                            Private Helper Methods
     |============================================================================
     */
-    private function copyableCode($row): string
+    protected function copyableCode($row): string
     {
         return sprintf(
             '<div class="d-flex align-items-center gap-2">

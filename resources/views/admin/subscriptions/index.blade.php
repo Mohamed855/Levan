@@ -82,21 +82,15 @@
                 const number = $(this).data('number');
                 const form = document.getElementById('delete-subscription-form-' + id);
 
-                Swal.fire({
+                window.confirmAction({
                     title: 'حذف نهائي للاشتراك؟',
                     text: 'سيتم حذف الاشتراك رقم (' + number + ') نهائياً مع كافة فتراته ومقاعده.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'نعم، حذف نهائي',
-                    cancelButtonText: 'إلغاء',
-                    customClass: {
-                        confirmButton: 'btn btn-danger me-3',
-                        cancelButton: 'btn btn-secondary'
-                    },
-                    buttonsStyling: false
-                }).then(function(result) {
-                    if (result.isConfirmed && form) {
-                        form.submit();
+                    variant: 'danger',
+                    icon: 'ti-trash',
+                    confirmText: 'نعم، حذف نهائي',
+                    confirmClass: 'btn btn-danger px-4',
+                    onConfirm: function() {
+                        if (form) form.submit();
                     }
                 });
             });

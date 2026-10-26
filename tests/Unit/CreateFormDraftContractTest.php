@@ -65,17 +65,11 @@ final class CreateFormDraftContractTest extends TestCase
         }
     }
 
-    public function test_sweetalert_assets_are_loaded_in_shared_layout_master_scripts_and_styles(): void
+    public function test_bootstrap_confirm_modal_is_loaded_in_shared_layout_master_scripts(): void
     {
         $root = dirname(__DIR__, 2);
         $scripts = file_get_contents($root.'/resources/views/components/shared/layout/scripts.blade.php');
-        $this->assertStringContainsString('resources/assets/vendor/libs/sweetalert2/sweetalert2.js', $scripts);
-
-        $adminStyles = file_get_contents($root.'/resources/views/admin/layouts/sections/styles.blade.php');
-        $this->assertStringContainsString('resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', $adminStyles);
-
-        $tenantStyles = file_get_contents($root.'/resources/views/tenant/layouts/sections/styles.blade.php');
-        $this->assertStringContainsString('resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', $tenantStyles);
+        $this->assertStringContainsString('<x-bootstrap.confirm-modal />', $scripts);
     }
 
     public function test_step_one_previous_button_navigates_to_index_in_all_wizards(): void
