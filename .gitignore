@@ -42,3 +42,5 @@ implementation_plan.md
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/output
+/tmp

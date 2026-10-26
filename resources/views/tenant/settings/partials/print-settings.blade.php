@@ -7,84 +7,18 @@
                 @method('PUT')
                 <input type="hidden" name="active_tab" id="" value="#printSettings">
 
-                <div class="row mb-12">
-                    <div class="col-md-4">
-                        <!-- الترويسة الأفقية -->
-                        <div class="">
-                            <img src="{{ tasset($settings->horizontal_header_image) }}" alt="الترويسة "
-                                class="d-block w-100 mb-5 h-px-150 rounded object-fit-contain"
-                                id="uploadedHorizontalHeader" />
+                <div class="row g-4 mb-6">
+                    <x-form.controls.file name="horizontal_header_image" label="الترويسة الأفقية"
+                        :value="$settings->horizontal_header_image ? tasset($settings->horizontal_header_image) : null"
+                        accept="image/png,image/jpeg,image/webp" help="JPG, PNG أو WebP" col="col-md-4" />
 
-                            <div class="button-wrapper">
-                                <label for="uploadHorizontalHeader" class="btn btn-primary me-3 mb-4" tabindex="0">
-                                    <span class="d-none d-sm-block">تحميل الترويسة </span>
-                                    <i class="fas fa-upload d-block d-sm-none"></i>
-                                    <input type="file" id="uploadHorizontalHeader" name="horizontal_header_image"
-                                        class="account-file-input" hidden accept="image/png, image/jpeg, image/gif" />
-                                </label>
-                                @if ($errors->has('horizontal_header_image'))
-                                    <p class="text-danger small">{{ $errors->first('horizontal_header_image') }}</p>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
+                    <x-form.controls.file name="horizontal_footer_image" label="الفوتر الأفقي"
+                        :value="$settings->horizontal_footer_image ? tasset($settings->horizontal_footer_image) : null"
+                        accept="image/png,image/jpeg,image/webp" help="JPG, PNG أو WebP" col="col-md-4" />
 
-                    <div class="col-md-4">
-                        <!-- الفوتر الأفقي -->
-                        <div class="">
-
-                            <img src="{{ tasset($settings->horizontal_footer_image) }}" alt="الفوتر "
-                                class="d-block w-100 mb-5 h-px-150 rounded object-fit-contain"
-                                id="uploadedHorizontalFooter" />
-                            <div class="button-wrapper">
-                                <label for="uploadHorizontalFooter" class="btn btn-primary me-3 mb-4" tabindex="0">
-                                    <span class="d-none d-sm-block">تحميل الفوتر </span>
-                                    <i class="fas fa-upload d-block d-sm-none"></i>
-                                    <input type="file" id="uploadHorizontalFooter" name="horizontal_footer_image"
-                                        class="account-file-input" hidden accept="image/png, image/jpeg, image/gif" />
-                                </label>
-                                @if ($errors->has('horizontal_footer_image'))
-                                    <p class="text-danger small">{{ $errors->first('horizontal_footer_image') }}</p>
-                                @endif
-                            </div>
-                        </div>
-
-
-
-                    </div>
-
-                    <!-- الختم الخاص بالمؤسسة -->
-                    <div class="col-md-4">
-                        <div class="">
-
-                            <img src="{{ tasset($settings->signature) }}" alt="الختم الخاص بالمؤسسة"
-                                class="d-block w-100 mb-5 h-px-150 rounded object-fit-contain" id="uploadedSignature" />
-                            <div class="button-wrapper">
-                                <label for="uploadSignature" class="btn btn-primary me-3 mb-4" tabindex="0">
-                                    <span class="d-none d-sm-block">تحميل الختم</span>
-                                    <i class="fas fa-upload d-block d-sm-none"></i>
-                                    <input type="file" id="uploadSignature" name="signature"
-                                        class="account-file-input" hidden accept="image/png, image/jpeg, image/gif" />
-                                </label>
-                                @if ($errors->has('signature'))
-                                    <p class="text-danger small">{{ $errors->first('signature') }}</p>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    <script>
-                        document.getElementById('uploadSignature').addEventListener('change', function() {
-                            if (this.files && this.files[0]) {
-                                var reader = new FileReader();
-                                reader.onload = function(e) {
-                                    document.getElementById('uploadedSignature').src = e.target.result;
-                                }
-                                reader.readAsDataURL(this.files[0]);
-                            }
-                        });
-                    </script>
-
-
+                    <x-form.controls.file name="signature" label="الختم الخاص بالمؤسسة"
+                        :value="$settings->signature ? tasset($settings->signature) : null"
+                        accept="image/png,image/jpeg,image/webp" help="JPG, PNG أو WebP" col="col-md-4" />
                 </div>
                 <!-- زر الحفظ -->
                 <div class="mt-2 d-flex justify-content-end">

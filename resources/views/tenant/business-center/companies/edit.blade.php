@@ -74,9 +74,9 @@
                                 </x-form.controls.input>
 
                                 {{-- شعار الشركة --}}
-                                <x-form.controls.image-upload name="logo" id="logo" label="شعار الشركة"
-                                    :value="$company->logo_url ? tasset($company->logo_url) : null" accept=".jpg,.jpeg,.png,.webp"
-                                    hint="الأنواع: JPG, JPEG, PNG — الحجم الأقصى: 2MB" col="col-md-6" />
+                                <x-form.controls.file name="logo" id="logo" label="شعار الشركة"
+                                    :value="$company->logo_url ? tasset($company->logo_url) : null" accept="image/jpeg,image/png,image/webp"
+                                    help="الأنواع: JPG, PNG, WebP — الحجم الأقصى: 2MB" :max-size="2" col="col-md-6" />
                             </div>
 
                             {{-- المفوضون --}}

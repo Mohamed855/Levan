@@ -257,29 +257,16 @@
                                         <span class="badge bg-label-danger ms-1">مطلوبة</span>
                                     @endif
                                 </label>
-                                @if ($auction->report_image)
-                                    <div class="mb-2">
-                                        <img src="{{ tasset($auction->report_image) }}" alt="صورة التقرير الحالية"
-                                            class="img-thumbnail" style="height: 80px; object-fit: cover;">
-                                        <div class="form-text text-muted">الصورة الحالية — ارفع صورة جديدة للاستبدال.</div>
-                                    </div>
-                                @endif
-                                <x-form.controls.image-upload name="report_image" label=""
-                                    help="{{ $auction->report_image ? 'اختياري للتحديث — اتركه فارغاً للإبقاء على الحالية' : 'مطلوبة — تظهر في غلاف ملف تقرير المزاد' }}"
+                                <x-form.controls.file name="report_image" label="صورة غلاف التقرير"
+                                    :value="$auction->report_image ? tasset($auction->report_image) : null"
+                                    help="{{ $auction->report_image ? 'اختياري للتحديث — ارفع صورة جديدة للاستبدال' : 'مطلوبة — تظهر في غلاف ملف تقرير المزاد' }}"
                                     :required="!$auction->report_image" accept="image/jpeg,image/png,image/webp" col="col-12" />
                             </div>
 
                             {{-- صورة الغلاف --}}
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">صورة غلاف المزاد</label>
-                                @if ($auction->cover_image)
-                                    <div class="mb-2">
-                                        <img src="{{ tasset($auction->cover_image) }}" alt="صورة الغلاف الحالية"
-                                            class="img-thumbnail" style="height: 80px; object-fit: cover;">
-                                        <div class="form-text text-muted">الصورة الحالية — ارفع صورة جديدة للاستبدال.</div>
-                                    </div>
-                                @endif
-                                <x-form.controls.image-upload name="cover_image" label=""
+                                <x-form.controls.file name="cover_image" label="صورة غلاف المزاد"
+                                    :value="$auction->cover_image ? tasset($auction->cover_image) : null"
                                     help="اختياري — تظهر في مخرجات المزاد الرئيسية"
                                     accept="image/*" col="col-12" />
                             </div>
@@ -374,13 +361,21 @@
                                                                 placeholder="المشاهدات" value="{{ $campaign['impressions'] ?? '' }}" min="0">
                                                         </div>
                                                         <div class="col-md-2">
-                                                            <input type="url" class="form-control" name="marketing[campaigns][{{ $i }}][url]"
-                                                                placeholder="رابط الحملة" value="{{ $campaign['url'] ?? '' }}">
+                                                            <input type="number" class="form-control" name="marketing[campaigns][{{ $i }}][engagements]"
+                                                                placeholder="التفاعل" value="{{ $campaign['engagements'] ?? '' }}" min="0">
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <input type="number" class="form-control" name="marketing[campaigns][{{ $i }}][clicks]"
+                                                                placeholder="النقرات" value="{{ $campaign['clicks'] ?? '' }}" min="0">
                                                         </div>
                                                         <div class="col-md-1">
                                                             <button type="button" class="btn btn-icon btn-sm btn-label-danger remove-campaign">
                                                                 <i class="ti ti-trash"></i>
                                                             </button>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <input type="url" class="form-control" name="marketing[campaigns][{{ $i }}][url]"
+                                                                placeholder="رابط الحملة" value="{{ $campaign['url'] ?? '' }}">
                                                         </div>
                                                     </div>
                                                 @endforeach
@@ -431,6 +426,23 @@
                                     col="col-md-6" />
                             </div>
 
+                            <div class="col-12 border-top pt-3">
+                                <h6 class="fw-bold mb-3"><i class="ti ti-billboard me-1"></i>صور اللوحات الإعلانية</h6>
+                                @if ($auction->attachments->whereIn('report_section', ['board_before', 'board_after'])->isNotEmpty())
+                                    <div class="alert alert-info py-2">الصور المسجلة حاليًا محفوظة، ويمكن إضافة صور أخرى لكل عقار أدناه.</div>
+                                @endif
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">صور اللوحات قبل الفك</label>
+                                        <div id="board-before-container"><p class="text-muted small">اختر العقارات لإضافة الصور.</p></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">صور اللوحات بعد الفك</label>
+                                        <div id="board-after-container"><p class="text-muted small">اختر العقارات لإضافة الصور.</p></div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {{-- المرفقات الرسمية --}}
                             <div class="col-12 border-top pt-3">
                                 <h6 class="fw-bold mb-3"><i class="ti ti-paperclip me-1"></i>مرفقات ووثائق المزاد</h6>
@@ -450,17 +462,7 @@
 
                                 <x-form.controls.file name="attachments[]" label="ملفات إضافية جديدة" multiple
                                     :required="false" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx"
-                                    help="الحد الأقصى لكل ملف: 10MB" col="col-md-6" />
-
-                                <section class="assignment-properties-table-card mt-3" aria-live="polite">
-                                    <header class="assignment-properties-table-card__header">
-                                        <h6 class="mb-0">المرفقات والوثائق الجديدة</h6>
-                                        <span id="auction-attachments-count" class="badge bg-label-primary">0 ملف</span>
-                                    </header>
-                                    <div id="auction-attachments-cards" class="assignment-file-list p-3">
-                                        <p class="text-muted mb-0">لم يتم إرفاق ملفات بعد.</p>
-                                    </div>
-                                </section>
+                                    help="الحد الأقصى لكل ملف: 10MB" col="col-12" />
                             </div>
                         </div>
 

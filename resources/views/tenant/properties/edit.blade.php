@@ -376,8 +376,9 @@
             {{-- الخطوة 4: الملفات والمستندات --}}
             <x-form.wizard.step id="property-files-validation" :fields="['main_image', 'deed_document', 'cadastral_plan', 'coordinates_statement', 'building_permit']">
                 <div class="row g-4">
-                    <x-form.controls.image-upload name="main_image" label="الصورة الرئيسية للعقار" :required="false"
-                        accept="image/jpeg,image/png,image/webp" hint="JPG أو PNG أو WebP، بحد أقصى 4MB"
+                    <x-form.controls.file name="main_image" label="الصورة الرئيسية للعقار" :required="false"
+                        :value="$property->main_image ? tasset($property->main_image) : null"
+                        accept="image/jpeg,image/png,image/webp" help="JPG أو PNG أو WebP، بحد أقصى 4MB"
                         col="col-md-6" />
                     <x-form.controls.file name="deed_document" label="صك الملكية" :required="false"
                         accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />

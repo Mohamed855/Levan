@@ -237,11 +237,11 @@
                                 <h6 class="fw-bold mb-3"><i class="ti ti-photo me-1"></i>صور التقرير والمزاد</h6>
                             </div>
 
-                            <x-form.controls.image-upload name="report_image" label="صورة غلاف التقرير"
+                            <x-form.controls.file name="report_image" label="صورة غلاف التقرير"
                                 help="مطلوبة — تظهر في غلاف ملف تقرير المزاد (JPG/PNG/WebP، بحد أقصى 10MB)"
                                 required col="col-md-6" accept="image/jpeg,image/png,image/webp" />
 
-                            <x-form.controls.image-upload name="cover_image" label="صورة غلاف المزاد"
+                            <x-form.controls.file name="cover_image" label="صورة غلاف المزاد"
                                 help="تظهر في مخرجات المزاد الرئيسية (اختيارية)"
                                 col="col-md-6" accept="image/*" />
 
@@ -316,16 +316,7 @@
                                 <h6 class="fw-bold mb-3"><i class="ti ti-paperclip me-1"></i>مرفقات ووثائق المزاد</h6>
                                 <x-form.controls.file name="attachments[]" label="ملفات إضافية" multiple
                                     :required="false" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx"
-                                    help="الحد الأقصى لكل ملف: 10MB" col="col-md-6" />
-                                <section class="assignment-properties-table-card mt-3" aria-live="polite">
-                                    <header class="assignment-properties-table-card__header">
-                                        <h6 class="mb-0">المرفقات والوثائق</h6>
-                                        <span id="auction-attachments-count" class="badge bg-label-primary">0 ملف</span>
-                                    </header>
-                                    <div id="auction-attachments-cards" class="assignment-file-list p-3">
-                                        <p class="text-muted mb-0">لم يتم إرفاق ملفات بعد.</p>
-                                    </div>
-                                </section>
+                                    help="الحد الأقصى لكل ملف: 10MB" col="col-12" />
                             </div>
                         </div>
 

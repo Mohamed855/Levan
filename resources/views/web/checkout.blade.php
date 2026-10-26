@@ -362,22 +362,18 @@
 
                                             <!-- Receipt Upload Section -->
                                             <div class="mb-4 hidden" id="receipt-upload-section">
-                                                <label class="site-label mb-2">
-                                                    إيصال التحويل البنكي <span class="required-star">*</span>
-                                                </label>
-
-                                                <div class="upload-area" id="upload-area">
-                                                    <input type="file" name="transfer_receipt" id="transfer_receipt"
-                                                        accept="image/jpeg,image/jpg,image/png,application/pdf"
-                                                        class="d-none" data-validation-skip>
-                                                    <div class="upload-icon-wrap">
-                                                        <i class="ti ti-cloud-upload"></i>
-                                                    </div>
-                                                    <h4 class="upload-title">انقر أو اسحب إيصال التحويل هنا</h4>
-                                                    <p class="upload-desc">صيغ JPG · PNG · PDF — أقصى حجم 5 ميجابايت</p>
-                                                </div>
-
-                                                <div id="files-preview"></div>
+                                                <x-form.controls.file
+                                                    name="transfer_receipt"
+                                                    id="transfer_receipt"
+                                                    label="إيصال التحويل البنكي"
+                                                    required
+                                                    accept="image/jpeg,image/jpg,image/png,application/pdf"
+                                                    title="انقر أو اسحب إيصال التحويل هنا"
+                                                    desc="صيغ JPG · PNG · PDF — أقصى حجم 5 ميجابايت"
+                                                    :max-size="5"
+                                                    col="col-12"
+                                                    data-validation-skip
+                                                />
                                             </div>
 
                                             <!-- Instructions Box -->

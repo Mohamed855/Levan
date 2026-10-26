@@ -688,50 +688,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return `<figure class="property-aerial-review mt-3 mb-0"><img src="${escapeHtml(source)}" alt="الصورة الجوية للعقار بعد تحديد الحدود"><a class="property-aerial-review__download" href="${escapeHtml(source)}" download="property-boundary.png" aria-label="تحميل الصورة الجوية المحددة"><i class="ti ti-download" aria-hidden="true"></i></a></figure>`;
   }
 
-  const additionalFiles = new Map();
-
-  function renderAdditionalAttachmentBox(inputName, listId, countId, icon) {
-    const list = document.getElementById(listId);
-    const count = document.getElementById(countId);
-    if (!list || !count) return;
-
-    const files = additionalFiles.get(inputName) || filesFromInput(inputName);
-    count.textContent = `${files.length} ${files.length === 1 ? 'ملف' : 'ملفات'}`;
-    list.innerHTML = files.length
-      ? files.map((file, index) => `<article class="assignment-file-card"><i class="ti ${icon} text-primary fs-4"></i><span class="assignment-file-card__name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span><button type="button" class="btn btn-icon btn-sm btn-label-danger" data-remove-additional-file="${inputName}" data-file-index="${index}" aria-label="حذف ${escapeHtml(file.name)}"><i class="ti ti-trash" aria-hidden="true"></i></button></article>`).join('')
-      : '<p class="text-muted mb-0">لم يتم إرفاق ملفات بعد.</p>';
-  }
-
-  function refreshAdditionalAttachmentBoxes() {
-    renderAdditionalAttachmentBox('property_images[]', 'property-images-cards', 'property-images-count', 'ti-photo');
-    renderAdditionalAttachmentBox('additional_documents[]', 'additional-documents-cards', 'additional-documents-count', 'ti-paperclip');
-  }
-
-  ['property_images[]', 'additional_documents[]'].forEach((name) => {
-    form.elements.namedItem(name)?.addEventListener('change', (event) => {
-      additionalFiles.set(name, Array.from(event.currentTarget.files || []));
-      refreshAdditionalAttachmentBoxes();
-    });
-  });
-
-  form.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-remove-additional-file]');
-    if (!button || !window.DataTransfer) return;
-
-    const inputName = button.dataset.removeAdditionalFile;
-    const fileIndex = Number(button.dataset.fileIndex);
-    const input = form.elements.namedItem(inputName);
-    const files = [...(additionalFiles.get(inputName) || filesFromInput(inputName))];
-    if (!input || !Number.isInteger(fileIndex) || !files[fileIndex]) return;
-
-    files.splice(fileIndex, 1);
-    const transfer = new DataTransfer();
-    files.forEach((file) => transfer.items.add(file));
-    input.files = transfer.files;
-    additionalFiles.set(inputName, files);
-    refreshAdditionalAttachmentBoxes();
-    form.dispatchEvent(new Event('change', { bubbles: true }));
-  });
 
   function buildReview() {
     // Review Basic Info
@@ -922,6 +878,5 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Initial check
-  refreshAdditionalAttachmentBoxes();
   buildReview();
 });

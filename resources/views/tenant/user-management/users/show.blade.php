@@ -102,18 +102,10 @@
                                         data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                                         @csrf
                                         <div class="modal-body">
-                                            <div class="text-center mb-4">
-                                                <img id="previewImage" src="{{ tasset($user->image) }}" alt="معاينة الصورة"
-                                                    class="rounded-circle"
-                                                    style="width: 120px; height: 120px; object-fit: cover;">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="profile_image" class="form-label">اختر صورة جديدة</label>
-                                                <input type="file" class="form-control" id="profile_image"
-                                                    name="profile_image" accept="image/*">
-                                                <div class="form-text">الصيغ المسموح بها: JPG, PNG, GIF. الحد الأقصى: 2MB
-                                                </div>
-                                            </div>
+                                            <x-form.controls.file name="profile_image" id="profile_image" label="اختر صورة شخصية جديدة"
+                                                :value="$user->image ? tasset($user->image) : null"
+                                                accept="image/*" help="الصيغ المسموح بها: JPG, PNG, GIF. الحد الأقصى: 2MB"
+                                                :max-size="2" col="col-12" />
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-label-secondary"
@@ -146,20 +138,10 @@
                                         </div>
 
                                         <div class="modal-body">
-                                            <div class="mb-3">
-                                                <label for="background_image" class="form-label">اختر صورة خلفية
-                                                    جديدة</label>
-                                                <small class="text-danger d-block mb-1">يجب أن تكون أبعاد صورة الخلفية 1693
-                                                    × 376 بكسل</small>
-                                                <input class="form-control" type="file" id="background_image"
-                                                    name="background_image" accept="image/*" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <img id="previewBackgroundImage"
-                                                    src="{{ $user->background_image ? asset('storage/' . $user->background_image) : asset('static/dashboard/backgrounds/cta-bg-secondary3.png') }}"
-                                                    alt="صورة الخلفية المعاينة" class="img-thumbnail"
-                                                    style="max-width: 200px;">
-                                            </div>
+                                            <x-form.controls.file name="background_image" id="background_image" label="اختر صورة خلفية جديدة"
+                                                :value="$user->background_image ? asset('storage/' . $user->background_image) : asset('static/dashboard/backgrounds/cta-bg-secondary3.png')"
+                                                accept="image/*" required help="الأبعاد الموصى بها: 1693 × 376 بكسل"
+                                                :max-size="5" col="col-12" />
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-label-secondary"
@@ -422,17 +404,6 @@
 
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
-                        document.getElementById('profile_image').addEventListener('change', function(e) {
-                            const file = e.target.files[0];
-                            if (file) {
-                                const reader = new FileReader();
-                                reader.onload = function(e) {
-                                    document.getElementById('previewImage').src = e.target.result;
-                                };
-                                reader.readAsDataURL(file);
-                            }
-                        });
-
                         document.getElementById('changeProfileImageForm').addEventListener('formValidationPassed', function() {
 
                             const formData = new FormData(this);

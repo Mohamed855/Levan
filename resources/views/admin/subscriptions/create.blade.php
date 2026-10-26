@@ -68,7 +68,7 @@
             </div>
 
             <x-form.wizard.stepper id="subscription-wizard" :steps="$steps">
-                <x-ui.validation-errors class="mb-4" />
+                <x-ui.validation-errors />
 
                 <form id="subscription-wizard-form" action="{{ route('admin.subscriptions.store') }}" method="POST"
                     enctype="multipart/form-data" autocomplete="off" data-form-validate

@@ -77,15 +77,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    let selectedFiles = [];
     const paymentOptions = document.querySelectorAll('.payment-option');
     const cardSection = document.getElementById('card-payment-section');
     const bankSection = document.getElementById('bank-transfer-section');
     const receiptSection = document.getElementById('receipt-upload-section');
     const bankCards = document.querySelectorAll('.bank-card');
-    const uploadArea = document.getElementById('upload-area');
-    const fileInput = document.getElementById('transfer_receipt');
-    const filesPreview = document.getElementById('files-preview');
     const imageModal = document.getElementById('image-modal');
     const modalClose = document.getElementById('modal-close');
 
@@ -113,8 +109,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     bankId.value = '';
                     bankId.dispatchEvent(new Event('change', { bubbles: true }));
                 }
-                selectedFiles = [];
-                updateFilesPreview();
+                const transferReceiptInput = document.getElementById('transfer_receipt');
+                if (transferReceiptInput) {
+                    transferReceiptInput.value = '';
+                    transferReceiptInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
                 return;
             }
 
@@ -136,86 +135,6 @@ document.addEventListener('DOMContentLoaded', function () {
             receiptSection?.classList.remove('hidden');
         });
     });
-
-    if (uploadArea && fileInput) {
-        uploadArea.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', () => {
-            const file = fileInput.files?.[0];
-            if (!file) return;
-
-            selectedFiles = [file];
-            updateFilesPreview();
-            uploadArea.classList.add('has-files');
-        });
-    }
-
-    function updateFilesPreview() {
-        if (!filesPreview || !fileInput) return;
-
-        filesPreview.replaceChildren();
-        selectedFiles.forEach((file, index) => {
-            const item = document.createElement('div');
-            item.className = 'file-item';
-
-            if (file.type.startsWith('image/')) {
-                const image = document.createElement('img');
-                image.alt = file.name;
-                image.className = 'file-item-preview';
-                const reader = new FileReader();
-                reader.addEventListener('load', () => {
-                    image.src = String(reader.result || '');
-                });
-                reader.readAsDataURL(file);
-                item.append(image);
-            } else {
-                const icon = document.createElement('div');
-                icon.className = 'file-item-pdf';
-                icon.innerHTML = '<i class="ti ti-file-type-pdf"></i>';
-                item.append(icon);
-            }
-
-            const info = document.createElement('div');
-            info.className = 'file-item-info';
-            const name = document.createElement('div');
-            name.className = 'file-item-name';
-            name.textContent = file.name;
-            const size = document.createElement('div');
-            size.className = 'file-item-size';
-            size.textContent = formatFileSize(file.size);
-            info.append(name, size);
-
-            const remove = document.createElement('button');
-            remove.type = 'button';
-            remove.className = 'btn btn-danger btn-remove-file';
-            remove.setAttribute('aria-label', 'حذف الملف');
-            remove.innerHTML = '<i class="ti ti-trash"></i>';
-            remove.addEventListener('click', () => {
-                selectedFiles.splice(index, 1);
-                syncFileInput();
-                updateFilesPreview();
-                if (selectedFiles.length === 0) uploadArea?.classList.remove('has-files');
-            });
-
-            item.append(info, remove);
-            filesPreview.append(item);
-        });
-
-        syncFileInput();
-    }
-
-    function syncFileInput() {
-        if (!fileInput) return;
-        const transfer = new DataTransfer();
-        selectedFiles.forEach((file) => transfer.items.add(file));
-        fileInput.files = transfer.files;
-    }
-
-    function formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const units = ['Bytes', 'KB', 'MB'];
-        const index = Math.floor(Math.log(bytes) / Math.log(1024));
-        return Math.round((bytes / Math.pow(1024, index)) * 100) / 100 + ' ' + units[index];
-    }
 
     modalClose?.addEventListener('click', () => imageModal?.classList.remove('active'));
     imageModal?.addEventListener('click', (event) => {

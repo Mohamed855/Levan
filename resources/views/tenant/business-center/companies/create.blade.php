@@ -64,9 +64,9 @@
                                     help="النسبة المئوية من إجمالي المحفظة (مثال: 10 تعني 10%)" required col="col-md-6" />
 
                                 {{-- شعار الشركة --}}
-                                <x-form.controls.image-upload name="logo" id="logo" label="شعار الشركة"
-                                    accept=".jpg,.jpeg,.png,.webp" hint="الأنواع: JPG, JPEG, PNG — الحجم الأقصى: 2MB"
-                                    required col="col-md-6" />
+                                <x-form.controls.file name="logo" id="logo" label="شعار الشركة"
+                                    accept="image/jpeg,image/png,image/webp" help="الأنواع: JPG, PNG, WebP — الحجم الأقصى: 2MB"
+                                    :max-size="2" required col="col-md-6" />
                             </div>
 
                             {{-- المفوضون --}}

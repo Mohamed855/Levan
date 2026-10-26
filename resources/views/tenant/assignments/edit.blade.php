@@ -81,11 +81,11 @@
 
                             <x-form.controls.input name="district" label="النطاق/الحي" :value="$assignment->district" col="col-md-6" />
 
-                            <x-form.controls.image-upload name="assignment_image" label="صورة الإسناد" :value="$assignment->assignmentImage
+                            <x-form.controls.file name="assignment_image" label="صورة الإسناد" :value="$assignment->assignmentImage
                                 ? tasset($assignment->assignmentImage->file_path)
                                 : null"
                                 accept="image/jpeg,image/png,image/webp,image/svg+xml"
-                                hint="JPG، PNG أو WebP أو SVG. الحد الأقصى 2MB" col="col-md-6" />
+                                help="JPG أو PNG أو WebP أو SVG. الحد الأقصى 2MB" col="col-md-6" />
 
                             <x-form.wizard.actions>
                                 <x-form.wizard.previous-button :href="tenant_route_name('assignments.index')" text="العودة" />

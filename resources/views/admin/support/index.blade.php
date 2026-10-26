@@ -37,10 +37,7 @@
             </div>
 
             <!-- صورة -->
-            <div class="mb-3">
-                <label class="form-label">إرفاق صورة (اختياري)</label>
-                <input type="file" name="image" class="form-control" accept="image/*">
-            </div>
+            <x-form.controls.file name="image" label="إرفاق صورة (اختياري)" accept="image/*" col="col-12" />
 
             <!-- زر الإرسال -->
             <button type="submit" class="btn-submit">

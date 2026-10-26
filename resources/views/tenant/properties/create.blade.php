@@ -354,8 +354,8 @@
             {{-- الخطوة 4: الملفات والمستندات --}}
             <x-form.wizard.step id="property-files-validation" :fields="['main_image', 'deed_document', 'cadastral_plan', 'coordinates_statement', 'building_permit']">
                 <div class="row g-4">
-                    <x-form.controls.image-upload name="main_image" label="الصورة الرئيسية للعقار" required
-                        accept="image/jpeg,image/png,image/webp" hint="JPG أو PNG أو WebP، بحد أقصى 4MB"
+                    <x-form.controls.file name="main_image" label="الصورة الرئيسية للعقار" required
+                        accept="image/jpeg,image/png,image/webp" help="JPG أو PNG أو WebP، بحد أقصى 4MB"
                         col="col-md-6" />
                     <x-form.controls.file name="deed_document" label="صك الملكية" required accept=".pdf,image/*"
                         help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
@@ -371,29 +371,6 @@
                         accept="image/*" help="يمكن اختيار عدة صور للمعرض" :required="false" col="col-md-6" />
                     <x-form.controls.file name="additional_documents[]" label="مستندات إضافية (اختياري)" multiple
                         accept=".pdf,image/*" help="يمكن اختيار عدة ملفات" :required="false" col="col-md-6" />
-
-                    <div class="col-md-6">
-                        <section class="assignment-properties-table-card h-100" aria-live="polite">
-                            <header class="assignment-properties-table-card__header">
-                                <h6 class="mb-0">صور إضافية للمعرض</h6>
-                                <span id="property-images-count" class="badge bg-label-primary">0 ملف</span>
-                            </header>
-                            <div id="property-images-cards" class="assignment-file-list p-3">
-                                <p class="text-muted mb-0">لم يتم إرفاق ملفات بعد.</p>
-                            </div>
-                        </section>
-                    </div>
-                    <div class="col-md-6">
-                        <section class="assignment-properties-table-card h-100" aria-live="polite">
-                            <header class="assignment-properties-table-card__header">
-                                <h6 class="mb-0">مستندات إضافية</h6>
-                                <span id="additional-documents-count" class="badge bg-label-primary">0 ملف</span>
-                            </header>
-                            <div id="additional-documents-cards" class="assignment-file-list p-3">
-                                <p class="text-muted mb-0">لم يتم إرفاق ملفات بعد.</p>
-                            </div>
-                        </section>
-                    </div>
 
                     <x-form.wizard.actions>
                         <x-form.wizard.previous-button />

@@ -46,7 +46,7 @@
             </div>
 
             <x-form.wizard.stepper id="user-edit-wizard" :steps="$steps">
-                <x-ui.validation-errors class="mb-4" />
+                <x-ui.validation-errors />
 
                 <form id="user-edit-wizard-form" action="{{ route('admin.users.update', $user) }}" method="POST"
                     enctype="multipart/form-data" autocomplete="off" data-form-validate
@@ -77,10 +77,10 @@
                                 data-validation-dependents="password_confirmation" col="col-md-6" />
                             <x-form.controls.password name="password_confirmation" label="تأكيد كلمة المرور الجديدة"
                                 placeholder="أعد إدخال كلمة المرور" col="col-md-6" />
-                            <x-form.controls.image-upload name="image" label="الصورة الشخصية" :value="$user->image
+                            <x-form.controls.file name="image" label="الصورة الشخصية" :value="$user->image
                                 ? asset('storage/' . $user->image)
-                                : asset('static/brand/logos/logo.svg')"
-                                col="col-md-6" />
+                                : null"
+                                accept="image/*" col="col-md-6" />
                         </div>
 
                         <x-form.wizard.actions>

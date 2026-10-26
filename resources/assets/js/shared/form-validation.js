@@ -1,5 +1,7 @@
 'use strict';
 
+import { initAllFileUploadZones } from './file-upload.js';
+
 const INPUT_VALIDATION_DEBOUNCE_MS = 250;
 const formStates = new WeakMap();
 
@@ -1474,6 +1476,7 @@ function boot() {
   document.querySelectorAll('form[data-form-validate]').forEach(initForm);
   initPasswordToggles();
   initImagePreviews();
+  initAllFileUploadZones();
 }
 
 if (document.readyState === 'loading') {

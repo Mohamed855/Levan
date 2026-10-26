@@ -124,9 +124,9 @@
 
             <x-form.wizard.step id="assignment-files-validation" :fields="['assignment_image', 'assignment_letter', 'general_documents', 'additional_attachments']">
                 <div class="row g-4">
-                    <x-form.controls.image-upload name="assignment_image" label="صورة الإسناد" required
+                    <x-form.controls.file name="assignment_image" label="صورة الإسناد" required
                         accept="image/jpeg,image/png,image/webp,image/svg+xml"
-                        hint="JPG أو PNG أو WebP أو SVG، بحد أقصى 2MB" col="col-md-6" />
+                        help="JPG أو PNG أو WebP أو SVG، بحد أقصى 2MB" col="col-md-6" />
                     <x-form.controls.file name="assignment_letter" label="خطاب الإسناد" required accept="application/pdf"
                         help="PDF فقط، بحد أقصى 10MB" col="col-md-6" />
                     <x-form.controls.file name="general_documents" id="general_documents" label="مستندات عامة" required

@@ -285,6 +285,230 @@ input[type="file"].form-control,
     }
 }
 
+// Unified File & Image Upload Area Component
+.file-upload-control {
+    position: relative;
+    width: 100%;
+}
+
+.file-upload-area {
+    border: 1px dashed rgba(29, 79, 68, 0.28);
+    border-radius: 8px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    background-color: rgba(247, 243, 236, 0.35);
+    box-shadow: none !important;
+    transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+
+    &:hover,
+    &:focus-visible {
+        border-color: var(--primary-color, #1d4f44) !important;
+        background-color: rgba(247, 243, 236, 0.65);
+    }
+
+    &.drag-over {
+        border-color: var(--primary-color, #1d4f44) !important;
+        background-color: rgba(29, 79, 68, 0.08) !important;
+        transform: scale(1.008);
+    }
+
+    &.has-files {
+        border-color: #28a745;
+        background-color: rgba(40, 167, 69, 0.04);
+    }
+
+    .file-upload-icon-wrap {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        background: rgba(29, 79, 68, 0.08);
+        color: var(--primary-color, #1d4f44);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        margin-bottom: 0.5rem;
+        transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    &:hover .file-upload-icon-wrap,
+    &.drag-over .file-upload-icon-wrap {
+        background: rgba(29, 79, 68, 0.14);
+        transform: translateY(-2px);
+    }
+
+    .file-upload-title {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--bs-heading-color, #333);
+        margin-bottom: 0.25rem;
+    }
+
+    .file-upload-desc {
+        font-size: 0.75rem;
+        color: var(--bs-secondary-color, #6c757d);
+        margin: 0;
+    }
+
+    &.is-invalid {
+        border-color: var(--bs-danger, #ea5455) !important;
+        background-color: rgba(234, 84, 85, 0.04);
+    }
+}
+
+.file-upload-area.file-upload-compact {
+    padding: 0.85rem 0.75rem;
+
+    .file-upload-icon-wrap {
+        width: 36px;
+        height: 36px;
+        font-size: 1.15rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .file-upload-title {
+        font-size: 0.85rem;
+    }
+}
+
+.file-preview-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.65rem 0.85rem;
+    background: var(--bs-card-bg, #ffffff);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+        border-color: rgba(29, 79, 68, 0.3);
+    }
+
+    .file-item-preview {
+        width: 48px;
+        height: 48px;
+        border-radius: 6px;
+        object-fit: cover;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        flex-shrink: 0;
+    }
+
+    .file-item-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+        background: rgba(29, 79, 68, 0.08);
+        color: var(--primary-color, #1d4f44);
+
+        &.file-item-icon-pdf {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        &.file-item-icon-word {
+            background: rgba(37, 99, 235, 0.1);
+            color: #2563eb;
+        }
+
+        &.file-item-icon-excel {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        &.file-item-icon-image {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+        }
+    }
+
+    .file-item-info {
+        flex: 1;
+        min-width: 0;
+
+        .file-item-name {
+            font-weight: 600;
+            margin-bottom: 0.1rem;
+            font-size: 0.875rem;
+            color: var(--bs-heading-color, #222);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-item-size {
+            color: var(--bs-secondary-color, #888);
+            font-size: 0.75rem;
+        }
+    }
+
+    .btn-remove-file {
+        width: 1.85rem;
+        height: 1.85rem;
+        padding: 0;
+        border-radius: 50%;
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+        flex-shrink: 0;
+
+        &:hover {
+            background: #ef4444;
+            color: #ffffff;
+        }
+
+        i {
+            font-size: 0.95rem;
+        }
+    }
+
+    .btn-view-file {
+        width: 1.85rem;
+        height: 1.85rem;
+        padding: 0;
+        border-radius: 50%;
+        background: rgba(29, 79, 68, 0.1);
+        color: var(--primary-color, #1d4f44);
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+        flex-shrink: 0;
+
+        &:hover {
+            background: var(--primary-color, #1d4f44);
+            color: #ffffff;
+        }
+
+        i {
+            font-size: 0.95rem;
+        }
+    }
+}
+
 // Strict Form validation UI contracts:
 // Lock dimensions and padding so appearing errors never alter height/dimensions!
 .form-control.is-invalid,

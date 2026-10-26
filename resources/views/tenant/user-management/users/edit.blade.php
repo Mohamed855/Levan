@@ -73,8 +73,8 @@
                                 placeholder="اتركه فارغاً لعدم التغيير" data-validation-dependents="password_confirmation" />
                             <x-form.controls.password name="password_confirmation" label="تأكيد كلمة المرور"
                                 placeholder="أعد إدخال كلمة المرور" />
-                            <x-form.controls.image-upload name="image" label="الصورة الشخصية" :value="tasset($user->image)"
-                                hint="JPG، PNG أو GIF. الحد الأقصى 2MB" />
+                            <x-form.controls.file name="image" label="الصورة الشخصية" :value="$user->image ? tasset($user->image) : null"
+                                accept="image/*" help="JPG، PNG أو GIF. الحد الأقصى 2MB" :max-size="2" />
 
                             <x-form.wizard.actions>
                                 <x-form.wizard.previous-button />

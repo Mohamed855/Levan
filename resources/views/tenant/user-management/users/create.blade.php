@@ -73,8 +73,8 @@
                                 data-validation-dependents="password_confirmation" required />
                             <x-form.controls.password name="password_confirmation" label="تأكيد كلمة المرور"
                                 placeholder="أعد إدخال كلمة المرور" required />
-                            <x-form.controls.image-upload name="image" label="الصورة الشخصية"
-                                hint="JPG، PNG أو GIF. الحد الأقصى 2MB" />
+                            <x-form.controls.file name="image" label="الصورة الشخصية"
+                                accept="image/*" help="JPG، PNG أو GIF. الحد الأقصى 2MB" :max-size="2" />
 
                             <x-form.wizard.actions>
                                 <x-form.wizard.previous-button />

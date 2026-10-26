@@ -72,14 +72,8 @@
 
                                 <x-form.controls.file name="attachments" id="attachments" label="المرفقات (اختياري)"
                                     multiple accept="image/*,application/pdf,.doc,.docx,.txt"
-                                    help="يمكنك رفع عدة صور أو ملفات (حد أقصى 5 ملفات، كل ملف حتى 5MB)"
-                                    onchange="previewFiles()" col="col-md-6">
-                                    <div id="file-count" class="mt-2" style="display: none;">
-                                        <span class="badge bg-primary">عدد الملفات المحددة: <span
-                                                id="count">0</span></span>
-                                    </div>
-                                    <div id="preview-container" class="preview-container"></div>
-                                </x-form.controls.file>
+                                    help="يمكنك رفع عدة صور أو ملفات (حد أقصى 5 ملفات، كل ملف حتى 10MB)"
+                                    :max-size="10" col="col-md-6" />
                             </div>
 
                             <div class="col-12 d-flex justify-content-between mt-5">
@@ -99,91 +93,4 @@
         </div>
     </div>
 
-    <script>
-        let selectedFiles = [];
-
-        function previewFiles() {
-            const input = document.getElementById('attachments');
-            const previewContainer = document.getElementById('preview-container');
-            const fileCountDiv = document.getElementById('file-count');
-            const countSpan = document.getElementById('count');
-
-            // Clear previous previews
-            previewContainer.innerHTML = '';
-            selectedFiles = Array.from(input.files);
-
-            if (selectedFiles.length > 0) {
-                fileCountDiv.style.display = 'block';
-                countSpan.textContent = selectedFiles.length;
-
-                selectedFiles.forEach((file, index) => {
-                    const previewItem = document.createElement('div');
-                    previewItem.className = 'preview-item';
-                    previewItem.dataset.index = index;
-
-                    // Create remove button
-                    const removeBtn = document.createElement('button');
-                    removeBtn.className = 'remove-file';
-                    removeBtn.innerHTML = '×';
-                    removeBtn.type = 'button';
-                    removeBtn.onclick = () => removeFile(index);
-
-                    // Check if file is an image
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const img = document.createElement('img');
-                            img.src = e.target.result;
-                            previewItem.appendChild(img);
-                        };
-                        reader.readAsDataURL(file);
-                    } else {
-                        // For non-image files, show icon
-                        const fileIcon = document.createElement('div');
-                        fileIcon.className = 'file-icon';
-
-                        // Choose icon based on file type
-                        let iconClass = 'bx-file';
-                        if (file.type.includes('pdf')) {
-                            iconClass = 'bx-file-pdf';
-                        } else if (file.type.includes('word') || file.name.endsWith('.doc') || file.name.endsWith(
-                                '.docx')) {
-                            iconClass = 'bx-file-doc';
-                        } else if (file.type.includes('text')) {
-                            iconClass = 'bx-file-txt';
-                        }
-
-                        fileIcon.innerHTML = `<i class="bx ${iconClass}"></i>`;
-                        previewItem.appendChild(fileIcon);
-                    }
-
-                    // Add file name
-                    const fileName = document.createElement('div');
-                    fileName.className = 'file-name';
-                    fileName.textContent = file.name;
-                    fileName.title = file.name;
-                    previewItem.appendChild(fileName);
-
-                    previewItem.appendChild(removeBtn);
-                    previewContainer.appendChild(previewItem);
-                });
-            } else {
-                fileCountDiv.style.display = 'none';
-            }
-        }
-
-        function removeFile(index) {
-            // Remove file from selectedFiles array
-            selectedFiles.splice(index, 1);
-
-            // Update the file input
-            const input = document.getElementById('attachments');
-            const dt = new DataTransfer();
-            selectedFiles.forEach(file => dt.items.add(file));
-            input.files = dt.files;
-
-            // Refresh preview
-            previewFiles();
-        }
-    </script>
 @endsection

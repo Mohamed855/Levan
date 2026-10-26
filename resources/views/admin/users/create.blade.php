@@ -35,7 +35,7 @@
     <div class="row">
         <div class="col-12 mb-6">
             <x-form.wizard.stepper id="user-wizard" :steps="$steps">
-                <x-ui.validation-errors class="mb-4" />
+                <x-ui.validation-errors />
 
                 <form id="user-wizard-form" action="{{ route('admin.users.store') }}" method="POST"
                     enctype="multipart/form-data" autocomplete="off" data-form-validate
@@ -68,7 +68,7 @@
                                 data-validation-dependents="password_confirmation" required col="col-md-6" />
                             <x-form.controls.password name="password_confirmation" label="تأكيد كلمة المرور"
                                 placeholder="أعد إدخال كلمة المرور" required col="col-md-6" />
-                            <x-form.controls.image-upload name="image" label="الصورة الشخصية" col="col-md-6" />
+                            <x-form.controls.file name="image" label="الصورة الشخصية" accept="image/*" col="col-md-6" />
                         </div>
 
                         <x-form.wizard.actions>

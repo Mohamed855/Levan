@@ -5,23 +5,12 @@
             @csrf
             @method('PUT')
             <input type="hidden" name="active_tab" id="" value="#generalSettings">
-            <div class="card-body">
-                <div class="d-flex align-items-start align-items-sm-center gap-6">
-                    <img src="{{ $settings->image ? asset('storage/' . $settings->image) : asset('static/brand/logos/logo.svg') }}"
-                        alt="user-avatar" class="d-block w-px-100 h-px-100 rounded" id="uploadedAvatar" />
-                    <div class="button-wrapper">
-                        <label for="upload" class="btn btn-primary me-3 mb-4" tabindex="0">
-                            <span class="d-none d-sm-block">تحميل الشعار </span>
-                            <i class="ti ti-upload d-block d-sm-none"></i>
-                            <input type="file" name="image" id="upload" class="account-file-input" hidden
-                                accept="image/png, image/jpeg" />
-                        </label>
-                        <div>
-                            <small>الملفات المسموح بها: JPG, GIF, أو PNG. الأبعاد الموصى بها: 150px ×
-                                150px</small>
-                        </div>
-                    </div>
-                </div>
+            <div class="card-body pb-0">
+                <x-form.controls.file name="image" label="شعار الموقع / الشعار العام"
+                    :value="$settings->image ? asset('storage/' . $settings->image) : null"
+                    accept="image/png, image/jpeg, image/webp"
+                    help="الملفات المسموح بها: JPG, PNG أو WebP. الأبعاد الموصى بها: 150px × 150px"
+                    :max-size="2" col="col-md-6" />
             </div>
 
             <div class="card-body pt-4">

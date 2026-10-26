@@ -60,13 +60,9 @@
                         @enderror
                     </div>
 
-                    <div class="form-group mb-3" data-form-field data-field-name="receipt">
-                        <label for="receipt">إيصال التحويل</label>
-                        <input type="file" class="form-control @error('receipt') is-invalid @enderror" id="receipt" data-form-control
-                            name="receipt" value="{{ old('receipt') }}" required>
-                        @error('receipt')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <div class="mb-3">
+                        <x-form.controls.file name="receipt" id="receipt" label="إيصال التحويل" required
+                            accept="image/*,application/pdf" help="PDF أو صورة بحد أقصى 5MB" :max-size="5" col="col-12" />
                     </div>
 
                     {{-- <div class="form-group mb-3">

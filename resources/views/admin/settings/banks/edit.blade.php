@@ -43,9 +43,9 @@
                             :value="old('account_number', $bank->account_number)" required col="col-md-6" />
 
                         <!-- أيقونة البنك -->
-                        <x-form.controls.image-upload name="icon" id="icon" label="أيقونة البنك" :value="$bank->icon ? asset('storage/' . $bank->icon) : null"
+                        <x-form.controls.file name="icon" id="icon" label="أيقونة البنك" :value="$bank->icon ? asset('storage/' . $bank->icon) : null"
                             accept="image/jpeg,image/png,image/jpg,image/svg+xml"
-                            hint="اترك الحقل فارغاً للإبقاء على الصورة الحالية" col="col-md-6" />
+                            help="اترك الحقل فارغاً للإبقاء على الصورة الحالية" :max-size="2" col="col-md-6" />
                     </div>
 
                     <!-- الأزرار -->

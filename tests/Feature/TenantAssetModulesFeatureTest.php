@@ -335,7 +335,9 @@ class TenantAssetModulesFeatureTest extends TestCase
             'expected_properties_count' => 1,
             'assignment_id' => $assignment->id,
             'platform_name' => 'Auction platform',
+            'project_manager_name' => 'Project Manager',
             'property_ids' => [$firstProperty->id],
+                'report_image' => UploadedFile::fake()->image('lifecycle-report.webp'),
         ]);
 
         $auction = Auction::where('name', $auctionName)->latest('id')->firstOrFail();
@@ -611,6 +613,7 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'assignment_id' => $assignment->id,
                 'platform_name' => 'Auction platform',
                 'property_ids' => [$prop2->id, $prop1->id],
+                'report_image' => UploadedFile::fake()->image('sort-order-report.webp'),
             ]);
 
         $auction = Auction::where('name', $auctionName)->latest('id')->firstOrFail();
@@ -756,6 +759,7 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'assignment_id' => $assignment->id,
                 'platform_name' => 'Auction platform',
                 'property_ids' => [$prop->id],
+                'report_image' => UploadedFile::fake()->image('draft-report.webp'),
             ]);
 
         $auction = \App\Models\Tenants\Auctions\Auction::where('name', 'Final Auction From Draft')->latest('id')->firstOrFail();
