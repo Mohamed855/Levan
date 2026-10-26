@@ -31,7 +31,10 @@ final class CreateFormDraftContractTest extends TestCase
         $this->assertStringContainsString('function prepareCreateFormContract(form)', $script);
         $this->assertStringContainsString('form.dataset.draftUrl ||= draftUrl', $script);
         $this->assertStringContainsString('installDraftButton(submitButton.parentElement, submitButton)', $script);
-        $this->assertStringContainsString("addHiddenField(form, '_wizard_draft_id'", $script);
+        $this->assertTrue(
+            str_contains($script, "addHiddenField(form, '_wizard_draft_id'") || str_contains($script, 'addHiddenField(form, "_wizard_draft_id"'),
+            "form-validation.js must add _wizard_draft_id hidden field"
+        );
         $this->assertStringContainsString('restoreDraft(form)', $script);
     }
 
@@ -49,10 +52,22 @@ final class CreateFormDraftContractTest extends TestCase
         $script = file_get_contents($root.'/resources/assets/js/shared/form-validation.js');
 
         $this->assertStringContainsString('let shouldRestore = false;', $script);
-        $this->assertStringContainsString('title: \'مسودة محفوظة\'', $script);
-        $this->assertStringContainsString('text: \'توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟\'', $script);
-        $this->assertStringContainsString('confirmButtonText: \'نعم، استعادة المسودة\'', $script);
-        $this->assertStringContainsString('cancelButtonText: \'تجاهل والبدء من جديد\'', $script);
+        $this->assertTrue(
+            str_contains($script, "title: 'مسودة محفوظة'") || str_contains($script, 'title: "مسودة محفوظة"'),
+            "form-validation.js must set title to مسودة محفوظة"
+        );
+        $this->assertTrue(
+            str_contains($script, "text: 'توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟'") || str_contains($script, 'text: "توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟"'),
+            "form-validation.js must set confirmation text"
+        );
+        $this->assertTrue(
+            str_contains($script, "confirmButtonText: 'نعم، استعادة المسودة'") || str_contains($script, 'confirmButtonText: "نعم، استعادة المسودة"'),
+            "form-validation.js must set confirmButtonText"
+        );
+        $this->assertTrue(
+            str_contains($script, "cancelButtonText: 'تجاهل والبدء من جديد'") || str_contains($script, 'cancelButtonText: "تجاهل والبدء من جديد"'),
+            "form-validation.js must set cancelButtonText"
+        );
         $this->assertStringNotContainsString('data-draft-auto-restore', $script);
 
         // Ensure no view has data-draft-auto-restore bypass
@@ -77,8 +92,14 @@ final class CreateFormDraftContractTest extends TestCase
         $root = dirname(__DIR__, 2);
         $script = file_get_contents($root.'/resources/assets/js/shared/form-validation.js');
 
-        $this->assertStringContainsString('replace(/\/create\/?$/, \'\')', $script);
-        $this->assertStringContainsString('replace(/\/[^/]+\/edit\/?$/, \'\')', $script);
+        $this->assertTrue(
+            str_contains($script, "replace(/\/create\/?$/, '')") || str_contains($script, 'replace(/\/create\/?$/, "")'),
+            "form-validation.js must strip create from URL"
+        );
+        $this->assertTrue(
+            str_contains($script, "replace(/\/[^/]+\/edit\/?$/, '')") || str_contains($script, 'replace(/\/[^/]+\/edit\/?$/, "")'),
+            "form-validation.js must strip edit from URL"
+        );
 
         $wizardFiles = [
             $root.'/resources/views/tenant/auctions/create.blade.php',
