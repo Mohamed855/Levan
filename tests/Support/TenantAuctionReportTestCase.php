@@ -36,6 +36,8 @@ abstract class TenantAuctionReportTestCase extends TestCase
             ],
         );
 
+        $this->tenant->domains()->firstOrCreate(['domain' => 'test.localhost']);
+
         tenancy()->initialize($this->tenant);
         DB::connection('tenant')->beginTransaction();
     }

@@ -42,7 +42,6 @@ class TenantGoldenPatternInventoryTest extends TestCase
     public const REMEDIATION_CARD_FILES = [
         'archive.md',
         'authentication-2fa.md',
-        'companies.md',
         'dashboard-charts.md',
         'domains-cpanel.md',
         'general-settings.md',
@@ -57,7 +56,6 @@ class TenantGoldenPatternInventoryTest extends TestCase
     public const VERIFIED_COMPLIANT_CARD_FILES = [
         'authentication-2fa.md',
         'archive.md',
-        'companies.md',
         'dashboard-charts.md',
         'domains-cpanel.md',
         'settings-api-tokens.md',
@@ -69,13 +67,13 @@ class TenantGoldenPatternInventoryTest extends TestCase
         'notifications-activity.md',
     ];
 
-    public function test_tenant_inventory_has_exactly_15_families_with_three_closed(): void
+    public function test_tenant_inventory_has_exactly_14_families_with_three_closed(): void
     {
         $manifest = file_get_contents(dirname(__DIR__, 2).'/docs/baselines/golden-pattern-manifest.md');
 
         $this->assertSame(3, count(self::CLOSED_FAMILIES));
-        $this->assertSame(12, count(self::REMEDIATION_CARD_FILES));
-        $this->assertSame(15, count(self::CLOSED_FAMILIES) + count(self::REMEDIATION_CARD_FILES));
+        $this->assertSame(11, count(self::REMEDIATION_CARD_FILES));
+        $this->assertSame(14, count(self::CLOSED_FAMILIES) + count(self::REMEDIATION_CARD_FILES));
 
         $verifiedFiles = self::VERIFIED_COMPLIANT_CARD_FILES;
         $remediationFiles = self::REMEDIATION_CARD_FILES;

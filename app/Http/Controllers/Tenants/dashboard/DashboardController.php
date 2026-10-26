@@ -9,7 +9,6 @@ use App\Services\Tenants\Dashboard\DashboardService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Yajra\DataTables\Facades\DataTables;
 
 final class DashboardController extends Controller
 {
@@ -20,13 +19,28 @@ final class DashboardController extends Controller
 
     public function index(Request $request): Response
     {
-        $data = $this->dashboardService->getFoundationDashboardData();
+        $data = $this->dashboardService->getDashboardData();
 
         if ($request->expectsJson()) {
-            return response()->json(['success' => true, 'stats' => $data['stats']]);
+            return response()->json([
+                'success' => true,
+                'kpis' => $data['kpis'],
+                'stats' => $data['kpis'],
+            ]);
         }
 
         return response()->view('tenant.dashboard.index', $data);
+    }
+
+    /**
+     * API endpoint: جلب نشاط المزادات والمبيعات حسب النطاق الزمني
+     */
+    public function auctionActivity(Request $request): JsonResponse
+    {
+        $range = (string) $request->get('range', '1month');
+        $data = $this->dashboardService->getAuctionActivityByRange($range);
+
+        return response()->json(['data' => $data]);
     }
 
     public function getStatisticsData(Request $request): JsonResponse

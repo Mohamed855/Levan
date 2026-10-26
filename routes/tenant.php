@@ -247,6 +247,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         Route::prefix('dashboard')->middleware(['verified'])->group(function () {
             Route::name('dashboard')->get('/', [DashboardController::class, 'index']);
             Route::name('dashboard.statistics')->get('/statistics', [DashboardController::class, 'getStatisticsData']);
+            Route::name('dashboard.auction-activity')->get('/auction-activity', [DashboardController::class, 'auctionActivity']);
         });
 
         /*
