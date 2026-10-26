@@ -52,7 +52,12 @@
                     أصفار.</p>
             </div>
         </div>
-        <h2 class="section-title" style="margin-top:10mm">التسويق</h2>
+        <div class="footer"><span>{{ $data['auction']['name'] }}</span><span>الملخص التنفيذي</span></div>
+    </section>
+
+    @foreach (collect($data['marketing']['campaigns'] ?? [])->chunk(12)->whenEmpty(fn ($chunks) => $chunks->push(collect())) as $campaignChunk)
+    <section class="page">
+        <h2 class="section-title">التسويق</h2>
         @if (!empty($data['marketing']['campaigns']))
             <table>
                 <thead>
@@ -65,7 +70,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($data['marketing']['campaigns'] as $campaign)
+                    @foreach ($campaignChunk as $campaign)
                         <tr>
                             <td>{{ $campaign['platform'] ?? '-' }}</td>
                             <td>{{ $campaign['reach'] ?? '-' }}</td>
@@ -78,8 +83,9 @@
             </table>
         @else<div class="no-data">لم تُسجل بيانات حملات تسويقية.</div>
         @endif
-        <div class="footer"><span>{{ $data['auction']['name'] }}</span><span>الملخص التنفيذي</span></div>
+        <div class="footer"><span>{{ $data['auction']['name'] }}</span><span>التسويق</span></div>
     </section>
+    @endforeach
 
     @forelse($data['properties'] as $index => $property)
         @php($propertyImages = collect($property['images'] ?? [])->filter())

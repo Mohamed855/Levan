@@ -46,5 +46,22 @@ final class AuctionReportRendererTest extends TestCase
         self::assertStringNotContainsString('4,026,000', $report.$outputs);
         self::assertStringNotContainsString('واجهة عسير', $report.$outputs);
         self::assertStringNotContainsString('لمزاد مزاد', $report.$outputs);
+
+        $property = $snapshot['properties'][0];
+        $snapshot['properties'] = [];
+        for ($index = 1; $index <= 17; $index++) {
+            $snapshot['properties'][] = array_replace($property, ['number' => 'P-'.$index]);
+        }
+        $snapshot['marketing']['campaigns'] = [];
+        for ($index = 1; $index <= 25; $index++) {
+            $snapshot['marketing']['campaigns'][] = ['platform' => 'Campaign-'.$index];
+        }
+
+        $outputs = $renderer->html($snapshot, 'outputs');
+        $report = $renderer->html($snapshot, 'report');
+        self::assertSame(3, substr_count($outputs, '<section class="page outputs-results-page">'));
+        self::assertSame(3, substr_count($report, '<h2 class="section-title">التسويق</h2>'));
+        self::assertStringContainsString('P-17', $outputs);
+        self::assertStringContainsString('Campaign-25', $report);
     }
 }

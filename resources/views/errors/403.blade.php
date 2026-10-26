@@ -1,22 +1,6 @@
-@extends('web.layouts.main')
+@extends('layouts.error')
+
 @section('title', 'غير مصرح بالوصول | 403')
-@section('content')
-    <main class="site-error-page">
-        <div class="container site-error-container">
-            <article class="site-error-card">
-                <div class="site-error-code">403</div>
-                <h1 class="site-error-title">غير مصرح لك بالدخول</h1>
-                <p class="site-error-desc">ليس لديك الصلاحية الكافية للوصول إلى هذه الصفحة.</p>
-                <div class="site-error-actions">
-                    <a href="{{ route('site.index') }}" class="site-error-btn">
-                        <i class="ti ti-home"></i>
-                        <span>العودة للرئيسية</span>
-                    </a>
-                    <a href="{{ route('site.index') }}#contact" class="site-error-btn-outline">
-                        <i class="ti ti-headset"></i>
-                        <span>تواصل مع الدعم</span>
-                    </a>
-                </div>
-            </article>
-        </div>
-</main>@endsection
+@section('code', '403')
+@section('heading', 'غير مصرح لك بالدخول')
+@section('message', 'ليس لديك الصلاحية الكافية للوصول إلى هذا المورد أو الصفحة المطلوبة.')

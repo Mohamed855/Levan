@@ -4,13 +4,11 @@
 // =============================================================================
 
 .site-error-page {
-  min-height: 80vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: clamp(7.5rem, 14vw, 10.5rem);
-  padding-bottom: clamp(4rem, 8vw, 6.5rem);
-  padding-inline: 1.5rem;
+  padding: clamp(2.5rem, 5vw, 4.5rem) 1.5rem;
   position: relative;
   overflow: hidden;
 
@@ -35,6 +33,25 @@
     max-width: 640px;
     width: 100%;
     margin-inline: auto;
+  }
+
+  .site-error-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+
+    img {
+      height: 48px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 14px rgba(18, 51, 44, 0.08));
+      transition: transform var(--site-transition-fast);
+    }
+
+    &:hover img {
+      transform: scale(1.04);
+    }
   }
 
   .site-error-card {

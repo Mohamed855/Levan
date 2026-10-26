@@ -30,6 +30,7 @@
         </div>
     </section>
 
+    @foreach (collect($data['properties'])->chunk(8)->whenEmpty(fn ($chunks) => $chunks->push(collect())) as $propertyChunk)
     <section class="page outputs-results-page">
         <header class="document-header"><span class="levan-logo-light"></span><strong>مخرجات المزاد</strong></header>
         <h2 class="section-title">نتائج العقارات</h2>
@@ -48,7 +49,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($data['properties'] as $index => $property)
+                    @foreach ($propertyChunk as $index => $property)
                         <tr>
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $property['number'] }}<br><span class="muted">{{ $property['name'] }} •
@@ -82,6 +83,7 @@
         </div>
         <div class="footer"><span>{{ $data['auction']['name'] }}</span><span>النتائج</span></div>
     </section>
+    @endforeach
 </body>
 
 </html>

@@ -48,7 +48,7 @@ final class TemplateSchemaBackgroundTest extends TestCase
             'position_y' => 80,
         ];
 
-        $html = view('shared.auctions.design-document', [
+        $html = view('components.shared.auctions.design-document', [
             'schema' => $schema,
             'bindings' => [],
         ])->render();

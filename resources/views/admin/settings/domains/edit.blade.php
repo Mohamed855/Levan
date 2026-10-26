@@ -2,6 +2,10 @@
 
 @section('title', 'تعديل امتداد دومين')
 
+@section('page-script')
+    @vite('resources/assets/js/shared/form-validation.js')
+@endsection
+
 @section('content')
     <div class="row">
         <div class="col-12">
@@ -18,25 +22,7 @@
                         data-form-validate>
                         @csrf
                         @method('PUT')
-                        <div class="row g-4">
-                            <x-form.controls.input name="domain_extension" id="domain_extension" label="الامتداد"
-                                :value="old('domain_extension', $domain->domain_extension)" readonly required col="col-md-6"
-                                help="امتداد النطاق ثابت لا يمكن تعديله." />
-
-                            <x-form.controls.input type="number" step="0.01" name="price" id="price"
-                                label="السعر" :value="old('price', $domain->price)" required col="col-md-6" />
-                        </div>
-
-                        <div class="mt-4 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="ti ti-device-floppy me-1"></i>
-                                تعديل
-                            </button>
-                            <a href="{{ route('admin.settings.domains.index') }}" class="btn btn-secondary">
-                                <i class="ti ti-x me-1"></i>
-                                إلغاء
-                            </a>
-                        </div>
+                        @include('admin.settings.domains.partials.form', ['domain' => $domain])
                     </form>
                 </div>
             </div>

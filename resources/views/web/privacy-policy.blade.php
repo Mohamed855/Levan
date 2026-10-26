@@ -1,4 +1,4 @@
-@extends('web.layouts.main')
+@extends('layouts.web')
 
 @section('title', 'لوت LOT - السياسات')
 

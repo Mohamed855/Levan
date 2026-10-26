@@ -128,7 +128,7 @@ class TenancyServiceProvider extends ServiceProvider
             );
             Config::set(
                 'filesystems.disks.tenant_private.root',
-                storage_path("app/tenants/{$tenantId}/private")
+                storage_path("app/tenants-private/{$tenantId}")
             );
             Storage::forgetDisk('tenant_public');
             Storage::forgetDisk('tenant_private');

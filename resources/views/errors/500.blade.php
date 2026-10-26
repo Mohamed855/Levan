@@ -1,21 +1,6 @@
-@extends('web.layouts.main')
+@extends('layouts.error')
+
 @section('title', 'خطأ في الخادم | 500')
-@section('content')<main class="site-error-page">
-        <div class="container site-error-container">
-            <article class="site-error-card">
-                <div class="site-error-code">500</div>
-                <h1 class="site-error-title">حدث خطأ داخلي في الخادم</h1>
-                <p class="site-error-desc">يرجى المحاولة لاحقًا أو التواصل مع الدعم.</p>
-                <div class="site-error-actions">
-                    <a href="{{ route('site.index') }}" class="site-error-btn">
-                        <i class="ti ti-home"></i>
-                        <span>العودة للرئيسية</span>
-                    </a>
-                    <a href="{{ route('site.index') }}#contact" class="site-error-btn-outline">
-                        <i class="ti ti-headset"></i>
-                        <span>تواصل مع الدعم</span>
-                    </a>
-                </div>
-            </article>
-        </div>
-</main>@endsection
+@section('code', '500')
+@section('heading', 'حدث خطأ داخلي في الخادم')
+@section('message', 'نعتذر عن هذا الخطأ غير المتوقع، تم تسجيل المشكلة وجارٍ العمل على إصلاحها بأسرع وقت.')

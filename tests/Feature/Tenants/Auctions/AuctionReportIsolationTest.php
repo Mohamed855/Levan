@@ -48,9 +48,13 @@ final class AuctionReportIsolationTest extends TenantAuctionReportTestCase
             tenancy()->initialize($otherTenant);
 
             self::assertStringContainsString(
-                'tenants/'.$otherTenant->id.'/private',
+                'tenants-private/'.$otherTenant->id,
                 str_replace('\\', '/', config('filesystems.disks.tenant_private.root')),
             );
+            $privateRoot = str_replace('\\', '/', config('filesystems.disks.tenant_private.root'));
+            foreach (config('filesystems.links') as $publicTarget) {
+                self::assertFalse(str_starts_with($privateRoot.'/', rtrim(str_replace('\\', '/', $publicTarget), '/').'/'));
+            }
             Storage::disk('tenant_private')->assertMissing($path);
         } finally {
             tenancy()->end();

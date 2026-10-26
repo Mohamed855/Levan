@@ -18,7 +18,7 @@ final class AuctionSnapshotExporter
             throw new \RuntimeException('Template snapshot not found.');
         }
         File::ensureDirectoryExists(dirname($outputPath));
-        $html = view('shared.auctions.design-document', ['schema' => $snapshot['schema'] ?? [], 'bindings' => app(AuctionTemplateRenderer::class)->bindings($auction)])->render();
+        $html = view('components.shared.auctions.design-document', ['schema' => $snapshot['schema'] ?? [], 'bindings' => app(AuctionTemplateRenderer::class)->bindings($auction)])->render();
         if (class_exists(Browsershot::class)) {
             return app(BrowsershotDocumentRenderer::class)->pdf($html, $outputPath);
         }

@@ -1,4 +1,4 @@
-@extends('web.layouts.main')
+@extends('layouts.web')
 
 @section('title', 'لوت LOT - إتمام الطلب')
 
@@ -362,18 +362,12 @@
 
                                             <!-- Receipt Upload Section -->
                                             <div class="mb-4 hidden" id="receipt-upload-section">
-                                                <x-form.controls.file
-                                                    name="transfer_receipt"
-                                                    id="transfer_receipt"
-                                                    label="إيصال التحويل البنكي"
-                                                    required
+                                                <x-form.controls.file name="transfer_receipt" id="transfer_receipt"
+                                                    label="إيصال التحويل البنكي" required
                                                     accept="image/jpeg,image/jpg,image/png,application/pdf"
                                                     title="انقر أو اسحب إيصال التحويل هنا"
-                                                    desc="صيغ JPG · PNG · PDF — أقصى حجم 5 ميجابايت"
-                                                    :max-size="5"
-                                                    col="col-12"
-                                                    data-validation-skip
-                                                />
+                                                    desc="صيغ JPG · PNG · PDF — أقصى حجم 5 ميجابايت" :max-size="5"
+                                                    col="col-12" data-validation-skip />
                                             </div>
 
                                             <!-- Instructions Box -->

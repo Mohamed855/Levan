@@ -176,16 +176,20 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
 
     public function test_http_create_stores_the_required_report_image(): void
     {
+        $this->withoutMiddleware([
+            \App\Http\Middleware\Tenancy\CheckSubscription::class,
+            \App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense::class,
+        ]);
         Storage::fake('tenant_public');
 
         $owner = User::query()->where('email', 'demo@levan.com')->firstOrFail();
         $property = Property::query()->whereNotNull('assignment_id')->firstOrFail();
         $assignment = Assignment::query()->findOrFail($property->assignment_id);
-        $payload = $this->validPayload($assignment) + [
+        $payload = array_replace($this->validPayload($assignment), [
             'name' => 'مزاد HTTP '.uniqid(),
             'report_image' => UploadedFile::fake()->image('http-report.webp'),
             'property_ids' => [$property->id],
-        ];
+        ]);
 
         $response = $this->actingAs($owner, 'tenant')
             ->post('http://test.localhost/auctions', $payload);
@@ -219,6 +223,10 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
 
     public function test_user_with_view_permission_cannot_retry_report_generation(): void
     {
+        $this->withoutMiddleware([
+            \App\Http\Middleware\Tenancy\CheckSubscription::class,
+            \App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense::class,
+        ]);
         $assignment = $this->assignment('RETRY-AUTH');
         $auction = $this->auction($assignment);
         $owner = User::query()->where('email', 'demo@levan.com')->firstOrFail();

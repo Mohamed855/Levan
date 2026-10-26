@@ -2,10 +2,9 @@
 
 @section('title', 'تعديل الصلاحية')
 
-@section('vendor-style')
-    @vite(['resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+@section('page-script')
+    @vite('resources/assets/js/shared/form-validation.js')
 @endsection
-
 
 @section('content')
     <div class="row">
@@ -15,7 +14,7 @@
                 <div class="card-body">
                     @if ($errors->any())
                         <div class="alert alert-danger">
-                            <ul>
+                            <ul class="mb-0">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
@@ -27,14 +26,7 @@
                         data-form-validate>
                         @csrf
                         @method('PUT')
-                        <div class="row g-4 mb-4">
-                            <x-form.controls.input name="name" id="name" label="اسم الصلاحية" :value="old('name', $permission->name)"
-                                required col="col-md-6" />
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <x-form.wizard.previous-button :href="tenant_route_name('permissions.index')" text="العودة" />
-                            <button type="submit" class="btn btn-primary">تحديث</button>
-                        </div>
+                        @include('tenant.user-management.permissions.partials.form', ['permission' => $permission])
                     </form>
                 </div>
             </div>

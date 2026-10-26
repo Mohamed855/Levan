@@ -47,43 +47,27 @@
                     @csrf
 
                     <x-form.wizard.step id="basic-info-validation" :fields="['name', 'employee_number', 'email', 'phone', 'role_id']">
-                        <div class="row g-6">
-                            <x-form.controls.input name="name" label="الاسم الكامل" placeholder="ادخل الاسم الكامل" required />
-                            <x-form.controls.input name="employee_number" label="الرقم الوظيفي"
-                                :value="$generatedEmployeeNumber" placeholder="ادخل الرقم الوظيفي" required style="text-transform: uppercase;" />
-                            <x-form.controls.input name="email" type="email" label="البريد الإلكتروني"
-                                placeholder="ادخل البريد الإلكتروني" autocomplete="off" required />
-                            <x-form.controls.input name="phone" label="رقم الهاتف" placeholder="ادخل رقم الهاتف"
-                                inputmode="tel" required />
-                            <x-form.controls.select name="role_id" label="الدور" :options="$roles" placeholder="اختر الدور" required />
+                        @include('tenant.user-management.users.partials.steps.step1-basic-info', ['user' => null])
 
-                            <x-form.wizard.actions>
-                                <x-form.wizard.previous-button :href="tenant_route_name('users.index')" text="العودة" />
-                                <div class="d-flex gap-2">
-                                    <x-form.wizard.draft-button />
-                                    <x-form.wizard.next-button />
-                                </div>
-                            </x-form.wizard.actions>
-                        </div>
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button :href="tenant_route_name('users.index')" text="العودة" />
+                            <div class="d-flex gap-2">
+                                <x-form.wizard.draft-button />
+                                <x-form.wizard.next-button />
+                            </div>
+                        </x-form.wizard.actions>
                     </x-form.wizard.step>
 
                     <x-form.wizard.step id="security-info-validation" :fields="['password', 'password_confirmation', 'image']">
-                        <div class="row g-6">
-                            <x-form.controls.password name="password" label="كلمة المرور" placeholder="ادخل كلمة المرور"
-                                data-validation-dependents="password_confirmation" required />
-                            <x-form.controls.password name="password_confirmation" label="تأكيد كلمة المرور"
-                                placeholder="أعد إدخال كلمة المرور" required />
-                            <x-form.controls.file name="image" label="الصورة الشخصية"
-                                accept="image/*" help="JPG، PNG أو GIF. الحد الأقصى 2MB" :max-size="2" />
+                        @include('tenant.user-management.users.partials.steps.step2-security', ['user' => null])
 
-                            <x-form.wizard.actions>
-                                <x-form.wizard.previous-button />
-                                <div class="d-flex gap-2">
-                                    <x-form.wizard.draft-button />
-                                    <x-form.wizard.save-button />
-                                </div>
-                            </x-form.wizard.actions>
-                        </div>
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button />
+                            <div class="d-flex gap-2">
+                                <x-form.wizard.draft-button />
+                                <x-form.wizard.save-button />
+                            </div>
+                        </x-form.wizard.actions>
                     </x-form.wizard.step>
                 </form>
             </x-form.wizard.stepper>

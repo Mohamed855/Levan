@@ -24,7 +24,6 @@
             ['id' => 'basic-info-validation', 'title' => 'المعلومات الأساسية'],
             ['id' => 'security-info-validation', 'title' => 'كلمة المرور والصورة'],
         ];
-        $currentRoleId = $user->roles->first()?->id;
     @endphp
 
     <div class="row">
@@ -47,40 +46,25 @@
                     @method('PUT')
 
                     <x-form.wizard.step id="basic-info-validation" :fields="['name', 'employee_number', 'email', 'phone', 'role_id']">
-                        <div class="row g-6">
-                            <x-form.controls.input name="name" label="الاسم الكامل" :value="$user->name"
-                                placeholder="ادخل الاسم الكامل" required />
-                            <x-form.controls.input name="employee_number" label="الرقم الوظيفي" :value="$user->employee_number"
-                                placeholder="ادخل الرقم الوظيفي" readonly required style="text-transform: uppercase;"
-                                help="الرقم الوظيفي ثابت لا يمكن تعديله." />
-                            <x-form.controls.input name="email" type="email" label="البريد الإلكتروني" :value="$user->email"
-                                placeholder="ادخل البريد الإلكتروني" autocomplete="off" required />
-                            <x-form.controls.input name="phone" label="رقم الهاتف" :value="$user->phone"
-                                placeholder="ادخل رقم الهاتف" inputmode="tel" required />
-                            <x-form.controls.select name="role_id" label="الدور" :options="$roles" :value="$currentRoleId"
-                                placeholder="اختر الدور" required />
+                        @include('tenant.user-management.users.partials.steps.step1-basic-info', ['user' => $user])
 
-                            <x-form.wizard.actions>
-                                <x-form.wizard.previous-button :href="tenant_route_name('users.index')" text="العودة" />
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button :href="tenant_route_name('users.index')" text="العودة" />
+                            <div class="d-flex gap-2">
                                 <x-form.wizard.next-button />
-                            </x-form.wizard.actions>
-                        </div>
+                            </div>
+                        </x-form.wizard.actions>
                     </x-form.wizard.step>
 
                     <x-form.wizard.step id="security-info-validation" :fields="['password', 'password_confirmation', 'image']">
-                        <div class="row g-6">
-                            <x-form.controls.password name="password" label="كلمة المرور"
-                                placeholder="اتركه فارغاً لعدم التغيير" data-validation-dependents="password_confirmation" />
-                            <x-form.controls.password name="password_confirmation" label="تأكيد كلمة المرور"
-                                placeholder="أعد إدخال كلمة المرور" />
-                            <x-form.controls.file name="image" label="الصورة الشخصية" :value="$user->image ? tasset($user->image) : null"
-                                accept="image/*" help="JPG، PNG أو GIF. الحد الأقصى 2MB" :max-size="2" />
+                        @include('tenant.user-management.users.partials.steps.step2-security', ['user' => $user])
 
-                            <x-form.wizard.actions>
-                                <x-form.wizard.previous-button />
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button />
+                            <div class="d-flex gap-2">
                                 <x-form.wizard.save-button text="تحديث" />
-                            </x-form.wizard.actions>
-                        </div>
+                            </div>
+                        </x-form.wizard.actions>
                     </x-form.wizard.step>
                 </form>
             </x-form.wizard.stepper>
