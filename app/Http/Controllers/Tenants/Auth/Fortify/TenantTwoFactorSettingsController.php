@@ -6,6 +6,8 @@ use App\Actions\Auth\PersistAuthenticationStateAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\ConfirmTenantTwoFactorRequest;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
+use App\Models\Admin\Tenants\Tenant;
+use App\Models\Tenants\Settings\Settings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -15,6 +17,7 @@ use Laravel\Fortify\Actions\ConfirmTwoFactorAuthentication;
 use Laravel\Fortify\Actions\DisableTwoFactorAuthentication;
 use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
 use Laravel\Fortify\RecoveryCode;
+use Stancl\Tenancy\Facades\Tenancy;
 
 class TenantTwoFactorSettingsController extends Controller
 {
@@ -24,6 +27,7 @@ class TenantTwoFactorSettingsController extends Controller
 
         return view('tenant.auth.two-factor-settings', [
             'enabled' => (bool) ($user->two_factor_secret && ! is_null($user->two_factor_confirmed_at)),
+            'enforced' => $this->isEnforced(),
         ]);
     }
 
@@ -50,9 +54,31 @@ class TenantTwoFactorSettingsController extends Controller
 
     public function disable(TenantAuthenticatedRequest $request, DisableTwoFactorAuthentication $disable): JsonResponse
     {
+        if ($this->isEnforced()) {
+            return response()->json([
+                'message' => 'المصادقة الثنائية مفروضة بموجب سياسة النظام ولا يمكن تعطيلها.',
+            ], 422);
+        }
+
         $disable(Auth::guard('tenant')->user());
 
         return response()->json(['status' => 'disabled']);
+    }
+
+    protected function isEnforced(): bool
+    {
+        $tenantId = tenant('id');
+        $companyForced = false;
+
+        if ($tenantId) {
+            $companyForced = (bool) Tenancy::central(function () use ($tenantId) {
+                return Tenant::find($tenantId)?->companySettings?->two_factor_enabled ?? false;
+            });
+        }
+
+        $tenantSettingsForced = (bool) (Settings::first()?->force_two_factor_auth ?? false);
+
+        return $companyForced || $tenantSettingsForced;
     }
 
     public function recoveryCodes(TenantAuthenticatedRequest $request, PersistAuthenticationStateAction $authenticationState): JsonResponse

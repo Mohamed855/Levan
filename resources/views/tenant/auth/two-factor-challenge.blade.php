@@ -30,11 +30,15 @@
             </div>
         @endif
 
+        @php
+            $isRecovery = old('recovery_code') || $errors->has('recovery_code');
+        @endphp
+
         <form id="twoStepsForm" action="{{ tenant_route_name('tenants.two-factor.store') }}" method="POST" novalidate
             data-form-validate data-validation-url="{{ tenant_route_name('form-validation') }}">
             @csrf
 
-            <div class="mb-4" id="codeInputsWrapper" data-form-field data-field-name="code">
+            <div class="mb-4 {{ $isRecovery ? 'd-none' : '' }}" id="codeInputsWrapper" data-form-field data-field-name="code">
                 <label class="form-label text-center d-block mb-3" id="codeLabel">أدخل الرمز الأمني المكون من 6
                     أرقام</label>
                 <div class="auth-otp-wrapper" dir="ltr">
@@ -49,7 +53,7 @@
                 <p class="invalid-feedback hidden" data-form-error aria-live="polite" hidden></p>
             </div>
 
-            <div class="mb-4 d-none" id="recoveryWrapper">
+            <div class="mb-4 {{ $isRecovery ? '' : 'd-none' }}" id="recoveryWrapper">
                 <x-form.controls.input name="recovery_code" id="recovery_code" label="كود الاسترجاع"
                     placeholder="أدخل كود الاسترجاع الاحتياطي" col="col-12" icon="ti ti-key" />
             </div>
@@ -61,7 +65,7 @@
 
             <div class="text-center mb-3">
                 <a href="javascript:void(0);" id="toggleRecoveryLink" class="auth-link">
-                    استخدام كود استرجاع بدلاً من ذلك
+                    {{ $isRecovery ? 'استخدام رمز المصادقة بدلاً من ذلك' : 'استخدام كود استرجاع بدلاً من ذلك' }}
                 </a>
             </div>
 

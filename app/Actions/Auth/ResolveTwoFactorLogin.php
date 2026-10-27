@@ -10,7 +10,10 @@ use Laravel\Fortify\TwoFactorAuthenticationProvider;
 
 class ResolveTwoFactorLogin
 {
-    public function __construct(protected TwoFactorAuthenticationProvider $provider) {}
+    public function __construct(
+        protected TwoFactorAuthenticationProvider $provider,
+        protected PersistAuthenticationStateAction $authenticationState
+    ) {}
 
     public function verify(string $guard, Request $request, array $credentials): Authenticatable
     {
@@ -23,7 +26,15 @@ class ResolveTwoFactorLogin
         abort_unless($user, 419);
 
         if (! empty($credentials['code'])) {
-            if (! $this->provider->verify(decrypt($user->two_factor_secret), $credentials['code'])) {
+            try {
+                $secret = decrypt($user->two_factor_secret);
+            } catch (\Throwable) {
+                throw ValidationException::withMessages([
+                    'code' => 'الكود غير صحيح.',
+                ]);
+            }
+
+            if (! $this->provider->verify($secret, $credentials['code'])) {
                 throw ValidationException::withMessages([
                     'code' => 'الكود غير صحيح.',
                 ]);
@@ -48,7 +59,13 @@ class ResolveTwoFactorLogin
     */
     protected function consumeRecoveryCode(Authenticatable $user, string $code): void
     {
-        $recoveryCodes = collect(json_decode(decrypt($user->two_factor_recovery_codes), true));
+        try {
+            $recoveryCodes = collect(json_decode(decrypt($user->two_factor_recovery_codes), true, 512, JSON_THROW_ON_ERROR) ?: []);
+        } catch (\Throwable) {
+            throw ValidationException::withMessages([
+                'recovery_code' => 'كود الاسترجاع غير صحيح.',
+            ]);
+        }
 
         if (! $recoveryCodes->contains($code)) {
             throw ValidationException::withMessages([
@@ -56,10 +73,7 @@ class ResolveTwoFactorLogin
             ]);
         }
 
-        $user->forceFill([
-            'two_factor_recovery_codes' => encrypt(
-                $recoveryCodes->reject(fn ($c) => $c === $code)->values()->toJson()
-            ),
-        ])->save();
+        $remainingCodes = $recoveryCodes->reject(fn ($c) => $c === $code)->values()->all();
+        $this->authenticationState->replaceRecoveryCodes($user, $remainingCodes);
     }
 }

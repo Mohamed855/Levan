@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 value += input.value;
             });
             hiddenField.value = value;
+            hiddenField.dispatchEvent(new Event('input', { bubbles: true }));
+            hiddenField.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
         otpInputs.forEach((input, index) => {
@@ -53,13 +55,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const codeLabel = document.getElementById('codeLabel');
 
     if (toggleRecoveryLink && codeWrapper && recoveryWrapper) {
-        let isRecoveryMode = false;
+        let isRecoveryMode = !recoveryWrapper.classList.contains('d-none');
         toggleRecoveryLink.addEventListener('click', function (e) {
             e.preventDefault();
             isRecoveryMode = !isRecoveryMode;
 
             if (isRecoveryMode) {
-                hiddenField.value = '';
+                if (hiddenField) {
+                    hiddenField.value = '';
+                    hiddenField.dispatchEvent(new Event('input', { bubbles: true }));
+                }
                 codeWrapper.classList.add('d-none');
                 recoveryWrapper.classList.remove('d-none');
                 if (codeLabel) codeLabel.classList.add('d-none');
@@ -67,7 +72,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('recovery_code')?.focus();
             } else {
                 const recoveryInput = document.getElementById('recovery_code');
-                if (recoveryInput) recoveryInput.value = '';
+                if (recoveryInput) {
+                    recoveryInput.value = '';
+                    recoveryInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
                 codeWrapper.classList.remove('d-none');
                 recoveryWrapper.classList.add('d-none');
                 if (codeLabel) codeLabel.classList.remove('d-none');

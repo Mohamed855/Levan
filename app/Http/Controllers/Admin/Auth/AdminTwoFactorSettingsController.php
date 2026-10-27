@@ -6,6 +6,7 @@ use App\Actions\Auth\PersistAuthenticationStateAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Auth\ConfirmAdminTwoFactorRequest;
+use App\Models\Admin\Settings\Settings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -21,9 +22,11 @@ class AdminTwoFactorSettingsController extends Controller
     public function show(Request $request): View
     {
         $user = Auth::guard('admin')->user();
+        $enforced = (bool) (Settings::first()?->force_two_factor_auth ?? false);
 
         return view('admin.auth.two-factor-settings', [
             'enabled' => (bool) ($user->two_factor_secret && ! is_null($user->two_factor_confirmed_at)),
+            'enforced' => $enforced,
         ]);
     }
 
@@ -50,6 +53,12 @@ class AdminTwoFactorSettingsController extends Controller
 
     public function disable(AdminAuthenticatedRequest $request, DisableTwoFactorAuthentication $disable): JsonResponse
     {
+        if (Settings::first()?->force_two_factor_auth) {
+            return response()->json([
+                'message' => 'المصادقة الثنائية مفروضة بموجب سياسة النظام ولا يمكن تعطيلها.',
+            ], 422);
+        }
+
         $disable(Auth::guard('admin')->user());
 
         return response()->json(['status' => 'disabled']);

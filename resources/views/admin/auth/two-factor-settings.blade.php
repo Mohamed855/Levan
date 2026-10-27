@@ -32,14 +32,23 @@
 
                     {{-- حالة: غير مفعّلة --}}
                     <div id="disabledActions" class="{{ $enabled ? 'd-none' : '' }}">
-                        <div class="alert alert-primary d-flex align-items-start mb-4" role="alert">
-                            <i class="ti ti-info-circle ti-md me-2 mt-1"></i>
-                            <div>
-                                فعّل المصادقة الثنائية لإضافة خطوة تحقق عبر تطبيق مثل
-                                <strong>Microsoft Authenticator</strong> أو <strong>Google Authenticator</strong>
-                                بجانب كلمة المرور، لحماية أقوى لحسابك.
+                        @if ($enforced ?? false)
+                            <div class="alert alert-warning d-flex align-items-start mb-4" role="alert">
+                                <i class="ti ti-alert-triangle ti-md me-2 mt-1"></i>
+                                <div>
+                                    <strong>تنبيه إلزامي:</strong> المصادقة الثنائية مفروضة بموجب سياسة النظام. يرجى إعدادها فوراً للمتابعة.
+                                </div>
                             </div>
-                        </div>
+                        @else
+                            <div class="alert alert-primary d-flex align-items-start mb-4" role="alert">
+                                <i class="ti ti-info-circle ti-md me-2 mt-1"></i>
+                                <div>
+                                    فعّل المصادقة الثنائية لإضافة خطوة تحقق عبر تطبيق مثل
+                                    <strong>Microsoft Authenticator</strong> أو <strong>Google Authenticator</strong>
+                                    بجانب كلمة المرور، لحماية أقوى لحسابك.
+                                </div>
+                            </div>
+                        @endif
                         <button type="button" id="enable2faBtn" class="btn btn-primary">
                             <i class="ti ti-shield-plus me-1"></i>
                             تفعيل المصادقة الثنائية
@@ -82,9 +91,16 @@
                                     <p class="text-muted small mb-3">
                                         سيتم تعطيل خطوة التحقق الإضافية، وسيصبح الدخول بكلمة المرور فقط.
                                     </p>
-                                    <button type="button" id="disable2faBtn" class="btn btn-danger btn-sm">
-                                        إلغاء التفعيل
-                                    </button>
+                                    @if ($enforced ?? false)
+                                        <div class="alert alert-warning py-2 px-3 mb-0 small">
+                                            <i class="ti ti-lock me-1"></i>
+                                            المصادقة الثنائية مفروضة بموجب سياسة النظام ولا يمكن إلغاؤها.
+                                        </div>
+                                    @else
+                                        <button type="button" id="disable2faBtn" class="btn btn-danger btn-sm">
+                                            إلغاء التفعيل
+                                        </button>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -152,6 +168,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const $ = window.jQuery;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || "{{ csrf_token() }}";
+            window.csrfToken = csrfToken;
 
             const routes = {
                 enable: "{{ route('admin.two-factor.enable') }}",
@@ -257,8 +275,9 @@
                                 toastr.success('تم إلغاء تفعيل المصادقة الثنائية');
                                 markDisabled();
                             },
-                            error: function() {
-                                toastr.error('حدث خطأ أثناء إلغاء التفعيل');
+                            error: function(xhr) {
+                                const msg = xhr.responseJSON?.message || 'حدث خطأ أثناء إلغاء التفعيل';
+                                toastr.error(msg);
                             }
                         });
                     }
