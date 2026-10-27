@@ -5,15 +5,15 @@
     )" required />
 
 <x-form.controls.input name="billing_commercial_number"
-    label="رقم السجل التجاري" placeholder="1010XXXXXX" inputmode="numeric"
-    maxlength="10" :value="old(
+    label="رقم السجل التجاري" placeholder="1010123456" inputmode="numeric"
+    maxlength="10" data-digits-only :value="old(
         'billing_commercial_number',
         $checkoutData['billing_commercial_number'] ?? '',
     )" required />
 
 <x-form.controls.input name="billing_tax_number" label="الرقم الضريبي"
-    placeholder="300XXXXXXXXXXXX" inputmode="numeric" maxlength="15"
-    :value="old(
+    placeholder="300000000000003" inputmode="numeric" maxlength="15"
+    data-digits-only :value="old(
         'billing_tax_number',
         $checkoutData['billing_tax_number'] ?? '',
     )" required />

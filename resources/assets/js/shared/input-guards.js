@@ -34,8 +34,14 @@ function allowsDecimal(input) {
     return step && step !== '1' && step !== 'any' && Number.parseFloat(step) % 1 !== 0;
 }
 
+function convertArabicNumerals(value) {
+    if (typeof value !== 'string') return '';
+    return value.replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 1632));
+}
+
 function sanitizeNumber(value, canUseDecimal) {
-    const digitsAndDots = value.replace(/[^0-9.]/g, '');
+    const converted = convertArabicNumerals(value);
+    const digitsAndDots = converted.replace(/[^0-9.]/g, '');
 
     if (!canUseDecimal) {
         return digitsAndDots.replace(/\./g, '');
@@ -70,7 +76,8 @@ function sanitizeInput(input) {
     if (isPhoneInput(input)) {
         configurePhoneInput(input);
         const maxLength = getPhoneFormat(input) === 'mobile' ? 10 : Number.POSITIVE_INFINITY;
-        const sanitized = input.value.replace(/[^0-9]/g, '').slice(0, maxLength);
+        const converted = convertArabicNumerals(input.value);
+        const sanitized = converted.replace(/[^0-9]/g, '').slice(0, maxLength);
 
         if (input.value !== sanitized) {
             input.value = sanitized;
@@ -80,7 +87,9 @@ function sanitizeInput(input) {
     }
 
     if (isDigitsOnlyInput(input)) {
-        const sanitized = input.value.replace(/[^0-9]/g, '');
+        const converted = convertArabicNumerals(input.value);
+        const maxLength = input.maxLength > 0 ? input.maxLength : Number.POSITIVE_INFINITY;
+        const sanitized = converted.replace(/[^0-9]/g, '').slice(0, maxLength);
 
         if (input.value !== sanitized) {
             input.value = sanitized;
@@ -127,8 +136,32 @@ document.addEventListener('keydown', (event) => {
     const canUseDecimal = !isPhoneInput(input) && !isDigitsOnlyInput(input) && allowsDecimal(input);
     const canTypeDecimal = event.key === '.' && canUseDecimal && !input.value.includes('.');
 
-    if (!/^[0-9]$/.test(event.key) && !canTypeDecimal) {
+    if (!/^[0-9٠-٩]$/.test(event.key) && !canTypeDecimal) {
         event.preventDefault();
+    }
+});
+
+document.addEventListener('paste', (event) => {
+    const input = event.target;
+    if (!(input instanceof HTMLInputElement)) return;
+
+    if (isDigitsOnlyInput(input) || isPhoneInput(input)) {
+        event.preventDefault();
+        const text = (event.clipboardData || window.clipboardData)?.getData('text') || '';
+        const converted = convertArabicNumerals(text);
+        const cleaned = converted.replace(/[^0-9]/g, '');
+
+        const start = input.selectionStart ?? input.value.length;
+        const end = input.selectionEnd ?? input.value.length;
+        const current = input.value;
+        const maxLen = input.maxLength > 0 ? input.maxLength : Number.POSITIVE_INFINITY;
+
+        const nextValue = (current.slice(0, start) + cleaned + current.slice(end)).slice(0, maxLen);
+        input.value = nextValue;
+        const newCursorPos = Math.min(start + cleaned.length, maxLen);
+        input.setSelectionRange(newCursorPos, newCursorPos);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
     }
 });
 

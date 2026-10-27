@@ -85,6 +85,26 @@
   }
 }
 
+.form-select,
+.site-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%231D4F44' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 1.15rem center;
+  background-size: 16px 16px;
+  padding-left: 2.5rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+html[dir='ltr'] .form-select,
+html[dir='ltr'] .site-select {
+  background-position: right 1.15rem center;
+  padding-right: 2.5rem;
+  padding-left: 1.15rem;
+}
+
 // =============================================================================
 // Input Group & Password Toggle (Site)
 // =============================================================================
@@ -325,10 +345,20 @@
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
+      pointer-events: none !important;
 
       b {
-        border-color: rgba(29, 79, 68, 0.5) transparent transparent transparent !important;
-        border-width: 6px 5px 0 5px !important;
+        display: block !important;
+        position: static !important;
+        width: 16px !important;
+        height: 16px !important;
+        margin: 0 !important;
+        border: none !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        background-size: 16px 16px !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%231D4F44' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+        transition: transform var(--site-transition-fast) !important;
       }
     }
 
@@ -348,8 +378,8 @@
 
   &.select2-container--open {
     .select2-selection--single .select2-selection__arrow b {
-      border-color: transparent transparent var(--site-primary) transparent !important;
-      border-width: 0 5px 6px 5px !important;
+      transform: rotate(180deg) !important;
+      border: none !important;
     }
   }
 

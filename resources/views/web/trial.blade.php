@@ -80,10 +80,11 @@
                                                 data-max-resends="{{ $maxResends ?? 3 }}"
                                                 data-resend-url="{{ route('site.trial.resend') }}"></div>
 
-                                            <div id="otp-resend-container" class="d-none">
+                                            <div id="otp-resend-container">
                                                 <button type="button"
                                                     class="otp-action-btn"
-                                                    id="btn-resend-otp">
+                                                    id="btn-resend-otp"
+                                                    disabled>
                                                     <i class="ti ti-rotate-clockwise"></i>
                                                     <span>إعادة إرسال الرمز</span>
                                                     <span

@@ -22,10 +22,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (resendCount < maxResends) {
-                if (resendContainer) resendContainer.classList.remove('d-none');
+                if (resendBtn) resendBtn.disabled = false;
                 if (editContainer) editContainer.classList.add('d-none');
             } else {
-                if (resendContainer) resendContainer.classList.add('d-none');
+                if (resendBtn) resendBtn.disabled = true;
                 if (editContainer) editContainer.classList.remove('d-none');
             }
         };
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             otpTimer.classList.remove('text-danger');
-            if (resendContainer) resendContainer.classList.add('d-none');
+            if (resendBtn) resendBtn.disabled = true;
             if (editContainer) editContainer.classList.add('d-none');
 
             const totalSeconds = Math.ceil(remaining / 1000);
@@ -117,11 +117,10 @@ document.addEventListener('DOMContentLoaded', function () {
                                 remainingAttemptsSpan.textContent = `(${remainingCount} متبقية)`;
                             }
 
-                            if (resendContainer) resendContainer.classList.add('d-none');
                             if (editContainer) editContainer.classList.add('d-none');
 
                             resendBtn.innerHTML = originalHtml;
-                            resendBtn.disabled = false;
+                            resendBtn.disabled = true;
 
                             startTimer();
                             return;
@@ -135,7 +134,6 @@ document.addEventListener('DOMContentLoaded', function () {
                             }
                             showExpiredActions();
                             resendBtn.innerHTML = originalHtml;
-                            resendBtn.disabled = false;
                             return;
                         }
                     } catch (err) {
@@ -147,7 +145,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     resendForm.submit();
                 } else {
                     resendBtn.innerHTML = originalHtml;
-                    resendBtn.disabled = false;
+                    if (expiresAt <= Date.now() && resendCount < maxResends) {
+                        resendBtn.disabled = false;
+                    } else {
+                        resendBtn.disabled = true;
+                    }
                 }
             });
         }

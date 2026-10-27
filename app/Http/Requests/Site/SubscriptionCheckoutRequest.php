@@ -17,17 +17,36 @@ class SubscriptionCheckoutRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->merge([
-            'billing_phone' => preg_replace('/\D+/', '', (string) $this->input('billing_phone')),
-        ]);
+        $normalizeDigits = static function (?string $val): string {
+            if ($val === null) {
+                return '';
+            }
+            $arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+            $western = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+            return trim(str_replace($arabic, $western, $val));
+        };
+
+        $updates = [];
+        if ($this->has('billing_phone')) {
+            $updates['billing_phone'] = preg_replace('/\D+/', '', $normalizeDigits($this->input('billing_phone')));
+        }
+        if ($this->has('billing_commercial_number')) {
+            $updates['billing_commercial_number'] = $normalizeDigits($this->input('billing_commercial_number'));
+        }
+        if ($this->has('billing_tax_number')) {
+            $updates['billing_tax_number'] = $normalizeDigits($this->input('billing_tax_number'));
+        }
+
+        $this->merge($updates);
     }
 
     public function rules(): array
     {
         return [
             'billing_company_name' => ['required', 'string', 'min:2', 'max:255', Rule::unique('tenants', 'company_name')],
-            'billing_commercial_number' => ['required', 'digits:10', 'regex:/^\\d{10}$/', Rule::unique('tenants', 'commercial_number')],
-            'billing_tax_number' => ['required', 'digits:15', 'regex:/^\\d{15}$/'],
+            'billing_commercial_number' => ['required', 'digits:10', 'regex:/^\d{10}$/', Rule::unique('tenants', 'commercial_number')],
+            'billing_tax_number' => ['required', 'digits:15', 'regex:/^3\d{13}3$/'],
             'billing_city_id' => ['required', 'exists:cities,id'],
             'billing_address' => ['required', 'string', 'max:255'],
             'billing_name' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\p{Arabic}a-zA-Z\s\.\-]+$/u'],
@@ -47,12 +66,13 @@ class SubscriptionCheckoutRequest extends FormRequest
             'billing_company_name.unique' => 'اسم الشركة مستخدم مسبقًا',
 
             'billing_commercial_number.required' => 'رقم السجل التجاري مطلوب',
+            'billing_commercial_number.digits' => 'يجب أن يتكون رقم السجل التجاري من 10 أرقام',
             'billing_commercial_number.unique' => 'رقم السجل التجاري مستخدم مسبقًا',
-            'billing_commercial_number.regex' => 'يجب أن يحتوي رقم السجل التجاري على أرقام فقط',
+            'billing_commercial_number.regex' => 'يجب أن يحتوي رقم السجل التجاري على 10 أرقام فقط',
 
             'billing_tax_number.required' => 'الرقم الضريبي مطلوب',
             'billing_tax_number.digits' => 'يجب أن يحتوي الرقم الضريبي على 15 رقمًا',
-            'billing_tax_number.regex' => 'يجب أن يحتوي الرقم الضريبي على أرقام فقط',
+            'billing_tax_number.regex' => 'الرقم الضريبي يجب أن يتكون من 15 رقمًا، يبدأ بالرقم 3 وينتهي بالرقم 3',
 
             'billing_city_id.required' => 'المدينة مطلوبة',
             'billing_city_id.exists' => 'المدينة المختارة غير صالحة',

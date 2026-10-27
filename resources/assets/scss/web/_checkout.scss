@@ -724,9 +724,8 @@
   &:disabled,
   &[disabled],
   &.opacity-50 {
-    opacity: 0.5;
+    opacity: 0.55;
     cursor: not-allowed;
-    pointer-events: none;
   }
 
   i {

@@ -21,14 +21,15 @@ final class SiteCheckoutComponentContractTest extends TestCase
         $this->assertStringContainsString('name="billing_city_id"', $view);
         $this->assertStringContainsString('name="billing_commercial_number"', $view);
         $this->assertStringContainsString('name="billing_tax_number"', $view);
+        $this->assertStringContainsString('data-digits-only', $view);
     }
 
     public function test_checkout_numeric_identifiers_have_digit_only_length_rules(): void
     {
         $rules = app(SubscriptionCheckoutRequest::class)->rules();
 
-        $this->assertContains('regex:/^\\d{10}$/', $rules['billing_commercial_number']);
-        $this->assertContains('regex:/^\\d{15}$/', $rules['billing_tax_number']);
+        $this->assertContains('regex:/^\d{10}$/', $rules['billing_commercial_number']);
+        $this->assertContains('regex:/^3\d{13}3$/', $rules['billing_tax_number']);
     }
 
     public function test_landing_page_hero_subscription_button_targets_checkout_only_for_single_plan_otherwise_pricing_section(): void
