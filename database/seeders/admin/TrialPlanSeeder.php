@@ -21,8 +21,8 @@ final class TrialPlanSeeder extends Seeder
         Plan::updateOrCreate(
             ['code' => 'trial_7_days'],
             [
-                'name' => 'Trial 7 Days',
-                'description' => 'Seven-day trial plan',
+                'name' => 'باقة تجريبية',
+                'description' => 'تجربة لمدة 7 أيام',
                 'price' => 0,
                 'yearly_renewal_price' => 0,
                 'extra_user_license_price' => 0,

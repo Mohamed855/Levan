@@ -16,8 +16,13 @@ class DatabaseSeeder extends Seeder
             SettingsSeeder::class,
             PublicPlanSeeder::class,
             TrialPlanSeeder::class,
-            TestTenantSeeder::class,
             FaqSeeder::class,
         ]);
+
+        if (app()->environment('local')) {
+            $this->call([
+                TestTenantSeeder::class,
+            ]);
+        }
     }
 }
