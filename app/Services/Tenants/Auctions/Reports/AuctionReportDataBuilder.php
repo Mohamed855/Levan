@@ -67,7 +67,7 @@ final class AuctionReportDataBuilder
                 ? Storage::disk('tenant_public')->mimeType($attachment->file_path)
                 : null,
             'uri' => $this->dataUri($attachment->file_path),
-        ])->groupBy('section')->map->values()->all();
+        ])->groupBy('section')->map(fn ($items): array => $items->values()->all())->all();
 
         return [
             'generated_at' => now()->toIso8601String(),

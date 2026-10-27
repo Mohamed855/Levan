@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('administrative_region')->nullable();
             $table->string('plan_number')->nullable();
             $table->string('parcel_number')->nullable();
-            $table->text('google_maps_url')->nullable();
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
             $table->json('boundary_geojson')->nullable();

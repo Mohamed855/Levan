@@ -81,7 +81,7 @@ function bindFieldsModal() {
                     let tags = res.unexpected
                         .map(
                             (u) =>
-                                `<span class="badge bg-dark text-white me-1 mb-1 font-monospace">${u}</span>`,
+                                `<span class="badge bg-label-dark text-dark me-1 mb-1 font-monospace">${u}</span>`,
                         )
                         .join("");
                     extraContainer.removeClass("d-none").html(`

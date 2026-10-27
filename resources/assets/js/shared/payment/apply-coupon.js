@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (totalFinal) {
             totalFinal.innerHTML =
-                formatNumber(originalTotal) + ' <span class="icon-saudi_riyal mx-1 text-xs"></span>';
+                formatNumber(originalTotal) + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-1 text-xs"></span>';
         }
 
         const taxRate = 0.15;
@@ -135,11 +135,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const subtotalDisplay = document.getElementById('subtotal-display');
         if (subtotalDisplay) {
-            subtotalDisplay.innerHTML = formatNumber(subtotal) + ' <span class="icon-saudi_riyal"></span>';
+            subtotalDisplay.innerHTML = formatNumber(subtotal) + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>';
         }
         const vatDisplay = document.getElementById('vat-display');
         if (vatDisplay) {
-            vatDisplay.innerHTML = formatNumber(vat) + ' <span class="icon-saudi_riyal"></span>';
+            vatDisplay.innerHTML = formatNumber(vat) + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>';
         }
 
         // مسح الرسائل
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // تحديث الإجمالي النهائي
         if (totalFinal) {
             totalFinal.innerHTML =
-                formatNumber(totalAfterDiscount) + ' <span class="icon-saudi_riyal mx-1 text-xs"></span>';
+                formatNumber(totalAfterDiscount) + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-1 text-xs"></span>';
         }
 
         // تحديث الضريبة والمبلغ قبل الضريبة
@@ -192,11 +192,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const subtotalDisplay = document.getElementById('subtotal-display');
         if (subtotalDisplay) {
-            subtotalDisplay.innerHTML = formatNumber(subtotal) + ' <span class="icon-saudi_riyal"></span>';
+            subtotalDisplay.innerHTML = formatNumber(subtotal) + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>';
         }
         const vatDisplay = document.getElementById('vat-display');
         if (vatDisplay) {
-            vatDisplay.innerHTML = formatNumber(vat) + ' <span class="icon-saudi_riyal"></span>';
+            vatDisplay.innerHTML = formatNumber(vat) + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>';
         }
     }
 

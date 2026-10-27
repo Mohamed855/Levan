@@ -74,9 +74,14 @@
                     <div class="checkout-grid">
                         <div class="checkout-main-col">
                             <div class="checkout-card scroll-revealed otp-card">
-                                <div class="checkout-card-header">
+                                <div class="checkout-card-header d-flex align-items-center justify-content-between">
                                     <h3 class="checkout-card-title"><i class="ti ti-mail-check"></i> تأكيد البريد الإلكتروني
                                     </h3>
+                                    <a href="{{ route('site.plans.checkout.edit', $plan) }}"
+                                        class="checkout-back-link text-sm">
+                                        <i class="ti ti-edit"></i>
+                                        تعديل البيانات
+                                    </a>
                                 </div>
                                 <div class="checkout-card-body">
                                     <div class="otp-intro">
@@ -100,6 +105,10 @@
                                         <div class="d-flex align-items-center justify-content-between mt-3">
                                             <div id="checkout-otp-timer" class="otp-timer fw-bold"
                                                 data-expires-at="{{ $verification['expires_at'] }}"></div>
+                                            <a href="{{ route('site.plans.checkout.edit', $plan) }}"
+                                                class="text-sm font-semibold text-primary text-decoration-none">
+                                                <i class="ti ti-edit"></i> تعديل البيانات
+                                            </a>
                                         </div>
                                     </form>
                                 </div>
@@ -122,7 +131,7 @@
                                         <div class="summary-plan-badge">
                                             <span class="plan-name">{{ $plan->name }}</span>
                                             <span class="plan-price">{{ number_format($plan->price_after_discount, 2) }}
-                                                <span class="icon-saudi_riyal"></span></span>
+                                                <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span></span>
                                         </div>
                                         <div class="coupon-box">
                                             <div class="coupon-input-group">
@@ -136,17 +145,17 @@
                                             <div class="summary-row">
                                                 <span class="row-label">المبلغ قبل الضريبة</span>
                                                 <span class="row-value">{{ number_format($priceWithoutTax, 2) }}
-                                                    <span class="icon-saudi_riyal"></span></span>
+                                                    <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span></span>
                                             </div>
                                             <div class="summary-row">
                                                 <span class="row-label">ضريبة القيمة المضافة (15%)</span>
                                                 <span class="row-value">{{ number_format($taxAmount, 2) }}
-                                                    <span class="icon-saudi_riyal"></span></span>
+                                                    <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span></span>
                                             </div>
                                             <div class="summary-row summary-row--total">
                                                 <span class="row-label">المبلغ الإجمالي</span>
                                                 <span class="row-value">{{ number_format($plan->price_after_discount, 2) }}
-                                                    <span class="icon-saudi_riyal"></span></span>
+                                                    <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span></span>
                                             </div>
                                         </div>
                                         <div class="security-trust-box mt-4">
@@ -175,168 +184,172 @@
                             <!-- Main Forms Column -->
                             <div class="checkout-main-col">
 
-                                <!-- 1. Company Information Card -->
-                                <div class="checkout-card scroll-revealed {{ $paymentStep ? 'd-none' : '' }}">
-                                    <div class="checkout-card-header">
-                                        <h3 class="checkout-card-title">
-                                            <i class="ti ti-building"></i>
-                                            معلومات الشركة والمنشأة
-                                        </h3>
-                                    </div>
-                                    <div class="checkout-card-body">
-                                        <div class="form-grid-2">
-                                            @include('web.partials.registration-fields')
+                                @if (!$paymentStep)
+                                    <!-- 1. Company Information Card -->
+                                    <div class="checkout-card scroll-revealed">
+                                        <div class="checkout-card-header">
+                                            <h3 class="checkout-card-title">
+                                                <i class="ti ti-building"></i>
+                                                معلومات الشركة والمنشأة
+                                            </h3>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <div class="checkout-card scroll-revealed {{ $paymentStep ? '' : 'd-none' }}">
-                                    <div class="checkout-card-header">
-                                        <h3 class="checkout-card-title">
-                                            <i class="ti ti-wallet"></i>
-                                            طريقة الدفع
-                                        </h3>
-                                    </div>
-                                    <div class="checkout-card-body">
-                                        <div class="payment-options-grid">
-                                            <!-- Credit Card Option -->
-                                            <label class="payment-option" data-method="card" for="payment_method_card">
-                                                <input type="radio" name="payment_method" id="payment_method_card"
-                                                    value="card" class="d-none" data-validation-skip>
-                                                <div class="payment-icon-wrap">
-                                                    <i class="ti ti-credit-card"></i>
-                                                </div>
-                                                <div class="payment-option-text">
-                                                    <h4 class="payment-label">بطاقة ائتمانية / مدى</h4>
-                                                    <p class="payment-sub">Mada · Visa · Mastercard</p>
-                                                </div>
-                                                <div class="payment-check">
-                                                    <div class="payment-dot"></div>
-                                                </div>
-                                            </label>
-
-                                            <label class="payment-option" data-method="bank_transfer"
-                                                for="payment_method_bank_transfer">
-                                                <input type="radio" name="payment_method"
-                                                    id="payment_method_bank_transfer" value="bank_transfer"
-                                                    class="d-none" data-validation-skip>
-                                                <div class="payment-icon-wrap">
-                                                    <i class="ti ti-building-bank"></i>
-                                                </div>
-                                                <div class="payment-option-text">
-                                                    <h4 class="payment-label">تحويل بنكي مباشر</h4>
-                                                    <p class="payment-sub">إيداع مباشر عبر الحساب البنكي</p>
-                                                </div>
-                                                <div class="payment-check">
-                                                    <div class="payment-dot"></div>
-                                                </div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="checkout-card hidden {{ $paymentStep ? '' : 'd-none' }}"
-                                    id="card-payment-section">
-                                    <div class="checkout-card-header">
-                                        <h3 class="checkout-card-title">
-                                            <i class="ti ti-shield-lock"></i>
-                                            بوابة الدفع الآمن
-                                        </h3>
-                                    </div>
-                                    <div class="checkout-card-body">
-                                        <div class="card-security-box">
-                                            <i class="ti ti-shield-check"></i>
-                                            <p>
-                                                بعد الضغط على "إتمام الدفع"، سيتم نقلك مباشرة إلى بوابة الدفع الإلكتروني
-                                                المعتمدة (ميسر Moyasar) لإدخال بيانات البطاقة بأمان وتشفير بنكي كامل.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- 4. Bank Transfer Details Section -->
-                                <div class="checkout-card hidden {{ $paymentStep ? '' : 'd-none' }}"
-                                    id="bank-transfer-section">
-                                    <div class="checkout-card-header">
-                                        <h3 class="checkout-card-title">
-                                            <i class="ti ti-building-bank"></i>
-                                            تفاصيل الحسابات البنكية المعتمدة
-                                        </h3>
-                                    </div>
-                                    <div class="checkout-card-body">
-                                        @if ($banks->isEmpty())
-                                            <div class="site-alert site-alert-warning d-flex align-items-center gap-2"
-                                                role="alert">
-                                                <i class="ti ti-alert-triangle"></i>
-                                                لا توجد حسابات بنكية معتمدة حالياً، يرجى اختيار الدفع بالبطاقة.
+                                        <div class="checkout-card-body">
+                                            <div class="form-grid-2">
+                                                @include('web.partials.registration-fields')
                                             </div>
-                                        @else
-                                            <div class="mb-4">
-                                                <label class="site-label mb-2">
-                                                    اختر البنك للتحويل <span class="required-star">*</span>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="checkout-card scroll-revealed">
+                                        <div
+                                            class="checkout-card-header d-flex align-items-center justify-content-between">
+                                            <h3 class="checkout-card-title">
+                                                <i class="ti ti-wallet"></i>
+                                                طريقة الدفع
+                                            </h3>
+                                        </div>
+                                        <div class="checkout-card-body">
+                                            <div class="payment-options-grid">
+                                                <!-- Credit Card Option -->
+                                                <label class="payment-option" data-method="card"
+                                                    for="payment_method_card">
+                                                    <input type="radio" name="payment_method" id="payment_method_card"
+                                                        value="card" class="d-none" data-validation-skip>
+                                                    <div class="payment-icon-wrap">
+                                                        <i class="ti ti-credit-card"></i>
+                                                    </div>
+                                                    <div class="payment-option-text">
+                                                        <h4 class="payment-label">بطاقة ائتمانية / مدى</h4>
+                                                        <p class="payment-sub">Mada · Visa · Mastercard</p>
+                                                    </div>
+                                                    <div class="payment-check">
+                                                        <div class="payment-dot"></div>
+                                                    </div>
                                                 </label>
-                                                <div class="bank-cards-grid">
-                                                    @foreach ($banks as $bank)
-                                                        <div class="bank-card" data-bank-id="{{ $bank->id }}">
-                                                            @if ($bank->icon)
-                                                                <img src="{{ asset('storage/' . $bank->icon) }}"
-                                                                    alt="{{ $bank->bank_name }}" class="bank-logo">
-                                                            @else
-                                                                <div
-                                                                    class="bank-logo d-flex align-items-center justify-content-center text-primary">
-                                                                    <i class="ti ti-building-bank text-2xl"></i>
-                                                                </div>
-                                                            @endif
 
-                                                            <div class="bank-info">
-                                                                <h4 class="bank-name">{{ $bank->bank_name }}</h4>
-                                                                <div class="bank-details">
-                                                                    <span><i class="ti ti-user"></i>
-                                                                        {{ $bank->account_name }}</span>
-                                                                    <span dir="ltr" class="text-end"><i
-                                                                            class="ti ti-credit-card"></i>
-                                                                        {{ $bank->account_number }}</span>
-                                                                    @if ($bank->iban)
-                                                                        <span dir="ltr" class="text-end"><i
-                                                                                class="ti ti-id"></i>
-                                                                            {{ $bank->iban }}</span>
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="bank-radio">
-                                                                <div class="bank-dot"></div>
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
+                                                <label class="payment-option" data-method="bank_transfer"
+                                                    for="payment_method_bank_transfer">
+                                                    <input type="radio" name="payment_method"
+                                                        id="payment_method_bank_transfer" value="bank_transfer"
+                                                        class="d-none" data-validation-skip>
+                                                    <div class="payment-icon-wrap">
+                                                        <i class="ti ti-building-bank"></i>
+                                                    </div>
+                                                    <div class="payment-option-text">
+                                                        <h4 class="payment-label">تحويل بنكي مباشر</h4>
+                                                        <p class="payment-sub">إيداع مباشر عبر الحساب البنكي</p>
+                                                    </div>
+                                                    <div class="payment-check">
+                                                        <div class="payment-dot"></div>
+                                                    </div>
+                                                </label>
                                             </div>
-
-                                            <!-- Receipt Upload Section -->
-                                            <div class="mb-4 hidden" id="receipt-upload-section">
-                                                <x-form.controls.file name="transfer_receipt" id="transfer_receipt"
-                                                    label="إيصال التحويل البنكي" required
-                                                    accept="image/jpeg,image/jpg,image/png,application/pdf"
-                                                    title="انقر أو اسحب إيصال التحويل هنا"
-                                                    desc="صيغ JPG · PNG · PDF — أقصى حجم 5 ميجابايت" :max-size="5"
-                                                    col="col-12" data-validation-skip />
-                                            </div>
-
-                                            <!-- Instructions Box -->
-                                            <div class="bank-instructions-box">
-                                                <h5 class="instructions-title">
-                                                    <i class="ti ti-info-circle"></i>
-                                                    تعليمات إتمام التحويل
-                                                </h5>
-                                                <ul class="instructions-list">
-                                                    <li>قم بتحويل المبلغ بدقة إلى الحساب البنكي المختار أعلاه.</li>
-                                                    <li>أرفق صورة واضحة لإيصال التحويل أو ملف PDF الصادر من مصرفك.</li>
-                                                    <li>سيتم تفعيل حسابك مباشرة بعد مراجعة العملية وتأكيد الإيداع.</li>
-                                                </ul>
-                                            </div>
-                                        @endif
+                                        </div>
                                     </div>
-                                </div>
+
+                                    <div class="checkout-card hidden {{ $paymentStep ? '' : 'd-none' }}"
+                                        id="card-payment-section">
+                                        <div class="checkout-card-header">
+                                            <h3 class="checkout-card-title">
+                                                <i class="ti ti-shield-lock"></i>
+                                                بوابة الدفع الآمن
+                                            </h3>
+                                        </div>
+                                        <div class="checkout-card-body">
+                                            <div class="card-security-box">
+                                                <i class="ti ti-shield-check"></i>
+                                                <p>
+                                                    بعد الضغط على "إتمام الدفع"، سيتم نقلك مباشرة إلى بوابة الدفع الإلكتروني
+                                                    المعتمدة (ميسر Moyasar) لإدخال بيانات البطاقة بأمان وتشفير بنكي كامل.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 4. Bank Transfer Details Section -->
+                                    <div class="checkout-card hidden {{ $paymentStep ? '' : 'd-none' }}"
+                                        id="bank-transfer-section">
+                                        <div class="checkout-card-header">
+                                            <h3 class="checkout-card-title">
+                                                <i class="ti ti-building-bank"></i>
+                                                تفاصيل الحسابات البنكية المعتمدة
+                                            </h3>
+                                        </div>
+                                        <div class="checkout-card-body">
+                                            @if ($banks->isEmpty())
+                                                <div class="site-alert site-alert-warning d-flex align-items-center gap-2"
+                                                    role="alert">
+                                                    <i class="ti ti-alert-triangle"></i>
+                                                    لا توجد حسابات بنكية معتمدة حالياً، يرجى اختيار الدفع بالبطاقة.
+                                                </div>
+                                            @else
+                                                <div class="mb-4">
+                                                    <label class="site-label mb-2">
+                                                        اختر البنك للتحويل <span class="required-star">*</span>
+                                                    </label>
+                                                    <div class="bank-cards-grid">
+                                                        @foreach ($banks as $bank)
+                                                            <div class="bank-card" data-bank-id="{{ $bank->id }}">
+                                                                @if ($bank->icon)
+                                                                    <img src="{{ asset('storage/' . $bank->icon) }}"
+                                                                        alt="{{ $bank->bank_name }}" class="bank-logo">
+                                                                @else
+                                                                    <div
+                                                                        class="bank-logo d-flex align-items-center justify-content-center text-primary">
+                                                                        <i class="ti ti-building-bank text-2xl"></i>
+                                                                    </div>
+                                                                @endif
+
+                                                                <div class="bank-info">
+                                                                    <h4 class="bank-name">{{ $bank->bank_name }}</h4>
+                                                                    <div class="bank-details">
+                                                                        <span><i class="ti ti-user"></i>
+                                                                            {{ $bank->account_name }}</span>
+                                                                        <span dir="ltr" class="text-end"><i
+                                                                                class="ti ti-credit-card"></i>
+                                                                            {{ $bank->account_number }}</span>
+                                                                        @if ($bank->iban)
+                                                                            <span dir="ltr" class="text-end"><i
+                                                                                    class="ti ti-id"></i>
+                                                                                {{ $bank->iban }}</span>
+                                                                        @endif
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="bank-radio">
+                                                                    <div class="bank-dot"></div>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+
+                                                <!-- Receipt Upload Section -->
+                                                <div class="mb-4 hidden" id="receipt-upload-section">
+                                                    <x-form.controls.file name="transfer_receipt" id="transfer_receipt"
+                                                        label="إيصال التحويل البنكي" required
+                                                        accept="image/jpeg,image/jpg,image/png,application/pdf"
+                                                        title="انقر أو اسحب إيصال التحويل هنا"
+                                                        desc="صيغ JPG · PNG · PDF — أقصى حجم 5 ميجابايت" :max-size="5"
+                                                        col="col-12" data-validation-skip />
+                                                </div>
+
+                                                <!-- Instructions Box -->
+                                                <div class="bank-instructions-box">
+                                                    <h5 class="instructions-title">
+                                                        <i class="ti ti-info-circle"></i>
+                                                        تعليمات إتمام التحويل
+                                                    </h5>
+                                                    <ul class="instructions-list">
+                                                        <li>قم بتحويل المبلغ بدقة إلى الحساب البنكي المختار أعلاه.</li>
+                                                        <li>أرفق صورة واضحة لإيصال التحويل أو ملف PDF الصادر من مصرفك.</li>
+                                                        <li>سيتم تفعيل حسابك مباشرة بعد مراجعة العملية وتأكيد الإيداع.</li>
+                                                    </ul>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
 
                             </div>
 
@@ -360,7 +373,7 @@
                                                 <span class="plan-name">{{ $plan->name }}</span>
                                                 <span class="plan-price" id="total-display">
                                                     {{ number_format($plan->price_after_discount, 2) }}
-                                                    <span class="icon-saudi_riyal"></span>
+                                                    <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>
                                                 </span>
                                             </div>
 
@@ -385,7 +398,7 @@
                                                     <span class="row-label">المبلغ قبل الضريبة</span>
                                                     <span class="row-value" id="subtotal-display">
                                                         {{ number_format($priceWithoutTax, 2) }}
-                                                        <span class="icon-saudi_riyal"></span>
+                                                        <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>
                                                     </span>
                                                 </div>
 
@@ -393,7 +406,7 @@
                                                     <span class="row-label">ضريبة القيمة المضافة (15%)</span>
                                                     <span class="row-value" id="vat-display">
                                                         {{ number_format($taxAmount, 2) }}
-                                                        <span class="icon-saudi_riyal"></span>
+                                                        <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>
                                                     </span>
                                                 </div>
 
@@ -410,7 +423,7 @@
                                                     </span>
                                                     <span class="row-value">
                                                         -<span id="discount-display">0.00</span>
-                                                        <span class="icon-saudi_riyal"></span>
+                                                        <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>
                                                     </span>
                                                 </div>
 
@@ -419,7 +432,7 @@
                                                     <span class="row-label">المبلغ الإجمالي</span>
                                                     <span class="row-value" id="total-final">
                                                         {{ number_format($plan->price_after_discount, 2) }}
-                                                        <span class="icon-saudi_riyal"></span>
+                                                        <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>
                                                     </span>
                                                 </div>
                                             </div>

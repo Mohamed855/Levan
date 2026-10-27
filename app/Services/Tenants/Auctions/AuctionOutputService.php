@@ -116,7 +116,6 @@ final class AuctionOutputService
                     'main_image' => $this->resolveFileBase64($property->main_image),
                     'aerial_image' => $this->resolveFileBase64($property->aerial_image),
                     'boundaries' => $property->boundaries ?? collect(),
-                    'google_maps_url' => (string) ($property->google_maps_url ?? ''),
                     'short_description' => (string) ($property->short_description ?? ''),
                 ];
             });

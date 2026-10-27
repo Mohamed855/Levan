@@ -9,6 +9,19 @@ use Tests\TestCase;
 
 final class AuctionReportRendererTest extends TestCase
 {
+    public function test_reference_capacity_fixtures_render_as_seven_and_twenty_one_pages(): void
+    {
+        $renderer = app(AuctionReportRenderer::class);
+        foreach (['haram' => ['outputs', 7], 'asir' => ['report', 21]] as $fixture => [$type, $count]) {
+            $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/'.$fixture.'.php';
+            $html = $renderer->html($snapshot, $type);
+            self::assertSame($count, substr_count($html, 'data-page-type='), $fixture);
+            self::assertFalse(str_contains($html, '__DYNAMIC_IMAGE__'));
+            self::assertFalse(str_contains($html, '__ASSET_'));
+            self::assertFalse(str_contains($html, 'saved-data'));
+        }
+    }
+
     public function test_renderer_uses_blade_data_without_reference_engine_or_sample_values(): void
     {
         $snapshot = [
@@ -40,10 +53,10 @@ final class AuctionReportRendererTest extends TestCase
         self::assertStringContainsString('data-page-type="haram-cover"', $outputs);
         self::assertStringContainsString('data-page-type="haram-index"', $outputs);
         self::assertStringContainsString('data-page-type="haram-closing"', $outputs);
-        self::assertSame(7, substr_count($outputs, 'data-page-type='));
+        self::assertGreaterThanOrEqual(7, substr_count($outputs, 'data-page-type='));
         self::assertStringContainsString('NotoReport', $outputs);
         self::assertTrue(str_contains($report, 'data-page-type="asir-cover"'));
-        self::assertSame(21, substr_count($report, 'data-page-type='));
+        self::assertGreaterThanOrEqual(21, substr_count($report, 'data-page-type='));
         self::assertTrue(str_contains($report, 'GEReport'));
 
         self::assertStringContainsString('اسم مزاد حقيقي طويل دون قص', $report);

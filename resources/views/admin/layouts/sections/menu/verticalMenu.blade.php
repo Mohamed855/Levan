@@ -40,6 +40,10 @@
             </li>
         @endcan
 
+        <li class="menu-header small">
+            <span class="menu-header-text">المستخدمين والعملاء</span>
+        </li>
+
         @can('users.view')
             <li class="menu-item @if (Route::is('admin.users.*')) active open @endif">
                 <a href="{{ route('admin.users.index') }}" class="menu-link">
@@ -133,7 +137,7 @@
                     <i class="menu-icon tf-icons ti ti-file-certificate"></i>
                     <div>إدارة الاشتراكات</div>
                     @if ($totalBadgeCount > 0)
-                        <div class="badge bg-warning rounded-pill ms-auto">{{ $totalBadgeCount }}</div>
+                        <div class="badge bg-light text-primary rounded-pill ms-auto">{{ $totalBadgeCount }}</div>
                     @endif
                 </a>
                 <ul class="menu-sub">
@@ -141,7 +145,7 @@
                         <a href="{{ route('admin.subscriptions.index') }}" class="menu-link">
                             <div>جميع الإشتراكات</div>
                             @if ($pendingCount > 0)
-                                <div class="badge bg-warning rounded-pill ms-auto">{{ $pendingCount }}</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto">{{ $pendingCount }}</div>
                             @endif
                         </a>
                     </li>
@@ -149,7 +153,7 @@
                         <a href="{{ route('admin.subscriptionManage.pending') }}" class="menu-link">
                             <div>الطلبات</div>
                             @if ($pendingCount > 0)
-                                <div class="badge bg-warning rounded-pill ms-auto">{{ $pendingCount }}</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto">{{ $pendingCount }}</div>
                             @endif
                         </a>
                     </li>
@@ -157,7 +161,7 @@
                         <a href="{{ route('admin.subscriptionManage.expiring') }}" class="menu-link">
                             <div>تقارب على الانتهاء</div>
                             @if ($expiringCount > 0)
-                                <div class="badge bg-warning rounded-pill ms-auto">{{ $expiringCount }}</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto">{{ $expiringCount }}</div>
                             @endif
                         </a>
                     </li>
@@ -165,7 +169,7 @@
                         <a href="{{ route('admin.subscriptionManage.expired') }}" class="menu-link">
                             <div>الاشتراكات المنتهية</div>
                             @if ($expiredCount > 0)
-                                <div class="badge bg-warning rounded-pill ms-auto">{{ $expiredCount }}</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto">{{ $expiredCount }}</div>
                             @endif
                         </a>
                     </li>
@@ -213,7 +217,7 @@
                     <i class="menu-icon tf-icons ti ti-mail"></i>
                     <div>طلبات التواصل</div>
                     @if ($pendingContactRequestsCount > 0)
-                        <div class="badge bg-warning rounded-pill ms-auto">{{ $pendingContactRequestsCount }}
+                        <div class="badge bg-light text-primary rounded-pill ms-auto">{{ $pendingContactRequestsCount }}
                         </div>
                     @endif
                 </a>
@@ -234,7 +238,8 @@
                     <i class="menu-icon tf-icons ti ti-clock"></i>
                     <div>طلبات التجربة</div>
                     @if ($pendingTrialRequestsCount > 0)
-                        <div class="badge bg-warning rounded-pill ms-auto">{{ $pendingTrialRequestsCount }}</div>
+                        <div class="badge bg-light text-primary rounded-pill ms-auto">{{ $pendingTrialRequestsCount }}
+                        </div>
                     @endif
                 </a>
             </li>

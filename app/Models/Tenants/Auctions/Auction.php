@@ -148,7 +148,7 @@ class Auction extends Model
             'in_preparation' => 'bg-warning',
             'pending_approval' => 'bg-info',
             'active' => 'bg-success',
-            'completed' => 'bg-dark text-white',
+            'completed' => 'bg-label-dark text-dark',
             'suspended' => 'bg-danger',
             default => 'bg-primary',
         };

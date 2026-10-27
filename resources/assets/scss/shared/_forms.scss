@@ -164,14 +164,30 @@ textarea.form-control {
 }
 
 // Password toggle & input-group-text on error states
-.input-group .form-control.is-invalid ~ .input-group-text,
-.input-group .form-control.is-invalid ~ [data-password-toggle],
-.input-group-text[data-password-toggle].is-invalid,
-[data-password-toggle].is-invalid,
-[data-form-field].is-invalid [data-password-toggle],
-[data-form-field].has-error [data-password-toggle] {
+.input-group:not(.input-group-merge) .form-control.is-invalid ~ .input-group-text,
+.input-group:not(.input-group-merge) .form-control.is-invalid ~ [data-password-toggle],
+.input-group:not(.input-group-merge) .input-group-text[data-password-toggle].is-invalid,
+.input-group:not(.input-group-merge) [data-password-toggle].is-invalid,
+[data-form-field].is-invalid .input-group:not(.input-group-merge) [data-password-toggle],
+[data-form-field].has-error .input-group:not(.input-group-merge) [data-password-toggle] {
     border: 1px solid var(--bs-danger) !important;
     box-shadow: none !important;
+}
+
+// In merged input groups, maintain seamless inner join and prevent isolated button border box
+.input-group-merge {
+    .input-group-text,
+    [data-password-toggle] {
+        box-shadow: none !important;
+    }
+
+    .form-control:first-child {
+        border-left: 0 !important;
+    }
+    .input-group-text:last-child,
+    [data-password-toggle]:last-child {
+        border-right: 0 !important;
+    }
 }
 
 // Keep hint text stationary when a control receives focus. The vendor theme

@@ -21,8 +21,24 @@ document.addEventListener('DOMContentLoaded', function () {
         updateOtpTimer();
     }
 
+    const otpForm = document.querySelector('#otp-form');
+    if (otpForm && window.history && window.history.replaceState) {
+        window.history.replaceState({ checkoutStep: 'otp' }, document.title, window.location.href);
+    }
+
+    // Force refresh if restored from Back-Forward cache (bfcache)
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
+
     const paymentForm = document.querySelector('#payment-form');
     if (!paymentForm) return;
+
+    if (paymentForm.dataset.checkoutStep === 'payment' && window.history && window.history.replaceState) {
+        window.history.replaceState({ checkoutStep: 'payment' }, document.title, window.location.href);
+    }
 
     // Initialize Select2 on City select
     const initCitySelect2 = () => {

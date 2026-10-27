@@ -4013,42 +4013,42 @@ return array (
       'i2' => 
       array (
         'section' => 'board_before',
-        'slot' => 0,
+        'slot' => 2,
       ),
       'i3' => 
       array (
         'section' => 'board_before',
-        'slot' => 1,
+        'slot' => 3,
       ),
       'i4' => 
       array (
         'section' => 'board_before',
-        'slot' => 2,
+        'slot' => 4,
       ),
       'i5' => 
       array (
         'section' => 'board_before',
-        'slot' => 3,
+        'slot' => 5,
       ),
       'i6' => 
       array (
         'section' => 'board_before',
-        'slot' => 4,
+        'slot' => 5,
       ),
       'i7' => 
       array (
         'section' => 'board_before',
-        'slot' => 5,
+        'slot' => 6,
       ),
       'i8' => 
       array (
         'section' => 'board_before',
-        'slot' => 6,
+        'slot' => 0,
       ),
       'i9' => 
       array (
         'section' => 'board_before',
-        'slot' => 7,
+        'slot' => 1,
       ),
     ),
     'groups' => 
@@ -4081,6 +4081,17 @@ return array (
       array (
         0 => 'f12',
       ),
+    ),
+    'image_slots' => 
+    array (
+      'i8' => 0,
+      'i9' => 1,
+      'i2' => 2,
+      'i3' => 3,
+      'i4' => 4,
+      'i5' => 5,
+      'i6' => 5,
+      'i7' => 6,
     ),
     'images' => 
     array (
@@ -4608,7 +4619,7 @@ return array (
       array (
         0 => 'f14',
       ),
-      'end_time' => 
+      'end_time_short' => 
       array (
         0 => 'f15',
       ),
@@ -4619,6 +4630,21 @@ return array (
       'platform_url' => 
       array (
         0 => 'f17',
+      ),
+    ),
+    'layouts' => 
+    array (
+      'auction_type' => 
+      array (
+        'max_width' => 80,
+      ),
+      'property_count' => 
+      array (
+        'max_width' => 80,
+      ),
+      'end_time_short' => 
+      array (
+        'max_width' => 110,
       ),
     ),
     'images' => 
@@ -4963,6 +4989,33 @@ return array (
         0 => 'f20',
       ),
     ),
+    'layouts' => 
+    array (
+      'auction_type' => 
+      array (
+        'max_width' => 80,
+      ),
+      'name' => 
+      array (
+        'max_width' => 120,
+      ),
+      'youtube_views' => 
+      array (
+        'max_width' => 70,
+      ),
+      'youtube_subscribers' => 
+      array (
+        'max_width' => 60,
+      ),
+      'youtube_watch_hours' => 
+      array (
+        'max_width' => 60,
+      ),
+      'youtube_views_2' => 
+      array (
+        'max_width' => 60,
+      ),
+    ),
     'images' => 
     array (
     ),
@@ -5154,6 +5207,17 @@ return array (
       'x_posts' => 
       array (
         0 => 'f7',
+      ),
+    ),
+    'layouts' => 
+    array (
+      'x_views' => 
+      array (
+        'max_width' => 70,
+      ),
+      'x_posts' => 
+      array (
+        'max_width' => 40,
       ),
     ),
     'images' => 
@@ -5704,240 +5768,30 @@ return array (
         'section' => 'report_image',
         'slot' => 0,
       ),
-      'i3' => 
-      array (
-        'section' => 'social',
-        'slot' => 0,
-      ),
-      'i4' => 
+      'i14' => 
       array (
         'section' => 'social',
         'slot' => 1,
       ),
-      'i5' => 
-      array (
-        'section' => 'social',
-        'slot' => 2,
-      ),
-      'i6' => 
-      array (
-        'section' => 'social',
-        'slot' => 3,
-      ),
-      'i7' => 
-      array (
-        'section' => 'social',
-        'slot' => 4,
-      ),
-      'i8' => 
-      array (
-        'section' => 'social',
-        'slot' => 5,
-      ),
-      'i9' => 
-      array (
-        'section' => 'social',
-        'slot' => 6,
-      ),
-      'i10' => 
-      array (
-        'section' => 'social',
-        'slot' => 7,
-      ),
-      'i11' => 
-      array (
-        'section' => 'social',
-        'slot' => 8,
-      ),
-      'i12' => 
-      array (
-        'section' => 'social',
-        'slot' => 9,
-      ),
-      'i13' => 
-      array (
-        'section' => 'social',
-        'slot' => 10,
-      ),
-      'i14' => 
-      array (
-        'section' => 'social',
-        'slot' => 11,
-      ),
       'i15' => 
       array (
         'section' => 'social',
-        'slot' => 12,
-      ),
-      'i16' => 
-      array (
-        'section' => 'social',
-        'slot' => 13,
-      ),
-      'i17' => 
-      array (
-        'section' => 'social',
-        'slot' => 14,
-      ),
-      'i18' => 
-      array (
-        'section' => 'social',
-        'slot' => 15,
+        'slot' => 1,
       ),
       'i20' => 
       array (
         'section' => 'social',
-        'slot' => 16,
-      ),
-      'i21' => 
-      array (
-        'section' => 'social',
-        'slot' => 17,
-      ),
-      'i22' => 
-      array (
-        'section' => 'social',
-        'slot' => 18,
-      ),
-      'i23' => 
-      array (
-        'section' => 'social',
-        'slot' => 19,
-      ),
-      'i24' => 
-      array (
-        'section' => 'social',
-        'slot' => 20,
-      ),
-      'i25' => 
-      array (
-        'section' => 'social',
-        'slot' => 21,
-      ),
-      'i26' => 
-      array (
-        'section' => 'social',
-        'slot' => 22,
-      ),
-      'i27' => 
-      array (
-        'section' => 'social',
-        'slot' => 23,
-      ),
-      'i28' => 
-      array (
-        'section' => 'social',
-        'slot' => 7,
-      ),
-      'i29' => 
-      array (
-        'section' => 'social',
-        'slot' => 24,
-      ),
-      'i30' => 
-      array (
-        'section' => 'social',
-        'slot' => 25,
-      ),
-      'i31' => 
-      array (
-        'section' => 'social',
-        'slot' => 10,
+        'slot' => 2,
       ),
       'i32' => 
       array (
         'section' => 'social',
-        'slot' => 26,
-      ),
-      'i33' => 
-      array (
-        'section' => 'social',
-        'slot' => 13,
-      ),
-      'i34' => 
-      array (
-        'section' => 'social',
-        'slot' => 27,
-      ),
-      'i35' => 
-      array (
-        'section' => 'social',
-        'slot' => 28,
-      ),
-      'i37' => 
-      array (
-        'section' => 'social',
-        'slot' => 29,
-      ),
-      'i38' => 
-      array (
-        'section' => 'social',
-        'slot' => 30,
-      ),
-      'i39' => 
-      array (
-        'section' => 'social',
-        'slot' => 31,
-      ),
-      'i40' => 
-      array (
-        'section' => 'social',
-        'slot' => 32,
-      ),
-      'i41' => 
-      array (
-        'section' => 'social',
-        'slot' => 33,
-      ),
-      'i42' => 
-      array (
-        'section' => 'social',
-        'slot' => 19,
-      ),
-      'i43' => 
-      array (
-        'section' => 'social',
-        'slot' => 3,
-      ),
-      'i44' => 
-      array (
-        'section' => 'social',
-        'slot' => 34,
-      ),
-      'i45' => 
-      array (
-        'section' => 'social',
-        'slot' => 35,
-      ),
-      'i46' => 
-      array (
-        'section' => 'social',
-        'slot' => 36,
-      ),
-      'i47' => 
-      array (
-        'section' => 'social',
-        'slot' => 37,
+        'slot' => 2,
       ),
       'i48' => 
       array (
         'section' => 'social',
-        'slot' => 38,
-      ),
-      'i49' => 
-      array (
-        'section' => 'social',
-        'slot' => 39,
-      ),
-      'i50' => 
-      array (
-        'section' => 'social',
-        'slot' => 40,
-      ),
-      'i51' => 
-      array (
-        'section' => 'social',
-        'slot' => 41,
+        'slot' => 0,
       ),
     ),
     'groups' => 
@@ -5970,6 +5824,13 @@ return array (
       array (
         0 => 'f11',
       ),
+    ),
+    'image_slots' => 
+    array (
+      'i48' => 0,
+      'i14' => 1,
+      'i15' => 1,
+      'i32' => 2,
     ),
     'images' => 
     array (
@@ -6748,21 +6609,6 @@ return array (
         'section' => 'report_image',
         'slot' => 0,
       ),
-      'i7' => 
-      array (
-        'section' => 'brokers',
-        'slot' => 0,
-      ),
-      'i11' => 
-      array (
-        'section' => 'brokers',
-        'slot' => 1,
-      ),
-      'i12' => 
-      array (
-        'section' => 'brokers',
-        'slot' => 2,
-      ),
     ),
     'groups' => 
     array (
@@ -6829,8 +6675,26 @@ return array (
         50 => 'f62',
       ),
     ),
+    'static_images' => 
+    array (
+      0 => 'i7',
+      1 => 'i11',
+      2 => 'i12',
+    ),
     'images' => 
     array (
+      0 => 
+      array (
+        'section' => 'brokers',
+        'slot' => 0,
+        'box' => 
+        array (
+          0 => 135.5,
+          1 => 325.8,
+          2 => 491.6,
+          3 => 789.4,
+        ),
+      ),
     ),
   ),
   16 => 
@@ -6989,75 +6853,10 @@ return array (
     ),
     'image_defs' => 
     array (
-      'i2' => 
-      array (
-        'section' => 'board_after',
-        'slot' => 0,
-      ),
-      'i3' => 
-      array (
-        'section' => 'board_after',
-        'slot' => 1,
-      ),
-      'i4' => 
-      array (
-        'section' => 'board_after',
-        'slot' => 2,
-      ),
-      'i5' => 
-      array (
-        'section' => 'board_after',
-        'slot' => 3,
-      ),
-      'i6' => 
-      array (
-        'section' => 'board_after',
-        'slot' => 4,
-      ),
-      'i7' => 
-      array (
-        'section' => 'board_after',
-        'slot' => 5,
-      ),
-      'i8' => 
-      array (
-        'section' => 'board_after',
-        'slot' => 6,
-      ),
-      'i9' => 
-      array (
-        'section' => 'board_after',
-        'slot' => 7,
-      ),
-      'i10' => 
-      array (
-        'section' => 'board_after',
-        'slot' => 8,
-      ),
-      'i11' => 
-      array (
-        'section' => 'board_after',
-        'slot' => 9,
-      ),
-      'i12' => 
-      array (
-        'section' => 'board_after',
-        'slot' => 10,
-      ),
-      'i13' => 
-      array (
-        'section' => 'board_after',
-        'slot' => 11,
-      ),
-      'i14' => 
-      array (
-        'section' => 'board_after',
-        'slot' => 12,
-      ),
       'i17' => 
       array (
         'section' => 'board_after',
-        'slot' => 13,
+        'slot' => 0,
       ),
       'i18' => 
       array (
@@ -7067,32 +6866,32 @@ return array (
       'i19' => 
       array (
         'section' => 'board_after',
-        'slot' => 14,
+        'slot' => 1,
       ),
       'i20' => 
       array (
         'section' => 'board_after',
-        'slot' => 15,
+        'slot' => 2,
       ),
       'i21' => 
       array (
         'section' => 'board_after',
-        'slot' => 16,
+        'slot' => 3,
       ),
       'i22' => 
       array (
         'section' => 'board_after',
-        'slot' => 17,
+        'slot' => 4,
       ),
       'i23' => 
       array (
         'section' => 'board_after',
-        'slot' => 18,
+        'slot' => 5,
       ),
       'i24' => 
       array (
         'section' => 'board_after',
-        'slot' => 19,
+        'slot' => 6,
       ),
     ),
     'groups' => 
@@ -7282,42 +7081,42 @@ return array (
       'i2' => 
       array (
         'section' => 'board_after',
-        'slot' => 0,
+        'slot' => 2,
       ),
       'i3' => 
       array (
         'section' => 'board_after',
-        'slot' => 1,
+        'slot' => 3,
       ),
       'i4' => 
       array (
         'section' => 'board_after',
-        'slot' => 2,
+        'slot' => 4,
       ),
       'i5' => 
       array (
         'section' => 'board_after',
-        'slot' => 3,
+        'slot' => 5,
       ),
       'i6' => 
       array (
         'section' => 'board_after',
-        'slot' => 4,
+        'slot' => 5,
       ),
       'i7' => 
       array (
         'section' => 'board_after',
-        'slot' => 5,
+        'slot' => 6,
       ),
       'i8' => 
       array (
         'section' => 'board_after',
-        'slot' => 6,
+        'slot' => 0,
       ),
       'i9' => 
       array (
         'section' => 'board_after',
-        'slot' => 7,
+        'slot' => 1,
       ),
     ),
     'groups' => 
@@ -7350,6 +7149,17 @@ return array (
       array (
         0 => 'f10',
       ),
+    ),
+    'image_slots' => 
+    array (
+      'i8' => 0,
+      'i9' => 1,
+      'i2' => 2,
+      'i3' => 3,
+      'i4' => 4,
+      'i5' => 5,
+      'i6' => 5,
+      'i7' => 6,
     ),
     'images' => 
     array (

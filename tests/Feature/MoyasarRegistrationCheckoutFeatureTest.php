@@ -103,8 +103,49 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
         $this->assertSame($companyName, $pendingBill->metadata['billing_company_name']);
         $this->assertSame($phone, $pendingBill->metadata['billing_phone']);
         $this->assertArrayNotHasKey('billing_password', $pendingBill->metadata);
-        $this->assertTrue(Hash::check('Secret1234!', $pendingBill->metadata['billing_password_hash']));
-        $response->assertSessionMissing('checkout_verification');
+        $response->assertSessionHas('checkout_verification');
+
+        $backResponse = $this->get(route('site.plans.checkout', $plan->id));
+        $backResponse->assertOk();
+        $backResponse->assertSee('payment_method_card', false);
+        $backResponse->assertDontSee('name="billing_company_name"', false);
+    }
+
+    public function test_navigating_back_after_otp_verification_preserves_payment_step_and_does_not_return_to_registration(): void
+    {
+        $plan = $this->publicPlan;
+        $sessionData = [
+            'plan_id' => $plan->id,
+            'billing_company_name' => 'Verified Company',
+            'billing_commercial_number' => '1010998877',
+            'billing_tax_number' => '300000000000003',
+            'billing_city_id' => City::first()?->id,
+            'billing_address' => 'الرياض',
+            'billing_name' => 'Verified User',
+            'billing_email' => 'verified@example.test',
+            'billing_phone' => '0599112233',
+            'billing_password_hash' => Hash::make('Secret1234!'),
+            'verified_at' => now()->timestamp,
+            'expires_at' => now()->addHour()->timestamp,
+        ];
+
+        // 1. Directly hitting checkout route with verified session returns payment step
+        $response = $this->withSession(['checkout_verification' => $sessionData])
+            ->get(route('site.plans.checkout', $plan));
+
+        $response->assertOk();
+        $response->assertSee('payment_method_card', false);
+        $response->assertDontSee('name="billing_company_name"', false);
+
+        // 2. Explicitly requesting checkout.edit clears verification and returns user to registration form
+        $editResponse = $this->withSession(['checkout_verification' => $sessionData])
+            ->get(route('site.plans.checkout.edit', $plan));
+
+        $editResponse->assertRedirect(route('site.plans.checkout', $plan));
+        $this->get(route('site.plans.checkout', $plan))
+            ->assertOk()
+            ->assertSee('name="billing_company_name"', false)
+            ->assertDontSee('payment_method_card', false);
     }
 
     public function test_editing_checkout_clears_otp_state_and_keeps_customer_data_safe(): void
@@ -234,5 +275,55 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
 
         // Stale coupon must be cleared from session
         $this->assertNull(session('checkout_coupon_code'));
+    }
+
+    public function test_payment_callback_redirects_to_tenant_login_with_success_toastr_message(): void
+    {
+        $bill = Bill::create([
+            'amount' => $this->publicPlan->price_after_discount,
+            'original_amount' => $this->publicPlan->price_after_discount,
+            'type' => BillType::NEW_SUBSCRIPTION,
+            'payment_method' => PaymentMethod::ONLINE,
+            'status' => BillStatus::PENDING,
+            'due_date' => now()->addHour(),
+            'metadata' => [
+                'plan_id' => $this->publicPlan->id,
+                'checkout_source' => 'site_checkout',
+            ],
+        ]);
+
+        $this->mock(\App\Services\shared\Payment\Moyasar\MoyasarCallbackHandler::class, function ($mock) use ($bill) {
+            $mock->shouldReceive('verify')->once()->andReturn([
+                'bill' => $bill,
+                'payment' => ['id' => 'pay_test_123', 'status' => 'paid'],
+            ]);
+        });
+
+        $subscriptionServiceMock = $this->createMock(\App\Services\Shared\Subscription\SubscriptionService::class);
+        $subscriptionServiceMock->expects($this->once())
+            ->method('completeOnlineSubscription')
+            ->willReturn([
+                'tenant_id' => 'test-tenant-uuid',
+                'message' => 'تم إنشاء الاشتراك بنجاح.',
+            ]);
+        $this->app->instance(\App\Services\Shared\Subscription\SubscriptionService::class, $subscriptionServiceMock);
+        $this->app->instance(\App\Services\shared\Subscription\SubscriptionService::class, $subscriptionServiceMock);
+
+        $response = $this->get(route('site.plans.checkout.callback', ['bill' => $bill->bill_number, 'id' => 'pay_test_123']));
+
+        $response->assertRedirect(url('/test-tenant-uuid/login'));
+        $response->assertSessionHas('success', 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول');
+    }
+
+    public function test_tenant_login_view_includes_toastr_and_renders_flash_success(): void
+    {
+        view()->share('errors', new \Illuminate\Support\ViewErrorBag());
+
+        $rendered = $this->withSession([
+            'success' => 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول',
+        ])->view('tenant.auth.login');
+
+        $rendered->assertSee('toastr');
+        $rendered->assertSee('data-flash-success="تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول"', false);
     }
 }

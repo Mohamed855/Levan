@@ -2,24 +2,18 @@
     $isEdit = isset($role) && $role->exists;
 @endphp
 
-<x-form.controls.input 
-    name="name" 
-    label="معرّف الدور" 
-    :value="old('name', isset($role) ? \App\Support\AccessLabels::role($role->name) : '')"
-    placeholder="مثال: collection_manager"
-    :readonly="$isEdit" 
-    required 
-    col="col-md-6 mb-3" 
-    :help="$isEdit ? 'معرّف الدور ثابت ولا يمكن تعديله بعد الإنشاء للحفاظ على استقرار الصلاحيات.' : 'يُحفظ معرفاً إنجليزياً فقط، وتُترجم التسمية في الواجهة.'" 
-/>
+<x-form.controls.input name="name" label="معرّف الدور" :value="old('name', isset($role) ? \App\Support\AccessLabels::role($role->name) : '')" placeholder="مثال: collection_manager"
+    :readonly="$isEdit" required col="col-md-6 mb-3" :help="$isEdit
+        ? 'معرّف الدور ثابت ولا يمكن تعديله بعد الإنشاء للحفاظ على استقرار الصلاحيات.'
+        : 'يُحفظ معرفاً إنجليزياً فقط، وتُترجم التسمية في الواجهة.'" />
 
 <div class="mb-3" data-form-field data-field-name="permissions">
     <div class="d-flex justify-content-between align-items-center my-3 gap-3">
         <label for="permissions" class="form-label">الصلاحيات</label>
         <!-- تحديد الكل العام -->
         <div class="form-check d-flex align-items-center gap-2">
-            <input type="checkbox" name="select_all" value="1" class="form-check-input"
-                id="select-all" data-validation-skip>
+            <input type="checkbox" name="select_all" value="1" class="form-check-input" id="select-all"
+                data-validation-skip>
             <label class="form-check-label" for="select-all">تحديد الكل</label>
         </div>
     </div>
@@ -31,28 +25,23 @@
                     <div class="accordion" id="accordion-{{ $loop->index }}">
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="heading-{{ $loop->index }}">
-                                <button type="button" class="accordion-button collapsed"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#collapse-{{ $loop->index }}"
-                                    aria-expanded="false"
+                                <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse-{{ $loop->index }}" aria-expanded="false"
                                     aria-controls="collapse-{{ $loop->index }}">
                                     {{ \App\Support\AccessLabels::section($section) }}
                                 </button>
                             </h2>
-                            <div id="collapse-{{ $loop->index }}"
-                                class="accordion-collapse collapse"
+                            <div id="collapse-{{ $loop->index }}" class="accordion-collapse collapse"
                                 aria-labelledby="heading-{{ $loop->index }}"
                                 data-bs-parent="#accordion-{{ $loop->index }}">
                                 <div class="accordion-body">
 
                                     <!-- تحديد الكل داخل القسم -->
-                                    <div class="form-check my-2">
-                                        <input type="checkbox"
-                                            class="form-check-input section-select-all"
+                                    <div class="form-check mt-3">
+                                        <input type="checkbox" class="form-check-input section-select-all"
                                             id="section-select-all-{{ $loop->index }}"
                                             data-section-index="{{ $loop->index }}">
-                                        <label class="form-check-label"
-                                            for="section-select-all-{{ $loop->index }}">
+                                        <label class="form-check-label" for="section-select-all-{{ $loop->index }}">
                                             تحديد الكل داخل القسم
                                         </label>
                                     </div>
@@ -68,9 +57,8 @@
                                                         value="{{ $permission->name }}"
                                                         class="form-check-input permission-checkbox"
                                                         id="permission-{{ $permission->id }}"
-                                                        data-section="{{ $loop->parent->index }}"
-                                                        data-form-control
-                                                        {{ ($isEdit && $role->hasPermissionTo($permission->name)) ? 'checked' : '' }}>
+                                                        data-section="{{ $loop->parent->index }}" data-form-control
+                                                        {{ $isEdit && $role->hasPermissionTo($permission->name) ? 'checked' : '' }}>
                                                     <label class="form-check-label"
                                                         for="permission-{{ $permission->id }}">
                                                         {{ \App\Support\AccessLabels::permission($permission->name) }}

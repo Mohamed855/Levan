@@ -87,7 +87,7 @@
                                         <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                                             <h4 class="fw-bold mb-0 text-heading">{{ $plan->name }}</h4>
                                             <span
-                                                class="badge bg-dark text-white font-monospace fw-bold fs-6">{{ $plan->code }}</span>
+                                                class="badge bg-label-dark text-dark font-monospace fw-bold fs-6">{{ $plan->code }}</span>
 
                                             <span class="badge bg-{{ $plan->plan_type?->color() ?? 'primary' }} fs-6">
                                                 {{ $plan->plan_type?->label() ?? 'أساسي' }}

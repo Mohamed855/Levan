@@ -36,8 +36,8 @@ final class HaramReportData
             $values['footer'] = '-'.$name.' '.$this->format->dateParts($auction['start_date'] ?? null)['year'];
         }
         $campaigns = $payload['campaigns'] ?? [];
-        foreach (['snapchat', 'tiktok', 'x'] as $slot => $channel) {
-            $campaign = $campaigns[$slot] ?? [];
+        foreach (['snapchat' => ['snapchat', 'سناب شات'], 'tiktok' => ['tiktok', 'تيك توك'], 'x' => ['x', 'أكس']] as $channel => $names) {
+            $campaign = $this->campaign(['marketing' => ['campaigns' => $campaigns]], $names);
             $values[$channel.'_impressions'] = $this->format->number($campaign['impressions'] ?? null);
         }
         $tiktok = $this->campaign($snapshot, ['tiktok', 'تيك توك']);

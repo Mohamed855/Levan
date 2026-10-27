@@ -50,7 +50,7 @@
                 <x-filter.select id="filter-category" filterKey="category" label="تصنيف الإسناد"
                     placeholder="جميع التصنيفات" :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
                 <x-filter.select id="filter-status" filterKey="status" label="حالة الإسناد" placeholder="جميع الحالات"
-                    :enum="\App\Enums\Tenants\Assignments\AssignmentStatus::class" />
+                    :options="['active' => 'نشط', 'inactive' => 'متوقف']" />
                 <x-filter.date id="filter-start-date" filterKey="start_date" target="#assignments-table" label="تاريخ البداية" />
                 <x-filter.date id="filter-end-date" filterKey="end_date" target="#assignments-table" label="تاريخ النهاية" />
                 <x-filter.select id="filter-city" filterKey="city" label="المدينة" placeholder="جميع المدن"

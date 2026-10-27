@@ -194,7 +194,7 @@
                         @if ($bill->payment_method)
                             <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                                 <span class="text-muted small"><i class="ti ti-credit-card me-1"></i>طريقة الدفع</span>
-                                <span class="badge bg-dark text-white">{{ $bill->payment_method->label() }}</span>
+                                <span class="badge bg-label-dark text-dark">{{ $bill->payment_method->label() }}</span>
                             </div>
                         @endif
 

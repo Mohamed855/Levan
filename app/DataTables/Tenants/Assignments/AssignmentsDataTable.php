@@ -37,7 +37,7 @@ class AssignmentsDataTable extends AbstractDataTable
             ['data' => 'auctions_count', 'name' => 'auctions_count', 'title' => 'عدد المزادات', 'className' => 'text-center'],
             ['data' => 'start_date', 'name' => 'start_date', 'title' => 'تاريخ البداية'],
             ['data' => 'end_date', 'name' => 'end_date', 'title' => 'تاريخ النهاية'],
-            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'className' => 'text-center'],
+            ['data' => 'status', 'name' => 'is_active', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false],
         ];
     }
@@ -59,7 +59,20 @@ class AssignmentsDataTable extends AbstractDataTable
             ->editColumn('auctions_count', fn ($row): string => '<span class="badge bg-secondary">'.(int) $row->auctions_count.'</span>')
             ->editColumn('start_date', fn ($row): string => $row->start_date?->format('Y-m-d') ?? '-')
             ->editColumn('end_date', fn ($row): string => $row->end_date?->format('Y-m-d') ?? '-')
-            ->editColumn('status', fn ($row): string => '<span class="badge '.e($row->status_badge_class).'">'.e($row->status_label).'</span>')
+            ->editColumn('status', function ($row): string {
+                $canEdit = auth('tenant')->user()?->can('assignments.edit');
+                if ($canEdit) {
+                    $checked = $row->is_active ? 'checked' : '';
+                    $url = tenant_route_name('assignments.toggle-status', $row->id);
+
+                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="asg_status_'.$row->id.'" data-url="'.e($url).'" data-active-value="active" data-inactive-value="inactive" '.$checked.' aria-label="تبديل حالة الإسناد"></div></div>';
+                }
+
+                $statusClass = $row->is_active ? 'bg-success' : 'bg-danger';
+                $statusText = $row->is_active ? 'نشط' : 'متوقف';
+
+                return '<span class="badge '.$statusClass.'">'.$statusText.'</span>';
+            })
             ->addColumn('actions', fn ($row): string => view('tenant.assignments.action', ['row' => $row, 'route' => $this->route])->render());
     }
 
@@ -73,12 +86,17 @@ class AssignmentsDataTable extends AbstractDataTable
         $request = request();
 
         return $query
-            ->when($request->filled('status'), fn ($builder) => $builder->where('status', $request->status))
+            ->when($request->filled('status'), function ($builder) use ($request) {
+                if ($request->status === 'active' || $request->status === '1') {
+                    $builder->where('is_active', true);
+                } elseif ($request->status === 'inactive' || $request->status === 'suspended' || $request->status === '0') {
+                    $builder->where('is_active', false);
+                }
+            })
             ->when($request->filled('category'), fn ($builder) => $builder->where('category', $request->category))
             ->when($request->filled('start_date'), fn ($builder) => $builder->whereDate('start_date', $request->start_date))
             ->when($request->filled('end_date'), fn ($builder) => $builder->whereDate('end_date', $request->end_date))
-            ->when($request->filled('city'), fn ($builder) => $builder->where('city', $request->city))
-            ;
+            ->when($request->filled('city'), fn ($builder) => $builder->where('city', $request->city));
     }
 
     protected function filterableColumns(): array

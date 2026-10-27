@@ -110,7 +110,7 @@
 -   **الفهرس:** تحديد، رقم العقار، صورة، الاسم، جهة الإصدار، المدينة، النوع، المساحة، رقم الصك، حالة البيانات، حالة الإسناد، الحالة، الإجراءات.
 -   **الإنشاء والتعديل:**
     -   أساسي: `property_number, name, type, usage_classification, area, is_active, short_description`.
-    -   الموقع: `latitude, longitude, city, district, administrative_region, plan_number, parcel_number, google_maps_url`.
+    -   الموقع: `latitude, longitude, city, district, administrative_region, plan_number, parcel_number`.
     -   الملكية: `deed_number, deed_date, issuing_authority, ownership_type, owners[][owner_name,national_id_or_cr]`.
     -   الوكالة: `agent_name, agent_national_id, agency_number, agency_date`.
     -   الوحدات: `units[][unit_number,unit_type,area,current_use,status]`.

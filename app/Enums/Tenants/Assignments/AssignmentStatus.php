@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Enums\Tenants\Assignments;
 
+/**
+ * @deprecated Assignment status has been removed in favor of boolean is_active.
+ */
 enum AssignmentStatus: string
 {
     case ACTIVE = 'active';

@@ -22,13 +22,13 @@
 @endphp
 
 @if ($href)
-    <a href="{{ $href }}" {{ $attributes->class(['btn', 'btn-secondary', 'btn-prev', 'waves-effect', 'waves-light']) }}>
+    <a href="{{ $href }}" {{ $attributes->class(['btn', 'btn-secondary', 'btn-prev']) }}>
         @if ($icon)<i class="{{ $icon }}" aria-hidden="true"></i>@endif
         {{ $slot->isNotEmpty() ? $slot : $text }}
     </a>
 @else
     <button type="{{ $type }}" data-wizard-prev data-wizard-back="{{ $back === true ? 'true' : 'false' }}"
-        {{ $attributes->class(['btn', 'btn-secondary', 'btn-prev', 'waves-effect', 'waves-light']) }}
+        {{ $attributes->class(['btn', 'btn-secondary', 'btn-prev']) }}
         @if($defaultOnClick) onclick="{{ $defaultOnClick }}" @endif
         @disabled($isDisabled)>
         @if ($icon)<i class="{{ $icon }}" aria-hidden="true"></i>@endif

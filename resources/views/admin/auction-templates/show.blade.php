@@ -19,7 +19,8 @@
                 <span class="badge bg-primary">
                     {{ $template->type instanceof \BackedEnum ? $template->type->value : (string) $template->type }}
                 </span>
-                <span class="badge bg-dark text-white font-monospace">إصدار {{ $template->current_version ?: '1.0' }}</span>
+                <span class="badge bg-label-dark text-dark font-monospace">إصدار
+                    {{ $template->current_version ?: '1.0' }}</span>
             </div>
         </div>
         <div class="d-flex gap-2">

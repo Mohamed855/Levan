@@ -112,6 +112,7 @@ final class AuctionReportDataTest extends TenantAuctionReportTestCase
         self::assertCount(2, $snapshot['properties'][1]['images']);
         self::assertNotNull($snapshot['auction']['report_image']);
         self::assertCount(1, $snapshot['evidence']['marketing_evidence']);
+        self::assertIsArray($snapshot['evidence']['marketing_evidence']);
         self::assertCount(1, $snapshot['evidence']['board_before']);
         self::assertCount(1, $snapshot['evidence']['board_after']);
     }

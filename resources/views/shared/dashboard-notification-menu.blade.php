@@ -11,7 +11,7 @@
     <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow" href="#"
         data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-label="الإشعارات" id="notificationDropdown">
         <span class="position-relative"><i class="ti ti-bell ti-md"></i>
-            <span class="badge rounded-pill bg-danger badge-dot badge-notifications border d-none" data-notification-dot></span>
+            <span class="badge rounded-pill bg-primary badge-dot badge-notifications border d-none" data-notification-dot></span>
         </span>
     </a>
     <ul class="dropdown-menu dropdown-menu-end p-0" style="min-width:min(350px, 95vw);">

@@ -17,7 +17,7 @@
                     onclick="navigator.clipboard.writeText('{{ $assignment->assignment_number }}'); toastr.success('تم نسخ الرقم');">
                     {{ $assignment->assignment_number }}
                 </code>
-                <span class="badge {{ $assignment->status_badge_class }}">{{ $assignment->status_label }}</span>
+                <span class="badge {{ $assignment->is_active ? 'bg-success' : 'bg-danger' }}">{{ $assignment->is_active ? 'نشط' : 'متوقف' }}</span>
             </div>
         </div>
         <div class="d-flex gap-2">

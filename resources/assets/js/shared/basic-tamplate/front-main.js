@@ -18,12 +18,6 @@ window.isDarkStyle = window.Helpers.isDarkStyle();
 
     if (typeof Waves !== "undefined") {
         Waves.init();
-        Waves.attach(
-            ".btn[class*='btn-']:not([class*='btn-outline-']):not([class*='btn-'])",
-            ["waves-light"],
-        );
-        Waves.attach("[class*='btn-outline-']");
-        Waves.attach("[class*='btn-']");
         Waves.attach(".pagination .page-item .page-link");
     }
 

@@ -9,10 +9,11 @@
 
             <!-- Desktop Navigation Links -->
             <nav class="site-nav" aria-label="التنقل الرئيسي">
-                <a href="/#home">الرئيسية</a>
+                <a href="{{ route('site.index') }}">الرئيسية</a>
                 <a href="/#services">المميزات</a>
                 <a href="/#pricing">الباقات</a>
                 <a href="/#faq">الأسئلة الشائعة</a>
+                <a href="/#contact">تواصل معنا</a>
             </nav>
 
             <!-- Actions: Hamburger on Mobile + Contact on Desktop -->
@@ -45,7 +46,7 @@
             </div>
 
             <nav class="site-mobile-nav">
-                <a href="/#home">الرئيسية</a>
+                <a href="{{ route('site.index') }}">الرئيسية</a>
                 <a href="/#services">المميزات</a>
                 <a href="/#pricing">الباقات والأسعار</a>
                 <a href="/#faq">الأسئلة الشائعة</a>

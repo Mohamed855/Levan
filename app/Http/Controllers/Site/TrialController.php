@@ -47,8 +47,11 @@ class TrialController extends Controller
 
     public function edit(Request $request)
     {
-        $safe = collect($request->session()->get('trial_registration', []))->only(['billing_company_name', 'billing_commercial_number', 'billing_tax_number', 'billing_city_id', 'billing_address', 'billing_name', 'billing_email', 'billing_phone'])->all();
-        $request->session()->forget('trial_registration');
+        $registration = $request->session()->get('trial_registration', []);
+        $safe = collect($registration)->only(['billing_company_name', 'billing_commercial_number', 'billing_tax_number', 'billing_city_id', 'billing_address', 'billing_name', 'billing_email', 'billing_phone'])->all();
+        unset($registration['otp_hash'], $registration['attempts'], $registration['submission_token']);
+        $registration['expires_at'] = now()->addHour()->timestamp;
+        $request->session()->put('trial_registration', $registration);
 
         return redirect()->route('site.trial')->withInput($safe);
     }
@@ -70,7 +73,7 @@ class TrialController extends Controller
         $create->execute($data + ['email_verified_at' => now()]);
         $request->session()->forget('trial_registration');
 
-        return redirect()->route('site.trial.submitted');
+        return redirect()->route('site.index')->with('success', 'تم إرسال طلب التجربة بنجاح، وطلبك الآن قيد مراجعة الإدارة.');
     }
 
     public function submitted()

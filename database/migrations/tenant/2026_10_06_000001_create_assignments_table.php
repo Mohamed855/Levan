@@ -22,7 +22,6 @@ return new class extends Migration
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->text('notes')->nullable();
-            $table->enum('status', ['active', 'under_review', 'suspended', 'auctioned'])->default('active')->index();
             $table->boolean('is_active')->default(true)->index();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();

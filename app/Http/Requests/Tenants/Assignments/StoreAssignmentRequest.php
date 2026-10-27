@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Requests\Tenants\Assignments;
 
 use App\Enums\Tenants\Assignments\AssignmentCategory;
-use App\Enums\Tenants\Assignments\AssignmentStatus;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,7 +27,6 @@ class StoreAssignmentRequest extends WizardFormRequest
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'notes' => ['required', 'string', 'max:1000'],
-            'status' => ['required', Rule::enum(AssignmentStatus::class)],
             'property_ids' => ['required', 'array', 'min:1'],
             'property_ids.*' => ['required', 'integer', 'distinct', Rule::exists('properties', 'id')->where(
                 fn ($query) => $query->whereNull('assignment_id')->whereNull('deleted_at'),
@@ -37,8 +35,8 @@ class StoreAssignmentRequest extends WizardFormRequest
             'assignment_letter' => ['required', 'file', 'mimes:pdf', 'max:10240'],
             'general_documents' => ['required', 'array', 'min:1'],
             'general_documents.*' => ['required', 'file', 'max:10240'],
-            'additional_attachments' => ['required', 'array', 'min:1'],
-            'additional_attachments.*' => ['required', 'file', 'max:10240'],
+            'additional_attachments' => ['nullable', 'array'],
+            'additional_attachments.*' => ['nullable', 'file', 'max:10240'],
         ];
     }
 
@@ -51,7 +49,6 @@ class StoreAssignmentRequest extends WizardFormRequest
             'issuing_entity.required' => 'الجهة المسندة مطلوبة.',
             'city.required' => 'المدينة مطلوبة.',
             'category.required' => 'تصنيف الإسناد مطلوب.',
-            'status.required' => 'حالة الإسناد مطلوبة.',
             'start_date.required' => 'تاريخ البداية مطلوب.',
             'end_date.required' => 'تاريخ النهاية مطلوب.',
             'end_date.after_or_equal' => 'تاريخ النهاية يجب أن يكون مساويًا أو بعد تاريخ البداية.',
@@ -70,8 +67,6 @@ class StoreAssignmentRequest extends WizardFormRequest
             'general_documents.required' => 'يجب إرفاق مستند عام واحد على الأقل.',
             'general_documents.min' => 'يجب إرفاق مستند عام واحد على الأقل.',
             'general_documents.*.max' => 'حجم كل مستند عام يجب ألا يتجاوز 10 ميجابايت.',
-            'additional_attachments.required' => 'يجب إرفاق مرفق إضافي واحد على الأقل.',
-            'additional_attachments.min' => 'يجب إرفاق مرفق إضافي واحد على الأقل.',
             'additional_attachments.*.max' => 'حجم كل مرفق إضافي يجب ألا يتجاوز 10 ميجابايت.',
         ];
     }
@@ -85,7 +80,6 @@ class StoreAssignmentRequest extends WizardFormRequest
             'city' => 'المدينة',
             'district' => 'النطاق/الحي',
             'category' => 'تصنيف الإسناد',
-            'status' => 'حالة الإسناد',
             'start_date' => 'تاريخ البداية',
             'end_date' => 'تاريخ النهاية',
             'notes' => 'وصف الإسناد',

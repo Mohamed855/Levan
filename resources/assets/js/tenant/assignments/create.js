@@ -316,7 +316,6 @@ document.addEventListener("DOMContentLoaded", () => {
             ["رقم الإسناد", value("assignment_number")],
             ["اسم الإسناد", value("name")],
             ["تصنيف الإسناد", selectedText("category")],
-            ["حالة الإسناد", selectedText("status")],
             ["الجهة المسندة", value("issuing_entity")],
             ["المدينة", selectedText("city")],
             ["النطاق/الحي", value("district")],

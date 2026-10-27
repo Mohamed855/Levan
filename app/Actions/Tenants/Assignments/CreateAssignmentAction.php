@@ -39,7 +39,8 @@ final class CreateAssignmentAction
                 }
 
                 $data['created_by'] = $creatorId;
-                $data['is_active'] = $data['status'] === 'active';
+                $data['is_active'] = (bool) ($data['is_active'] ?? true);
+                unset($data['status']);
                 $assignment = Assignment::query()->create($data);
 
                 $properties = Property::query()

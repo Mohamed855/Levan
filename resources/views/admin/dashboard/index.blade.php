@@ -47,7 +47,7 @@
             color="danger" />
 
         <x-ui.stat-card title="المدفوعات هذا الشهر" :value="number_format($kpis['monthly_payments'], 0)" subtitle="ر.س إجمالي هذا الشهر" icon="ti-wallet"
-            color="dark text-white" />
+            color="label-dark text-dark" />
     </div>
 
     <div class="row g-4 mb-4">
@@ -55,7 +55,7 @@
             <x-admin.dashboard-panel class="h-100" title="استخدام المنصة" icon="ti-chart-bar">
                 <x-slot:headerAction>
                     <select id="platform-activity-range" class="form-select select2 chart-range-select">
-                        <x-form.controls.enum-options :enum="\App\Enums\Admin\Dashboard\ActivityRange::class" :selected="null" />
+                        <x-form.controls.enum-options :enum="\App\Enums\Admin\Dashboard\ActivityRange::class" :selected="\App\Enums\Admin\Dashboard\ActivityRange::ONE_MONTH->value" />
                     </select>
                 </x-slot:headerAction>
 
@@ -150,7 +150,7 @@
                     <div class="col-4">
                         <a href="{{ route('admin.tickets.index') }}" class="quick-action-box">
                             <div class="avatar avatar-md mb-4">
-                                <span class="avatar-initial rounded bg-dark text-white">
+                                <span class="avatar-initial rounded bg-label-dark text-dark">
                                     <i class="ti ti-messages fs-4"></i>
                                 </span>
                             </div>

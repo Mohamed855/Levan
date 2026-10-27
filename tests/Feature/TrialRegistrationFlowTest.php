@@ -80,10 +80,12 @@ class TrialRegistrationFlowTest extends TestCase
             ->assertDontSee('coupon_code', false)->assertDontSee('apply-coupon-btn', false);
         $this->post(route('site.trial.store'), $data)->assertRedirect(route('site.trial'));
         self::assertFalse(TrialRequest::where('customer_email', $data['billing_email'])->exists());
-        $this->get(route('site.trial'))->assertOk()->assertSee('تأكيد وإرسال طلب التجربة')->assertDontSee('TrialFlow123!')
+        $this->get(route('site.trial'))->assertOk()->assertSee('التأكيد والإرسال')->assertDontSee('TrialFlow123!')
             ->assertSee('checkout-otp-timer', false)->assertSee('checkout-summary-col', false)
             ->assertDontSee('coupon_code', false)->assertDontSee('payment_method_card', false);
-        $this->post(route('site.trial.verify'), ['otp' => '000000'])->assertRedirect(route('site.trial.submitted'));
+        $this->post(route('site.trial.verify'), ['otp' => '000000'])
+            ->assertRedirect(route('site.index'))
+            ->assertSessionHas('success');
         $request = TrialRequest::where('customer_email', $data['billing_email'])->firstOrFail();
         $this->trialIds[] = $request->id;
         $this->post(route('site.trial.verify'), ['otp' => '000000'])->assertSessionHasErrors('otp');
@@ -209,10 +211,35 @@ class TrialRegistrationFlowTest extends TestCase
         $this->trialIds[] = $legacy->id;
         $this->post(route('site.trial.store'), $data)->assertSessionHasNoErrors();
         self::assertNull($legacy->fresh()->email_verified_at);
-        $this->post(route('site.trial.verify'), ['otp' => '000000'])->assertRedirect(route('site.trial.submitted'));
+        $this->post(route('site.trial.verify'), ['otp' => '000000'])
+            ->assertRedirect(route('site.index'))
+            ->assertSessionHas('success');
         $legacy->refresh();
         self::assertNotNull($legacy->email_verified_at);
         self::assertSame($data['billing_company_name'], $legacy->company_name);
         self::assertSame(1, TrialRequest::where('customer_email', $data['billing_email'])->count());
+    }
+
+    public function test_editing_trial_registration_clears_otp_and_restores_customer_inputs(): void
+    {
+        $data = $this->payload();
+        $this->post(route('site.trial.store'), $data)->assertRedirect(route('site.trial'));
+
+        // At OTP step, user sees edit button
+        $this->get(route('site.trial'))
+            ->assertOk()
+            ->assertSee(route('site.trial.edit'), false)
+            ->assertSee('تعديل البيانات');
+
+        // User clicks edit button
+        $response = $this->get(route('site.trial.edit'));
+        $response->assertRedirect(route('site.trial'));
+
+        // When redirected to trial page, inputs are restored and OTP step is gone
+        $this->get(route('site.trial'))
+            ->assertOk()
+            ->assertDontSee('checkout-otp-timer', false)
+            ->assertSee('name="billing_company_name"', false)
+            ->assertSee($data['billing_company_name'], false);
     }
 }

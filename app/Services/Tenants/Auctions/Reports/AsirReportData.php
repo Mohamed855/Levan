@@ -40,6 +40,7 @@ final class AsirReportData
             'end_hijri' => $this->format->hijriDate($auction['end_date'] ?? null).' هـ',
             'start_time' => $this->format->arabicDigits($this->format->time($auction['start_time'] ?? null)),
             'end_time' => $this->format->arabicDigits($this->format->time($auction['end_time'] ?? null)),
+            'end_time_short' => $this->format->arabicDigits(str_replace(['الساعة ', 'صباحًا', 'مساءً'], ['', 'ص', 'م'], $this->format->time($auction['end_time'] ?? null))),
             'property_count' => $this->format->arabicDigits((string) count($snapshot['properties'])),
             'introduction' => (string) ($marketing['introduction'] ?? $auction['description'] ?? '-'),
             'name_context' => 'اختيار اسم المزاد وإعداد الهوية البصرية - '.$name,

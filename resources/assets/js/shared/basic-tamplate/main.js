@@ -23,12 +23,6 @@ if (document.getElementById("layout-menu")) {
 
     if (typeof Waves !== "undefined") {
         Waves.init();
-        Waves.attach(
-            ".btn[class*='btn-']:not(.position-relative):not([class*='btn-outline-']):not([class*='btn-'])",
-            ["waves-light"],
-        );
-        Waves.attach("[class*='btn-outline-']:not(.position-relative)");
-        Waves.attach("[class*='btn-']:not(.position-relative)");
         Waves.attach(".pagination .page-item .page-link");
         Waves.attach(".dropdown-menu .dropdown-item");
         Waves.attach(".light-style .list-group .list-group-item-action");

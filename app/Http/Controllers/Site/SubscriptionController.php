@@ -120,9 +120,11 @@ class SubscriptionController extends Controller
     {
         abort_unless($this->isPublicPlan($plan), 404);
         $checkout = request()->session()->get('checkout_verification', []);
-        $safeInput = collect($checkout)->except(['plan_id', 'expires_at', 'otp_hash', 'billing_password', 'billing_password_hash', 'billing_password_confirmation'])->all();
+
+        $safeInput = collect($checkout)->except(['plan_id', 'expires_at', 'otp_hash', 'verified_at', 'billing_password', 'billing_password_hash', 'billing_password_confirmation'])->all();
         // إزالة تأكيد OTP حتى يعود لخطوة تعديل البيانات مع الحفاظ على البيانات في الجلسة عند عمل Reload
         unset($checkout['verified_at'], $checkout['otp_hash']);
+        $checkout['expires_at'] = now()->addHour()->timestamp;
         request()->session()->put('checkout_verification', $checkout);
 
         return redirect()->route('site.plans.checkout', $plan)->withInput($safeInput);
@@ -133,7 +135,7 @@ class SubscriptionController extends Controller
         if (! $this->hasCheckoutVerification($plan)) {
             $request->session()->forget(['checkout_verification', 'checkout_coupon_code']);
 
-            return redirect()->route('site.plans.checkout', $plan)->withErrors(['otp' => 'انتهت صلاحية رمز التحقق، يرجى البدء مرة أخرى.']);
+            return redirect()->route('site.plans.checkout', $plan)->withErrors(['otp' => 'انتهت صلاحية رمز التحقق، يرجى المحاولة مرة أخرى.']);
         }
 
         $verification = $request->session()->get('checkout_verification');
@@ -159,7 +161,7 @@ class SubscriptionController extends Controller
             $request->session()->forget(['checkout_verification', 'checkout_coupon_code']);
 
             return redirect()->route('site.plans.checkout', $plan)
-                ->withErrors(['payment_method' => 'انتهت صلاحية محاولة الدفع، يرجى البدء مرة أخرى.']);
+                ->withErrors(['payment_method' => 'انتهت صلاحية محاولة الدفع، يرجى المحاولة مرة أخرى.']);
         }
 
         $validated = $request->validated();
@@ -194,13 +196,15 @@ class SubscriptionController extends Controller
             $outcome = $this->subscriptionService->completeOnlineSubscription($result['bill'], $result['payment']);
             $request->session()->forget(['checkout_verification', 'checkout_coupon_code']);
 
-            return redirect()->to(config('app.url').'/'.$outcome['tenant_id'].'/login');
+            return redirect()->to(url('/'.$outcome['tenant_id'].'/login'))
+                ->with('success', 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول');
             //
         } catch (PaymentVerificationException $e) {
             $bill = $this->findCheckoutBill($request->string('bill')->toString());
 
             if ($bill?->status === BillStatus::PAID && $bill->tenant_id) {
-                return redirect()->to(config('app.url').'/'.$bill->tenant_id.'/login');
+                return redirect()->to(url('/'.$bill->tenant_id.'/login'))
+                    ->with('success', 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول');
             }
 
             if ($bill) {
@@ -218,7 +222,8 @@ class SubscriptionController extends Controller
 
             $bill = $this->findCheckoutBill($request->string('bill')->toString());
             if ($bill?->status === BillStatus::PAID && $bill->tenant_id) {
-                return redirect()->to(config('app.url').'/'.$bill->tenant_id.'/login');
+                return redirect()->to(url('/'.$bill->tenant_id.'/login'))
+                    ->with('success', 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول');
             }
 
             if ($bill) {
@@ -305,8 +310,8 @@ class SubscriptionController extends Controller
                 return redirect()->route('site.index')->with('success', 'تم استلام طلبك بنجاح.');
             }
 
-            request()->session()->forget(['checkout_verification', 'checkout_coupon_code']);
-
+            // الاحتفاظ ببيانات التحقق في الجلسة حتى إذا ضغط المستخدم زر الرجوع من صفحة ميسر يعود لخطوة الدفع لا لتسجيل البيانات
+            // ويتم حذف الجلسة عند اكتمال الدفع بنجاح في handlePaymentCallback
             $moyasarView = $this->showMoyasarCheckout($pendingBill, $plan);
 
             return $moyasarView;

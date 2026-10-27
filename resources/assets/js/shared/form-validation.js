@@ -85,9 +85,6 @@ function stateTargets(control) {
 
     if (inputGroup) {
         targets.push(inputGroup);
-        inputGroup
-            .querySelectorAll("[data-password-toggle]")
-            .forEach((toggle) => targets.push(toggle));
     }
 
     if (control.tagName === "SELECT") {

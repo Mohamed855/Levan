@@ -72,10 +72,10 @@
             color="danger" />
 
         <x-ui.stat-card title="إجمالي العقارات" :value="number_format($kpis['total_properties'])" subtitle="إجمالي العقارات المسجلة" icon="ti-building"
-            color="dark text-white" />
+            color="success" />
 
         <x-ui.stat-card title="العقارات المباعة" :value="number_format($kpis['sold_properties'])" subtitle="تمت ترسيتها بنجاح" icon="ti-circle-check"
-            color="success" />
+            color="label-dark text-dark text-dark" />
     </div>
 
     {{-- قسم الرسوم البيانية التفاعلية --}}
@@ -86,7 +86,7 @@
                 <x-slot:headerAction>
                     <select id="auction-activity-range" class="form-select select2 chart-range-select"
                         aria-label="تحديد النطاق الزمني">
-                        <x-form.controls.enum-options :enum="\App\Enums\Tenants\Dashboard\DashboardActivityRange::class" :selected="null" />
+                        <x-form.controls.enum-options :enum="\App\Enums\Tenants\Dashboard\DashboardActivityRange::class" :selected="\App\Enums\Tenants\Dashboard\DashboardActivityRange::ONE_MONTH->value" />
                     </select>
                 </x-slot:headerAction>
 
@@ -198,7 +198,7 @@
                     <div class="col-4">
                         <a href="{{ tenant_route_name('tickets.index') }}" class="quick-action-box">
                             <div class="avatar avatar-md mb-2">
-                                <span class="avatar-initial rounded bg-dark text-white">
+                                <span class="avatar-initial rounded bg-label-dark text-dark text-dark">
                                     <i class="ti ti-headset fs-4"></i>
                                 </span>
                             </div>

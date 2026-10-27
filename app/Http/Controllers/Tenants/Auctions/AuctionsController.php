@@ -97,7 +97,10 @@ class AuctionsController extends Controller
     public function edit(Auction $auction): View
     {
         $auction->load(['assignment', 'properties.pivot', 'attachments']);
-        $assignments = Assignment::select(['id', 'name', 'assignment_number', 'issuing_entity'])->get();
+        $assignments = Assignment::where('is_active', true)
+            ->when($auction->assignment_id, fn ($q) => $q->orWhere('id', $auction->assignment_id))
+            ->select(['id', 'name', 'assignment_number', 'issuing_entity'])
+            ->get();
         $properties = Property::query()
             ->where('assignment_id', $auction->assignment_id)
             ->select(['id', 'property_number', 'name'])

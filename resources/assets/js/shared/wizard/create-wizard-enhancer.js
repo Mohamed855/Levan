@@ -377,7 +377,7 @@ function installDraftButtons(form) {
       } else {
         const previousButton = document.createElement('button');
         previousButton.type = 'button';
-        previousButton.className = 'btn btn-secondary btn-prev waves-effect waves-light';
+        previousButton.className = 'btn btn-secondary btn-prev';
         previousButton.textContent = 'السابق';
         actions.prepend(previousButton);
       }
@@ -385,7 +385,7 @@ function installDraftButtons(form) {
 
     const saveButton = document.createElement('button');
     saveButton.type = 'button';
-    saveButton.className = 'btn btn-secondary btn-save-draft waves-effect waves-light';
+    saveButton.className = 'btn btn-secondary btn-save-draft';
     saveButton.textContent = 'حفظ كمسودة';
     actions.insertBefore(saveButton, actionButton);
 
@@ -393,8 +393,6 @@ function installDraftButtons(form) {
     normalizeActionRow(actions);
 
     const previousButton = actions.querySelector('.btn-prev');
-    previousButton?.classList.add('waves-effect', 'waves-light');
-    actionButton.classList.add('waves-effect', 'waves-light');
     setButtonIcon(previousButton, 'ti-arrow-left');
     setButtonIcon(saveButton, 'ti-device-floppy');
     setButtonIcon(

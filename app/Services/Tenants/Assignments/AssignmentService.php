@@ -16,10 +16,10 @@ class AssignmentService
     {
         return [
             'total' => Assignment::count(),
-            'active' => Assignment::where('status', 'active')->count(),
-            'under_review' => Assignment::where('status', 'under_review')->count(),
-            'suspended' => Assignment::where('status', 'suspended')->count(),
-            'auctioned' => Assignment::where('status', 'auctioned')->count(),
+            'active' => Assignment::where('is_active', true)->count(),
+            'under_review' => Assignment::doesntHave('properties')->count(),
+            'suspended' => Assignment::where('is_active', false)->count(),
+            'auctioned' => Assignment::has('auctions')->count(),
         ];
     }
 
@@ -68,7 +68,7 @@ class AssignmentService
             ]);
         }
 
-        unset($data['assignment_image']);
+        unset($data['assignment_image'], $data['status']);
         $assignment->update($data);
 
         return $assignment;
@@ -79,7 +79,6 @@ class AssignmentService
         $newStatus = $isActive ?? ! $assignment->is_active;
         $assignment->update([
             'is_active' => $newStatus,
-            'status' => $newStatus ? 'active' : 'suspended',
         ]);
 
         return $newStatus;

@@ -91,6 +91,9 @@ export function initNavbar() {
     const rawHref = link.getAttribute('href');
     if (!rawHref) return null;
 
+    const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+    const isHomePage = currentPath === '/';
+
     // Direct hash e.g. href="#home" or href="#pricing"
     if (rawHref.startsWith('#')) {
       const id = rawHref.substring(1);
@@ -101,8 +104,8 @@ export function initNavbar() {
     if (rawHref.startsWith('/#') || rawHref.startsWith('./#')) {
       const id = rawHref.split('#')[1];
       if (!id || id === '!') return null;
-      const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
-      if (currentPath === '/' || document.getElementById(id) || id === 'home') {
+      // Only treat as in-page scroll if currently on the home page or target element exists in DOM
+      if (isHomePage || document.getElementById(id)) {
         return id;
       }
       return null;
@@ -116,18 +119,29 @@ export function initNavbar() {
 
       try {
         const url = new URL(link.href, window.location.href);
-        const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
         const linkPath = url.pathname.replace(/\/$/, '') || '/';
 
         const isSamePath = linkPath === currentPath;
-        if (isSamePath || (currentPath === '/' && (document.getElementById(id) || id === 'home'))) {
+        if (isSamePath || (isHomePage && document.getElementById(id))) {
           return id;
         }
       } catch {
-        if (document.getElementById(id) || id === 'home') {
+        if (isHomePage && document.getElementById(id)) {
           return id;
         }
       }
+      return null;
+    }
+
+    // If on home page and clicking home link "/" or route('site.index'), scroll to top of home
+    if (isHomePage) {
+      try {
+        const url = new URL(link.href, window.location.href);
+        const linkPath = url.pathname.replace(/\/$/, '') || '/';
+        if (linkPath === '/' && !url.search && !url.hash) {
+          return 'home';
+        }
+      } catch {}
     }
 
     return null;
@@ -140,9 +154,12 @@ export function initNavbar() {
       const link = e.target.closest('a[href]');
       if (!link) return;
 
+      const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+      const isHomePage = currentPath === '/';
+
       const targetId = getAnchorTargetId(link);
       if (targetId) {
-        const targetElement = targetId === 'home' ? true : document.getElementById(targetId);
+        const targetElement = (targetId === 'home' && isHomePage) ? true : document.getElementById(targetId);
         if (targetElement) {
           // Immediately prevent the browser from updating the URL hash
           e.preventDefault();
@@ -183,7 +200,8 @@ export function initNavbar() {
             const id = entry.target.getAttribute('id');
             navLinks.forEach((link) => {
               const href = link.getAttribute('href');
-              if (href && (href === `#${id}` || href.endsWith(`#${id}`))) {
+              const isHomeSection = id === 'home' && (href === '/' || href?.endsWith('/') || href?.endsWith('#home'));
+              if (href && (href === `#${id}` || href.endsWith(`#${id}`) || isHomeSection)) {
                 link.classList.add('is-active');
               } else {
                 link.classList.remove('is-active');

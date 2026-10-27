@@ -40,7 +40,7 @@
                 <h4 class="footer-heading">روابط سريعة</h4>
                 <ul class="footer-links">
                     <li>
-                        <a href="/#home">
+                        <a href="{{ route('site.index') }}">
                             <i class="ti ti-chevron-left"></i>
                             الرئيسية
                         </a>

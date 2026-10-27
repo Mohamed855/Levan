@@ -70,9 +70,6 @@
                             <x-form.controls.select name="category" label="تصنيف الإسناد" :value="$assignment->category" required
                                 col="col-md-6" :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
 
-                            <x-form.controls.select name="status" label="حالة الإسناد" :value="$assignment->status" required
-                                col="col-md-6" :enum="\App\Enums\Tenants\Assignments\AssignmentStatus::class" />
-
                             <x-form.controls.input name="issuing_entity" label="الجهة المسندة" :value="$assignment->issuing_entity" required
                                 col="col-md-6" />
 

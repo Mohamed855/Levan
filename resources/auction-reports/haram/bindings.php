@@ -12,10 +12,12 @@ return [
     ],
     1 => [
         'groups' => ['manager' => ['f5'], 'name' => ['f6'], 'project' => ['f7'], 'end_date' => ['f11'], 'start_date' => ['f12'], 'footer' => ['f89']],
+        'layouts' => ['manager' => ['max_width' => 150, 'center' => true], 'name' => ['max_width' => 150, 'center' => true], 'project' => ['max_width' => 150, 'center' => true], 'footer' => ['max_width' => 230]],
         'images' => [],
     ],
     2 => [
         'groups' => ['narrative' => ['f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12'], 'footer' => ['f84']],
+        'layouts' => ['footer' => ['max_width' => 230]],
         'images' => [],
     ],
     3 => [
@@ -26,6 +28,7 @@ return [
             'tiktok_views_change' => ['f45'], 'date_range' => ['f47', 'f48'], 'tiktok_url' => ['f49', 'f50'],
             'snapchat_views' => ['f63'], 'marketing_url' => ['f65'], 'boards_url' => ['f68'], 'footer' => ['f69'],
         ],
+        'layouts' => ['footer' => ['max_width' => 230]],
         'images' => [
             ['section' => 'marketing_evidence', 'slot' => 0, 'box' => [243.34, 196.87, 383.49, 339.20]],
             ['section' => 'marketing_evidence', 'slot' => 1, 'box' => [371.29, 601.79, 466.72, 777.36]],
@@ -33,6 +36,7 @@ return [
     ],
     4 => [
         'groups' => ['removal_date' => ['f6', 'f7'], 'footer' => ['f8']],
+        'layouts' => ['footer' => ['max_width' => 230]],
         'images' => [
             ['section' => 'board_before', 'slot' => 0, 'box' => [302.66, 119.78, 550.26, 244.33]],
             ['section' => 'board_before', 'slot' => 1, 'box' => [45.0, 119.78, 292.0, 244.33]],
@@ -46,6 +50,7 @@ return [
     ],
     5 => [
         'groups' => ['broker_1' => ['f3', 'f4'], 'broker_2' => ['f1', 'f2'], 'broker_3' => ['f5'], 'footer' => ['f6']],
+        'layouts' => ['footer' => ['max_width' => 230]],
         'images' => [
             ['section' => 'brokers', 'slot' => 0, 'box' => [372.08, 148.35, 547.83, 365.97]],
             ['section' => 'brokers', 'slot' => 1, 'box' => [47.0, 148.35, 222.74, 365.97]],

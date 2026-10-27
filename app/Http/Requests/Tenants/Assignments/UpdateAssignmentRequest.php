@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Tenants\Assignments;
 
 use App\Enums\Tenants\Assignments\AssignmentCategory;
-use App\Enums\Tenants\Assignments\AssignmentStatus;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Validation\Rule;
 
@@ -34,7 +33,6 @@ class UpdateAssignmentRequest extends WizardFormRequest
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'notes' => ['nullable', 'string', 'max:1000'],
-            'status' => ['nullable', Rule::enum(AssignmentStatus::class)],
         ];
     }
 

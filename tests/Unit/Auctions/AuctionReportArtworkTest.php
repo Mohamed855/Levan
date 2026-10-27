@@ -41,4 +41,12 @@ final class AuctionReportArtworkTest extends TestCase
         self::assertStringContainsString('data:image/svg+xml;base64,', $gallery);
         self::assertStringContainsString('xMidYMid meet', $gallery);
     }
+
+    public function test_an_expanded_continuation_row_uses_the_table_body_without_clipping_the_text(): void
+    {
+        $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
+        $svg = $artwork->render('haram', 1, [], ['properties' => [['-', str_repeat("123456\n", 8), 'DEED', 'أرض', '1']]], [], 3, ['properties' => ['expanded' => true]]);
+        self::assertTrue(str_contains($svg, 'data-expanded-table="properties"'));
+        self::assertSame(8, substr_count($svg, '>123456</tspan>'));
+    }
 }

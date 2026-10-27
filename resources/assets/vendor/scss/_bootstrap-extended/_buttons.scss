@@ -199,3 +199,19 @@ button:focus-visible {
 .btn:not([class*="btn-"]) {
     border: none;
 }
+
+// Disable waves ripple effect on all buttons
+.btn,
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+    .waves-ripple {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        background: transparent !important;
+        animation: none !important;
+        transition: none !important;
+    }
+}

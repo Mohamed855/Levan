@@ -146,9 +146,6 @@
                                         label="رقم المخطط" placeholder="مثال: 2357" required col="col-md-6" />
                                     <x-form.controls.input name="parcel_number" type="number" step="1" min="0"
                                         label="رقم القطعة" placeholder="مثال: 1288" required col="col-md-6" />
-                                    <x-form.controls.input name="google_maps_url" label="رابط الموقع"
-                                        placeholder="https://maps.google.com" :required="false" col="col-md-6"
-                                        help="رابط موقع العقار على خرائط جوجل إن وُجد." />
                                 </div>
                                 @include('tenant.properties._boundaries-table', [
                                     'bordersData' => $bordersData,

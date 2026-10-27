@@ -12,7 +12,7 @@
         <div class="summary-plan-badge">
             <span class="plan-name">{{ $summaryPlanName }}</span>
             <span class="plan-price" id="total-display">{{ number_format($summaryPrice, 2) }}
-                <span class="icon-saudi_riyal"></span></span>
+                <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span></span>
         </div>
         @if ($showCoupon)
         <div class="coupon-box">
@@ -40,19 +40,19 @@
             @endif
             <div class="summary-row"><span class="row-label">المبلغ قبل الضريبة</span><span class="row-value"
                     id="subtotal-display">{{ number_format($priceWithoutTax, 2) }} <span
-                        class="icon-saudi_riyal"></span></span></div>
+                        class="icon-saudi_riyal icon-saudi_riyal--dark"></span></span></div>
             <div class="summary-row"><span class="row-label">ضريبة القيمة المضافة (15%)</span><span class="row-value"
-                    id="vat-display">{{ number_format($taxAmount, 2) }} <span class="icon-saudi_riyal"></span></span>
+                    id="vat-display">{{ number_format($taxAmount, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span></span>
             </div>
             @if ($showCoupon)
             <div class="summary-row summary-row--discount {{ !empty($appliedCoupon['coupon_code']) ? '' : 'hidden' }}" id="discount-row"><span class="row-label"><i
                         class="ti ti-discount-2"></i> الخصم <button type="button" class="btn-remove-coupon"
                         id="remove-coupon" title="إزالة كود الخصم" aria-label="إزالة كود الخصم"><i class="ti ti-x"></i></button></span><span class="row-value">-<span
-                        id="discount-display">{{ number_format($appliedCoupon['discount_amount'] ?? 0, 2) }}</span> <span class="icon-saudi_riyal"></span></span></div>
+                        id="discount-display">{{ number_format($appliedCoupon['discount_amount'] ?? 0, 2) }}</span> <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span></span></div>
             @endif
             <div class="summary-row summary-row--total"><span class="row-label">المبلغ الإجمالي</span><span
                     class="row-value" id="total-final">{{ number_format($finalTotal ?? $summaryPrice, 2) }} <span
-                        class="icon-saudi_riyal"></span></span></div>
+                        class="icon-saudi_riyal icon-saudi_riyal--dark"></span></span></div>
         </div>
         @if ($showSubmitButton ?? false)
             <button type="submit"

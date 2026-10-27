@@ -129,7 +129,6 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'city' => 'الرياض',
                 'district' => 'الياسمين',
                 'category' => 'lands',
-                'status' => 'active',
                 'start_date' => now()->toDateString(),
                 'end_date' => now()->addMonth()->toDateString(),
                 'notes' => 'وصف الإسناد التجريبي',
@@ -163,8 +162,7 @@ class TenantAssetModulesFeatureTest extends TestCase
 
         $this->assertNotNull($assignmentRow);
         $this->assertStringContainsString($imageUrl, $assignmentRow['image']);
-        $this->assertStringContainsString('نشط', $assignmentRow['status']);
-        $this->assertStringNotContainsString('js-table-status-toggle', $assignmentRow['status']);
+        $this->assertStringContainsString('js-table-status-toggle', $assignmentRow['status']);
     }
 
     public function test_assignment_creation_allows_omitting_district(): void
@@ -180,7 +178,6 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'issuing_entity' => 'Test authority',
                 'city' => 'Riyadh',
                 'category' => 'lands',
-                'status' => 'active',
                 'start_date' => now()->toDateString(),
                 'end_date' => now()->addMonth()->toDateString(),
                 'notes' => 'District is intentionally omitted.',
@@ -221,7 +218,6 @@ class TenantAssetModulesFeatureTest extends TestCase
             'name' => 'Exact date match',
             'issuing_entity' => 'Test authority',
             'category' => 'lands',
-            'status' => 'active',
             'start_date' => '2031-01-10',
             'end_date' => '2031-02-10',
             'is_active' => true,
@@ -232,7 +228,6 @@ class TenantAssetModulesFeatureTest extends TestCase
             'name' => 'Different date',
             'issuing_entity' => 'Test authority',
             'category' => 'lands',
-            'status' => 'active',
             'start_date' => '2031-01-11',
             'end_date' => '2031-02-11',
             'is_active' => true,
@@ -305,7 +300,6 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'city' => 'Riyadh',
                 'district' => 'North',
                 'category' => 'lands',
-                'status' => 'active',
                 'start_date' => now()->toDateString(),
                 'end_date' => now()->addMonth()->toDateString(),
                 'notes' => 'End-to-end lifecycle verification.',
@@ -609,6 +603,7 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'city' => 'Riyadh',
                 'expected_properties_count' => 2,
                 'assignment_id' => $assignment->id,
+                'project_manager_name' => 'Project Manager',
                 'platform_name' => 'Auction platform',
                 'property_ids' => [$prop2->id, $prop1->id],
                 'report_image' => UploadedFile::fake()->image('sort-order-report.webp'),
@@ -662,7 +657,9 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'category' => 'lands',
                 'city' => 'Riyadh',
                 'assignment_id' => $assignmentA->id,
+                'project_manager_name' => 'Project Manager',
                 'property_ids' => [$propA2->id],
+                'report_image' => UploadedFile::fake()->image('report.webp'),
             ])
             ->assertRedirect($this->tenantUrl("auctions/{$auction->id}"));
 
@@ -678,7 +675,9 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'category' => 'lands',
                 'city' => 'Riyadh',
                 'assignment_id' => $assignmentB->id,
+                'project_manager_name' => 'Project Manager',
                 'property_ids' => [$propB1->id],
+                'report_image' => UploadedFile::fake()->image('report.webp'),
             ])
             ->assertRedirect($this->tenantUrl("auctions/{$auction->id}"));
 
@@ -755,6 +754,7 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'city' => 'Riyadh',
                 'expected_properties_count' => 1,
                 'assignment_id' => $assignment->id,
+                'project_manager_name' => 'Project Manager',
                 'platform_name' => 'Auction platform',
                 'property_ids' => [$prop->id],
                 'report_image' => UploadedFile::fake()->image('draft-report.webp'),
@@ -780,6 +780,36 @@ class TenantAssetModulesFeatureTest extends TestCase
         $response->assertSee('data-edit-step', false);
     }
 
+    public function test_assignment_dropdown_only_includes_active_assignments(): void
+    {
+        $activeAssignment = Assignment::create([
+            'assignment_number' => 'ACTIVE-'.strtoupper(uniqid()),
+            'name' => 'Active Assignment For Dropdown',
+            'issuing_entity' => 'Authority',
+            'category' => 'lands',
+            'is_active' => true,
+            'created_by' => $this->owner->id,
+        ]);
+
+        $inactiveAssignment = Assignment::create([
+            'assignment_number' => 'INACTIVE-'.strtoupper(uniqid()),
+            'name' => 'Inactive Assignment Should Be Excluded',
+            'issuing_entity' => 'Authority',
+            'category' => 'lands',
+            'is_active' => false,
+            'created_by' => $this->owner->id,
+        ]);
+
+        $response = $this->actingAs($this->owner, 'tenant')
+            ->get($this->tenantUrl('auctions/create'))
+            ->assertOk();
+
+        $response->assertSee($activeAssignment->assignment_number);
+        $response->assertSee($activeAssignment->name);
+        $response->assertDontSee($inactiveAssignment->assignment_number);
+        $response->assertDontSee($inactiveAssignment->name);
+    }
+
     /** @return array{0: Assignment, 1: Assignment} */
     private function assignments(): array
     {
@@ -791,7 +821,6 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'name' => 'إسناد اختبار أول',
                 'issuing_entity' => 'جهة اختبار',
                 'category' => 'lands',
-                'status' => 'active',
                 'is_active' => true,
                 'created_by' => $this->owner->id,
             ]),
@@ -800,7 +829,6 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'name' => 'إسناد اختبار ثانٍ',
                 'issuing_entity' => 'جهة اختبار',
                 'category' => 'lands',
-                'status' => 'active',
                 'is_active' => true,
                 'created_by' => $this->owner->id,
             ]),

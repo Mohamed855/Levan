@@ -18,8 +18,10 @@ document.addEventListener('DOMContentLoaded', function () {
         info:      '#17a2b8',
     };
 
-    Chart.defaults.font.family = 'Cairo, sans-serif';
-    Chart.defaults.color = '#666';
+    if (typeof Chart !== 'undefined') {
+        Chart.defaults.font.family = 'Cairo, sans-serif';
+        Chart.defaults.color = '#666';
+    }
 
     // ════════════════════════════════════════════════════════
     // Chart 1: استخدام المنصة (Platform Activity)
@@ -28,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function buildPlatformChart(dataPoints) {
         const ctx = document.getElementById('platformActivityChart');
-        if (!ctx) return;
+        if (!ctx || typeof Chart === 'undefined') return;
 
         if (platformChart) {
             platformChart.destroy();
@@ -82,24 +84,76 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // الرسم الأولي بالبيانات المُمرَّرة من الـ backend
-    if (dashboardData.platformActivity && dashboardData.platformActivity.length > 0) {
+    if (dashboardData.platformActivity && Array.isArray(dashboardData.platformActivity) && dashboardData.platformActivity.length > 0) {
         buildPlatformChart(dashboardData.platformActivity);
     }
 
-    // تغيير المدة عبر الـ dropdown
+    // تغيير المدة عبر الـ dropdown (دعم Select2 والأحداث القياسية)
     const rangeSelect = document.getElementById('platform-activity-range');
+    const chartWrap = document.querySelector('.platform-activity-chart-wrap');
+    let currentRange = rangeSelect ? rangeSelect.value : null;
+
+    function updatePlatformActivity(range) {
+        if (!range) return;
+        const baseUrl = dashboardData.platformActivityUrl;
+        if (!baseUrl) return;
+
+        const separator = baseUrl.includes('?') ? '&' : '?';
+        const url = baseUrl + separator + 'range=' + encodeURIComponent(range);
+
+        if (chartWrap) {
+            chartWrap.style.transition = 'opacity 0.2s ease';
+            chartWrap.style.opacity = '0.5';
+            chartWrap.style.pointerEvents = 'none';
+        }
+
+        fetch(url, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin',
+        })
+            .then(r => {
+                if (!r.ok) {
+                    throw new Error(`HTTP error ${r.status}`);
+                }
+                return r.json();
+            })
+            .then(json => {
+                if (json && Array.isArray(json.data)) {
+                    buildPlatformChart(json.data);
+                }
+            })
+            .catch(err => {
+                console.error('Platform activity fetch error:', err);
+                currentRange = null;
+            })
+            .finally(() => {
+                if (chartWrap) {
+                    chartWrap.style.opacity = '1';
+                    chartWrap.style.pointerEvents = '';
+                }
+            });
+    }
+
+    function onRangeChanged(newRange) {
+        const selected = newRange || (rangeSelect ? rangeSelect.value : null);
+        if (!selected || selected === currentRange) return;
+        currentRange = selected;
+        updatePlatformActivity(selected);
+    }
+
     if (rangeSelect) {
         rangeSelect.addEventListener('change', function () {
-            const range = this.value;
-            const url   = dashboardData.platformActivityUrl + '?range=' + range;
-
-            fetch(url)
-                .then(r => r.json())
-                .then(json => {
-                    if (json.data) buildPlatformChart(json.data);
-                })
-                .catch(err => console.error('Platform activity fetch error:', err));
+            onRangeChanged(this.value);
         });
+
+        if (window.jQuery) {
+            window.jQuery(rangeSelect).on('change change.select2 select2:select', function () {
+                onRangeChanged(this.value);
+            });
+        }
     }
 
     // ════════════════════════════════════════════════════════

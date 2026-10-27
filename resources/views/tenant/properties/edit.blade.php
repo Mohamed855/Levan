@@ -60,8 +60,8 @@
             {{-- الخطوة 1: البيانات الأساسية --}}
             <x-form.wizard.step id="property-basic-validation" :fields="['name', 'type', 'usage_classification', 'area', 'is_active', 'short_description']">
                 <div class="row g-4">
-                    <x-form.controls.input name="property_number_display" label="رقم العقار" :value="$property->property_number"
-                        readonly col="col-md-6" help="رقم العقار معرّف ثابت لا يمكن تغييره." />
+                    <x-form.controls.input name="property_number_display" label="رقم العقار" :value="$property->property_number" readonly
+                        col="col-md-6" help="رقم العقار معرّف ثابت لا يمكن تغييره." />
                     <x-form.controls.input name="name" label="اسم العقار" :value="$property->name"
                         placeholder="مثال: فيلا النخيل" required col="col-md-6" />
                     <x-form.controls.select name="type" label="نوع العقار" :value="$property->type?->value ?? $property->type" required col="col-md-6"
@@ -106,7 +106,10 @@
                                     fn($b) => [
                                         'direction' => $b->direction?->value ?? $b->direction,
                                         'border_type' => $b->border_type,
-                                        'border_description' => (isset($b->border_description) && $b->border_description !== '') ? $b->border_description : 'عرض 20 متر',
+                                        'border_description' =>
+                                            isset($b->border_description) && $b->border_description !== ''
+                                                ? $b->border_description
+                                                : 'عرض 20 متر',
                                         'length' =>
                                             isset($b->length) && $b->length !== '' && $b->length !== null
                                                 ? $b->length
@@ -158,10 +161,6 @@
                                         placeholder="مثال: 2357" required col="col-md-6" />
                                     <x-form.controls.input name="parcel_number" label="رقم القطعة" :value="$property->parcel_number"
                                         placeholder="مثال: 1288" required col="col-md-6" />
-                                    <x-form.controls.input name="google_maps_url"
-                                        label="رابط الموقع (Google Maps - اختياري)" :value="$property->google_maps_url"
-                                        placeholder="https://maps.google.com/?q=..." :required="false" col="col-md-6"
-                                        help="رابط موقع العقار على خرائط جوجل إن وُجد (اختياري)." />
                                 </div>
                                 @include('tenant.properties._boundaries-table', [
                                     'bordersData' => $bordersData,
@@ -377,9 +376,8 @@
             <x-form.wizard.step id="property-files-validation" :fields="['main_image', 'deed_document', 'cadastral_plan', 'coordinates_statement', 'building_permit']">
                 <div class="row g-4">
                     <x-form.controls.file name="main_image" label="الصورة الرئيسية للعقار" :required="false"
-                        :value="$property->main_image ? tasset($property->main_image) : null"
-                        accept="image/jpeg,image/png,image/webp" help="JPG أو PNG أو WebP، بحد أقصى 4MB"
-                        col="col-md-6" />
+                        :value="$property->main_image ? tasset($property->main_image) : null" accept="image/jpeg,image/png,image/webp"
+                        help="JPG أو PNG أو WebP، بحد أقصى 4MB" col="col-md-6" />
                     <x-form.controls.file name="deed_document" label="صك الملكية" :required="false"
                         accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
                     <x-form.controls.file name="cadastral_plan" label="مخطط العقار" :required="false"
@@ -405,8 +403,7 @@
                                         <span class="assignment-file-card__name"
                                             title="{{ $att->original_name }}">{{ $att->original_name }}</span>
                                         <a href="{{ tasset($att->file_path) }}" target="_blank"
-                                            class="btn btn-sm btn-icon btn-primary"><i
-                                                class="ti ti-download"></i></a>
+                                            class="btn btn-sm btn-icon btn-primary"><i class="ti ti-download"></i></a>
                                     </article>
                                 @endforeach
                             </div>

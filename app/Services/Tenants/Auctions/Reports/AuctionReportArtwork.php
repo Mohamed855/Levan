@@ -25,7 +25,7 @@ final class AuctionReportArtwork
      * @param array<string, list<list<string>>> $tables
      * @param array<string, list<array<string, mixed>>> $images
      */
-    public function render(string $design, int $index, array $values, array $tables, array $images, int $pageNumber): string
+    public function render(string $design, int $index, array $values, array $tables, array $images, int $pageNumber, array $tableLayouts = []): string
     {
         $page = $this->page($design, $index);
         $source = file_get_contents($this->path($design.'/page-'.($index + 1).'.svg'));
@@ -49,6 +49,10 @@ final class AuctionReportArtwork
             $valid = $this->isImage($uri);
             $definition->setAttribute('preserveAspectRatio', $valid ? 'xMidYMid slice' : 'xMidYMid meet');
             $definition->setAttributeNS(self::XLINK, 'xlink:href', $valid ? $uri : $this->uri('fallback.svg', 'image/svg+xml'));
+            $definition->setAttribute('data-report-media', $frame['section'].':'.$frame['slot']);
+            foreach ($xpath->query('//*[@data-image="'.$id.'"]') as $usage) {
+                $usage->setAttribute('data-report-media', $frame['section'].':'.$frame['slot']);
+            }
         }
 
         foreach ($page['images'] as $frame) {
@@ -61,6 +65,7 @@ final class AuctionReportArtwork
                 $image->setAttribute($key, (string) $value);
             }
             $image->setAttribute('preserveAspectRatio', $valid ? 'xMidYMid slice' : 'xMidYMid meet');
+            $image->setAttribute('data-report-media', $frame['section'].':'.$frame['slot']);
             $image->setAttributeNS(self::XLINK, 'xlink:href', $valid ? $uri : $this->uri('fallback.svg', 'image/svg+xml'));
             $svg->appendChild($image);
         }
@@ -73,7 +78,9 @@ final class AuctionReportArtwork
             $field['x'] = $left;
             $field['width'] = $right - $left;
             $field['y'] = min(array_column($fields, 'y'));
-            $this->text($document, $svg, $field, $values[$role] ?? '-', ['data-report-field' => $role]);
+            $layout = $page['layouts'][$role] ?? [];
+            $field['max_width'] = $layout['max_width'] ?? $field['width'];
+            $this->text($document, $svg, $field, $values[$role] ?? '-', ['data-report-field' => $role], $layout['center'] ?? false);
         }
 
         foreach ($tables as $id => $rows) {
@@ -81,8 +88,15 @@ final class AuctionReportArtwork
             if ($table === null || count($rows) > count($table['rows'])) {
                 throw new InvalidArgumentException('Invalid report table or capacity exceeded: '.$id);
             }
+            $expanded = $tableLayouts[$id]['expanded'] ?? false;
+            if ($expanded && $rows !== []) {
+                $this->expandedBody($document, $svg, $table, $page, $id);
+            }
             foreach ($rows as $rowIndex => $cells) {
                 $slot = $table['rows'][$rowIndex];
+                if ($expanded) {
+                    $slot['bottom'] = max($table['rows'][array_key_last($table['rows'])]['bottom'], $page['height'] - 60);
+                }
                 foreach ($cells as $column => $value) {
                     $fieldId = $slot['cells'][$column]['fields'][0] ?? null;
                     if ($fieldId === null) {
@@ -93,12 +107,37 @@ final class AuctionReportArtwork
                     $field['width'] = $table['columns'][$column + 1] - $table['columns'][$column] - 8;
                     $field['y'] = $slot['top'] + ($slot['bottom'] - $slot['top']) / 2 + $field['sy'] * .32;
                     $field['rtl'] = preg_match('/[\x{0600}-\x{06ff}]/u', $value) === 1;
+                    if (count(explode("\n", $value)) * $field['sy'] * 1.17 > $slot['bottom'] - $slot['top'] + 1) {
+                        throw new InvalidArgumentException('A report field exceeds the available continuation page height.');
+                    }
                     $this->text($document, $svg, $field, $value, ['data-report-cell' => $id.':'.$rowIndex.':'.$column], true);
                 }
             }
         }
 
         return $document->saveXML($svg);
+    }
+
+    private function expandedBody(DOMDocument $document, DOMElement $svg, array $table, array $page, string $id): void
+    {
+        $fieldId = $table['rows'][0]['cells'][0]['fields'][0];
+        $color = $page['fields'][$fieldId]['color'];
+        $left = $table['columns'][0];
+        $right = $table['columns'][array_key_last($table['columns'])];
+        $top = $table['rows'][0]['top'];
+        $bottom = max($table['rows'][array_key_last($table['rows'])]['bottom'], $page['height'] - 60);
+        $body = $document->createElementNS(self::SVG, 'rect');
+        foreach (['data-expanded-table' => $id, 'x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top, 'fill' => strtolower($color) === '#ffffff' ? '#205883' : '#ffffff', 'stroke' => $color, 'stroke-width' => .5] as $attribute => $value) {
+            $body->setAttribute($attribute, (string) $value);
+        }
+        $svg->appendChild($body);
+        foreach (array_slice($table['columns'], 1, -1) as $x) {
+            $line = $document->createElementNS(self::SVG, 'line');
+            foreach (['x1' => $x, 'x2' => $x, 'y1' => $top, 'y2' => $bottom, 'stroke' => $color, 'stroke-width' => .5] as $attribute => $value) {
+                $line->setAttribute($attribute, (string) $value);
+            }
+            $svg->appendChild($line);
+        }
     }
 
     public function fontCss(): string
@@ -126,6 +165,9 @@ final class AuctionReportArtwork
 
     private function text(DOMDocument $document, DOMElement $parent, array $field, string $value, array $attributes, bool $center = false): void
     {
+        if ($value === '') {
+            return;
+        }
         $size = $field['sy'];
         $x = $field['x'] + ($center ? $field['width'] / 2 : ($field['rtl'] ? $field['width'] : 0));
         $font = $field['font'];
@@ -142,6 +184,7 @@ final class AuctionReportArtwork
             'font-size' => $size, 'font-weight' => str_contains($font, 'Bold') ? 700 : 400,
             'text-anchor' => $center ? 'middle' : 'start',
             'direction' => $field['rtl'] ? 'rtl' : 'ltr', 'unicode-bidi' => 'plaintext', 'font-kerning' => 'none',
+            'data-report-width' => $field['max_width'] ?? $field['width'],
         ] as $key => $attribute) {
             $text->setAttribute($key, (string) $attribute);
         }

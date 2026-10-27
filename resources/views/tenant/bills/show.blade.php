@@ -222,7 +222,7 @@
                                     <i class="ti ti-credit-card me-1"></i>
                                     طريقة الدفع
                                 </span>
-                                <span class="badge bg-dark text-white">{{ $bill->payment_method->label() }}</span>
+                                <span class="badge bg-label-dark text-dark">{{ $bill->payment_method->label() }}</span>
                             </div>
                         @endif
 

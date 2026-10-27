@@ -94,7 +94,10 @@ class PropertiesController extends Controller
     public function edit(Property $property): View
     {
         $property->load(['boundaries', 'owners', 'units', 'attachments', 'assignment']);
-        $assignments = Assignment::select(['id', 'name', 'assignment_number'])->get();
+        $assignments = Assignment::where('is_active', true)
+            ->when($property->assignment_id, fn ($q) => $q->orWhere('id', $property->assignment_id))
+            ->select(['id', 'name', 'assignment_number'])
+            ->get();
 
         return view('tenant.properties.edit', [
             'property' => $property,

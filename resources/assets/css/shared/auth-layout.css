@@ -189,6 +189,10 @@ body:has(.tenant-login-container) {
     box-shadow: none !important;
 }
 
+.auth-form-side .input-group-merge .input-group-text,
+.tenant-login-form-side .input-group-merge .input-group-text,
+.auth-form-side .input-group-merge [data-password-toggle],
+.tenant-login-form-side .input-group-merge [data-password-toggle],
 .auth-form-side .input-group-merge.is-invalid .input-group-text,
 .tenant-login-form-side .input-group-merge.is-invalid .input-group-text,
 .auth-form-side .input-group-merge:has(.is-invalid) .input-group-text,
@@ -205,7 +209,9 @@ body:has(.tenant-login-container) {
 .tenant-login-form-side [data-form-field].is-invalid [data-password-toggle],
 .auth-form-side [data-form-field].has-error [data-password-toggle],
 .tenant-login-form-side [data-form-field].has-error [data-password-toggle] {
-    border: 1px solid #ea5455 !important;
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
 }
 
 .auth-form-side .input-group-merge .form-control,

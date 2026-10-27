@@ -82,6 +82,20 @@
     display: flex !important;
     justify-content: center !important;
   }
+
+  .icon-saudi_riyal {
+    filter: none;
+    -webkit-filter: none;
+  }
+}
+
+.summary-details,
+.summary-plan-badge,
+.checkout-payment-total {
+  .icon-saudi_riyal {
+    filter: none;
+    -webkit-filter: none;
+  }
 }
 
 .checkout-card {

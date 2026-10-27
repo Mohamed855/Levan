@@ -64,15 +64,6 @@ final class CreatePropertyAction
                     $data['property_number'] = $this->propertyService->generatePropertyNumber();
                 }
 
-                // Parse coordinates from Google Maps URL if empty
-                if ((empty($data['latitude']) || empty($data['longitude'])) && ! empty($data['google_maps_url'])) {
-                    $parsed = $this->parseCoordinatesFromUrl($data['google_maps_url']);
-                    if ($parsed) {
-                        $data['latitude'] = $parsed['lat'];
-                        $data['longitude'] = $parsed['lng'];
-                    }
-                }
-
                 // Store main image
                 if ($mainImageFile instanceof UploadedFile) {
                     $mainImagePath = $mainImageFile->store('properties/main_images', 'tenant_public');

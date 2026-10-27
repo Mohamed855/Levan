@@ -100,31 +100,81 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (
         dashboardData.auctionActivity &&
+        Array.isArray(dashboardData.auctionActivity) &&
         dashboardData.auctionActivity.length > 0
     ) {
         buildAuctionChart(dashboardData.auctionActivity);
     }
 
+    // تغيير المدة عبر الـ dropdown (دعم Select2 والأحداث القياسية)
     const rangeSelect = document.getElementById("auction-activity-range");
+    const chartWrap = document.querySelector(".auction-activity-chart-wrap");
+    let currentRange = rangeSelect ? rangeSelect.value : null;
+
+    function updateAuctionActivity(range) {
+        if (!range) return;
+        const baseUrl = dashboardData.auctionActivityUrl;
+        if (!baseUrl) return;
+
+        const separator = baseUrl.includes("?") ? "&" : "?";
+        const url = baseUrl + separator + "range=" + encodeURIComponent(range);
+
+        if (chartWrap) {
+            chartWrap.style.transition = "opacity 0.2s ease";
+            chartWrap.style.opacity = "0.5";
+            chartWrap.style.pointerEvents = "none";
+        }
+
+        fetch(url, {
+            headers: {
+                Accept: "application/json",
+                "X-Requested-With": "XMLHttpRequest",
+            },
+            credentials: "same-origin",
+        })
+            .then((r) => {
+                if (!r.ok) {
+                    throw new Error(`HTTP error ${r.status}`);
+                }
+                return r.json();
+            })
+            .then((json) => {
+                if (json && Array.isArray(json.data)) {
+                    buildAuctionChart(json.data);
+                }
+            })
+            .catch((err) => {
+                console.error("Auction activity fetch error:", err);
+                currentRange = null;
+            })
+            .finally(() => {
+                if (chartWrap) {
+                    chartWrap.style.opacity = "1";
+                    chartWrap.style.pointerEvents = "";
+                }
+            });
+    }
+
+    function onRangeChanged(newRange) {
+        const selected = newRange || (rangeSelect ? rangeSelect.value : null);
+        if (!selected || selected === currentRange) return;
+        currentRange = selected;
+        updateAuctionActivity(selected);
+    }
+
     if (rangeSelect) {
         rangeSelect.addEventListener("change", function () {
-            const range = this.value;
-            const url =
-                (dashboardData.auctionActivityUrl || "") +
-                "?range=" +
-                encodeURIComponent(range);
-
-            fetch(url, { credentials: "same-origin" })
-                .then((r) => r.json())
-                .then((json) => {
-                    if (json.data) {
-                        buildAuctionChart(json.data);
-                    }
-                })
-                .catch((err) =>
-                    console.error("Auction activity fetch error:", err),
-                );
+            onRangeChanged(this.value);
         });
+
+        if (window.jQuery) {
+            window.jQuery(rangeSelect).on(
+                "change change.select2 select2:select",
+                function () {
+                    onRangeChanged(this.value);
+                },
+            );
+        }
     }
 
     // ════════════════════════════════════════════════════════

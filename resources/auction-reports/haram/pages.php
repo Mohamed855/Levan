@@ -2016,6 +2016,28 @@ return array (
         0 => 'f89',
       ),
     ),
+    'layouts' => 
+    array (
+      'manager' => 
+      array (
+        'max_width' => 150,
+        'center' => true,
+      ),
+      'name' => 
+      array (
+        'max_width' => 150,
+        'center' => true,
+      ),
+      'project' => 
+      array (
+        'max_width' => 150,
+        'center' => true,
+      ),
+      'footer' => 
+      array (
+        'max_width' => 230,
+      ),
+    ),
     'images' => 
     array (
     ),
@@ -3679,6 +3701,13 @@ return array (
         0 => 'f84',
       ),
     ),
+    'layouts' => 
+    array (
+      'footer' => 
+      array (
+        'max_width' => 230,
+      ),
+    ),
     'images' => 
     array (
     ),
@@ -4630,6 +4659,13 @@ return array (
         0 => 'f69',
       ),
     ),
+    'layouts' => 
+    array (
+      'footer' => 
+      array (
+        'max_width' => 230,
+      ),
+    ),
     'images' => 
     array (
       0 => 
@@ -4813,6 +4849,13 @@ return array (
       'footer' => 
       array (
         0 => 'f8',
+      ),
+    ),
+    'layouts' => 
+    array (
+      'footer' => 
+      array (
+        'max_width' => 230,
       ),
     ),
     'images' => 
@@ -5055,6 +5098,13 @@ return array (
       'footer' => 
       array (
         0 => 'f6',
+      ),
+    ),
+    'layouts' => 
+    array (
+      'footer' => 
+      array (
+        'max_width' => 230,
       ),
     ),
     'images' => 

@@ -1,19 +1,26 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        @if (Session::has('success'))
-            toastr.success("{{ Session::get('success') }}");
-        @endif
+        function showToast() {
+            if (typeof toastr === 'undefined') {
+                setTimeout(showToast, 50);
+                return;
+            }
+            @if (Session::has('success'))
+                toastr.success(@json(Session::get('success')));
+            @endif
 
-        @if (Session::has('error'))
-            toastr.error("{{ Session::get('error') }}");
-        @endif
+            @if (Session::has('error'))
+                toastr.error(@json(Session::get('error')));
+            @endif
 
-        @if (Session::has('info'))
-            toastr.info("{{ Session::get('info') }}");
-        @endif
+            @if (Session::has('info'))
+                toastr.info(@json(Session::get('info')));
+            @endif
 
-        @if (Session::has('warning'))
-            toastr.warning("{{ Session::get('warning') }}");
-        @endif
+            @if (Session::has('warning'))
+                toastr.warning(@json(Session::get('warning')));
+            @endif
+        }
+        showToast();
     });
 </script>

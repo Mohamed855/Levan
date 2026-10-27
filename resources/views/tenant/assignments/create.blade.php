@@ -57,7 +57,6 @@
                 'assignment_number',
                 'name',
                 'category',
-                'status',
                 'issuing_entity',
                 'city',
                 'district',
@@ -71,7 +70,6 @@
                     <x-form.controls.input name="name" label="اسم الإسناد" required col="col-md-6" />
                     <x-form.controls.select name="category" label="تصنيف الإسناد" required col="col-md-6"
                         :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
-                    <x-form.controls.select name="status" label="حالة الإسناد" required col="col-md-6" :enum="\App\Enums\Tenants\Assignments\AssignmentStatus::class" />
                     <x-form.controls.input name="issuing_entity" label="الجهة المسندة" required col="col-md-6" />
                     <x-form.controls.select name="city" label="المدينة" required col="col-md-6" :options="$cityOptions" />
                     <x-form.controls.input name="district" label="النطاق/الحي" col="col-md-6" />
@@ -132,7 +130,7 @@
                     <x-form.controls.file name="general_documents" id="general_documents" label="مستندات عامة" required
                         multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-6" />
                     <x-form.controls.file name="additional_attachments" id="additional_attachments" label="مرفقات إضافية"
-                        required multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-6" />
+                        multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-6" />
                     <div class="col-12">
                         <section class="assignment-selection assignment-attachment-box"
                             aria-labelledby="general-documents-title">

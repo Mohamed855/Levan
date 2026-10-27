@@ -898,15 +898,15 @@ $utilities: map-merge(
     }
 }
 
-// ! FIX: .bg-dark text-white & .bg-dark text-white color in dark mode
+// ! FIX: .bg-label-dark text-dark & .bg-label-dark text-dark color in dark mode
 @if $dark-style {
-    .bg-dark text-white {
+    .bg-label-dark text-dark {
         color: color-contrast($dark);
     }
 }
 
 // Anchor hover/focus bg colors
-a.bg-dark text-white {
+a.bg-label-dark text-dark {
     &:hover,
     &:focus {
         background-color: $gray-900 !important;
@@ -1017,10 +1017,10 @@ a.invert-bg-white {
     }
 }
 
-.invert-bg-dark text-white {
+.invert-bg-label-dark text-dark {
     background-color: if(not $dark-style, $gray-900, $white) !important;
 }
-a.invert-bg-dark text-white {
+a.invert-bg-label-dark text-dark {
     &:hover,
     &:focus {
         background-color: if(not $dark-style, $gray-900, $white) !important;

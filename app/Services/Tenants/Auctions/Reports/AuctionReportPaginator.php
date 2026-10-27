@@ -84,15 +84,15 @@ final class AuctionReportPaginator
 
         $evidence = $snapshot['evidence'] ?? [];
         $pages = array_merge($pages, $this->boardPages('asir-board-installation', $evidence['board_before'] ?? [], 'board_before'));
-        foreach (['brochure' => 23, 'platform' => 1, 'video' => 2, 'x' => 8, 'whatsapp' => 2] as $section => $capacity) {
+        foreach (['brochure' => 24, 'platform' => 3, 'video' => 5, 'x' => 8, 'whatsapp' => 2] as $section => $capacity) {
             $pages = array_merge($pages, $this->mediaPages('asir-'.$section, [$section => $evidence[$section] ?? []], [$section => $capacity]));
         }
         $pages = array_merge($pages,
             $this->mediaPages('asir-social', [
                 'social' => array_merge($evidence['social'] ?? [], $evidence['marketing_evidence'] ?? []),
                 'campaigns' => $snapshot['marketing']['campaigns'] ?? [],
-            ], ['social' => 4, 'campaigns' => 3]),
-            $this->mediaPages('asir-brokers', ['brokers' => $evidence['brokers'] ?? []], ['brokers' => 2]),
+            ], ['social' => 3, 'campaigns' => 3]),
+            $this->mediaPages('asir-brokers', ['brokers' => $evidence['brokers'] ?? []], ['brokers' => 1]),
             $this->boardPages('asir-board-removal', $evidence['board_after'] ?? [], 'board_after'),
         );
 

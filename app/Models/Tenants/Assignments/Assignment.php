@@ -31,7 +31,6 @@ class Assignment extends Model
         'start_date',
         'end_date',
         'notes',
-        'status',
         'is_active',
         'created_by',
     ];
@@ -85,23 +84,11 @@ class Assignment extends Model
 
     public function getStatusLabelAttribute(): string
     {
-        return match ($this->status) {
-            'active' => 'نشط',
-            'under_review' => 'قيد المراجعة',
-            'suspended' => 'متوقف',
-            'auctioned' => 'محول لمزاد',
-            default => 'نشط',
-        };
+        return $this->is_active ? 'نشط' : 'متوقف';
     }
 
     public function getStatusBadgeClassAttribute(): string
     {
-        return match ($this->status) {
-            'active' => 'bg-success',
-            'under_review' => 'bg-warning',
-            'suspended' => 'bg-danger',
-            'auctioned' => 'bg-info',
-            default => 'bg-primary',
-        };
+        return $this->is_active ? 'bg-success' : 'bg-danger';
     }
 }

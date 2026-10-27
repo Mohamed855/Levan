@@ -87,7 +87,8 @@ foreach ($sources as $name => $hash) {
                 $imageId = $image->getAttribute('id');
                 $xpath->registerNamespace('xlink', 'http://www.w3.org/1999/xlink');
                 $insideDefinitions = $xpath->query('ancestor::*[local-name()="defs"]', $image)->length > 0;
-                $maskOnly = $insideDefinitions && $xpath->query('//*[local-name()="use" and @xlink:href="#'.$imageId.'" and not(ancestor::*[local-name()="mask"])]')->length === 0;
+                $insideMask = $xpath->query('ancestor::*[local-name()="mask"]', $image)->length > 0;
+                $maskOnly = $insideMask || ($insideDefinitions && $xpath->query('//*[local-name()="use" and @xlink:href="#'.$imageId.'" and not(ancestor::*[local-name()="mask"])]')->length === 0);
                 $probe = imagecreatefromstring($bytes);
                 $colors = [];
                 foreach ([.1, .3, .5, .7, .9] as $px) {
@@ -96,7 +97,7 @@ foreach ($sources as $name => $hash) {
                     }
                 }
                 imagedestroy($probe);
-                $staticFill = count($colors) === 1 || min((int) $image->getAttribute('width'), (int) $image->getAttribute('height')) <= 8 || $asset[1] === '65f52b26836ac6bf08fb';
+                $staticFill = count($colors) === 1 || min((int) $image->getAttribute('width'), (int) $image->getAttribute('height')) <= 8 || $asset[1] === '65f52b26836ac6bf08fb' || in_array($image->getAttribute('data-image-def'), $binding['static_images'] ?? [], true);
                 if ((! $maskOnly && ! $staticFill) || $isWatermark) {
                     $section = $isWatermark ? 'report_image' : match ($index) {
                         7, 8 => 'board_before', 16, 17 => 'board_after', 15 => 'brokers',
@@ -107,7 +108,8 @@ foreach ($sources as $name => $hash) {
                     if (! isset($slots[$slotKey])) {
                         $slots[$slotKey] = count(array_filter(array_keys($slots), static fn (string $key): bool => str_starts_with($key, $section.':')));
                     }
-                    $imageDefinitions[$image->getAttribute('data-image-def')] = ['section' => $section, 'slot' => $slots[$slotKey]];
+                    $definitionId = $image->getAttribute('data-image-def');
+                    $imageDefinitions[$definitionId] = ['section' => $section, 'slot' => $binding['image_slots'][$definitionId] ?? $slots[$slotKey]];
                     $image->setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '__DYNAMIC_IMAGE__');
                 } else {
                     $relative = 'asir/static-'.$asset[1].(str_contains($package['assets'][$asset[1]], 'image/png;') ? '.png' : '.jpg');
@@ -167,8 +169,15 @@ $nizar = $argv[3] ?? null;
 if (is_string($nizar) && is_file($nizar)) {
     $write('fonts/nizar-bbc-kurdish.ttf', file_get_contents($nizar));
 }
-$write('fallback.svg', file_get_contents(dirname(__DIR__, 2).'/public/static/brand/logos/lot-logo.svg'));
+$logoDocument = new DOMDocument;
+$logoDocument->loadXML($package['pages'][15]['svg'], LIBXML_NONET);
+$logo = (new DOMXPath($logoDocument))->query('//*[@data-image-def="i7"]')->item(0);
+preg_match('/@@([^@]+)@@/', $logo->getAttributeNS('http://www.w3.org/1999/xlink', 'href'), $logoAsset);
+$logoUri = $package['assets'][$logoAsset[1]];
+$write('fallback.svg', '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="523" height="132" viewBox="0 0 523 132"><image width="523" height="132" xlink:href="'.$logoUri.'"/></svg>');
 $write('fonts/catalog.php', "<?php\n\ndeclare(strict_types=1);\n\nreturn ".var_export($fontCatalog, true).";\n");
+$forms = array_filter($package['forms'], static fn (string $key): bool => mb_strlen($key) === 1, ARRAY_FILTER_USE_KEY);
+$write('fonts/arabic-forms.php', "<?php\n\ndeclare(strict_types=1);\n\nreturn ".var_export($forms, true).";\n");
 ksort($files);
 file_put_contents($root.'/manifest.php', "<?php\n\ndeclare(strict_types=1);\n\nreturn ".var_export(['source_hashes' => $sources, 'files' => $files], true).";\n");
 echo count($files).' local assets packaged.'.PHP_EOL;

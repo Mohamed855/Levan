@@ -115,7 +115,6 @@ class PropertyManagementFeatureTest extends TestCase
             'administrative_region' => 'منطقة الرياض',
             'plan_number' => '999',
             'parcel_number' => '123',
-            'google_maps_url' => 'https://maps.google.com/?q=24.7136,46.6753',
             'latitude' => 24.7136,
             'longitude' => 46.6753,
             'boundary_geojson' => [
