@@ -31,7 +31,7 @@ class ArchivedUsersDataTable extends AbstractDataTable
     protected function resource()
     {
         return User::onlyTrashed()
-            ->select(['id', 'name', 'employee_number', 'email', 'phone', 'status', 'image', 'deleted_at', 'created_at'])
+            ->select(['id', 'name', 'email', 'phone', 'status', 'image', 'deleted_at', 'created_at'])
             ->with(['roles:id,name']);
     }
 
@@ -56,7 +56,6 @@ class ArchivedUsersDataTable extends AbstractDataTable
                 'titleAttr' => 'تحديد الكل',
             ],
             ['data' => 'user_info', 'name' => 'name', 'title' => 'اسم المستخدم', 'width' => '200px', 'className' => 'text-start'],
-            ['data' => 'employee_number', 'name' => 'employee_number', 'title' => 'الرقم الوظيفي', 'width' => '120px'],
             ['data' => 'email', 'name' => 'email', 'title' => 'البريد الإلكتروني', 'width' => '180px'],
             ['data' => 'phone', 'name' => 'phone', 'title' => 'رقم الهاتف', 'width' => '120px'],
             ['data' => 'roles', 'name' => 'roles', 'title' => 'الأدوار', 'width' => '120px', 'orderable' => false],
@@ -89,9 +88,6 @@ class ArchivedUsersDataTable extends AbstractDataTable
                     </div>
                     <span class="text-body fw-medium">'.$row->name.'</span>
                 </div>';
-            })
-            ->editColumn('employee_number', function ($row) {
-                return '<span class="badge bg-primary">'.($row->employee_number ?? '-').'</span>';
             })
             ->editColumn('email', function ($row) {
                 return '<span class="text-primary">'.($row->email ?? '-').'</span>';
@@ -130,7 +126,7 @@ class ArchivedUsersDataTable extends AbstractDataTable
     */
     protected function rawColumns(): array
     {
-        return ['checkbox', 'user_info', 'employee_number', 'email', 'phone', 'roles', 'status', 'actions'];
+        return ['checkbox', 'user_info', 'email', 'phone', 'roles', 'status', 'actions'];
     }
 
     /*

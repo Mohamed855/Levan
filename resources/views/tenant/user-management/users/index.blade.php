@@ -32,16 +32,10 @@
             arabicDataTable: "{{ asset('static/i18n/ar.json') }}"
         };
 
-        window.licenseRoutes = {
-            assign: "{{ tenant_route_name('licenses.assign') }}",
-            release: "{{ tenant_route_name('licenses.release') }}",
-            subscriptions: "{{ tenant_route_name('subscriptions.index') }}"
-        };
-
         window.csrfToken = "{{ csrf_token() }}";
     </script>
 
-    @vite(['resources/assets/js/tenant/user-management/user/index.js', 'resources/assets/js/tenant/user-management/user/license.js'])
+    @vite(['resources/assets/js/tenant/user-management/user/index.js'])
 
     {!! $dataTable->scripts() !!}
 @endsection
@@ -57,21 +51,8 @@
                 icon="ti-user-check" color="success" />
             <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين غير النشطين" :value="$inactiveUsers"
                 subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="danger" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="التراخيص" :value="($subscription_formatted['used_users'] ?? 0) . ' / ' . ($subscription_formatted['total_users'] ?? 0)" :subtitle="'متبقي ' .
-                (($subscription_formatted['total_users'] ?? 0) - ($subscription_formatted['used_users'] ?? 0)) .
-                ' ترخيص'" icon="ti-license"
-                color="primary" valueClass="badge bg-primary rounded-pill">
-                <div class="text-end">
-                    {{ $subscription_formatted['total_users'] > 0 ? round(($subscription_formatted['used_users'] / $subscription_formatted['total_users']) * 100) : 0 }}%
-                </div>
-                <div class="progress" style="height: 0.5rem;">
-                    <div class="progress-bar bg-primary" role="progressbar"
-                        style="width: {{ $subscription_formatted['total_users'] > 0 ? ($subscription_formatted['used_users'] / $subscription_formatted['total_users']) * 100 : 0 }}%"
-                        aria-valuenow="{{ $subscription_formatted['used_users'] ?? 0 }}" aria-valuemin="0"
-                        aria-valuemax="{{ $subscription_formatted['total_users'] ?? 0 }}">
-                    </div>
-                </div>
-            </x-ui.stat-card>
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين المؤرشفين" :value="$archivedUsers"
+                subtitle="المستخدمين في الأرشيف" icon="ti-archive" color="warning" />
         </x-slot:stats>
 
         <x-slot:filters>

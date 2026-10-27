@@ -31,10 +31,9 @@ class EditFormValidationTest extends TestCase
                 'target_path' => "/users/{$user->id}",
                 'target_method' => 'PUT',
                 '_method' => 'PUT',
-                'fields' => ['name', 'email', 'employee_number'],
+                'fields' => ['name', 'email'],
                 'name' => $user->name,
                 'email' => $user->email,
-                'employee_number' => $user->employee_number,
             ]);
 
         $response->assertOk()

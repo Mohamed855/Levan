@@ -154,7 +154,6 @@ class TestTenantSeeder extends Seeder
                         'is_core' => $user->email === 'demo@levan.com',
                     ]
                 );
-                $user->update(['license_seat_id' => $seat->id]);
             }
         } finally {
             tenancy()->end();

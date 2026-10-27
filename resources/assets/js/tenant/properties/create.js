@@ -844,7 +844,7 @@ document.addEventListener("DOMContentLoaded", () => {
         )
             return "";
 
-        return `<figure class="property-aerial-review mt-3 mb-0"><img src="${escapeHtml(source)}" alt="الصورة الجوية للعقار بعد تحديد الحدود"><a class="property-aerial-review__download" href="${escapeHtml(source)}" download="property-boundary.png" aria-label="تحميل الصورة الجوية المحددة"><i class="ti ti-download" aria-hidden="true"></i></a></figure>`;
+        return `<figure class="property-aerial-review mt-3 mb-0"><img src="${escapeHtml(source)}" alt="صورة العقار بعد تحديد الحدود"><a class="property-aerial-review__download" href="${escapeHtml(source)}" download="property-boundary.png" aria-label="تحميل صورة العقار المحددة"><i class="ti ti-download" aria-hidden="true"></i></a></figure>`;
     }
 
     function buildReview() {
@@ -886,7 +886,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ["رقم المخطط", getVal("plan_number")],
                 ["رقم القطعة", getVal("parcel_number")],
                 [
-                    "الصورة الجوية للعقار",
+                    "صورة العقار",
                     hasImage ? "تم رفع صورة العقار" : "لم يتم الرفع",
                 ],
                 [

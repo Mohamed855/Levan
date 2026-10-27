@@ -459,11 +459,9 @@ class TenantAssetModulesFeatureTest extends TestCase
         [$assignment] = $this->assignments();
         $limitedUser = User::create([
             'name' => 'مستخدم اختبار محدود',
-            'employee_number' => 'LIMITED-'.uniqid(),
             'email' => 'limited-'.uniqid().'@levan.test',
             'password' => bcrypt('Password123!'),
             'status' => 'active',
-            'license_seat_id' => $this->owner->license_seat_id,
         ]);
 
         $this->actingAs($limitedUser, 'tenant')

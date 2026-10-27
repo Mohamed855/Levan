@@ -23,7 +23,7 @@
 
 ## Data behavior
 
-- Page 2 property rows are a table family. A continuation page repeats the page-2 table header and footer; rows are never split.
-- Page 3 sold and unsold sections use separate capacities and may create a same-family continuation page independently.
+- Page 2 property rows are a table family with a measured capacity of 11 rows. A continuation page repeats the page-2 table header and footer; rows are never split.
+- Page 3 sold and unsold sections use separate measured capacities of 4 and 7 rows respectively, and may create a same-family continuation page independently.
 - Pages 4–6 use image frames with `cover` crop and their documented visual anchor; image absence renders the platform-logo fallback inside the same frame.
 - No generic property-detail page exists in this visual system.

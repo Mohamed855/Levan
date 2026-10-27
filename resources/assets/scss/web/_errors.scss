@@ -56,12 +56,7 @@
     padding: clamp(2rem, 5vw, 3.5rem);
     text-align: center;
     box-shadow: var(--site-shadow-card);
-    transition: box-shadow var(--site-transition-fast), border-color var(--site-transition-fast);
-
-    &:hover {
-      box-shadow: 0 1.25rem 50px rgba(18, 51, 44, 0.1);
-      border-color: var(--site-border-strong);
-    }
+    box-shadow: 0 1.25rem 50px rgba(18, 51, 44, 0.1);
   }
 
   .site-error-badge {

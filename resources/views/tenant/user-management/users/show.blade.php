@@ -228,25 +228,6 @@
                                                 </div>
                                             </div>
 
-                                            <div class="col-md-6">
-                                                <div class="d-flex align-items-start">
-                                                    <div class="flex-shrink-0">
-                                                        <div class="avatar avatar-sm">
-                                                            <span class="avatar-initial rounded bg-warning">
-                                                                <i class="ti ti-id-badge"></i>
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <div class="text-muted mb-1" style="font-size: 0.75rem;">الرقم
-                                                            الوظيفي</div>
-                                                        <div class="fw-semibold" style="font-size: 0.875rem;">
-                                                            {{ $user->employee_number ?? 'غير محدد' }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
 
                                             <div class="col-md-6">
                                                 <div class="d-flex align-items-start">

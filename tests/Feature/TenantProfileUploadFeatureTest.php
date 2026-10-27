@@ -36,11 +36,9 @@ class TenantProfileUploadFeatureTest extends TestCase
     {
         $otherUser = User::create([
             'name' => 'مستخدم صلاحيات محدود',
-            'employee_number' => 'NOEDIT' . random_int(1000, 9999),
             'email' => 'noedit' . random_int(1000, 9999) . '@levan.test',
             'password' => bcrypt('Password123!'),
             'status' => 'active',
-            'license_seat_id' => $this->owner->license_seat_id,
         ]);
 
         $this->actingAs($otherUser, 'tenant')

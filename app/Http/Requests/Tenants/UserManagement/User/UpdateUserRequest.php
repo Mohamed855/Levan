@@ -37,14 +37,6 @@ class UpdateUserRequest extends FormRequest
                 'min:2',
                 'regex:/^[\pL\s\-\.]+$/u',
             ],
-            'employee_number' => [
-                'required',
-                'string',
-                'max:50',
-                'min:1',
-                'regex:/^[A-Za-z0-9]+$/',
-                Rule::unique('users', 'employee_number')->ignore($userId),
-            ],
             'email' => [
                 'required',
                 'email',
@@ -89,13 +81,6 @@ class UpdateUserRequest extends FormRequest
             'name.min' => 'الاسم يجب ألا يقل عن حرفين',
             'name.regex' => 'الاسم يجب أن يحتوي على أحرف فقط',
 
-            'employee_number.required' => 'الرقم الوظيفي مطلوب',
-            'employee_number.string' => 'الرقم الوظيفي يجب أن يكون نص',
-            'employee_number.max' => 'الرقم الوظيفي يجب ألا يزيد عن 50 حرف',
-            'employee_number.min' => 'الرقم الوظيفي يجب ألا يقل عن حرف واحد',
-            'employee_number.regex' => 'الرقم الوظيفي يجب أن يحتوي على أحرف إنجليزية وأرقام فقط',
-            'employee_number.unique' => 'الرقم الوظيفي مستخدم مسبقاً',
-
             'email.required' => 'البريد الإلكتروني مطلوب',
             'email.email' => 'البريد الإلكتروني غير صحيح',
             'email.max' => 'البريد الإلكتروني يجب ألا يزيد عن 255 حرف',
@@ -131,7 +116,6 @@ class UpdateUserRequest extends FormRequest
     {
         return [
             'name' => 'الاسم',
-            'employee_number' => 'الرقم الوظيفي',
             'email' => 'البريد الإلكتروني',
             'password' => 'كلمة المرور',
             'password_confirmation' => 'تأكيد كلمة المرور',
@@ -152,7 +136,6 @@ class UpdateUserRequest extends FormRequest
     {
         $this->merge([
             'name' => trim($this->name),
-            'employee_number' => strtoupper(trim($this->employee_number)),
             'email' => strtolower(trim($this->email)),
             'phone' => trim((string) $this->phone),
         ]);

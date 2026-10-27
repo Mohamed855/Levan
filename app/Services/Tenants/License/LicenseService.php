@@ -24,7 +24,6 @@ class LicenseService
 
         try {
             $seat = $this->licenseGateway->assign($tenantId, $user->global_uid);
-            $user->update(['license_seat_id' => $seat['id']]);
 
             return [
                 'success' => true,
@@ -59,7 +58,6 @@ class LicenseService
             return DB::transaction(function () use ($user, $tenantId, &$released): array {
                 $this->licenseGateway->release($tenantId, $user->global_uid);
                 $released = true;
-                $user->update(['license_seat_id' => null]);
 
                 return [
                     'success' => true,
@@ -84,18 +82,12 @@ class LicenseService
         if (empty($user->global_uid)) {
             throw new DomainException('المستخدم لا يملك معرّف فريد (Global UID)');
         }
-        if ($user->license_seat_id) {
-            throw new DomainException('المستخدم يملك ترخيصًا بالفعل');
-        }
     }
 
     private function validateUserForRelease(User $user): void
     {
         if (empty($user->global_uid)) {
             throw new DomainException('المستخدم لا يملك معرّف فريد (Global UID)');
-        }
-        if (! $user->license_seat_id) {
-            throw new DomainException('المستخدم لا يملك ترخيصًا مُخصصًا');
         }
     }
 }

@@ -38,7 +38,6 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
-        'employee_number',
         'email',
         'password',
         'phone',
@@ -47,7 +46,6 @@ class User extends Authenticatable
         'last_login_at',
         'last_login_ip',
         'global_uid',
-        'license_seat_id',
         'current_session_id',
 
         'background_image',
@@ -221,25 +219,6 @@ class User extends Authenticatable
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Accessor للرقم الوظيفي - تحويل للأحرف الكبيرة
-    |--------------------------------------------------------------------------
-    */
-    public function getEmployeeNumberAttribute($value)
-    {
-        return strtoupper($value);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Mutator للرقم الوظيفي - حفظ بالأحرف الكبيرة
-    |--------------------------------------------------------------------------
-    */
-    public function setEmployeeNumberAttribute($value)
-    {
-        $this->attributes['employee_number'] = strtoupper(trim($value));
-    }
 
 
     /*

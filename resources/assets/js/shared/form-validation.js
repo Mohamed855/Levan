@@ -1381,7 +1381,7 @@ function initStepper(form) {
                         );
                         const boundaryError =
                             boundaryInput && !boundaryInput.value
-                                ? "برجاء تحديد حدود العقار علي الصورة الجوية."
+                                ? "برجاء تحديد حدود العقار علي صورة العقار."
                                 : null;
                         const errorMessage =
                             visibleError?.textContent?.trim() ||

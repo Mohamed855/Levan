@@ -46,7 +46,7 @@
                     data-draft-resource-key="tenant.user-create">
                     @csrf
 
-                    <x-form.wizard.step id="basic-info-validation" :fields="['name', 'employee_number', 'email', 'phone', 'role_id']">
+                    <x-form.wizard.step id="basic-info-validation" :fields="['name', 'email', 'phone', 'role_id']">
                         @include('tenant.user-management.users.partials.steps.step1-basic-info', ['user' => null])
 
                         <x-form.wizard.actions>

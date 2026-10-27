@@ -91,11 +91,9 @@ class UserController extends Controller
                 ->with('error', "لا يمكن إضافة مستخدم جديد، لقد تم الوصول إلى الحد الأقصى للمستخدمين المسموح به في باقتك ({$limit} مستخدم).");
         }
 
-        $generatedEmployeeNumber = $this->userService->generateNextEmployeeNumber();
-
         $roles = Role::query()->where('guard_name', 'tenant')->select('id', 'name')->orderBy('name')->get();
 
-        return view('tenant.user-management.users.create', compact('generatedEmployeeNumber', 'roles'));
+        return view('tenant.user-management.users.create', compact('roles'));
     }
 
     /*

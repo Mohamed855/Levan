@@ -37,7 +37,7 @@ class DashboardNotificationsTest extends TenantAuctionReportTestCase
         DB::connection('tenant')->rollBack();
         config(['dashboard-notifications.enabled' => true, 'dashboard-notifications.broadcast' => false]);
         $this->existingDeliveryIds = NotificationDelivery::pluck('id')->all();
-        $this->owner = User::create(['name' => 'اختبار الإشعارات', 'email' => 'notices-'.Str::lower(Str::random(10)).'@example.test', 'employee_number' => 'NTF'.Str::upper(Str::random(10)), 'password' => bcrypt('NotificationTest123!'), 'status' => 'active']);
+        $this->owner = User::create(['name' => 'اختبار الإشعارات', 'email' => 'notices-'.Str::lower(Str::random(10)).'@example.test', 'password' => bcrypt('NotificationTest123!'), 'status' => 'active']);
         $this->tenant->update(['primary_user_global_uid' => $this->owner->global_uid]);
         $this->admin = AdminUser::where('email', 'superadmin@gmail.com')->firstOrFail();
     }

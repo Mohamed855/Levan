@@ -112,7 +112,6 @@ class TenantCrudFeatureTest extends TestCase
         $userName = 'مستخدم اختباري ' . chr(rand(97, 122)) . chr(rand(97, 122));
         $storeResponse = $this->post($this->tenantUrl('users'), [
             'name'                  => $userName,
-            'employee_number'       => "EMP{$uniqueId}",
             'email'                 => $email,
             'password'              => 'Password123!',
             'password_confirmation' => 'Password123!',
@@ -137,7 +136,6 @@ class TenantCrudFeatureTest extends TestCase
         $updatedName = $userName . ' معدل';
         $updateResponse = $this->put($this->tenantUrl("users/{$testUser->id}"), [
             'name'            => $updatedName,
-            'employee_number' => "EMP{$uniqueId}",
             'email'           => $email,
             'phone'           => '05555' . rand(10000, 99999),
             'role_id'         => $role->id,

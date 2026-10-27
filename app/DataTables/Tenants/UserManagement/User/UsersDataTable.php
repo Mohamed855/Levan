@@ -24,12 +24,10 @@ class UsersDataTable extends AbstractDataTable
                 'name',
                 'email',
                 'phone',
-                'employee_number',
                 'status',
                 'image',
                 'created_at',
                 'last_login_at',
-                'license_seat_id',
             ])
             ->with(['roles:id,name'])
             ->accessible();
@@ -56,11 +54,9 @@ class UsersDataTable extends AbstractDataTable
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'image', 'name' => 'image', 'title' => 'الصورة', 'orderable' => false, 'searchable' => false],
             ['data' => 'name', 'name' => 'name', 'title' => 'الاسم'],
-            ['data' => 'employee_number', 'name' => 'employee_number', 'title' => 'الرقم الوظيفي'],
             ['data' => 'email', 'name' => 'email', 'title' => 'البريد الإلكتروني'],
             ['data' => 'phone', 'name' => 'phone', 'title' => 'رقم الهاتف'],
             ['data' => 'roles', 'name' => 'roles.name', 'title' => 'الأدوار', 'orderable' => false, 'searchable' => true],
-            ['data' => 'license_status', 'name' => 'license_status', 'title' => 'الترخيص', 'orderable' => false, 'searchable' => false],
             ['data' => 'last_login_at', 'name' => 'last_login_at', 'title' => 'آخر دخول'],
             ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'action', 'name' => 'action', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false],
@@ -87,7 +83,6 @@ class UsersDataTable extends AbstractDataTable
 
                 return '<a href="'.$url.'" class="text-primary fw-bold">'.e($user->name).'</a>';
             })
-            ->editColumn('employee_number', fn (User $user) => '<span class="badge bg-secondary">'.e($user->employee_number ?? '-').'</span>')
             ->editColumn('email', fn (User $user) => '<a href="mailto:'.$user->email.'">'.$user->email.'</a>')
             ->addColumn('roles', function (User $user) {
                 if ($user->roles->isEmpty()) {
@@ -117,28 +112,6 @@ class UsersDataTable extends AbstractDataTable
                     </div>
                 ';
             })
-            ->addColumn('license_status', function (User $user) {
-                $checked = $user->license_seat_id != null ? 'checked' : '';
-                if ($user->id === 1) {
-                    return 'لا يمكن التعديل';
-                } else {
-                    return
-                            '
-                    <div class="d-flex justify-content-center gap-3">
-                        <div class="form-check form-switch mb-0">
-                            <input
-                                type="checkbox"
-                                class="form-check-input license-toggle"
-                                id="license_'.$user->id.'"
-                                data-user-id="'.$user->id.'"
-                                '.$checked.'
-                                onchange="toggleLicense(this, '.$user->id.')"
-                            >
-                        </div>
-                    </div>
-                ';
-                }
-            })
             ->editColumn('last_login_at', function (User $user) {
                 return $user->last_login_at
                     ? $user->last_login_at->locale('ar')->diffForHumans()
@@ -154,7 +127,7 @@ class UsersDataTable extends AbstractDataTable
     */
     protected function rawColumns(): array
     {
-        return ['checkbox', 'image', 'name', 'employee_number', 'email', 'roles', 'status', 'license_status', 'last_login_at', 'action'];
+        return ['checkbox', 'image', 'name', 'email', 'roles', 'status', 'last_login_at', 'action'];
     }
 
     /*
@@ -174,10 +147,6 @@ class UsersDataTable extends AbstractDataTable
             $query->whereHas('roles', function ($q) use ($request) {
                 $q->where('roles.id', $request->role);
             });
-        }
-
-        if ($request->filled('employee_number')) {
-            $query->where('employee_number', 'like', '%'.$request->employee_number.'%');
         }
 
         return $query;

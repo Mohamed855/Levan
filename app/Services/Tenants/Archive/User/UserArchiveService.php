@@ -52,7 +52,7 @@ class UserArchiveService
     public function getArchivedUsersQuery(): Builder
     {
         return User::onlyTrashed()
-            ->select(['id', 'name', 'employee_number', 'email', 'phone', 'status', 'image', 'deleted_at', 'created_at'])
+            ->select(['id', 'name', 'email', 'phone', 'status', 'image', 'deleted_at', 'created_at'])
             ->with(['roles:id,name']);
     }
 

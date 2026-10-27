@@ -160,28 +160,6 @@ class UserService
 
     /*
     |--------------------------------------------------------------------------
-    | Generate Next Employee Number
-    |--------------------------------------------------------------------------
-    | Generates the next sequential employee number based on the last user.
-    */
-    public function generateNextEmployeeNumber(): string
-    {
-        $prefix = 'MSHL';
-        $nextNumber = 1;
-
-        $lastUser = User::latest('id')->first();
-
-        if ($lastUser && ! empty($lastUser->employee_number) && str_starts_with($lastUser->employee_number, $prefix)) {
-            $lastNumber = (int) substr($lastUser->employee_number, strlen($prefix));
-            $nextNumber = $lastNumber + 1;
-        }
-        $paddedNumber = str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
-
-        return $prefix.$paddedNumber;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
     | Get User Sessions Data
     |--------------------------------------------------------------------------
     | جلب بيانات جلسات التحصيل للموظف من بداية الشهر حتى اليوم

@@ -8,6 +8,13 @@ use InvalidArgumentException;
 
 final class AuctionReportRenderer
 {
+    public function __construct(
+        private readonly AuctionReportPaginator $paginator,
+        private readonly AuctionReportArtwork $artwork,
+        private readonly HaramReportData $haramData,
+        private readonly AsirReportData $asirData,
+    ) {}
+
     /** @param array<string, mixed> $snapshot */
     public function html(array $snapshot, string $type): string
     {
@@ -17,6 +24,12 @@ final class AuctionReportRenderer
             throw new InvalidArgumentException('Unsupported auction report type.');
         }
 
-        return view('tenant.auctions.reports.'.$type, ['data' => $snapshot])->render();
+        return view('tenant.auctions.reports.'.$type, [
+            'data' => $snapshot,
+            'pages' => $this->paginator->paginate($snapshot, $type),
+            'artwork' => $this->artwork,
+            'haramData' => $this->haramData,
+            'asirData' => $this->asirData,
+        ])->render();
     }
 }

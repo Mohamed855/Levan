@@ -2,7 +2,7 @@
     <div class="card-body d-flex flex-column gap-3">
         <div>
             <label class="form-label fw-medium mb-1">
-                الصورة الجوية للعقار <span class="text-danger">*</span>
+                صورة العقار <span class="text-danger">*</span>
             </label>
             <input type="file" id="property-image-upload" class="form-control" accept="image/png,image/jpeg,image/webp">
             <small class="text-muted">اختر صورة بصيغة PNG أو JPG أو WebP للبدء في تحديد حدود العقار عليها.</small>

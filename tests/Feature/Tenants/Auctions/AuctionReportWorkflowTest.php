@@ -236,11 +236,9 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
         ]);
         $viewer = User::query()->create([
             'name' => 'مشاهد تقارير المزاد',
-            'employee_number' => 'REPORT-VIEWER-'.uniqid(),
             'email' => 'report-viewer-'.uniqid().'@levan.test',
             'password' => bcrypt('Password123!'),
             'status' => 'active',
-            'license_seat_id' => $owner->license_seat_id,
         ]);
         $viewer->givePermissionTo($permission);
 

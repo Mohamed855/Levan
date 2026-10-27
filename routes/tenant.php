@@ -151,8 +151,8 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         });
     });
 
-    // المسارات المحمية باشتراك وترخيص نشط
-    Route::middleware('tenant.subscription', 'tenant.license')->group(function () {
+    // المسارات المحمية باشتراك نشط
+    Route::middleware('tenant.subscription')->group(function () {
 
         /*
         |--------------------------------------------------------------------------

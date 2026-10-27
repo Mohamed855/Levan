@@ -12,16 +12,6 @@
         required 
     />
 
-    <x-form.controls.input 
-        name="employee_number" 
-        label="الرقم الوظيفي" 
-        :value="old('employee_number', $isEdit ? $user->employee_number : ($generatedEmployeeNumber ?? ''))"
-        placeholder="ادخل الرقم الوظيفي" 
-        :readonly="$isEdit" 
-        required 
-        style="text-transform: uppercase;"
-        :help="$isEdit ? 'الرقم الوظيفي ثابت لا يمكن تعديله.' : 'الرقم الوظيفي المميز للموظف'"
-    />
 
     <x-form.controls.input 
         name="email" 

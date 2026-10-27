@@ -149,7 +149,6 @@ class TrialRegistrationFlowTest extends TestCase
         $owner = User::firstOrFail();
         self::assertTrue($owner->hasRole('Admin'));
         self::assertNotNull($owner->email_verified_at);
-        self::assertNotNull($owner->license_seat_id);
         $limits = app(SubscriptionLimitsResolver::class)->resolveForTenant($request->tenant_id);
         self::assertSame(1, $limits['included_users']);
         self::assertSame(1, $limits['properties_limit']);

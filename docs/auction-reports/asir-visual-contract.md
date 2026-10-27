@@ -26,6 +26,6 @@
 ## Data behavior
 
 - Page 2 property rows are a 13-row index in the reference; overflow repeats the index-family header/footer, not a new generic detail page.
-- Page 19 emits one fixed result block per sold property; extra blocks flow only to a same-family continuation page.
-- Page 20 emits unsold rows as an atomic property/deed/reason group.
+- Page 19 emits one fixed result block per sold property, with three measured blocks on the reference page; extra blocks flow only to a same-family continuation page.
+- Page 20 emits unsold rows as an atomic property/deed/reason group, with a measured capacity of 10 rows.
 - Marketing/board evidence arrays retain `display_order`; a missing item uses the platform-logo fallback inside the source frame and does not collapse neighboring geometry.

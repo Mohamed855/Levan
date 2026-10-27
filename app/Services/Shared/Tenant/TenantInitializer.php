@@ -33,7 +33,7 @@ class TenantInitializer
 
     public function createCoreSeat(Tenant $tenant, Subscription $subscription, User $user): void
     {
-        $seat = LicenseSeat::firstOrCreate([
+        LicenseSeat::firstOrCreate([
             'tenant_id' => $tenant->id,
             'subscription_id' => $subscription->id,
             'is_core' => true,
@@ -43,14 +43,6 @@ class TenantInitializer
             'is_core' => true,
             'assigned_at' => now(),
         ]);
-
-        // العودة إلى بيئة التيننت لتحديث المستخدم
-        tenancy()->initialize($tenant);
-        try {
-            $user->update(['license_seat_id' => $seat->id]);
-        } finally {
-            tenancy()->end();
-        }
     }
 
     /*
@@ -75,7 +67,6 @@ class TenantInitializer
     {
         $user = User::firstOrCreate(['email' => $metadata['billing_email']], [
             'name' => $metadata['billing_name'] ?? 'مستخدم جديد',
-            'employee_number' => 'EMP001',
             'email' => $metadata['billing_email'],
             'email_verified_at' => now(),
             'password' => $metadata['billing_password_hash'] ?? Hash::make($metadata['billing_password']),

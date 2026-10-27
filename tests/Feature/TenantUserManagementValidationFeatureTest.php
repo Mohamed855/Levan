@@ -46,11 +46,9 @@ class TenantUserManagementValidationFeatureTest extends TestCase
     {
         $limitedUser = User::create([
             'name' => 'مستخدم محدود',
-            'employee_number' => 'LIMITED' . random_int(1000, 9999),
             'email' => 'limited-' . random_int(1000, 9999) . '@levan.test',
             'password' => bcrypt('Password123!'),
             'status' => 'active',
-            'license_seat_id' => $this->owner->license_seat_id,
         ]);
 
         $this->actingAs($limitedUser, 'tenant')
@@ -124,7 +122,6 @@ class TenantUserManagementValidationFeatureTest extends TestCase
             $this->actingAs($this->owner, 'tenant')
                 ->post($this->tenantUrl('users'), [
                     'name' => 'مستخدم جديد',
-                    'employee_number' => 'NEWUSER999',
                     'email' => 'newuser999@levan.test',
                     'phone' => '0512345678',
                     'password' => 'Password123!',

@@ -37,9 +37,18 @@ final class AuctionReportRendererTest extends TestCase
         $report = $renderer->html($snapshot, 'report');
         $outputs = $renderer->html($snapshot, 'outputs');
 
+        self::assertStringContainsString('data-page-type="haram-cover"', $outputs);
+        self::assertStringContainsString('data-page-type="haram-index"', $outputs);
+        self::assertStringContainsString('data-page-type="haram-closing"', $outputs);
+        self::assertSame(7, substr_count($outputs, 'data-page-type='));
+        self::assertStringContainsString('NotoReport', $outputs);
+        self::assertTrue(str_contains($report, 'data-page-type="asir-cover"'));
+        self::assertSame(21, substr_count($report, 'data-page-type='));
+        self::assertTrue(str_contains($report, 'GEReport'));
+
         self::assertStringContainsString('اسم مزاد حقيقي طويل دون قص', $report);
         self::assertStringContainsString('DEED-REAL', $report);
-        self::assertStringContainsString('10,200,000.00', $report);
+        self::assertStringContainsString('10,200,000', $report);
         self::assertStringContainsString('data:image/png;base64,REPORT', $report);
         self::assertStringNotContainsString('data:image/png;base64,COVER', $report);
         self::assertStringNotContainsString('saved-data', $report.$outputs);
@@ -59,8 +68,8 @@ final class AuctionReportRendererTest extends TestCase
 
         $outputs = $renderer->html($snapshot, 'outputs');
         $report = $renderer->html($snapshot, 'report');
-        self::assertSame(3, substr_count($outputs, '<section class="page outputs-results-page">'));
-        self::assertSame(3, substr_count($report, '<h2 class="section-title">التسويق</h2>'));
+        self::assertStringContainsString('data-page-type="haram-index-continuation"', $outputs);
+        self::assertStringContainsString('data-page-type="asir-social-continuation"', $report);
         self::assertStringContainsString('P-17', $outputs);
         self::assertStringContainsString('Campaign-25', $report);
     }
