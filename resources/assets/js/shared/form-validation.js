@@ -609,6 +609,37 @@ function hasVisibleServerErrors(form) {
     return false;
 }
 
+function resolveDraftTargetStep(form, defaultStep) {
+    const fallbackStep = Math.max(1, Number(defaultStep || 1));
+    const stepperElement = form.closest("[data-form-stepper]");
+    const steps = stepperElement
+        ? Array.from(stepperElement.querySelectorAll("[data-form-step]"))
+        : Array.from(form.querySelectorAll("[data-form-step]"));
+
+    if (!steps.length) {
+        return fallbackStep;
+    }
+
+    const passwordInput = form.querySelector(
+        'input[type="password"]:not([disabled])',
+    );
+    if (!passwordInput) {
+        return fallbackStep;
+    }
+
+    const passwordStep = passwordInput.closest("[data-form-step]");
+    if (!passwordStep) {
+        return fallbackStep;
+    }
+
+    const passwordStepIndex = steps.indexOf(passwordStep);
+    if (passwordStepIndex === -1) {
+        return fallbackStep;
+    }
+
+    return passwordStepIndex + 1;
+}
+
 async function restoreDraft(form) {
     const draftUrl = form.dataset.draftUrl;
     if (!draftUrl || hasVisibleServerErrors(form)) {
@@ -674,7 +705,38 @@ async function restoreDraft(form) {
                 },
             }),
         );
-        getFormState(form).stepper?.to(Math.max(1, Number(draft.step || 1)));
+        const targetStep = resolveDraftTargetStep(form, draft.step);
+        const stepper =
+            getFormState(form).stepper ||
+            form.closest("[data-form-stepper]")?.bsStepper;
+        if (stepper) {
+            stepper.to(targetStep);
+            const stepperElement = form.closest("[data-form-stepper]");
+            const steps = stepperElement
+                ? Array.from(stepperElement.querySelectorAll("[data-form-step]"))
+                : Array.from(form.querySelectorAll("[data-form-step]"));
+            const targetIndex = targetStep - 1;
+            const currentStep = steps[targetIndex];
+            if (currentStep) {
+                form.dispatchEvent(
+                    new CustomEvent("stepChanged", {
+                        detail: {
+                            stepIndex: targetIndex,
+                            step: currentStep,
+                        },
+                    }),
+                );
+                updateStepNextButton(form, currentStep);
+            }
+        }
+        const passwordInput = form.querySelector(
+            'input[type="password"]:not([disabled])',
+        );
+        if (passwordInput) {
+            setTimeout(() => {
+                passwordInput.focus?.();
+            }, 300);
+        }
         window.toastr?.success?.("تمت استعادة المسودة بنجاح.");
     } catch (_) {
         window.toastr?.error?.(
@@ -755,7 +817,10 @@ function initDrafts(form) {
         }
 
         event.preventDefault();
-        button.disabled = true;
+        setButtonLoading(
+            button,
+            button.dataset.loadingText || "جاري حفظ المسودة...",
+        );
         try {
             const data = new FormData(form);
             data.delete("_method");
@@ -790,7 +855,7 @@ function initDrafts(form) {
         } catch (_) {
             window.toastr?.error?.("تعذر حفظ المسودة. يرجى المحاولة مرة أخرى.");
         } finally {
-            button.disabled = false;
+            resetButtonLoading(button);
         }
     });
 
@@ -1734,12 +1799,27 @@ function initForm(form) {
             return;
         }
 
+        const submitButton =
+            event.submitter ||
+            form.querySelector(
+                '[data-save-button], .btn-submit, button[type="submit"]:not([data-wizard-prev]):not([data-wizard-next]):not([data-wizard-draft])',
+            );
+
         event.preventDefault();
+
+        if (submitButton) {
+            setButtonLoading(submitButton);
+        }
+
         const fields = Array.from(form.querySelectorAll("[name]"))
             .filter((control) => !control.matches("[data-validation-skip]"))
             .map((control) => control.name);
         const valid = await validateFields(form, fields);
         if (!valid) {
+            if (submitButton) {
+                resetButtonLoading(submitButton);
+            }
+
             const stepperElement = form.closest("[data-form-stepper]");
             if (stepperElement) {
                 const steps = Array.from(
@@ -1763,6 +1843,128 @@ function initForm(form) {
 
         HTMLFormElement.prototype.submit.call(form);
     });
+}
+
+function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function getButtonLoadingText(button) {
+    if (button.dataset.loadingText) {
+        return button.dataset.loadingText;
+    }
+
+    const textEl = button.querySelector(".btn-text");
+    const rawText = (textEl ? textEl.textContent : button.textContent || "").trim();
+
+    if (!rawText || rawText === "حفظ") {
+        return "جاري الحفظ...";
+    }
+    if (rawText === "تحديث") {
+        return "جاري التحديث...";
+    }
+    if (rawText === "حفظ التعديلات") {
+        return "جاري حفظ التعديلات...";
+    }
+    if (rawText.startsWith("حفظ ")) {
+        return "جاري " + rawText + "...";
+    }
+    if (rawText.startsWith("تحديث ")) {
+        return "جاري " + rawText + "...";
+    }
+
+    return "جاري " + rawText + "...";
+}
+
+function setButtonLoading(button, customText) {
+    if (!button || button.dataset.buttonIsLoading === "true") {
+        return;
+    }
+
+    button.dataset.buttonIsLoading = "true";
+    button.setAttribute("aria-busy", "true");
+    button.classList.add("disabled");
+    button.style.pointerEvents = "none";
+
+    const form = button.form || button.closest("form");
+    if (
+        form &&
+        button.name &&
+        button.value &&
+        !form.querySelector(
+            `input[type="hidden"][name="${CSS.escape(button.name)}"][data-temp-submit-field]`,
+        )
+    ) {
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        hidden.name = button.name;
+        hidden.value = button.value;
+        hidden.dataset.tempSubmitField = "true";
+        form.appendChild(hidden);
+    }
+
+    const loadingText = customText || getButtonLoadingText(button);
+
+    const spinner = button.querySelector(".btn-spinner");
+    const icon = button.querySelector(".btn-icon, i:not(.btn-spinner)");
+    const textEl = button.querySelector(".btn-text");
+
+    if (spinner && textEl) {
+        button.dataset.originalText = textEl.textContent;
+        textEl.textContent = loadingText;
+        spinner.classList.remove("d-none");
+        if (icon) {
+            icon.classList.add("d-none");
+        }
+    } else {
+        button.dataset.originalHtml = button.innerHTML;
+        button.innerHTML = `<span class="spinner-border spinner-border-sm me-1 btn-spinner" role="status" aria-hidden="true"></span><span class="btn-text">${escapeHtml(loadingText)}</span>`;
+    }
+
+    setTimeout(() => {
+        if (button.dataset.buttonIsLoading === "true") {
+            button.disabled = true;
+        }
+    }, 0);
+}
+
+function resetButtonLoading(button) {
+    if (!button || button.dataset.buttonIsLoading !== "true") {
+        return;
+    }
+
+    delete button.dataset.buttonIsLoading;
+    button.removeAttribute("aria-busy");
+    button.disabled = false;
+    button.classList.remove("disabled");
+    button.style.pointerEvents = "";
+
+    const form = button.form || button.closest("form");
+    if (form) {
+        form.querySelectorAll("input[data-temp-submit-field]").forEach((el) =>
+            el.remove(),
+        );
+    }
+
+    const spinner = button.querySelector(".btn-spinner");
+    const icon = button.querySelector(".btn-icon, i:not(.btn-spinner)");
+    const textEl = button.querySelector(".btn-text");
+
+    if (button.dataset.originalHtml) {
+        button.innerHTML = button.dataset.originalHtml;
+        delete button.dataset.originalHtml;
+    } else if (spinner && textEl) {
+        spinner.classList.add("d-none");
+        if (icon) {
+            icon.classList.remove("d-none");
+        }
+        if (button.dataset.originalText !== undefined) {
+            textEl.textContent = button.dataset.originalText;
+            delete button.dataset.originalText;
+        }
+    }
 }
 
 let passwordTogglesInitialized = false;
@@ -1823,6 +2025,53 @@ function boot() {
     initPasswordToggles();
     initImagePreviews();
     initAllFileUploadZones();
+
+    // Global fallback for any forms submitted without data-form-validate
+    document.addEventListener("submit", (event) => {
+        const form = event.target;
+        if (!form || !(form instanceof HTMLFormElement)) return;
+        if (form.dataset.formValidate !== undefined) return;
+        if (event.defaultPrevented) return;
+        if (typeof form.checkValidity === "function" && !form.checkValidity()) return;
+
+        const submitButton =
+            event.submitter ||
+            form.querySelector(
+                '[data-save-button], .btn-submit, button[type="submit"]',
+            );
+
+        if (submitButton && !submitButton.matches("[data-no-loading]")) {
+            setButtonLoading(submitButton);
+        }
+    });
+
+    // Reset buttons when navigating via bfcache (back/forward cache)
+    window.addEventListener("pageshow", (event) => {
+        if (event.persisted) {
+            document
+                .querySelectorAll(
+                    '[data-save-button], .btn-submit, button[type="submit"], [data-wizard-draft]',
+                )
+                .forEach((btn) => resetButtonLoading(btn));
+
+            document.querySelectorAll("form").forEach((form) => {
+                const state = formStates.get(form);
+                if (state) state.isSubmitting = false;
+            });
+        }
+    });
+
+    // Reset buttons when a modal closes
+    document.addEventListener("hidden.bs.modal", (event) => {
+        const modal = event.target;
+        if (modal instanceof HTMLElement) {
+            modal
+                .querySelectorAll(
+                    '[data-save-button], .btn-submit, button[type="submit"]',
+                )
+                .forEach((btn) => resetButtonLoading(btn));
+        }
+    });
 }
 
 if (document.readyState === "loading") {
@@ -1844,4 +2093,7 @@ window.SharedFormValidation = {
     clearFieldError,
     updateStepNextButton,
     isStepValid,
+    setButtonLoading,
+    resetButtonLoading,
+    getButtonLoadingText,
 };

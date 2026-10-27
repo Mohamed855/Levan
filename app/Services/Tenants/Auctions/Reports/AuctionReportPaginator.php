@@ -9,12 +9,10 @@ use InvalidArgumentException;
 final class AuctionReportPaginator
 {
     /** @param array<string, mixed> $templates */
-    public function __construct(private readonly array $templates = [])
-    {
-    }
+    public function __construct(private readonly array $templates = []) {}
 
     /**
-     * @param array<string, mixed> $snapshot
+     * @param  array<string, mixed>  $snapshot
      * @return list<array{page_type: string, page_number: int, payload: array<string, mixed>}>
      */
     public function paginate(array $snapshot, string $type): array
@@ -88,7 +86,7 @@ final class AuctionReportPaginator
 
         $evidence = $snapshot['evidence'] ?? [];
         $pages = array_merge($pages, $this->boardPages('asir-board-installation', $evidence['board_before'] ?? [], 'board_before'));
-        foreach (['brochure' => 24, 'platform' => 3, 'video' => 5, 'x' => 8, 'whatsapp' => 2] as $section => $capacity) {
+        foreach (['brochure' => 24, 'platform' => 2, 'video' => 3, 'x' => 7, 'whatsapp' => 1] as $section => $capacity) {
             $pages = array_merge($pages, $this->mediaPages('asir-'.$section, [$section => $evidence[$section] ?? []], [$section => $capacity]));
         }
         $pages = array_merge($pages,
@@ -110,7 +108,7 @@ final class AuctionReportPaginator
     }
 
     /** @param list<array<string, mixed>> $properties
-     * @param array{sold_results: int, unsold_results: int} $capacities
+     * @param  array{sold_results: int, unsold_results: int}  $capacities
      * @return list<array{page_type: string, payload: array<string, mixed>}>
      */
     private function pairedResultPages(string $prefix, array $properties, array $capacities): array
@@ -131,7 +129,7 @@ final class AuctionReportPaginator
     }
 
     /** @param list<array<string, mixed>> $properties
-     * @param array{sold_results: int, unsold_results: int} $capacities
+     * @param  array{sold_results: int, unsold_results: int}  $capacities
      * @return list<array{page_type: string, payload: array<string, mixed>}>
      */
     private function separateResultPages(string $prefix, array $properties, array $capacities): array
@@ -186,7 +184,7 @@ final class AuctionReportPaginator
     }
 
     /** @param array<string, list<array<string, mixed>>> $sections
-     * @param array<string, int> $capacities
+     * @param  array<string, int>  $capacities
      * @return list<array{page_type: string, payload: array<string, mixed>}>
      */
     private function mediaPages(string $type, array $sections, array $capacities): array

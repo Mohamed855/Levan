@@ -71,7 +71,7 @@
             </li>
         @endcanany
 
-        <li class="menu-header small">
+        {{-- <li class="menu-header small">
             <span class="menu-header-text">القوالب</span>
         </li>
 
@@ -82,7 +82,7 @@
                     <div>قوالب المزادات</div>
                 </a>
             </li>
-        @endcan
+        @endcan --}}
 
         <li class="menu-header small">
             <span class="menu-header-text">الباقات والعروض</span>

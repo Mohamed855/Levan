@@ -36,7 +36,9 @@ foreach (['haram' => 'outputs', 'asir' => 'report'] as $design => $type) {
     }
     $html = app(AuctionReportRenderer::class)->html($snapshot, $type);
     file_put_contents($output.'/'.$design.'.html', $html);
-    if (! in_array('--html-only', $argv, true)) {
+    if (in_array('--png-only', $argv, true)) {
+        app(BrowserDocumentRenderer::class)->png($html, $output.'/'.$design.'.png');
+    } elseif (! in_array('--html-only', $argv, true)) {
         app(BrowserDocumentRenderer::class)->pdf($html, $output.'/'.$design.'.pdf');
     }
     preg_match_all('/data-page-type="([^"]+)"/', $html, $matches);

@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Tenants\Auctions;
 
+use App\Http\Middleware\Tenancy\CheckSubscription;
+use App\Http\Middleware\Tenancy\EnsureTenantTwoFactorIsEnforced;
+use App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense;
 use App\Models\Admin\Tenants\Tenant;
+use App\Models\Tenants\Assignments\Assignment;
+use App\Models\Tenants\Auctions\Auction;
+use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -12,6 +18,42 @@ use Tests\Support\TenantAuctionReportTestCase;
 
 final class AuctionReportIsolationTest extends TenantAuctionReportTestCase
 {
+    public function test_authorized_user_downloads_both_private_pdfs_through_the_tenant_endpoint(): void
+    {
+        $this->withoutMiddleware([
+            CheckSubscription::class,
+            EnsureUserHasActiveLicense::class,
+            EnsureTenantTwoFactorIsEnforced::class,
+        ]);
+        Storage::fake('tenant_private');
+        Storage::fake('tenant_public');
+        $assignment = Assignment::query()->create(['assignment_number' => 'DOWNLOAD-'.uniqid(), 'name' => 'إسناد تنزيل', 'issuing_entity' => 'جهة اختبار', 'is_active' => true]);
+        $auction = Auction::query()->create([
+            'assignment_id' => $assignment->id, 'name' => 'مزاد تنزيل خاص', 'start_date' => now()->toDateString(),
+            'end_date' => now()->addDay()->toDateString(), 'type' => 'electronic', 'category' => 'lands',
+            'city' => 'الرياض', 'status' => 'completed', 'is_active' => false,
+        ]);
+        $auction->reportGenerations()->create([
+            'revision_token' => 'download-'.uniqid(), 'status' => 'ready', 'snapshot' => [],
+            'outputs_path' => 'auction-reports/download/outputs.pdf', 'report_path' => 'auction-reports/download/report.pdf',
+        ]);
+        $owner = User::query()->where('email', 'demo@levan.com')->firstOrFail();
+        self::assertTrue($auction->fresh()->latestReportGeneration->isReady());
+        foreach (['outputs' => 'مخرجات', 'report' => 'تقرير'] as $type => $label) {
+            Storage::disk('tenant_private')->put('auction-reports/download/'.$type.'.pdf', '%PDF-'.$type);
+            $response = $this->actingAs($owner, 'tenant')->get('http://test.localhost/auctions/'.$auction->id.'/reports/download/'.$type);
+            $response->assertOk()->assertDownload();
+            self::assertStringContainsString(rawurlencode($label.'-مزاد-'.$auction->id.'.pdf'), $response->headers->get('Content-Disposition'));
+            self::assertSame('%PDF-'.$type, $response->streamedContent());
+            Storage::disk('tenant_public')->assertMissing('auction-reports/download/'.$type.'.pdf');
+        }
+        $viewer = User::query()->create([
+            'name' => 'دون صلاحية تقارير', 'email' => 'no-report-'.uniqid().'@levan.test',
+            'password' => bcrypt('Password123!'), 'status' => 'active',
+        ]);
+        $this->actingAs($viewer, 'tenant')->get('http://test.localhost/auctions/'.$auction->id.'/reports/download/outputs')->assertForbidden();
+    }
+
     public function test_report_download_and_retry_routes_are_tenant_scoped(): void
     {
         self::assertTrue(Route::has('path.auctions.reports.download'));

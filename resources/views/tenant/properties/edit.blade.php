@@ -422,36 +422,40 @@
             {{-- الخطوة 5: المراجعة والحفظ --}}
             <x-form.wizard.step id="property-review-validation" :fields="[]">
                 <div class="row g-4 assignment-review">
-                    <div class="col-lg-9 d-flex flex-column gap-4">
-                        <x-form.wizard.review-card title="البيانات الأساسية" step="1" body-id="review-basic"
-                            class="assignment-review__card" />
-                        <x-form.wizard.review-card title="الموقع والحدود" step="2" body-id="review-location"
-                            class="assignment-review__card" />
-                        <x-form.wizard.review-card title="الملكية والتفاصيل" step="3" body-id="review-ownership"
-                            class="assignment-review__card" />
-                        <x-form.wizard.review-card title="الملفات والمستندات" step="4" body-id="review-files"
-                            class="assignment-review__card">
-                            <div id="review-files" class="assignment-file-list"></div>
-                        </x-form.wizard.review-card>
-                        <div class="card assignment-review__card">
-                            <div class="card-body">
-                                <x-form.controls.textarea name="notes" label="ملاحظات إضافية (اختياري)"
-                                    placeholder="أدخل أي ملاحظات إدارية أو توجيهات إضافية للعقار..." :required="false"
-                                    col="col-md-6" rows="3" />
+                    <div class="col-12 d-flex flex-column gap-4">
+                        <div class="alert alert-warning mb-0 d-flex align-items-center gap-2" role="alert">
+                            <i class="ti ti-alert-triangle fs-3" aria-hidden="true"></i>
+                            <span>برجاء مراجعة بيانات العقار وموقعه وحدوده وملكيته ومرفقاته قبل الحفظ النهائي.</span>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-lg-6">
+                                <x-form.wizard.review-card title="البيانات الأساسية" step="1" body-id="review-basic" col=""
+                                    class="h-100 assignment-review__card" />
+                            </div>
+                            <div class="col-lg-6">
+                                <x-form.wizard.review-card title="الموقع والحدود" step="2" body-id="review-location" col=""
+                                    class="h-100 assignment-review__card" />
+                            </div>
+                            <div class="col-lg-6">
+                                <x-form.wizard.review-card title="الملكية والتفاصيل" step="3" body-id="review-ownership" col=""
+                                    class="h-100 assignment-review__card" />
+                            </div>
+                            <div class="col-lg-6">
+                                <x-form.wizard.review-card title="الملفات والمستندات" step="4" body-id="review-files" col=""
+                                    class="h-100 assignment-review__card">
+                                    <div id="review-files" class="assignment-file-list"></div>
+                                </x-form.wizard.review-card>
+                            </div>
+                            <div class="col-12">
+                                <div class="card assignment-review__card">
+                                    <div class="card-body">
+                                        <x-form.controls.textarea name="notes" label="ملاحظات إضافية (اختياري)"
+                                            placeholder="أدخل أي ملاحظات إدارية أو توجيهات إضافية للعقار..." :required="false"
+                                            col="col-12" rows="3" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-3">
-                        <article class="card assignment-preview h-100">
-                            <img id="review-image"
-                                src="{{ $property->main_image ? tasset($property->main_image) : asset('static/brand/logos/logo.svg') }}"
-                                alt="معاينة صورة العقار" class="assignment-preview__image">
-                            <div class="card-body">
-                                <h5 id="review-name">{{ $property->name }}</h5>
-                                <p id="review-description" class="text-muted mb-0">
-                                    {{ $property->short_description ?: 'وصف العقار' }}</p>
-                            </div>
-                        </article>
                     </div>
                 </div>
 

@@ -14,13 +14,39 @@ class StoreClientRequest extends WizardFormRequest
         return (bool) ($this->user('admin')?->can('clients.create') || $this->user('admin')?->can('companies.create'));
     }
 
+    protected function prepareForValidation(): void
+    {
+        $normalizeDigits = static function (?string $val): string {
+            if ($val === null) {
+                return '';
+            }
+            $arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+            $western = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+            return trim(str_replace($arabic, $western, $val));
+        };
+
+        $updates = [];
+        if ($this->has('commercial_number')) {
+            $updates['commercial_number'] = $normalizeDigits($this->input('commercial_number'));
+        }
+        if ($this->has('tax_number')) {
+            $updates['tax_number'] = $normalizeDigits($this->input('tax_number'));
+        }
+        if ($this->has('phone')) {
+            $updates['phone'] = $normalizeDigits($this->input('phone'));
+        }
+
+        $this->merge($updates);
+    }
+
     public function rules(): array
     {
         return [
             // Step 1: Client details
             'company_name' => ['required', 'string', 'max:255', 'unique:tenants,company_name'],
-            'commercial_number' => ['required', 'string', 'digits:10', 'unique:tenants,commercial_number'],
-            'tax_number' => ['required', 'string', 'digits:15', 'regex:/^3\d{14}$/', 'unique:tenants,tax_number'],
+            'commercial_number' => ['required', 'string', 'digits:10', 'regex:/^\d{10}$/', 'unique:tenants,commercial_number'],
+            'tax_number' => ['required', 'string', 'digits:15', 'regex:/^3\d{13}3$/', 'unique:tenants,tax_number'],
             'city_id' => ['required', 'exists:cities,id'],
             'address' => ['required', 'string', 'max:1000'],
             'email_notifications_enabled' => ['nullable', 'boolean'],
@@ -33,22 +59,10 @@ class StoreClientRequest extends WizardFormRequest
             'email' => ['required', 'email:rfc', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
 
-            // Step 3: Subscription & Payment
+            // Step 3: Subscription
             'plan_id' => ['required', 'exists:plans,id'],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
-            'payment_type' => ['required', 'in:paid,unpaid,trial'],
-            'payment_method' => ['nullable', 'required_if:payment_type,paid', 'in:bank_transfer,online,cash'],
-            'receipt_upload' => [
-                'nullable',
-                Rule::requiredIf(fn () => $this->input('payment_type') === 'paid' && $this->input('payment_method') === 'bank_transfer'),
-                'file',
-                'mimes:jpeg,jpg,png,pdf',
-                'max:5120',
-            ],
-            'has_discount' => ['nullable', 'in:yes,no'],
-            'discount_value' => ['nullable', Rule::requiredIf(fn () => $this->input('has_discount') === 'yes'), 'numeric', 'min:0'],
-            'trial_end_date' => ['nullable', Rule::requiredIf(fn () => $this->input('payment_type') === 'trial'), 'date', 'after_or_equal:start_date'],
             'activate_immediately' => ['nullable', 'boolean'],
         ];
     }
@@ -60,10 +74,11 @@ class StoreClientRequest extends WizardFormRequest
             'company_name.unique' => 'اسم العميل / الشركة غير متاح',
             'commercial_number.required' => 'يرجى إدخال رقم السجل التجاري',
             'commercial_number.digits' => 'رقم السجل التجاري يجب أن يتكون من 10 أرقام',
+            'commercial_number.regex' => 'يجب أن يحتوي رقم السجل التجاري على 10 أرقام فقط',
             'commercial_number.unique' => 'رقم السجل التجاري غير متاح',
             'tax_number.required' => 'يرجى إدخال الرقم الضريبي',
             'tax_number.digits' => 'الرقم الضريبي يجب أن يتكون من 15 رقماً',
-            'tax_number.regex' => 'الرقم الضريبي يجب أن يبدأ بـ 3',
+            'tax_number.regex' => 'الرقم الضريبي يجب أن يتكون من 15 رقمًا، يبدأ بالرقم 3 وينتهي بالرقم 3',
             'tax_number.unique' => 'الرقم الضريبي غير متاح',
             'city_id.required' => 'يرجى اختيار المدينة',
             'address.required' => 'يرجى إدخال العنوان',
@@ -87,17 +102,6 @@ class StoreClientRequest extends WizardFormRequest
             'end_date.required' => 'يرجى تحديد تاريخ النهاية',
             'end_date.date' => 'تاريخ النهاية يجب أن يكون تاريخاً صالحاً',
             'end_date.after_or_equal' => 'تاريخ النهاية يجب أن يكون بعد تاريخ البداية أو مساوياً له',
-            'payment_type.required' => 'يرجى تحديد حالة الدفع',
-            'payment_method.required_if' => 'يرجى اختيار وسيلة الدفع',
-            'receipt_upload.required' => 'يرجى رفع إيصال التحويل البنكي',
-            'receipt_upload.file' => 'يجب أن يكون الإيصال ملفاً صالحاً',
-            'receipt_upload.mimes' => 'ملف الإيصال يجب أن يكون صورة أو PDF',
-            'receipt_upload.max' => 'حجم ملف الإيصال يجب ألا يتجاوز 5 ميجابايت',
-            'discount_value.required' => 'يرجى إدخال قيمة الخصم أو التسوية',
-            'discount_value.numeric' => 'قيمة الخصم يجب أن تكون رقماً',
-            'discount_value.min' => 'قيمة الخصم لا يمكن أن تكون سالبة',
-            'trial_end_date.required' => 'يرجى تحديد تاريخ انتهاء الفترة التجريبية',
-            'trial_end_date.after_or_equal' => 'تاريخ نهاية التجربة يجب أن يكون بعد تاريخ البداية أو مساوياً له',
         ];
     }
 
@@ -117,12 +121,7 @@ class StoreClientRequest extends WizardFormRequest
             'plan_id' => 'الباقة',
             'start_date' => 'تاريخ البداية',
             'end_date' => 'تاريخ النهاية',
-            'payment_type' => 'حالة الدفع',
-            'payment_method' => 'وسيلة الدفع',
-            'receipt_upload' => 'إيصال التحويل البنكي',
-            'has_discount' => 'الخصم أو التسوية',
-            'discount_value' => 'قيمة الخصم',
-            'trial_end_date' => 'تاريخ نهاية التجربة',
+            'activate_immediately' => 'تفعيل الاشتراك فوراً',
         ];
     }
 }

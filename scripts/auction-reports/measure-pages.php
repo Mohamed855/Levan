@@ -24,6 +24,12 @@ foreach (['node_binary' => 'setNodeBinary', 'npm_binary' => 'setNpmBinary', 'chr
         $browser->{$method}($value);
     }
 }
+if (in_array('--audit-network', $argv, true)) {
+    $requests = $browser->triggeredRequests() ?? [];
+    $remote = array_values(array_filter($requests, static fn (array $request): bool => preg_match('~^https?://~i', $request['url']) === 1));
+    echo json_encode(['remote_requests' => count($remote)], JSON_THROW_ON_ERROR).PHP_EOL;
+    exit($remote === [] ? 0 : 1);
+}
 if (in_array('--audit-images', $argv, true)) {
     echo $browser->evaluate(<<<'JS'
 (async () => {

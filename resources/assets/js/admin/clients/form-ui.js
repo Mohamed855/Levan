@@ -11,48 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const plans = window.companyPlans || [];
-    const paymentType = form.querySelector('[name="payment_type"]');
-    const paymentMethod = form.querySelector('[name="payment_method"]');
-    const discountType = form.querySelector('[name="has_discount"]');
     const planId = form.querySelector('[name="plan_id"]');
     const startDate = form.querySelector('[name="start_date"]');
-
-    const setFieldVisibility = (fieldName, visible) => {
-        const wrapper = form.querySelector(
-            '[data-form-field][data-field-name="' + fieldName + '"]',
-        );
-        const control = form.querySelector(
-            '[data-form-control][name="' + fieldName + '"]',
-        );
-
-        if (wrapper) {
-            wrapper.classList.toggle("d-none", !visible);
-        }
-
-        if (control) {
-            control.disabled = !visible;
-            if (window.jQuery && control.tagName === "SELECT") {
-                window.jQuery(control).trigger("change.select2");
-            }
-        }
-    };
-
-    const syncPaymentFields = () => {
-        const isPaid = paymentType?.value === "paid";
-        const isTrial = paymentType?.value === "trial";
-        const isBankTransfer =
-            isPaid && paymentMethod?.value === "bank_transfer";
-
-        setFieldVisibility("payment_method", isPaid);
-        setFieldVisibility("receipt_upload", isBankTransfer);
-        setFieldVisibility("trial_end_date", isTrial);
-        form.dispatchEvent(new Event("input", { bubbles: true }));
-    };
-
-    const syncDiscountField = () => {
-        setFieldVisibility("discount_value", discountType?.value === "yes");
-        form.dispatchEvent(new Event("input", { bubbles: true }));
-    };
 
     const formatDate = (date) => {
         const year = date.getFullYear();
@@ -156,11 +116,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const selectedPlan = plans.find(
             (plan) => String(plan.id) === String(planId?.value),
         );
-        const paymentLabels = {
-            paid: "تم الدفع",
-            unpaid: "لم يتم الدفع",
-            trial: "فترة تجربة",
-        };
 
         setReviewValue(
             "review-client-name",
@@ -201,16 +156,6 @@ document.addEventListener("DOMContentLoaded", () => {
             "review-end-date",
             form.querySelector('[name="end_date"]')?.value,
         );
-        setReviewValue(
-            "review-payment-status",
-            paymentLabels[paymentType?.value] || "-",
-        );
-        setReviewValue(
-            "review-payment-method",
-            paymentType?.value === "paid"
-                ? selectedText("payment_method")
-                : "-",
-        );
 
         const reviewActivation = document.getElementById(
             "review-activation-status",
@@ -219,11 +164,16 @@ document.addEventListener("DOMContentLoaded", () => {
             const isImmediate = form.querySelector(
                 '[name="activate_immediately"]',
             )?.checked;
-            reviewActivation.className =
+            const badgeClass =
                 "badge " + (isImmediate ? "bg-success" : "bg-warning");
-            reviewActivation.textContent = isImmediate
-                ? "مفعل فوراً"
-                : "قيد المراجعة";
+            const badgeText = isImmediate ? "نشط ومفعل" : "معلق";
+
+            if (reviewActivation.tagName === "DD") {
+                reviewActivation.innerHTML = `<span class="${badgeClass}">${badgeText}</span>`;
+            } else {
+                reviewActivation.className = badgeClass;
+                reviewActivation.textContent = badgeText;
+            }
         }
 
         setReviewValue(
@@ -245,8 +195,8 @@ document.addEventListener("DOMContentLoaded", () => {
             previewStatus.className =
                 "badge " + (isImmediate ? "bg-success" : "bg-warning");
             previewStatus.textContent = isImmediate
-                ? "مفعل فوراً"
-                : "قيد المراجعة";
+                ? "نشط ومفعل"
+                : "معلق";
         }
     };
 
@@ -264,9 +214,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
-    paymentType?.addEventListener("change", syncPaymentFields);
-    paymentMethod?.addEventListener("change", syncPaymentFields);
-    discountType?.addEventListener("change", syncDiscountField);
     planId?.addEventListener("change", syncEndDate);
     if (window.jQuery && planId) {
         window.jQuery(planId).on("change", syncEndDate);
@@ -287,8 +234,6 @@ document.addEventListener("DOMContentLoaded", () => {
         updateReview,
     );
 
-    syncPaymentFields();
-    syncDiscountField();
     syncEndDate();
     updateReview();
 });

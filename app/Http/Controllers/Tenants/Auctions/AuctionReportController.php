@@ -67,7 +67,7 @@ final class AuctionReportController extends Controller
         abort_unless(
             $generation?->isReady() && filled($generation->outputs_path),
             404,
-            'ملف مخرجات المزاد غير متوفر بعد أو لم يكتمل التجهيز.',
+            'ملف مخرجات المزاد غير متوفر بعد أو لم يكتمل الإعداد.',
         );
 
         abort_unless(
@@ -93,7 +93,7 @@ final class AuctionReportController extends Controller
         abort_unless(
             $generation?->isReady() && filled($generation->report_path),
             404,
-            'ملف تقرير المزاد غير متوفر بعد أو لم يكتمل التجهيز.',
+            'ملف تقرير المزاد غير متوفر بعد أو لم يكتمل الإعداد.',
         );
 
         abort_unless(

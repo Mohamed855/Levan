@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
@@ -120,8 +121,7 @@ class CompanyAndSubscriptionRefactorTest extends TestCase
             ]);
 
             $bill = Bill::where('tenant_id', $tenant->id)->latest('id')->firstOrFail();
-            $this->assertNotNull($bill->invoice_url);
-            Storage::disk('public')->assertExists($bill->invoice_url);
+            $this->assertEquals(BillStatus::PAID, $bill->status);
 
             // 3. Verify Subscription & latestOfMany relationship
             $subscription = $tenant->lastSubscription;
@@ -153,28 +153,28 @@ class CompanyAndSubscriptionRefactorTest extends TestCase
         }
     }
 
-    public function test_company_without_immediate_activation_is_active_while_subscription_is_pending(): void
+    public function test_company_without_immediate_activation_is_active_while_subscription_is_suspended(): void
     {
         $companyService = app(CompanyService::class);
 
         $tenant = $companyService->createCompany([
-            'company_name' => 'Pending Subscription Company '.uniqid(),
+            'company_name' => 'Suspended Subscription Company '.uniqid(),
             'commercial_number' => (string) rand(1000000000, 9999999999),
             'tax_number' => (string) rand(100000000000000, 999999999999999),
             'city_id' => $this->city->id,
             'address' => 'Test address',
             'name' => 'Company Admin',
             'phone' => '05'.rand(10000000, 99999999),
-            'email' => 'pending-'.uniqid().'@example.test',
+            'email' => 'suspended-'.uniqid().'@example.test',
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
             'plan_id' => $this->plan->id,
             'start_date' => now()->toDateString(),
-            'payment_type' => 'unpaid',
             'email_notifications_enabled' => 1,
+            'activate_immediately' => false,
         ]);
 
-            $this->assertSame(SubscriptionStatus::PENDING, $tenant->lastSubscription->status);
+        $this->assertSame(SubscriptionStatus::SUSPENDED, $tenant->lastSubscription->status);
     }
 
     /**

@@ -25,6 +25,8 @@ def pdf_contract(path, count, dimensions):
                 if descriptor:
                     descriptor = descriptor.get_object()
                     fonts[str(font.get("/BaseFont"))] = any(k in descriptor for k in ["/FontFile", "/FontFile2", "/FontFile3"])
+                else:
+                    fonts[str(font.get("/BaseFont", font.get("/Subtype")))] = False
     sizes = [[float(p.mediabox.width), float(p.mediabox.height)] for p in reader.pages]
     return {
         "pages": len(reader.pages), "sizes": sizes, "fonts": fonts,
@@ -81,8 +83,20 @@ def compare(root, design, count, target):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("reference_directory",type=Path)
+parser.add_argument("reference_directory",type=Path,nargs="?")
+parser.add_argument("--pdf",type=Path)
+parser.add_argument("--pages",type=int)
+parser.add_argument("--width",type=float)
+parser.add_argument("--height",type=float)
 args = parser.parse_args()
+if args.pdf:
+    if any(v is None for v in [args.pages,args.width,args.height]):
+        parser.error("--pdf requires --pages, --width and --height")
+    contract = pdf_contract(args.pdf,args.pages,(args.width,args.height))
+    print(json.dumps(contract,indent=2))
+    raise SystemExit(0 if contract["pass"] and contract["extractable_characters"] > 0 else 1)
+if args.reference_directory is None:
+    parser.error("Provide a reference directory or --pdf")
 root = Path(__file__).resolve().parents[2]
 target = root / "output/pdf/reference-comparison"
 target.mkdir(parents=True,exist_ok=True)

@@ -80,10 +80,7 @@
                                 <x-form.wizard.previous-button :href="tenant_route_name('tickets.index')" text="العودة" />
                                 <div class="d-flex gap-2">
                                     <x-form.wizard.draft-button />
-                                    <button type="submit" class="btn btn-primary btn-submit">
-                                        <i class="bx bx-save me-1"></i>
-                                        <span>حفظ </span>
-                                    </button>
+                                    <x-form.wizard.save-button />
                                 </div>
                             </div>
                         </div>

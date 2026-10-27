@@ -6,6 +6,7 @@ namespace App\Services\Admin\Companies;
 
 use App\Enums\Admin\Billing\BillType;
 use App\Enums\Admin\Billing\PaymentMethod;
+use App\Enums\Admin\PublicRequests\TrialRequestStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\Plans\Plan;
@@ -37,6 +38,22 @@ class CompanyService
     {
         $baseQuery = Tenant::query();
 
+        $trialCount = (clone $baseQuery)->where(function ($query) {
+            $query->whereHas('subscriptions', function ($subQuery) {
+                $subQuery->where('status', SubscriptionStatus::TRIAL)
+                    ->where(function ($dateQuery) {
+                        $dateQuery->where('ends_at', '>=', now())
+                            ->orWhere('trial_end_date', '>=', now()->toDateString());
+                    });
+            })->orWhereIn('id', function ($subQuery) {
+                $subQuery->select('tenant_id')
+                    ->from('trial_requests')
+                    ->where('status', TrialRequestStatus::APPROVED->value)
+                    ->whereNotNull('tenant_id')
+                    ->where('processed_at', '>=', now()->subDays(7));
+            });
+        })->count();
+
         return [
             'total' => (clone $baseQuery)->count(),
             'active' => (clone $baseQuery)->whereHas('lastSubscription', function ($query) {
@@ -56,19 +73,13 @@ class CompanyService
                 $query->where('status', SubscriptionStatus::PENDING);
             })->count(),
             'withoutSubscription' => (clone $baseQuery)->whereDoesntHave('subscriptions')->count(),
+            'trial' => $trialCount,
         ];
     }
 
     public function createCompany(array $data): Tenant
     {
-        $receiptPath = null;
-
         try {
-            if (($data['receipt_upload'] ?? null) instanceof UploadedFile) {
-                $receiptPath = $data['receipt_upload']->store('company_receipts', 'public');
-                $data['receipt_path'] = $receiptPath;
-            }
-
             $plan = Plan::findOrFail($data['plan_id']);
             $totalUsers = $plan->included_users;
             $data['total_users'] = $totalUsers;
@@ -93,21 +104,15 @@ class CompanyService
                 'external_integrations_enabled' => ! empty($data['external_integrations_enabled']),
             ];
 
-            $discount = (($data['has_discount'] ?? 'no') === 'yes') ? (float) ($data['discount_value'] ?? 0) : 0;
-            $amount = ($data['payment_type'] ?? '') === 'trial' ? 0.00 : max(0.00, (float) $plan->price_after_discount - $discount);
-
-            $paymentMethod = null;
-            if (($data['payment_type'] ?? '') === 'paid' && ! empty($data['payment_method'])) {
-                $paymentMethod = PaymentMethod::tryFrom($data['payment_method']);
-            }
+            $amount = (float) $plan->price_after_discount;
 
             $bill = $this->billService->createPendingBill(
                 amount: $amount,
-                paymentMethod: $paymentMethod,
+                paymentMethod: null,
                 originalAmount: (float) $plan->price_after_discount,
                 type: BillType::NEW_SUBSCRIPTION,
                 couponData: [
-                    'discount_amount' => $discount,
+                    'discount_amount' => 0,
                     'coupon_id' => null,
                     'coupon_code' => null,
                     'coupon_value' => null,
@@ -132,10 +137,6 @@ class CompanyService
 
             return $tenant;
         } catch (\Throwable $exception) {
-            if ($receiptPath !== null) {
-                Storage::disk('public')->delete($receiptPath);
-            }
-
             throw $exception;
         }
     }

@@ -268,8 +268,21 @@ async function restoreDraft(form) {
   }
   syncSelects(form);
 
-  const step = Number(draft.step || 1);
-  stepperFor(form)?.to(Math.max(0, step - 1));
+  let targetStep = Math.max(1, Number(draft.step || 1));
+  const passwordInput = form.querySelector('input[type="password"]:not([disabled])');
+  if (passwordInput) {
+    const wizard = wizardFor(form);
+    const panes = wizard ? [...wizard.querySelectorAll('.content, .bs-stepper-pane, [data-form-step]')] : [];
+    const passwordPane = passwordInput.closest('.content, .bs-stepper-pane, [data-form-step]');
+    const paneIndex = panes.indexOf(passwordPane);
+    if (paneIndex >= 0) {
+      targetStep = paneIndex + 1;
+    }
+  }
+  stepperFor(form)?.to(Math.max(0, targetStep - 1));
+  if (passwordInput) {
+    setTimeout(() => passwordInput.focus?.(), 300);
+  }
 }
 
 async function saveDraft(form, pane, notify = true) {

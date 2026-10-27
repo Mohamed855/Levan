@@ -14,6 +14,7 @@ final class AuctionReportRenderer
         private readonly HaramReportData $haramData,
         private readonly AsirReportData $asirData,
         private readonly AuctionReportTextLayout $textLayout,
+        private readonly AuctionReportMedia $media,
     ) {}
 
     /** @param array<string, mixed> $snapshot */
@@ -26,6 +27,7 @@ final class AuctionReportRenderer
         }
 
         $design = $type === 'outputs' ? 'haram' : 'asir';
+        $snapshot = $this->media->prepare($snapshot);
         $pageData = $type === 'outputs' ? $this->haramData : $this->asirData;
         $pages = [];
         foreach ($this->paginator->paginate($snapshot, $type) as $page) {

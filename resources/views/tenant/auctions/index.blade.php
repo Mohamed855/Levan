@@ -40,7 +40,7 @@
                 color="primary" />
             <x-ui.stat-card title="مزادات نشطة" :value="$activeAuctions" subtitle="قيد التنفيذ حالياً" icon="ti-player-play"
                 color="success" />
-            <x-ui.stat-card title="قيد الإعداد" :value="$inPreparationAuctions" subtitle="تحت التجهيز" icon="ti-clock" color="warning" />
+            <x-ui.stat-card title="قيد الإعداد" :value="$inPreparationAuctions" subtitle="تحت الإعداد" icon="ti-clock" color="warning" />
             <x-ui.stat-card title="بانتظار الاعتماد" :value="$pendingAuctions" subtitle="في انتظار المراجعة" icon="ti-file-check"
                 color="info" />
             <x-ui.stat-card title="تحتاج مراجعة" :value="$needsReviewAuctions" subtitle="مزادات معلقة" icon="ti-alert-triangle"
@@ -55,7 +55,8 @@
                     placeholder="جميع الحالات" :enum="\App\Enums\Tenants\Auctions\AuctionStatus::class" />
                 <x-filter.select id="filter-assignment" filterKey="assignment_id" table="#auctions-table" label="الإسناد"
                     placeholder="جميع الإسنادات" :options="$assignments->pluck('name', 'id')->all()" />
-                <x-filter.date id="filter-start-date" filterKey="start_date" target="#auctions-table" label="تاريخ البداية" />
+                <x-filter.date id="filter-start-date" filterKey="start_date" target="#auctions-table"
+                    label="تاريخ البداية" />
                 <x-filter.date id="filter-end-date" filterKey="end_date" target="#auctions-table" label="تاريخ النهاية" />
                 <x-filter.select id="filter-city" filterKey="city" table="#auctions-table" label="المدينة"
                     placeholder="جميع المدن" :options="$cityOptions" />

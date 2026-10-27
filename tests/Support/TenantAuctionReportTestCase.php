@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
+use App\Http\Middleware\Tenancy\EnsureTenantTwoFactorIsEnforced;
 use App\Models\Admin\Tenants\Tenant;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -16,6 +17,10 @@ abstract class TenantAuctionReportTestCase extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // This middleware switches to central and reconnects the tenant DB,
+        // discarding uncommitted report fixtures before HTTP assertions run.
+        $this->withoutMiddleware(EnsureTenantTwoFactorIsEnforced::class);
 
         DB::connection('mysql')->beginTransaction();
 

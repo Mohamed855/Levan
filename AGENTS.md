@@ -172,9 +172,10 @@
     -   Stepper indicators must use clean, concise titles without subtitles (`['id' => '...', 'title' => '...']`).
     -   Form steps must use an open full-width grid (`<div class="row g-4">` with `col-md-6` / `col-12`). NEVER introduce artificial sidebar columns (e.g. `col-lg-4` percentage widgets or checklist cards) inside input steps.
     -   Dynamic subtables (boundaries, owners, units, child items) must use `.assignment-properties-table-card` with an explicit card-header, title, dynamic count, primary add button (`btn-sm btn-primary`), and uniform row delete buttons (`btn-icon btn-sm btn-danger`).
-    -   The final review step MUST use the canonical split layout:
-        -   **Right column (`col-lg-9`)**: Review cards using `<x-form.wizard.review-card>` with quick edit buttons (`data-edit-step`) jumping directly to the corresponding step via `bsStepper.to(step)`.
-        -   **Left column (`col-lg-3`)**: Live entity preview card `<article class="card assignment-preview h-100">` with top image (`.assignment-preview__image` aspect-ratio 4:3), entity name, and description.
+    -   **Final Review Step Layout**:
+        -   Must use a full-width container (`.col-12.d-flex.flex-column.gap-4`) starting with a review warning alert (`<div class="alert alert-warning mb-0 d-flex align-items-center gap-2" role="alert"><i class="ti ti-alert-triangle fs-3"></i><span>...</span></div>`).
+        -   Followed by a balanced 2-column card grid (`<div class="row g-3">`), wrapping review cards in `<div class="col-lg-6">` (or `col-12` for full-width child tables/documents/notes) with `<x-form.wizard.review-card title="..." step="..." col="" class="h-100 assignment-review__card">`.
+        -   Card contents must use the standard key-value layout (`<dl class="row mb-0 small"><dt class="col-5 text-muted">...</dt><dd class="col-7 fw-semibold">...</dd></dl>`) with quick edit buttons (`data-edit-step`) jumping directly to the corresponding step via `bsStepper.to(step)`.
     -   **Wizard Actions & Draft Button Grouping**: In all wizard create steps, the draft button (`<x-form.wizard.draft-button />`) and the forward action (`<x-form.wizard.next-button />` or `<x-form.wizard.save-button>`) must be wrapped together inside `<div class="d-flex gap-2">`.
 -   **Show View Layout**:
     -   Must use the **Two-Column Asymmetric Layout**:

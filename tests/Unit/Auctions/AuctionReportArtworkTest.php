@@ -42,6 +42,41 @@ final class AuctionReportArtworkTest extends TestCase
         self::assertStringContainsString('xMidYMid meet', $gallery);
     }
 
+    public function test_multiline_narrative_starts_at_the_original_first_baseline(): void
+    {
+        $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
+        $definition = $artwork->page('haram', 2);
+        $expected = min(array_map(static fn (string $id): float => $definition['fields'][$id]['y'], $definition['groups']['narrative']));
+        $document = new DOMDocument;
+        $document->loadXML($artwork->render('haram', 2, ['narrative' => "السطر الأول\nالسطر الثاني"], [], [], 3));
+        $node = (new DOMXPath($document))->query('//*[@data-report-field="narrative"]')->item(0);
+        self::assertEqualsWithDelta($expected, (float) $node->getAttribute('y'), .001);
+    }
+
+    public function test_missing_asir_media_fits_the_visible_clipped_frame_instead_of_the_original_photo_extent(): void
+    {
+        $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
+        $document = new DOMDocument;
+        $document->loadXML($artwork->render('asir', 8, [], [], [], 9));
+        $node = (new DOMXPath($document))->query('//*[@data-report-contained="board_before:0"]')->item(0);
+        self::assertNotNull($node);
+        self::assertSame('xMidYMid meet', $node->getAttribute('preserveAspectRatio'));
+        self::assertEqualsWithDelta(350.483, (float) $node->getAttribute('x'), .01);
+        self::assertEqualsWithDelta(139.351, (float) $node->getAttribute('width'), .01);
+    }
+
+    public function test_document_pages_use_the_same_visible_frame_without_cropping(): void
+    {
+        $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
+        $uri = 'data:image/png;base64,'.base64_encode('document-page');
+        $document = new DOMDocument;
+        $document->loadXML($artwork->render('asir', 8, [], [], ['board_before' => [['uri' => $uri, 'fit' => 'contain']]], 9));
+        $node = (new DOMXPath($document))->query('//*[@data-report-contained="board_before:0"]')->item(0);
+        self::assertNotNull($node);
+        self::assertSame($uri, $node->getAttributeNS('http://www.w3.org/1999/xlink', 'href'));
+        self::assertSame('xMidYMid meet', $node->getAttribute('preserveAspectRatio'));
+    }
+
     public function test_an_expanded_continuation_row_uses_the_table_body_without_clipping_the_text(): void
     {
         $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');

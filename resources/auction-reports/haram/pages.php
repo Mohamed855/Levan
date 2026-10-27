@@ -208,6 +208,9 @@ return array (
     'image_defs' => 
     array (
     ),
+    'fallback_frames' => 
+    array (
+    ),
     'groups' => 
     array (
       'name' => 
@@ -1989,6 +1992,9 @@ return array (
     'image_defs' => 
     array (
     ),
+    'fallback_frames' => 
+    array (
+    ),
     'groups' => 
     array (
       'manager' => 
@@ -3681,6 +3687,9 @@ return array (
     'image_defs' => 
     array (
     ),
+    'fallback_frames' => 
+    array (
+    ),
     'groups' => 
     array (
       'narrative' => 
@@ -4589,8 +4598,30 @@ return array (
     'image_defs' => 
     array (
     ),
+    'fallback_frames' => 
+    array (
+    ),
     'groups' => 
     array (
+      'snapchat_label' => 
+      array (
+        0 => 'f3',
+        1 => 'f4',
+        2 => 'f5',
+        3 => 'f6',
+      ),
+      'tiktok_label' => 
+      array (
+        0 => 'f7',
+        1 => 'f8',
+        2 => 'f9',
+        3 => 'f10',
+      ),
+      'x_label' => 
+      array (
+        0 => 'f11',
+        1 => 'f12',
+      ),
       'snapchat_impressions' => 
       array (
         0 => 'f13',
@@ -4839,6 +4870,9 @@ return array (
     'image_defs' => 
     array (
     ),
+    'fallback_frames' => 
+    array (
+    ),
     'groups' => 
     array (
       'removal_date' => 
@@ -5079,6 +5113,9 @@ return array (
     'image_defs' => 
     array (
     ),
+    'fallback_frames' => 
+    array (
+    ),
     'groups' => 
     array (
       'broker_1' => 
@@ -5254,6 +5291,9 @@ return array (
     array (
     ),
     'image_defs' => 
+    array (
+    ),
+    'fallback_frames' => 
     array (
     ),
     'groups' => 

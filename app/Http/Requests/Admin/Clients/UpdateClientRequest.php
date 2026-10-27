@@ -13,12 +13,38 @@ class UpdateClientRequest extends FormRequest
         return (bool) ($this->user('admin')?->can('clients.edit') || $this->user('admin')?->can('companies.edit'));
     }
 
+    protected function prepareForValidation(): void
+    {
+        $normalizeDigits = static function (?string $val): string {
+            if ($val === null) {
+                return '';
+            }
+            $arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+            $western = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+            return trim(str_replace($arabic, $western, $val));
+        };
+
+        $updates = [];
+        if ($this->has('commercial_number')) {
+            $updates['commercial_number'] = $normalizeDigits($this->input('commercial_number'));
+        }
+        if ($this->has('tax_number')) {
+            $updates['tax_number'] = $normalizeDigits($this->input('tax_number'));
+        }
+        if ($this->has('primary_contact_phone')) {
+            $updates['primary_contact_phone'] = $normalizeDigits($this->input('primary_contact_phone'));
+        }
+
+        $this->merge($updates);
+    }
+
     public function rules(): array
     {
         return [
             'company_name' => ['required', 'string', 'max:255'],
-            'commercial_number' => ['required', 'string', 'digits:10'],
-            'tax_number' => ['required', 'string', 'digits:15', 'regex:/^3\d{14}$/'],
+            'commercial_number' => ['required', 'string', 'digits:10', 'regex:/^\d{10}$/'],
+            'tax_number' => ['required', 'string', 'digits:15', 'regex:/^3\d{13}3$/'],
             'city_id' => ['required', 'exists:cities,id'],
             'address' => ['required', 'string', 'max:1000'],
             'primary_contact_name' => ['nullable', 'string', 'max:255'],
@@ -36,6 +62,10 @@ class UpdateClientRequest extends FormRequest
             'company_name.required' => 'يرجى إدخال اسم العميل / الشركة',
             'commercial_number.required' => 'يرجى إدخال رقم السجل التجاري',
             'commercial_number.digits' => 'رقم السجل التجاري يجب أن يتكون من 10 أرقام',
+            'commercial_number.regex' => 'يجب أن يحتوي رقم السجل التجاري على 10 أرقام فقط',
+            'tax_number.required' => 'يرجى إدخال الرقم الضريبي',
+            'tax_number.digits' => 'الرقم الضريبي يجب أن يتكون من 15 رقماً',
+            'tax_number.regex' => 'الرقم الضريبي يجب أن يتكون من 15 رقمًا، يبدأ بالرقم 3 وينتهي بالرقم 3',
             'city_id.required' => 'يرجى اختيار المدينة',
             'address.required' => 'يرجى إدخال العنوان',
             'primary_contact_email.email' => 'يرجى إدخال بريد إلكتروني صحيح',

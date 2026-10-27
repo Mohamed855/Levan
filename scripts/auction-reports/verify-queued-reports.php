@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Tenants\Auctions\AuctionReportController;
+use App\Actions\Tenants\Auctions\UpdateAuctionAction;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\UserMangment\User\User;
@@ -16,8 +17,8 @@ ini_set('memory_limit', '768M');
 $app = require dirname(__DIR__, 2).'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 $mode = $argv[1] ?? '';
-if (! in_array($mode, ['--enqueue', '--collect'], true)) {
-    throw new InvalidArgumentException('Use --enqueue or --collect.');
+if (! in_array($mode, ['--enqueue', '--auto-save', '--collect'], true)) {
+    throw new InvalidArgumentException('Use --enqueue, --auto-save or --collect.');
 }
 tenancy()->initialize(Tenant::query()->findOrFail('test'));
 try {
@@ -26,16 +27,21 @@ try {
         mkdir($directory, 0775, true);
     }
     $receiptPath = $directory.'/receipt.json';
-    if ($mode === '--enqueue') {
-        $queue = 'auction-fidelity-'.now()->format('Ymd-His');
+    if (in_array($mode, ['--enqueue', '--auto-save'], true)) {
+        $queue = in_array('--default-queue', $argv, true) ? 'auction-reports' : 'auction-fidelity-'.now()->format('Ymd-His');
         config(['queue.connections.auction_reports.queue' => $queue]);
-        $receipt = ['tenant' => 'test', 'queue' => $queue, 'auctions' => []];
+        $receipt = ['tenant' => 'test', 'queue' => $queue, 'trigger' => $mode === '--auto-save' ? 'UpdateAuctionAction' : 'AuctionReportService', 'auctions' => []];
         foreach (['مزاد جوار الحرم' => [11, 11, 'outputs'], 'واجهة عسير' => [13, 51, 'report']] as $name => [$properties, $attachments, $type]) {
             $auction = Auction::query()->where('name', $name)->withCount(['properties', 'attachments'])->sole();
             if ($auction->properties_count !== $properties || $auction->attachments_count !== $attachments) {
                 throw new RuntimeException('Acceptance input counts changed: '.$name);
             }
-            $generation = app(AuctionReportService::class)->requestGeneration($auction, 'test');
+            if ($mode === '--auto-save') {
+                $auction = app(UpdateAuctionAction::class)->execute($auction, ['description' => $auction->description]);
+                $generation = $auction->latestReportGeneration()->first();
+            } else {
+                $generation = app(AuctionReportService::class)->requestGeneration($auction, 'test');
+            }
             if ($generation === null) {
                 throw new RuntimeException('The report could not be queued.');
             }

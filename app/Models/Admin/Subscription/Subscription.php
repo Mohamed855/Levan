@@ -140,6 +140,12 @@ class Subscription extends Model
     |============================================================================
     |============================================================================
     */
+    // هل الاشتراك نشط
+    public function getIsActiveAttribute(): bool
+    {
+        return $this->status === SubscriptionStatus::ACTIVE;
+    }
+
     // is_expired
     public function getIsExpiredAttribute(): bool
     {

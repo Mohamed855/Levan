@@ -24,8 +24,8 @@ final class AuctionReportArtwork
     public function __construct(private readonly string $root = '') {}
 
     /** @param array<string, string> $values
-     * @param array<string, list<list<string>>> $tables
-     * @param array<string, list<array<string, mixed>>> $images
+     * @param  array<string, list<list<string>>>  $tables
+     * @param  array<string, list<array<string, mixed>>>  $images
      */
     public function render(string $design, int $index, array $values, array $tables, array $images, int $pageNumber, array $tableLayouts = []): string
     {
@@ -47,13 +47,17 @@ final class AuctionReportArtwork
                 continue;
             }
             $frame = $page['image_defs'][$id];
-            $uri = $images[$frame['section']][$frame['slot']]['uri'] ?? null;
+            $item = $images[$frame['section']][$frame['slot']] ?? [];
+            $uri = $item['uri'] ?? null;
             $valid = $this->isImage($uri);
-            $definition->setAttribute('preserveAspectRatio', $valid ? 'xMidYMid slice' : 'xMidYMid meet');
+            $definition->setAttribute('preserveAspectRatio', $valid && ($item['fit'] ?? 'cover') !== 'contain' ? 'xMidYMid slice' : 'xMidYMid meet');
             $definition->setAttributeNS(self::XLINK, 'xlink:href', $valid ? $uri : $this->uri('fallback.svg', 'image/svg+xml'));
             $definition->setAttribute('data-report-media', $frame['section'].':'.$frame['slot']);
             foreach ($xpath->query('//*[@data-image="'.$id.'"]') as $usage) {
                 $usage->setAttribute('data-report-media', $frame['section'].':'.$frame['slot']);
+            }
+            if (! $valid || ($item['fit'] ?? 'cover') === 'contain') {
+                $this->fitInFrame($document, $xpath, $page['fallback_frames'][$id] ?? [], $id, $definition->getAttributeNS(self::XLINK, 'href'), $frame['section'].':'.$frame['slot'], $pageNumber);
             }
         }
 
@@ -66,7 +70,7 @@ final class AuctionReportArtwork
             foreach (['x' => $x, 'y' => $y, 'width' => $right - $x, 'height' => $bottom - $y] as $key => $value) {
                 $image->setAttribute($key, (string) $value);
             }
-            $image->setAttribute('preserveAspectRatio', $valid ? 'xMidYMid slice' : 'xMidYMid meet');
+            $image->setAttribute('preserveAspectRatio', $valid && ($item['fit'] ?? 'cover') !== 'contain' ? 'xMidYMid slice' : 'xMidYMid meet');
             $image->setAttribute('data-report-media', $frame['section'].':'.$frame['slot']);
             $image->setAttributeNS(self::XLINK, 'xlink:href', $valid ? $uri : $this->uri('fallback.svg', 'image/svg+xml'));
             $svg->appendChild($image);
@@ -113,12 +117,45 @@ final class AuctionReportArtwork
                     if ($this->textLayout->height(explode("\n", $value), $field['size'], $field['sy'], $field['font']) > $slot['bottom'] - $slot['top'] + 1) {
                         throw new InvalidArgumentException('A report field exceeds the available continuation page height.');
                     }
-                    $this->text($document, $svg, $field, $value, ['data-report-cell' => $id.':'.$rowIndex.':'.$column], true);
+                    $this->text($document, $svg, $field, $value, ['data-report-cell' => $id.':'.$rowIndex.':'.$column], true, true);
                 }
             }
         }
 
         return $document->saveXML($svg);
+    }
+
+    private function fitInFrame(DOMDocument $document, DOMXPath $xpath, array $frames, string $id, string $uri, string $media, int $pageNumber): void
+    {
+        foreach ($frames as $frame) {
+            $query = $frame['clip'] === null ? '/*' : '//*[@clip-path="url(#report_'.$pageNumber.'_'.$frame['clip'].')"]';
+            foreach ($xpath->query($query) as $container) {
+                $sources = $xpath->query('.//*[@data-image="'.$id.'" and not(ancestor::*[local-name()="defs"])]', $container);
+                if ($sources->length === 0) {
+                    continue;
+                }
+                foreach ($sources as $source) {
+                    $source->setAttribute('visibility', 'hidden');
+                }
+                [$left, $top, $right, $bottom] = $frame['box'];
+                $attributes = ['x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top];
+                foreach (['rect', 'image'] as $tag) {
+                    $node = $document->createElementNS(self::SVG, $tag);
+                    foreach ($attributes as $attribute => $value) {
+                        $node->setAttribute($attribute, (string) $value);
+                    }
+                    if ($tag === 'rect') {
+                        $node->setAttribute('fill', '#ffffff');
+                    } else {
+                        $node->setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                        $node->setAttribute('data-report-contained', $media);
+                        $node->setAttribute('data-report-media', $media);
+                        $node->setAttributeNS(self::XLINK, 'xlink:href', $uri);
+                    }
+                    $container->appendChild($node);
+                }
+            }
+        }
     }
 
     private function expandedBody(DOMDocument $document, DOMElement $svg, array $table, array $page, string $id): void
@@ -166,7 +203,7 @@ final class AuctionReportArtwork
         return $this->documents[$design][$index] ?? throw new InvalidArgumentException('Unknown report page.');
     }
 
-    private function text(DOMDocument $document, DOMElement $parent, array $field, string $value, array $attributes, bool $center = false): void
+    private function text(DOMDocument $document, DOMElement $parent, array $field, string $value, array $attributes, bool $center = false, bool $centerVertically = false): void
     {
         if ($value === '') {
             return;
@@ -195,7 +232,7 @@ final class AuctionReportArtwork
             $text->setAttribute('transform', 'translate('.$x.' 0) scale('.($field['size'] / $size).' 1) translate('.(-$x).' 0)');
         }
         $lines = explode("\n", $value);
-        $text->setAttribute('y', (string) ($field['y'] - (count($lines) - 1) * $size * .58));
+        $text->setAttribute('y', (string) ($field['y'] - ($centerVertically ? (count($lines) - 1) * $size * .58 : 0)));
         foreach ($lines as $lineIndex => $line) {
             $span = $document->createElementNS(self::SVG, 'tspan');
             $span->setAttribute('x', (string) $x);

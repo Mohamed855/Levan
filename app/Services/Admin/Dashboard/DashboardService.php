@@ -2,8 +2,11 @@
 
 namespace App\Services\Admin\Dashboard;
 
+use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\PublicRequests\TrialRequestStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
+use App\Models\Admin\AuctionTemplates\AuctionTemplate;
+use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
 use Carbon\Carbon;
@@ -46,7 +49,7 @@ class DashboardService
 
             // 2. العملاء المشتركين (tenants لديهم اشتراك active)
             'subscribed_companies' => Tenant::whereNull('deleted_at')
-                ->whereHas('lastSubscription', fn ($q) => $q->where('status', SubscriptionStatus::ACTIVE))
+                ->whereHas('subscriptions', fn ($q) => $q->where('status', SubscriptionStatus::ACTIVE))
                 ->count(),
 
             // 3. الاشتراكات النشطة
@@ -55,8 +58,8 @@ class DashboardService
             // 4. الاشتراكات المعلقة
             'suspended_subscriptions' => Subscription::where('status', SubscriptionStatus::SUSPENDED)->count(),
 
-            // 5. القوالب المركزية (ثابت 0 حتى يتم إنشاء الموديل)
-            'central_templates' => 0,
+            // 5. القوالب المركزية
+            'central_templates' => AuctionTemplate::where('is_active', true)->count(),
 
             // 6. المدفوعات هذا الشهر
             'monthly_payments' => $this->getMonthlyPayments(),
@@ -65,7 +68,24 @@ class DashboardService
 
     private function getMonthlyPayments(): float
     {
-        // مجموع سعر الاشتراكات المُنشأة هذا الشهر والتي حالتها active
+        $paidBills = (float) Bill::where('status', BillStatus::PAID)
+            ->where(function ($q) {
+                $q->where(function ($sub) {
+                    $sub->whereNotNull('paid_at')
+                        ->whereMonth('paid_at', now()->month)
+                        ->whereYear('paid_at', now()->year);
+                })->orWhere(function ($sub) {
+                    $sub->whereNull('paid_at')
+                        ->whereMonth('created_at', now()->month)
+                        ->whereYear('created_at', now()->year);
+                });
+            })
+            ->sum('amount');
+
+        if ($paidBills > 0) {
+            return $paidBills;
+        }
+
         return (float) Subscription::where('status', SubscriptionStatus::ACTIVE)
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
@@ -180,7 +200,7 @@ class DashboardService
             ['key' => 'active',    'label' => 'نشط',           'color' => 'success',   'status' => SubscriptionStatus::ACTIVE],
             ['key' => 'suspended', 'label' => 'معلق',          'color' => 'warning',   'status' => SubscriptionStatus::SUSPENDED],
             ['key' => 'cancelled', 'label' => 'ملغي',          'color' => 'danger',    'status' => SubscriptionStatus::CANCELLED],
-            ['key' => 'expired',   'label' => 'منتهي',         'color' => 'secondary', 'status' => SubscriptionStatus::EXPIRED],
+            ['key' => 'expired',   'label' => 'منتهي',         'color' => 'dark',      'status' => SubscriptionStatus::EXPIRED],
         ];
 
         return collect($statuses)->map(function ($item) use ($total) {

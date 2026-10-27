@@ -335,9 +335,10 @@ document.addEventListener("DOMContentLoaded", () => {
             config.reviewCount.textContent = String(files.length);
             renderFileCards(config.reviewList, files);
         });
-        document.getElementById("review-name").textContent = value("name");
-        document.getElementById("review-description").textContent =
-            value("notes");
+        const reviewName = document.getElementById("review-name");
+        if (reviewName) reviewName.textContent = value("name");
+        const reviewDesc = document.getElementById("review-description");
+        if (reviewDesc) reviewDesc.textContent = value("notes");
     }
 
     form.addEventListener("change", buildReview);
@@ -351,9 +352,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const imageInput = form.elements.namedItem("assignment_image");
     imageInput?.addEventListener("change", () => {
         const file = imageInput.files?.[0];
-        if (file)
-            document.getElementById("review-image").src =
-                URL.createObjectURL(file);
+        const reviewImage = document.getElementById("review-image");
+        if (file && reviewImage)
+            reviewImage.src = URL.createObjectURL(file);
     });
 
     form.addEventListener("wizardDraftRestored", async (event) => {

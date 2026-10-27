@@ -469,7 +469,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
 
         // 3. Store
         $suffix = substr(str_shuffle('abcdefghijklmnopqrstuvwxyz'), 0, 8);
-        $roleName = 'محرر النظام '.$suffix;
+        $roleName = 'editor_'.$suffix;
         $storeResponse = $this->post($this->adminUrl('roles'), [
             'name' => $roleName,
             'select_all' => 1,
@@ -483,7 +483,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl("roles/{$role->id}/edit"))->assertStatus(200);
 
         // 5. Update
-        $updatedRoleName = $roleName.' معدل';
+        $updatedRoleName = 'editor_'.$suffix.'_updated';
         $updateResponse = $this->put($this->adminUrl("roles/{$role->id}"), [
             'name' => $updatedRoleName,
             'select_all' => 1,
@@ -753,7 +753,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'fields' => ['company_name', 'commercial_number', 'tax_number', 'city_id', 'address'],
             'company_name' => 'شركة اختبار خطوات '.rand(1000, 9999),
             'commercial_number' => (string) rand(1000000000, 9999999999),
-            'tax_number' => '3'.str_pad((string) rand(10000000000000, 99999999999999), 14, '0', STR_PAD_LEFT),
+            'tax_number' => '3'.str_pad((string) rand(1000000000000, 9999999999999), 13, '0', STR_PAD_LEFT).'3',
             'city_id' => $city->id,
             'address' => 'عنوان اختبار التحقق من خطوات النموذج',
         ])->assertOk()
@@ -953,7 +953,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $companyPayload = [
             'company_name' => 'شركة اختبار إنشاء محلي '.rand(1000, 9999),
             'commercial_number' => $commercialNumber,
-            'tax_number' => '3'.str_pad((string) rand(10000000000000, 99999999999999), 14, '0', STR_PAD_LEFT),
+            'tax_number' => '3'.str_pad((string) rand(1000000000000, 9999999999999), 13, '0', STR_PAD_LEFT).'3',
             'city_id' => $city->id,
             'address' => 'عنوان اختبار إنشاء شركة محليًا',
             'name' => 'مدير شركة الاختبار',

@@ -36,6 +36,9 @@
     &.status-dot-secondary {
         background-color: var(--bs-secondary, #6c757d);
     }
+    &.status-dot-dark {
+        background-color: var(--bs-dark, #2f3349);
+    }
 }
 
 .status-name-wrap {
@@ -65,7 +68,8 @@
 
 .dashboard-activity-event {
     display: inline-block;
-    max-inline-size: 11rem;
+    max-width: 130px;
+    max-inline-size: 130px;
     overflow: hidden;
     text-overflow: ellipsis;
     vertical-align: middle;

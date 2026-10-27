@@ -61,11 +61,11 @@
                             </h6>
                             <div class="d-flex align-items-center gap-2">
                                 <a href="{{ url('/' . $target->id . '/dashboard') }}" target="_blank"
-                                    class="btn btn-success">
+                                    class="btn btn-primary">
                                     <i class="ti ti-dashboard me-1"></i>لوحة التحكم
                                 </a>
                                 @canany(['clients.edit', 'companies.edit'])
-                                    <a href="{{ route('admin.clients.edit', $target->id) }}" class="btn btn-primary">
+                                    <a href="{{ route('admin.clients.edit', $target->id) }}" class="btn btn-success">
                                         <i class="ti ti-edit me-1"></i>تعديل
                                     </a>
                                 @endcanany
@@ -239,16 +239,16 @@
                                                     <div class="d-flex flex-wrap gap-1">
                                                         <span class="badge bg-info"><i
                                                                 class="ti ti-users ti-xs me-1"></i>{{ $sub->total_users }}</span>
-                                                        <span class="badge bg-secondary"><i
+                                                        <span class="badge bg-primary"><i
                                                                 class="ti ti-building ti-xs me-1"></i>{{ $sub->plan?->properties_limit ?? '∞' }}</span>
-                                                        <span class="badge bg-secondary"><i
+                                                        <span class="badge bg-danger"><i
                                                                 class="ti ti-database ti-xs me-1"></i>{{ $sub->plan?->storage_quota_gb ? $sub->plan->storage_quota_gb . 'GB' : '∞' }}</span>
                                                     </div>
                                                 </td>
                                                 <td>{{ $sub->starts_at?->format('Y-m-d') ?: '-' }}</td>
                                                 <td>{{ $period?->period_end?->format('Y-m-d') ?: ($sub->ends_at?->format('Y-m-d') ?: '-') }}
                                                 </td>
-                                                <td>
+                                                <td class="text-center">
                                                     @if ($days === null)
                                                         <span class="badge bg-secondary">-</span>
                                                     @elseif ($days <= 0)
@@ -268,10 +268,11 @@
                                                     <span
                                                         class="badge bg-{{ $sub->status->color() }}">{{ $sub->status->label() }}</span>
                                                 </td>
-                                                <td>
+                                                <td class="text-center">
                                                     @can('subscriptions.toggle_status')
-                                                        <div class="form-check form-switch mb-0">
-                                                            <input type="checkbox" class="form-check-input js-sub-toggle"
+                                                        <div class="form-check form-switch mb-0 d-flex justify-content-center">
+                                                            <input type="checkbox"
+                                                                class="form-check-input js-sub-toggle text-center"
                                                                 data-url="{{ route('admin.subscriptions.toggle-status', $sub->id) }}"
                                                                 {{ $isActive ? 'checked' : '' }}>
                                                         </div>
@@ -279,7 +280,7 @@
                                                         -
                                                     @endcan
                                                 </td>
-                                                <td>
+                                                <td class="text-center">
                                                     @can('subscriptions.delete')
                                                         <button type="button"
                                                             class="btn btn-icon btn-danger js-sub-delete-btn"

@@ -35,8 +35,28 @@ The acceptance tenant is `test` / database `etmam_levan_test`.
 
 These records are read-only acceptance inputs. No `migrate:fresh`, `db:wipe`, destructive seeder, data replacement, attachment replacement, or destructive database command is allowed during report-fidelity work.
 
+On 27 October the user confirmed that another operation had accidentally removed these records and explicitly authorized recreating them. The selected rows were recovered from `etmam_levan_test-20261026-125042.sql.gz` without executing the dump or replacing the current database. New IDs are **20 (Haram)** and **21 (Asir)**, with the same 24 properties and 62 attachment files; unrelated current records were retained. Restoration mappings and classification backups are in private backup storage.
+
+The user separately authorized attachment classification/order changes. Classification uses exact file hashes during this development operation, never file-name inference in the production renderer. Haram's eleven old attachments are raster masks/ornaments, not the reference's evidence photographs; those images therefore use the platform-logo fallback. Asir contains fourteen installation photographs, requiring one continuation beyond the thirteen reference frames.
+
 ## Runtime boundary
 
 The production flow remains `AuctionReportDataBuilder → AuctionReportRenderer → BrowserDocumentRenderer → tenant_private`.
 
 The HTML and JSON package files are analysis-only artifacts. They must not be included, parsed, or executed by the production report renderer.
+
+## Compiled geometry and fonts
+
+`resources/auction-reports/{haram,asir}/pages.php` records the measured field coordinates, original font/size/vertical scale/color, semantic groups, table columns and row envelopes. The corresponding SVG files retain original static glyph outlines, ornaments, clipping paths and image transforms. `bindings.php` maps semantic values and local image slots; `manifest.php` records SHA-256 for every shipped design asset. Runtime consumes these local files only.
+
+Asir's `image-frames.php` records 69 image definitions' visible rectangles in their original clipping-container coordinate spaces. Missing media and PDF pages are fitted within those rectangles so the source photograph's crop cannot cut off the replacement logo/document. Ordinary photographs retain their original crop behavior.
+
+The complete Noto Sans Arabic and IBM Plex Sans Arabic font files and their OFL texts come from the provided package. Complete GE Contrast Bold and Nizar BBC Kurdish Bold were supplied by the user. Numeric-only STV/Arimo subsets retain all reference digits. Their advance widths are measured once in Chromium and packaged in `fonts/numeric-metrics.php`; no browser is called for text measurement during PHP pagination. Full Nizar is measured directly with FreeType. Arabic presentation forms are used only for measuring connected glyphs; actual PDF text remains Unicode.
+
+**Explicit scope decision, 27 October:** the user deferred matching the remaining secondary fonts and prioritized finalizing layout and manual/automatic extraction. Dynamic text whose original family is not packaged in full currently uses Noto; numeric STV/Arimo runs use their source subsets. This includes secondary TheSans, LamaSans, RuaqArabic, nonnumeric STV and the remaining Latin families. Original static glyph outlines remain unchanged. The static-region comparison must not be described as proof that every dynamic font is identical.
+
+## Visual comparison contract
+
+Golden fixtures contain 7/21 pages with reference-length data. Both PDFs are rasterized using the same `pdftoppm` executable at 96 DPI. Masks are exported from source field envelopes, source table cells and clipped evidence frames. Image masks include one raster pixel for antialiasing. Dynamic data and replaceable pictures are excluded; the Asir watermark is verified using the original landscape, while the replaceable cover crop is masked. Gray diff pixels identify every excluded region; red identifies a mismatch outside it.
+
+Acceptance requires each page's static mismatch ratio to be at most 0.5% with an RGB channel tolerance of 12, mask coverage below 90%, exact page count and MediaBox within 0.02 pt, embedded fonts and extractable text. This measures static artwork fidelity; it is not a percentage claim about changed business values or photographs. The complete page contact sheets, masks, overlays, diffs and JSON results are generated under ignored `output/pdf/reference-comparison`.

@@ -30,6 +30,23 @@
 }
 
 // Button loading state
+.btn[aria-busy="true"],
+.btn[data-button-is-loading="true"] {
+    cursor: wait !important;
+    pointer-events: none !important;
+    opacity: 0.85;
+
+    .btn-spinner {
+        display: inline-block !important;
+        vertical-align: -0.125em;
+        margin-inline-end: 0.35rem;
+    }
+
+    .btn-icon {
+        display: none !important;
+    }
+}
+
 .btn.is-loading {
     position: relative;
     pointer-events: none;

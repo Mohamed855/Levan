@@ -9,6 +9,29 @@ use Tests\TestCase;
 
 final class AuctionReportRendererTest extends TestCase
 {
+    public function test_every_channel_image_reaches_the_document_when_its_capacity_is_exceeded(): void
+    {
+        $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';
+        $uris = [];
+        $index = 0;
+        foreach (['platform' => 3, 'video' => 4, 'x' => 8, 'whatsapp' => 2, 'brochure' => 25, 'social' => 4, 'brokers' => 2, 'board_before' => 14, 'board_after' => 14] as $section => $count) {
+            for ($slot = 0; $slot < $count; $slot++) {
+                $bitmap = imagecreatetruecolor(1, 1);
+                imagesetpixel($bitmap, 0, 0, imagecolorallocate($bitmap, ++$index, 20, 30));
+                ob_start();
+                imagepng($bitmap);
+                $uri = 'data:image/png;base64,'.base64_encode(ob_get_clean());
+                imagedestroy($bitmap);
+                $uris[] = $uri;
+                $snapshot['evidence'][$section][] = ['uri' => $uri, 'name' => $section.'-'.$slot];
+            }
+        }
+        $html = app(AuctionReportRenderer::class)->html($snapshot, 'report');
+        foreach ($uris as $uri) {
+            self::assertStringContainsString($uri, $html, 'A classified evidence image disappeared.');
+        }
+    }
+
     public function test_reference_capacity_fixtures_render_as_seven_and_twenty_one_pages(): void
     {
         $renderer = app(AuctionReportRenderer::class);

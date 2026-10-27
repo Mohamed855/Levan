@@ -184,28 +184,37 @@
                                         <div class="d-flex align-items-center">
                                             @php
                                                 $causer = $activity->causer;
-                                                $hasCauserImage =
-                                                    filled($causer?->image) || filled($causer?->profile_picture);
+                                                $avatarUrl = null;
+                                                if ($causer) {
+                                                    $rawImage = $causer->image ?: ($causer->profile_picture ?? null);
+                                                    if ($rawImage) {
+                                                        if (\Illuminate\Support\Str::startsWith($rawImage, ['http://', 'https://'])) {
+                                                            $avatarUrl = $rawImage;
+                                                        } else {
+                                                            $cleanPath = ltrim(\Illuminate\Support\Str::after($rawImage, 'storage/'), '/');
+                                                            $avatarUrl = asset('storage/' . $cleanPath);
+                                                        }
+                                                    } elseif (isset($causer->profile_photo_url) && !empty($causer->profile_photo_url)) {
+                                                        $avatarUrl = $causer->profile_photo_url;
+                                                    }
+                                                }
+                                                $avatarUrl = $avatarUrl ?: asset('static/brand/logos/logo.svg');
                                             @endphp
                                             <div class="avatar avatar-xs me-2">
-                                                @if ($hasCauserImage && method_exists($causer, 'getProfilePhotoUrlAttribute'))
-                                                    <img src="{{ $causer->profile_photo_url }}" alt=""
-                                                        class="rounded-circle object-fit-cover">
-                                                @else
-                                                    <span class="avatar-initial rounded-circle bg-secondary">
-                                                        <i class="ti ti-user ti-xs"></i>
-                                                    </span>
-                                                @endif
+                                                <img src="{{ $avatarUrl }}" alt="{{ $activity->causer_name }}"
+                                                    class="rounded-circle object-fit-cover w-100 h-100 border"
+                                                    onerror="this.onerror=null;this.src='{{ asset('static/brand/logos/logo.svg') }}';">
                                             </div>
                                             <span class="fw-medium text-heading small">{{ $activity->causer_name }}</span>
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="d-flex align-items-center gap-1">
-                                            <span class="badge bg-primary small dashboard-activity-event"
+                                        <div class="d-inline-flex align-items-center gap-1 overflow-hidden" style="max-width: 210px;">
+                                            <span class="badge bg-primary small dashboard-activity-event text-truncate"
                                                 title="{{ $activity->formatted_event }}">{{ $activity->formatted_event }}</span>
                                             @if ($activity->formatted_module)
-                                                <span class="text-muted small">({{ $activity->formatted_module }})</span>
+                                                <span class="text-muted small text-truncate" style="max-width: 90px;"
+                                                    title="{{ $activity->formatted_module }}">({{ $activity->formatted_module }})</span>
                                             @endif
                                         </div>
                                     </td>

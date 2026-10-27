@@ -51,6 +51,16 @@ final class AuctionReportTextLayoutTest extends TestCase
         self::assertSame(['١٣'], $layout->wrap('١٣', 22.78, 30.013, 'STV'));
     }
 
+    public function test_continuations_keep_the_document_landscape_without_repeating_evidence(): void
+    {
+        $root = dirname(__DIR__, 3).'/resources/auction-reports';
+        $definition = (require $root.'/asir/pages.php')[2];
+        $images = ['report_image' => [['uri' => 'data:image/png;base64,LANDSCAPE']], 'marketing_evidence' => [['uri' => 'EVIDENCE']]];
+        $pages = (new AuctionReportTextLayout($root))->flow(['values' => ['introduction' => str_repeat('نص طويل للاختبار ', 200)], 'tables' => [], 'images' => $images], $definition);
+        self::assertGreaterThan(1, count($pages));
+        self::assertSame(['report_image' => $images['report_image']], $pages[1]['images']);
+    }
+
     public function test_the_reference_two_deed_row_fits_without_an_extra_page(): void
     {
         $root = dirname(__DIR__, 3).'/resources/auction-reports';

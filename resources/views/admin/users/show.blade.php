@@ -30,17 +30,27 @@
         <div class="col-12">
             <div class="card mb-3">
 
-                <div class="background-image-container"
-                    style="position: relative; width: 100%; height: 100%; overflow: hidden;">
-                    <img src="{{ asset('static/dashboard/backgrounds/cta-bg-secondary3.png') }}" alt="صورة الغلاف"
-                        class="rounded-top" style="width: 100%; height: 143px !important; object-fit: cover;">
-                </div>
+                @php
+                    $hasCover = !empty($user->background_image) && Storage::disk('public')->exists($user->background_image);
+                @endphp
+                @if ($hasCover)
+                    <div class="background-image-container"
+                        style="position: relative; width: 100%; height: 143px; overflow: hidden;">
+                        <img src="{{ asset('storage/' . $user->background_image) }}" alt="صورة الغلاف"
+                            class="rounded-top w-100 h-100 object-fit-cover">
+                    </div>
+                @else
+                    <div class="background-image-container rounded-top"
+                        style="position: relative; width: 100%; height: 143px; background: linear-gradient(135deg, var(--bs-primary, #1D4F44) 0%, #163e35 50%, #0d2822 100%);">
+                    </div>
+                @endif
                 <div class="user-profile-header d-flex flex-column flex-lg-row text-sm-start text-center mb-5">
                     <div class="profile-image-container mt-n5 mx-sm-0 mx-auto"
                         style="position: relative; display: inline-block;">
                         <img src="{{ $user->image && Storage::disk('public')->exists($user->image) ? asset('storage/' . $user->image) : asset('static/brand/logos/logo.svg') }}"
-                            alt="صورة المستخدم" class="d-block h-auto ms-0 ms-sm-6"
-                            style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;">
+                            alt="صورة المستخدم" class="d-block h-auto ms-0 ms-sm-6 border bg-white"
+                            style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;"
+                            onerror="this.onerror=null;this.src='{{ asset('static/brand/logos/logo.svg') }}';">
                     </div>
                     <div class="flex-grow-1 mt-3 mt-lg-5">
                         <div

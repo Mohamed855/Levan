@@ -14,8 +14,8 @@
             </h4>
             <div class="d-flex align-items-center gap-2">
                 <code class="copyable-code fs-6"
-                    onclick="navigator.clipboard.writeText('AUC-{{ str_pad((string)$auction->id, 5, '0', STR_PAD_LEFT) }}'); toastr.success('تم نسخ رقم المزاد');">
-                    AUC-{{ str_pad((string)$auction->id, 5, '0', STR_PAD_LEFT) }}
+                    onclick="navigator.clipboard.writeText('AUC-{{ str_pad((string) $auction->id, 5, '0', STR_PAD_LEFT) }}'); toastr.success('تم نسخ رقم المزاد');">
+                    AUC-{{ str_pad((string) $auction->id, 5, '0', STR_PAD_LEFT) }}
                 </code>
                 <span class="badge {{ $auction->status_badge_class }}">{{ $auction->status_label }}</span>
                 <span class="badge bg-info">{{ $auction->type_label }}</span>
@@ -55,7 +55,8 @@
                             <small class="text-muted">العقارات</small>
                         </div>
                         <div>
-                            <h5 class="mb-0">{{ number_format((float) $auction->properties->sum('estimated_value')) }}</h5>
+                            <h5 class="mb-0">{{ number_format((float) $auction->properties->sum('estimated_value')) }}
+                            </h5>
                             <small class="text-muted">إجمالي التقدير (ر.س)</small>
                         </div>
                     </div>
@@ -88,8 +89,8 @@
                             </li>
                             @if ($auction->platform_url)
                                 <li class="mb-2"><span class="fw-bold me-1">رابط المزاد:</span>
-                                    <a href="{{ $auction->platform_url }}" target="_blank" class="text-primary">زيارة المنصة <i
-                                            class="ti ti-external-link"></i></a>
+                                    <a href="{{ $auction->platform_url }}" target="_blank" class="text-primary">زيارة
+                                        المنصة <i class="ti ti-external-link"></i></a>
                                 </li>
                             @endif
                             <li class="mb-2"><span class="fw-bold me-1">تاريخ البداية:</span>
@@ -149,23 +150,23 @@
                         </a>
 
                         @can('auctions.edit')
-                        @if ($isReady)
-                            <button type="button" id="btn-retry-reports" class="btn btn-outline-secondary btn-sm mt-1">
-                                <i class="ti ti-refresh me-1"></i> إعادة توليد الملفات
-                            </button>
-                        @elseif ($isProcessing)
-                            <button type="button" id="btn-retry-reports" class="btn btn-outline-warning mt-2">
-                                <i class="ti ti-bolt me-1"></i> توليد الملفات الآن فوراً
-                            </button>
-                        @elseif ($isFailed)
-                            <button type="button" id="btn-retry-reports" class="btn btn-outline-danger mt-2">
-                                <i class="ti ti-refresh me-1"></i> إعادة محاولة التجهيز
-                            </button>
-                        @else
-                            <button type="button" id="btn-retry-reports" class="btn btn-primary mt-2">
-                                <i class="ti ti-player-play me-1"></i> بدء تجهيز ملفات المزاد
-                            </button>
-                        @endif
+                            @if ($isReady)
+                                <button type="button" id="btn-retry-reports" class="btn btn-outline-secondary btn-sm mt-1">
+                                    <i class="ti ti-refresh me-1"></i> إعادة توليد الملفات
+                                </button>
+                            @elseif ($isProcessing)
+                                <button type="button" id="btn-retry-reports" class="btn btn-outline-warning mt-2">
+                                    <i class="ti ti-bolt me-1"></i> توليد الملفات الآن فوراً
+                                </button>
+                            @elseif ($isFailed)
+                                <button type="button" id="btn-retry-reports" class="btn btn-outline-danger mt-2">
+                                    <i class="ti ti-refresh me-1"></i> إعادة محاولة الإعداد
+                                </button>
+                            @else
+                                <button type="button" id="btn-retry-reports" class="btn btn-primary mt-2">
+                                    <i class="ti ti-player-play me-1"></i> بدء تجهيز ملفات المزاد
+                                </button>
+                            @endif
                         @endcan
                     </div>
                 </div>
@@ -232,7 +233,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">لم يتم إدراج عقارات في هذا المزاد
+                                    <td colspan="5" class="text-center py-4 text-muted">لم يتم إدراج عقارات في هذا
+                                        المزاد
                                         بعد.</td>
                                 </tr>
                             @endforelse

@@ -45,7 +45,7 @@
             <x-ui.stat-card title="بانتظار التفعيل" :value="$pendingClients ?? ($pendingCompanies ?? 0)" subtitle="عملاء جدد بانتظار الاعتماد"
                 icon="ti-clock-pause" color="warning" col="col-sm-6 col-xl" />
 
-            <x-ui.stat-card title="بدون اشتراك" :value="$withoutSubscriptionClients ?? ($withoutSubscriptionCompanies ?? 0)" subtitle="عملاء بلا اشتراك فعّال" icon="ti-alert-circle"
+            <x-ui.stat-card title="عملاء التجربة" :value="$trialClients ?? ($trialCompanies ?? 0)" subtitle="في فترة التجربة (7 أيام)" icon="ti-clock-play"
                 color="info" col="col-sm-6 col-xl" />
 
         </x-slot:stats>
@@ -60,8 +60,8 @@
                     :options="$filterOptions['cities'] ?? []" />
                 <x-filter.select id="filter-expiring" filterKey="expiring_in" label="انتهاء الاشتراك"
                     placeholder="انتهاء الاشتراك" :options="$filterOptions['expiring'] ?? []" />
-                <x-filter.date id="filter-created-from" filterKey="created_from" label="من تاريخ الإنشاء" />
-                <x-filter.date id="filter-created-to" filterKey="created_to" label="إلى تاريخ الإنشاء" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" data-filter-key="created_from" label="من تاريخ الإنشاء" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" data-filter-key="created_to" label="إلى تاريخ الإنشاء" />
             </x-data-table.filters>
         </x-slot:filters>
 

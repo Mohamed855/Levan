@@ -55,6 +55,11 @@ foreach ($sources as $name => $hash) {
         $write('fonts/'.$filename, $decode($font['fullData']));
     }
     $bindings = require $root.'/'.$name.'/bindings.php';
+    $framePath = $name.'/image-frames.php';
+    $fallbackFrames = is_file($root.'/'.$framePath) ? require $root.'/'.$framePath : [];
+    if ($fallbackFrames !== []) {
+        $write($framePath, file_get_contents($root.'/'.$framePath));
+    }
     $pages = [];
     foreach ($package['pages'] as $index => $page) {
         $binding = $bindings[$index];
@@ -97,7 +102,15 @@ foreach ($sources as $name => $hash) {
                     }
                 }
                 imagedestroy($probe);
-                $staticFill = count($colors) === 1 || min((int) $image->getAttribute('width'), (int) $image->getAttribute('height')) <= 8 || $asset[1] === '65f52b26836ac6bf08fb' || in_array($image->getAttribute('data-image-def'), $binding['static_images'] ?? [], true);
+                $staticBrandAsset = in_array($asset[1], [
+                    '65f52b26836ac6bf08fb', // Navy Infath artwork.
+                    '036cb103d5db17fb7bae', // White Infath artwork.
+                    '16fb58e6172207b55b87', // YouTube icon.
+                    '608de8d90d763f2db1ed', // X icon.
+                    '8d929fb610f9bd706bf3', // WhatsApp icon.
+                    '9c4b34f6cf625a6a58de', // Counter badge shadow.
+                ], true);
+                $staticFill = count($colors) === 1 || min((int) $image->getAttribute('width'), (int) $image->getAttribute('height')) <= 8 || $staticBrandAsset || in_array($image->getAttribute('data-image-def'), $binding['static_images'] ?? [], true);
                 if ((! $maskOnly && ! $staticFill) || $isWatermark) {
                     $section = $isWatermark ? 'report_image' : match ($index) {
                         7, 8 => 'board_before', 16, 17 => 'board_after', 15 => 'brokers',
@@ -154,7 +167,7 @@ foreach ($sources as $name => $hash) {
             $tables[$table['id']] = $table;
         }
         $write($name.'/page-'.($index + 1).'.svg', $document->saveXML($document->documentElement));
-        $pages[] = ['width' => $page['width'], 'height' => $page['height'], 'fields' => $fields, 'tables' => $tables, 'image_defs' => $imageDefinitions] + $binding;
+        $pages[] = ['width' => $page['width'], 'height' => $page['height'], 'fields' => $fields, 'tables' => $tables, 'image_defs' => $imageDefinitions, 'fallback_frames' => $fallbackFrames[$index] ?? []] + $binding;
     }
     $write($name.'/pages.php', "<?php\n\ndeclare(strict_types=1);\n\nreturn ".var_export($pages, true).";\n");
 }

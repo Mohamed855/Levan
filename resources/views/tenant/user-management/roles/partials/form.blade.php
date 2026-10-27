@@ -84,10 +84,7 @@
         @if (!$isEdit)
             <x-form.wizard.draft-button />
         @endif
-        <button type="submit" class="btn btn-primary">
-            <i class="ti ti-device-floppy me-1"></i>
-            {{ $isEdit ? 'حفظ التعديلات' : 'حفظ' }}
-        </button>
+        <x-form.wizard.save-button :text="$isEdit ? 'حفظ التعديلات' : 'حفظ'" />
     </div>
 </div>
 

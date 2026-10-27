@@ -83,7 +83,7 @@ final class AuctionReportPaginatorTest extends TestCase
 
     public function test_report_media_boundaries_preserve_every_item_in_order(): void
     {
-        foreach (['brochure' => 24, 'platform' => 3, 'video' => 5, 'x' => 8, 'whatsapp' => 2, 'social' => 3, 'brokers' => 1, 'board_before' => 13, 'board_after' => 13] as $section => $capacity) {
+        foreach (['brochure' => 24, 'platform' => 2, 'video' => 3, 'x' => 7, 'whatsapp' => 1, 'social' => 3, 'brokers' => 1, 'board_before' => 13, 'board_after' => 13] as $section => $capacity) {
             foreach ([0, $capacity - 1, $capacity, $capacity + 1] as $count) {
                 $snapshot = $this->snapshot(0);
                 $items = $count === 0 ? [] : array_map(static fn (int $id): array => ['id' => $id], range(1, $count));
@@ -126,6 +126,20 @@ final class AuctionReportPaginatorTest extends TestCase
             $actual = array_merge($actual, $page['payload']['marketing_evidence'] ?? []);
         }
         self::assertSame(['platform', 'x', 'social'], array_column($actual, 'id'));
+    }
+
+    public function test_channel_page_capacity_matches_the_available_artwork_slots(): void
+    {
+        $definitions = require dirname(__DIR__, 3).'/resources/auction-reports/asir/pages.php';
+        foreach (['platform' => 10, 'video' => 11, 'x' => 12, 'whatsapp' => 13] as $section => $index) {
+            $slots = array_unique(array_column(array_filter($definitions[$index]['image_defs'], static fn (array $frame): bool => $frame['section'] === $section), 'slot'));
+            $capacity = count($slots);
+            $snapshot = $this->snapshot(0);
+            $snapshot['evidence'][$section] = array_map(static fn (int $id): array => ['id' => $id], range(1, $capacity + 1));
+            $channelPages = array_values(array_filter($this->paginator()->paginate($snapshot, 'report'), static fn (array $page): bool => str_starts_with($page['page_type'], 'asir-'.$section)));
+            self::assertCount(2, $channelPages, $section);
+            self::assertCount($capacity, $channelPages[0]['payload'][$section]);
+        }
     }
 
     /** @return array<string, mixed> */

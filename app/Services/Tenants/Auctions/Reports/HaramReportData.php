@@ -36,9 +36,35 @@ final class HaramReportData
             $values['footer'] = '-'.$name.' '.$this->format->dateParts($auction['start_date'] ?? null)['year'];
         }
         $campaigns = $payload['campaigns'] ?? [];
-        foreach (['snapchat' => ['snapchat', 'سناب شات'], 'tiktok' => ['tiktok', 'تيك توك'], 'x' => ['x', 'أكس']] as $channel => $names) {
-            $campaign = $this->campaign(['marketing' => ['campaigns' => $campaigns]], $names);
+        $channels = ['snapchat' => ['snapchat', 'سناب شات'], 'tiktok' => ['tiktok', 'تيك توك'], 'x' => ['x', 'أكس']];
+        $slots = array_fill_keys(array_keys($channels), null);
+        $used = [];
+        foreach ($channels as $channel => $names) {
+            foreach ($campaigns as $key => $campaign) {
+                if (! isset($used[$key]) && in_array(mb_strtolower(trim((string) ($campaign['platform'] ?? ''))), $names, true)) {
+                    $slots[$channel] = $campaign;
+                    $used[$key] = true;
+                    break;
+                }
+            }
+        }
+        foreach ($campaigns as $key => $campaign) {
+            if (isset($used[$key])) {
+                continue;
+            }
+            foreach ($slots as $channel => $slot) {
+                if ($slot === null) {
+                    $slots[$channel] = $campaign;
+                    break;
+                }
+            }
+        }
+        foreach ($slots as $channel => $campaign) {
             $values[$channel.'_impressions'] = $this->format->number($campaign['impressions'] ?? null);
+            $platform = mb_strtolower(trim((string) ($campaign['platform'] ?? '')));
+            $values[$channel.'_label'] = $platform === '' || in_array($platform, $channels[$channel], true)
+                ? 'منصة '.$channels[$channel][1]
+                : (string) $campaign['platform'];
         }
         $tiktok = $this->campaign($snapshot, ['tiktok', 'تيك توك']);
         foreach (['profile_views', 'reach', 'views', 'profile_change', 'reach_change', 'views_change'] as $metric) {

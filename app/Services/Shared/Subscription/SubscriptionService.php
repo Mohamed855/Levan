@@ -297,7 +297,7 @@ class SubscriptionService
             $subscriptionStatus = SubscriptionStatus::ACTIVE;
             $periodStatus = SubscriptionPeriodStatus::ACTIVE;
         } else {
-            $subscriptionStatus = SubscriptionStatus::PENDING;
+            $subscriptionStatus = SubscriptionStatus::SUSPENDED;
             $periodStatus = SubscriptionPeriodStatus::PENDING_PAYMENT;
         }
 
@@ -306,7 +306,7 @@ class SubscriptionService
 
         [$tenant, $user]  = $this->tenantCreator->createTenantEnvironment($bill->metadata);
         $subscription = $this->subscriptionManager->createSubscription(
-            $tenant, $plan, $bill->amount, $subscriptionStatus, $periodStatus, $data['trial_end_date'] ?? null,
+            $tenant, $plan, $bill->amount, $subscriptionStatus, $periodStatus, null,
             ['start_date' => $data['start_date'] ?? null, 'end_date' => $data['end_date'] ?? null, 'total_users' => $data['total_users'] ?? $plan->included_users]
         );
         //  ربط المستخدم بالترخيص
@@ -321,51 +321,22 @@ class SubscriptionService
         return ['tenant_id' => $tenant->id, 'message' => 'تم إنشاء الاشتراك بنجاح.'];
     }
 
-    private function resolveSubscriptionStatus(string $paymentType): array
-    {
-        return match ($paymentType) {
-            'paid'   => [SubscriptionStatus::ACTIVE,   SubscriptionPeriodStatus::ACTIVE],
-            'unpaid' => [SubscriptionStatus::SUSPENDED, SubscriptionPeriodStatus::PENDING_PAYMENT],
-            'trial'  => [SubscriptionStatus::TRIAL,     SubscriptionPeriodStatus::TRIAL],
-        };
-    }
-
     private function handleAdminBill(Bill $bill, Tenant $tenant, Subscription $subscription, array $data): void
     {
-        match ($data['payment_type']) {
-            'paid' => (function () use ($bill, $tenant, $subscription, $data) {
-                $paymentMethod = match ($data['payment_method']) {
-                    'cash'          => PaymentMethod::CASH,
-                    'bank_transfer' => PaymentMethod::BANK_TRANSFER,
-                    'online'        => PaymentMethod::ONLINE,
-                };
+        $isImmediate = ! empty($data['activate_immediately']);
 
-                $this->billService->markAsPaid($bill, $tenant->id, $subscription->id, $paymentMethod, null);
-
-                $updateData = ['verified_by' => Auth::id(), 'verified_at' => now()];
-
-                if (($data['has_discount'] ?? 'no') === 'yes') {
-                    $updateData['settlement_amount'] = $data['discount_value'];
-                }
-
-                if (!empty($data['receipt_path'])) {
-                    $updateData['invoice_url'] = $data['receipt_path'];
-                }
-
-                $bill->update($updateData);
-            })(),
-
-            'unpaid' => $bill->update([
+        if ($isImmediate) {
+            $this->billService->markAsPaid($bill, $tenant->id, $subscription->id, PaymentMethod::BANK_TRANSFER, null);
+            $bill->update([
+                'verified_by' => Auth::id() ?? 1,
+                'verified_at' => now(),
+            ]);
+        } else {
+            $bill->update([
                 'tenant_id'       => $tenant->id,
                 'subscription_id' => $subscription->id,
                 'status'          => BillStatus::UNPAID,
-            ]),
-
-            'trial' => $bill->update([
-                'tenant_id'       => $tenant->id,
-                'subscription_id' => $subscription->id,
-                'status'          => BillStatus::TRIAL,
-            ]),
-        };
+            ]);
+        }
     }
 }

@@ -22,6 +22,7 @@ return [
     ],
     3 => [
         'groups' => [
+            'snapchat_label' => ['f3', 'f4', 'f5', 'f6'], 'tiktok_label' => ['f7', 'f8', 'f9', 'f10'], 'x_label' => ['f11', 'f12'],
             'snapchat_impressions' => ['f13'], 'tiktok_impressions' => ['f14'], 'x_impressions' => ['f15'],
             'x_url' => ['f22', 'f23'], 'tiktok_profile_views' => ['f40'], 'tiktok_reach' => ['f41'],
             'tiktok_views' => ['f42'], 'tiktok_profile_change' => ['f43'], 'tiktok_reach_change' => ['f44'],

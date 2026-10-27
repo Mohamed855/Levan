@@ -166,50 +166,52 @@
 
             <x-form.wizard.step id="assignment-review-validation" :fields="[]">
                 <div class="row g-4 assignment-review">
-                    <div class="col-lg-9 d-flex flex-column gap-4">
-                        <x-form.wizard.review-card title="البيانات الأساسية" step="1" body-id="review-basic"
-                            class="assignment-review__card" />
-                        <x-form.wizard.review-card title="العقارات المرتبطة" step="2"
-                            class="assignment-review__card">
-                            <div id="review-properties" class="assignment-selection__items"></div>
-                        </x-form.wizard.review-card>
-                        <x-form.wizard.review-card title="الملفات والمستندات" step="3"
-                            class="assignment-review__card">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <section class="assignment-selection assignment-attachment-box"
-                                        aria-labelledby="review-general-documents-title">
-                                        <div class="d-flex align-items-center justify-content-between mb-3">
-                                            <h5 id="review-general-documents-title" class="mb-0">مستندات عامة</h5>
-                                            <span class="badge bg-primary"><span
-                                                    id="review-general-documents-count">0</span> ملف</span>
-                                        </div>
-                                        <div id="review-general-documents" class="assignment-file-list"></div>
-                                    </section>
-                                </div>
-                                <div class="col-md-6">
-                                    <section class="assignment-selection assignment-attachment-box"
-                                        aria-labelledby="review-additional-attachments-title">
-                                        <div class="d-flex align-items-center justify-content-between mb-3">
-                                            <h5 id="review-additional-attachments-title" class="mb-0">مرفقات إضافية</h5>
-                                            <span class="badge bg-primary"><span
-                                                    id="review-additional-attachments-count">0</span> ملف</span>
-                                        </div>
-                                        <div id="review-additional-attachments" class="assignment-file-list"></div>
-                                    </section>
-                                </div>
+                    <div class="col-12 d-flex flex-column gap-4">
+                        <div class="alert alert-warning mb-0 d-flex align-items-center gap-2" role="alert">
+                            <i class="ti ti-alert-triangle fs-3" aria-hidden="true"></i>
+                            <span>برجاء مراجعة بيانات الإسناد والعقارات المرتبطة والمرفقات قبل الاعتماد النهائي.</span>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-lg-6">
+                                <x-form.wizard.review-card title="البيانات الأساسية" step="1" body-id="review-basic" col=""
+                                    class="h-100 assignment-review__card" />
                             </div>
-                        </x-form.wizard.review-card>
-                    </div>
-                    <div class="col-lg-3">
-                        <article class="card assignment-preview h-100"><img id="review-image"
-                                src="{{ asset('static/brand/logos/logo.svg') }}" alt="معاينة صورة الإسناد"
-                                class="assignment-preview__image">
-                            <div class="card-body">
-                                <h5 id="review-name">اسم الإسناد</h5>
-                                <p id="review-description" class="text-muted mb-0">وصف الإسناد</p>
+                            <div class="col-lg-6">
+                                <x-form.wizard.review-card title="العقارات المرتبطة" step="2" col=""
+                                    class="h-100 assignment-review__card">
+                                    <div id="review-properties" class="assignment-selection__items"></div>
+                                </x-form.wizard.review-card>
                             </div>
-                        </article>
+                            <div class="col-12">
+                                <x-form.wizard.review-card title="الملفات والمستندات" step="3" col=""
+                                    class="h-100 assignment-review__card">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <section class="assignment-selection assignment-attachment-box"
+                                                aria-labelledby="review-general-documents-title">
+                                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                                    <h5 id="review-general-documents-title" class="mb-0">مستندات عامة</h5>
+                                                    <span class="badge bg-primary"><span
+                                                            id="review-general-documents-count">0</span> ملف</span>
+                                                </div>
+                                                <div id="review-general-documents" class="assignment-file-list"></div>
+                                            </section>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <section class="assignment-selection assignment-attachment-box"
+                                                aria-labelledby="review-additional-attachments-title">
+                                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                                    <h5 id="review-additional-attachments-title" class="mb-0">مرفقات إضافية</h5>
+                                                    <span class="badge bg-primary"><span
+                                                            id="review-additional-attachments-count">0</span> ملف</span>
+                                                </div>
+                                                <div id="review-additional-attachments" class="assignment-file-list"></div>
+                                            </section>
+                                        </div>
+                                    </div>
+                                </x-form.wizard.review-card>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <x-form.wizard.actions><x-form.wizard.previous-button />

@@ -6,14 +6,18 @@ namespace Tests\Feature\Tenants\Auctions;
 
 use App\Actions\Tenants\Auctions\CreateAuctionAction;
 use App\Actions\Tenants\Auctions\UpdateAuctionAction;
+use App\Http\Middleware\Tenancy\CheckSubscription;
+use App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense;
 use App\Http\Requests\Tenants\Auctions\StoreAuctionRequest;
 use App\Http\Requests\Tenants\Auctions\UpdateAuctionRequest;
+use App\Jobs\Tenants\Auctions\GenerateAuctionReportsJob;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Route as RouteFacade;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -22,6 +26,29 @@ use Tests\Support\TenantAuctionReportTestCase;
 
 final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
 {
+    public function test_final_create_and_update_dispatch_report_generation_automatically(): void
+    {
+        Storage::fake('tenant_public');
+        Bus::fake([GenerateAuctionReportsJob::class]);
+        $assignment = $this->assignment('AUTO');
+        $property = $this->property($assignment, 'AUTO');
+        $auction = app(CreateAuctionAction::class)->execute(
+            array_replace($this->validPayload($assignment), ['property_ids' => [$property->id]]),
+            null, null, [], UploadedFile::fake()->image('auto-report.webp'),
+        );
+        Bus::assertDispatchedTimes(GenerateAuctionReportsJob::class, 1);
+        $createdGeneration = $auction->latestReportGeneration()->firstOrFail();
+        self::assertSame('queued', $createdGeneration->status);
+        self::assertSame($auction->name, $createdGeneration->snapshot['auction']['name']);
+
+        $updated = app(UpdateAuctionAction::class)->execute($auction, ['description' => 'تحديث لاختبار الاستخراج التلقائي']);
+        Bus::assertDispatchedTimes(GenerateAuctionReportsJob::class, 2);
+        $updatedGeneration = $updated->latestReportGeneration()->firstOrFail();
+        self::assertGreaterThan($createdGeneration->id, $updatedGeneration->id);
+        self::assertSame('queued', $updatedGeneration->status);
+        self::assertSame('تحديث لاختبار الاستخراج التلقائي', $updatedGeneration->snapshot['auction']['description']);
+    }
+
     public function test_final_create_requires_an_independent_report_image(): void
     {
         $assignment = $this->assignment('CREATE');
@@ -177,8 +204,8 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
     public function test_http_create_stores_the_required_report_image(): void
     {
         $this->withoutMiddleware([
-            \App\Http\Middleware\Tenancy\CheckSubscription::class,
-            \App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense::class,
+            CheckSubscription::class,
+            EnsureUserHasActiveLicense::class,
         ]);
         Storage::fake('tenant_public');
 
@@ -224,8 +251,8 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
     public function test_user_with_view_permission_cannot_retry_report_generation(): void
     {
         $this->withoutMiddleware([
-            \App\Http\Middleware\Tenancy\CheckSubscription::class,
-            \App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense::class,
+            CheckSubscription::class,
+            EnsureUserHasActiveLicense::class,
         ]);
         $assignment = $this->assignment('RETRY-AUTH');
         $auction = $this->auction($assignment);

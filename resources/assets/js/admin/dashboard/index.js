@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
         danger:    '#dc3545',
         secondary: '#7c7c7cff',
         info:      '#17a2b8',
+        dark:      '#2f3349',
     };
 
     if (typeof Chart !== 'undefined') {
@@ -170,6 +171,7 @@ document.addEventListener('DOMContentLoaded', function () {
             warning:   colors.warning,
             danger:    colors.danger,
             secondary: colors.secondary,
+            dark:      colors.dark,
         };
 
         const isEmpty = totalCount === 0;

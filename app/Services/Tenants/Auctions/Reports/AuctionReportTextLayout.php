@@ -20,6 +20,7 @@ final class AuctionReportTextLayout
         foreach (explode("\n", $value) as $paragraph) {
             if ($this->width($paragraph, $size, $file, $font) <= $width * 1.1) {
                 $lines[] = $paragraph;
+
                 continue;
             }
             $line = '';
@@ -27,6 +28,7 @@ final class AuctionReportTextLayout
                 $candidate = $line === '' ? $word : $line.' '.$word;
                 if ($this->width($candidate, $size, $file, $font) <= $width) {
                     $line = $candidate;
+
                     continue;
                 }
                 if ($line !== '') {
@@ -73,7 +75,7 @@ final class AuctionReportTextLayout
             }
             if ($index > 0) {
                 $copy['tables'] = array_fill_keys(array_keys($content['tables']), []);
-                $copy['images'] = [];
+                $copy['images'] = array_intersect_key($content['images'], ['report_image' => true]);
             }
             $pages[] = $copy;
         }
@@ -105,6 +107,7 @@ final class AuctionReportTextLayout
             }
             if ($segments === []) {
                 $pages[0]['tables'][$id] = $normal;
+
                 continue;
             }
             if ($normal !== []) {
@@ -120,7 +123,7 @@ final class AuctionReportTextLayout
             $copy['tables'] = array_fill_keys(array_keys($content['tables']), []);
             $copy['tables'][$id] = $segment['rows'];
             $copy['table_layouts'] = [$id => ['expanded' => $segment['expanded']]];
-            $copy['images'] = [];
+            $copy['images'] = array_intersect_key($content['images'], ['report_image' => true]);
             foreach ($fieldChunks as $role => $chunks) {
                 $copy['values'][$role] = $chunks[0];
             }
@@ -183,6 +186,7 @@ final class AuctionReportTextLayout
             $forms = $this->forms[$letter] ?? null;
             if ($forms === null) {
                 $result .= $letter;
+
                 continue;
             }
             $previous = $index - 1;

@@ -1,6 +1,6 @@
-@props(['title', 'step', 'bodyId' => null])
+@props(['title', 'step', 'bodyId' => null, 'col' => ''])
 
-<article {{ $attributes->class(['card', 'wizard-review-card']) }}>
+<article {{ $attributes->class(['card', 'wizard-review-card', $col]) }}>
     <div class="card-header d-flex align-items-center justify-content-between gap-3">
         <h5 class="mb-0">{{ $title }}</h5>
         <button type="button" class="btn btn-sm btn-icon btn-outline-primary" data-edit-step="{{ $step }}"
@@ -9,7 +9,7 @@
         </button>
     </div>
     <div @if ($bodyId) id="{{ $bodyId }}" @endif
-        class="card-body d-flex flex-column gap-3">
+        class="card-body d-flex flex-column gap-3 mt-3">
         {{ $slot }}
     </div>
 </article>

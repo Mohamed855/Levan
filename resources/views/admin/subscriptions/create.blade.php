@@ -237,121 +237,76 @@
                          الخطوة 3: مراجعة واعتماد
                     ═══════════════════════════════════════ --}}
                     <x-form.wizard.step id="step-subscription-review" :fields="[]">
-                        <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
-                            <i class="ti ti-info-circle fs-4 me-2"></i>
-                            <div>يرجى مراجعة كافة تفاصيل الاشتراك الجديد قبل الاعتماد النهائي والإنشاء.</div>
-                        </div>
-
-                        <div class="row g-4">
-                            <!-- ملخص الشركة -->
-                            <div class="col-md-6">
-                                <div class="card border h-100 shadow-none">
-                                    <div class="card-header bg-secondary py-2">
-                                        <h6 class="mb-0 fw-bold"><i class="ti ti-building me-1"></i> الشركة المستفيدة</h6>
-                                    </div>
-                                    <div class="card-body pt-3">
-                                        <table class="table table-sm table-borderless mb-0">
-                                            <tr>
-                                                <td class="text-muted ps-0">اسم الشركة:</td>
-                                                <td class="fw-semibold text-end" id="sub_review-company-name">-</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted ps-0">السجل التجاري:</td>
-                                                <td class="fw-semibold text-end" id="sub_review-commercial-number">-</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted ps-0">الرقم الضريبي:</td>
-                                                <td class="fw-semibold text-end" id="sub_review-tax-number">-</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted ps-0">المدينة:</td>
-                                                <td class="fw-semibold text-end" id="sub_review-city">-</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted ps-0">آخر اشتراك منتهٍ:</td>
-                                                <td class="fw-semibold text-end text-danger" id="sub_review-last-sub">-
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
+                        <div class="row g-4 assignment-review">
+                            <div class="col-12 d-flex flex-column gap-4">
+                                <div class="alert alert-warning mb-0 d-flex align-items-center gap-2" role="alert">
+                                    <i class="ti ti-alert-triangle fs-3" aria-hidden="true"></i>
+                                    <span>يرجى مراجعة كافة تفاصيل الاشتراك الجديد قبل الاعتماد النهائي والإنشاء.</span>
                                 </div>
-                            </div>
+                                <div class="row g-3">
+                                    <!-- ملخص الشركة -->
+                                    <div class="col-lg-6">
+                                        <x-form.wizard.review-card title="الشركة المستفيدة" step="1" col=""
+                                            class="h-100 assignment-review__card">
+                                            <dl class="row mb-0 small">
+                                                <dt class="col-5 text-muted">اسم الشركة</dt>
+                                                <dd class="col-7 fw-semibold" id="sub_review-company-name">-</dd>
+                                                <dt class="col-5 text-muted">السجل التجاري</dt>
+                                                <dd class="col-7 fw-semibold" id="sub_review-commercial-number">-</dd>
+                                                <dt class="col-5 text-muted">الرقم الضريبي</dt>
+                                                <dd class="col-7 fw-semibold" id="sub_review-tax-number">-</dd>
+                                                <dt class="col-5 text-muted">المدينة</dt>
+                                                <dd class="col-7 fw-semibold" id="sub_review-city">-</dd>
+                                                <dt class="col-5 text-muted">آخر اشتراك منتهٍ</dt>
+                                                <dd class="col-7 fw-semibold text-danger" id="sub_review-last-sub">-</dd>
+                                            </dl>
+                                        </x-form.wizard.review-card>
+                                    </div>
 
-                            <!-- ملخص الباقة والحدود -->
-                            <div class="col-md-6">
-                                <div class="card border h-100 shadow-none">
-                                    <div class="card-header bg-secondary py-2">
-                                        <h6 class="mb-0 fw-bold"><i class="ti ti-package me-1"></i> تفاصيل الباقة والحدود
-                                        </h6>
+                                    <!-- ملخص الباقة والحدود -->
+                                    <div class="col-lg-6">
+                                        <x-form.wizard.review-card title="تفاصيل الباقة والحدود" step="1" col=""
+                                            class="h-100 assignment-review__card">
+                                            <dl class="row mb-0 small">
+                                                <dt class="col-5 text-muted">الباقة</dt>
+                                                <dd class="col-7 fw-semibold text-primary" id="sub_review-plan-name">-</dd>
+                                                <dt class="col-5 text-muted">عدد المستخدمين</dt>
+                                                <dd class="col-7 fw-semibold" id="sub_review-plan-users">-</dd>
+                                                <dt class="col-5 text-muted">حد العقارات</dt>
+                                                <dd class="col-7 fw-semibold" id="sub_review-plan-props">-</dd>
+                                                <dt class="col-5 text-muted">مساحة التخزين</dt>
+                                                <dd class="col-7 fw-semibold" id="sub_review-plan-storage">-</dd>
+                                                <dt class="col-5 text-muted">المزادات النشطة</dt>
+                                                <dd class="col-7 fw-semibold" id="sub_review-plan-auctions">-</dd>
+                                                <dt class="col-5 text-muted">المميزات</dt>
+                                                <dd class="col-7" id="sub_review-plan-features">-</dd>
+                                            </dl>
+                                        </x-form.wizard.review-card>
                                     </div>
-                                    <div class="card-body pt-3">
-                                        <table class="table table-sm table-borderless mb-0">
-                                            <tr>
-                                                <td class="text-muted ps-0">الباقة:</td>
-                                                <td class="fw-semibold text-end text-primary" id="sub_review-plan-name">-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted ps-0">عدد المستخدمين:</td>
-                                                <td class="fw-semibold text-end" id="sub_review-plan-users">-</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted ps-0">حد العقارات:</td>
-                                                <td class="fw-semibold text-end" id="sub_review-plan-props">-</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted ps-0">مساحة التخزين:</td>
-                                                <td class="fw-semibold text-end" id="sub_review-plan-storage">-</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted ps-0">المزادات النشطة:</td>
-                                                <td class="fw-semibold text-end" id="sub_review-plan-auctions">-</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted ps-0">المميزات:</td>
-                                                <td class="text-end" id="sub_review-plan-features">-</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <!-- ملخص الاشتراك والدفع -->
-                            <div class="col-12">
-                                <div class="card border shadow-none">
-                                    <div class="card-header bg-secondary py-2">
-                                        <h6 class="mb-0 fw-bold"><i class="ti ti-file-invoice me-1"></i> مدة الاشتراك
-                                            والمالية</h6>
-                                    </div>
-                                    <div class="card-body pt-3">
-                                        <div class="row g-4">
-                                            <div class="col-md-3">
-                                                <small class="text-muted d-block">تاريخ البداية</small>
-                                                <span class="fw-semibold" id="sub_review-start-date">-</span>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <small class="text-muted d-block">تاريخ النهاية</small>
-                                                <span class="fw-semibold" id="sub_review-end-date">-</span>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <small class="text-muted d-block">حالة الدفع</small>
-                                                <span id="sub_review-payment-status" class="badge bg-secondary">-</span>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <small class="text-muted d-block">طريقة الدفع</small>
-                                                <span class="fw-semibold" id="sub_review-payment-method">-</span>
-                                            </div>
-                                            <div class="col-md-6 mt-3 pt-3 border-top">
-                                                <small class="text-muted d-block">حالة التفعيل المتوقعة</small>
-                                                <span id="sub_review-activation-status"
-                                                    class="badge bg-success">مفعل فوراً</span>
-                                            </div>
-                                            <div class="col-md-6 mt-3 pt-3 border-top text-md-end">
-                                                <small class="text-muted d-block">المبلغ الإجمالي النهائي</small>
-                                                <span class="h4 fw-bold text-primary mb-0"
-                                                    id="sub_review-final-total">0.00 ر.س</span>
-                                            </div>
-                                        </div>
+                                    <!-- مدة الاشتراك والمالية -->
+                                    <div class="col-lg-6">
+                                        <x-form.wizard.review-card title="مدة الاشتراك والمالية" step="2" col=""
+                                            class="h-100 assignment-review__card">
+                                            <dl class="row mb-0 small">
+                                                <dt class="col-5 text-muted">تاريخ البداية</dt>
+                                                <dd class="col-7 fw-semibold" id="sub_review-start-date">-</dd>
+                                                <dt class="col-5 text-muted">تاريخ النهاية</dt>
+                                                <dd class="col-7 fw-semibold" id="sub_review-end-date">-</dd>
+                                                <dt class="col-5 text-muted">طريقة الدفع</dt>
+                                                <dd class="col-7 fw-semibold" id="sub_review-payment-method">-</dd>
+                                                <dt class="col-5 text-muted">حالة الدفع</dt>
+                                                <dd class="col-7">
+                                                    <span id="sub_review-payment-status" class="badge bg-secondary">-</span>
+                                                </dd>
+                                                <dt class="col-5 text-muted">حالة التفعيل المتوقعة</dt>
+                                                <dd class="col-7">
+                                                    <span id="sub_review-activation-status" class="badge bg-success">مفعل فوراً</span>
+                                                </dd>
+                                                <dt class="col-5 text-muted">المبلغ الإجمالي النهائي</dt>
+                                                <dd class="col-7 fw-bold text-primary fs-5" id="sub_review-final-total">0.00 ر.س</dd>
+                                            </dl>
+                                        </x-form.wizard.review-card>
                                     </div>
                                 </div>
                             </div>
