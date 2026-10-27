@@ -8,7 +8,7 @@
 
      <button title="حذف نهائي" type="button" onclick="confirmForceDelete({{ $id }})"
         class="btn btn-icon btn-primary bg-primary">
-        <i class="ti ti-trash-x"></i>
+        <i class="ti ti-trash"></i>
     </button>
     
 </div>

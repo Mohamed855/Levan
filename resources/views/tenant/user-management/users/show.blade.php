@@ -40,7 +40,7 @@
                         <button type="button" class="btn btn-primary btn-sm edit-button" data-bs-toggle="modal"
                             data-bs-target="#editBackgroundImageModal"
                             style="position: absolute; top: 10px; right: 10px; transition: opacity 0.3s;">
-                            <i class="ti ti-pencil"></i>تغيير
+                            <i class="ti ti-edit"></i>تغيير
                         </button>
                     @endif
                 </div>
@@ -58,7 +58,7 @@
                                 class="btn btn-icon btn-primary rounded-circle position-absolute bottom-0 end-0 me-4 mb-1"
                                 data-bs-toggle="modal" data-bs-target="#changeProfileImageModal"
                                 style="width: 2rem; height: 2rem; padding: 0; display: flex; align-items: center; justify-content: center;">
-                                <i class="ti ti-pencil ti-14px"></i>
+                                <i class="ti ti-edit ti-14px"></i>
                             </button>
                         @endif
                     </div>

@@ -516,7 +516,7 @@
                                                             <a href="{{ route('admin.clients.show', $subscription->tenant_id) }}"
                                                                 class="btn btn-icon btn-primary btn-sm"
                                                                 title="عرض ملف العميل">
-                                                                <i class="ti ti-building"></i>
+                                                                <i class="ti ti-eye"></i>
                                                             </a>
 
                                                             {{-- رابط لوحة تحكم الشركة الخارجي --}}

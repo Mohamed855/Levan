@@ -32,5 +32,4 @@
             @csrf
             @method('DELETE')
         </form>
-    @endif
 </div>

@@ -1,9 +1,5 @@
 <x-actions.row class="justify-content-center gap-2">
-    @can('auction_templates.view')
-        <a href="{{ route($route . '.show', $row->id) }}" class="btn btn-icon btn-primary bg-primary" title="عرض تفاصيل القالب">
-            <i class="ti ti-eye"></i>
-        </a>
-    @endcan
+    <x-actions.show :url="route($route . '.show', $row->id)" title="عرض تفاصيل القالب" permission="auction_templates.view" />
 
     <x-actions.edit :url="route($route . '.edit', $row->id)" title="تعديل القالب" permission="auction_templates.edit" />
 

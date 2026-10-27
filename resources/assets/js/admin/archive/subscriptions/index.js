@@ -192,7 +192,7 @@ function handleMassForceDelete() {
         text: `سيتم حذف ${selectedIds.length} اشتراك نهائياً ولا يمكن استرجاعها. هل أنت متأكد؟`,
         confirmButtonText: 'نعم، احذف الكل نهائياً',
         confirmButtonClass: 'btn btn-danger',
-        icon: 'ti ti-alert-triangle text-danger',
+        icon: 'ti ti-trash text-danger',
         onConfirm: function () {
             executeMassForceDelete(selectedIds);
         }
