@@ -1,6 +1,6 @@
 @extends('layouts.web')
 
-@section('title', 'ليفان — تجربة مجانية')
+@section('title', 'لوت — تجربة مجانية')
 
 @section('page-style')
     @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/libs/select2/select2.scss'])
@@ -34,7 +34,7 @@
                 <div class="scroll-revealed mx-auto text-center">
                     <span class="hero-eyebrow"><i class="ti ti-receipt-2"></i> طلب تجربة النظام</span>
                     <h1 class="site-page-hero-title">تجربة مجانية</h1>
-                    <p class="site-page-hero-desc mb-3">جرّب ليفان لمدة 7 أيام بعد موافقة الإدارة، بدون رسوم أو بطاقة بنكية.
+                    <p class="site-page-hero-desc mb-3">جرّب لوتلمدة 7 أيام بعد موافقة الإدارة، بدون رسوم أو بطاقة بنكية.
                     </p>
                     <div class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill bg-white/10 my-2">
                         <span class="text-2xl font-bold text-white">0</span>
@@ -52,13 +52,9 @@
                     <div class="checkout-grid">
                         <div class="checkout-main-col">
                             <div class="checkout-card scroll-revealed otp-card">
-                                <div class="checkout-card-header d-flex align-items-center justify-content-between">
+                                <div class="checkout-card-header">
                                     <h3 class="checkout-card-title"><i class="ti ti-mail-check"></i> تأكيد البريد الإلكتروني
                                     </h3>
-                                    <a href="{{ route('site.trial.edit') }}" class="checkout-back-link text-sm">
-                                        <i class="ti ti-edit"></i>
-                                        تعديل البيانات
-                                    </a>
                                 </div>
                                 <div class="checkout-card-body">
                                     <div class="otp-intro">
@@ -76,14 +72,39 @@
                                         @csrf
                                         <x-form.controls.input name="otp" label="رمز التحقق" inputmode="numeric"
                                             maxlength="6" autocomplete="one-time-code" class="otp-input" required />
-                                        <div class="d-flex align-items-center justify-content-between mt-3">
+                                        <div class="d-flex align-items-center justify-content-between mt-3"
+                                            id="otp-timer-actions">
                                             <div id="checkout-otp-timer" class="otp-timer fw-bold"
-                                                data-expires-at="{{ $otpExpiresAt }}"></div>
-                                            <a href="{{ route('site.trial.edit') }}"
-                                                class="text-sm font-semibold text-primary text-decoration-none">
-                                                <i class="ti ti-edit"></i> تعديل البيانات
-                                            </a>
+                                                data-expires-at="{{ $otpExpiresAt ?? 0 }}"
+                                                data-resend-count="{{ $resendCount ?? 0 }}"
+                                                data-max-resends="{{ $maxResends ?? 3 }}"
+                                                data-resend-url="{{ route('site.trial.resend') }}"></div>
+
+                                            <div id="otp-resend-container" class="d-none">
+                                                <button type="button"
+                                                    class="otp-action-btn"
+                                                    id="btn-resend-otp">
+                                                    <i class="ti ti-rotate-clockwise"></i>
+                                                    <span>إعادة إرسال الرمز</span>
+                                                    <span
+                                                        class="text-xs text-muted" id="otp-remaining-attempts">({{ ($maxResends ?? 3) - ($resendCount ?? 0) }}
+                                                        متبقية)</span>
+                                                </button>
+                                            </div>
+
+                                            <div id="otp-edit-container" class="d-none">
+                                                <a href="{{ route('site.trial.edit') }}"
+                                                    class="otp-action-btn">
+                                                    <i class="ti ti-arrow-right"></i>
+                                                    العودة لتعديل البيانات
+                                                </a>
+                                            </div>
                                         </div>
+                                    </form>
+
+                                    <form id="otp-resend-form" method="POST"
+                                        action="{{ route('site.trial.resend') }}" class="d-none">
+                                        @csrf
                                     </form>
                                 </div>
                             </div>

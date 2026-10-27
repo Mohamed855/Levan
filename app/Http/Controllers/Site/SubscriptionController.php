@@ -44,10 +44,14 @@ class SubscriptionController extends Controller
         }
 
         $verification = request()->session()->get('checkout_verification');
-        if (is_array($verification)
-            && (int) ($verification['expires_at'] ?? 0) < now()->timestamp) {
-            request()->session()->forget(['checkout_verification', 'checkout_coupon_code']);
-            $verification = null;
+        if (is_array($verification)) {
+            if (isset($verification['verified_at']) && (int) ($verification['expires_at'] ?? 0) < now()->timestamp) {
+                request()->session()->forget(['checkout_verification', 'checkout_coupon_code']);
+                $verification = null;
+            } elseif (! isset($verification['verified_at']) && (int) ($verification['session_expires_at'] ?? (($verification['expires_at'] ?? 0) + 3600)) < now()->timestamp) {
+                request()->session()->forget(['checkout_verification', 'checkout_coupon_code']);
+                $verification = null;
+            }
         }
 
         $otpStep = is_array($verification) && ! isset($verification['verified_at']) && (int) ($verification['plan_id'] ?? 0) === (int) $plan->getKey() && isset($verification['otp_hash']);
@@ -58,6 +62,8 @@ class SubscriptionController extends Controller
         $banks = Bank::where('is_active', true)->get();
         $cities = City::all();
         $taxRate = 0.15;
+        $resendCount = (int) ($verification['resend_count'] ?? 0);
+        $maxResends = 3;
 
         // استرجاع الكوبون المطبق من الجلسة وحساب الخصم تلقائياً
         $couponCode = $verification['coupon_code'] ?? request()->session()->get('checkout_coupon_code') ?? old('coupon_code');
@@ -81,7 +87,7 @@ class SubscriptionController extends Controller
         $taxAmount = round($finalTotal * $taxRate, 2);
         $priceWithoutTax = round($finalTotal - $taxAmount, 2);
 
-        return view('web.checkout', compact('plan', 'priceWithoutTax', 'taxAmount', 'banks', 'cities', 'otpStep', 'paymentStep', 'checkoutData', 'verification', 'appliedCoupon', 'finalTotal'));
+        return view('web.checkout', compact('plan', 'priceWithoutTax', 'taxAmount', 'banks', 'cities', 'otpStep', 'paymentStep', 'checkoutData', 'verification', 'appliedCoupon', 'finalTotal', 'resendCount', 'maxResends'));
     }
 
     //  Checkout store
@@ -96,6 +102,8 @@ class SubscriptionController extends Controller
         unset($checkout['billing_password'], $checkout['billing_password_confirmation']);
         $checkout['plan_id'] = $plan->getKey();
         $checkout['expires_at'] = now()->addMinutes(2)->timestamp;
+        $checkout['session_expires_at'] = now()->addHour()->timestamp;
+        $checkout['resend_count'] = 0;
         $couponCode = $checkout['coupon_code'] ?? $request->session()->get('checkout_coupon_code');
         if (! empty($couponCode)) {
             $couponResult = $this->couponService->processCoupon($couponCode, (float) $plan->price_after_discount);
@@ -116,14 +124,63 @@ class SubscriptionController extends Controller
         return redirect()->route('site.plans.checkout', $plan);
     }
 
+    public function resendOtp(Request $request, Plan $plan)
+    {
+        abort_unless($this->isPublicPlan($plan), 404);
+
+        $checkout = $request->session()->get('checkout_verification');
+        if (! is_array($checkout) || (int) ($checkout['plan_id'] ?? 0) !== (int) $plan->getKey() || ! isset($checkout['otp_hash'])) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'لا توجد جلسة تحقق نشطة.'], 422);
+            }
+
+            return redirect()->route('site.plans.checkout', $plan)->withErrors(['otp' => 'لا توجد جلسة تحقق نشطة.']);
+        }
+
+        $resendCount = (int) ($checkout['resend_count'] ?? 0);
+        if ($resendCount >= 3) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لقد استنفدت الحد الأقصى لمحاولات إعادة الإرسال (3 مرات). يرجى العودة لتعديل البيانات.',
+                    'resend_count' => $resendCount,
+                ], 422);
+            }
+
+            return redirect()->route('site.plans.checkout', $plan)
+                ->withErrors(['otp' => 'لقد استنفدت الحد الأقصى لمحاولات إعادة الإرسال (3 مرات). يرجى العودة لتعديل البيانات.']);
+        }
+
+        $otp = $this->checkoutOtp();
+        $checkout['otp_hash'] = hash('sha256', $otp);
+        $checkout['expires_at'] = now()->addMinutes(2)->timestamp;
+        $checkout['resend_count'] = $resendCount + 1;
+        $request->session()->put('checkout_verification', $checkout);
+        $this->sendCheckoutOtp($checkout['billing_email'], $otp);
+
+        $message = 'تم إعادة إرسال رمز التحقق بنجاح إلى بريدك الإلكتروني.';
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'expires_at' => $checkout['expires_at'],
+                'resend_count' => $checkout['resend_count'],
+                'remaining_resends' => max(0, 3 - $checkout['resend_count']),
+            ]);
+        }
+
+        return redirect()->route('site.plans.checkout', $plan)
+            ->with('success', $message);
+    }
+
     public function editCheckout(Plan $plan)
     {
         abort_unless($this->isPublicPlan($plan), 404);
         $checkout = request()->session()->get('checkout_verification', []);
 
-        $safeInput = collect($checkout)->except(['plan_id', 'expires_at', 'otp_hash', 'verified_at', 'billing_password', 'billing_password_hash', 'billing_password_confirmation'])->all();
+        $safeInput = collect($checkout)->except(['plan_id', 'expires_at', 'otp_hash', 'verified_at', 'billing_password', 'billing_password_hash', 'billing_password_confirmation', 'resend_count', 'session_expires_at'])->all();
         // إزالة تأكيد OTP حتى يعود لخطوة تعديل البيانات مع الحفاظ على البيانات في الجلسة عند عمل Reload
-        unset($checkout['verified_at'], $checkout['otp_hash']);
+        unset($checkout['verified_at'], $checkout['otp_hash'], $checkout['resend_count']);
         $checkout['expires_at'] = now()->addHour()->timestamp;
         request()->session()->put('checkout_verification', $checkout);
 
@@ -133,9 +190,7 @@ class SubscriptionController extends Controller
     public function verifyOtp(VerifyCheckoutOtpRequest $request, Plan $plan)
     {
         if (! $this->hasCheckoutVerification($plan)) {
-            $request->session()->forget(['checkout_verification', 'checkout_coupon_code']);
-
-            return redirect()->route('site.plans.checkout', $plan)->withErrors(['otp' => 'انتهت صلاحية رمز التحقق، يرجى المحاولة مرة أخرى.']);
+            return redirect()->route('site.plans.checkout', $plan)->withErrors(['otp' => 'انتهت صلاحية رمز التحقق. يرجى إعادة الإرسال أو تعديل البيانات.']);
         }
 
         $verification = $request->session()->get('checkout_verification');

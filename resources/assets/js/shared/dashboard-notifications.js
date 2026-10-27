@@ -2,9 +2,10 @@ import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const root = document.querySelector('.js-dashboard-notifications');
-    if (!root) return;
-    const list = root.querySelector('[data-notification-items]');
+    const root = document.querySelector('.js-dashboard-notifications') || document.querySelector('[data-feed-url]');
+    if (!root && !document.querySelector('[data-notification-id]')) return;
+
+    const list = root?.querySelector('[data-notification-items]');
     const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
     const headers = { Accept: 'application/json', 'X-CSRF-TOKEN': csrf, 'X-Requested-With': 'XMLHttpRequest' };
     let echo;
@@ -15,34 +16,83 @@ document.addEventListener('DOMContentLoaded', () => {
     let stopped = false;
     const seen = new Set();
     const color = (type) => ['success', 'warning', 'danger', 'primary', 'secondary', 'info'].includes(type) ? type : 'info';
+
     const safeUrl = (url) => {
+        if (!url || typeof url !== 'string') return '';
+        const trimmed = url.trim();
+        if (!trimmed || trimmed === '#' || trimmed.startsWith('javascript:')) return '';
         try {
-            const target = new URL(url || '#', window.location.origin);
-            return target.origin === window.location.origin ? target.href : '#';
-        } catch { return '#'; }
+            const target = new URL(trimmed, window.location.origin);
+            if (target.protocol !== 'http:' && target.protocol !== 'https:') {
+                return '';
+            }
+            if (trimmed.startsWith('/')) {
+                return target.href;
+            }
+            const currentHost = window.location.hostname;
+            const targetHost = target.hostname;
+            if (
+                targetHost === currentHost ||
+                targetHost.endsWith('.' + currentHost) ||
+                currentHost.endsWith('.' + targetHost) ||
+                (targetHost.includes('localhost') && currentHost.includes('localhost')) ||
+                (targetHost === '127.0.0.1' && currentHost === '127.0.0.1')
+            ) {
+                return target.href;
+            }
+            if (target.origin === window.location.origin) {
+                return target.href;
+            }
+            return target.href;
+        } catch {
+            return '';
+        }
     };
+
+    const getEndpoint = (attr, id = null) => {
+        const datasetKey = attr;
+        const el = root?.dataset?.[datasetKey] ? root : document.querySelector(`[data-${attr.replace(/([A-Z])/g, '-$1').toLowerCase()}]`);
+        const template = el?.dataset?.[datasetKey];
+        if (!template) return '';
+        return id !== null ? template.replace('__ID__', encodeURIComponent(id)) : template;
+    };
+
     const node = (tag, classes, text) => {
         const element = document.createElement(tag);
         element.className = classes;
         if (text !== undefined) element.textContent = text;
         return element;
     };
+
     const render = (items, count) => {
-        root.querySelector('[data-notification-count]').textContent = `${count} جديد`;
-        root.querySelector('[data-notification-dot]').classList.toggle('d-none', count === 0);
+        const countBadge = document.querySelector('[data-notification-count]');
+        if (countBadge) countBadge.textContent = `${count} جديد`;
+        const dot = document.querySelector('[data-notification-dot]');
+        if (dot) dot.classList.toggle('d-none', count === 0);
+
+        if (!list) return;
         list.replaceChildren();
-        if (!items.length) list.append(node('li', 'list-group-item text-center text-muted', 'لا توجد إشعارات حاليًا'));
+        if (!items.length) {
+            list.append(node('li', 'list-group-item text-center text-muted', 'لا توجد إشعارات حاليًا'));
+            return;
+        }
+
         items.forEach((notice) => {
             const data = notice.data || {};
+            const targetUrl = safeUrl(data.url);
             const row = node('li', `list-group-item list-group-item-action dropdown-notifications-item ${notice.read_at ? 'marked-as-read' : ''}`);
             row.dataset.notificationId = notice.id;
+            if (targetUrl) {
+                row.dataset.targetUrl = targetUrl;
+                row.style.cursor = 'pointer';
+            }
             const flex = node('div', 'd-flex gap-2 align-items-start');
             const icon = node('span', `avatar-initial rounded-circle bg-label-${color(data.type)} p-2`);
             const glyph = node('i', /^ti ti-[a-z0-9-]+$/.test(data.icon || '') ? data.icon : 'ti ti-bell');
             icon.append(glyph);
             const content = node('div', 'flex-grow-1');
             const link = node('a', 'small text-body fw-semibold d-block', data.title || 'إشعار');
-            link.href = safeUrl(data.url);
+            link.href = targetUrl || '#';
             link.dataset.dashboardNotificationRead = notice.id;
             content.append(link, node('p', 'mb-1 small text-muted', data.message || ''), node('small', 'text-muted', notice.created_at));
             const remove = node('button', 'btn btn-sm btn-text-secondary btn-icon', '×');
@@ -59,13 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         initialized = true;
     };
+
     const subscribe = (config) => {
         if (echo || !config?.key) return;
         echo = new Echo({
             broadcaster: 'pusher', client: new Pusher(config.key, {
                 cluster: 'mt1', wsHost: config.host, wsPort: config.port, wssPort: config.port,
                 forceTLS: config.scheme === 'https', enabledTransports: ['ws', 'wss'], disableStats: true,
-                authEndpoint: root.dataset.authUrl, auth: { headers },
+                authEndpoint: root?.dataset?.authUrl, auth: { headers },
             }),
         });
         echo.private(config.channel).listen('.dashboard.notifications.changed', refresh).subscribed(refresh);
@@ -75,8 +126,9 @@ document.addEventListener('DOMContentLoaded', () => {
         connection.bind('unavailable', () => { connected = false; });
         connection.bind('error', () => { connected = false; });
     };
+
     async function refresh() {
-        if (stopped) return;
+        if (stopped || !root?.dataset?.feedUrl) return;
         if (loading) { refreshPending = true; return; }
         loading = true;
         try {
@@ -92,40 +144,124 @@ document.addEventListener('DOMContentLoaded', () => {
             if (refreshPending && !stopped) { refreshPending = false; queueMicrotask(refresh); }
         }
     }
+
     async function mutate(url, method = 'POST') {
         const response = await fetch(url, { method, headers, credentials: 'same-origin' });
         if (!response.ok) throw new Error('تعذر تحديث الإشعار');
-        await refresh();
+        if (root?.dataset?.feedUrl) {
+            await refresh();
+        }
     }
+
     document.addEventListener('click', async (event) => {
         const remove = event.target.closest('[data-dashboard-notification-delete]');
-        const read = event.target.closest('[data-dashboard-notification-read]');
         const all = event.target.closest('[data-notification-read-all]');
-        if (!remove && !read && !all) return;
-        event.preventDefault();
-        try {
-            if (remove) {
-                await mutate(root.dataset.deleteUrl.replace('__ID__', encodeURIComponent(remove.dataset.dashboardNotificationDelete)), 'DELETE');
-                remove.closest('[data-notification-id]')?.remove();
-            } else if (all) {
-                await mutate(root.dataset.readAllUrl);
-                document.querySelectorAll('[data-notification-id]').forEach((row) => { row.classList.add('marked-as-read'); row.classList.remove('bg-label-primary'); });
-            } else {
-                await mutate(root.dataset.readUrl.replace('__ID__', encodeURIComponent(read.dataset.dashboardNotificationRead)));
-                const target = safeUrl(read.href);
-                if (target !== new URL('#', location.href).href) location.assign(target);
+        const item = event.target.closest('[data-notification-id]');
+        const readLink = event.target.closest('[data-dashboard-notification-read]');
+
+        // 1. Delete single notification
+        if (remove) {
+            event.preventDefault();
+            event.stopPropagation();
+            const noticeId = remove.dataset.dashboardNotificationDelete;
+            const deleteUrl = getEndpoint('deleteUrl', noticeId);
+            if (deleteUrl) {
+                try {
+                    await mutate(deleteUrl, 'DELETE');
+                    remove.closest('[data-notification-id]')?.remove();
+                } catch {
+                    window.toastr?.error('تعذر حذف الإشعار. يرجى المحاولة مرة أخرى.');
+                }
             }
-        } catch { window.toastr?.error('تعذر تحديث الإشعار. يرجى المحاولة مرة أخرى.'); }
+            return;
+        }
+
+        // 2. Mark all notifications as read
+        if (all) {
+            event.preventDefault();
+            const readAllUrl = getEndpoint('readAllUrl');
+            if (readAllUrl) {
+                try {
+                    await mutate(readAllUrl);
+                    document.querySelectorAll('[data-notification-id]').forEach((row) => {
+                        row.classList.add('marked-as-read');
+                        row.classList.remove('bg-label-primary');
+                    });
+                } catch {
+                    window.toastr?.error('تعذر تحديث الإشعارات. يرجى المحاولة مرة أخرى.');
+                }
+            }
+            return;
+        }
+
+        // 3. Notification item clicked (full card, title, icon, timestamp, or message)
+        if (item || readLink) {
+            const row = item || readLink.closest('[data-notification-id]');
+            const noticeId = readLink?.dataset.dashboardNotificationRead || row?.dataset.notificationId;
+            const rawUrl = row?.dataset.targetUrl || readLink?.getAttribute('href') || row?.querySelector('a[data-dashboard-notification-read]')?.getAttribute('href') || row?.querySelector('a')?.getAttribute('href');
+            const target = safeUrl(rawUrl);
+
+            // Mark visually as read immediately
+            if (row) {
+                row.classList.add('marked-as-read');
+                row.classList.remove('bg-label-primary');
+            }
+
+            // Send mark-as-read in background with keepalive so page transition doesn't abort it
+            const readUrl = getEndpoint('readUrl', noticeId);
+            if (readUrl) {
+                fetch(readUrl, {
+                    method: 'POST',
+                    headers,
+                    credentials: 'same-origin',
+                    keepalive: true,
+                }).catch(() => {});
+            }
+
+            // If a valid URL is linked, navigate immediately
+            if (target) {
+                if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1) {
+                    if (event.target.tagName.toLowerCase() !== 'a') {
+                        event.preventDefault();
+                        window.open(target, '_blank');
+                    }
+                    return;
+                }
+                event.preventDefault();
+                window.location.assign(target);
+                return;
+            }
+
+            // No URL to navigate to, so refresh counts if on same page
+            if (readUrl && root?.dataset?.feedUrl) {
+                try {
+                    await refresh();
+                } catch {}
+            }
+        }
     });
+
     window.updateNotificationCount = refresh;
-    window.markAllAsRead = () => mutate(root.dataset.readAllUrl);
-    window.deleteNotification = (id) => mutate(root.dataset.deleteUrl.replace('__ID__', encodeURIComponent(id)), 'DELETE');
-    root.addEventListener('show.bs.dropdown', refresh);
+    window.markAllAsRead = () => {
+        const url = getEndpoint('readAllUrl');
+        return url ? mutate(url) : Promise.resolve();
+    };
+    window.deleteNotification = (id) => {
+        const url = getEndpoint('deleteUrl', id);
+        return url ? mutate(url, 'DELETE') : Promise.resolve();
+    };
+
+    if (root) {
+        root.addEventListener('show.bs.dropdown', refresh);
+    }
     window.addEventListener('online', refresh);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
     const timer = setInterval(() => { if (!document.hidden && !connected) refresh(); }, 5000);
     const sync = setInterval(() => { if (!document.hidden) refresh(); }, 60000);
     window.addEventListener('pagehide', () => { connected = false; echo?.disconnect(); });
     window.addEventListener('pageshow', (event) => { if (event.persisted) { echo?.connector.pusher.connect(); refresh(); } });
-    refresh();
+
+    if (root?.dataset?.feedUrl) {
+        refresh();
+    }
 });

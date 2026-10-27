@@ -27,7 +27,7 @@ final class SystemEmailAvailable implements ValidationRule
             || $existsInCentralUsers
             || Tenant::query()->whereRaw('LOWER(primary_contact_email) = ?', [$email])->exists()
             || $this->existsInTenantUsers($email)) {
-            $fail('البريد الإلكتروني مستخدم بالفعل في النظام.');
+            $fail('البريد الإلكتروني موجود بالفعل');
         }
     }
 

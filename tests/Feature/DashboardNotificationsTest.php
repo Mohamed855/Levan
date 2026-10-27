@@ -160,7 +160,14 @@ class DashboardNotificationsTest extends TenantAuctionReportTestCase
         $this->actingAs($this->owner, 'tenant');
         $parameters = ['tenant' => $this->tenant->id];
         $this->getJson(route('path.dashboard-notifications.feed', $parameters))->assertOk()->assertJsonPath('count', 1)->assertJsonPath('items.0.id', $notice->id);
-        $this->get(route('path.dashboard-notifications.index', $parameters))->assertOk()->assertSee('كل الإشعارات');
+        $this->get(route('path.dashboard-notifications.index', $parameters))
+            ->assertOk()
+            ->assertSee('كل الإشعارات')
+            ->assertSee('تحديد الكل كمقروء')
+            ->assertSee('غير المقروءة')
+            ->assertSee('المقروءة');
+        $this->get(route('path.dashboard-notifications.index', $parameters + ['filter' => 'unread']))->assertOk();
+        $this->get(route('path.dashboard-notifications.index', $parameters + ['filter' => 'read']))->assertOk();
         $this->postJson(route('path.dashboard-notifications.auth', $parameters), ['socket_id' => '123.456', 'channel_name' => "private-dashboard.tenant.{$this->tenant->id}.user.{$this->owner->id}"])->assertOk()->assertJsonStructure(['auth']);
         $this->actingAs($this->admin, 'admin');
         $this->actingAs($this->owner, 'tenant');

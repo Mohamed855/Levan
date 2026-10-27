@@ -66,6 +66,7 @@ class SubscriptionCheckoutRequest extends FormRequest
 
             'billing_email.required' => 'البريد الإلكتروني مطلوب',
             'billing_email.email' => 'البريد الإلكتروني غير صحيح',
+            'billing_email.unique' => 'البريد الإلكتروني موجود بالفعل',
 
             'billing_phone.required' => 'رقم الجوال مطلوب',
             'billing_phone.regex' => 'صيغة رقم الجوال غير صحيحة (يجب أن يبدأ بـ 05 أو 966)',
@@ -86,6 +87,21 @@ class SubscriptionCheckoutRequest extends FormRequest
             'transfer_receipt.max' => 'يجب ألا يتجاوز حجم إيصال التحويل 5 ميغابايت',
 
             'coupon_code.exists' => 'كود الخصم غير صالح',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'billing_company_name' => 'اسم الشركة أو المؤسسة',
+            'billing_commercial_number' => 'رقم السجل التجاري',
+            'billing_tax_number' => 'الرقم الضريبي',
+            'billing_city_id' => 'المدينة',
+            'billing_address' => 'العنوان',
+            'billing_name' => 'اسم المدير المسؤول',
+            'billing_email' => 'البريد الإلكتروني',
+            'billing_phone' => 'رقم الجوال',
+            'billing_password' => 'كلمة المرور',
         ];
     }
 

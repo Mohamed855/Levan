@@ -14,7 +14,7 @@ class RegistrationOtpService
         $otp = $test ? '000000' : (string) random_int(100000, 999999);
         if (! $test) {
             Mail::raw("رمز التحقق لتأكيد بريدك الإلكتروني هو: {$otp}", function ($message) use ($email): void {
-                $message->to($email)->subject('رمز التحقق — ليفان');
+                $message->to($email)->subject('رمز التحقق — لوت');
             });
         }
 

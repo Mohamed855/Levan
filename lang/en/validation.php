@@ -163,8 +163,8 @@ return [
     */
 
     'custom' => [
-        'attribute-name' => [
-            'rule-name' => 'custom-message',
+        'billing_email' => [
+            'unique' => 'البريد الإلكتروني موجود بالفعل',
         ],
     ],
 
@@ -179,6 +179,8 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'billing_email' => 'البريد الإلكتروني',
+    ],
 
 ];

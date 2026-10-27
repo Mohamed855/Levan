@@ -32,9 +32,9 @@ class WebsiteFormValidationContractTest extends TestCase
 
     public function test_public_forms_use_the_shared_validation_endpoint(): void
     {
-        $trial = file_get_contents(resource_path('views/site/trial.blade.php'));
-        $checkout = file_get_contents(resource_path('views/site/checkout.blade.php'));
-        $contact = file_get_contents(resource_path('views/site/index.blade.php'));
+        $trial = file_get_contents(resource_path('views/web/trial.blade.php'));
+        $checkout = file_get_contents(resource_path('views/web/checkout.blade.php'));
+        $contact = file_get_contents(resource_path('views/web/index.blade.php'));
 
         $this->assertStringContainsString('data-form-validate', $trial);
         $this->assertStringContainsString("route('site.form-validation')", $trial);
@@ -46,9 +46,9 @@ class WebsiteFormValidationContractTest extends TestCase
 
     public function test_site_scripts_do_not_define_business_validation_rules(): void
     {
-        $trial = file_get_contents(resource_path('assets/js/site/trial.js'));
-        $checkout = file_get_contents(resource_path('assets/js/site/checkout.js'));
-        $contact = file_get_contents(resource_path('assets/js/site/landing.js'));
+        $trial = file_get_contents(resource_path('assets/js/web/trial.js'));
+        $checkout = file_get_contents(resource_path('assets/js/web/checkout.js'));
+        $contact = file_get_contents(resource_path('assets/js/web/landing.js'));
 
         $this->assertStringNotContainsString('fieldRules', $trial);
         $this->assertStringNotContainsString('fieldRules', $checkout);
@@ -57,5 +57,18 @@ class WebsiteFormValidationContractTest extends TestCase
         $this->assertStringNotContainsString('regexp:', $checkout);
         $this->assertStringNotContainsString('fieldRules', $contact);
         $this->assertStringNotContainsString('validateField(', $contact);
+    }
+
+    public function test_duplicate_billing_email_validation_message_is_arabic_friendly(): void
+    {
+        $response = $this->postJson(route('site.form-validation'), [
+            'target_path' => '/trial',
+            'target_method' => 'POST',
+            'fields' => ['billing_email'],
+            'billing_email' => 'superadmin@gmail.com',
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['billing_email' => 'البريد الإلكتروني موجود بالفعل']);
     }
 }

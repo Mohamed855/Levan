@@ -242,4 +242,26 @@ class TrialRegistrationFlowTest extends TestCase
             ->assertSee('name="billing_company_name"', false)
             ->assertSee($data['billing_company_name'], false);
     }
+
+    public function test_resending_trial_otp_is_allowed_up_to_three_times_and_then_blocked(): void
+    {
+        $data = $this->payload();
+        $this->post(route('site.trial.store'), $data)->assertRedirect(route('site.trial'));
+
+        // Resend 1
+        $this->post(route('site.trial.resend'))->assertRedirect(route('site.trial'))->assertSessionHas('success');
+        self::assertSame(1, session('trial_registration.resend_count'));
+
+        // Resend 2
+        $this->post(route('site.trial.resend'))->assertRedirect(route('site.trial'))->assertSessionHas('success');
+        self::assertSame(2, session('trial_registration.resend_count'));
+
+        // Resend 3
+        $this->post(route('site.trial.resend'))->assertRedirect(route('site.trial'))->assertSessionHas('success');
+        self::assertSame(3, session('trial_registration.resend_count'));
+
+        // Resend 4 (blocked)
+        $this->post(route('site.trial.resend'))->assertRedirect(route('site.trial'))->assertSessionHasErrors('otp');
+        self::assertSame(3, session('trial_registration.resend_count'));
+    }
 }

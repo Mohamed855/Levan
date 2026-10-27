@@ -16,6 +16,7 @@ Route::name('site.')->group(function () {
         Route::post('/', [TrialController::class, 'demoRequest'])->middleware('throttle:6,1')->defaults('shared_form_validation', true)->name('trial.store');
         Route::get('edit', [TrialController::class, 'edit'])->name('trial.edit');
         Route::post('verify-email', [TrialController::class, 'verify'])->middleware('throttle:10,1')->name('trial.verify');
+        Route::post('resend-otp', [TrialController::class, 'resendOtp'])->middleware('throttle:6,1')->name('trial.resend');
         Route::get('submitted', [TrialController::class, 'submitted'])->name('trial.submitted');
     });
 
@@ -25,6 +26,7 @@ Route::name('site.')->group(function () {
             Route::get('edit', [SubscriptionController::class, 'editCheckout'])->name('checkout.edit');
             Route::post('/', [SubscriptionController::class, 'processCheckout'])->defaults('shared_form_validation', true)->name('checkout.store');
             Route::post('verify-email', [SubscriptionController::class, 'verifyOtp'])->name('checkout.verify.store');
+            Route::post('resend-otp', [SubscriptionController::class, 'resendOtp'])->middleware('throttle:6,1')->name('checkout.resend');
             Route::post('payment', [SubscriptionController::class, 'completeCheckout'])->defaults('shared_form_validation', true)->name('checkout.payment');
         });
         Route::get('checkout/callback', [SubscriptionController::class, 'handlePaymentCallback'])->name('checkout.callback');

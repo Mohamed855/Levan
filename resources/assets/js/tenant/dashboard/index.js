@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ── الألوان الأساسية الخاصة بهوية ليفان ─────────────────────────
+    // ── الألوان الأساسية الخاصة بهوية لوت─────────────────────────
     const colors = {
         primary: "#1D4F44",
         success: "#28a745",
@@ -168,12 +168,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (window.jQuery) {
-            window.jQuery(rangeSelect).on(
-                "change change.select2 select2:select",
-                function () {
+            window
+                .jQuery(rangeSelect)
+                .on("change change.select2 select2:select", function () {
                     onRangeChanged(this.value);
-                },
-            );
+                });
         }
     }
 

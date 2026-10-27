@@ -326,4 +326,39 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
         $rendered->assertSee('toastr');
         $rendered->assertSee('data-flash-success="تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول"', false);
     }
+
+    public function test_resending_checkout_otp_is_allowed_up_to_three_times_and_then_blocked(): void
+    {
+        $payload = [
+            'plan_id' => $this->publicPlan->id,
+            'billing_company_name' => 'Resend Company',
+            'billing_commercial_number' => '1010101010',
+            'billing_tax_number' => '300000000000003',
+            'billing_city_id' => City::firstOrFail()->id,
+            'billing_address' => 'Riyadh',
+            'billing_name' => 'Resend User',
+            'billing_email' => 'resend-checkout@example.test',
+            'billing_phone' => '0512345678',
+            'billing_password' => 'Secret1234!',
+            'billing_password_confirmation' => 'Secret1234!',
+        ];
+
+        $this->post(route('site.plans.checkout.store', $this->publicPlan), $payload)->assertRedirect(route('site.plans.checkout', $this->publicPlan));
+
+        // Resend 1
+        $this->post(route('site.plans.checkout.resend', $this->publicPlan))->assertRedirect(route('site.plans.checkout', $this->publicPlan))->assertSessionHas('success');
+        self::assertSame(1, session('checkout_verification.resend_count'));
+
+        // Resend 2
+        $this->post(route('site.plans.checkout.resend', $this->publicPlan))->assertRedirect(route('site.plans.checkout', $this->publicPlan))->assertSessionHas('success');
+        self::assertSame(2, session('checkout_verification.resend_count'));
+
+        // Resend 3
+        $this->post(route('site.plans.checkout.resend', $this->publicPlan))->assertRedirect(route('site.plans.checkout', $this->publicPlan))->assertSessionHas('success');
+        self::assertSame(3, session('checkout_verification.resend_count'));
+
+        // Resend 4 (blocked)
+        $this->post(route('site.plans.checkout.resend', $this->publicPlan))->assertRedirect(route('site.plans.checkout', $this->publicPlan))->assertSessionHasErrors('otp');
+        self::assertSame(3, session('checkout_verification.resend_count'));
+    }
 }

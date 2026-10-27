@@ -74,14 +74,9 @@
                     <div class="checkout-grid">
                         <div class="checkout-main-col">
                             <div class="checkout-card scroll-revealed otp-card">
-                                <div class="checkout-card-header d-flex align-items-center justify-content-between">
+                                <div class="checkout-card-header">
                                     <h3 class="checkout-card-title"><i class="ti ti-mail-check"></i> تأكيد البريد الإلكتروني
                                     </h3>
-                                    <a href="{{ route('site.plans.checkout.edit', $plan) }}"
-                                        class="checkout-back-link text-sm">
-                                        <i class="ti ti-edit"></i>
-                                        تعديل البيانات
-                                    </a>
                                 </div>
                                 <div class="checkout-card-body">
                                     <div class="otp-intro">
@@ -102,14 +97,39 @@
                                         <x-form.controls.input name="otp" label="رمز التحقق" inputmode="numeric"
                                             maxlength="6" autocomplete="one-time-code" class="otp-input" required />
 
-                                        <div class="d-flex align-items-center justify-content-between mt-3">
+                                        <div class="d-flex align-items-center justify-content-between mt-3"
+                                            id="otp-timer-actions">
                                             <div id="checkout-otp-timer" class="otp-timer fw-bold"
-                                                data-expires-at="{{ $verification['expires_at'] }}"></div>
-                                            <a href="{{ route('site.plans.checkout.edit', $plan) }}"
-                                                class="text-sm font-semibold text-primary text-decoration-none">
-                                                <i class="ti ti-edit"></i> تعديل البيانات
-                                            </a>
+                                                data-expires-at="{{ $verification['expires_at'] ?? 0 }}"
+                                                data-resend-count="{{ $resendCount ?? 0 }}"
+                                                data-max-resends="{{ $maxResends ?? 3 }}"
+                                                data-resend-url="{{ route('site.plans.checkout.resend', $plan) }}"></div>
+
+                                            <div id="otp-resend-container" class="d-none">
+                                                <button type="button"
+                                                    class="otp-action-btn"
+                                                    id="btn-resend-otp">
+                                                    <i class="ti ti-rotate-clockwise"></i>
+                                                    <span>إعادة إرسال الرمز</span>
+                                                    <span
+                                                        class="text-xs text-muted" id="otp-remaining-attempts">({{ ($maxResends ?? 3) - ($resendCount ?? 0) }}
+                                                        متبقية)</span>
+                                                </button>
+                                            </div>
+
+                                            <div id="otp-edit-container" class="d-none">
+                                                <a href="{{ route('site.plans.checkout.edit', $plan) }}"
+                                                    class="otp-action-btn">
+                                                    <i class="ti ti-arrow-right"></i>
+                                                    العودة لتعديل البيانات
+                                                </a>
+                                            </div>
                                         </div>
+                                    </form>
+
+                                    <form id="otp-resend-form" method="POST"
+                                        action="{{ route('site.plans.checkout.resend', $plan) }}" class="d-none">
+                                        @csrf
                                     </form>
                                 </div>
                             </div>

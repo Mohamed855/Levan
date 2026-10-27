@@ -40,9 +40,31 @@ class DashboardNotificationController extends Controller
 
     public function index(DashboardNotificationRequest $request)
     {
+        $scope = (string) $request->route('dashboard_scope', 'admin');
+        $user = $this->user($request);
+        $filter = (string) $request->query('filter', 'all');
+
+        $query = $user->notifications()->latest();
+        if ($filter === 'unread') {
+            $query->whereNull('read_at');
+        } elseif ($filter === 'read') {
+            $query->whereNotNull('read_at');
+        }
+
+        $notifications = $query->paginate(30)->withQueryString();
+
+        $unreadCount = $user->unreadNotifications()->count();
+        $totalCount = $user->notifications()->count();
+        $readCount = $totalCount - $unreadCount;
+
         return view('shared.dashboard-notifications', [
-            'layout' => $request->route('dashboard_scope') === 'admin' ? 'admin.layouts.layoutMaster' : 'tenant.layouts.layoutMaster',
-            'notifications' => $this->user($request)->notifications()->latest()->paginate(30),
+            'layout' => $scope === 'admin' ? 'admin.layouts.layoutMaster' : 'tenant.layouts.layoutMaster',
+            'notifications' => $notifications,
+            'scope' => $scope,
+            'currentFilter' => $filter,
+            'totalCount' => $totalCount,
+            'unreadCount' => $unreadCount,
+            'readCount' => $readCount,
         ]);
     }
 
