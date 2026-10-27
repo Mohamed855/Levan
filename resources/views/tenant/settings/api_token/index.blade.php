@@ -32,7 +32,7 @@
                         <div class="mb-4">
                             <label class="form-label">التوكن الجديد</label>
                             <div class="input-group">
-                                <input type="text" id="apiTokenField" class="form-control font-monospace"
+                                <input type="text" id="apiTokenField" class="form-control"
                                     value="{{ session('new_api_token') }}" readonly>
                                 <button type="button" class="btn btn-secondary" id="copyApiTokenBtn">
                                     <i class="ti ti-copy"></i>
@@ -42,7 +42,7 @@
                     @else
                         <div class="mb-4">
                             <label class="form-label">التوكن الحالي</label>
-                            <input type="text" class="form-control font-monospace"
+                            <input type="text" class="form-control"
                                 value="{{ tenant()->api_token ? '•••••••••••••••••••••••••••••• (مخفي لأسباب أمنية)' : 'لا يوجد توكن بعد' }}"
                                 readonly>
                             @if (tenant()->api_token_regenerated_at)
@@ -85,10 +85,9 @@
                                     <tr>
                                         <td>{{ $log->created_at->format('Y-m-d H:i:s') }}</td>
                                         <td><span class="badge bg-secondary">{{ $log->method }}</span></td>
-                                        <td class="font-monospace">{{ $log->path }}</td>
+                                        <td>{{ $log->path }}</td>
                                         <td>
-                                            <span
-                                                class="badge {{ $log->status_code < 300 ? 'bg-success' : 'bg-danger' }}">
+                                            <span class="badge {{ $log->status_code < 300 ? 'bg-success' : 'bg-danger' }}">
                                                 {{ $log->status_code }}
                                             </span>
                                         </td>

@@ -480,7 +480,7 @@ function initTemplateDesigners() {
                       `;
                         })
                         .join("")}
-                    <span class="badge bg-label-dark text-dark bg-opacity-75 text-white position-absolute top-0 start-0 m-2 font-monospace" style="font-size: 10px;">
+                    <span class="badge bg-label-dark text-dark bg-opacity-75 text-white position-absolute top-0 start-0 m-2" style="font-size: 10px;">
                       ${sCanvas.width} × ${sCanvas.height}
                     </span>
                     ${

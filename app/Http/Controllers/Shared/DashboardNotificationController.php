@@ -26,8 +26,12 @@ class DashboardNotificationController extends Controller
             'created_at' => $notice->created_at->diffForHumans(),
         ]);
 
+        $sidebarCounts = $scope === 'admin' ? $this->getAdminSidebarCounts() : [];
+
         return response()->json([
-            'items' => $items, 'count' => $user->unreadNotifications()->count(),
+            'items' => $items,
+            'count' => $user->unreadNotifications()->count(),
+            'sidebar_counts' => $sidebarCounts,
             'broadcast' => [
                 'channel' => $notices->channel($scope, $scope === 'tenant' ? (string) tenant('id') : null, (int) $user->id),
                 'key' => config('broadcasting.connections.reverb.key'),
@@ -104,5 +108,57 @@ class DashboardNotificationController extends Controller
         $notices->refresh($scope, $scope === 'tenant' ? (string) tenant('id') : null, (int) $this->user($request)->id);
 
         return response()->json(['success' => true]);
+    }
+
+    private function getAdminSidebarCounts(): array
+    {
+        try {
+            $pendingSubscriptions = \App\Models\Admin\Subscription\Subscription::where(
+                'status',
+                \App\Enums\Admin\Subscriptions\SubscriptionStatus::PENDING
+            )->count();
+
+            $expiringSubscriptions = app(\App\Services\Admin\SubscriptionManagement\SubscriptionManagementService::class)
+                ->getExpiringSoonCount();
+
+            $expiredSubscriptions = \App\Models\Admin\Subscription\Subscription::where(
+                'status',
+                \App\Enums\Admin\Subscriptions\SubscriptionStatus::EXPIRED
+            )->count();
+
+            $totalSubscriptions = $pendingSubscriptions + $expiringSubscriptions + $expiredSubscriptions;
+
+            $pendingContactRequests = \App\Models\Admin\PublicRequests\ContactRequest::where(
+                'status',
+                \App\Enums\Admin\PublicRequests\ContactRequestStatus::PENDING
+            )->count();
+
+            $pendingTrialRequests = \App\Models\Admin\PublicRequests\TrialRequest::where(
+                'status',
+                \App\Enums\Admin\PublicRequests\TrialRequestStatus::PENDING
+            )->count();
+
+            $openTickets = \App\Models\Admin\Tickets\Ticket::whereIn('status', ['open', 'reopened'])->count();
+
+            cache()->put('admin:pending_subscriptions_count', $pendingSubscriptions, 60);
+            cache()->put('admin:expiring_subscriptions_count', $expiringSubscriptions, 60);
+            cache()->put('admin:expired_subscriptions_count', $expiredSubscriptions, 60);
+            cache()->put('admin:pending_contact_requests_count', $pendingContactRequests, 60);
+            cache()->put('admin:pending_trial_requests_count', $pendingTrialRequests, 60);
+            cache()->put('admin:open_tickets_count', $openTickets, 60);
+
+            return [
+                'subscriptions_total' => $totalSubscriptions,
+                'subscriptions_all' => $pendingSubscriptions,
+                'subscriptions_pending' => $pendingSubscriptions,
+                'subscriptions_expiring' => $expiringSubscriptions,
+                'subscriptions_expired' => $expiredSubscriptions,
+                'contact_requests_pending' => $pendingContactRequests,
+                'trial_requests_pending' => $pendingTrialRequests,
+                'tickets_open' => $openTickets,
+            ];
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 }

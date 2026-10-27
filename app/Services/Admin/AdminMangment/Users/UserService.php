@@ -13,7 +13,9 @@ class UserService
 {
     public function create(array $data): AdminUser
     {
-        return DB::transaction(function () use ($data) {
+        $rawPassword = $data['password'] ?? null;
+
+        $user = DB::transaction(function () use ($data) {
 
             // Handle image upload
             if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
@@ -29,6 +31,21 @@ class UserService
             // Create user
             return AdminUser::create($data);
         });
+
+        try {
+            $loginUrl = route('admin.login');
+            \App\Services\Shared\Mail\SystemMailService::sendUserWelcome(
+                $user->email,
+                $user->name,
+                $rawPassword,
+                $loginUrl,
+                'لوحة الإدارة المركزية'
+            );
+        } catch (\Throwable $e) {
+            // Ignore email error to not prevent user creation
+        }
+
+        return $user;
     }
 
     public function update(AdminUser $user, array $data): AdminUser

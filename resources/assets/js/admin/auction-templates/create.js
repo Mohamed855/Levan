@@ -326,7 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const file = fileInput.files[0];
             const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
             $("#review-file-name").html(`
-                <span class="badge bg-primary font-monospace">
+                <span class="badge bg-primary">
                     <i class="ti ti-file me-1"></i>${escapeHtml(file.name)} (${sizeMb} MB)
                 </span>
             `);

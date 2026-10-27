@@ -39,7 +39,15 @@ final class CreateTrialRequestAction
 
             return TrialRequest::create($attributes);
         });
+
         cache()->forget('admin:pending_trial_requests_count');
+
+        \App\Services\Shared\Mail\SystemMailService::sendTrialRequestReceived(
+            $request->customer_email,
+            $request->customer_name,
+            $request->company_name
+        );
+        \App\Services\Shared\Mail\SystemMailService::sendTrialRequestAdminAlert($request);
 
         return $request;
     }

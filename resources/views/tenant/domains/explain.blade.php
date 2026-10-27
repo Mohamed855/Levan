@@ -61,9 +61,9 @@
                         <h4 class="info-card-title">مدة التفعيل</h4>
                     </div>
                     <div class="info-card-content">
-                        <span class="badge-custom badge-success" style="color:black">سريع: 2-8 ساعات</span>
-                        <span class="badge-custom badge-warning" style="color:black">عادي: 24 ساعة</span>
-                        <span class="badge-custom badge-info" style="color:black">أقصى: 48 ساعة</span>
+                        <span class="badge-custom badge-success">سريع: 2-8 ساعات</span>
+                        <span class="badge-custom badge-warning">عادي: 24 ساعة</span>
+                        <span class="badge-custom badge-info">أقصى: 48 ساعة</span>
                         <p class="mt-3 mb-0" style="color:black">تعتمد المدة على مزود الدومين والسيرفرات العالمية</p>
                     </div>
                 </div>

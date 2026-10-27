@@ -255,6 +255,15 @@ class EtmamTicketService
                 'attachments' => $uploadedAttachments,
             ]);
 
+            try {
+                if (! empty($ticket->customer_email)) {
+                    \App\Services\Shared\Mail\SystemMailService::sendTicketCreatedClient($ticket, $ticket->customer_email, $ticket->customer_name);
+                }
+                \App\Services\Shared\Mail\SystemMailService::sendTicketCreatedAdmin($ticket);
+            } catch (\Throwable $e) {
+                // Ignore email error to not prevent ticket creation
+            }
+
             return [
                 'success' => true,
                 'message' => 'تم إنشاء التذكرة بنجاح',
@@ -383,7 +392,7 @@ class EtmamTicketService
                 }
             }
 
-            TicketReply::create([
+            $reply = TicketReply::create([
                 'ticket_id' => $ticket->id,
                 'ticket_number' => $ticketNumber,
                 'sender_type' => $senderType,
@@ -396,6 +405,19 @@ class EtmamTicketService
             // Update ticket status if replied by support
             if ($senderType === 'support_user' && $ticket->status === 'open') {
                 $ticket->update(['status' => 'in_progress']);
+            }
+
+            try {
+                if ($senderType === 'support_user') {
+                    $clientEmail = $ticket->customer_email ?? $ticket->tenant?->primary_contact_email;
+                    if ($clientEmail) {
+                        \App\Services\Shared\Mail\SystemMailService::sendTicketReply($ticket, $reply, $clientEmail, $ticket->customer_name ?? 'العميل', true);
+                    }
+                } else {
+                    \App\Services\Shared\Mail\SystemMailService::sendTicketReply($ticket, $reply, \App\Services\Shared\Mail\SystemMailService::getAdminEmail(), 'فريق الدعم الفني', false);
+                }
+            } catch (\Throwable $e) {
+                // Ignore email error
             }
 
             return [

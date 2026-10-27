@@ -44,7 +44,7 @@ class DashboardService
             // 1. طلبات الاشتراك الجديدة (pending)
             'new_subscription_requests' => Subscription::where('status', SubscriptionStatus::PENDING)->count(),
 
-            // 2. الشركات المشتركة (tenants لديهم اشتراك active)
+            // 2. العملاء المشتركين (tenants لديهم اشتراك active)
             'subscribed_companies' => Tenant::whereNull('deleted_at')
                 ->whereHas('lastSubscription', fn ($q) => $q->where('status', SubscriptionStatus::ACTIVE))
                 ->count(),

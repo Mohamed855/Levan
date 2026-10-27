@@ -185,7 +185,24 @@ class DashboardNotificationsTest extends TenantAuctionReportTestCase
     public function test_admin_feed_and_private_channel_are_not_accessible_as_another_admin(): void
     {
         $this->actingAs($this->admin, 'admin');
-        $this->getJson(route('admin.dashboard-notifications.feed'))->assertOk()->assertJsonPath('broadcast.channel', 'dashboard.admin.'.$this->admin->id);
+        $this->getJson(route('admin.dashboard-notifications.feed'))
+            ->assertOk()
+            ->assertJsonPath('broadcast.channel', 'dashboard.admin.'.$this->admin->id)
+            ->assertJsonStructure([
+                'items',
+                'count',
+                'sidebar_counts' => [
+                    'subscriptions_total',
+                    'subscriptions_all',
+                    'subscriptions_pending',
+                    'subscriptions_expiring',
+                    'subscriptions_expired',
+                    'contact_requests_pending',
+                    'trial_requests_pending',
+                    'tickets_open',
+                ],
+                'broadcast',
+            ]);
         $this->get(route('admin.dashboard-notifications.index'))->assertOk()->assertSee('كل الإشعارات');
         $this->postJson(route('admin.dashboard-notifications.auth'), ['socket_id' => '123.456', 'channel_name' => 'private-dashboard.admin.'.$this->admin->id])->assertOk();
         $this->postJson(route('admin.dashboard-notifications.auth'), ['socket_id' => '123.456', 'channel_name' => 'private-dashboard.admin.999999'])->assertForbidden();

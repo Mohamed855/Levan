@@ -101,6 +101,18 @@ class DashboardNotificationService
         }
     }
 
+    public function refreshAdmins(): void
+    {
+        if (! config('dashboard-notifications.broadcast', true)) {
+            return;
+        }
+        foreach (AdminUser::where('status', 'active')->get() as $admin) {
+            if ($admin->isSuperAdmin()) {
+                $this->refresh('admin', null, (int) $admin->id);
+            }
+        }
+    }
+
     public static function payload(string $event, string $title, string $message, string $url, string $type = 'info', string $icon = 'ti ti-bell'): array
     {
         return compact('event', 'title', 'message', 'url', 'type', 'icon');

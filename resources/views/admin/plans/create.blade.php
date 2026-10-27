@@ -54,7 +54,7 @@
                             <x-form.controls.input name="code" label="كود الباقة (English Uppercase)"
                                 placeholder="مثال: PRO_2026" maxlength="50" pattern="[A-Z][A-Z0-9_]*"
                                 title="يبدأ بحرف كبير ويحتوي على أحرف وأرقام وشرطة سفلية فقط" required col="col-md-6"
-                                class="font-monospace text-uppercase" />
+                                class="text-uppercase" />
                             <x-form.controls.select name="plan_type" id="plan_type" label="نوع الباقة" required
                                 col="col-md-6" :options="array_map(
                                     fn($type) => ['value' => $type->value, 'label' => $type->label()],
@@ -186,7 +186,7 @@
                                         <dt class="col-5 text-muted">اسم الباقة</dt>
                                         <dd class="col-7 fw-semibold" id="plan-review-name">-</dd>
                                         <dt class="col-5 text-muted">كود الباقة</dt>
-                                        <dd class="col-7 fw-semibold font-monospace" id="plan-review-code">-</dd>
+                                        <dd class="col-7 fw-semibold" id="plan-review-code">-</dd>
                                         <dt class="col-5 text-muted">نوع الباقة</dt>
                                         <dd class="col-7 fw-semibold" id="plan-review-type">-</dd>
                                         <dt class="col-5 text-muted">لون الباقة</dt>

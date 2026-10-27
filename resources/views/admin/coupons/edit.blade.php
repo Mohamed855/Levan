@@ -59,7 +59,7 @@
                             <!-- الكود -->
                             <x-form.controls.input name="code" id="code" label="كود الكوبون"
                                 help="كود الكوبون ثابت ولا يمكن تعديله بعد إطلاقه." :value="$coupon->code" readonly required
-                                col="col-md-6" class="font-monospace" style="text-transform: uppercase;" />
+                                col="col-md-6" style="text-transform: uppercase;" />
 
                             <!-- نوع الخصم -->
                             <x-form.controls.select name="discount_type" id="discount_type" label="نوع الخصم" required

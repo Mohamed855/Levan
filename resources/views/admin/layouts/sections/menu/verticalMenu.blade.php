@@ -136,41 +136,36 @@
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons ti ti-file-certificate"></i>
                     <div>إدارة الاشتراكات</div>
-                    @if ($totalBadgeCount > 0)
-                        <div class="badge bg-light text-primary rounded-pill ms-auto">{{ $totalBadgeCount }}</div>
-                    @endif
+                    <div class="badge bg-light text-primary rounded-pill ms-auto @if ($totalBadgeCount <= 0) d-none @endif"
+                        data-sidebar-counter="subscriptions_total">{{ $totalBadgeCount }}</div>
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item @if (Route::is('admin.subscriptions.*')) active @endif">
                         <a href="{{ route('admin.subscriptions.index') }}" class="menu-link">
                             <div>جميع الإشتراكات</div>
-                            @if ($pendingCount > 0)
-                                <div class="badge bg-light text-primary rounded-pill ms-auto">{{ $pendingCount }}</div>
-                            @endif
+                            <div class="badge bg-light text-primary rounded-pill ms-auto @if ($pendingCount <= 0) d-none @endif"
+                                data-sidebar-counter="subscriptions_all">{{ $pendingCount }}</div>
                         </a>
                     </li>
                     <li class="menu-item @if (Route::is('admin.subscriptionManage.pending')) active @endif">
                         <a href="{{ route('admin.subscriptionManage.pending') }}" class="menu-link">
                             <div>الطلبات</div>
-                            @if ($pendingCount > 0)
-                                <div class="badge bg-light text-primary rounded-pill ms-auto">{{ $pendingCount }}</div>
-                            @endif
+                            <div class="badge bg-light text-primary rounded-pill ms-auto @if ($pendingCount <= 0) d-none @endif"
+                                data-sidebar-counter="subscriptions_pending">{{ $pendingCount }}</div>
                         </a>
                     </li>
                     <li class="menu-item @if (Route::is('admin.subscriptionManage.expiring')) active @endif">
                         <a href="{{ route('admin.subscriptionManage.expiring') }}" class="menu-link">
                             <div>تقارب على الانتهاء</div>
-                            @if ($expiringCount > 0)
-                                <div class="badge bg-light text-primary rounded-pill ms-auto">{{ $expiringCount }}</div>
-                            @endif
+                            <div class="badge bg-light text-primary rounded-pill ms-auto @if ($expiringCount <= 0) d-none @endif"
+                                data-sidebar-counter="subscriptions_expiring">{{ $expiringCount }}</div>
                         </a>
                     </li>
                     <li class="menu-item @if (Route::is('admin.subscriptionManage.expired')) active @endif">
                         <a href="{{ route('admin.subscriptionManage.expired') }}" class="menu-link">
                             <div>الاشتراكات المنتهية</div>
-                            @if ($expiredCount > 0)
-                                <div class="badge bg-light text-primary rounded-pill ms-auto">{{ $expiredCount }}</div>
-                            @endif
+                            <div class="badge bg-light text-primary rounded-pill ms-auto @if ($expiredCount <= 0) d-none @endif"
+                                data-sidebar-counter="subscriptions_expired">{{ $expiredCount }}</div>
                         </a>
                     </li>
                 </ul>
@@ -191,10 +186,17 @@
         </li>
 
         @can('tickets.view')
+            @php
+                $openTicketsCount = cache()->remember('admin:open_tickets_count', 60, function () {
+                    return \App\Models\Admin\Tickets\Ticket::whereIn('status', ['open', 'reopened'])->count();
+                });
+            @endphp
             <li class="menu-item @if (Route::is('admin.tickets.*')) active open @endif">
                 <a href="{{ route('admin.tickets.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-messages"></i>
                     <div>إدارة التذاكر</div>
+                    <div class="badge bg-light text-primary rounded-pill ms-auto @if ($openTicketsCount <= 0) d-none @endif"
+                        data-sidebar-counter="tickets_open">{{ $openTicketsCount }}</div>
                 </a>
             </li>
         @endcan
@@ -216,10 +218,8 @@
                 <a href="{{ route('admin.contact-requests.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-mail"></i>
                     <div>طلبات التواصل</div>
-                    @if ($pendingContactRequestsCount > 0)
-                        <div class="badge bg-light text-primary rounded-pill ms-auto">{{ $pendingContactRequestsCount }}
-                        </div>
-                    @endif
+                    <div class="badge bg-light text-primary rounded-pill ms-auto @if ($pendingContactRequestsCount <= 0) d-none @endif"
+                        data-sidebar-counter="contact_requests_pending">{{ $pendingContactRequestsCount }}</div>
                 </a>
             </li>
         @endcan
@@ -237,10 +237,8 @@
                 <a href="{{ route('admin.trial-requests.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-clock"></i>
                     <div>طلبات التجربة</div>
-                    @if ($pendingTrialRequestsCount > 0)
-                        <div class="badge bg-light text-primary rounded-pill ms-auto">{{ $pendingTrialRequestsCount }}
-                        </div>
-                    @endif
+                    <div class="badge bg-light text-primary rounded-pill ms-auto @if ($pendingTrialRequestsCount <= 0) d-none @endif"
+                        data-sidebar-counter="trial_requests_pending">{{ $pendingTrialRequestsCount }}</div>
                 </a>
             </li>
         @endcan

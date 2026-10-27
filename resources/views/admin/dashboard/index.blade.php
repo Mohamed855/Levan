@@ -34,7 +34,7 @@
         <x-ui.stat-card title="طلبات الاشتراك الجديدة" :value="number_format($kpis['new_subscription_requests'])" subtitle="طلبات قيد المراجعة" icon="ti-user-plus"
             color="primary" />
 
-        <x-ui.stat-card title="الشركات المشتركة" :value="number_format($kpis['subscribed_companies'])" subtitle="شركات لديها اشتراك نشط" icon="ti-building"
+        <x-ui.stat-card title="العملاء المشتركين" :value="number_format($kpis['subscribed_companies'])" subtitle="شركات لديها اشتراك نشط" icon="ti-building"
             color="success" />
 
         <x-ui.stat-card title="الاشتراكات النشطة" :value="number_format($kpis['active_subscriptions'])" subtitle="اشتراكات فعّالة حالياً" icon="ti-file-text"

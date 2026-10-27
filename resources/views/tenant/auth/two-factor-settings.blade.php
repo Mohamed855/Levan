@@ -129,9 +129,9 @@
                                     data-form-validate data-validation-submit="ajax"
                                     data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                                     @csrf
-                                    <x-form.controls.input name="code" id="twoFactorCode" label="كود التحقق" type="text"
-                                        placeholder="000000" required autocomplete="one-time-code" col="col-12 col-sm-7" maxlength="6"
-                                        inputmode="numeric" />
+                                    <x-form.controls.input name="code" id="twoFactorCode" label="كود التحقق"
+                                        type="text" placeholder="000000" required autocomplete="one-time-code"
+                                        col="col-12 col-sm-7" maxlength="6" inputmode="numeric" />
                                     <div class="col-12 col-sm-5">
                                         <button type="submit" class="btn btn-success w-100">
                                             تأكيد التفعيل
@@ -283,7 +283,8 @@
                             },
                             success: function(codes) {
                                 renderRecoveryCodes(codes);
-                                toastr.warning('احفظ هذه الأكواد الآن - لن تظهر مرة أخرى');
+                                toastr.warning(
+                                    'احفظ هذه الأكواد الآن - لن تظهر مرة أخرى');
                             },
                             error: function() {
                                 toastr.error('حدث خطأ أثناء توليد الأكواد');
@@ -298,7 +299,7 @@
                 (codes || []).forEach(function(code) {
                     recoveryCodesList.append(
                         '<div class="col">' +
-                        '<div class="border rounded px-2 py-1 text-center font-monospace small">' +
+                        '<div class="border rounded px-2 py-1 text-center small">' +
                         code + '</div>' +
                         '</div>'
                     );

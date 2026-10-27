@@ -213,7 +213,7 @@
                     <ul class="list-unstyled mb-0">
                         <li class="mb-3 d-flex justify-content-between align-items-center">
                             <span class="text-muted">المعرف (Tenant ID):</span>
-                            <span class="badge bg-secondary font-monospace">{{ $ticket->tenant_id }}</span>
+                            <span class="badge bg-secondary">{{ $ticket->tenant_id }}</span>
                         </li>
                         <li class="mb-3 d-flex justify-content-between align-items-center">
                             <span class="text-muted">المكتب / الشركة:</span>

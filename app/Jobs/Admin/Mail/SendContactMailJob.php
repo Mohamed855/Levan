@@ -22,16 +22,15 @@ class SendContactMailJob implements ShouldQueue
 
     public function __construct(public string $email, public string $name, public string $type) {}
 
-    public function handle(MailService $mailService): void
+    public function handle(): void
     {
         try {
             match ($this->type) {
-                'trial' => $mailService->TrialRequestMail($this->email, $this->name),
-                'contact' => $mailService->ContactRequestMail($this->email, $this->name),
+                'trial' => \App\Services\Shared\Mail\SystemMailService::sendTrialRequestReceived($this->email, $this->name),
+                'contact' => \App\Services\Shared\Mail\SystemMailService::sendContactRequestReceived($this->email, $this->name),
                 default => Log::warning("Unknown mail type: {$this->type}")
             };
         } catch (\Throwable $e) {
-            //
             throw $e;
         }
     }

@@ -23,7 +23,12 @@ final class ReplyToContactRequestAction
 
         cache()->forget('admin:pending_contact_requests_count');
 
-        SendContactReplyMailJob::dispatch($updated->customer_email, $updated->customer_name, $updated->message, $updated->reply)->onQueue('email');
+        \App\Services\Shared\Mail\SystemMailService::sendContactReply(
+            $updated->customer_email,
+            $updated->customer_name,
+            $updated->message,
+            $updated->reply
+        );
 
         return $updated;
     }

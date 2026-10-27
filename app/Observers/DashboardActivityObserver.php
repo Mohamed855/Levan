@@ -41,20 +41,34 @@ class DashboardActivityObserver implements ShouldHandleEventsAfterCommit
                 if (($created || $model->wasChanged('email_verified_at')) && $model->email_verified_at && $model->status->value === 'pending') {
                     $notices->admins("trial.requested:$model->id", Notices::payload('trial.requested', 'طلب تجربة جديد', "طلب تجربة من {$model->customer_name} — {$model->company_name}", route('admin.trial-requests.show', $model, false)));
                 }
-                if (! $created && $model->wasChanged('status') && $model->status->value === 'approved' && $model->tenant_id) {
-                    $notices->tenant($model->tenant_id, "trial.approved:$model->id", Notices::payload('trial.approved', 'تمت الموافقة على طلب التجربة', 'حساب شركتك جاهز للاستخدام. بدأت تجربتك المجانية لمدة 7 أيام.', route('path.dashboard', ['tenant' => $model->tenant_id], false), 'success'));
+                if (! $created && $model->wasChanged('status')) {
+                    $notices->refreshAdmins();
+                    if ($model->status->value === 'approved' && $model->tenant_id) {
+                        $notices->tenant($model->tenant_id, "trial.approved:$model->id", Notices::payload('trial.approved', 'تمت الموافقة على طلب التجربة', 'حساب شركتك جاهز للاستخدام. بدأت تجربتك المجانية لمدة 7 أيام.', route('path.dashboard', ['tenant' => $model->tenant_id], false), 'success'));
+                    }
                 }
-            } elseif ($model instanceof ContactRequest && $created) {
-                $notices->admins("contact.requested:$model->id", Notices::payload('contact.requested', 'طلب تواصل جديد', "طلب تواصل من {$model->customer_name}", route('admin.contact-requests.show', $model, false)));
+            } elseif ($model instanceof ContactRequest) {
+                if ($created) {
+                    $notices->admins("contact.requested:$model->id", Notices::payload('contact.requested', 'طلب تواصل جديد', "طلب تواصل من {$model->customer_name}", route('admin.contact-requests.show', $model, false)));
+                } elseif ($model->wasChanged('status')) {
+                    $notices->refreshAdmins();
+                }
             } elseif ($model instanceof Bill && $model->type->value === 'new_subscription') {
                 if ($created && (($model->metadata['checkout_source'] ?? null) === 'site_checkout' || isset($model->metadata['tenant_id']))) {
                     $notices->admins("subscription.requested:$model->id", Notices::payload('subscription.requested', 'طلب اشتراك جديد', 'طلب اشتراك من '.($model->metadata['billing_company_name'] ?? $model->metadata['billing_name'] ?? 'عميل'), route('admin.bills.show', $model, false)));
                 }
                 if ($model->status->value === 'paid' && $model->tenant_id && ($created || $model->wasChanged(['status', 'tenant_id']))) {
                     $notices->tenant($model->tenant_id, "subscription.approved:$model->id", Notices::payload('subscription.approved', 'تمت الموافقة على طلب الاشتراك', 'تم تفعيل اشتراك شركتك وأصبح جاهزًا للاستخدام.', route('path.subscriptions.index', ['tenant' => $model->tenant_id], false), 'success'));
+                    $notices->refreshAdmins();
+                } elseif (! $created && $model->wasChanged('status')) {
+                    $notices->refreshAdmins();
                 }
-            } elseif ($model instanceof Ticket && $created) {
-                $notices->admins("ticket.created:$model->id", Notices::payload('ticket.created', 'تذكرة دعم جديدة', "تذكرة #{$model->ticket_number}: {$model->title}", route('admin.tickets.show', $model->ticket_number, false), 'info', 'ti ti-ticket'));
+            } elseif ($model instanceof Ticket) {
+                if ($created) {
+                    $notices->admins("ticket.created:$model->id", Notices::payload('ticket.created', 'تذكرة دعم جديدة', "تذكرة #{$model->ticket_number}: {$model->title}", route('admin.tickets.show', $model->ticket_number, false), 'info', 'ti ti-ticket'));
+                } elseif ($model->wasChanged('status')) {
+                    $notices->refreshAdmins();
+                }
             } elseif ($model instanceof TicketReply && $created) {
                 $ticket = $model->ticket;
                 if (! $ticket) {
@@ -67,8 +81,11 @@ class DashboardActivityObserver implements ShouldHandleEventsAfterCommit
                 }
             } elseif ($model instanceof Coupon) {
                 app(NotificationDeadlineScanner::class)->coupon($model);
-            } elseif ($model instanceof Subscription && ! $created && $model->wasChanged('status') && $model->status->value === 'expired') {
-                app(NotificationDeadlineScanner::class)->subscription($model);
+            } elseif ($model instanceof Subscription && ! $created && $model->wasChanged('status')) {
+                $notices->refreshAdmins();
+                if ($model->status->value === 'expired') {
+                    app(NotificationDeadlineScanner::class)->subscription($model);
+                }
             }
         } catch (Throwable $exception) {
             Log::error('Dashboard event notification failed.', ['model' => get_class($model), 'id' => $model->getKey(), 'error' => $exception->getMessage()]);

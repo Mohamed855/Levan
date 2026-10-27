@@ -50,12 +50,15 @@
                         <dt class="col-sm-5 text-muted">العنوان</dt>
                         <dd class="col-sm-7">{{ $trialRequest->address ?? '-' }}</dd>
                         <dt class="col-sm-5 text-muted">تأكيد البريد</dt>
-                        <dd class="col-sm-7">{{ $trialRequest->email_verified_at?->format('Y-m-d H:i') ?? 'غير مؤكد' }}</dd>
+                        <dd class="col-sm-7">{{ $trialRequest->email_verified_at?->format('Y-m-d H:i') ?? 'غير مؤكد' }}
+                        </dd>
                         @if ($trialRequest->provisioning_error)
                             <dd class="col-12 text-danger">{{ $trialRequest->provisioning_error }}</dd>
                         @endif
                         @if ($trialRequest->status->value === 'approved' && $trialRequest->tenant)
-                            <dd class="col-12"><a class="btn btn-success" target="_blank" rel="noopener" href="{{ route('path.login', ['tenant' => $trialRequest->tenant_id]) }}">فتح رابط دخول العميل</a></dd>
+                            <dd class="col-12"><a class="btn btn-success" target="_blank" rel="noopener"
+                                    href="{{ route('path.login', ['tenant' => $trialRequest->tenant_id]) }}">فتح رابط دخول
+                                    العميل</a></dd>
                             <dt class="col-sm-5 text-muted">بداية التجربة</dt>
                             <dd class="col-sm-7">{{ $trialRequest->subscription?->starts_at?->format('Y-m-d H:i') }}</dd>
                             <dt class="col-sm-5 text-muted">نهاية التجربة</dt>
@@ -81,17 +84,26 @@
                 <div class="card-body">
                     @if ($trialRequest->status->value === 'pending')
                         <p class="text-muted">الموافقة تنشئ حساب الشركة والمدير وتفعّل تجربة 7 أيام بدون باقة أو دفع.</p>
-                        @if (! $trialRequest->password_hash || ! $trialRequest->email_verified_at)
-                            <div class="alert alert-warning">الطلب قديم أو ناقص البيانات. يجب أن يقدم العميل طلبًا كاملًا مع تأكيد البريد أولًا.</div>
+                        @if (!$trialRequest->password_hash || !$trialRequest->email_verified_at)
+                            <div class="alert alert-warning">الطلب قديم أو ناقص البيانات. يجب أن يقدم العميل طلبًا كاملًا مع
+                                تأكيد البريد أولًا.</div>
                         @endif
                         <div class="d-flex align-items-center gap-2">
-                            <form id="approveTrialForm" method="POST" action="{{ route('admin.trial-requests.approve', $trialRequest) }}" class="m-0 d-inline-flex">
+                            <form id="approveTrialForm" method="POST"
+                                action="{{ route('admin.trial-requests.approve', $trialRequest) }}"
+                                class="m-0 d-inline-flex">
                                 @csrf
-                                <button type="button" class="btn btn-sm btn-success js-approve-trial-btn" @disabled(! $trialRequest->password_hash || ! $trialRequest->email_verified_at || ($trialRequest->provisioning_status === 'processing' && $trialRequest->provisioning_started_at?->gt(now()->subMinutes(15))))>
+                                <button type="button" class="btn btn-sm btn-success js-approve-trial-btn"
+                                    @disabled(
+                                        !$trialRequest->password_hash ||
+                                            !$trialRequest->email_verified_at ||
+                                            ($trialRequest->provisioning_status === 'processing' &&
+                                                $trialRequest->provisioning_started_at?->gt(now()->subMinutes(15))))>
                                     <i class="ti ti-check me-1"></i> موافقة وإنشاء شركة
                                 </button>
                             </form>
-                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectTrialModal">
+                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
+                                data-bs-target="#rejectTrialModal">
                                 <i class="ti ti-x me-1"></i> رفض الطلب
                             </button>
                         </div>
@@ -107,11 +119,11 @@
 
     @if ($trialRequest->status->value === 'pending')
         <x-bootstrap.modal id="rejectTrialModal" title="رفض طلب التجربة" icon="ti-x">
-            <form method="POST" action="{{ route('admin.trial-requests.reject', $trialRequest) }}"
-                data-form-validate>
+            <form method="POST" action="{{ route('admin.trial-requests.reject', $trialRequest) }}" data-form-validate>
                 @csrf
                 <p class="text-muted mb-3">يرجى توضيح سبب الرفض ليتم إشعار العميل وتسجيله في الطلب.</p>
-                <x-form.controls.textarea name="rejection_reason" label="سبب الرفض" rows="4" required />
+                <x-form.controls.textarea name="rejection_reason" label="سبب الرفض" rows="4" col="col-12"
+                    required />
                 <x-slot:footer>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                     <button type="submit" class="btn btn-danger">تأكيد الرفض</button>

@@ -27,13 +27,24 @@ class TrialController extends Controller
             }
         }
 
+        $otpStep = is_array($verification) && isset($verification['otp_hash']);
+        $isEditing = is_array($verification) && (bool) ($verification['is_editing'] ?? false);
+
+        if ($isEditing) {
+            $checkoutData = collect($verification)->only(['billing_company_name', 'billing_commercial_number', 'billing_tax_number', 'billing_city_id', 'billing_address', 'billing_name', 'billing_email', 'billing_phone'])->all();
+        } elseif ($otpStep) {
+            $checkoutData = ['billing_email' => $verification['billing_email'] ?? ''];
+        } else {
+            $checkoutData = [];
+        }
+
         return view('web.trial', [
             'cities' => City::all(),
-            'otpStep' => isset($verification['otp_hash']),
+            'otpStep' => $otpStep,
             'otpExpiresAt' => $verification['expires_at'] ?? null,
             'resendCount' => (int) ($verification['resend_count'] ?? 0),
             'maxResends' => 3,
-            'checkoutData' => collect($verification)->only(['billing_company_name', 'billing_commercial_number', 'billing_tax_number', 'billing_city_id', 'billing_address', 'billing_name', 'billing_email', 'billing_phone'])->all(),
+            'checkoutData' => $checkoutData,
         ]);
     }
 
@@ -41,7 +52,7 @@ class TrialController extends Controller
     {
         $data = $request->validated();
         $data['billing_password_hash'] = Hash::make($data['billing_password']);
-        unset($data['billing_password'], $data['billing_password_confirmation']);
+        unset($data['billing_password'], $data['billing_password_confirmation'], $data['is_editing']);
         $data['otp_hash'] = $otp->issue($data['billing_email']);
         $data['expires_at'] = now()->addMinutes(2)->timestamp;
         $data['session_expires_at'] = now()->addHour()->timestamp;
@@ -102,6 +113,7 @@ class TrialController extends Controller
         $registration = $request->session()->get('trial_registration', []);
         $safe = collect($registration)->only(['billing_company_name', 'billing_commercial_number', 'billing_tax_number', 'billing_city_id', 'billing_address', 'billing_name', 'billing_email', 'billing_phone'])->all();
         unset($registration['otp_hash'], $registration['attempts'], $registration['resend_count'], $registration['submission_token']);
+        $registration['is_editing'] = true;
         $registration['expires_at'] = now()->addHour()->timestamp;
         $request->session()->put('trial_registration', $registration);
 

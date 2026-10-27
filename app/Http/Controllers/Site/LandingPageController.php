@@ -27,10 +27,22 @@ class LandingPageController extends Controller
     public function contactRequest(StoreContactRequest $request)
     {
         try {
-            $validated = $request->validated();
-            $this->createContactRequest->execute($validated);
+            $contact = $this->createContactRequest->execute($validated);
 
-            SendContactMailJob::dispatch($validated['customer_email'], $validated['customer_name'], 'contact')->onQueue('email');
+            \App\Services\Shared\Mail\SystemMailService::sendContactRequestReceived(
+                $validated['customer_email'],
+                $validated['customer_name'],
+                null,
+                $validated['message']
+            );
+            \App\Services\Shared\Mail\SystemMailService::sendContactRequestAdminAlert(
+                $validated['customer_name'],
+                $validated['customer_email'],
+                $validated['message'],
+                $validated['customer_phone'] ?? null,
+                null,
+                route('admin.contact-requests.show', $contact->id)
+            );
 
             return redirect()->route('site.index')->with('success', 'تم استقبال استفسارك بنجاح وسيتم الرد عليك في أقرب وقت.');
         } catch (\Throwable $exception) {

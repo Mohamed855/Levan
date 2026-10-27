@@ -91,8 +91,7 @@
                                             <h4 class="fw-bold mb-0 text-primary">{{ $target->company_name }}</h4>
                                         </div>
                                         <p class="text-muted mb-0 small">
-                                            معرف العميل: <span
-                                                class="fw-semibold font-monospace text-dark">{{ $target->id }}</span>
+                                            معرف العميل: <span class="fw-semibold text-dark">{{ $target->id }}</span>
                                             &bull; تاريخ التسجيل: {{ $target->created_at?->format('Y-m-d') }}
                                         </p>
                                     </div>
@@ -148,7 +147,7 @@
                                         <li class="list-group-item d-flex justify-content-between align-items-center py-3">
                                             <span class="text-muted">المعرف الشامل للمستخدم</span>
                                             <span
-                                                class="text-dark small font-monospace">{{ $target->primary_user_global_uid ?: '-' }}</span>
+                                                class="text-dark small">{{ $target->primary_user_global_uid ?: '-' }}</span>
                                         </li>
                                     </ul>
 
@@ -258,8 +257,7 @@
                                                         <span class="badge bg-danger fw-bold">{{ $days }}
                                                             يوم</span>
                                                     @elseif ($days <= 30)
-                                                        <span
-                                                            class="badge bg-warning fw-semibold">{{ $days }}
+                                                        <span class="badge bg-warning fw-semibold">{{ $days }}
                                                             يوماً</span>
                                                     @else
                                                         <span class="badge bg-success">{{ $days }}

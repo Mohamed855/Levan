@@ -283,7 +283,8 @@
                             },
                             success: function(codes) {
                                 renderRecoveryCodes(codes);
-                                toastr.warning('احفظ هذه الأكواد الآن - لن تظهر مرة أخرى');
+                                toastr.warning(
+                                    'احفظ هذه الأكواد الآن - لن تظهر مرة أخرى');
                             },
                             error: function() {
                                 toastr.error('حدث خطأ أثناء توليد الأكواد');
@@ -298,7 +299,7 @@
                 (codes || []).forEach(function(code) {
                     recoveryCodesList.append(
                         '<div class="col">' +
-                        '<div class="border rounded px-2 py-1 text-center font-monospace small">' +
+                        '<div class="border rounded px-2 py-1 text-center small">' +
                         code + '</div>' +
                         '</div>'
                     );

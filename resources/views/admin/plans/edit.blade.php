@@ -66,7 +66,7 @@
                         placeholder="مثال: الباقة الاحترافية" required col="col-md-6" />
                     <x-form.controls.input name="code" id="code" label="كود الباقة (English Uppercase)"
                         :value="$plan->code" maxlength="50" pattern="[A-Z][A-Z0-9_]*" required col="col-md-6"
-                        class="font-monospace text-uppercase" :readonly="$hasSubscriptions" :help="$hasSubscriptions ? 'الكود مقفل لارتباط الباقة باشتراكات.' : null" />
+                        class="text-uppercase" :readonly="$hasSubscriptions" :help="$hasSubscriptions ? 'الكود مقفل لارتباط الباقة باشتراكات.' : null" />
                     <x-form.controls.select name="plan_type" id="plan_type" label="نوع الباقة" required :value="$currentType"
                         col="col-md-6" :options="array_map(
                             fn($type) => ['value' => $type->value, 'label' => $type->label()],
@@ -93,8 +93,8 @@
                                         <div class="flex-grow-1"><input type="text" name="features[{{ $index }}]"
                                                 data-form-control class="form-control" value="{{ $feature }}"
                                                 placeholder="مثال: لوحة تحكم مخصصة" required></div><button type="button"
-                                            class="btn btn-icon btn-danger btn-remove-feature"
-                                            aria-label="حذف الميزة"><i class="ti ti-trash"></i></button>
+                                            class="btn btn-icon btn-danger btn-remove-feature" aria-label="حذف الميزة"><i
+                                                class="ti ti-trash"></i></button>
                                     </div>
                                 </div>
                             @endforeach
@@ -196,7 +196,7 @@
                                 <dt class="col-5 text-muted">اسم الباقة</dt>
                                 <dd class="col-7 fw-semibold" id="plan-review-name">{{ $plan->name }}</dd>
                                 <dt class="col-5 text-muted">كود الباقة</dt>
-                                <dd class="col-7 fw-semibold font-monospace" id="plan-review-code">{{ $plan->code }}
+                                <dd class="col-7 fw-semibold" id="plan-review-code">{{ $plan->code }}
                                 </dd>
                                 <dt class="col-5 text-muted">نوع الباقة</dt>
                                 <dd class="col-7 fw-semibold" id="plan-review-type">

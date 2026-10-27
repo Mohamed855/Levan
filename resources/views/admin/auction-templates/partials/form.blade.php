@@ -68,7 +68,7 @@
                                 <h6 class="mb-0 fw-bold small text-heading">
                                     <i class="ti ti-list-check me-1 text-primary"></i>المتغيرات المعتمدة لهذا النوع
                                 </h6>
-                                <span class="badge bg-primary font-monospace" id="approved-fields-count"></span>
+                                <span class="badge bg-primary" id="approved-fields-count"></span>
                             </div>
                             <p class="text-muted small mb-2">المتغيرات التي يدعمها هذا النوع وتُستبدل تلقائياً بقيم
                                 المزاد
@@ -116,7 +116,7 @@
             <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
                 <div>
                     <h5 class="mb-1">مصمم القالب</h5>
-                    {{-- <span class="badge bg-secondary font-monospace" data-canvas-dims>794 × 1123 px (A4
+                    {{-- <span class="badge bg-secondary" data-canvas-dims>794 × 1123 px (A4
                         رأسي)</span> --}}
                     <small class="text-muted">ارسم المحتوى وحدد مواضع المتغيرات والصور على كل صفحة من القالب.</small>
                 </div>

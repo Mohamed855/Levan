@@ -19,7 +19,7 @@
                 <span class="badge bg-primary">
                     {{ $template->type instanceof \BackedEnum ? $template->type->value : (string) $template->type }}
                 </span>
-                <span class="badge bg-label-dark text-dark font-monospace">إصدار
+                <span class="badge bg-label-dark text-dark">إصدار
                     {{ $template->current_version ?: '1.0' }}</span>
             </div>
         </div>
@@ -77,7 +77,7 @@
                             </li>
                             <li class="mb-2">
                                 <span class="fw-bold me-1">الإصدار المعتمد:</span>
-                                <span class="font-monospace fw-bold">{{ $template->current_version ?: '—' }}</span>
+                                <span class="fw-bold">{{ $template->current_version ?: '—' }}</span>
                             </li>
                             <li class="mb-2">
                                 <span class="fw-bold me-1">مفعل في النظام:</span>
@@ -98,7 +98,7 @@
                                     <span class="fw-bold d-block mb-2">الحقول المعرفة:</span>
                                     <div class="d-flex flex-wrap gap-1">
                                         @foreach ($template->field_names as $fieldName)
-                                            <span class="badge bg-info font-monospace">{{ $fieldName }}</span>
+                                            <span class="badge bg-info">{{ $fieldName }}</span>
                                         @endforeach
                                     </div>
                                 </li>
@@ -131,7 +131,7 @@
                         <tbody>
                             @forelse ($template->versions as $version)
                                 <tr>
-                                    <td class="fw-bold font-monospace">إصدار {{ $version->version }}</td>
+                                    <td class="fw-bold">إصدار {{ $version->version }}</td>
                                     <td>
                                         <span
                                             class="badge {{ $version->status === 'published' ? 'bg-success' : 'bg-warning' }}">

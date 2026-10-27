@@ -54,11 +54,18 @@ class SubscriptionController extends Controller
             }
         }
 
-        $otpStep = is_array($verification) && ! isset($verification['verified_at']) && (int) ($verification['plan_id'] ?? 0) === (int) $plan->getKey() && isset($verification['otp_hash']);
-        $paymentStep = is_array($verification) && isset($verification['verified_at']) && (int) ($verification['plan_id'] ?? 0) === (int) $plan->getKey();
-        $checkoutData = is_array($verification)
-            ? collect($verification)->except(['plan_id', 'expires_at', 'otp_hash', 'verified_at', 'billing_password_hash'])->all()
-            : [];
+        $isCurrentPlan = is_array($verification) && (int) ($verification['plan_id'] ?? 0) === (int) $plan->getKey();
+        $otpStep = $isCurrentPlan && ! isset($verification['verified_at']) && isset($verification['otp_hash']);
+        $paymentStep = $isCurrentPlan && isset($verification['verified_at']);
+        $isEditing = $isCurrentPlan && (bool) ($verification['is_editing'] ?? false);
+
+        if ($isEditing) {
+            $checkoutData = collect($verification)->except(['plan_id', 'expires_at', 'otp_hash', 'verified_at', 'billing_password_hash', 'is_editing'])->all();
+        } elseif ($otpStep) {
+            $checkoutData = ['billing_email' => $verification['billing_email'] ?? ''];
+        } else {
+            $checkoutData = [];
+        }
         $banks = Bank::where('is_active', true)->get();
         $cities = City::all();
         $taxRate = 0.15;
@@ -99,7 +106,7 @@ class SubscriptionController extends Controller
 
         $checkout = $request->validated();
         $checkout['billing_password_hash'] = Hash::make($checkout['billing_password']);
-        unset($checkout['billing_password'], $checkout['billing_password_confirmation']);
+        unset($checkout['billing_password'], $checkout['billing_password_confirmation'], $checkout['is_editing']);
         $checkout['plan_id'] = $plan->getKey();
         $checkout['expires_at'] = now()->addMinutes(2)->timestamp;
         $checkout['session_expires_at'] = now()->addHour()->timestamp;
@@ -178,9 +185,10 @@ class SubscriptionController extends Controller
         abort_unless($this->isPublicPlan($plan), 404);
         $checkout = request()->session()->get('checkout_verification', []);
 
-        $safeInput = collect($checkout)->except(['plan_id', 'expires_at', 'otp_hash', 'verified_at', 'billing_password', 'billing_password_hash', 'billing_password_confirmation', 'resend_count', 'session_expires_at'])->all();
+        $safeInput = collect($checkout)->except(['plan_id', 'expires_at', 'otp_hash', 'verified_at', 'billing_password', 'billing_password_hash', 'billing_password_confirmation', 'resend_count', 'session_expires_at', 'is_editing'])->all();
         // إزالة تأكيد OTP حتى يعود لخطوة تعديل البيانات مع الحفاظ على البيانات في الجلسة عند عمل Reload
         unset($checkout['verified_at'], $checkout['otp_hash'], $checkout['resend_count']);
+        $checkout['is_editing'] = true;
         $checkout['expires_at'] = now()->addHour()->timestamp;
         request()->session()->put('checkout_verification', $checkout);
 
@@ -198,11 +206,14 @@ class SubscriptionController extends Controller
             return back()->withErrors(['otp' => 'رمز التحقق غير صحيح أو منتهي الصلاحية.']);
         }
 
-        $request->session()->put('checkout_verification', [
+        $updated = [
             ...$verification,
             'verified_at' => now()->timestamp,
             'expires_at' => now()->addHour()->timestamp,
-        ]);
+        ];
+        unset($updated['is_editing']);
+
+        $request->session()->put('checkout_verification', $updated);
 
         return redirect()->route('site.plans.checkout', $plan);
     }
@@ -258,6 +269,8 @@ class SubscriptionController extends Controller
             $bill = $this->findCheckoutBill($request->string('bill')->toString());
 
             if ($bill?->status === BillStatus::PAID && $bill->tenant_id) {
+                $request->session()->forget(['checkout_verification', 'checkout_coupon_code']);
+
                 return redirect()->to(url('/'.$bill->tenant_id.'/login'))
                     ->with('success', 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول');
             }
@@ -277,6 +290,8 @@ class SubscriptionController extends Controller
 
             $bill = $this->findCheckoutBill($request->string('bill')->toString());
             if ($bill?->status === BillStatus::PAID && $bill->tenant_id) {
+                $request->session()->forget(['checkout_verification', 'checkout_coupon_code']);
+
                 return redirect()->to(url('/'.$bill->tenant_id.'/login'))
                     ->with('success', 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول');
             }
@@ -416,9 +431,7 @@ class SubscriptionController extends Controller
             return;
         }
 
-        Mail::raw("رمز التحقق لإكمال اشتراكك هو: {$otp}", function ($message) use ($email): void {
-            $message->to($email)->subject('رمز التحقق لإكمال الاشتراك');
-        });
+        \App\Services\Shared\Mail\SystemMailService::sendOtp($email, $otp, 'إكمال الاشتراك');
     }
 
     private function showMoyasarCheckout(Bill $bill, Plan $plan)

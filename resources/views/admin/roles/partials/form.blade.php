@@ -4,7 +4,7 @@
 
 <div class="row g-4">
     <x-form.controls.input name="name" label="اسم الدور" :value="old('name', isset($role) ? \App\Support\AccessLabels::role($role->name) : '')" placeholder="مثال: ContentManager" required
-        col="col-md-6" />
+        col="col-12" />
 </div>
 
 <div class="mb-3">

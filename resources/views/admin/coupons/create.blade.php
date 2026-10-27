@@ -54,7 +54,7 @@
                             <!-- الكود -->
                             <x-form.controls.input name="code" id="code" label="كود الكوبون"
                                 help="سيتم تحويل الكود إلى أحرف كبيرة تلقائيًا" :value="$generatedCode ?? ''" required col="col-md-6"
-                                :input-group="true" class="font-monospace" style="text-transform: uppercase;">
+                                :input-group="true" style="text-transform: uppercase;">
                                 <button type="button" class="btn btn-secondary btn-generate-code" id="btn-generate-code">
                                     <i class="ti ti-wand"></i> توليد
                                 </button>

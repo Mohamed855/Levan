@@ -23,8 +23,9 @@ class UserService
     {
         app(CentralTrialAccessGateway::class)->assertUserCreationAllowed();
 
-        return DB::transaction(function () use ($data) {
+        $rawPassword = $data['password'] ?? null;
 
+        $user = DB::transaction(function () use ($data) {
             $roleId = $data['role_id'] ?? null;
             unset($data['role_id']);
 
@@ -44,6 +45,25 @@ class UserService
 
             return $user;
         });
+
+        try {
+            $tenant = tenant();
+            $loginUrl = $tenant ? tenant_route_name('login') : config('app.url');
+            $roleName = $user->roles->first()?->name;
+
+            \App\Services\Shared\Mail\SystemMailService::sendUserWelcome(
+                $user->email,
+                $user->name,
+                $rawPassword,
+                $loginUrl,
+                $tenant?->company_name,
+                $roleName
+            );
+        } catch (\Throwable $e) {
+            // Ignore email error to not prevent user creation
+        }
+
+        return $user;
     }
 
     /*

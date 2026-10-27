@@ -108,7 +108,7 @@ class AdminTicketService
             }
         }
 
-        TicketReply::create([
+        $reply = TicketReply::create([
             'ticket_id' => $ticket->id,
             'ticket_number' => $ticketNumber,
             'sender_type' => 'support_user',
@@ -122,7 +122,10 @@ class AdminTicketService
             $ticket->update(['status' => 'in_progress']);
         }
 
-        // The committed TicketReply observer delivers the notification exactly once.
+        $clientEmail = $ticket->customer_email ?? $ticket->tenant?->primary_contact_email;
+        if ($clientEmail) {
+            \App\Services\Shared\Mail\SystemMailService::sendTicketReply($ticket, $reply, $clientEmail, $ticket->customer_name ?? 'عزيزنا العميل', true);
+        }
 
         return ['success' => true, 'message' => 'تم إرسال الرد بنجاح'];
     }
@@ -149,6 +152,11 @@ class AdminTicketService
             'warning',
             'ti ti-refresh'
         );
+
+        $clientEmail = $ticket->customer_email ?? $ticket->tenant?->primary_contact_email;
+        if ($clientEmail) {
+            \App\Services\Shared\Mail\SystemMailService::sendTicketStatusUpdated($ticket, $clientEmail, $status, $ticket->customer_name);
+        }
 
         return ['success' => true, 'message' => 'تم تحديث حالة التذكرة بنجاح'];
     }

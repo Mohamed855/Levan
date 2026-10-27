@@ -80,7 +80,7 @@ class AuctionTemplateDataTable extends AbstractDataTable
 
             ->addColumn('version', function ($row) {
                 return $row->current_version
-                    ? '<span class="badge bg-info font-monospace">إصدار '.e((string) $row->current_version).'</span>'
+                    ? '<span class="badge bg-info">إصدار '.e((string) $row->current_version).'</span>'
                     : '<span class="text-muted">—</span>';
             })
 
@@ -91,7 +91,7 @@ class AuctionTemplateDataTable extends AbstractDataTable
             })
 
             ->editColumn('created_at', function ($row) {
-                return $row->created_at ? '<span class="text-muted font-monospace">'.e($row->created_at->format('Y-m-d')).'</span>' : '-';
+                return $row->created_at ? '<span class="text-muted">'.e($row->created_at->format('Y-m-d')).'</span>' : '-';
             })
 
             ->editColumn('is_active', function ($row) {

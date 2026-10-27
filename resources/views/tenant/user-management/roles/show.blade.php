@@ -10,7 +10,8 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold mb-1">
-                <i class="ti ti-shield-lock me-2 text-primary"></i>تفاصيل الدور: {{ \App\Support\AccessLabels::role($role->name) }}
+                <i class="ti ti-shield-lock me-2 text-primary"></i>تفاصيل الدور:
+                {{ \App\Support\AccessLabels::role($role->name) }}
             </h4>
             <div class="d-flex align-items-center gap-2">
                 <code class="copyable-code fs-6"
@@ -43,7 +44,8 @@
                         <i class="ti ti-shield-check text-primary" style="font-size: 3rem;"></i>
                     </div>
                     <h5 class="mb-1">{{ \App\Support\AccessLabels::role($role->name) }}</h5>
-                    <span class="badge bg-primary mb-3">حارس النظام: {{ \App\Support\AccessLabels::guard($role->guard_name) }}</span>
+                    <span class="badge bg-primary mb-3">حارس النظام:
+                        {{ \App\Support\AccessLabels::guard($role->guard_name) }}</span>
 
                     <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
                         <div>
@@ -51,7 +53,8 @@
                             <small class="text-muted">المستخدمون</small>
                         </div>
                         <div>
-                            <h5 class="mb-0 text-success">{{ $roleData['permissions_count'] ?? $role->permissions->count() }}</h5>
+                            <h5 class="mb-0 text-success">
+                                {{ $roleData['permissions_count'] ?? $role->permissions->count() }}</h5>
                             <small class="text-muted">الصلاحيات</small>
                         </div>
                     </div>
@@ -64,7 +67,7 @@
                             </li>
                             <li class="mb-2">
                                 <span class="fw-bold me-1">نطاق الحارس:</span>
-                                <span class="font-monospace">{{ \App\Support\AccessLabels::guard($role->guard_name) }}</span>
+                                <span>{{ \App\Support\AccessLabels::guard($role->guard_name) }}</span>
                             </li>
                             <li class="mb-2">
                                 <span class="fw-bold me-1">تاريخ الإنشاء:</span>
@@ -126,7 +129,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">لا يوجد مستخدمون مسندون لهذا الدور حتى الآن.</td>
+                                    <td colspan="4" class="text-center py-4 text-muted">لا يوجد مستخدمون مسندون لهذا
+                                        الدور حتى الآن.</td>
                                 </tr>
                             @endforelse
                         </tbody>

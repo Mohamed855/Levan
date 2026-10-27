@@ -33,21 +33,59 @@
 
 // Notifications
 
+.badge-notifications,
 .badge.badge-notifications {
     position: absolute;
-    top: auto;
-    display: inline-block;
+    top: 2px;
+    inset-inline-end: 0px;
     margin: 0;
-    transform: translate(-50%, -45%);
+    display: inline-block;
+    z-index: 2;
 
-    @include rtl-style {
-        transform: translate(50%, -45%);
+    &.badge-dot,
+    &:empty {
+        width: 8px !important;
+        height: 8px !important;
+        min-width: 8px !important;
+        max-width: 8px !important;
+        min-height: 8px !important;
+        max-height: 8px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        background-color: #ea5455 !important;
+        background: #ea5455 !important;
+        border: 1.5px solid var(--bs-card-bg, #fff) !important;
+        box-shadow: 0 1px 3px rgba(234, 84, 85, 0.4);
     }
 
-    &:not(.badge-dot) {
-        padding: 0.063rem 0.112rem;
+    &:not(.badge-dot):not(:empty) {
+        background-color: #ea5455 !important;
+        background: #ea5455 !important;
+        color: #fff !important;
+        padding: 0.15rem 0.35rem;
         font-size: 0.75rem;
         line-height: 0.875rem;
         @include border-radius(50rem);
+    }
+}
+
+// Sidebar Realtime Counters
+[data-sidebar-counter] {
+    transition: transform 0.25s ease-in-out, opacity 0.25s ease-in-out;
+
+    &.counter-pulse {
+        animation: sidebarCounterPulse 0.6s ease-in-out;
+    }
+}
+
+@keyframes sidebarCounterPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.35);
+    }
+    100% {
+        transform: scale(1);
     }
 }

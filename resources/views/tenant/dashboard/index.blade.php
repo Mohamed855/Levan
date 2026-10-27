@@ -35,7 +35,7 @@
                     <div>
                         <div class="d-flex align-items-center gap-2 mb-1">
                             <h4 class="welcome-title mb-0">مرحباً بك، {{ auth()->user()->name }} 👋</h4>
-                            <span class="badge bg-primary font-monospace">{{ $tenant?->company_name ?? tenant('id') }}</span>
+                            <span class="badge bg-primary">{{ $tenant?->company_name ?? tenant('id') }}</span>
                         </div>
                         <p class="welcome-sub mb-0">لوحة تحكم وإدارة المزادات العقارية ومتابعة الأداء التشغيلي والإداري</p>
                     </div>

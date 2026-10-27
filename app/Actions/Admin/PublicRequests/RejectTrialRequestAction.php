@@ -24,6 +24,12 @@ final class RejectTrialRequestAction
 
         cache()->forget('admin:pending_trial_requests_count');
 
+        \App\Services\Shared\Mail\SystemMailService::sendTrialRequestRejected(
+            $trialRequest->customer_email,
+            $trialRequest->customer_name,
+            $reason
+        );
+
         return $trialRequest;
     }
 }

@@ -96,6 +96,14 @@ class BillService
             'bank_id' => null,
             'payment_method' => null,
         ]);
+
+        $email = $bill->tenant?->primary_contact_email 
+            ?? $bill->metadata['billing_email'] 
+            ?? null;
+
+        if ($email) {
+            \App\Services\Shared\Mail\SystemMailService::sendBankTransferRejected($email, $bill, $reason);
+        }
     }
 
     public function reactivate(Bill $bill): void
@@ -125,6 +133,15 @@ class BillService
 
             throw $exception;
         }
+
+        $email = $bill->tenant?->primary_contact_email 
+            ?? $bill->metadata['billing_email'] 
+            ?? null;
+
+        if ($email) {
+            \App\Services\Shared\Mail\SystemMailService::sendBankTransferPending($email, $bill);
+        }
+        \App\Services\Shared\Mail\SystemMailService::sendBankTransferAdminAlert($bill);
     }
     /*
     |============================================================================

@@ -139,4 +139,14 @@ class AdminUser extends Authenticatable
 
         return Storage::disk('public')->url($imagePath);
     }
+
+    /**
+     * Send the password reset notification using Levan branded email.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $resetUrl = url("reset-password/{$token}?email=" . urlencode((string) $this->getEmailForPasswordReset()));
+
+        \App\Services\Shared\Mail\SystemMailService::sendPasswordReset($this->getEmailForPasswordReset(), $resetUrl, $this->name);
+    }
 }

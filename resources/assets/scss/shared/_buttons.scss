@@ -129,9 +129,9 @@
     }
 }
 
-.btn-primary,
-.btn.bg-primary,
-.btn-icon.bg-primary {
+.btn-label-primary,
+.btn.bg-label-primary,
+.btn-icon.bg-label-primary {
     background-color: rgba(29, 79, 68, 0.08) !important;
     border-color: transparent !important;
     color: var(--primary-color) !important;
@@ -148,7 +148,7 @@
     }
 }
 
-.btn-secondary {
+.btn-label-secondary {
     background-color: rgba(234, 223, 204, 0.5) !important;
     border-color: transparent !important;
     color: var(--primary-color) !important;

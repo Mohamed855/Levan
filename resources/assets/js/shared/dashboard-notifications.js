@@ -110,6 +110,30 @@ document.addEventListener('DOMContentLoaded', () => {
         initialized = true;
     };
 
+    const updateSidebarCounters = (counts) => {
+        if (!counts || typeof counts !== 'object') return;
+        Object.entries(counts).forEach(([key, val]) => {
+            const num = Number(val) || 0;
+            const badges = document.querySelectorAll(`[data-sidebar-counter="${key}"]`);
+            badges.forEach((badge) => {
+                const prev = Number(badge.textContent.trim()) || 0;
+                badge.textContent = num;
+                if (num > 0) {
+                    const wasHidden = badge.classList.contains('d-none');
+                    badge.classList.remove('d-none');
+                    if (wasHidden || num !== prev) {
+                        badge.classList.remove('counter-pulse');
+                        void badge.offsetWidth;
+                        badge.classList.add('counter-pulse');
+                        setTimeout(() => badge.classList.remove('counter-pulse'), 700);
+                    }
+                } else {
+                    badge.classList.add('d-none');
+                }
+            });
+        });
+    };
+
     const subscribe = (config) => {
         if (echo || !config?.key) return;
         echo = new Echo({
@@ -137,6 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) return;
             const data = await response.json();
             render(data.items || [], Number(data.count || 0));
+            if (data.sidebar_counts) {
+                updateSidebarCounters(data.sidebar_counts);
+            }
             subscribe(data.broadcast);
         } catch { /* The stored feed is retried after reconnect or at the fallback interval. */ }
         finally {

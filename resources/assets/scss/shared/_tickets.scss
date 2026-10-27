@@ -212,17 +212,17 @@
         color: var(--primary-color);
         font-weight: bold;
     }
-}
 
-.btn-submit {
-    background-color: var(--primary-color);
-    color: #fff;
-    border-radius: 10px;
-    padding: 10px 30px;
-    border: none;
-
-    &:hover {
-        background-color: #1d2033;
+    .btn-submit {
+        background-color: var(--primary-color);
         color: #fff;
+        border-radius: 10px;
+        padding: 10px 30px;
+        border: none;
+
+        &:hover {
+            background-color: #1d2033;
+            color: #fff;
+        }
     }
 }

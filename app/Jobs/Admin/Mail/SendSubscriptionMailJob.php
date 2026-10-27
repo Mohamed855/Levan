@@ -22,14 +22,14 @@ class SendSubscriptionMailJob implements ShouldQueue
 
     public function __construct(public string $email, public $subscription, public string $type = 'new') {}
 
-    public function handle(MailService $mailService): void
+    public function handle(): void
     {
         try {
             match ($this->type) {
-                'new' => $mailService->NewSubscribtionMail($this->email, $this->subscription),
-                'renew' => $mailService->RenewSubscriptionMail($this->email, $this->subscription),
-                'upgrade' => $mailService->UpgradeSubscriptionMail($this->email, $this->subscription),
-                'new_client' => $mailService->NewClientMail($this->email, $this->subscription),
+                'new' => \App\Services\Shared\Mail\SystemMailService::sendNewSubscription($this->email, $this->subscription),
+                'renew' => \App\Services\Shared\Mail\SystemMailService::sendRenewSubscription($this->email, $this->subscription),
+                'upgrade' => \App\Services\Shared\Mail\SystemMailService::sendUpgradeSubscription($this->email, $this->subscription),
+                'new_client' => \App\Services\Shared\Mail\SystemMailService::sendNewSubscription($this->email, $this->subscription),
                 default => Log::warning("Unknown subscription email type: {$this->type} ")
             };
         } catch (\Throwable $e) {
