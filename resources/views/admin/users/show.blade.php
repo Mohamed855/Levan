@@ -106,7 +106,8 @@
 
                                         <li class="d-flex align-items-center mb-4">
                                             <i class="ti ti-id-badge  text-primary"></i>
-                                            <small class="mx-2 fw-semibold">{{ $role ? \App\Support\AccessLabels::role($role->name) : 'غير متوفر' }}</small>
+                                            <small
+                                                class="mx-2 fw-semibold">{{ $role ? \App\Support\AccessLabels::role($role->name) : 'غير متوفر' }}</small>
                                         </li>
 
                                     </ul>
@@ -168,7 +169,7 @@
                 </div>
 
                 <!-- قسم الكوبونات -->
-                <div class="row g-4 mt-3">
+                <div class="row g-4">
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header py-4 d-flex justify-content-between align-items-center">

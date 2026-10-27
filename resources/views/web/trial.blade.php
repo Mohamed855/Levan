@@ -72,7 +72,7 @@
                                         @csrf
                                         <x-form.controls.input name="otp" label="رمز التحقق" inputmode="numeric"
                                             maxlength="6" autocomplete="one-time-code" class="otp-input" required />
-                                        <div class="d-flex align-items-center justify-content-between mt-3"
+                                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3"
                                             id="otp-timer-actions">
                                             <div id="checkout-otp-timer" class="otp-timer fw-bold"
                                                 data-expires-at="{{ $otpExpiresAt ?? 0 }}"
@@ -81,21 +81,16 @@
                                                 data-resend-url="{{ route('site.trial.resend') }}"></div>
 
                                             <div id="otp-resend-container">
-                                                <button type="button"
-                                                    class="otp-action-btn"
-                                                    id="btn-resend-otp"
-                                                    disabled>
+                                                <button type="button" class="otp-action-btn" id="btn-resend-otp" disabled>
                                                     <i class="ti ti-rotate-clockwise"></i>
                                                     <span>إعادة إرسال الرمز</span>
-                                                    <span
-                                                        class="text-xs text-muted" id="otp-remaining-attempts">({{ ($maxResends ?? 3) - ($resendCount ?? 0) }}
-                                                        متبقية)</span>
+                                                    <span class="text-xs text-muted"
+                                                        id="otp-remaining-attempts">({{ max(0, ($maxResends ?? 3) - ($resendCount ?? 0)) }} محاولة متبقية)</span>
                                                 </button>
                                             </div>
 
-                                            <div id="otp-edit-container" class="d-none">
-                                                <a href="{{ route('site.trial.edit') }}"
-                                                    class="otp-action-btn">
+                                            <div id="otp-edit-container" class="{{ ($resendCount ?? 0) >= ($maxResends ?? 3) ? '' : 'd-none' }}">
+                                                <a href="{{ route('site.trial.edit') }}" class="otp-action-btn">
                                                     <i class="ti ti-arrow-right"></i>
                                                     العودة لتعديل البيانات
                                                 </a>
@@ -103,8 +98,8 @@
                                         </div>
                                     </form>
 
-                                    <form id="otp-resend-form" method="POST"
-                                        action="{{ route('site.trial.resend') }}" class="d-none">
+                                    <form id="otp-resend-form" method="POST" action="{{ route('site.trial.resend') }}"
+                                        class="d-none">
                                         @csrf
                                     </form>
                                 </div>

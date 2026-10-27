@@ -1,6 +1,20 @@
 @php
     $hideNav = true;
     $hideFooter = true;
+    $hidePreloader = true;
+    $hideLoader = true;
+
+    if (!isset($homeUrl)) {
+        if (function_exists('tenant') && tenant()) {
+            $homeUrl = url('/');
+        } elseif (request()->is('admin/*') || request()->is('admin')) {
+            $homeUrl = Route::has('admin.dashboard.index') ? route('admin.dashboard.index') : url('/admin');
+        } elseif (Route::has('site.index')) {
+            $homeUrl = route('site.index');
+        } else {
+            $homeUrl = url('/');
+        }
+    }
 @endphp
 
 @extends('layouts.web')
@@ -10,7 +24,7 @@
         <div class="container site-error-container">
             <article class="site-error-card">
                 <div class="site-error-brand">
-                    <a href="{{ Route::has('site.index') ? route('site.index') : url('/') }}"
+                    <a href="{{ $homeUrl }}"
                         aria-label="{{ __('الرئيسية') }}">
                         <img src="{{ asset('static/brand/logos/lot/trans-profile.png') }}" alt="Levan">
                     </a>
@@ -30,7 +44,7 @@
                 <p class="site-error-desc">@yield('message', __('نعتذر، تعذر إتمام طلبك في الوقت الحالي.'))</p>
 
                 <div class="site-error-actions">
-                    <a href="{{ $homeUrl ?? (Route::has('site.index') ? route('site.index') : url('/')) }}"
+                    <a href="{{ $homeUrl }}"
                         class="site-error-btn">
                         <i class="ti ti-home"></i>
                         <span>{{ __('العودة للرئيسية') }}</span>

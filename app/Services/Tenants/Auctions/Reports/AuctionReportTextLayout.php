@@ -8,6 +8,8 @@ final class AuctionReportTextLayout
 {
     private ?array $forms = null;
 
+    private ?array $numericMetrics = null;
+
     public function __construct(private readonly string $root = '') {}
 
     /** @return list<string> */
@@ -16,14 +18,14 @@ final class AuctionReportTextLayout
         $file = $this->font($font);
         $lines = [];
         foreach (explode("\n", $value) as $paragraph) {
-            if ($this->width($paragraph, $size, $file) <= $width * 1.1) {
+            if ($this->width($paragraph, $size, $file, $font) <= $width * 1.1) {
                 $lines[] = $paragraph;
                 continue;
             }
             $line = '';
             foreach (preg_split('/\s+/u', trim($paragraph)) ?: [] as $word) {
                 $candidate = $line === '' ? $word : $line.' '.$word;
-                if ($this->width($candidate, $size, $file) <= $width) {
+                if ($this->width($candidate, $size, $file, $font) <= $width) {
                     $line = $candidate;
                     continue;
                 }
@@ -32,7 +34,7 @@ final class AuctionReportTextLayout
                     $line = '';
                 }
                 foreach (preg_split('//u', $word, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $character) {
-                    if ($line !== '' && $this->width($line.$character, $size, $file) > $width) {
+                    if ($line !== '' && $this->width($line.$character, $size, $file, $font) > $width) {
                         $lines[] = $line;
                         $line = '';
                     }
@@ -80,6 +82,7 @@ final class AuctionReportTextLayout
         foreach ($pages[0]['tables'] as $id => $rows) {
             $table = $definition['tables'][$id];
             $normal = [];
+            $segments = [];
             foreach ($rows as $row) {
                 $slot = $table['rows'][count($normal)];
                 $expanded = false;
@@ -87,22 +90,36 @@ final class AuctionReportTextLayout
                 foreach ($row as $column => $value) {
                     $field = $definition['fields'][$slot['cells'][$column]['fields'][0]];
                     $lines = $this->wrap($value, $table['columns'][$column + 1] - $table['columns'][$column] - 8, $field['size'], $field['font']);
-                    $expanded = $expanded || count($lines) * $field['sy'] * 1.17 > $slot['bottom'] - $slot['top'];
+                    $expanded = $expanded || $this->height($lines, $field['size'], $field['sy'], $field['font']) > $slot['bottom'] - $slot['top'];
                     $wrapped[] = implode("\n", $lines);
                 }
                 if ($expanded) {
-                    $extraRows[] = [$id, $wrapped];
+                    if ($normal !== []) {
+                        $segments[] = ['rows' => $normal, 'expanded' => false];
+                        $normal = [];
+                    }
+                    $segments[] = ['rows' => [$wrapped], 'expanded' => true];
                 } else {
                     $normal[] = $wrapped;
                 }
             }
-            $pages[0]['tables'][$id] = $normal;
+            if ($segments === []) {
+                $pages[0]['tables'][$id] = $normal;
+                continue;
+            }
+            if ($normal !== []) {
+                $segments[] = ['rows' => $normal, 'expanded' => false];
+            }
+            $pages[0]['tables'][$id] = $segments[0]['expanded'] ? [] : array_shift($segments)['rows'];
+            foreach ($segments as $segment) {
+                $extraRows[] = [$id, $segment];
+            }
         }
-        foreach ($extraRows as [$id, $row]) {
+        foreach ($extraRows as [$id, $segment]) {
             $copy = $content;
             $copy['tables'] = array_fill_keys(array_keys($content['tables']), []);
-            $copy['tables'][$id] = [$row];
-            $copy['table_layouts'] = [$id => ['expanded' => true]];
+            $copy['tables'][$id] = $segment['rows'];
+            $copy['table_layouts'] = [$id => ['expanded' => $segment['expanded']]];
             $copy['images'] = [];
             foreach ($fieldChunks as $role => $chunks) {
                 $copy['values'][$role] = $chunks[0];
@@ -113,18 +130,40 @@ final class AuctionReportTextLayout
         return $pages;
     }
 
-    private function width(string $value, float $size, string $font): float
+    private function width(string $value, float $size, string $font, string $name): float
     {
         if ($value === '') {
             return 0;
+        }
+        $this->numericMetrics ??= require ($this->root ?: resource_path('auction-reports')).'/fonts/numeric-metrics.php';
+        $metrics = $name === 'NizarBBCKurdish' ? [] : ($this->numericMetrics[$name] ?? []);
+        $characters = preg_split('//u', $value, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        if ($metrics !== [] && array_diff($characters, array_keys($metrics)) === []) {
+            return array_sum(array_map(static fn (string $character): float => $metrics[$character], $characters)) * $size;
         }
         $bounds = imagettfbbox($size * .75, 0, $font, $this->shapeForMeasurement($value));
 
         return max($bounds[0], $bounds[2], $bounds[4], $bounds[6]) - min($bounds[0], $bounds[2], $bounds[4], $bounds[6]);
     }
 
+    /** @param list<string> $lines */
+    public function height(array $lines, float $size, float $verticalSize, string $font): float
+    {
+        $ink = 0;
+        foreach ($lines as $line) {
+            if ($line === '') {
+                continue;
+            }
+            $bounds = imagettfbbox($size * .75, 0, $this->font($font), $this->shapeForMeasurement($line));
+            $ink = max($ink, (max($bounds[1], $bounds[3], $bounds[5], $bounds[7]) - min($bounds[1], $bounds[3], $bounds[5], $bounds[7])) * $verticalSize / $size);
+        }
+
+        return $ink + max(0, count($lines) - 1) * $verticalSize * 1.17;
+    }
+
     private function font(string $name): string
     {
+        $root = $this->root ?: resource_path('auction-reports');
         $file = match (true) {
             $name === 'NizarBBCKurdish' => 'nizar-bbc-kurdish.ttf',
             str_starts_with($name, 'GEContrast') => 'ge-contrast-bold.ttf',
@@ -132,7 +171,7 @@ final class AuctionReportTextLayout
             default => 'noto-sans-arabic.ttf',
         };
 
-        return ($this->root ?: resource_path('auction-reports')).'/fonts/'.$file;
+        return $root.'/fonts/'.$file;
     }
 
     private function shapeForMeasurement(string $value): string

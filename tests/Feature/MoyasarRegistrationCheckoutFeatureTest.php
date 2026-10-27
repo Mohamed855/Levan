@@ -331,14 +331,14 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
     {
         $payload = [
             'plan_id' => $this->publicPlan->id,
-            'billing_company_name' => 'Resend Company',
-            'billing_commercial_number' => '1010101010',
+            'billing_company_name' => 'Resend Company '.rand(1000, 9999),
+            'billing_commercial_number' => '1010'.rand(100000, 999999),
             'billing_tax_number' => '300000000000003',
             'billing_city_id' => City::firstOrFail()->id,
             'billing_address' => 'Riyadh',
             'billing_name' => 'Resend User',
-            'billing_email' => 'resend-checkout@example.test',
-            'billing_phone' => '0512345678',
+            'billing_email' => 'resend-checkout-'.rand(10000, 99999).'@example.test',
+            'billing_phone' => '05'.rand(10000000, 99999999),
             'billing_password' => 'Secret1234!',
             'billing_password_confirmation' => 'Secret1234!',
         ];

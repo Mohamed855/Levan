@@ -93,7 +93,7 @@
                                 col="col-md-6" />
                             <x-form.controls.select name="city_id" label="المدينة" :options="$cities"
                                 placeholder="اختر المدينة" required col="col-md-6" />
-                            <x-form.controls.textarea name="address" label="العنوان"
+                            <x-form.controls.input name="address" label="العنوان"
                                 placeholder="مثال: الرياض - طريق الملك فهد" rows="2" maxlength="1000" required
                                 col="col-md-6" />
 
@@ -113,7 +113,7 @@
                             <x-form.wizard.previous-button :href="route('admin.clients.index')" />
                             <div class="d-flex gap-2">
                                 <x-form.wizard.draft-button />
-                                <x-form.wizard.next-button :disabled="true" />
+                                <x-form.wizard.next-button />
                             </div>
                         </x-form.wizard.actions>
                     </x-form.wizard.step>
@@ -189,7 +189,7 @@
                             <x-form.wizard.previous-button />
                             <div class="d-flex gap-2">
                                 <x-form.wizard.draft-button />
-                                <x-form.wizard.next-button :disabled="true" />
+                                <x-form.wizard.next-button />
                             </div>
                         </x-form.wizard.actions>
                     </x-form.wizard.step>

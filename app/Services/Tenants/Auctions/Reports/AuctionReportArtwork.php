@@ -19,6 +19,8 @@ final class AuctionReportArtwork
 
     private array $uris = [];
 
+    private ?AuctionReportTextLayout $textLayout = null;
+
     public function __construct(private readonly string $root = '') {}
 
     /** @param array<string, string> $values
@@ -107,7 +109,8 @@ final class AuctionReportArtwork
                     $field['width'] = $table['columns'][$column + 1] - $table['columns'][$column] - 8;
                     $field['y'] = $slot['top'] + ($slot['bottom'] - $slot['top']) / 2 + $field['sy'] * .32;
                     $field['rtl'] = preg_match('/[\x{0600}-\x{06ff}]/u', $value) === 1;
-                    if (count(explode("\n", $value)) * $field['sy'] * 1.17 > $slot['bottom'] - $slot['top'] + 1) {
+                    $this->textLayout ??= new AuctionReportTextLayout($this->root);
+                    if ($this->textLayout->height(explode("\n", $value), $field['size'], $field['sy'], $field['font']) > $slot['bottom'] - $slot['top'] + 1) {
                         throw new InvalidArgumentException('A report field exceeds the available continuation page height.');
                     }
                     $this->text($document, $svg, $field, $value, ['data-report-cell' => $id.':'.$rowIndex.':'.$column], true);

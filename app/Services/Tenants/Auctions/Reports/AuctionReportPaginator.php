@@ -39,6 +39,10 @@ final class AuctionReportPaginator
     {
         $properties = $this->properties($snapshot);
         $capacities = $this->capacities('outputs');
+        $marketingEvidence = [];
+        foreach (['marketing_evidence', 'brochure', 'platform', 'video', 'x', 'whatsapp', 'social'] as $section) {
+            $marketingEvidence = array_merge($marketingEvidence, $snapshot['evidence'][$section] ?? []);
+        }
         $pages = [$this->page('haram-cover')];
 
         foreach ($this->chunks($properties, $capacities['property_index']) as $index => $chunk) {
@@ -52,7 +56,7 @@ final class AuctionReportPaginator
         $pages = array_merge($pages,
             $this->mediaPages('haram-marketing', [
                 'campaigns' => $snapshot['marketing']['campaigns'] ?? [],
-                'marketing_evidence' => $snapshot['evidence']['marketing_evidence'] ?? [],
+                'marketing_evidence' => $marketingEvidence,
             ], ['campaigns' => 3, 'marketing_evidence' => 2]),
             $this->mediaPages('haram-board-before', [
                 'board_before' => $snapshot['evidence']['board_before'] ?? [],

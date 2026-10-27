@@ -30,5 +30,8 @@ final class AuctionReportAssetsTest extends TestCase
         $asir = require $root.'/asir/pages.php';
         self::assertCount(6, array_filter($asir[7]['image_defs'], static fn (array $frame): bool => $frame['section'] === 'board_before'));
         self::assertStringNotContainsString('static-3cf40a9f812e2527f4cb', file_get_contents($root.'/asir/page-8.svg'));
+        foreach (glob($root.'/asir/static-*') as $asset) {
+            self::assertArrayHasKey('asir/'.basename($asset), $manifest['files'], 'Obsolete source assets must not be shipped.');
+        }
     }
 }

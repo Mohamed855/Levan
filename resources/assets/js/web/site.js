@@ -7,12 +7,7 @@ import { initTestimonialSwiper } from './_swiper.js';
 import { initContactForms } from './_contact.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  initScrollReveal();
-  initNavbar();
-  initTestimonialSwiper();
-  initContactForms();
-
-  // Dismiss page loading overlay
+  // Dismiss page loading overlay first so it never gets blocked by other scripts
   const pageLoading = document.querySelector('.page-loading');
   if (pageLoading) {
     const hideLoader = () => {
@@ -24,7 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
       hideLoader();
     } else {
       window.addEventListener('load', hideLoader);
-      setTimeout(hideLoader, 2500); // Safety fallback
+      setTimeout(hideLoader, 1500); // Safety fallback
     }
   }
+
+  try { initScrollReveal(); } catch (e) { console.error('Scroll reveal init error:', e); }
+  try { initNavbar(); } catch (e) { console.error('Navbar init error:', e); }
+  try { initTestimonialSwiper(); } catch (e) { console.error('Swiper init error:', e); }
+  try { initContactForms(); } catch (e) { console.error('Contact forms init error:', e); }
 });

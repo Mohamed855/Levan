@@ -13,7 +13,12 @@ $input = realpath($argv[1] ?? '');
 if ($input === false || ! str_starts_with(str_replace('\\', '/', $input), str_replace('\\', '/', base_path()).'/output/pdf/')) {
     throw new InvalidArgumentException('Provide a report preview HTML under output/pdf.');
 }
-$browser = Browsershot::html(file_get_contents($input))->timeout(180)->waitUntilNetworkIdle()->waitForFunction('document.fonts.status === "loaded"');
+$html = file_get_contents($input);
+if (in_array('--isolate-image', $argv, true)) {
+    $uri = 'data:image/png;base64,'.base64_encode(file_get_contents(resource_path('auction-reports/haram/background-2.png')));
+    $html = '<html><body><svg xmlns="http://www.w3.org/2000/svg"><image href="'.$uri.'" /></svg></body></html>';
+}
+$browser = Browsershot::html($html)->timeout(180)->waitUntilNetworkIdle()->waitForFunction('document.fonts.status === "loaded"');
 foreach (['node_binary' => 'setNodeBinary', 'npm_binary' => 'setNpmBinary', 'chrome_path' => 'setChromePath'] as $key => $method) {
     if ($value = config('auction-renderer.'.$key)) {
         $browser->{$method}($value);
@@ -21,12 +26,17 @@ foreach (['node_binary' => 'setNodeBinary', 'npm_binary' => 'setNpmBinary', 'chr
 }
 if (in_array('--audit-images', $argv, true)) {
     echo $browser->evaluate(<<<'JS'
-(async () => JSON.stringify(await Promise.all(Array.from(document.querySelectorAll('svg image')).map(async (node, index) => {
+(async () => {
+const results = [];
+for (const [index, node] of Array.from(document.querySelectorAll('svg image')).entries()) {
     const uri = node.getAttributeNS('http://www.w3.org/1999/xlink', 'href') || node.getAttribute('href');
     const image = new Image();
     image.src = uri;
-    return {index, id:node.id, prefix:uri.slice(0,40), length:uri.length, result:await Promise.race([image.decode().then(()=> 'ready',error=>error.message),new Promise(resolve=>setTimeout(()=>resolve('timeout'),3000))])};
-}))))()
+    results.push({index, id:node.id, prefix:uri.slice(0,40), length:uri.length, result:await Promise.race([image.decode().then(()=> 'ready',error=>error.message),new Promise(resolve=>setTimeout(()=>resolve('timeout'),3000))])});
+    image.src = '';
+}
+return JSON.stringify(results);
+})()
 JS).PHP_EOL;
     exit(0);
 }
@@ -45,10 +55,24 @@ $result = $browser->evaluate(<<<'JS'
             const width = box.width / scale;
             const height = box.height / scale;
             const allowedWidth = Number(node.dataset.reportWidth || 0);
+            let clipped = {left:box.left, top:box.top, right:box.right, bottom:box.bottom};
+            if (node.hasAttribute('data-report-media')) {
+                for (let parent = node.parentElement; parent && parent !== svg; parent = parent.parentElement) {
+                    const clip = parent.getAttribute('clip-path')?.match(/^url\(#([^)]+)\)$/);
+                    const target = clip && document.getElementById(clip[1]);
+                    if (target && target.getBBox) {
+                        const bounds = target.getBBox();
+                        const matrix = parent.getScreenCTM();
+                        const corners = [[bounds.x,bounds.y],[bounds.x+bounds.width,bounds.y+bounds.height]].map(([x,y]) => new DOMPoint(x,y).matrixTransform(matrix));
+                        clipped = {left:Math.max(clipped.left,corners[0].x),top:Math.max(clipped.top,corners[0].y),right:Math.min(clipped.right,corners[1].x),bottom:Math.min(clipped.bottom,corners[1].y)};
+                    }
+                }
+            }
             return {
                 id: node.dataset.reportField || node.dataset.reportCell || node.dataset.reportMedia,
                 kind: node.hasAttribute('data-report-media') ? 'dynamic_image' : 'dynamic_text',
                 text: node.textContent.trim(), x, y, width, height, allowedWidth,
+                visibleBox: [(clipped.left-frame.left)/scale,(clipped.top-frame.top)/scale,(clipped.right-frame.left)/scale,(clipped.bottom-frame.top)/scale],
                 overWidth: allowedWidth > 0 && width > allowedWidth + 1,
                 outsidePage: x < -1 || y < -1 || x + width > svg.viewBox.baseVal.width + 1 || y + height > svg.viewBox.baseVal.height + 1
             };

@@ -81,6 +81,53 @@ final class AuctionReportPaginatorTest extends TestCase
         self::assertSame(range(1, count($pages)), array_column($pages, 'page_number'));
     }
 
+    public function test_report_media_boundaries_preserve_every_item_in_order(): void
+    {
+        foreach (['brochure' => 24, 'platform' => 3, 'video' => 5, 'x' => 8, 'whatsapp' => 2, 'social' => 3, 'brokers' => 1, 'board_before' => 13, 'board_after' => 13] as $section => $capacity) {
+            foreach ([0, $capacity - 1, $capacity, $capacity + 1] as $count) {
+                $snapshot = $this->snapshot(0);
+                $items = $count === 0 ? [] : array_map(static fn (int $id): array => ['id' => $id], range(1, $count));
+                $snapshot['evidence'][$section] = $items;
+                $pages = $this->paginator()->paginate($snapshot, 'report');
+                $actual = [];
+                foreach ($pages as $page) {
+                    $actual = array_merge($actual, $page['payload'][$section] ?? []);
+                }
+                self::assertSame($items, $actual, $section.':'.$count);
+            }
+        }
+    }
+
+    public function test_property_index_boundaries_preserve_order_in_both_designs(): void
+    {
+        foreach (['outputs' => ['haram-index', 11], 'report' => ['asir-index', 13]] as $type => [$family, $capacity]) {
+            foreach ([0, $capacity - 1, $capacity, $capacity + 1] as $count) {
+                $snapshot = $this->snapshot($count);
+                $pages = array_values(array_filter($this->paginator()->paginate($snapshot, $type), static fn (array $page): bool => str_starts_with($page['page_type'], $family)));
+                $actual = [];
+                foreach ($pages as $page) {
+                    $actual = array_merge($actual, $page['payload']['properties']);
+                }
+                self::assertSame($snapshot['properties'], $actual, $type.':'.$count);
+                self::assertCount(max(1, (int) ceil($count / $capacity)), $pages);
+            }
+        }
+    }
+
+    public function test_outputs_include_evidence_classified_by_its_marketing_channel(): void
+    {
+        $snapshot = $this->snapshot(0);
+        $snapshot['evidence']['platform'] = [['id' => 'platform']];
+        $snapshot['evidence']['x'] = [['id' => 'x']];
+        $snapshot['evidence']['social'] = [['id' => 'social']];
+        $snapshot['evidence']['design_asset'] = [['id' => 'ornament']];
+        $actual = [];
+        foreach ($this->paginator()->paginate($snapshot, 'outputs') as $page) {
+            $actual = array_merge($actual, $page['payload']['marketing_evidence'] ?? []);
+        }
+        self::assertSame(['platform', 'x', 'social'], array_column($actual, 'id'));
+    }
+
     /** @return array<string, mixed> */
     private function snapshot(int $propertyCount, int $soldCount = 3): array
     {

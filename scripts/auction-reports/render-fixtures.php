@@ -27,7 +27,12 @@ foreach (['haram' => 'outputs', 'asir' => 'report'] as $design => $type) {
         $start = strpos($source, $marker) + strlen($marker);
         $end = strpos($source, '</script>', $start);
         $package = json_decode(substr($source, $start, $end - $start), true, flags: JSON_THROW_ON_ERROR);
-        $snapshot['auction']['report_image'] = $package['assets']['57f9524018b458c61391'];
+        [$header, $encoded] = explode(',', $package['assets']['57f9524018b458c61391'], 2);
+        $bytes = base64_decode($encoded, true);
+        if ($bytes === false) {
+            throw new RuntimeException('Invalid fixture landscape image.');
+        }
+        $snapshot['auction']['report_image'] = $header.','.base64_encode($bytes);
     }
     $html = app(AuctionReportRenderer::class)->html($snapshot, $type);
     file_put_contents($output.'/'.$design.'.html', $html);

@@ -178,6 +178,9 @@ $write('fallback.svg', '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="htt
 $write('fonts/catalog.php', "<?php\n\ndeclare(strict_types=1);\n\nreturn ".var_export($fontCatalog, true).";\n");
 $forms = array_filter($package['forms'], static fn (string $key): bool => mb_strlen($key) === 1, ARRAY_FILTER_USE_KEY);
 $write('fonts/arabic-forms.php', "<?php\n\ndeclare(strict_types=1);\n\nreturn ".var_export($forms, true).";\n");
+if (is_file($root.'/fonts/numeric-metrics.php')) {
+    $write('fonts/numeric-metrics.php', file_get_contents($root.'/fonts/numeric-metrics.php'));
+}
 ksort($files);
 file_put_contents($root.'/manifest.php', "<?php\n\ndeclare(strict_types=1);\n\nreturn ".var_export(['source_hashes' => $sources, 'files' => $files], true).";\n");
 echo count($files).' local assets packaged.'.PHP_EOL;

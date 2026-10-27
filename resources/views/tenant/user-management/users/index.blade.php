@@ -51,7 +51,7 @@
                 icon="ti-user-check" color="success" />
             <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين غير النشطين" :value="$inactiveUsers"
                 subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="danger" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين المؤرشفين" :value="$archivedUsers"
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين المحذوفين" :value="$archivedUsers"
                 subtitle="المستخدمين في الأرشيف" icon="ti-archive" color="warning" />
         </x-slot:stats>
 
@@ -59,8 +59,8 @@
             <x-data-table.filters table="#users-table" reset-id="btn-reset-filters">
                 <x-filter.select id="filter-status" filterKey="status" label="حالة المستخدم"
                     placeholder="اختر حالة المستخدم" :enum="\App\Enums\Shared\ActivityStatus::class" />
-                <x-filter.select id="filter-role" filterKey="role" label="دور المستخدم"
-                    placeholder="اختر الدور" :options="\App\Support\AccessLabels::roleOptions($roles)" />
+                <x-filter.select id="filter-role" filterKey="role" label="دور المستخدم" placeholder="اختر الدور"
+                    :options="\App\Support\AccessLabels::roleOptions($roles)" />
             </x-data-table.filters>
         </x-slot:filters>
 

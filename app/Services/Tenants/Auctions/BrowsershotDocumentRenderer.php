@@ -55,14 +55,10 @@ final class BrowsershotDocumentRenderer implements BrowserDocumentRenderer
             $browser->waitForFunction(<<<'JS'
 (async () => {
     await document.fonts.ready;
-    await Promise.all(Array.from(document.querySelectorAll('svg image')).map(async node => {
-        const uri = node.getAttributeNS('http://www.w3.org/1999/xlink', 'href') || node.getAttribute('href');
-        if (!uri || uri.startsWith('#')) return;
-        const image = new Image();
-        image.src = uri;
-        await image.decode();
-    }));
-    return true;
+    // Navigation already waits for the SVG image resources. Decoding duplicate
+    // 600-DPI images here exhausts Chromium's decoded-image memory budget.
+    return document.readyState === 'complete'
+        && Array.from(document.images).every(image => image.complete && image.naturalWidth > 0);
 })()
 JS);
         }

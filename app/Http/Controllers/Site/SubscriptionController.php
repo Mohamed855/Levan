@@ -351,10 +351,11 @@ class SubscriptionController extends Controller
 
     private function handleBankTransfer(Request $request, Bill $bill): void
     {
+        $receipt = request()->file('transfer_receipt') ?? $request->file('transfer_receipt');
         $this->billingService->submitBankTransfer(
             $bill,
             $request->integer('bank_id'),
-            $request->file('transfer_receipt'),
+            $receipt,
         );
     }
 

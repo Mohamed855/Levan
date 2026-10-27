@@ -27,6 +27,7 @@ class LandingPageController extends Controller
     public function contactRequest(StoreContactRequest $request)
     {
         try {
+            $validated = $request->validated();
             $contact = $this->createContactRequest->execute($validated);
 
             \App\Services\Shared\Mail\SystemMailService::sendContactRequestReceived(
@@ -44,9 +45,23 @@ class LandingPageController extends Controller
                 route('admin.contact-requests.show', $contact->id)
             );
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم استقبال استفسارك بنجاح وسيتم الرد عليك في أقرب وقت.',
+                ]);
+            }
+
             return redirect()->route('site.index')->with('success', 'تم استقبال استفسارك بنجاح وسيتم الرد عليك في أقرب وقت.');
         } catch (\Throwable $exception) {
             report($exception);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ غير متوقع',
+                ], 500);
+            }
 
             return redirect()->back()->withInput()->with('error', 'حدث خطأ غير متوقع');
         }

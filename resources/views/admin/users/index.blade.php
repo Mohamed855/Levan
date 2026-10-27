@@ -35,24 +35,24 @@
 @section('content')
     <x-data-table.page table-id="users-table">
         <x-slot:stats>
-            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي المستخدمين" :value="$totalUsers" subtitle="إجمالي المستخدمين" icon="ti-users"
-                color="primary" />
-            <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين النشطين" :value="$activeUsers" subtitle="المستخدمين النشطين" icon="ti-user-check"
-                color="success" />
-            <x-ui.stat-card col="col-sm-6 col-xl" title="مدراء النظام" :value="$superAdminUsers" subtitle="صلاحيات كاملة" icon="ti-shield-lock"
-                color="info" />
-            <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين غير النشطين" :value="$inactiveUsers" subtitle="المستخدمين غير النشطين"
-                icon="ti-user-off" color="warning" />
-            <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين المؤرشفين" :value="$archivedUsers" subtitle="يمكن استعادتها من الأرشيف"
-                icon="ti-archive" color="danger" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي المستخدمين" :value="$totalUsers" subtitle="إجمالي المستخدمين"
+                icon="ti-users" color="primary" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين النشطين" :value="$activeUsers" subtitle="المستخدمين النشطين"
+                icon="ti-user-check" color="success" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="مدراء النظام" :value="$superAdminUsers" subtitle="صلاحيات كاملة"
+                icon="ti-shield-lock" color="info" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين غير النشطين" :value="$inactiveUsers"
+                subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="warning" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين المحذوفين" :value="$archivedUsers"
+                subtitle="يمكن استعادتها من المحذوفات" icon="ti-archive" color="danger" />
         </x-slot:stats>
 
         <x-slot:filters>
             <x-data-table.filters table="#users-table">
-                <x-filter.select id="filter-status" filterKey="status" table="#users-table" label="حالة المستخدمين" placeholder="اختر حالة المستخدم"
-                    :options="$filterOptions['statuses']" />
-                <x-filter.select id="filter-role" filterKey="role" table="#users-table" label="دور المستخدم" placeholder="اختر الدور"
-                    :options="$filterOptions['roles']" />
+                <x-filter.select id="filter-status" filterKey="status" table="#users-table" label="حالة المستخدمين"
+                    placeholder="اختر حالة المستخدم" :options="$filterOptions['statuses']" />
+                <x-filter.select id="filter-role" filterKey="role" table="#users-table" label="دور المستخدم"
+                    placeholder="اختر الدور" :options="$filterOptions['roles']" />
             </x-data-table.filters>
         </x-slot:filters>
 

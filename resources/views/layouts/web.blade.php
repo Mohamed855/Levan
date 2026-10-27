@@ -37,19 +37,21 @@
 <body class="site-shell">
     <x-shared.toastr />
 
-    <div class="page-loading" role="status" aria-live="polite" aria-atomic="true" aria-label="Loading...">
-        <div class="grid-loader">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
+    @unless (($hidePreloader ?? false) || ($hideLoader ?? false) || isset($exception))
+        <div class="page-loading" role="status" aria-live="polite" aria-atomic="true" aria-label="Loading...">
+            <div class="grid-loader">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
         </div>
-    </div>
+    @endunless
 
     @unless ($hideNav ?? false)
         @include('web.partials.header')

@@ -126,6 +126,7 @@ return array (
     'fonts/ibm-plex-sans-arabic.ttf' => 'b8363ab9f733dfa4f8e96b8b2102c24b5cf4110fb96d1d3d9a9412f6fb49cf74',
     'fonts/nizar-bbc-kurdish.ttf' => '7b2996fe68f0229efd8d0d30b0051b03562affbf594329a741bd02fe0035a8b6',
     'fonts/noto-sans-arabic.ttf' => '63111b5b2e074dd48cc67692e0a2726d86ee94c1c37fe8598257b7b4e87e869e',
+    'fonts/numeric-metrics.php' => '4cc389204db1e4324f5529dfaf39f8a16caec420f689661c660e9d0813577a19',
     'fonts/subset-arimobold.woff' => '58166204b6dc9304eb0f31329184579d7eccff2cc886f0c4ea5926e0528a1088',
     'fonts/subset-nizarbbckurdish.woff' => '33453bdd469aa95b1a218ff8827ea609031e64928a169aee4481e9f55412ad79',
     'fonts/subset-stv.woff' => '4d783237673334009e60483e8b620b08c6f15c1de4ec5d71d3bd167be309102e',
