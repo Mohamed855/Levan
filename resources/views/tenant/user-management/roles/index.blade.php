@@ -24,6 +24,7 @@
         // Route data — must stay in Blade (dynamic per-dashboard)
         window.routes = {
             rolesIndex: "{{ tenant_route_name('roles.index') }}",
+            rolesCreate: "{{ tenant_route_name('roles.create') }}",
             getUserRoles: "{{ tenant_route_name('roles.user.get', ['id' => '___ID___']) }}",
             updateUserRoles: "{{ tenant_route_name('roles.user.update', ['id' => '___ID___']) }}",
             updateStatus: "{{ tenant_route_name('roles.user.status', ['userId' => '___ID___']) }}",
@@ -44,6 +45,17 @@
 @section('content')
     <!-- جدول قائمة الأدوار -->
     <div class="card mb-4" id="card-roles">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h5 class="card-title mb-0">قائمة الأدوار والصلاحيات</h5>
+            <div class="d-flex align-items-center gap-2">
+                <input type="text" id="filter-roles-table" class="form-control form-control-sm" placeholder="بحث في الأدوار..." style="max-width: 220px;">
+                @can('roles.create')
+                    <a href="{{ tenant_route_name('roles.create') }}" class="btn btn-sm btn-primary">
+                        <i class="ti ti-plus me-1"></i> إضافة دور
+                    </a>
+                @endcan
+            </div>
+        </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table id="roles-table" class="table table-striped table-bordered text-center w-100">
@@ -118,23 +130,10 @@
 
     {{-- Filters Card --}}
     <x-data-table.filters table="#users-table" reset-id="btn-reset-filters">
-        <div>
-            <label class="form-label" for="filter-status">حالة المستخدم</label>
-            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة المستخدم">
-                <option value=""></option>
-                <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivityStatus::class" />
-            </select>
-        </div>
-
-        <div>
-            <label class="form-label" for="filter-role">الدور</label>
-            <select id="filter-role" class="form-control select2" data-datatable-filter="true" data-filter-key="role" data-placeholder="اختر الدور">
-                <option value=""></option>
-                @foreach ($roles as $role)
-                    <option value="{{ $role->id }}">{{ \App\Support\AccessLabels::role($role->name) }}</option>
-                @endforeach
-            </select>
-        </div>
+        <x-filter.select id="filter-status" filterKey="status" table="#users-table" label="حالة المستخدم"
+            placeholder="اختر حالة المستخدم" :enum="\App\Enums\Shared\ActivityStatus::class" />
+        <x-filter.select id="filter-role" filterKey="role" table="#users-table" label="الدور"
+            placeholder="اختر الدور" :options="\App\Support\AccessLabels::roleOptions($roles)" />
     </x-data-table.filters>
 
     <div class="card" id="card-users">

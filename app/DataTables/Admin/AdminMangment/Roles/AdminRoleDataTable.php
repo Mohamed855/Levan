@@ -59,6 +59,34 @@ final class AdminRoleDataTable extends AbstractDataTable
         return ['name'];
     }
 
+    protected function applyCustomFilters($query)
+    {
+        $request = request();
+
+        if ($request->filled('role')) {
+            $query->where('id', $request->role);
+        }
+
+        if ($request->filled('usage_status')) {
+            $usage = $request->usage_status;
+            if ($usage === 'assigned') {
+                $query->has('users');
+            } elseif ($usage === 'unassigned') {
+                $query->doesntHave('users');
+            }
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        return $query;
+    }
+
     protected function getCustomOrder(): array
     {
         return [1, 'asc'];

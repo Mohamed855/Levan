@@ -23,7 +23,7 @@ $(document).ready(function () {
  */
 function initializeComponents() {
     // تهيئة Select2
-    $('.select2').each(function () {
+    $('.select2').not('.select2-hidden-accessible').each(function () {
         $(this).select2({
             placeholder: function () {
                 return $(this).data('placeholder');
@@ -159,7 +159,7 @@ function getTableDom() {
  * تعريف أزرار الجدول
  */
 function getTableButtons() {
-    return [
+    const buttons = [
         {
             extend: 'collection',
             className: 'btn btn-export',
@@ -182,6 +182,18 @@ function getTableButtons() {
             ]
         }
     ];
+
+    if (window.permissions?.canAddRole && window.routes?.rolesCreate) {
+        buttons.push({
+            text: '<i class="ti ti-plus me-1"></i> إضافة دور',
+            className: 'btn btn-primary btn-add',
+            action: function () {
+                window.location.href = window.routes.rolesCreate;
+            }
+        });
+    }
+
+    return buttons;
 }
 
 
@@ -221,6 +233,25 @@ function bindEvents() {
 
     $('#users-table').on('draw.dt', function () {
         $('#select-all').prop('checked', false);
+    });
+
+    // تصفية جدول المستخدمين عند تغيير الفلاتر
+    $('#filter-status, #filter-role').on('change', function () {
+        usersTable.ajax.reload();
+    });
+
+    // إعادة تعيين الفلاتر
+    $('#btn-reset-filters').on('click', function () {
+        $('#filter-status, #filter-role').val(null).trigger('change.select2');
+        usersTable.ajax.reload();
+    });
+
+    // تصفية سريعة لجدول الأدوار العلوي
+    $('#filter-roles-table').on('keyup', function () {
+        const val = $(this).val().toLowerCase();
+        $('#roles-table tbody tr').filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(val) > -1);
+        });
     });
 
     // ربط أحداث المودالات

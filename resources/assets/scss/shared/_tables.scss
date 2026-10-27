@@ -253,6 +253,27 @@ table.dataTable tbody tr.child .dtr-data .table-cell-clamp {
     }
 }
 
+// Contain uninitialized DataTables before JS wraps them in .table-responsive
+.card-body:has(> table),
+.card-body:has(> .table),
+.card:has(> table),
+.card:has(> .table) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@supports not selector(:has(*)) {
+    .card-body > table:not(.dataTable),
+    .card-body > .table:not(.dataTable),
+    .card > table:not(.dataTable),
+    .card > .table:not(.dataTable) {
+        display: block;
+        width: 100% !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
 // DataTables Wrapper & Bottom Pagination Controls
 .dataTables_wrapper {
     // Reset vendor inflated margins (which added 1.5rem top/bottom margin)

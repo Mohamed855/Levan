@@ -34,7 +34,7 @@
                 <div class="scroll-revealed mx-auto text-center">
                     <span class="hero-eyebrow"><i class="ti ti-receipt-2"></i> طلب تجربة النظام</span>
                     <h1 class="site-page-hero-title">تجربة مجانية</h1>
-                    <p class="site-page-hero-desc mb-3">جرّب لوتلمدة 7 أيام بعد موافقة الإدارة، بدون رسوم أو بطاقة بنكية.
+                    <p class="site-page-hero-desc mb-3">جرّب لوت لمدة 7 أيام بعد موافقة الإدارة، بدون رسوم أو بطاقة بنكية.
                     </p>
                     <div class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill bg-white/10 my-2">
                         <span class="text-2xl font-bold text-white">0</span>
@@ -85,11 +85,13 @@
                                                     <i class="ti ti-rotate-clockwise"></i>
                                                     <span>إعادة إرسال الرمز</span>
                                                     <span class="text-xs text-muted"
-                                                        id="otp-remaining-attempts">({{ max(0, ($maxResends ?? 3) - ($resendCount ?? 0)) }} محاولة متبقية)</span>
+                                                        id="otp-remaining-attempts">({{ max(0, ($maxResends ?? 3) - ($resendCount ?? 0)) }}
+                                                        محاولة متبقية)</span>
                                                 </button>
                                             </div>
 
-                                            <div id="otp-edit-container" class="{{ ($resendCount ?? 0) >= ($maxResends ?? 3) ? '' : 'd-none' }}">
+                                            <div id="otp-edit-container"
+                                                class="{{ ($resendCount ?? 0) >= ($maxResends ?? 3) ? '' : 'd-none' }}">
                                                 <a href="{{ route('site.trial.edit') }}" class="otp-action-btn">
                                                     <i class="ti ti-arrow-right"></i>
                                                     العودة لتعديل البيانات

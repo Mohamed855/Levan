@@ -3,6 +3,7 @@
 import { initAllFileUploadZones } from "./file-upload.js";
 
 const INPUT_VALIDATION_DEBOUNCE_MS = 250;
+const VALIDATION_ERROR_TOAST_MESSAGE = "برجاء إدخال بيانات صالحة للمتابعة";
 const formStates = new WeakMap();
 
 function getFormState(form) {
@@ -335,6 +336,15 @@ function isCreatePage() {
 
 function isCreateForm(form) {
     if (!isCreatePage() || form.closest("template")) {
+        return false;
+    }
+
+    if (
+        form.id === "logout-form" ||
+        form.matches("#logout-form") ||
+        form.getAttribute("action")?.includes("logout") ||
+        form.closest("#layout-navbar, .layout-navbar, nav")
+    ) {
         return false;
     }
 
@@ -1316,6 +1326,62 @@ async function validateFields(form, fieldNames, { force = false } = {}) {
     }
 }
 
+function scrollToFirstInvalid(container, preferredInvalidElement = null) {
+    if (!container) return;
+
+    const invalidEl =
+        preferredInvalidElement ||
+        container.querySelector(
+            '.is-invalid, [aria-invalid="true"], [data-form-error]:not([hidden]):not([style*="display: none"]), .invalid-feedback:not([hidden]):not([style*="display: none"])',
+        );
+    if (!invalidEl) return;
+
+    const control = invalidEl.matches("input, select, textarea")
+        ? invalidEl
+        : invalidEl.querySelector("input, select, textarea") ||
+          invalidEl.closest("[data-form-field]")?.querySelector("input, select, textarea");
+
+    const scrollTarget =
+        invalidEl.closest(".form-floating, [data-form-field], .mb-3, .mb-4, .input-group, .assignment-properties-table-card") ||
+        control?.closest(".form-floating, [data-form-field], .mb-3, .mb-4, .input-group") ||
+        control ||
+        invalidEl;
+
+    if (typeof scrollTarget.scrollIntoView === "function") {
+        scrollTarget.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+        });
+    }
+
+    if (control) {
+        if (
+            control.tagName === "SELECT" &&
+            control.classList.contains("select2-hidden-accessible")
+        ) {
+            const select2Container =
+                control.nextElementSibling?.matches(".select2-container")
+                    ? control.nextElementSibling
+                    : control.parentElement?.querySelector(".select2-container");
+            const select2Focusable = select2Container?.querySelector('[tabindex="0"], input');
+            if (select2Focusable && typeof select2Focusable.focus === "function") {
+                try {
+                    select2Focusable.focus({ preventScroll: true });
+                } catch (_) {}
+            }
+        } else if (
+            typeof control.focus === "function" &&
+            control.tabIndex !== -1 &&
+            !control.disabled &&
+            control.type !== "hidden"
+        ) {
+            try {
+                control.focus({ preventScroll: true });
+            } catch (_) {}
+        }
+    }
+}
+
 function initStepper(form) {
     const stepperElement = form.closest("[data-form-stepper]");
     if (!stepperElement || typeof window.Stepper !== "function") {
@@ -1375,6 +1441,8 @@ function initStepper(form) {
         }
     };
 
+    state.moveTo = moveTo;
+
     stepperElement.addEventListener(
         "click",
         async (event) => {
@@ -1422,6 +1490,11 @@ function initStepper(form) {
 
                 state.isValidatingStep = true;
                 nextButton.setAttribute("aria-busy", "true");
+                nextButton.dataset.buttonIsLoading = "true";
+                const nextSpinner = nextButton.querySelector(".btn-spinner");
+                const nextIcon = nextButton.querySelector("i:not(.btn-spinner)");
+                if (nextSpinner) nextSpinner.classList.remove("d-none");
+                if (nextIcon) nextIcon.classList.add("d-none");
 
                 try {
                     const isValid = await validateFields(form, stepFields, {
@@ -1430,14 +1503,6 @@ function initStepper(form) {
                     if (isValid) {
                         moveTo(currentIndex + 1);
                     } else {
-                        const visibleError = currentStep.querySelector(
-                            '[data-form-error]:not([hidden]):not([style*="display: none"]), .invalid-feedback:not([hidden]):not([style*="display: none"]), .is-invalid [data-form-error]',
-                        );
-                        const serverErrors = state.lastValidationErrors
-                            ? Object.values(state.lastValidationErrors)
-                                  .flat()
-                                  .filter(Boolean)
-                            : [];
                         const boundaryInput = currentStep.querySelector(
                             'input[name="boundary_geojson"]',
                         );
@@ -1445,27 +1510,28 @@ function initStepper(form) {
                             boundaryInput && !boundaryInput.value
                                 ? "برجاء تحديد حدود العقار علي صورة العقار."
                                 : null;
-                        const errorMessage =
-                            visibleError?.textContent?.trim() ||
-                            boundaryError ||
-                            serverErrors[0] ||
-                            "يرجى تصحيح الأخطاء قبل الانتقال للخطوة التالية.";
+                        if (boundaryError) {
+                            setFieldError(
+                                form,
+                                "boundary_geojson",
+                                boundaryError,
+                            );
+                        }
+
                         if (window.toastr?.error) {
-                            window.toastr.error(errorMessage);
+                            window.toastr.error(VALIDATION_ERROR_TOAST_MESSAGE);
                         }
-                        if (
-                            visibleError &&
-                            typeof visibleError.scrollIntoView === "function"
-                        ) {
-                            visibleError.scrollIntoView({
-                                behavior: "smooth",
-                                block: "center",
-                            });
-                        }
+
+                        scrollToFirstInvalid(currentStep);
                     }
                 } finally {
                     state.isValidatingStep = false;
                     nextButton.removeAttribute("aria-busy");
+                    delete nextButton.dataset.buttonIsLoading;
+                    const nextSpinner = nextButton.querySelector(".btn-spinner");
+                    const nextIcon = nextButton.querySelector("i:not(.btn-spinner)");
+                    if (nextSpinner) nextSpinner.classList.add("d-none");
+                    if (nextIcon) nextIcon.classList.remove("d-none");
                     updateStepNextButton(form, currentStep);
                 }
                 return;
@@ -1816,19 +1882,91 @@ function initForm(form) {
             .map((control) => control.name);
         const valid = await validateFields(form, fields);
         if (!valid) {
-            if (submitButton) {
-                resetButtonLoading(submitButton);
+            form.querySelectorAll(
+                '[data-save-button], .btn-submit, button[type="submit"]',
+            ).forEach((btn) => resetButtonLoading(btn));
+
+            if (window.toastr?.error) {
+                window.toastr.error(VALIDATION_ERROR_TOAST_MESSAGE);
             }
 
-            const stepperElement = form.closest("[data-form-stepper]");
+            const stepperElement =
+                form.closest("[data-form-stepper]") ||
+                form.querySelector("[data-form-stepper]");
+
             if (stepperElement) {
                 const steps = Array.from(
                     stepperElement.querySelectorAll("[data-form-step]"),
                 );
+
+                let targetStepIndex = -1;
+                let firstInvalidElement = null;
+
+                for (let i = 0; i < steps.length; i++) {
+                    const step = steps[i];
+                    const invalidEl = step.querySelector(
+                        '.is-invalid, [aria-invalid="true"], [data-form-error]:not([hidden]):not([style*="display: none"]), .invalid-feedback:not([hidden]):not([style*="display: none"])',
+                    );
+                    if (invalidEl) {
+                        targetStepIndex = i;
+                        firstInvalidElement = invalidEl;
+                        break;
+                    }
+                }
+
+                if (!firstInvalidElement && state.lastValidationErrors) {
+                    const errorKeys = Object.keys(state.lastValidationErrors);
+                    for (let i = 0; i < steps.length; i++) {
+                        const step = steps[i];
+                        for (const key of errorKeys) {
+                            const ctrl = Array.from(
+                                step.querySelectorAll("[name]"),
+                            ).find((c) => fieldMatches(c.name, key));
+                            if (ctrl) {
+                                targetStepIndex = i;
+                                firstInvalidElement = ctrl;
+                                break;
+                            }
+                        }
+                        if (firstInvalidElement) break;
+                    }
+                }
+
+                if (targetStepIndex >= 0) {
+                    state.isNavigating = false;
+                    if (typeof state.moveTo === "function") {
+                        state.moveTo(targetStepIndex);
+                    } else if (state.stepper || stepperElement.bsStepper) {
+                        const stepper = state.stepper || stepperElement.bsStepper;
+                        stepper.to(targetStepIndex + 1);
+                        form.dispatchEvent(
+                            new CustomEvent("stepChanged", {
+                                detail: {
+                                    stepIndex: targetStepIndex,
+                                    step: steps[targetStepIndex],
+                                },
+                            }),
+                        );
+                    }
+                }
+
                 const currentStep =
+                    (targetStepIndex >= 0 ? steps[targetStepIndex] : null) ||
                     steps.find((s) => s.classList.contains("active")) ||
                     steps[0];
-                updateStepNextButton(form, currentStep);
+                if (currentStep) {
+                    updateStepNextButton(form, currentStep);
+                }
+
+                if (targetStepIndex >= 0) {
+                    setTimeout(() => {
+                        scrollToFirstInvalid(form, firstInvalidElement);
+                    }, 150);
+                } else {
+                    scrollToFirstInvalid(form, firstInvalidElement);
+                }
+            } else {
+                scrollToFirstInvalid(form);
             }
             return;
         }
@@ -1908,7 +2046,7 @@ function setButtonLoading(button, customText) {
     const loadingText = customText || getButtonLoadingText(button);
 
     const spinner = button.querySelector(".btn-spinner");
-    const icon = button.querySelector(".btn-icon, i:not(.btn-spinner)");
+    const icon = button.querySelector(".btn-loading-icon, .btn-icon, i:not(.btn-spinner)");
     const textEl = button.querySelector(".btn-text");
 
     if (spinner && textEl) {
@@ -1949,7 +2087,7 @@ function resetButtonLoading(button) {
     }
 
     const spinner = button.querySelector(".btn-spinner");
-    const icon = button.querySelector(".btn-icon, i:not(.btn-spinner)");
+    const icon = button.querySelector(".btn-loading-icon, .btn-icon, i:not(.btn-spinner)");
     const textEl = button.querySelector(".btn-text");
 
     if (button.dataset.originalHtml) {

@@ -11,6 +11,7 @@ use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Services\Admin\AdminMangment\Role\RoleService;
 use App\Services\Admin\AdminMangment\Users\UserService;
+use App\Support\AccessLabels;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Spatie\Permission\Models\Role;
@@ -44,8 +45,14 @@ class AdminRoleController extends Controller
     public function index(AdminRoleDataTable $dataTable)
     {
         try {
+            $roles = $this->roleService->getAllRoles();
+            $roleOptions = $roles->mapWithKeys(fn ($role) => [
+                $role->id => AccessLabels::role($role->name),
+            ])->toArray();
+
             return $dataTable->render($this->page.'.index', [
                 'statistics' => $this->roleService->getRoleStatistics(),
+                'roleOptions' => $roleOptions,
             ]);
         } catch (\Exception $e) {
             report($e);

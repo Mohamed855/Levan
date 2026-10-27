@@ -490,22 +490,28 @@ function initialize() {
       if (!await validateCurrentStep(form, pane)) {
         event.preventDefault();
         event.stopImmediatePropagation();
+        window.toastr?.error?.('برجاء إدخال بيانات صالحة للمتابعة');
       }
       return;
     }
 
     event.preventDefault();
     event.stopImmediatePropagation();
-    if (!await validateCurrentStep(form, pane)) return;
+    if (!await validateCurrentStep(form, pane)) {
+      window.toastr?.error?.('برجاء إدخال بيانات صالحة للمتابعة');
+      return;
+    }
 
     nextButton.disabled = true;
     try {
       if (await validateOnServer(form, pane)) {
         await hooksFor(form).afterStepValidated?.({ form, pane, step: stepNumber(pane) });
         stepperFor(form)?.next();
+      } else {
+        window.toastr?.error?.('برجاء إدخال بيانات صالحة للمتابعة');
       }
     } catch {
-      window.toastr?.error?.('تعذر التحقق من بيانات هذه الخطوة.');
+      window.toastr?.error?.('برجاء إدخال بيانات صالحة للمتابعة');
     } finally {
       updateNextState(form);
     }

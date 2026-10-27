@@ -22,6 +22,7 @@
     $includedUsers = old('included_users', $plan?->included_users);
     $propertiesLimit = old('properties_limit', $plan?->properties_limit);
     $storageQuota = old('storage_quota_gb', $plan?->storage_quota_gb);
+    $activeAuctionsLimit = old('active_auctions_limit', $plan?->active_auctions_limit);
 @endphp
 
 <article {{ $attributes->class(['package-card'])->merge(['data-package-card' => $preview ? '' : null, 'data-plan-color' => $planColor]) }}>
@@ -60,6 +61,11 @@
             <i class="ti ti-cloud" aria-hidden="true"></i>
             <span>التخزين</span>
             <strong data-plan-field="storage">{{ $isUnlimited ? 'غير محدود' : (($storageQuota ?? '—') . ' GB') }}</strong>
+        </div>
+        <div class="package-card__limit">
+            <i class="ti ti-gavel" aria-hidden="true"></i>
+            <span>المزادات</span>
+            <strong data-plan-field="auctions">{{ $isUnlimited ? 'غير محدود' : (($activeAuctionsLimit ?? '—') . ' مزاد') }}</strong>
         </div>
     </section>
 

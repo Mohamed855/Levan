@@ -49,7 +49,7 @@
                             </span>
                         </a>
                     </div>
-                    <button type="button" class="btn btn-primary btn-sm d-flex align-items-center gap-1"
+                    <button type="button" class="btn btn-label-primary d-flex align-items-center gap-1"
                         data-notification-read-all id="btn-mark-all-read" @if (($unreadCount ?? 0) === 0) disabled @endif>
                         <i class="ti ti-mail-opened"></i>
                         <span>تحديد الكل كمقروء</span>

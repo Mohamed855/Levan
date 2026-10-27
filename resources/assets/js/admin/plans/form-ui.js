@@ -1,7 +1,10 @@
 "use strict";
 
 function initPlanFormUI() {
-    const form = document.querySelector("form[data-form-validate]");
+    const form =
+        document.getElementById("plan-wizard-form") ||
+        document.querySelector("#plan-wizard form") ||
+        document.querySelector("form[data-form-validate]:not(#logout-form)");
     if (!form) return;
 
     const getInput = (id) =>
@@ -62,7 +65,7 @@ function initPlanFormUI() {
         );
 
         $(form)
-            .find(".select2")
+            .find("select.select2")
             .each(function () {
                 const $select = $(this);
                 const isColor = this.id === "color";
@@ -425,6 +428,7 @@ function initPlanFormUI() {
             setText(card, "users", limitValue("included_users", "مستخدم"));
             setText(card, "properties", limitValue("properties_limit", "عقار"));
             setText(card, "storage", limitValue("storage_quota_gb", "GB"));
+            setText(card, "auctions", limitValue("active_auctions_limit", "مزاد"));
 
             card.querySelectorAll(
                 '[data-plan-field="discount"], [data-plan-field="original-price"]',

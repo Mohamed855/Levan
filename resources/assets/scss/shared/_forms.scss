@@ -768,6 +768,10 @@ html[dir="ltr"] {
             color: #28c76f !important;
         }
     }
+
+    .d-flex.gap-2 {
+        align-items: center;
+    }
 }
 
 // Password criteria list (reset / change password pages)

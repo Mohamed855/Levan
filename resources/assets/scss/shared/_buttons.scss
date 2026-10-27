@@ -27,6 +27,15 @@
         cursor: not-allowed;
         pointer-events: none;
     }
+
+    // Prevent any inner icon from inheriting Sneat's standalone .btn-icon sizing (38px x 38px)
+    i.btn-icon,
+    i.btn-loading-icon {
+        width: auto !important;
+        height: auto !important;
+        display: inline-block !important;
+        line-height: 0.9 !important;
+    }
 }
 
 // Button loading state
@@ -39,10 +48,9 @@
     .btn-spinner {
         display: inline-block !important;
         vertical-align: -0.125em;
-        margin-inline-end: 0.35rem;
     }
 
-    .btn-icon {
+    i:not(.btn-spinner) {
         display: none !important;
     }
 }
