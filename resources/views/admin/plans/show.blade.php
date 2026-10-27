@@ -108,7 +108,7 @@
                                             </span>
 
                                             <span class="badge bg-info fs-6">
-                                                دورة: {{ $plan->subscription_billing_cycle?->label() ?? 'شهري' }}
+                                                دورة: {{ $plan->isTrial() ? '7 أيام' : ($plan->subscription_billing_cycle?->label() ?? 'غير محدد') }}
                                             </span>
 
                                             @if (!empty($statistics['is_most_requested']))
@@ -135,7 +135,7 @@
                                             @endif
                                         </div>
                                         <small class="text-muted d-block">
-                                            {{ $plan->subscription_billing_cycle?->label() ? 'لكل ' . $plan->subscription_billing_cycle->label() : 'لكل دورة' }}
+                                            {{ $plan->isTrial() ? 'لمدة 7 أيام' : ($plan->subscription_billing_cycle?->label() ? 'لكل ' . $plan->subscription_billing_cycle->label() : 'لكل دورة') }}
                                         </small>
                                     </div>
                                 </div>

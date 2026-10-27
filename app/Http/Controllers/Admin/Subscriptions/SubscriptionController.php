@@ -174,6 +174,8 @@ class SubscriptionController extends Controller
     public function planDuration(Plan $plan): JsonResponse
     {
         return response()->json([
+            'id' => $plan->id,
+            'code' => $plan->code,
             'duration_type' => $plan->subscription_duration_type,
             'billing_cycle' => $plan->subscription_billing_cycle,
             'price' => $plan->price_after_discount,

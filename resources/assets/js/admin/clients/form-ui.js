@@ -59,6 +59,19 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        if (selectedPlan.code === "trial_7_days") {
+            const start = new Date(startDate.value + "T00:00:00");
+            if (!Number.isNaN(start.getTime())) {
+                const end = new Date(start);
+                end.setDate(end.getDate() + 7);
+                endDate.value = formatDate(end);
+                endDate.dataset.autoCalculated = "true";
+                endDate.dispatchEvent(new Event("input", { bubbles: true }));
+                endDate.dispatchEvent(new Event("change", { bubbles: true }));
+                return;
+            }
+        }
+
         const cycle = (
             selectedPlan.subscription_billing_cycle || ""
         ).toLowerCase();

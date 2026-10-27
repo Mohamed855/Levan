@@ -96,12 +96,16 @@ class PlanDataTable extends AbstractDataTable
             })
 
             ->editColumn('subscription_billing_cycle', function ($row) {
+                if ($row->code === 'trial_7_days') {
+                    return '<span class="badge bg-secondary">7 أيام</span>';
+                }
+
                 $cycle = $row->subscription_billing_cycle instanceof SubscriptionBillingCycle
                     ? $row->subscription_billing_cycle
                     : SubscriptionBillingCycle::tryFrom((string) $row->subscription_billing_cycle);
 
-                $label = $cycle ? $cycle->label() : (string) $row->subscription_billing_cycle;
-                $color = $cycle ? $cycle->color() : 'info';
+                $label = $cycle ? $cycle->label() : ($row->subscription_billing_cycle ? (string) $row->subscription_billing_cycle : '-');
+                $color = $cycle ? $cycle->color() : 'secondary';
 
                 return '<span class="badge bg-'.e($color).'">'.e($label).'</span>';
             })

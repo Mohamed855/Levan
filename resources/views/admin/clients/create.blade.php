@@ -24,6 +24,7 @@
 
             return [
                 'id' => $plan->id,
+                'code' => $plan->code,
                 'name' => $plan->name,
                 'subscription_duration_type' => $plan->subscription_duration_type,
                 'subscription_billing_cycle' => $cycle ? (string) $cycle : null,

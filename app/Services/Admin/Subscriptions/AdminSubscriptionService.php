@@ -109,7 +109,7 @@ class AdminSubscriptionService
                 ? (float) $plan->calculateAnnualOfferPrice()
                 : (float) $plan->price_after_discount;
             $discount = (($data['has_discount'] ?? 'no') === 'yes') ? (float) ($data['discount_value'] ?? 0) : 0;
-            $amount = $paymentType === 'trial' ? 0.00 : max(0.00, $basePrice - $discount);
+            $amount = ($paymentType === 'trial' || $plan->isTrial()) ? 0.00 : max(0.00, $basePrice - $discount);
 
             $subscription = Subscription::create([
                 'tenant_id' => $company->id,
@@ -123,7 +123,7 @@ class AdminSubscriptionService
                 'ends_at' => $endDate,
                 'next_payment_date' => $endDate,
                 'auto_renew' => false,
-                'trial_end_date' => ! empty($data['trial_end_date']) ? $data['trial_end_date'] : null,
+                'trial_end_date' => ! empty($data['trial_end_date']) ? $data['trial_end_date'] : ($plan->isTrial() ? $endDate->toDateString() : null),
             ]);
 
             // Create subscription period with full snapshots
@@ -221,10 +221,20 @@ class AdminSubscriptionService
         Cache::forget("tenant:{$tenantId}:subscription");
     }
 
-    private function calculatePeriodEndForPlan(Carbon $startDate, Plan $plan): Carbon
+    private function calculatePeriodEndForPlan(Carbon $startDate, Plan $plan, ?string $billingCycle = null): Carbon
     {
-        if ($plan->subscription_duration_type === 'limited' && $plan->subscription_billing_cycle === 'monthly') {
+        if ($plan->isTrial()) {
+            return $startDate->copy()->addDays((int) config('trial.days', 7));
+        }
+
+        $cycle = $billingCycle ?? ($plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle);
+
+        if ($cycle === 'monthly') {
             return $startDate->copy()->addMonth();
+        }
+
+        if ($cycle === 'quarterly') {
+            return $startDate->copy()->addMonths(3);
         }
 
         return $startDate->copy()->addYear();

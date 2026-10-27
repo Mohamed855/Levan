@@ -29,4 +29,20 @@ final class PublicPlanVisibilityFeatureTest extends TestCase
 
         $this->assertTrue(Plan::active()->whereKey($trial)->exists());
     }
+
+    public function test_trial_plan_is_configured_for_7_days_not_a_month(): void
+    {
+        $trial = Plan::query()->where('code', 'trial_7_days')->firstOrFail();
+        $this->assertTrue($trial->isTrial());
+        $this->assertNull($trial->subscription_billing_cycle);
+        $this->assertSame('limited', $trial->subscription_duration_type);
+
+        $subscriptionService = app(\App\Services\Admin\Subscriptions\AdminSubscriptionService::class);
+        $startDate = now();
+        $refMethod = new \ReflectionMethod($subscriptionService, 'calculatePeriodEndForPlan');
+        $refMethod->setAccessible(true);
+        $endDate = $refMethod->invoke($subscriptionService, $startDate, $trial);
+
+        $this->assertSame(7, (int) $startDate->diffInDays($endDate));
+    }
 }

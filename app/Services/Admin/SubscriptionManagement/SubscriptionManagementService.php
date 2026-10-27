@@ -37,9 +37,13 @@ class SubscriptionManagementService
 
             $startsAt = Carbon::parse($data['starts_at']);
             if ($plan->subscription_duration_type === 'limited') {
-                $endsAt = $plan->subscription_billing_cycle === 'monthly'
-                    ? $startsAt->copy()->addMonth()
-                    : $startsAt->copy()->addYear();
+                if ($plan->isTrial()) {
+                    $endsAt = $startsAt->copy()->addDays((int) config('trial.days', 7));
+                } else {
+                    $endsAt = $plan->subscription_billing_cycle === 'monthly'
+                        ? $startsAt->copy()->addMonth()
+                        : $startsAt->copy()->addYear();
+                }
             } else {
                 if (empty($data['ends_at'])) {
                     throw new InvalidArgumentException('تاريخ نهاية الاشتراك مطلوب للباقات غير محددة المدة');

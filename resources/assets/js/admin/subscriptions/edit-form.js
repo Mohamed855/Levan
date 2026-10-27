@@ -147,7 +147,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (endsAtRequired) endsAtRequired.style.display = limited ? "none" : "inline";
         if (totalUsers && option.dataset.users && Number(totalUsers.value || 0) < Number(option.dataset.users)) totalUsers.value = option.dataset.users;
         if (!limited) { if (endsAtHint) endsAtHint.textContent = "مطلوب للباقة غير محددة المدة"; return; }
-        if (startsAt.value) { const date = new Date(startsAt.value + "T00:00:00"); date.setMonth(date.getMonth() + (option.dataset.cycle === "monthly" ? 1 : 12)); endsAt.value = date.toISOString().slice(0, 10); }
+        if (startsAt.value) {
+            const date = new Date(startsAt.value + "T00:00:00");
+            if (option.dataset.code === "trial_7_days") {
+                date.setDate(date.getDate() + 7);
+            } else {
+                date.setMonth(date.getMonth() + (option.dataset.cycle === "monthly" ? 1 : 12));
+            }
+            endsAt.value = date.toISOString().slice(0, 10);
+        }
         if (endsAtHint) endsAtHint.textContent = "محسوب تلقائيًا وفق دورة الباقة";
     }
     planSelect?.addEventListener("change", syncSubscriptionEndDate);

@@ -219,6 +219,11 @@ class Plan extends Model
         return $this->subscriptions()->exists();
     }
 
+    public function isTrial(): bool
+    {
+        return $this->code === 'trial_7_days';
+    }
+
     /*
     |============================================================================
     |                               Scopes

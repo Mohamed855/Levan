@@ -159,6 +159,7 @@ class SubscriptionManagementController extends Controller
             ->map(fn ($plan) => [
                 'id' => $plan->id,
                 'name' => $plan->name,
+                'code' => $plan->code,
                 'price_after_discount' => $plan->price_after_discount,
                 'included_users' => $plan->included_users,
                 'subscription_duration_type' => $plan->subscription_duration_type,
@@ -170,7 +171,7 @@ class SubscriptionManagementController extends Controller
 
     public function planDuration(Plan $plan)
     {
-        return response()->json($plan->only(['id', 'subscription_duration_type', 'subscription_billing_cycle', 'included_users']));
+        return response()->json($plan->only(['id', 'code', 'subscription_duration_type', 'subscription_billing_cycle', 'included_users']));
     }
 
     public function store(FinalizeCompanySubscriptionRequest $request)

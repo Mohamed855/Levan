@@ -53,7 +53,9 @@ class FinalizeCompanySubscriptionRequest extends WizardFormRequest
                 $validator->errors()->add('end_date', 'تاريخ النهاية مطلوب للباقة غير محددة المدة.');
             }
             if ($plan->subscription_duration_type === 'limited') {
-                $expected = Carbon::parse($this->start_date)->{'add'.($plan->subscription_billing_cycle === 'monthly' ? 'Month' : 'Year')}()->toDateString();
+                $expected = $plan->isTrial()
+                    ? Carbon::parse($this->start_date)->addDays((int) config('trial.days', 7))->toDateString()
+                    : Carbon::parse($this->start_date)->{'add'.($plan->subscription_billing_cycle === 'monthly' ? 'Month' : 'Year')}()->toDateString();
                 if ($this->filled('end_date') && Carbon::parse($this->end_date)->toDateString() !== $expected) {
                     $validator->errors()->add('end_date', 'تاريخ النهاية لا يطابق مدة الباقة المختارة.');
                 }

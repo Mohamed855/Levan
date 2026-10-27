@@ -34,7 +34,7 @@ final class TrialPlanSeeder extends Seeder
                 'storage_quota_gb' => 1,
                 'active_auctions_limit' => 1,
                 'subscription_duration_type' => 'limited',
-                'subscription_billing_cycle' => 'monthly',
+                'subscription_billing_cycle' => null,
                 'is_active' => true,
                 'sort_order' => 0,
                 'created_by' => $adminId,

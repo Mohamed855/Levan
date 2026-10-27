@@ -150,7 +150,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const start = new Date(startDateVal);
             if (!isNaN(start.getTime())) {
                 const end = new Date(start);
-                if (
+                if (plan.code === "trial_7_days") {
+                    end.setDate(end.getDate() + 7);
+                } else if (
                     plan.subscription_duration_type === "limited" &&
                     plan.subscription_billing_cycle === "monthly"
                 ) {

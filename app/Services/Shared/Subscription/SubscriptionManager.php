@@ -272,6 +272,10 @@ class SubscriptionManager
 
     private function calculatePeriodEndForPlan(Carbon $startDate, Plan $plan, ?string $billingCycle = null): Carbon
     {
+        if ($plan->isTrial()) {
+            return $startDate->copy()->addDays((int) config('trial.days', 7));
+        }
+
         $cycle = $billingCycle ?? $plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle;
 
         return match ($cycle) {
