@@ -37,4 +37,13 @@ final class AuctionReportFormatTest extends TestCase
         self::assertSame('-', $format->hijriDate(null));
         self::assertSame('الثلاثاء', $format->dateParts('2026-05-19')['weekday']);
     }
+
+    public function test_it_keeps_a_same_month_date_range_inside_the_reference_metadata_chip(): void
+    {
+        $format = new AuctionReportFormat;
+        self::assertSame('13 - 16 أغسطس 2026', $format->dateRange('2026-08-13', '2026-08-16'));
+        self::assertSame('الساعة 05:00 مساءً', $format->time('17:00:00'));
+        self::assertSame('الساعة 10:00 صباحًا', $format->time('10:00'));
+        self::assertSame('-', $format->time(null));
+    }
 }

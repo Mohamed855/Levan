@@ -70,6 +70,29 @@ final class AuctionReportFormat
         return strtr($value, ['0' => '٠', '1' => '١', '2' => '٢', '3' => '٣', '4' => '٤', '5' => '٥', '6' => '٦', '7' => '٧', '8' => '٨', '9' => '٩']);
     }
 
+    public function dateRange(?string $start, ?string $end): string
+    {
+        if ($this->date($start) !== '-' && $this->date($end) !== '-' && substr($start, 0, 7) === substr($end, 0, 7)) {
+            return (new DateTimeImmutable($start))->format('j').' - '.$this->date($end);
+        }
+
+        return $this->date($start).' - '.$this->date($end);
+    }
+
+    public function time(?string $value): string
+    {
+        if (blank($value)) {
+            return '-';
+        }
+        $time = DateTimeImmutable::createFromFormat(strlen($value) > 5 ? '!H:i:s' : '!H:i', $value);
+        $errors = DateTimeImmutable::getLastErrors();
+        if ($time === false || ($errors !== false && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))) {
+            return '-';
+        }
+
+        return 'الساعة '.$time->format('h:i').' '.((int) $time->format('G') < 12 ? 'صباحًا' : 'مساءً');
+    }
+
     public function hijriDate(?string $value): string
     {
         if ($this->date($value) === '-') {

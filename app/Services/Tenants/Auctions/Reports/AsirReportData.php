@@ -32,14 +32,14 @@ final class AsirReportData
         $marketing = $snapshot['marketing'] ?? [];
         $contacts = $marketing['contacts'] ?? [];
         $values = [
-            'name' => $name, 'subtitle' => 'التقرير النهائي لـ'.$name,
+            'name' => $name, 'subtitle' => 'التقرير النهائي '.(str_starts_with($name, 'مزاد') ? 'ل'.$name : 'لمزاد '.$name),
             'manager' => (string) ($auction['project_manager_name'] ?? '-'),
             'project' => (string) ($snapshot['assignment']['name'] ?? '-'),
-            'date_range' => $this->format->date($auction['start_date'] ?? null).' - '.$this->format->date($auction['end_date'] ?? null),
+            'date_range' => $this->format->dateRange($auction['start_date'] ?? null, $auction['end_date'] ?? null),
             'start_hijri' => $this->format->hijriDate($auction['start_date'] ?? null).' هـ',
             'end_hijri' => $this->format->hijriDate($auction['end_date'] ?? null).' هـ',
-            'start_time' => $this->format->arabicDigits((string) ($auction['start_time'] ?? '-')),
-            'end_time' => $this->format->arabicDigits((string) ($auction['end_time'] ?? '-')),
+            'start_time' => $this->format->arabicDigits($this->format->time($auction['start_time'] ?? null)),
+            'end_time' => $this->format->arabicDigits($this->format->time($auction['end_time'] ?? null)),
             'property_count' => $this->format->arabicDigits((string) count($snapshot['properties'])),
             'introduction' => (string) ($marketing['introduction'] ?? $auction['description'] ?? '-'),
             'name_context' => 'اختيار اسم المزاد وإعداد الهوية البصرية - '.$name,
@@ -58,7 +58,7 @@ final class AsirReportData
         ];
         foreach (['start' => $start, 'end' => $end] as $prefix => $parts) {
             foreach ($parts as $part => $value) {
-                $values[$prefix.'_'.$part] = $this->format->arabicDigits($value);
+                $values[$prefix.'_'.$part] = ($part === 'weekday' ? 'يوم ' : '').$this->format->arabicDigits($value);
             }
         }
         foreach (['youtube' => ['youtube', 'يوتيوب'], 'x' => ['x', 'أكس'], 'tiktok' => ['tiktok', 'تيك توك'], 'snapchat' => ['snapchat', 'سناب شات'], 'google' => ['google', 'جوجل'], 'whatsapp' => ['whatsapp', 'واتساب']] as $channel => $names) {

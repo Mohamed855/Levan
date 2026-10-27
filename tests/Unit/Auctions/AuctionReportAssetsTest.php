@@ -27,5 +27,8 @@ final class AuctionReportAssetsTest extends TestCase
         self::assertFileExists($root.'/fonts/ge-contrast-bold.ttf');
         self::assertCount(7, require $root.'/haram/pages.php');
         self::assertCount(21, require $root.'/asir/pages.php');
+        $asir = require $root.'/asir/pages.php';
+        self::assertCount(6, array_filter($asir[7]['image_defs'], static fn (array $frame): bool => $frame['section'] === 'board_before'));
+        self::assertStringNotContainsString('static-3cf40a9f812e2527f4cb', file_get_contents($root.'/asir/page-8.svg'));
     }
 }

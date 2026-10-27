@@ -18,12 +18,12 @@ final class HaramReportData
         $contacts = $marketing['contacts'] ?? [];
         $name = (string) $auction['name'];
         $values = [
-            'name' => $name, 'subtitle' => 'التقرير النهائي لـ'.$name,
+            'name' => $name, 'subtitle' => 'التقرير النهائي '.(str_starts_with($name, 'مزاد') ? 'ل'.$name : 'لمزاد '.$name),
             'manager' => (string) ($auction['project_manager_name'] ?? '-'),
             'project' => (string) ($snapshot['assignment']['name'] ?? '-'),
             'start_date' => $this->format->date($auction['start_date'] ?? null),
             'end_date' => $this->format->date($auction['end_date'] ?? null),
-            'date_range' => $this->format->date($auction['start_date'] ?? null).' - '.$this->format->date($auction['end_date'] ?? null),
+            'date_range' => $this->format->dateRange($auction['start_date'] ?? null, $auction['end_date'] ?? null),
             'property_count' => (string) count($snapshot['properties'] ?? []),
             'footer' => 'مخرجات المزاد - '.$name,
             'narrative' => (string) (($auction['description'] ?? '') ?: 'نتائج المزاد '.$name.' تحت إشراف '.($auction['supervising_entity'] ?? '-')),
@@ -32,6 +32,9 @@ final class HaramReportData
             'unified_phone' => (string) ($contacts['unified_phone'] ?? '-'),
             'social' => (string) ($contacts['social'] ?? '-'),
         ];
+        if (in_array($index, [0, 6], true)) {
+            $values['footer'] = '-'.$name.' '.$this->format->dateParts($auction['start_date'] ?? null)['year'];
+        }
         $campaigns = $payload['campaigns'] ?? [];
         foreach (['snapchat', 'tiktok', 'x'] as $slot => $channel) {
             $campaign = $campaigns[$slot] ?? [];

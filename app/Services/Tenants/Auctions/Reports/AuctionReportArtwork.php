@@ -104,7 +104,7 @@ final class AuctionReportArtwork
     public function fontCss(): string
     {
         $css = '';
-        foreach (['NotoReport' => 'noto-sans-arabic.ttf', 'IBMReport' => 'ibm-plex-sans-arabic.ttf', 'GEReport' => 'ge-contrast-bold.ttf'] as $family => $file) {
+        foreach (['NotoReport' => 'noto-sans-arabic.ttf', 'IBMReport' => 'ibm-plex-sans-arabic.ttf', 'GEReport' => 'ge-contrast-bold.ttf', 'NizarReport' => 'nizar-bbc-kurdish.ttf'] as $family => $file) {
             $css .= '@font-face{font-family:'.$family.';font-weight:100 900;src:url("'.$this->uri('fonts/'.$file, 'font/ttf').'") format("truetype");font-display:block;}';
         }
         foreach (require $this->path('fonts/catalog.php') as $font) {
@@ -130,7 +130,9 @@ final class AuctionReportArtwork
         $x = $field['x'] + ($center ? $field['width'] / 2 : ($field['rtl'] ? $field['width'] : 0));
         $font = $field['font'];
         $family = str_starts_with($font, 'GEContrast') ? 'GEReport' : (str_starts_with($font, 'IBMPlex') ? 'IBMReport' : 'NotoReport');
-        if (preg_match('/^[\p{N}\s.,:\/(\)%×*+\-]+$/u', $value)) {
+        if ($font === 'NizarBBCKurdish') {
+            $family = 'NizarReport';
+        } elseif (preg_match('/^[\p{N}\s.,:\/(\)%×*+\-]+$/u', $value)) {
             $catalog = require $this->path('fonts/catalog.php');
             $family = $catalog[$font]['family'] ?? $family;
         }

@@ -84,7 +84,20 @@ foreach ($sources as $name => $hash) {
                 preg_match('/@@([^@]+)@@/', $uri, $asset);
                 $bytes = $decode($package['assets'][$asset[1]]);
                 $isWatermark = in_array($asset[1], ['57f9524018b458c61391', '6ebd926c6a1f86696f4d'], true);
-                if (strlen($bytes) > 12000 || $isWatermark) {
+                $imageId = $image->getAttribute('id');
+                $xpath->registerNamespace('xlink', 'http://www.w3.org/1999/xlink');
+                $insideDefinitions = $xpath->query('ancestor::*[local-name()="defs"]', $image)->length > 0;
+                $maskOnly = $insideDefinitions && $xpath->query('//*[local-name()="use" and @xlink:href="#'.$imageId.'" and not(ancestor::*[local-name()="mask"])]')->length === 0;
+                $probe = imagecreatefromstring($bytes);
+                $colors = [];
+                foreach ([.1, .3, .5, .7, .9] as $px) {
+                    foreach ([.1, .3, .5, .7, .9] as $py) {
+                        $colors[imagecolorat($probe, (int) ($px * (imagesx($probe) - 1)), (int) ($py * (imagesy($probe) - 1)))] = true;
+                    }
+                }
+                imagedestroy($probe);
+                $staticFill = count($colors) === 1 || min((int) $image->getAttribute('width'), (int) $image->getAttribute('height')) <= 8 || $asset[1] === '65f52b26836ac6bf08fb';
+                if ((! $maskOnly && ! $staticFill) || $isWatermark) {
                     $section = $isWatermark ? 'report_image' : match ($index) {
                         7, 8 => 'board_before', 16, 17 => 'board_after', 15 => 'brokers',
                         9 => 'brochure', 10 => 'platform', 11 => 'video', 12 => 'x', 13 => 'whatsapp', 14 => 'social',
@@ -149,6 +162,10 @@ foreach (['NotoSansArabic-OFL.txt', 'IBMPlexSansArabic-OFL.txt'] as $license) {
 $ge = $argv[2] ?? null;
 if (is_string($ge) && is_file($ge)) {
     $write('fonts/ge-contrast-bold.ttf', file_get_contents($ge));
+}
+$nizar = $argv[3] ?? null;
+if (is_string($nizar) && is_file($nizar)) {
+    $write('fonts/nizar-bbc-kurdish.ttf', file_get_contents($nizar));
 }
 $write('fallback.svg', file_get_contents(dirname(__DIR__, 2).'/public/static/brand/logos/lot-logo.svg'));
 $write('fonts/catalog.php', "<?php\n\ndeclare(strict_types=1);\n\nreturn ".var_export($fontCatalog, true).";\n");

@@ -4289,30 +4289,35 @@ return array (
         'section' => 'brochure',
         'slot' => 17,
       ),
-      'i21' => 
+      'i20' => 
       array (
         'section' => 'brochure',
         'slot' => 18,
       ),
-      'i22' => 
+      'i21' => 
       array (
         'section' => 'brochure',
         'slot' => 19,
       ),
-      'i23' => 
+      'i22' => 
       array (
         'section' => 'brochure',
         'slot' => 20,
       ),
-      'i24' => 
+      'i23' => 
       array (
         'section' => 'brochure',
         'slot' => 21,
       ),
-      'i25' => 
+      'i24' => 
       array (
         'section' => 'brochure',
         'slot' => 22,
+      ),
+      'i25' => 
+      array (
+        'section' => 'brochure',
+        'slot' => 23,
       ),
     ),
     'groups' => 
@@ -4563,6 +4568,16 @@ return array (
       array (
         'section' => 'platform',
         'slot' => 0,
+      ),
+      'i7' => 
+      array (
+        'section' => 'platform',
+        'slot' => 1,
+      ),
+      'i8' => 
+      array (
+        'section' => 'platform',
+        'slot' => 2,
       ),
     ),
     'groups' => 
@@ -4884,10 +4899,25 @@ return array (
         'section' => 'video',
         'slot' => 0,
       ),
-      'i12' => 
+      'i8' => 
       array (
         'section' => 'video',
         'slot' => 1,
+      ),
+      'i9' => 
+      array (
+        'section' => 'video',
+        'slot' => 2,
+      ),
+      'i10' => 
+      array (
+        'section' => 'video',
+        'slot' => 3,
+      ),
+      'i12' => 
+      array (
+        'section' => 'video',
+        'slot' => 4,
       ),
     ),
     'groups' => 
@@ -5418,14 +5448,14 @@ return array (
     ),
     'image_defs' => 
     array (
-      'i2' => 
-      array (
-        'section' => 'whatsapp',
-        'slot' => 0,
-      ),
       'i3' => 
       array (
         'section' => 'report_image',
+        'slot' => 0,
+      ),
+      'i4' => 
+      array (
+        'section' => 'whatsapp',
         'slot' => 0,
       ),
       'i6' => 
@@ -5674,25 +5704,240 @@ return array (
         'section' => 'report_image',
         'slot' => 0,
       ),
-      'i14' => 
+      'i3' => 
       array (
         'section' => 'social',
         'slot' => 0,
       ),
-      'i15' => 
+      'i4' => 
       array (
         'section' => 'social',
         'slot' => 1,
       ),
-      'i32' => 
+      'i5' => 
       array (
         'section' => 'social',
         'slot' => 2,
       ),
-      'i48' => 
+      'i6' => 
       array (
         'section' => 'social',
         'slot' => 3,
+      ),
+      'i7' => 
+      array (
+        'section' => 'social',
+        'slot' => 4,
+      ),
+      'i8' => 
+      array (
+        'section' => 'social',
+        'slot' => 5,
+      ),
+      'i9' => 
+      array (
+        'section' => 'social',
+        'slot' => 6,
+      ),
+      'i10' => 
+      array (
+        'section' => 'social',
+        'slot' => 7,
+      ),
+      'i11' => 
+      array (
+        'section' => 'social',
+        'slot' => 8,
+      ),
+      'i12' => 
+      array (
+        'section' => 'social',
+        'slot' => 9,
+      ),
+      'i13' => 
+      array (
+        'section' => 'social',
+        'slot' => 10,
+      ),
+      'i14' => 
+      array (
+        'section' => 'social',
+        'slot' => 11,
+      ),
+      'i15' => 
+      array (
+        'section' => 'social',
+        'slot' => 12,
+      ),
+      'i16' => 
+      array (
+        'section' => 'social',
+        'slot' => 13,
+      ),
+      'i17' => 
+      array (
+        'section' => 'social',
+        'slot' => 14,
+      ),
+      'i18' => 
+      array (
+        'section' => 'social',
+        'slot' => 15,
+      ),
+      'i20' => 
+      array (
+        'section' => 'social',
+        'slot' => 16,
+      ),
+      'i21' => 
+      array (
+        'section' => 'social',
+        'slot' => 17,
+      ),
+      'i22' => 
+      array (
+        'section' => 'social',
+        'slot' => 18,
+      ),
+      'i23' => 
+      array (
+        'section' => 'social',
+        'slot' => 19,
+      ),
+      'i24' => 
+      array (
+        'section' => 'social',
+        'slot' => 20,
+      ),
+      'i25' => 
+      array (
+        'section' => 'social',
+        'slot' => 21,
+      ),
+      'i26' => 
+      array (
+        'section' => 'social',
+        'slot' => 22,
+      ),
+      'i27' => 
+      array (
+        'section' => 'social',
+        'slot' => 23,
+      ),
+      'i28' => 
+      array (
+        'section' => 'social',
+        'slot' => 7,
+      ),
+      'i29' => 
+      array (
+        'section' => 'social',
+        'slot' => 24,
+      ),
+      'i30' => 
+      array (
+        'section' => 'social',
+        'slot' => 25,
+      ),
+      'i31' => 
+      array (
+        'section' => 'social',
+        'slot' => 10,
+      ),
+      'i32' => 
+      array (
+        'section' => 'social',
+        'slot' => 26,
+      ),
+      'i33' => 
+      array (
+        'section' => 'social',
+        'slot' => 13,
+      ),
+      'i34' => 
+      array (
+        'section' => 'social',
+        'slot' => 27,
+      ),
+      'i35' => 
+      array (
+        'section' => 'social',
+        'slot' => 28,
+      ),
+      'i37' => 
+      array (
+        'section' => 'social',
+        'slot' => 29,
+      ),
+      'i38' => 
+      array (
+        'section' => 'social',
+        'slot' => 30,
+      ),
+      'i39' => 
+      array (
+        'section' => 'social',
+        'slot' => 31,
+      ),
+      'i40' => 
+      array (
+        'section' => 'social',
+        'slot' => 32,
+      ),
+      'i41' => 
+      array (
+        'section' => 'social',
+        'slot' => 33,
+      ),
+      'i42' => 
+      array (
+        'section' => 'social',
+        'slot' => 19,
+      ),
+      'i43' => 
+      array (
+        'section' => 'social',
+        'slot' => 3,
+      ),
+      'i44' => 
+      array (
+        'section' => 'social',
+        'slot' => 34,
+      ),
+      'i45' => 
+      array (
+        'section' => 'social',
+        'slot' => 35,
+      ),
+      'i46' => 
+      array (
+        'section' => 'social',
+        'slot' => 36,
+      ),
+      'i47' => 
+      array (
+        'section' => 'social',
+        'slot' => 37,
+      ),
+      'i48' => 
+      array (
+        'section' => 'social',
+        'slot' => 38,
+      ),
+      'i49' => 
+      array (
+        'section' => 'social',
+        'slot' => 39,
+      ),
+      'i50' => 
+      array (
+        'section' => 'social',
+        'slot' => 40,
+      ),
+      'i51' => 
+      array (
+        'section' => 'social',
+        'slot' => 41,
       ),
     ),
     'groups' => 
@@ -6498,20 +6743,25 @@ return array (
     ),
     'image_defs' => 
     array (
-      'i5' => 
-      array (
-        'section' => 'brokers',
-        'slot' => 0,
-      ),
       'i6' => 
       array (
         'section' => 'report_image',
         'slot' => 0,
       ),
-      'i12' => 
+      'i7' => 
+      array (
+        'section' => 'brokers',
+        'slot' => 0,
+      ),
+      'i11' => 
       array (
         'section' => 'brokers',
         'slot' => 1,
+      ),
+      'i12' => 
+      array (
+        'section' => 'brokers',
+        'slot' => 2,
       ),
     ),
     'groups' => 
@@ -6739,6 +6989,76 @@ return array (
     ),
     'image_defs' => 
     array (
+      'i2' => 
+      array (
+        'section' => 'board_after',
+        'slot' => 0,
+      ),
+      'i3' => 
+      array (
+        'section' => 'board_after',
+        'slot' => 1,
+      ),
+      'i4' => 
+      array (
+        'section' => 'board_after',
+        'slot' => 2,
+      ),
+      'i5' => 
+      array (
+        'section' => 'board_after',
+        'slot' => 3,
+      ),
+      'i6' => 
+      array (
+        'section' => 'board_after',
+        'slot' => 4,
+      ),
+      'i7' => 
+      array (
+        'section' => 'board_after',
+        'slot' => 5,
+      ),
+      'i8' => 
+      array (
+        'section' => 'board_after',
+        'slot' => 6,
+      ),
+      'i9' => 
+      array (
+        'section' => 'board_after',
+        'slot' => 7,
+      ),
+      'i10' => 
+      array (
+        'section' => 'board_after',
+        'slot' => 8,
+      ),
+      'i11' => 
+      array (
+        'section' => 'board_after',
+        'slot' => 9,
+      ),
+      'i12' => 
+      array (
+        'section' => 'board_after',
+        'slot' => 10,
+      ),
+      'i13' => 
+      array (
+        'section' => 'board_after',
+        'slot' => 11,
+      ),
+      'i14' => 
+      array (
+        'section' => 'board_after',
+        'slot' => 12,
+      ),
+      'i17' => 
+      array (
+        'section' => 'board_after',
+        'slot' => 13,
+      ),
       'i18' => 
       array (
         'section' => 'report_image',
@@ -6747,32 +7067,32 @@ return array (
       'i19' => 
       array (
         'section' => 'board_after',
-        'slot' => 0,
+        'slot' => 14,
       ),
       'i20' => 
       array (
         'section' => 'board_after',
-        'slot' => 1,
+        'slot' => 15,
       ),
       'i21' => 
       array (
         'section' => 'board_after',
-        'slot' => 2,
+        'slot' => 16,
       ),
       'i22' => 
       array (
         'section' => 'board_after',
-        'slot' => 3,
+        'slot' => 17,
       ),
       'i23' => 
       array (
         'section' => 'board_after',
-        'slot' => 4,
+        'slot' => 18,
       ),
       'i24' => 
       array (
         'section' => 'board_after',
-        'slot' => 5,
+        'slot' => 19,
       ),
     ),
     'groups' => 

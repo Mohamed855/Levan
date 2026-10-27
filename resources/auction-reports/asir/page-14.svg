@@ -205,7 +205,7 @@
 </clipPath>
 <mask id="p13_mask_40">
 <g transform="matrix(.24,0,0,.23999998,149.72443,547.2304)">
-<image id="p13_image_41" width="1339" height="609" xlink:href="__DYNAMIC_IMAGE__" data-image-def="i2" data-image="i2"/>
+<image id="p13_image_41" width="1339" height="609" xlink:href="__ASSET_asir/static-da724e81fe84e924b638.jpg__" data-image-def="i2" data-image="i2"/>
 </g>
 </mask>
 <clipPath id="p13_clip_43">
@@ -456,7 +456,7 @@
 </g>
 <g mask="url(#p13_mask_28)">
 <g transform="matrix(.24,0,0,.24,273.25636,718.6996)">
-<image id="p13_image_30" width="209" height="210" xlink:href="__ASSET_asir/static-8d929fb610f9bd706bf3.png__" data-image-def="i4" data-image="i4"/>
+<image id="p13_image_30" width="209" height="210" xlink:href="__DYNAMIC_IMAGE__" data-image-def="i4" data-image="i4"/>
 </g>
 </g>
 <g clip-path="url(#p13_clip_31)">
