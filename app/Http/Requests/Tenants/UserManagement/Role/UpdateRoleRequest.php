@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Tenants\UserManagement\Role;
 
+use App\Support\AccessLabels;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Permission;
@@ -99,7 +100,7 @@ class UpdateRoleRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'name' => trim($this->name),
+            'name' => AccessLabels::roleKey($this->input('name'), is_object($this->route('role')) ? $this->route('role')->name : null),
             'select_all' => $this->has('select_all') ? (bool) $this->select_all : false,
         ]);
     }

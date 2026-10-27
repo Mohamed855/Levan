@@ -55,7 +55,7 @@
                     name="role"
                     label="الدور"
                     placeholder="اختر الدور"
-                    :options="$roles->pluck('name', 'name')"
+                    :options="\App\Support\AccessLabels::roleOptions($roles, 'name')"
                 />
             </x-data-table.filters>
         </x-slot:filters>

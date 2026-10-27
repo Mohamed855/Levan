@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tenants\UserManagement\Role;
 
 use App\Http\Requests\Concerns\WizardFormRequest;
+use App\Support\AccessLabels;
 use Illuminate\Validation\Rule;
 
 class StoreRoleRequest extends WizardFormRequest
@@ -95,7 +96,7 @@ class StoreRoleRequest extends WizardFormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'name' => trim($this->name),
+            'name' => AccessLabels::roleKey($this->input('name'), is_object($this->route('role')) ? $this->route('role')->name : null),
             'select_all' => $this->has('select_all') ? (bool) $this->select_all : false,
         ]);
     }

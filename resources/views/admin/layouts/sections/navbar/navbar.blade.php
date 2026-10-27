@@ -253,7 +253,7 @@
                             <div class="flex-grow-1">
                                 <h6 class="mb-0">{{ $adminUser?->name ?? 'Admin' }}</h6>
                                 <small
-                                    class="text-muted">{{ $adminUser?->getRoleNames()->implode(', ') ?? '' }}</small>
+                                    class="text-muted">{{ $adminUser?->getRoleNames()->map(fn ($name) => \App\Support\AccessLabels::role($name))->implode('، ') ?? '' }}</small>
                             </div>
                         </div>
                     </a>

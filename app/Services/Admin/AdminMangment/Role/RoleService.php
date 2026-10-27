@@ -4,6 +4,7 @@ namespace App\Services\Admin\AdminMangment\Role;
 
 use App\Enums\Shared\ActivityStatus;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Support\AccessLabels;
 use App\Support\SelectOptions;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -172,7 +173,7 @@ class RoleService
     public function getUserRoleData(AdminUser $user): array
     {
         return [
-            'roles' => Role::where('guard_name', 'admin')->get(),
+            'roles' => Role::where('guard_name', 'admin')->get()->map(fn ($role) => ['id' => $role->id, 'name' => $role->name, 'label' => AccessLabels::role($role->name)]),
             'assigned_role' => $user->roles->first()?->id,
             'assigned_status' => $user->status,
             'status_options' => SelectOptions::fromEnum(ActivityStatus::class),

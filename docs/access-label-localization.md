@@ -1,0 +1,13 @@
+# Role and permission labels
+
+Arabic dashboard labels are resolved by `App\Support\AccessLabels` using `lang/ar/roles.php` and `lang/ar/permissions.php`. Current central and tenant databases were audited: every existing role, permission and permission section has an Arabic label. The role catalog also covers the Collector role in the legacy tenant seeder.
+
+`Role::name`, `Permission::name`, guard names, permission checks and submitted assignment identifiers remain English/unchanged. No migration, role synchronization or permission grant is required. Do not add a model name accessor that translates these identifiers: Spatie authorization and persistence must continue to see the original keys.
+
+The display contract covers navbar account roles, role cards/details, user profiles, active/archived user tables, role filters, shared selects, assignment modals, permission checkbox labels and their sections. The shared select detects Spatie role objects and translates only their option label. JSON assignment responses retain `name` and `id` and add `label`; JavaScript creates text-safe option nodes from that label. Existing assignment values continue to use the original IDs or English names required by each endpoint.
+
+Role edit forms display the translated role label. Their four central/tenant store/update FormRequests normalize recognized catalog labels back to English before validation. A current route-bound role retains its exact original key when its label is submitted. Central validation now enforces the same English role identifier format already required for tenants. Unrecognized custom identifiers remain unchanged, and missing dictionary entries fall back to the identifier instead of displaying a broken translation key. Add a role translation entry when introducing another system role; add permission and section entries alongside new permission seeds.
+
+Arabic labels are selected explicitly because the dashboards use Arabic even when Laravel's application locale defaults to English. English role translations remain available in `lang/en/roles.php` for a future English interface.
+
+Validation: `AccessLabelsTest` checks seed catalog coverage, translated selects/checkboxes retaining English values and IDs, original model attributes, default-locale independence and normalization in all four FormRequests. The tenant feature test `test_role_identifier_must_use_english_database_key_format` checks rejection of arbitrary Arabic database identifiers. Notification regression tests also pass after the shared navbar/select changes. Run `npm run build` after changing either role-modal JavaScript file.

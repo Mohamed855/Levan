@@ -86,7 +86,7 @@
                         @foreach ($permissions as $index => $permission)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
-                                <td>{{ $permission->name }}</td>
+                                <td>{{ \App\Support\AccessLabels::permission($permission->name) }}</td>
                                 <td>{{ $permission->created_at }}</td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">

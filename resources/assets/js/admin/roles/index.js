@@ -112,9 +112,7 @@ function populateRoleModal(data) {
 
     roleSelect.empty().append('<option value=""></option>');
     $.each(data.roles, function (_, role) {
-        roleSelect.append(
-            `<option value="${role.id}" ${data.assigned_role === role.id ? 'selected' : ''}>${role.name}</option>`
-        );
+        roleSelect.append(new Option(role.label, role.id, false, String(data.assigned_role) === String(role.id)));
     });
 
     statusSelect.empty().append('<option value=""></option>');

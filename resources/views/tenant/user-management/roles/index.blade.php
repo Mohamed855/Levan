@@ -61,7 +61,7 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>
-                                    <span class="fw-semibold text-heading">{{ $role->name }}</span>
+                                    <span class="fw-semibold text-heading">{{ \App\Support\AccessLabels::role($role->name) }}</span>
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center justify-content-center gap-2">
@@ -131,7 +131,7 @@
             <select id="filter-role" class="form-control select2" data-datatable-filter="true" data-filter-key="role" data-placeholder="اختر الدور">
                 <option value=""></option>
                 @foreach ($roles as $role)
-                    <option value="{{ $role->id }}">{{ $role->name }}</option>
+                    <option value="{{ $role->id }}">{{ \App\Support\AccessLabels::role($role->name) }}</option>
                 @endforeach
             </select>
         </div>
@@ -180,7 +180,7 @@
                 <select id="user-role" name="role" class="form-control select2" required>
                     <option value=""></option>
                     @foreach ($roles as $role)
-                        <option value="{{ $role->id }}">{{ $role->name }}</option>
+                        <option value="{{ $role->id }}">{{ \App\Support\AccessLabels::role($role->name) }}</option>
                     @endforeach
                 </select>
             </div>

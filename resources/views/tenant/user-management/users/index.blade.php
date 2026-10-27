@@ -79,7 +79,7 @@
                 <x-filter.select id="filter-status" filterKey="status" label="حالة المستخدم"
                     placeholder="اختر حالة المستخدم" :enum="\App\Enums\Shared\ActivityStatus::class" />
                 <x-filter.select id="filter-role" filterKey="role" label="دور المستخدم"
-                    placeholder="اختر الدور" :options="$roles->pluck('name', 'id')" />
+                    placeholder="اختر الدور" :options="\App\Support\AccessLabels::roleOptions($roles)" />
             </x-data-table.filters>
         </x-slot:filters>
 

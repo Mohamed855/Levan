@@ -53,7 +53,9 @@
                     $optionDisabled = false;
                 } elseif (is_object($option)) {
                     $optionValue = $option->id ?? $option->value ?? $key;
-                    $optionLabel = $option->name ?? $option->label ?? $option->title ?? (string) $optionValue;
+                    $optionLabel = $option instanceof \Spatie\Permission\Models\Role
+                        ? \App\Support\AccessLabels::role($option->name)
+                        : ($option->name ?? $option->label ?? $option->title ?? (string) $optionValue);
                     $optionDisabled = (bool) ($option->disabled ?? false);
                 } elseif (is_array($option)) {
                     $optionValue = $option['value'] ?? $option['id'] ?? $key;

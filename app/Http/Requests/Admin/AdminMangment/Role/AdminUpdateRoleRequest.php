@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin\AdminMangment\Role;
 
+use App\Support\AccessLabels;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Permission;
@@ -37,7 +38,7 @@ class AdminUpdateRoleRequest extends FormRequest
                 'max:255',
                 'min:2',
                 Rule::unique('roles', 'name')->ignore($roleId),
-                'regex:/^[\pL\s\-\.]+$/u',
+                'regex:/^[A-Za-z][A-Za-z0-9_-]*$/',
             ],
             'permissions' => [
                 'required_if:select_all,0',
@@ -67,7 +68,7 @@ class AdminUpdateRoleRequest extends FormRequest
             'name.max' => 'اسم الدور يجب ألا يزيد عن 255 حرف',
             'name.min' => 'اسم الدور يجب ألا يقل عن حرفين',
             'name.unique' => 'اسم الدور مستخدم مسبقاً',
-            'name.regex' => 'اسم الدور يجب أن يحتوي على أحرف فقط',
+            'name.regex' => 'معرّف الدور يبدأ بحرف إنجليزي ويحتوي على أحرف وأرقام وشرطة أو شرطة سفلية فقط',
 
             'permissions.required_if' => 'يجب اختيار صلاحية واحدة على الأقل',
             'permissions.array' => 'الصلاحيات يجب أن تكون مصفوفة',
@@ -101,7 +102,7 @@ class AdminUpdateRoleRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'name' => trim($this->name),
+            'name' => AccessLabels::roleKey($this->input('name'), is_object($this->route('role')) ? $this->route('role')->name : null),
             'select_all' => $this->has('select_all') ? (bool) $this->select_all : false,
         ]);
     }

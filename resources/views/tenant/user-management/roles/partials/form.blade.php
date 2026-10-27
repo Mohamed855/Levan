@@ -5,7 +5,7 @@
 <x-form.controls.input 
     name="name" 
     label="معرّف الدور" 
-    :value="old('name', $role->name ?? '')"
+    :value="old('name', isset($role) ? \App\Support\AccessLabels::role($role->name) : '')"
     placeholder="مثال: collection_manager"
     :readonly="$isEdit" 
     required 
@@ -36,7 +36,7 @@
                                     data-bs-target="#collapse-{{ $loop->index }}"
                                     aria-expanded="false"
                                     aria-controls="collapse-{{ $loop->index }}">
-                                    {{ trans()->has('permissions.sections.' . $section) ? __('permissions.sections.' . $section) : (trans()->has('permissions.' . $section) ? __('permissions.' . $section) : $section) }}
+                                    {{ \App\Support\AccessLabels::section($section) }}
                                 </button>
                             </h2>
                             <div id="collapse-{{ $loop->index }}"
@@ -73,7 +73,7 @@
                                                         {{ ($isEdit && $role->hasPermissionTo($permission->name)) ? 'checked' : '' }}>
                                                     <label class="form-check-label"
                                                         for="permission-{{ $permission->id }}">
-                                                        {{ trans()->has('permissions.' . $permission->name) ? __('permissions.' . $permission->name) : $permission->name }}
+                                                        {{ \App\Support\AccessLabels::permission($permission->name) }}
                                                     </label>
                                                 </div>
                                             @endif

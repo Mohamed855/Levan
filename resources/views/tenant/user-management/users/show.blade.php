@@ -288,7 +288,7 @@
                                                             @if ($user->roles->isNotEmpty())
                                                                 @foreach ($user->roles as $role)
                                                                     <span
-                                                                        class="badge bg-primary me-1">{{ $role->name }}</span>
+                                                                        class="badge bg-primary me-1">{{ \App\Support\AccessLabels::role($role->name) }}</span>
                                                                 @endforeach
                                                             @else
                                                                 <span class="text-muted">غير محدد</span>

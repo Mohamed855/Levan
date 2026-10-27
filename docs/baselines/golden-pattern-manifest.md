@@ -243,3 +243,8 @@ The initial status is intentionally **Gap**, not a failure declaration. This man
 
 Central and tenant dashboard inboxes: route/guard, request authorization and ownership policy, controller, service, delivery model, after-commit observer, deadline commands, shared UI and tests are mapped in [Dashboard notifications](../dashboard-notifications.md). Existing tenant notification/activity administration remains available.
 
+
+## Role and permission display localization (2026-10-27)
+
+Central and tenant roles/users share Arabic display labels while retaining English authorization/database identifiers. UI, FormRequest normalization, service response labels and test contracts are mapped in [Role and permission labels](../access-label-localization.md).
+

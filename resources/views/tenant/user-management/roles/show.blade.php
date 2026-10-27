@@ -1,6 +1,6 @@
 @extends('tenant.layouts.layoutMaster')
 
-@section('title', 'تفاصيل الدور - ' . $role->name)
+@section('title', 'تفاصيل الدور - ' . \App\Support\AccessLabels::role($role->name))
 
 @section('toastr')
     @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
@@ -10,14 +10,14 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold mb-1">
-                <i class="ti ti-shield-lock me-2 text-primary"></i>تفاصيل الدور: {{ $role->name }}
+                <i class="ti ti-shield-lock me-2 text-primary"></i>تفاصيل الدور: {{ \App\Support\AccessLabels::role($role->name) }}
             </h4>
             <div class="d-flex align-items-center gap-2">
                 <code class="copyable-code fs-6"
-                    onclick="navigator.clipboard.writeText('{{ $role->name }}'); toastr.success('تم نسخ اسم الدور');">
-                    {{ $role->name }}
+                    onclick="navigator.clipboard.writeText('{{ \App\Support\AccessLabels::role($role->name) }}'); toastr.success('تم نسخ اسم الدور');">
+                    {{ \App\Support\AccessLabels::role($role->name) }}
                 </code>
-                <span class="badge bg-info">{{ $role->guard_name }}</span>
+                <span class="badge bg-info">{{ \App\Support\AccessLabels::guard($role->guard_name) }}</span>
                 <span class="badge bg-success">{{ $roleData['users_count'] ?? $role->users->count() }} مستخدم</span>
             </div>
         </div>
@@ -42,8 +42,8 @@
                         style="width: 100px; height: 100px;">
                         <i class="ti ti-shield-check text-primary" style="font-size: 3rem;"></i>
                     </div>
-                    <h5 class="mb-1">{{ $role->name }}</h5>
-                    <span class="badge bg-primary mb-3">حارس النظام: {{ $role->guard_name }}</span>
+                    <h5 class="mb-1">{{ \App\Support\AccessLabels::role($role->name) }}</h5>
+                    <span class="badge bg-primary mb-3">حارس النظام: {{ \App\Support\AccessLabels::guard($role->guard_name) }}</span>
 
                     <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
                         <div>
@@ -60,11 +60,11 @@
                         <ul class="list-unstyled mb-0">
                             <li class="mb-2">
                                 <span class="fw-bold me-1">اسم الدور:</span>
-                                <span>{{ $role->name }}</span>
+                                <span>{{ \App\Support\AccessLabels::role($role->name) }}</span>
                             </li>
                             <li class="mb-2">
                                 <span class="fw-bold me-1">نطاق الحارس:</span>
-                                <span class="font-monospace">{{ $role->guard_name }}</span>
+                                <span class="font-monospace">{{ \App\Support\AccessLabels::guard($role->guard_name) }}</span>
                             </li>
                             <li class="mb-2">
                                 <span class="fw-bold me-1">تاريخ الإنشاء:</span>
@@ -145,7 +145,7 @@
                             @foreach ($role->permissions as $permission)
                                 <span class="badge bg-primary fs-6 py-2 px-3">
                                     <i class="ti ti-check me-1"></i>
-                                    {{ trans()->has('permissions.' . $permission->name) ? __('permissions.' . $permission->name) : $permission->name }}
+                                    {{ \App\Support\AccessLabels::permission($permission->name) }}
                                 </span>
                             @endforeach
                         </div>

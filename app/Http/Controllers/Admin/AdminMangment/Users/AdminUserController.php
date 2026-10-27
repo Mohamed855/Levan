@@ -15,6 +15,7 @@ use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Coupons\Coupon;
 use App\Services\Admin\AdminMangment\Users\UserService;
+use App\Support\AccessLabels;
 use Illuminate\Support\Facades\Log;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
@@ -54,7 +55,7 @@ class AdminUserController extends Controller
                 ],
                 'roles' => $roles->map(fn (Role $role): array => [
                     'value' => $role->id,
-                    'label' => $role->name,
+                    'label' => AccessLabels::role($role->name),
                 ]),
             ];
 

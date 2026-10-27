@@ -4,6 +4,8 @@ namespace App\DataTables\Tenants\UserManagement\User;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Tenants\Shared\CentralSubscriptionContextGateway;
+use App\Support\AccessLabels;
 
 class UsersDataTable extends AbstractDataTable
 {
@@ -92,7 +94,7 @@ class UsersDataTable extends AbstractDataTable
                     return '<span class="text-muted">-</span>';
                 }
 
-                return $user->roles->map(fn ($role) => '<span class="badge bg-info me-1">'.$role->name.'</span>')->implode('');
+                return $user->roles->map(fn ($role) => '<span class="badge bg-info me-1">'.e(AccessLabels::role($role->name)).'</span>')->implode('');
             })
             ->editColumn('status', function (User $user) {
                 $checked = $user->status === 'active' ? 'checked' : '';
@@ -210,7 +212,7 @@ class UsersDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        $canAdd = app(\App\Services\Tenants\Shared\CentralSubscriptionContextGateway::class)
+        $canAdd = app(CentralSubscriptionContextGateway::class)
             ->canAddUser(User::query()->count());
 
         if (! $canAdd) {

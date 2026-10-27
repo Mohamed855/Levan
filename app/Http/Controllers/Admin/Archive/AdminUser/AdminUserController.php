@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Services\Admin\AdminMangment\Users\UserService;
+use App\Support\AccessLabels;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 
@@ -32,7 +33,7 @@ class AdminUserController extends Controller
             ],
             'roles' => $roles->map(fn ($role): array => [
                 'value' => $role->id,
-                'label' => $role->name,
+                'label' => AccessLabels::role($role->name),
             ]),
         ];
 

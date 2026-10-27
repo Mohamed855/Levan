@@ -5,6 +5,7 @@ namespace App\DataTables\Admin\AdminMangment\Users;
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Enums\Admin\Users\AdminUserStatus;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Support\AccessLabels;
 
 class AdminUserDataTable extends AbstractDataTable
 {
@@ -56,7 +57,7 @@ class AdminUserDataTable extends AbstractDataTable
             ->addColumn('roles', function (AdminUser $user) {
                 $roleBadges = $user->roles->isEmpty()
                     ? '<span class="text-muted">-</span>'
-                    : $user->roles->map(fn ($role) => '<span class="badge bg-info me-1">'.e($role->name).'</span>')->implode('');
+                    : $user->roles->map(fn ($role) => '<span class="badge bg-info me-1">'.e(AccessLabels::role($role->name)).'</span>')->implode('');
 
                 if ($user->isSuperAdmin() || ! auth('admin')->user()?->can('roles.assign')) {
                     return $roleBadges;

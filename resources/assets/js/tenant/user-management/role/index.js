@@ -311,8 +311,7 @@ function populateRoleModal(data) {
     // 2) تعبئة قائمة الأدوار
     roleSelect.append('<option value=""></option>');
     $.each(data.roles, function (index, role) {
-        const isSelected = data.assigned_role === role.id ? 'selected' : '';
-        roleSelect.append('<option value="' + role.id + '" ' + isSelected + '>' + role.name + '</option>');
+        roleSelect.append(new Option(role.label, role.id, false, String(data.assigned_role) === String(role.id)));
     });
 
     // 3) تعبئة قائمة الحالات

@@ -247,7 +247,7 @@
                             </div>
                             <div class="flex-grow-1">
                                 <h6 class="mb-0">{{ Auth::user()->name }}</h6>
-                                <small class="text-muted">{{ Auth::user()->getRoleNames()->implode(', ') }}</small>
+                                <small class="text-muted">{{ Auth::user()->getRoleNames()->map(fn ($name) => \App\Support\AccessLabels::role($name))->implode('، ') }}</small>
                             </div>
                         </div>
                     </a>

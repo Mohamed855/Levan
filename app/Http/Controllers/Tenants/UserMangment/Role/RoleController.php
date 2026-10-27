@@ -11,6 +11,7 @@ use App\Http\Requests\Tenants\UserManagement\User\UpdateUserStatusRequest;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\UserManagement\Role\RoleService;
 use App\Services\Tenants\UserManagement\User\UserService;
+use App\Support\AccessLabels;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -92,7 +93,7 @@ class RoleController extends Controller
                         return '<a href="mailto:'.$user->email.'">'.$user->email.'</a>';
                     })
                     ->addColumn('role', function (User $user) {
-                        $roleName = $user->roles->first()?->name ?? 'غير محدد';
+                        $roleName = $user->roles->isNotEmpty() ? AccessLabels::role($user->roles->first()->name) : 'غير محدد';
 
                         return '<span class="badge bg-primary">'.e($roleName).'</span>';
                     })

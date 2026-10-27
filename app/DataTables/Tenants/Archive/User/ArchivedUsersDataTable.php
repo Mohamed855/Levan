@@ -4,12 +4,12 @@ namespace App\DataTables\Tenants\Archive\User;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\UserMangment\User\User;
+use App\Support\AccessLabels;
 use Carbon\Carbon;
 
 class ArchivedUsersDataTable extends AbstractDataTable
 {
     private $route = 'archive.users';
-
 
     /*
     |--------------------------------------------------------------------------
@@ -101,9 +101,9 @@ class ArchivedUsersDataTable extends AbstractDataTable
             })
             ->editColumn('roles', function ($row) {
                 if ($row->roles && $row->roles->count() > 0) {
-                    $roleNames = $row->roles->pluck('name')->toArray();
+                    $roleNames = $row->roles->map(fn ($role) => AccessLabels::role($role->name))->toArray();
 
-                    return '<span class="text-info">'.implode(', ', $roleNames).'</span>';
+                    return '<span class="text-info">'.e(implode('، ', $roleNames)).'</span>';
                 }
 
                 return '<span class="text-muted">-</span>';

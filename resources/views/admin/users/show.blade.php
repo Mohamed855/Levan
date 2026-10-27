@@ -53,7 +53,7 @@
                                         <li class="list-inline-item d-flex gap-2 align-items-center">
                                             <i class='ti ti-id-badge fs-5 text-primary'></i>
                                             <span class="fw-bold small">
-                                                {{ $role->name }}
+                                                {{ \App\Support\AccessLabels::role($role->name) }}
                                             </span>
                                         </li>
                                     @endisset
@@ -106,7 +106,7 @@
 
                                         <li class="d-flex align-items-center mb-4">
                                             <i class="ti ti-id-badge  text-primary"></i>
-                                            <small class="mx-2 fw-semibold">{{ $role ? $role->name : 'غير متوفر' }}</small>
+                                            <small class="mx-2 fw-semibold">{{ $role ? \App\Support\AccessLabels::role($role->name) : 'غير متوفر' }}</small>
                                         </li>
 
                                     </ul>

@@ -4,6 +4,7 @@ namespace App\DataTables\Admin\Archive\AdminUser;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Support\AccessLabels;
 
 class AdminUserDataTable extends AbstractDataTable
 {
@@ -57,7 +58,7 @@ class AdminUserDataTable extends AbstractDataTable
                     return '<span class="text-muted">-</span>';
                 }
 
-                return $user->roles->map(fn ($role) => '<span class="badge bg-info me-1">'.$role->name.'</span>')->implode('');
+                return $user->roles->map(fn ($role) => '<span class="badge bg-info me-1">'.e(AccessLabels::role($role->name)).'</span>')->implode('');
             })
 
             ->editColumn('status', function ($row) {

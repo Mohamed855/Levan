@@ -4,6 +4,7 @@ namespace App\Services\Tenants\UserManagement\Role;
 
 use App\Enums\Shared\ActivityStatus;
 use App\Models\Tenants\UserMangment\User\User;
+use App\Support\AccessLabels;
 use App\Support\SelectOptions;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -87,6 +88,7 @@ class RoleService
         return DB::transaction(function () use ($role) {
             $deleted = $role->delete();
             $this->clearPermissionsCache();
+
             return $deleted;
         });
     }
@@ -114,7 +116,7 @@ class RoleService
     */
     private function getPermissionsFromData(array $data): array
     {
-        if (!empty($data['select_all'])) {
+        if (! empty($data['select_all'])) {
             return Permission::query()
                 ->where('guard_name', 'tenant')
                 ->pluck('name')
@@ -179,7 +181,7 @@ class RoleService
     public function getUserRoleData(User $user): array
     {
         return [
-            'roles' => Role::where('guard_name', 'tenant')->get(),
+            'roles' => Role::where('guard_name', 'tenant')->get()->map(fn ($role) => ['id' => $role->id, 'name' => $role->name, 'label' => AccessLabels::role($role->name)]),
             'assigned_role' => $user->roles->first()?->id,
             'assigned_status' => $user->status,
             'status_options' => SelectOptions::fromEnum(ActivityStatus::class),
