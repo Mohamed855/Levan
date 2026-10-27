@@ -132,6 +132,21 @@ html.layout-menu-fixed {
     scrollbar-width: thin !important;
 }
 
+/* Ensure content-wrapper stretches to full height and footer stays at bottom */
+.layout-page .content-wrapper {
+    flex: 1 0 auto !important;
+    min-height: 100% !important;
+}
+.layout-page .content-wrapper > [class*="container-"] {
+    flex-grow: 1 !important;
+    flex-shrink: 0 !important;
+    height: auto !important;
+    min-height: auto !important;
+}
+.layout-page .content-footer {
+    flex-shrink: 0 !important;
+}
+
 /* Ensure sidebar never displays a scrollbar while preserving wheel navigation */
 #layout-menu {
     scrollbar-width: none !important;
