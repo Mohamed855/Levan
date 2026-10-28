@@ -5,6 +5,7 @@ return [
     'sections' => ['brochure' => 'الكتيب التسويقي', 'platform' => 'منصة المزاد', 'video' => 'الفيديو التسويقي', 'x' => 'حملة X', 'whatsapp' => 'حملة الواتساب', 'social' => 'حملات التواصل الاجتماعي', 'board_before' => 'تركيب اللوحات', 'board_after' => 'فك اللوحات', 'brokers' => 'عقود الوسطاء', 'marketing_evidence' => 'الأدلة التسويقية', 'campaigns' => 'تفاصيل الحملات', 'design_asset' => 'مواد التصميم'],
     'evidence_appendix' => 'ملحق الأدلة',
     'attachment' => 'مرفق',
+    'campaign_link' => 'رابط الحملة',
     'empty_evidence' => 'لا توجد مرفقات مضافة',
     'not_available' => 'غير متوفر',
     'impressions' => 'المشاهدات',

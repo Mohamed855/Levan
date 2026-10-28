@@ -23,6 +23,23 @@
     <x-ui.validation-errors />
 
     <x-data-table.page table-id="bill-table">
+        <x-slot:stats>
+            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي الفواتير" :value="$statistics['total'] ?? 0"
+                subtitle="جميع الفواتير الصادرة" icon="ti-receipt-2" color="primary" />
+
+            <x-ui.stat-card col="col-sm-6 col-xl" title="فواتير مدفوعة" :value="$statistics['paid'] ?? 0"
+                subtitle="فواتير مسددة بالكامل" icon="ti-circle-check" color="success" />
+
+            <x-ui.stat-card col="col-sm-6 col-xl" title="بانتظار التحقق" :value="$statistics['pending'] ?? 0"
+                subtitle="إيصالات قيد المراجعة" icon="ti-clock-pause" color="info" />
+
+            <x-ui.stat-card col="col-sm-6 col-xl" title="فواتير غير مدفوعة" :value="$statistics['unpaid'] ?? 0"
+                subtitle="فواتير بانتظار السداد" icon="ti-alert-circle" color="warning" />
+
+            <x-ui.stat-card col="col-sm-6 col-xl" title="فواتير مرفوضة / ملغاة" :value="$statistics['rejected'] ?? 0"
+                subtitle="إيصالات مرفوضة أو ملغاة" icon="ti-ban" color="danger" />
+        </x-slot:stats>
+
         <x-slot:filters>
             <x-data-table.filters table="#bill-table">
                 <x-filter.select id="filter-type" filterKey="type" label="نوع العملية" placeholder="اختر نوع العملية"

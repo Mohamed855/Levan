@@ -76,9 +76,22 @@ final class AuctionReportTextLayout
             $width = $layout['max_width'] ?? $right - $left;
             $height = max(array_column($fields, 'y')) - min(array_column($fields, 'y')) + $field['sy'] * 1.5;
             $maxLines = $layout['max_lines'] ?? max(1, (int) floor($height / ($field['sy'] * 1.17)));
-            $fieldChunks[$role] = array_map(static fn (array $lines): string => implode("\n", $lines), array_chunk(
-                $this->wrap($content['values'][$role] ?? '-', $layout['wrap_width'] ?? $width, $field['size'], $field['font']), $maxLines,
-            ));
+            $height = max($height, $field['sy'] * (1.5 + ($maxLines - 1) * 1.17));
+            $lines = $this->wrap($content['values'][$role] ?? '-', $layout['wrap_width'] ?? $width, $field['size'], $field['font']);
+            if (count($lines) > $maxLines && ! ($layout['continue'] ?? false)) {
+                // Atomic fields may fit or reject; only explicitly narrative fields paginate.
+                try {
+                    $fitted = $this->fitTitle((string) ($content['values'][$role] ?? '-'), $field, $layout + [
+                        'box' => [$left, $field['y'] - $field['sy'], $left + $width, $field['y'] - $field['sy'] + $height],
+                        'max_lines' => $maxLines,
+                    ]);
+                } catch (InvalidArgumentException $exception) {
+                    throw new InvalidArgumentException($role.': '.$exception->getMessage(), previous: $exception);
+                }
+                $content['field_layouts'][$role] = $fitted;
+                $lines = $fitted['lines'];
+            }
+            $fieldChunks[$role] = array_map(static fn (array $chunk): string => implode("\n", $chunk), array_chunk($lines, $maxLines));
         }
         $pages = [];
         $count = max(array_merge([1], array_values(array_map('count', $fieldChunks))));
@@ -163,10 +176,12 @@ final class AuctionReportTextLayout
         $file = $this->font($field['font']);
         for ($size = $maximum; $size >= $minimum - .001; $size = max($minimum, $size - .25)) {
             $verticalSize = $field['sy'] * $size / $field['size'];
-            $lines = $this->wrap($value, $right - $left, $size, $field['font'], false);
+            // Reserve 1pt per edge for FreeType/Chromium shaping differences.
+            $availableWidth = max(1.0, $right - $left - 2);
+            $lines = $this->wrap($value, $availableWidth, $size, $field['font'], false);
             $height = $this->height($lines, $size, $verticalSize, $field['font']);
             $width = max(array_map(fn (string $line): float => $this->width($line, $size, $file, $field['font']), $lines));
-            if (count($lines) <= ($layout['max_lines'] ?? 2) && $width <= $right - $left && $height <= $bottom - $top) {
+            if (count($lines) <= ($layout['max_lines'] ?? 2) && $width <= $availableWidth && $height <= $bottom - $top) {
                 $bounds = imagettfbbox($size * .75, 0, $file, $this->shapeForMeasurement($lines[0]));
                 $ascent = -min($bounds[1], $bounds[3], $bounds[5], $bounds[7]) * $verticalSize / $size;
 

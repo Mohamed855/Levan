@@ -51,7 +51,7 @@ for (const form of document.querySelectorAll('form[data-wizard-resource]')) {
             const res = await fetch(item.url, { credentials: 'same-origin' });
             if (res.ok) blob = await res.blob();
           }
-          if (!blob) blob = new Blob([''], { type: item.mime || 'application/octet-stream' });
+          if (!blob) continue;
           const file = new File([blob], item.name, {
             type: item.mime || blob.type || 'application/octet-stream',
             lastModified: Date.now(),

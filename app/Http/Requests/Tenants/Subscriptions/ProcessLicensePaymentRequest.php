@@ -22,8 +22,8 @@ class ProcessLicensePaymentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'new_licenses_count.required' => 'عدد التراخيص المطلوبة مفقود.',
-            'new_licenses_count.between' => 'يجب أن يكون عدد التراخيص بين 1 و1000.',
+            'new_licenses_count.required' => 'عدد المستخدمين المطلوبين مفقود.',
+            'new_licenses_count.between' => 'يجب أن يكون عدد المستخدمين بين 1 و1000.',
             'coupon_code.string' => 'رمز الخصم غير صالح.',
         ];
     }
@@ -31,7 +31,7 @@ class ProcessLicensePaymentRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'new_licenses_count' => 'عدد التراخيص الجديدة',
+            'new_licenses_count' => 'عدد المستخدمين الجدد',
             'coupon_code' => 'رمز الخصم',
         ];
     }

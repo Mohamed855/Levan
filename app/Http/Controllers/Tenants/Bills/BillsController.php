@@ -50,12 +50,10 @@ class BillsController extends Controller
     public function index(BillsDataTable $dataTable)
     {
         try {
-            // $statistics = $this->couponService->getCouponStatistics();
+            $statistics = $this->billingGateway->billStatisticsForCurrentTenant();
 
             return $dataTable->render(self::VIEW_PATH.'.index', [
-                // 'totalPlans'       => $statistics['total'],
-                // 'activePlans'      => $statistics['active'],
-                // 'inactivePlans'    => $statistics['inactive'],
+                'statistics' => $statistics,
             ]);
         } catch (\Exception $e) {
             report($e);

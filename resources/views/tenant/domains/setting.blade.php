@@ -49,140 +49,97 @@
 
 
 @section('content')
-    <div class="row g-4 mb-4">
-        <div class="col-sm-6 col-xl-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">إجمالي النطاقات</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $totalDomains }}</h4>
+    <x-ui.validation-errors />
+
+    <x-data-table.page table-id="domain-table">
+        <x-slot:stats>
+            <x-ui.stat-card col="col-sm-6 col-xl-4" title="إجمالي النطاقات" :value="$totalDomains ?? 0"
+                subtitle="عدد النطاقات المسجلة في حسابك" icon="ti-world-www" color="primary" />
+
+            <x-ui.stat-card col="col-sm-6 col-xl-4" title="النطاقات النشطة" :value="$activeDomains ?? 0"
+                subtitle="نطاقات مفعّلة وتعمل حالياً" icon="ti-circle-check" color="success" />
+
+            <x-ui.stat-card col="col-sm-6 col-xl-4" title="النطاقات غير النشطة" :value="$inactiveDomains ?? 0"
+                subtitle="نطاقات غير مفعّلة" icon="ti-alert-circle" color="warning" />
+        </x-slot:stats>
+
+        <x-slot:custom_slot>
+            <div class="row g-4">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div
+                                    style="width: 50px; height: 50px; background: #e3f2fd; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-left: 15px;">
+                                    <i class="ti ti-lifebuoy" style="font-size: 1.5rem; color: #2196f3;"></i>
+                                </div>
+                                <h5 class="mb-0">مركز المساعدة</h5>
                             </div>
-                            <small class="mb-0">عدد النطاقات المسجلة في حسابك</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-primary">
-                                <i class="ti ti-world-www ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-sm-6 col-xl-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">النطاقات النشطة</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $activeDomains }}</h4>
+                            <div class="d-flex align-items-center flex-wrap gap-2" style="justify-content: space-between">
+                                <p class="text-muted mb-0">تعرّف على طريقة إدارة نطاقاتك وربطها بالخادم خطوة بخطوة</p>
+
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="{{ tenant_route_name('domains.explain') }}" class="btn btn-outline-primary">
+                                        <i class="ti ti-book-open me-2"></i>
+                                        قراءة الدليل
+                                    </a>
+
+                                    <a href="{{ tenant_route_name('domains.faq') }}" class="btn btn-outline-primary">
+                                        <i class="ti ti-help-circle me-2"></i>
+                                        الأسئلة الشائعة
+                                    </a>
+                                </div>
                             </div>
-                            <small class="mb-0">نطاقات مفعّلة وتعمل حاليًا</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-success">
-                                <i class="ti ti-circle-check ti-26px"></i>
-                            </span>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-sm-6 col-xl-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">النطاقات غير النشطة</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $inactiveDomains }}</h4>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div
+                                    style="width: 50px; height: 50px; background: #f3e5f5; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-left: 15px;">
+                                    <i class="ti ti-headset" style="font-size: 1.5rem; color: #9c27b0;"></i>
+                                </div>
+                                <h5 class="mb-0">الدعم الفني</h5>
                             </div>
-                            <small class="mb-0">نطاقات غير مفعّلة </small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-warning">
-                                <i class="ti ti-alert-circle ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+                            <div class="d-flex align-items-center flex-wrap gap-2" style="justify-content: space-between">
+                                <p class="text-muted mb-0">فريق الدعم الفني جاهز لمساعدتك في أي استفسار يخص النطاقات</p>
 
-    <div class="row g-4">
-        <div class="col-md-6 mb-4">
-            <div class="card h-100" style="border: 2px solid #e9ecef;">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <div
-                            style="width: 50px; height: 50px; background: #e3f2fd; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-left: 15px;">
-                            <i class="ti ti-lifebuoy" style="font-size: 1.5rem; color: #2196f3;"></i>
-                        </div>
-                        <h5 class="mb-0">مركز المساعدة</h5>
-                    </div>
-
-                    <div class="d-flex align-items-center flex-wrap gap-2" style="justify-content: space-between">
-                        <p class="text-muted mb-0">تعرّف على طريقة إدارة نطاقاتك وربطها بالخادم خطوة بخطوة</p>
-
-                        <div class="d-flex flex-wrap gap-2">
-                            <a href="{{ tenant_route_name('domains.explain') }}" class="btn btn-outline-primary">
-                                <i class="ti ti-book-open me-2"></i>
-                                قراءة الدليل
-                            </a>
-
-                            <a href="{{ tenant_route_name('domains.faq') }}" class="btn btn-outline-primary">
-                                <i class="ti ti-help-circle me-2"></i>
-                                الأسئلة الشائعة
-                            </a>
+                                <a href="{{ tenant_route_name('tickets.index') }}" class="btn btn-outline-primary">
+                                    <i class="ti ti-ticket me-2"></i>
+                                    فتح تذكرة دعم
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </x-slot:custom_slot>
 
-        <div class="col-md-6 mb-4">
-            <div class="card h-100" style="border: 2px solid #e9ecef;">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <div
-                            style="width: 50px; height: 50px; background: #f3e5f5; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-left: 15px;">
-                            <i class="ti ti-headset" style="font-size: 1.5rem; color: #9c27b0;"></i>
-                        </div>
-                        <h5 class="mb-0">الدعم الفني</h5>
-                    </div>
+        <x-slot:filters>
+            <x-data-table.filters table="#domain-table">
+                <x-filter.select id="filter-status" filterKey="status" label="حالة النطاق" placeholder="جميع الحالات"
+                    :options="['1' => 'نشط', '0' => 'غير نشط']" />
+                <x-filter.select id="filter-type" filterKey="type" label="نوع النطاق" placeholder="جميع الأنواع"
+                    :options="[
+                        'registered' => 'دومين محجوز',
+                        'transferred' => 'دومين منقول',
+                        'linked' => 'دومين مربوط',
+                    ]" />
+                <x-filter.select id="filter-transfer-status" filterKey="transfer_status" label="حالة النقل"
+                    placeholder="جميع حالات النقل" :options="['pending' => 'قيد الانتظار', 'completed' => 'مكتمل', 'failed' => 'فشل النقل']" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ التسجيل من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ التسجيل إلى" />
+            </x-data-table.filters>
+        </x-slot:filters>
 
-                    <div class="d-flex align-items-center flex-wrap gap-2" style="justify-content: space-between">
-                        <p class="text-muted mb-0">فريق الدعم الفني جاهز لمساعدتك في أي استفسار يخص النطاقات</p>
-
-                        <a href="{{ tenant_route_name('tickets.index') }}" class="btn btn-outline-primary">
-                            <i class="ti ti-ticket me-2"></i>
-                            فتح تذكرة دعم
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-body">
-            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}
-        </div>
-    </div>
+        <x-slot:table>
+            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'domain-table'], false) !!}
+        </x-slot:table>
+    </x-data-table.page>
 
 @endsection

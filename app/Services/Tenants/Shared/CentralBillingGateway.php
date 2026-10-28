@@ -27,6 +27,34 @@ final class CentralBillingGateway
             ->firstOrFail());
     }
 
+    /** @return array<string, int> */
+    public function billStatisticsForCurrentTenant(): array
+    {
+        $tenantId = (string) tenant('id');
+
+        return Tenancy::central(function () use ($tenantId): array {
+            $stats = Bill::toBase()
+                ->where('tenant_id', $tenantId)
+                ->selectRaw('status, COUNT(*) as count')
+                ->groupBy('status')
+                ->pluck('count', 'status');
+
+            $paid = (int) ($stats->get(BillStatus::PAID->value, 0));
+            $unpaid = (int) ($stats->get(BillStatus::UNPAID->value, 0));
+            $pending = (int) ($stats->get(BillStatus::PENDING->value, 0) + $stats->get(BillStatus::PENDING_VERIFICATION->value, 0));
+            $rejected = (int) ($stats->get(BillStatus::REJECTED->value, 0) + $stats->get(BillStatus::CANCELLED->value, 0));
+            $total = (int) $stats->sum();
+
+            return [
+                'total' => $total,
+                'paid' => $paid,
+                'pending' => $pending,
+                'unpaid' => $unpaid,
+                'rejected' => $rejected,
+            ];
+        });
+    }
+
     /** @return Collection<int, Bank> */
     public function activeBanks(): Collection
     {

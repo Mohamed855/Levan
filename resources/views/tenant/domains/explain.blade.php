@@ -466,7 +466,8 @@
             <h3>هل تحتاج مساعدة؟</h3>
             <p>فريق الدعم الفني جاهز لمساعدتك في ربط أو نقل الدومين</p>
             <div class="d-flex gap-3 justify-content-center flex-wrap">
-                <a href="{{ tenant_route_name('tickets.index') }}" class="btn" style="color:white">
+                <a href="{{ tenant_route_name('tickets.index') }}" class="btn"
+                    style="background: transparent;  color: white;">
                     <i class="ti ti-message-circle" style="font-size: 39px;"></i>
                     تواصل مع الدعم
                 </a>

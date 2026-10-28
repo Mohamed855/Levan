@@ -4,24 +4,24 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge success">⚡ ترقية وتراخيص جديدة</span>
+        <span class="status-badge success">⚡ ترقية ومستخدمين جدد</span>
     </div>
 
     <h2 class="greeting">مرحباً {{ $customerName }}،</h2>
 
     <p class="lead-text">
-        تم بنجاح شراء تراخيص إضافية وتحديث سعة اشتراك منشأتك على منصة <strong>{{ $brandName }}</strong>.
+        تم بنجاح شراء مستخدمين إضافيين وتحديث سعة اشتراك منشأتك على منصة <strong>{{ $brandName }}</strong>.
     </p>
 
     <div class="info-card">
-        <div class="info-card-title">تفاصيل التراخيص الجديدة</div>
+        <div class="info-card-title">تفاصيل المستخدمين الجدد</div>
         <div class="info-row">
             <span class="info-label">اسم الباقة:</span>
             <span class="info-value">{{ $planName }}</span>
         </div>
         @if(!empty($newLicensesCount))
             <div class="info-row">
-                <span class="info-label">التراخيص المضافة:</span>
+                <span class="info-label">المستخدمين المضافين:</span>
                 <span class="info-value">+{{ $newLicensesCount }} مستخدم</span>
             </div>
         @endif

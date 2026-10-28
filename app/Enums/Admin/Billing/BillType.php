@@ -18,7 +18,7 @@ enum BillType: string
         return match ($this) {
             self::NEW_SUBSCRIPTION => 'اشتراك جديد',
             self::RENEWAL => 'تجديد الاشتراك',
-            self::LICENSE_PURCHASE => 'شراء تراخيص إضافية',
+            self::LICENSE_PURCHASE => 'شراء مستخدمين إضافيين',
             self::BILLING_CYCLE_CHANGE => 'تحويل دورة الفوترة',
             self::NEW_DOMAIN => 'دومين جديد',
             self::TRANSFER_DOMAIN => 'نقل دومين',

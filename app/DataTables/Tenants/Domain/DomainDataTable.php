@@ -96,10 +96,28 @@ class DomainDataTable extends AbstractDataTable
                     : '<span class="text-muted">-</span>';
             })
 
+            ->editColumn('trasnfer_status', function ($row) {
+                $status = $row->trasnfer_status;
+                if (! $status) {
+                    return '<span class="text-muted">-</span>';
+                }
+                $badges = [
+                    'pending' => 'warning',
+                    'completed' => 'success',
+                    'failed' => 'danger',
+                ];
+                $labels = [
+                    'pending' => 'قيد الانتظار',
+                    'completed' => 'مكتمل',
+                    'failed' => 'فشل النقل',
+                ];
+                $color = $badges[$status] ?? 'secondary';
+                $label = $labels[$status] ?? $status;
+
+                return sprintf('<span class="badge bg-%s">%s</span>', $color, $label);
+            })
             ->editColumn('transfer_status', function ($row) {
-                return $row->transfer_status
-                    ? '<span class="text-dark">'.($row->transfer_status ?: '-').'</span>'
-                    : '<span class="text-muted">-</span>';
+                return $row->trasnfer_status ?? '-';
             })
 
             ->editColumn('created_at', function ($row) {
@@ -117,7 +135,34 @@ class DomainDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'domain', 'type', 'is_active', 'expires_at', 'remaining_days', 'transfer_code', 'transfer_status', 'actions'];
+        return ['checkbox', 'domain', 'type', 'is_active', 'expires_at', 'remaining_days', 'transfer_code', 'trasnfer_status', 'actions'];
+    }
+
+    protected function applyCustomFilters($query)
+    {
+        $request = request();
+
+        if ($request->filled('status')) {
+            $query->where('is_active', (int) $request->status);
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('transfer_status')) {
+            $query->where('trasnfer_status', $request->transfer_status);
+        }
+
+        if ($request->filled('created_from')) {
+            $query->whereDate('created_at', '>=', $request->created_from);
+        }
+
+        if ($request->filled('created_to')) {
+            $query->whereDate('created_at', '<=', $request->created_to);
+        }
+
+        return $query;
     }
 
     protected function getSearchableColumns(): array
@@ -133,8 +178,21 @@ class DomainDataTable extends AbstractDataTable
     protected function buttons(): array
     {
         return [
+            $this->getActionsDropdownButton(),
             $this->getAddButton(),
+        ];
+    }
 
+    private function getActionsDropdownButton(): array
+    {
+        return [
+            'extend' => 'collection',
+            'className' => 'btn btn-export',
+            'text' => 'الإجراءات',
+            'buttons' => [
+                ['extend' => 'copy', 'text' => 'نسخ'],
+                ['extend' => 'excel', 'text' => 'إكسل'],
+            ],
         ];
     }
 

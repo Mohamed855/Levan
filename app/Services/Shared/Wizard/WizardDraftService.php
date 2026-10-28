@@ -120,7 +120,7 @@ class WizardDraftService
                 );
                 $unique = [];
                 foreach ($merged as $file) {
-                    if (! $file instanceof UploadedFile) {
+                    if (! $file instanceof UploadedFile || $file->getSize() === 0) {
                         continue;
                     }
                     $unique[$file->getClientOriginalName().'|'.$file->getSize().'|'.$file->getClientMimeType()] = $file;
@@ -136,6 +136,10 @@ class WizardDraftService
                     $value,
                 );
 
+                continue;
+            }
+
+            if ($value instanceof UploadedFile && $value->getSize() === 0 && isset($stored[$key]) && $stored[$key] instanceof UploadedFile && $stored[$key]->getSize() > 0) {
                 continue;
             }
 

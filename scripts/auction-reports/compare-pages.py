@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import re
 import subprocess
 import unicodedata
 from pathlib import Path
@@ -41,15 +42,23 @@ def reference_index(family, kind):
 
 
 def rasterize(pdf, prefix, dpi):
-    existing = sorted(prefix.parent.glob(prefix.name + "-*.png"))
-    if existing:
-        # Never reuse images from an older PDF revision.
-        stamp = prefix.with_suffix(".sha256")
-        if stamp.exists() and stamp.read_text() == hashlib.sha256(pdf.read_bytes()).hexdigest():
-            return existing
-    subprocess.run(["pdftoppm", "-r", str(dpi), "-png", str(pdf), str(prefix)], check=True, capture_output=True)
-    prefix.with_suffix(".sha256").write_text(hashlib.sha256(pdf.read_bytes()).hexdigest())
-    return sorted(prefix.parent.glob(prefix.name + "-*.png"))
+    digest = hashlib.sha256(pdf.read_bytes()).hexdigest()
+    directory = prefix.parent / ".raster" / prefix.name / f"{digest}-{dpi}dpi"
+    directory.mkdir(parents=True, exist_ok=True)
+    expected = len(PdfReader(pdf).pages)
+
+    def pages():
+        return sorted(
+            (path for path in directory.glob("page-*.png") if re.fullmatch(r"page-\d+\.png", path.name)),
+            key=lambda path: int(path.stem.removeprefix("page-")),
+        )
+
+    if len(pages()) != expected:
+        subprocess.run(["pdftoppm", "-r", str(dpi), "-png", str(pdf), str(directory / "page")], check=True, capture_output=True)
+    result = pages()
+    if len(result) != expected:
+        raise ValueError("Incomplete PDF rasterization: " + str(pdf))
+    return result
 
 
 def comparison(receipt_path, manifest_path, dpi):

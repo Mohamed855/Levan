@@ -75,8 +75,8 @@ final class AsirReportData
                 $values[$prefix.'_'.$part] = ($part === 'weekday' ? 'يوم ' : '').$this->format->arabicDigits($value);
             }
         }
-        foreach (['youtube' => ['youtube', 'يوتيوب'], 'x' => ['x', 'أكس'], 'tiktok' => ['tiktok', 'تيك توك'], 'snapchat' => ['snapchat', 'سناب شات'], 'google' => ['google', 'جوجل'], 'whatsapp' => ['whatsapp', 'واتساب']] as $channel => $names) {
-            $campaign = $this->campaign($snapshot, $names);
+        foreach (['youtube', 'x', 'tiktok', 'snapchat', 'google', 'whatsapp'] as $channel) {
+            $campaign = AuctionReportChannels::campaign($marketing['campaigns'] ?? [], $channel);
             foreach (['views', 'posts', 'subscribers', 'watch_hours', 'messages', 'delivered', 'failed', 'pending', 'total'] as $metric) {
                 $value = $campaign[$metric] ?? null;
                 $values[$channel.'_'.$metric] = $this->format->number(is_numeric($value) ? (float) $value : null, $metric === 'watch_hours' ? 2 : 0);
@@ -86,8 +86,10 @@ final class AsirReportData
         $values['whatsapp_date'] = $this->format->date($marketing['whatsapp_date'] ?? null);
         $values['whatsapp_summary'] = $values['whatsapp_messages'] === '-' ? 'لا تتوفر بيانات عن عدد الرسائل' : 'عدد الرسائل المسجلة: '.$values['whatsapp_messages'];
         $values['whatsapp_views_summary'] = $values['whatsapp_views'] === '-' ? 'لا تتوفر بيانات عن المشاهدات' : 'المشاهدات المسجلة: '.$values['whatsapp_views'];
-        $views = array_column($marketing['campaigns'] ?? [], 'impressions');
-        $values['social_total'] = $views === [] ? '-' : $this->format->arabicDigits($this->format->number(array_sum($views)));
+        $socialCampaigns = array_values(array_filter($marketing['campaigns'] ?? [], static fn (array $campaign): bool => in_array(AuctionReportChannels::key($campaign['platform'] ?? null), ['snapchat', 'tiktok', 'x'], true)));
+        $views = array_map(static fn (array $campaign) => $campaign['impressions'] ?? null, $socialCampaigns);
+        $total = $views !== [] && count(array_filter($views, 'is_numeric')) === count($views) ? array_sum($views) : null;
+        $values['social_total'] = $this->format->arabicDigits($this->format->number($total));
         foreach (range(1, 3) as $slot) {
             $values['chart_'.$slot] = '';
             $values['sold_position_'.$slot] = $this->position($snapshot, $payload['properties'][$slot - 1] ?? []);
@@ -154,14 +156,4 @@ final class AsirReportData
         return '-';
     }
 
-    private function campaign(array $snapshot, array $names): array
-    {
-        foreach ($snapshot['marketing']['campaigns'] ?? [] as $campaign) {
-            if (in_array(mb_strtolower(trim((string) ($campaign['platform'] ?? ''))), $names, true)) {
-                return $campaign;
-            }
-        }
-
-        return [];
-    }
 }

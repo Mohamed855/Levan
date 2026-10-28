@@ -413,25 +413,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             }
         }
-        const draftFiles = event.detail?.files || {};
-        const singleDraftFiles = [
-            draftFiles.assignment_image,
-            draftFiles.assignment_letter,
-        ].filter((file) => file?.name);
-        singleDraftFiles.forEach((file) => {
-            const field =
-                file.key === "assignment_image"
-                    ? form.elements.namedItem("assignment_image")
-                    : form.elements.namedItem("assignment_letter");
-            const wrapper = field?.closest("[data-form-field]");
-            if (wrapper && !wrapper.querySelector("[data-restored-file]")) {
-                const note = document.createElement("div");
-                note.dataset.restoredFile = "true";
-                note.className = "small text-success mt-2";
-                note.textContent = `الملف المحفوظ في المسودة: ${file.name}`;
-                wrapper.append(note);
-            }
-        });
         syncProperties();
         buildReview();
     });

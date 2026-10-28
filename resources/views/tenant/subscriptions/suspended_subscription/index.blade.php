@@ -139,10 +139,10 @@
                                         <!-- Additional Licenses -->
                                         <div class="mb-4 p-3 bg-secondary">
                                             <label class="form-label fw-bold mb-2">
-                                                عدد التراخيص الإضافية
+                                                عدد المستخدمين الإضافيين
                                             </label>
                                             <small class="text-muted d-block mb-3">
-                                                الباقة تشمل ترخيص واحد افتراضياً
+                                                الباقة تشمل مستخدم واحد افتراضياً
                                             </small>
                                             <input type="number" min="0" max="99999999" value="0"
                                                 step="1"

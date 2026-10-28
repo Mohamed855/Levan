@@ -51,7 +51,7 @@
         @endif
         @if(!empty($totalUsers))
             <div class="info-row">
-                <span class="info-label">عدد التراخيص المتاحة:</span>
+                <span class="info-label">عدد المستخدمين المتاحين:</span>
                 <span class="info-value">{{ $totalUsers }} مستخدم</span>
             </div>
         @endif

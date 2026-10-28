@@ -5,23 +5,27 @@
     'cardId' => null,
 ])
 
-@if (isset($stats) && ! $stats->isEmpty())
+@if (isset($stats) && !$stats->isEmpty())
     <div class="row g-4 mb-4">
         {{ $stats }}
     </div>
 @endif
 
-@if (isset($filters) && ! $filters->isEmpty())
+@if (isset($custom_slot) && !$custom_slot->isEmpty())
+    {{ $custom_slot }}
+@endif
+
+@if (isset($filters) && !$filters->isEmpty())
     {{ $filters }}
 @endif
 
-@if (isset($beforeTable) && ! $beforeTable->isEmpty())
+@if (isset($beforeTable) && !$beforeTable->isEmpty())
     {{ $beforeTable }}
 @endif
 
 <div @if ($cardId) id="{{ $cardId }}" @endif class="card">
     <div class="card-body">
-        @if (isset($table) && ! $table->isEmpty())
+        @if (isset($table) && !$table->isEmpty())
             {{ $table }}
         @else
             {{ $slot }}

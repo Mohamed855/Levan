@@ -109,6 +109,14 @@ class BillsDataTable extends AbstractDataTable
             $query->where('payment_method', $request->payment_method);
         }
 
+        if ($request->filled('created_from')) {
+            $query->whereDate('created_at', '>=', $request->created_from);
+        }
+
+        if ($request->filled('created_to')) {
+            $query->whereDate('created_at', '<=', $request->created_to);
+        }
+
         return $query;
     }
 

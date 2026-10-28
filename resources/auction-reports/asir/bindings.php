@@ -22,7 +22,7 @@ return [
         'start_time' => ['max_width' => 140], 'end_time' => ['max_width' => 140],
         'start_hijri' => ['max_width' => 110], 'end_hijri' => ['max_width' => 110],
     ]],
-    2 => ['groups' => ['introduction' => ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6']]],
+    2 => ['groups' => ['introduction' => ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6']], 'layouts' => ['introduction' => ['continue' => true]]],
     3 => ['groups' => ['city_context' => ['f6']]],
     4 => ['groups' => ['planning_methodology' => ['f2', 'f3', 'f4', 'f5']]],
     5 => ['groups' => ['name_context' => ['f2'], 'brochure_methodology' => ['f7', 'f8', 'f9', 'f10']], 'layouts' => ['brochure_methodology' => ['max_width' => 473.159, 'wrap_width' => 450]]],
@@ -41,7 +41,7 @@ return [
         'youtube_subscribers' => ['f14'], 'youtube_watch_hours' => ['f15'], 'youtube_views_2' => ['f16'],
         'chart_1' => ['f17'], 'chart_2' => ['f18'], 'chart_3' => ['f19'], 'video_url' => ['f20'],
     ], 'link_fields' => ['video' => 'video_url'], 'hidden_image_defs' => ['i8'], 'image_slots' => ['i12' => 1], 'layouts' => [
-        'auction_type' => ['max_width' => 80], 'name' => ['max_width' => 120], 'youtube_views' => ['max_width' => 70],
+        'auction_type' => ['max_width' => 80], 'name' => ['box' => [404, 527, 524, 562], 'fit' => 'shrink', 'max_lines' => 2, 'min_font_size' => 8], 'youtube_views' => ['max_width' => 70],
         'youtube_subscribers' => ['max_width' => 60], 'youtube_watch_hours' => ['max_width' => 60], 'youtube_views_2' => ['max_width' => 60],
     ]],
     12 => ['groups' => ['x_views' => ['f6'], 'x_posts' => ['f7']], 'link_fields' => ['x' => 'x_views'], 'layouts' => ['x_views' => ['max_width' => 70], 'x_posts' => ['max_width' => 40]]],

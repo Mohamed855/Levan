@@ -44,9 +44,12 @@ final class AuctionReportLinks
         return $destinations;
     }
 
-    public function forPage(array $snapshot, array $definition, array $fieldLayouts = []): array
+    public function forPage(array $snapshot, array $definition, array $fieldLayouts = [], array $pageDestinations = []): array
     {
         $destinations = $this->destinations($snapshot);
+        foreach ($pageDestinations as $role => $url) {
+            $destinations[$role] = $this->safeUrl(is_string($url) ? $url : null);
+        }
         $links = [];
         foreach ($definition['link_fields'] ?? [] as $role => $fieldRole) {
             if (empty($destinations[$role])) {

@@ -105,7 +105,7 @@
                 <li class="menu-item @if (Helpers::isActiveRoute('subscriptions.*')) active @endif">
                     <a href="{{ tenant_route_name('subscriptions.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons ti ti-award"></i>
-                        <div>الاشتراك والتراخيص</div>
+                        <div>الاشتراك والمستخدمين</div>
                     </a>
                 </li>
             @endcan

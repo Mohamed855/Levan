@@ -244,7 +244,8 @@ final class AuctionReportPaginator
 
     private function campaignPages(string $prefix, array $campaigns): array
     {
-        return array_map(fn (array $chunk): array => $this->page($prefix.'-campaigns-continuation', ['gallery' => [], 'gallery_section' => 'campaigns', 'campaigns' => $chunk]), array_chunk($campaigns, 6));
+        // One campaign per appendix keeps every supplied metric and its own URL readable.
+        return array_map(fn (array $campaign): array => $this->page($prefix.'-campaigns-continuation', ['gallery' => [], 'gallery_section' => 'campaigns', 'campaigns' => [$campaign]]), $campaigns);
     }
 
     /** @param array<string, mixed> $payload

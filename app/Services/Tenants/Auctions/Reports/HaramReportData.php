@@ -38,7 +38,7 @@ final class HaramReportData
         if (in_array($index, [0, 6], true)) {
             $values['footer'] = '-'.$name.' '.$this->format->dateParts($auction['start_date'] ?? null)['year'];
         }
-        $campaigns = $payload['campaigns'] ?? [];
+        $campaigns = $marketing['campaigns'] ?? [];
         $channels = ['snapchat' => ['snapchat', 'سناب شات'], 'tiktok' => ['tiktok', 'تيك توك'], 'x' => ['x', 'أكس']];
         $slots = [];
         foreach (array_keys($channels) as $channel) {
@@ -51,7 +51,7 @@ final class HaramReportData
                 ? 'منصة '.$channels[$channel][1]
                 : (string) $campaign['platform'];
         }
-        $tiktok = $this->campaign($snapshot, ['tiktok', 'تيك توك']);
+        $tiktok = AuctionReportChannels::campaign($campaigns, 'tiktok');
         foreach (['profile_views', 'reach', 'views', 'profile_change', 'reach_change', 'views_change'] as $metric) {
             $value = $tiktok[$metric] ?? null;
             $values['tiktok_'.$metric] = is_numeric($value) ? $this->format->number((float) $value) : (string) ($value ?? '-');
@@ -59,7 +59,7 @@ final class HaramReportData
         $destinations = (new AuctionReportLinks)->destinations($snapshot);
         $values['x_url'] = empty($destinations['x']) ? '-' : 'رابط حملة X';
         $values['tiktok_url'] = empty($destinations['tiktok']) ? '-' : 'رابط حملة تيك توك';
-        $values['snapchat_views'] = $this->format->number($this->campaign($snapshot, ['snapchat', 'سناب شات'])['impressions'] ?? null);
+        $values['snapchat_views'] = $this->format->number($slots['snapchat']['impressions'] ?? null);
         $values['marketing_url'] = empty($destinations['marketing_evidence']) ? '-' : 'رابط أدلة التسويق';
         $values['boards_url'] = empty($destinations['boards']) ? '-' : 'رابط اللوحات';
         foreach (range(1, 3) as $slot) {
@@ -100,14 +100,4 @@ final class HaramReportData
         return $content;
     }
 
-    private function campaign(array $snapshot, array $names): array
-    {
-        foreach ($snapshot['marketing']['campaigns'] ?? [] as $campaign) {
-            if (in_array(mb_strtolower(trim((string) ($campaign['platform'] ?? ''))), $names, true)) {
-                return $campaign;
-            }
-        }
-
-        return [];
-    }
 }

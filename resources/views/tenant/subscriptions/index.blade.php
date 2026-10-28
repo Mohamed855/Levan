@@ -105,11 +105,11 @@
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div class="content-left">
-                            <span class="text-heading">عدد التراخيص
+                            <span class="text-heading">عدد المستخدمين
                                 <small class="text-muted">
                                     (متبقي
                                     {{ ($subscription_formatted['total_users'] ?? 0) - ($subscription_formatted['used_users'] ?? 0) }}
-                                    ترخيص
+                                    مستخدم
                                     )
                                 </small>
                             </span>
@@ -135,7 +135,7 @@
 
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-primary">
-                                <i class="ti ti-license ti-26px"></i>
+                                <i class="ti ti-users ti-26px"></i>
                             </span>
                         </div>
                     </div>
@@ -187,9 +187,9 @@
 
                         <div class="col-md-6 col-lg-4">
                             <div class="d-flex flex-column">
-                                <small class="small mb-1">عدد التراخيص </small>
+                                <small class="small mb-1">عدد المستخدمين المتاحين</small>
                                 <h6 class="mb-0">
-                                    {{ $subscription_formatted['total_users'] ?? 0 }} ترخيص
+                                    {{ $subscription_formatted['total_users'] ?? 0 }} مستخدم
                                 </h6>
                             </div>
                         </div>
@@ -273,16 +273,13 @@
             </div>
         </div>
 
-        <!----  التراخيص  --->
+        <!----  المستخدمين الإضافيين  --->
         <div class="col-md-6">
             <div class="card h-100">
                 <div class="card-header py-4">
                     <h6 class="card-title mb-0">
-                        <i class="ti ti-file-description text-primary me-2"></i>
-                        شراء التراخيص
-                        <small class="text-muted">
-                            (المستخدمين الاضافيين)
-                        </small>
+                        <i class="ti ti-user-plus text-primary me-2"></i>
+                        شراء مستخدمين إضافيين
                     </h6>
                 </div>
                 <div class="border-1 border-light border-dashed mb-2"></div>
@@ -292,8 +289,8 @@
                         <div class="alert alert-danger d-flex align-items-center mb-4">
                             <i class="ti ti-alert-circle ti-lg me-3"></i>
                             <div class="small">
-                                <p class="mb-0">لا يمكنك شراء تراخيص حالياً. يرجى تجديد الاشتراك او دفع الفواتير
-                                    المتاخرة للاستفادة
+                                <p class="mb-0">لا يمكنك شراء مستخدمين إضافيين حالياً. يرجى تجديد الاشتراك أو دفع الفواتير
+                                    المتأخرة للاستفادة
                                     من جميع المميزات.</p>
                             </div>
                         </div>
@@ -318,7 +315,7 @@
                             <div class="alert card mb-4">
 
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <small>السعر لكل ترخيص (شامل الضريبة )</small>
+                                    <small>سعر المستخدم الإضافي (شامل الضريبة)</small>
                                     <small class=" mb-0">
                                         {{ $subscription_formatted['extra_user_license_price'] ?? 0 }}<span
                                             class="icon-saudi_riyal ms-1"></span>

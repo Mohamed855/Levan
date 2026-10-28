@@ -165,7 +165,7 @@
 
 -   **Assignments & Properties as Canonical References**: All multi-step wizard administrations and show/index views must strictly mirror the visual architecture, component contracts, and UX patterns established in `tenants/assignments` and `tenants/properties`.
 -   **Index View Layout**:
-    -   Statistics cards must use **5 uniform cards** with `col="col-sm-6 col-xl"` representing the entity lifecycle (Total `primary`, Active/Ready `success`, Completed/Under Review `info`, Unlinked/Pending `warning`, Needs Review/Suspended `danger`).
+    -   Statistics cards must use uniform cards with an appropriate responsive grid (e.g. `col="col-sm-6 col-xl"` or matching column widths) representing the entity lifecycle or key domain indicators (e.g., Total `primary`, Active/Ready `success`, etc.), without a rigid mandate on the number of cards (e.g. not strictly requiring 5 cards when the domain naturally has fewer or more specific indicators).
     -   Table image column must render as `rounded-circle` with fixed dimensions.
     -   Entity codes must use `.copyable-code-wrapper` with single-click clipboard copy and Toastr notification.
 -   **Wizard Create & Edit Forms**:

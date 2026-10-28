@@ -1,5 +1,5 @@
 @extends('tenant.layouts.layoutMaster')
-@section('title', 'شراء تراخيص جديدة')
+@section('title', 'شراء مستخدمين إضافيين')
 
 @section('page-style')
     @vite(['resources/assets/css/components/icons.css'])
@@ -71,11 +71,11 @@
                             <div class="p-3 rounded text-center mb-6 text-price">
                                 <div class="d-flex justify-content-between">
                                     <div class="fw-bold">
-                                        عدد التراخيص الاضافية المطلوبة
+                                        عدد المستخدمين الإضافيين المطلوبين
                                     </div>
                                     <h6 class="mb-0 text-primary">
                                         {{ number_format($newLicensesCount, 0) }}
-                                        <small>ترخيص</small>
+                                        <small>مستخدم</small>
                                     </h6>
                                 </div>
                             </div>

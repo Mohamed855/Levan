@@ -9,6 +9,69 @@ use Tests\TestCase;
 
 final class AuctionReportRendererTest extends TestCase
 {
+    public function test_a_long_auction_name_fits_cards_without_cloning_non_narrative_pages(): void
+    {
+        $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';
+        foreach (['outputs', 'report'] as $type) {
+            $baseline = app(AuctionReportRenderer::class)->html($snapshot, $type);
+            $snapshot['auction']['name'] = 'مزاد جوار الحرم للعقارات السكنية';
+            $html = app(AuctionReportRenderer::class)->html($snapshot, $type);
+            foreach (['cover', 'video', 'platform', 'index', 'design', 'closing', 'marketing'] as $family) {
+                $pattern = '/data-page-type="(?:haram|asir)-'.$family.'(?:-continuation)?"/';
+                self::assertSame(preg_match_all($pattern, $baseline), preg_match_all($pattern, $html), $type.':'.$family.' repeated for an atomic field.');
+            }
+            $snapshot['auction']['name'] = 'واجهة عسير';
+        }
+    }
+
+    public function test_measured_result_overflow_also_uses_a_single_section_continuation(): void
+    {
+        $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';
+        $sold = array_values(array_filter($snapshot['properties'], fn ($row) => $row['result_status'] === 'sold'));
+        $unsold = array_slice(array_values(array_filter($snapshot['properties'], fn ($row) => $row['result_status'] === 'unsold')), 0, 7);
+        foreach ($unsold as &$property) {
+            $property['unsold_reason'] = str_repeat('سبب عدم البيع ', 20);
+        }
+        unset($property);
+        $snapshot['properties'] = array_merge([$sold[0]], $unsold);
+        $html = app(AuctionReportRenderer::class)->html($snapshot, 'outputs');
+        $document = new \DOMDocument;
+        @$document->loadHTML($html);
+        $xpath = new \DOMXPath($document);
+        $page = $xpath->query('//*[@data-page-type="haram-results-continuation"]')->item(0);
+        self::assertNotNull($page);
+        self::assertSame(0, $xpath->query('.//*[@data-report-cell and starts-with(@data-report-cell,"sold:")]', $page)->length);
+        self::assertSame(1, $xpath->query('.//*[@data-result-section="unsold"]', $page)->length);
+        self::assertLessThan(200, (float) $xpath->query('.//*[@data-report-cell="unsold:0:0"]', $page)->item(0)->getAttribute('y'));
+        self::assertSame(7, $xpath->query('//*[@data-report-cell and starts-with(@data-report-cell,"unsold:") and substring(@data-report-cell,string-length(@data-report-cell)-1)=":2"]')->length);
+    }
+
+    public function test_campaign_appendices_preserve_each_metric_and_its_own_safe_link_and_evidence_channel(): void
+    {
+        $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';
+        $snapshot['marketing']['campaigns'] = [
+            ['platform' => 'snapchat', 'impressions' => 1], ['platform' => 'tiktok', 'impressions' => 2], ['platform' => 'x', 'impressions' => 3],
+            ['platform' => 'youtube', 'views' => 123, 'watch_hours' => 0, 'url' => 'https://example.com/first-video'],
+            ['platform' => 'youtube', 'views' => 456, 'url' => 'https://example.com/second-video'],
+            ['platform' => 'google', 'clicks' => 0, 'url' => 'javascript:alert(1)'],
+        ];
+        $snapshot['evidence']['social'] = [['channel' => 'youtube', 'display_name' => 'لقطة إضافية', 'uri' => null]];
+        $html = app(AuctionReportRenderer::class)->html($snapshot, 'outputs');
+        $document = new \DOMDocument;
+        @$document->loadHTML($html);
+        $xpath = new \DOMXPath($document);
+        $pages = $xpath->query('//*[contains(@data-page-type,"campaigns-continuation")]');
+        $text = implode(' ', array_map(fn ($node) => $node->textContent, iterator_to_array($pages)));
+        self::assertStringContainsString('مشاهدات الفيديو: 123', $text);
+        self::assertStringContainsString('ساعات المشاهدة: 0', $text);
+        self::assertStringContainsString('النقرات: 0', $text);
+        foreach (['first-video', 'second-video'] as $destination) {
+            self::assertSame(1, $xpath->query('//*[contains(@data-page-type,"campaigns-continuation")]//a[@href="https://example.com/'.$destination.'"]')->length);
+        }
+        self::assertFalse(str_contains($html, 'href="javascript:'));
+        self::assertTrue(str_contains($html, 'يوتيوب - لقطة إضافية'));
+    }
+
     public function test_unsold_only_result_continuation_has_no_repeated_sold_table_and_starts_near_the_top(): void
     {
         $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';

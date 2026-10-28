@@ -159,7 +159,7 @@ class TenantSubscriptionController extends Controller
         } catch (\Exception $e) {
             report($e);
 
-            return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'حدث خطأ أثناء تحميل صفحة شراء تراخيص اضافية ');
+            return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'حدث خطأ أثناء تحميل صفحة شراء مستخدمين إضافيين');
         }
     }
 
@@ -195,7 +195,7 @@ class TenantSubscriptionController extends Controller
 
             return $this->showMoyasarCheckout(
                 $pendingBill,
-                'شراء تراخيص إضافية',
+                'شراء مستخدمين إضافيين',
                 tenant_route_name('subscriptions.licenses.callback', ['bill' => $pendingBill->bill_number]),
                 tenant_route_name('subscriptions.index'),
             );

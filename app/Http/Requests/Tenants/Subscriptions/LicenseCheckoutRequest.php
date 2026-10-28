@@ -21,8 +21,8 @@ class LicenseCheckoutRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'new_licenses_count.required' => 'يرجى تحديد عدد التراخيص المطلوبة.',
-            'new_licenses_count.between' => 'يجب أن يكون عدد التراخيص بين 1 و1000.',
+            'new_licenses_count.required' => 'يرجى تحديد عدد المستخدمين المطلوبين.',
+            'new_licenses_count.between' => 'يجب أن يكون عدد المستخدمين بين 1 و1000.',
         ];
     }
 }

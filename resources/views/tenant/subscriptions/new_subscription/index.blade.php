@@ -80,7 +80,7 @@
                                 </div>
 
                                 <div class="text-muted plan-section-title mt-1">
-                                    ترخيص المستخدم الإضافي
+                                    سعر المستخدم الإضافي
                                 </div>
                                 <div class="fw-bold">
                                     {{ number_format($plan->extra_user_license_price) }} <span

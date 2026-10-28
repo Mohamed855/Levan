@@ -49,11 +49,11 @@
                             <tr>
                                 <td>
                                     {{ $bill->type->label() }}
-                                    {{-- تفاصيل إضافية لشراء التراخيص --}}
+                                    {{-- تفاصيل إضافية لشراء المستخدمين --}}
                                     @if (!empty($bill->metadata['new_licenses_count']))
                                         <br>
                                         <small class="text-muted">
-                                            {{ $bill->metadata['new_licenses_count'] }} ترخيص
+                                            {{ $bill->metadata['new_licenses_count'] }} مستخدم
                                             × {{ number_format($bill->metadata['license_unit_price'] ?? 0, 2) }} ر.س
                                         </small>
                                     @endif
@@ -212,18 +212,18 @@
                             </div>
                         @endif
 
-                        {{-- عدد التراخيص --}}
+                        {{-- عدد المستخدمين --}}
                         @isset($bill->metadata['new_licenses_count'])
                             <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                                <span class="text-muted small"><i class="ti ti-users me-1"></i>عدد التراخيص</span>
-                                <span class="badge bg-info">{{ $bill->metadata['new_licenses_count'] }} ترخيص</span>
+                                <span class="text-muted small"><i class="ti ti-users me-1"></i>عدد المستخدمين الإضافيين</span>
+                                <span class="badge bg-info">{{ $bill->metadata['new_licenses_count'] }} مستخدم</span>
                             </div>
                         @endisset
 
-                        {{-- سعر الترخيص --}}
+                        {{-- سعر المستخدم الإضافي --}}
                         @isset($bill->metadata['license_unit_price'])
                             <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                                <span class="text-muted small"><i class="ti ti-license me-1"></i>سعر الترخيص</span>
+                                <span class="text-muted small"><i class="ti ti-user-dollar me-1"></i>سعر المستخدم الإضافي</span>
                                 <span class="badge bg-info">
                                     {{ number_format($bill->metadata['license_unit_price'], 2) }}
                                     <span class="icon-saudi_riyal ms-1"></span>

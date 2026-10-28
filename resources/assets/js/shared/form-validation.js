@@ -509,10 +509,7 @@ async function createFileFromDraftItem(item) {
     }
 
     if (!blob) {
-        const dummyContent = new Uint8Array(Math.min(item.size || 16, 1024));
-        blob = new Blob([dummyContent], {
-            type: item.mime || "application/octet-stream",
-        });
+        return null;
     }
 
     const mimeType = item.mime || blob.type || "application/octet-stream";

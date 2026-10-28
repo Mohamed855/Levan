@@ -261,13 +261,22 @@ class WizardDraftController extends Controller
 
                 if ($resourceKey !== '') {
                     $guard = auth('admin')->check() ? 'admin' : 'tenant';
-                    $routeName = $guard === 'admin' ? 'admin.wizard-drafts.file.show' : 'tenant.wizard-drafts.file.show';
-
-                    if (RouteFacade::has($routeName)) {
-                        $item['url'] = route($routeName, [
+                    if ($guard === 'admin') {
+                        $routeName = 'admin.wizard-drafts.file.show';
+                        if (RouteFacade::has($routeName)) {
+                            $item['url'] = route($routeName, [
+                                'resource_key' => $resourceKey,
+                                'file_key' => $fullKey,
+                            ]);
+                        }
+                    } elseif (function_exists('tenant_route_name')) {
+                        $url = tenant_route_name('wizard-drafts.file.show', [
                             'resource_key' => $resourceKey,
                             'file_key' => $fullKey,
                         ]);
+                        if ($url && $url !== '#') {
+                            $item['url'] = $url;
+                        }
                     }
                 }
 

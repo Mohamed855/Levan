@@ -9,6 +9,16 @@ use PHPUnit\Framework\TestCase;
 
 final class AuctionReportTextLayoutTest extends TestCase
 {
+    public function test_a_long_footer_wraps_inside_its_actual_left_hand_frame(): void
+    {
+        $root = dirname(__DIR__, 3).'/resources/auction-reports';
+        $definition = (new \App\Services\Tenants\Auctions\Reports\AuctionReportArtwork($root))->page('haram', 1);
+        $parts = (new AuctionReportTextLayout($root))->flow(['values' => ['footer' => 'مخرجات المزاد - مزاد جوار الحرم للعقارات السكنية'], 'tables' => [], 'images' => []], $definition);
+        self::assertCount(1, $parts);
+        self::assertStringContainsString("\n", $parts[0]['values']['footer']);
+        self::assertLessThanOrEqual(2, count(explode("\n", $parts[0]['values']['footer'])));
+    }
+
     public function test_conservative_wrap_width_keeps_the_original_field_geometry_and_full_text(): void
     {
         $layout = new AuctionReportTextLayout(dirname(__DIR__, 3).'/resources/auction-reports');
@@ -124,6 +134,7 @@ final class AuctionReportTextLayoutTest extends TestCase
     {
         $root = dirname(__DIR__, 3).'/resources/auction-reports';
         $definition = (require $root.'/asir/pages.php')[2];
+        $definition['layouts']['introduction']['continue'] = true;
         $images = ['report_image' => [['uri' => 'data:image/png;base64,LANDSCAPE']], 'marketing_evidence' => [['uri' => 'EVIDENCE']]];
         $pages = (new AuctionReportTextLayout($root))->flow(['values' => ['introduction' => str_repeat('نص طويل للاختبار ', 200)], 'tables' => [], 'images' => $images], $definition);
         self::assertGreaterThan(1, count($pages));

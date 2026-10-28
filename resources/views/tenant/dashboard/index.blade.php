@@ -166,7 +166,7 @@
                                         <i class="ti ti-award fs-4"></i>
                                     </span>
                                 </div>
-                                <span class="action-title">الاشتراك والتراخيص</span>
+                                <span class="action-title">الاشتراك والمستخدمين</span>
                             </a>
                         </div>
                     @endcan

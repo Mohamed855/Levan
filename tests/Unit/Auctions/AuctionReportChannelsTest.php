@@ -10,6 +10,35 @@ use PHPUnit\Framework\TestCase;
 
 final class AuctionReportChannelsTest extends TestCase
 {
+    public function test_whatsapp_table_and_chart_share_the_aggregate_of_all_campaigns(): void
+    {
+        $snapshot = ['auction' => ['name' => 'اختبار'], 'properties' => [], 'totals' => [], 'marketing' => ['campaigns' => [
+            ['platform' => 'whatsapp', 'delivered' => 70, 'failed' => 20, 'pending' => 10, 'total' => 100],
+            ['platform' => 'واتساب', 'delivered' => 10, 'failed' => 80, 'pending' => 10, 'total' => 100],
+        ]]];
+        $content = (new AsirReportData(new AuctionReportFormat))->page($snapshot, ['page_type' => 'asir-whatsapp', 'payload' => []]);
+        self::assertSame('80', $content['values']['whatsapp_delivered']);
+        self::assertSame('100', $content['values']['whatsapp_failed']);
+        self::assertSame('20', $content['values']['whatsapp_pending']);
+        self::assertSame('200', $content['values']['whatsapp_total']);
+        self::assertStringContainsString('data-chart-state="delivered" data-percent="40"', $content['artwork_overrides']['charts'][0]);
+    }
+
+    public function test_social_total_covers_only_native_channels_and_never_treats_missing_counts_as_zero(): void
+    {
+        $snapshot = ['auction' => ['name' => 'اختبار'], 'properties' => [], 'totals' => [], 'marketing' => ['campaigns' => [
+            ['platform' => 'snapchat', 'impressions' => null], ['platform' => 'tiktok', 'impressions' => null],
+        ]]];
+        $binder = new AsirReportData(new AuctionReportFormat);
+        $page = ['page_type' => 'asir-social', 'payload' => []];
+        self::assertSame('-', $binder->page($snapshot, $page)['values']['social_total']);
+        $snapshot['marketing']['campaigns'][0]['impressions'] = 10;
+        self::assertSame('-', $binder->page($snapshot, $page)['values']['social_total']);
+        $snapshot['marketing']['campaigns'][1]['impressions'] = 0;
+        $snapshot['marketing']['campaigns'][] = ['platform' => 'youtube', 'impressions' => 999];
+        self::assertSame('١٠', $binder->page($snapshot, $page)['values']['social_total']);
+    }
+
     public function test_platform_status_and_inclusive_calendar_duration_come_from_the_auction(): void
     {
         $snapshot = ['auction' => ['name' => 'اختبار', 'status' => 'active', 'start_date' => '2026-05-19', 'end_date' => '2026-05-21', 'start_time' => '10:00', 'end_time' => '17:00', 'timezone' => 'Asia/Riyadh'], 'properties' => [], 'totals' => []];
