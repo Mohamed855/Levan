@@ -28,8 +28,8 @@ $app->make(Kernel::class)->bootstrap();
 AuctionReportDatabaseGuard::assertSafe(array_replace($settings, ['central' => (string) config('database.connections.mysql.database'), 'url' => (string) config('database.connections.mysql.url')]));
 app()->setLocale('ar');
 $mode = $argv[1] ?? '';
-if (!in_array($mode, ['--prepare', '--enqueue', '--auto-save', '--work', '--collect'], true)) {
-    throw new InvalidArgumentException('Use --prepare, --enqueue, --auto-save, --work or --collect with explicit isolated CI environment.');
+if (!in_array($mode, ['--prepare', '--refresh-fixture-inputs', '--enqueue', '--auto-save', '--work', '--collect'], true)) {
+    throw new InvalidArgumentException('Use --prepare, --refresh-fixture-inputs, --enqueue, --auto-save, --work or --collect with explicit isolated CI environment.');
 }
 $tenantId = $settings['tenant_id'];
 foreach ($argv as $argument) {
@@ -52,6 +52,10 @@ $trigger = in_array('--trigger=auto', $argv, true) || $mode === '--auto-save' ? 
 $receiptPath = $directory.'/'.$trigger.'-receipt.json';
 tenancy()->initialize($tenant);
 try {
+    if ($mode === '--refresh-fixture-inputs') {
+        echo json_encode((new AuctionReportAcceptanceFixture)->refreshDerivedInputs($settings, $directory.'/fixture-receipt.json', in_array('--apply', $argv, true)), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR).PHP_EOL;
+        exit(0);
+    }
     if (in_array($mode, ['--enqueue', '--auto-save'], true)) {
         $queue = 'report-ci-'.bin2hex(random_bytes(8));
         config(['queue.connections.auction_reports.queue' => $queue]);

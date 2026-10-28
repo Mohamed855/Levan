@@ -124,6 +124,10 @@ class UserService
 
     public function updateStatus(User $user, string $status): User
     {
+        if ($user->isAdmin()) {
+            throw new \DomainException('لا يمكن تغيير حالة مدير النظام.');
+        }
+
         return DB::transaction(function () use ($user, $status): User {
             $user->update(['status' => $status]);
 

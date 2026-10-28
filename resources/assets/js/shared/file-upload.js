@@ -40,14 +40,17 @@ function showNotification(message, type = 'error') {
 }
 
 export function initFileUploadZone(zone) {
-  if (!zone || zone.dataset.fileUploadInitialized === 'true') return;
+  if (!zone) return null;
+  if (zone.dataset.fileUploadInitialized === 'true') {
+    return zone._fileUploadController || null;
+  }
   zone.dataset.fileUploadInitialized = 'true';
 
   const controlWrapper = zone.closest('[data-file-upload-wrapper]') || zone.parentElement;
   const input = controlWrapper.querySelector('input[type="file"][data-file-input]') || controlWrapper.querySelector('input[type="file"]');
   const previewContainer = controlWrapper.querySelector('[data-file-preview-container]');
 
-  if (!input) return;
+  if (!input) return null;
 
   const isMultiple = input.hasAttribute('multiple');
   const maxMb = Number(zone.dataset.maxSizeMb || input.dataset.maxSizeMb || 10);
@@ -145,6 +148,18 @@ export function initFileUploadZone(zone) {
       infoDiv.appendChild(sizeDiv);
       item.appendChild(infoDiv);
 
+      const viewUrl = file._draftUrl || (window.URL && typeof window.URL.createObjectURL === 'function' && file.size > 0 ? window.URL.createObjectURL(file) : null);
+      if (viewUrl) {
+        const viewLink = document.createElement('a');
+        viewLink.href = viewUrl;
+        viewLink.target = '_blank';
+        viewLink.className = 'btn-view-file me-1';
+        viewLink.title = 'معاينة الملف';
+        viewLink.setAttribute('aria-label', `معاينة ${file.name}`);
+        viewLink.innerHTML = '<i class="ti ti-eye"></i>';
+        item.appendChild(viewLink);
+      }
+
       const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
       removeBtn.className = 'btn-remove-file';
@@ -158,6 +173,28 @@ export function initFileUploadZone(zone) {
         const removed = currentFiles.splice(index, 1)[0];
         syncAndDispatch();
         renderPreviews();
+
+        if (removed && removed._draftKey) {
+          const form = controlWrapper.closest('form');
+          const draftFileUrl = form?.dataset.draftFileUrl;
+          const resourceKey = form?.dataset.draftResourceKey || form?.dataset.wizardResourceKey;
+          if (draftFileUrl && resourceKey) {
+            const csrfToken = form.querySelector('input[name="_token"]')?.value || document.querySelector('meta[name="csrf-token"]')?.content;
+            fetch(draftFileUrl, {
+              method: 'DELETE',
+              headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+              },
+              body: JSON.stringify({
+                resource_key: resourceKey,
+                file_key: removed._draftKey,
+              }),
+            }).catch(() => {});
+          }
+        }
+
         zone.dispatchEvent(new CustomEvent('file:removed', {
           bubbles: true,
           detail: { removedFile: removed, removedIndex: index, remainingFiles: currentFiles, input }
@@ -237,6 +274,64 @@ export function initFileUploadZone(zone) {
       handleFiles(Array.from(e.dataTransfer.files));
     }
   });
+
+  const controller = {
+    handleFiles,
+    setFiles: (filesList) => {
+      currentFiles = [];
+      handleFiles(Array.from(filesList || []));
+    },
+    addFiles: (filesList) => {
+      handleFiles(Array.from(filesList || []));
+    },
+    getFiles: () => currentFiles,
+    clear: () => {
+      currentFiles = [];
+      syncAndDispatch();
+      renderPreviews();
+    },
+    renderPreviews,
+    syncAndDispatch,
+  };
+
+  zone._fileUploadController = controller;
+  input._fileUploadController = controller;
+  controlWrapper._fileUploadController = controller;
+
+  const onSetFiles = (e) => {
+    if (e.detail?.files) {
+      if (e.detail.replace !== false) {
+        currentFiles = [];
+      }
+      handleFiles(Array.from(e.detail.files));
+    }
+  };
+  zone.addEventListener('file:set-files', onSetFiles);
+  input.addEventListener('file:set-files', onSetFiles);
+
+  return controller;
+}
+
+export function getFileUploadController(target) {
+  if (!target) return null;
+  if (target._fileUploadController) return target._fileUploadController;
+  const zone = target.matches?.('[data-file-upload-zone]')
+    ? target
+    : (target.closest?.('[data-file-upload-wrapper]') || target.parentElement)?.querySelector?.('[data-file-upload-zone]');
+  if (zone) {
+    if (zone._fileUploadController) return zone._fileUploadController;
+    return initFileUploadZone(zone);
+  }
+  return null;
+}
+
+export function setFilesOnUploadZone(target, files) {
+  const controller = getFileUploadController(target);
+  if (controller) {
+    controller.setFiles(files);
+    return true;
+  }
+  return false;
 }
 
 export function initAllFileUploadZones(root = document) {
@@ -255,5 +350,7 @@ if (typeof window !== 'undefined') {
   window.SharedFileUpload = {
     initZone: initFileUploadZone,
     initAll: initAllFileUploadZones,
+    getController: getFileUploadController,
+    setFiles: setFilesOnUploadZone,
   };
 }

@@ -11,6 +11,18 @@ use PHPUnit\Framework\TestCase;
 
 final class AuctionReportArtworkTest extends TestCase
 {
+    public function test_video_analytics_uses_the_full_statistics_frame_not_the_small_badge(): void
+    {
+        $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
+        $uri = 'data:image/png;base64,'.base64_encode('analytics-proof');
+        $document = new DOMDocument;
+        $document->loadXML($artwork->render('asir', 11, [], [], ['video' => [['uri' => $uri], ['uri' => $uri]]], 12));
+        $nodes = (new DOMXPath($document))->query('//*[@data-report-contained="video:1"]');
+        self::assertSame(1, $nodes->length);
+        self::assertEqualsWithDelta(144.445, (float) $nodes->item(0)->getAttribute('x'), .01);
+        self::assertEqualsWithDelta(635.937, (float) $nodes->item(0)->getAttribute('y'), .01);
+        self::assertGreaterThan(300, (float) $nodes->item(0)->getAttribute('width'));
+    }
     public function test_runtime_replacement_removes_the_original_static_claim_and_marks_empty_evidence_once(): void
     {
         $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
@@ -22,6 +34,15 @@ final class AuctionReportArtworkTest extends TestCase
         $document->loadXML($artwork->render('asir', 7, [], [], [], 8));
         self::assertSame(1, (new DOMXPath($document))->query('//*[@data-report-empty-evidence="board_before"]')->length);
         self::assertSame(0, (new DOMXPath($document))->query('//*[@fill="#4a6810"]')->length, 'Unallocated slots must not leave the compiler placeholder rectangles.');
+    }
+
+    public function test_fitted_title_exposes_the_actual_layout_box_as_its_geometry_limit(): void
+    {
+        $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
+        $document = new DOMDocument;
+        $document->loadXML($artwork->render('asir', 0, ['name' => 'واجهة عسير'], [], [], 1, [], ['name' => ['font_size' => 97.381, 'y' => 281.802, 'lines' => ['واجهة عسير']]]));
+        $node = (new DOMXPath($document))->query('//*[@data-report-field="name"]')->item(0);
+        self::assertSame('525', $node->getAttribute('data-report-width'));
     }
     public function test_dynamic_text_is_escaped_and_reference_business_values_are_removed_from_the_artwork(): void
     {

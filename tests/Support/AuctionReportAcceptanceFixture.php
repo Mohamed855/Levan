@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Support;
 
 use App\Models\Admin\Tenants\Tenant;
+use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -14,6 +15,70 @@ use Spatie\Permission\Models\Permission;
 /** Development-only fixtures. Every write is guarded by the two exact CI schemas. */
 final class AuctionReportAcceptanceFixture
 {
+    public function refreshDerivedInputs(array $settings, string $receiptPath, bool $apply = false): array
+    {
+        AuctionReportDatabaseGuard::assertSafe($settings);
+        if (!tenancy()->initialized || (string) tenant('id') !== $settings['tenant_id'] || DB::connection('tenant')->getDatabaseName() !== $settings['tenant']) {
+            throw new RuntimeException('CI fixture refresh requires its exact initialized tenant context.');
+        }
+        $receipt = json_decode(file_get_contents($receiptPath), true, flags: JSON_THROW_ON_ERROR);
+        if ($receipt['source_sha256'] !== hash_file('sha256', storage_path('app/private/backups/auction-restoration-source.json'))) {
+            throw new RuntimeException('The fixture source changed; refusing a refresh.');
+        }
+        $manifest = json_decode(file_get_contents(base_path('tests/Fixtures/AuctionReports/acceptance-manifest.json')), true, flags: JSON_THROW_ON_ERROR);
+        $changes = [];
+        foreach (['haram' => '5', 'asir' => '6'] as $design => $sourceId) {
+            $snapshot = json_decode(file_get_contents(base_path('output/pdf/remediation-acceptance/'.$design.'-snapshot.json')), true, flags: JSON_THROW_ON_ERROR);
+            $auction = Auction::query()->with('attachments')->findOrFail($receipt['maps']['auctions'][$sourceId]);
+            if ($auction->name !== $snapshot['auction']['name']) {
+                throw new RuntimeException('The receipt points to a different auction.');
+            }
+            if ($override = $manifest['fixture_overrides'][$design]['report_image'] ?? null) {
+                $relative = $override['path'];
+                $root = realpath(storage_path('app/tenants/test/public'));
+                $path = realpath($root.DIRECTORY_SEPARATOR.$relative);
+                if ($path === false || !str_starts_with(strtolower($path), strtolower($root.DIRECTORY_SEPARATOR)) || !hash_equals($override['sha256'], hash_file('sha256', $path))) {
+                    throw new RuntimeException('The verified landscape source changed.');
+                }
+                $disk = Storage::disk('tenant_public');
+                if ($disk->exists($relative) && !hash_equals($override['sha256'], hash('sha256', $disk->get($relative)))) {
+                    throw new RuntimeException('Refusing to overwrite different CI landscape media.');
+                }
+                if ($auction->report_image !== $relative) {
+                    $changes[] = ['auction_id' => $auction->id, 'attachment_id' => null, 'old' => ['report_image' => $auction->report_image], 'new' => ['report_image' => $relative]];
+                    if ($apply && !$disk->exists($relative)) {
+                        $disk->put($relative, file_get_contents($path));
+                    }
+                }
+            }
+            foreach ($snapshot['evidence'] as $items) {
+                foreach ($items as $item) {
+                    $attachment = $auction->attachments->where('file_name', $item['name'])->sole();
+                    $expected = array_intersect_key($item, array_flip(config('auction-report-inputs.metadata')));
+                    $metadata = array_replace($attachment->report_metadata ?? [], $expected);
+                    if ($metadata != ($attachment->report_metadata ?? [])) {
+                        $changes[] = ['auction_id' => $auction->id, 'attachment_id' => $attachment->id, 'old' => ['report_metadata' => $attachment->report_metadata], 'new' => ['report_metadata' => $metadata]];
+                    }
+                }
+            }
+        }
+        if ($apply && $changes !== []) {
+            file_put_contents(dirname($receiptPath).'/fixture-refresh-'.date('Ymd-His').'-'.bin2hex(random_bytes(4)).'.json', json_encode($changes, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+            DB::connection('tenant')->transaction(static function () use ($changes): void {
+                foreach ($changes as $change) {
+                    $auction = Auction::query()->findOrFail($change['auction_id']);
+                    if ($change['attachment_id'] === null) {
+                        $auction->update($change['new']);
+                    } else {
+                        $auction->attachments()->findOrFail($change['attachment_id'])->update($change['new']);
+                    }
+                }
+            });
+        }
+
+        return ['applied' => $apply, 'changes' => count($changes), 'details' => $changes];
+    }
+
     public function prepare(array $settings, string $receiptPath): array
     {
         AuctionReportDatabaseGuard::assertSafe($settings);

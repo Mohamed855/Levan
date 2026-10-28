@@ -136,7 +136,7 @@ final class AsirReportData
             $overrides['hide_clips'] = ['p13_clip_32'];
             $overrides[$chart === null ? 'empty_regions' : 'charts'] = $chart === null ? [[125, 395, 253, 520]] : [$chart];
         }
-        if ($index === 11 && empty($payload['video'][2]['uri'])) {
+        if ($index === 11 && empty($payload['video'][1]['uri'])) {
             $overrides['empty_regions'] = [[144.445, 635.937, 464.458, 732.191]];
         }
 

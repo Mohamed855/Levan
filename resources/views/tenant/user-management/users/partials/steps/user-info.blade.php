@@ -25,3 +25,4 @@
     <x-form.controls.file name="image" label="الصورة الشخصية" :value="$isEdit && $user->image ? tasset($user->image) : null" accept="image/*"
         help="JPG، PNG أو GIF. الحد الأقصى 10MB" col="col-12" :max-size="10" />
 </div>
+

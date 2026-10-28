@@ -40,17 +40,7 @@ final class HaramReportData
         }
         $campaigns = $payload['campaigns'] ?? [];
         $channels = ['snapchat' => ['snapchat', 'سناب شات'], 'tiktok' => ['tiktok', 'تيك توك'], 'x' => ['x', 'أكس']];
-        $slots = array_fill_keys(array_keys($channels), null);
-        $used = [];
-        foreach ($channels as $channel => $names) {
-            foreach ($campaigns as $key => $campaign) {
-                if (! isset($used[$key]) && in_array(mb_strtolower(trim((string) ($campaign['platform'] ?? ''))), $names, true)) {
-                    $slots[$channel] = $campaign;
-                    $used[$key] = true;
-                    break;
-                }
-            }
-        }
+        $slots = [];
         foreach (array_keys($channels) as $channel) {
             $slots[$channel] = AuctionReportChannels::campaign($campaigns, $channel);
         }
@@ -102,7 +92,12 @@ final class HaramReportData
             ], $payload['unsold_properties']);
         }
 
-        return ['index' => $index, 'values' => $values, 'tables' => $tables, 'images' => $payload];
+        $content = ['index' => $index, 'values' => $values, 'tables' => $tables, 'images' => $payload];
+        if ($index === 2 && str_ends_with($page['page_type'], '-continuation') && (empty($tables['sold']) xor empty($tables['unsold']))) {
+            return (new AuctionReportResultPage)->continuation($content, empty($tables['sold']) ? 'unsold' : 'sold');
+        }
+
+        return $content;
     }
 
     private function campaign(array $snapshot, array $names): array

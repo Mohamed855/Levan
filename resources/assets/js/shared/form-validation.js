@@ -1,6 +1,6 @@
 "use strict";
 
-import { initAllFileUploadZones } from "./file-upload.js";
+import { initAllFileUploadZones, getFileUploadController, setFilesOnUploadZone } from "./file-upload.js";
 
 const INPUT_VALIDATION_DEBOUNCE_MS = 250;
 const VALIDATION_ERROR_TOAST_MESSAGE = "برجاء إدخال بيانات صالحة للمتابعة";
@@ -460,58 +460,146 @@ function flattenDraftFiles(files, prefix = "") {
     });
 }
 
-function renderArchivedDraftFiles(form, files) {
+function findFileInputForDraftKey(form, key) {
+    if (!key) return null;
+    const strKey = String(key);
+    const rootName = strKey.split(".")[0];
+    const bracketName = strKey.replace(/\.([0-9]+)/g, "[$1]").replace(/\.([^.\[\]]+)/g, "[$1]");
+    const bracketWithoutIndex = strKey.replace(/\.[0-9]+/g, "");
+    const bracketRoot = bracketWithoutIndex.replace(/\.([^.\[\]]+)/g, "[$1]");
+
+    const selectors = [
+        `input[type="file"][name="${CSS.escape(strKey)}"]`,
+        `input[type="file"][name="${CSS.escape(strKey)}[]"]`,
+        `input[type="file"][name="${CSS.escape(bracketName)}"]`,
+        `input[type="file"][name="${CSS.escape(bracketName)}[]"]`,
+        `input[type="file"][name="${CSS.escape(bracketRoot)}"]`,
+        `input[type="file"][name="${CSS.escape(bracketRoot)}[]"]`,
+        `input[type="file"][name="${CSS.escape(rootName)}"]`,
+        `input[type="file"][name="${CSS.escape(rootName)}[]"]`,
+        `input[type="file"]#${CSS.escape(strKey)}`,
+        `input[type="file"]#${CSS.escape(rootName)}`,
+        `input[type="file"][data-field-name="${CSS.escape(strKey)}"]`,
+        `input[type="file"][data-field-name="${CSS.escape(rootName)}"]`,
+    ];
+
+    for (const selector of selectors) {
+        try {
+            const el = form.querySelector(selector);
+            if (el) return el;
+        } catch (_) {}
+    }
+
+    return null;
+}
+
+async function createFileFromDraftItem(item) {
+    if (!item || !item.name) return null;
+
+    let blob = null;
+    if (item.url) {
+        try {
+            const res = await fetch(item.url, { credentials: "same-origin" });
+            if (res.ok) {
+                blob = await res.blob();
+            }
+        } catch (e) {
+            console.warn("Could not fetch draft file blob from URL:", item.url, e);
+        }
+    }
+
+    if (!blob) {
+        const dummyContent = new Uint8Array(Math.min(item.size || 16, 1024));
+        blob = new Blob([dummyContent], {
+            type: item.mime || "application/octet-stream",
+        });
+    }
+
+    const mimeType = item.mime || blob.type || "application/octet-stream";
+    const file = new File([blob], item.name, {
+        type: mimeType,
+        lastModified: Date.now(),
+    });
+
+    file._draftKey = item.key;
+    file._draftUrl = item.url;
+    if (item.size && !file.size) {
+        Object.defineProperty(file, "size", {
+            value: item.size,
+            writable: false,
+        });
+    }
+
+    return file;
+}
+
+async function restoreDraftFiles(form, files) {
+    if (!files || typeof files !== "object") return;
+
     form.querySelectorAll("[data-archived-draft-files]").forEach((element) =>
         element.remove(),
     );
 
-    flattenDraftFiles(files).forEach((file) => {
-        const rootName = String(file.key || "").split(".")[0];
-        const input = form.querySelector(
-            `input[type="file"][name="${CSS.escape(rootName)}"], input[type="file"][name="${CSS.escape(rootName)}[]"]`,
-        );
-        if (!input) return;
+    const flatFiles = flattenDraftFiles(files);
+    if (!flatFiles.length) return;
 
-        const previewId = input.dataset.imageInput || input.id;
-        const previewImg = form.querySelector(
-            `[data-image-preview="${CSS.escape(previewId)}"]`,
-        );
-        if (
-            previewImg &&
-            file.url &&
-            (file.mime?.startsWith("image/") ||
-                /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file.name))
-        ) {
-            previewImg.dataset.defaultSrc =
-                previewImg.dataset.defaultSrc || previewImg.src;
-            previewImg.src = file.url;
+    // Group files by input
+    const filesByInput = new Map();
+
+    for (const fileItem of flatFiles) {
+        if (!fileItem || !fileItem.name) continue;
+
+        const input = findFileInputForDraftKey(form, fileItem.key);
+        if (!input) continue;
+
+        if (!filesByInput.has(input)) {
+            filesByInput.set(input, []);
+        }
+        filesByInput.get(input).push(fileItem);
+    }
+
+    // Process each input
+    for (const [input, fileItems] of filesByInput.entries()) {
+        const isMultiple = input.hasAttribute("multiple");
+        const itemsToLoad = isMultiple ? fileItems : [fileItems[fileItems.length - 1]];
+
+        const reconstructedFiles = [];
+        for (const item of itemsToLoad) {
+            try {
+                const file = await createFileFromDraftItem(item);
+                if (file) {
+                    reconstructedFiles.push(file);
+                }
+            } catch (err) {
+                console.warn("Error reconstructing draft file:", item, err);
+            }
         }
 
-        let list = input.parentElement?.querySelector(
-            "[data-archived-draft-files]",
-        );
-        if (!list) {
-            list = document.createElement("div");
-            list.dataset.archivedDraftFiles = "";
-            list.className = "d-flex flex-column gap-2 mt-2";
-            input.parentElement?.append(list);
+        if (!reconstructedFiles.length) continue;
+
+        // 1. Populate native input.files via DataTransfer so the browser input actually has the files!
+        if (window.DataTransfer) {
+            const transfer = new DataTransfer();
+            reconstructedFiles.forEach((f) => transfer.items.add(f));
+            input.files = transfer.files;
         }
 
-        const item = document.createElement("div");
-        item.className =
-            "d-flex align-items-center justify-content-between gap-2 rounded border p-2 bg-light";
-        const name = document.createElement("span");
-        name.className = "text-truncate small";
-        name.innerHTML = `<i class="ti ti-file-check text-success me-1"></i>${file.name}`;
-        const remove = document.createElement("button");
-        remove.type = "button";
-        remove.className = "btn btn-sm btn-icon btn-outline-danger";
-        remove.dataset.draftFileKey = file.key;
-        remove.setAttribute("aria-label", `حذف الملف المؤرشف ${file.name}`);
-        remove.innerHTML = '<i class="ti ti-trash" aria-hidden="true"></i>';
-        item.append(name, remove);
-        list.append(item);
-    });
+        // 2. Pass to the unified file-upload component so it renders the exact preview cards
+        const uploadController = getFileUploadController(input);
+        if (uploadController) {
+            uploadController.setFiles(reconstructedFiles);
+        } else {
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+            input.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+
+        // 3. Clear any validation error on the field
+        clearFieldError(form, input.name);
+    }
+}
+
+function renderArchivedDraftFiles(form, files) {
+    return restoreDraftFiles(form, files);
 }
 
 function addHiddenField(form, name, value) {
@@ -742,7 +830,7 @@ async function restoreDraft(form) {
         addHiddenField(form, "_wizard_draft_id", draft.draft_id);
         addHiddenField(form, "_wizard_resource_key", draftResourceKey(form));
         restoreDraftValues(form, draft.data || {});
-        renderArchivedDraftFiles(form, draft.files || {});
+        await restoreDraftFiles(form, draft.files || {});
         form.dispatchEvent(
             new CustomEvent("wizardDraftRestored", {
                 detail: {

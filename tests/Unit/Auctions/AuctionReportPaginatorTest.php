@@ -163,9 +163,11 @@ final class AuctionReportPaginatorTest extends TestCase
 
     public function test_channel_page_capacity_matches_the_available_artwork_slots(): void
     {
-        $definitions = require dirname(__DIR__, 3).'/resources/auction-reports/asir/pages.php';
+        $artwork = new \App\Services\Tenants\Auctions\Reports\AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
         foreach (['platform' => 10, 'video' => 11, 'x' => 12, 'whatsapp' => 13] as $section => $index) {
-            $slots = array_unique(array_column(array_filter($definitions[$index]['image_defs'], static fn (array $frame): bool => $frame['section'] === $section), 'slot'));
+            $definition = $artwork->page('asir', $index);
+            $frames = array_diff_key($definition['image_defs'], array_flip($definition['hidden_image_defs'] ?? []));
+            $slots = array_unique(array_column(array_filter($frames, static fn (array $frame): bool => $frame['section'] === $section), 'slot'));
             $capacity = count($slots);
             $snapshot = $this->snapshot(0);
             $snapshot['evidence'][$section] = array_map(static fn (int $id): array => ['id' => $id], range(1, $capacity + 1));

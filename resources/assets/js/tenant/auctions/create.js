@@ -1,6 +1,6 @@
 import { mountReportInputs } from "./report-inputs.js";
 
-"use strict";
+("use strict");
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("wizard-validation-form");
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <h6 class="mb-1 text-body text-truncate" title="${escapeHtml(property.name)}">${escapeHtml(property.name)}</h6>
                         <p class="mb-0 text-muted small"><i class="ti ti-map-pin me-1"></i>${escapeHtml(property.city || "-")}</p>
                     </div>
-                    <button type="button" class="btn btn-sm btn-icon btn-danger" data-remove-auction-property="${escapeHtml(property.id)}" aria-label="إزالة ${escapeHtml(property.name)}"><i class="ti ti-x" aria-hidden="true"></i></button>
+                    <button type="button" class="btn btn-sm" data-remove-auction-property="${escapeHtml(property.id)}" aria-label="إزالة ${escapeHtml(property.name)}"><i class="ti ti-x" aria-hidden="true"></i></button>
                 </article>`,
                   )
                   .join("")
@@ -123,7 +123,10 @@ document.addEventListener("DOMContentLoaded", () => {
     $(form).on("wizardDraftRestored", function (event) {
         const detailData =
             event.originalEvent?.detail?.data || event.detail?.data || {};
-        reportInputs.restore(detailData, event.originalEvent?.detail?.files || event.detail?.files || {});
+        reportInputs.restore(
+            detailData,
+            event.originalEvent?.detail?.files || event.detail?.files || {},
+        );
         if (detailData.property_ids) {
             restoredPropertyIds = (
                 Array.isArray(detailData.property_ids)
@@ -142,9 +145,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function updateLivePreview() {
-        $("#review-marketing-counts").text(`${form.querySelectorAll('.campaign-row').length} حملة / ${form.querySelectorAll('.link-row').length} رابط`);
-        $("#review-report-introduction").text(form.elements.namedItem('marketing[introduction]')?.value || 'غير مضافة');
-        $("#review-results-narrative").text(form.elements.namedItem('marketing[results_narrative]')?.value || 'غير مضافة');
+        $("#review-marketing-counts").text(
+            `${form.querySelectorAll(".campaign-row").length} حملة / ${form.querySelectorAll(".link-row").length} رابط`,
+        );
+        $("#review-report-introduction").text(
+            form.elements.namedItem("marketing[introduction]")?.value ||
+                "غير مضافة",
+        );
+        $("#review-results-narrative").text(
+            form.elements.namedItem("marketing[results_narrative]")?.value ||
+                "غير مضافة",
+        );
         const nameVal = $("#name").val();
         $("#preview-auction-name").text(nameVal || "اسم المزاد");
         $("#review-name").text(nameVal || "-");
@@ -289,9 +300,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     );
                     const asgStartDate = res.assignment.start_date || "-";
                     const asgEndDate = res.assignment.end_date || "-";
-                    const asgDatesText = (res.assignment.start_date || res.assignment.end_date)
-                        ? `${asgStartDate} إلى ${asgEndDate}`
-                        : "غير محددة";
+                    const asgDatesText =
+                        res.assignment.start_date || res.assignment.end_date
+                            ? `${asgStartDate} إلى ${asgEndDate}`
+                            : "غير محددة";
                     $("#asg-summary-dates").text(asgDatesText);
                     $("#selected-assignment-card").removeClass("d-none");
 
@@ -323,7 +335,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
 
                     // Auto-fill default expected properties count based on assignment properties count
-                    const propCount = res.properties ? res.properties.length : 0;
+                    const propCount = res.properties
+                        ? res.properties.length
+                        : 0;
                     if (propCount > 0) {
                         $("#expected_properties_count")
                             .val(propCount)

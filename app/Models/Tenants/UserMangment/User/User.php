@@ -218,6 +218,15 @@ class User extends Authenticatable
             : asset('static/brand/logos/logo.svg');
     }
 
+    public function isAdmin(): bool
+    {
+        if ($this->relationLoaded('roles')) {
+            return $this->roles->contains(fn ($role) => in_array(strtolower((string) $role->name), ['admin', 'superadmin'], true));
+        }
+
+        return $this->hasRole(['Admin', 'admin', 'SuperAdmin', 'superadmin']);
+    }
+
 
 
 

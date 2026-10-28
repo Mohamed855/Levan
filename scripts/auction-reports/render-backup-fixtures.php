@@ -30,6 +30,7 @@ $source = storage_path('app/private/backups/auction-restoration-source.json');
 $data = json_decode(file_get_contents($source), true, flags: JSON_THROW_ON_ERROR);
 $tables = $data['tables'];
 $mediaRoot = storage_path('app/tenants/test/public');
+$acceptance = json_decode(file_get_contents(base_path('tests/Fixtures/AuctionReports/acceptance-manifest.json')), true, flags: JSON_THROW_ON_ERROR);
 config(['filesystems.disks.tenant_public.root' => $mediaRoot]);
 Storage::forgetDisk('tenant_public');
 $classifications = [];
@@ -42,6 +43,13 @@ foreach (['auction-20-attachment-classification-20261027-104910-473700.json', 'a
 $receipt = ['source_sha256' => hash_file('sha256', $source), 'mode' => 'file-only / original backup values / approved hash-based classification', 'database_queries' => 0, 'auctions' => []];
 foreach ($tables['auctions'] as $row) {
     $design = $row['name'] === 'مزاد جوار الحرم' ? 'haram' : 'asir';
+    if ($override = $acceptance['fixture_overrides'][$design]['report_image'] ?? null) {
+        $path = realpath($mediaRoot.'/'.$override['path']);
+        if ($path === false || !str_starts_with(strtolower($path), strtolower(realpath($mediaRoot).DIRECTORY_SEPARATOR)) || !hash_equals($override['sha256'], hash_file('sha256', $path))) {
+            throw new RuntimeException('Verified fixture landscape changed or is outside the media root.');
+        }
+        $row['report_image'] = $override['path'];
+    }
     $auction = (new Auction)->setRawAttributes($row);
     $assignment = array_values(array_filter($tables['assignments'], static fn ($item): bool => $item['id'] === $row['assignment_id']))[0];
     $auction->setRelation('assignment', (new Assignment)->setRawAttributes($assignment));
@@ -98,7 +106,7 @@ foreach ($tables['auctions'] as $row) {
     }
     $json = json_encode($snapshot, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
     file_put_contents($directory.'/'.$design.'-snapshot.json', $json);
-    $item = ['name' => $row['name'], 'snapshot_sha256' => hash('sha256', $json), 'totals' => $totals, 'property_ids' => array_column($snapshot['properties'], 'id'), 'media' => $inventory, 'documents' => []];
+    $item = ['name' => $row['name'], 'snapshot_sha256' => hash('sha256', $json), 'fixture_overrides' => $acceptance['fixture_overrides'][$design] ?? [], 'totals' => $totals, 'property_ids' => array_column($snapshot['properties'], 'id'), 'media' => $inventory, 'documents' => []];
     foreach (['outputs', 'report'] as $type) {
         $html = app(AuctionReportRenderer::class)->html($snapshot, $type);
         $path = $directory.'/'.$design.'-'.$type;

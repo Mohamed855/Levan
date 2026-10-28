@@ -12,7 +12,16 @@
     }
   },
   "auctions": {
-    "haram": {"properties": 11, "sold": 4, "unsold": 7, "sales_total": 5670000, "media_inventory": "requires_source_audit"},
-    "asir": {"properties": 13, "sold": 3, "unsold": 10, "sales_total": 4026000, "media_inventory": "requires_source_audit"}
+    "haram": {"properties": 11, "sold": 4, "unsold": 7, "sales_total": 5670000, "media_inventory": {"present": 11, "sections": {"design_asset": 11}, "missing": ["board_evidence", "brochure", "brokers", "contacts", "introduction", "results_narrative", "board_dimensions"]}},
+    "asir": {"properties": 13, "sold": 3, "unsold": 10, "sales_total": 4026000, "media_inventory": {"present": 51, "sections": {"design_asset": 9, "platform": 2, "video": 2, "x": 7, "whatsapp": 1, "social": 3, "board_before": 14, "board_after": 13}, "missing": ["brochure", "brokers", "contacts", "introduction", "board_dimensions", "board_count"]}}
+  },
+  "fixture_overrides": {
+    "asir": {
+      "report_image": {
+        "path": "auctions/report-images/restored-asir-d3c34650-24bf-4c81-8d1a-a78124570984.jpg",
+        "sha256": "f3d9171a96a6b1635ceb6976da9a53824184bca7ddb45aa7dbed602a9d0c0fb4",
+        "source": "verified exact reference package asset 57f9524018b458c61391; fixture only"
+      }
+    }
   }
 }

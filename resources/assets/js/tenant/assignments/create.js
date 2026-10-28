@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <h6 class="mb-1 text-body text-truncate" title="${escapeHtml(property.name)}">${escapeHtml(property.name)}</h6>
           <p class="mb-0 text-muted small"><i class="ti ti-map-pin me-1"></i>${escapeHtml(property.city || "-")}</p>
         </div>
-        ${removable ? `<button type="button" class="btn btn-sm btn-icon btn-danger" data-remove-property="${property.id}" aria-label="إزالة ${escapeHtml(property.name)}"><i class="ti ti-x"></i></button>` : ""}
+        ${removable ? `<button type="button" class="btn btn-sm" data-remove-property="${property.id}" aria-label="إزالة ${escapeHtml(property.name)}"><i class="ti ti-x"></i></button>` : ""}
       </article>`,
             )
             .join("");
@@ -391,8 +391,7 @@ document.addEventListener("DOMContentLoaded", () => {
     imageInput?.addEventListener("change", () => {
         const file = imageInput.files?.[0];
         const reviewImage = document.getElementById("review-image");
-        if (file && reviewImage)
-            reviewImage.src = URL.createObjectURL(file);
+        if (file && reviewImage) reviewImage.src = URL.createObjectURL(file);
     });
 
     form.addEventListener("wizardDraftRestored", async (event) => {

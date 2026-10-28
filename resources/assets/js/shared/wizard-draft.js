@@ -18,7 +18,7 @@ for (const form of document.querySelectorAll('form[data-wizard-resource]')) {
     control.dispatchEvent(new Event('change', { bubbles: true }));
   });
 
-  const restoreFiles = (files) => {
+  const restoreFiles = async (files) => {
     if (!files || typeof files !== 'object') return;
     const flatten = (obj, p = '') => Object.entries(obj || {}).flatMap(([k, v]) => {
       const full = p ? `${p}.${k}` : k;
@@ -27,40 +27,56 @@ for (const form of document.querySelectorAll('form[data-wizard-resource]')) {
       return v?.name ? [{ ...v, key: v.key || full }] : [];
     });
 
-    flatten(files).forEach((file) => {
+    const flatFiles = flatten(files);
+    if (!flatFiles.length) return;
+
+    const filesByInput = new Map();
+    flatFiles.forEach((file) => {
       const rootName = String(file.key || '').split('.')[0];
       const input = form.querySelector(`input[type="file"][name="${CSS.escape(rootName)}"], input[type="file"][name="${CSS.escape(rootName)}[]"]`);
       if (!input) return;
-
-      const previewId = input.dataset.imageInput || input.id;
-      const previewImg = form.querySelector(`[data-image-preview="${CSS.escape(previewId)}"]`);
-      if (previewImg && file.url) {
-        previewImg.dataset.defaultSrc = previewImg.dataset.defaultSrc || previewImg.src;
-        previewImg.src = file.url;
-      }
-
-      let list = input.parentElement?.querySelector('[data-archived-draft-files]');
-      if (!list) {
-        list = document.createElement('div');
-        list.dataset.archivedDraftFiles = '';
-        list.className = 'd-flex flex-column gap-2 mt-2';
-        input.parentElement?.append(list);
-      }
-
-      const item = document.createElement('div');
-      item.className = 'd-flex align-items-center justify-content-between gap-2 rounded border p-2 bg-light';
-      const name = document.createElement('span');
-      name.className = 'text-truncate small';
-      name.innerHTML = `<i class="ti ti-file-check text-success me-1"></i>${file.name}`;
-      const remove = document.createElement('button');
-      remove.type = 'button';
-      remove.className = 'btn btn-sm btn-icon btn-outline-danger';
-      remove.dataset.draftFileKey = file.key;
-      remove.setAttribute('aria-label', `حذف الملف المؤرشف ${file.name}`);
-      remove.innerHTML = '<i class="ti ti-trash" aria-hidden="true"></i>';
-      item.append(name, remove);
-      list.append(item);
+      if (!filesByInput.has(input)) filesByInput.set(input, []);
+      filesByInput.get(input).push(file);
     });
+
+    for (const [input, items] of filesByInput.entries()) {
+      const isMultiple = input.hasAttribute('multiple');
+      const itemsToLoad = isMultiple ? items : [items[items.length - 1]];
+      const reconstructedFiles = [];
+
+      for (const item of itemsToLoad) {
+        try {
+          let blob = null;
+          if (item.url) {
+            const res = await fetch(item.url, { credentials: 'same-origin' });
+            if (res.ok) blob = await res.blob();
+          }
+          if (!blob) blob = new Blob([''], { type: item.mime || 'application/octet-stream' });
+          const file = new File([blob], item.name, {
+            type: item.mime || blob.type || 'application/octet-stream',
+            lastModified: Date.now(),
+          });
+          file._draftKey = item.key;
+          file._draftUrl = item.url;
+          reconstructedFiles.push(file);
+        } catch (_) {}
+      }
+
+      if (!reconstructedFiles.length) continue;
+
+      if (window.DataTransfer) {
+        const transfer = new DataTransfer();
+        reconstructedFiles.forEach((f) => transfer.items.add(f));
+        input.files = transfer.files;
+      }
+
+      if (window.SharedFileUpload?.setFiles) {
+        window.SharedFileUpload.setFiles(input, reconstructedFiles);
+      } else {
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
   };
 
   if (endpoint) {
@@ -71,9 +87,9 @@ for (const form of document.querySelectorAll('form[data-wizard-resource]')) {
       draftId = draft.draft_id;
       if (window.bootstrap && modalElement) {
         const modal = new window.bootstrap.Modal(modalElement);
-        modalElement.querySelector('[data-restore-draft]').onclick = () => {
+        modalElement.querySelector('[data-restore-draft]').onclick = async () => {
           fill(draft.data);
-          restoreFiles(draft.files);
+          await restoreFiles(draft.files);
           const hiddenId = form.querySelector('[data-wizard-draft-id]');
           if (hiddenId) hiddenId.value = draftId;
           form.dispatchEvent(new CustomEvent('wizard:draft-restored', { detail: { data: draft.data, files: draft.files, draftId } }));

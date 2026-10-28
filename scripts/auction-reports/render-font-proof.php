@@ -23,9 +23,6 @@ foreach (['NotoSansArabic-Regular', 'NotoSansArabic-Bold', 'TheSans-Plain', 'The
     $html .= '<text x="550" y="'.(380 + 55 * $index).'" direction="rtl" font-family="'.$face['family'].'" font-weight="'.$face['weight'].'" font-size="24">مزاد جوار الحرم - واجهة عسير</text>';
 }
 $html .= '</svg></body></html>';
-if (in_array('--disable-ccmp', $argv, true)) {
-    $html = str_replace('</style>', '[font-family="NotoReport"],[font-family="NotoReportBold"]{font-feature-settings:"ccmp" 0}</style>', $html);
-}
 file_put_contents($root.'/fonts-proof.html', $html);
 $browser = Browsershot::html($html)->timeout(60)->waitUntilNetworkIdle()->waitForFunction('document.fonts.status === "loaded"');
 if ($chrome = config('auction-renderer.chrome_path')) {

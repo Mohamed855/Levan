@@ -23,6 +23,8 @@ abstract class WizardFormRequest extends FormRequest
 
         $this->merge($input);
         $this->files->add($files);
+        // allFiles() was read while merging the draft; invalidate that cached list.
+        $this->convertedFiles = null;
         $this->attributes->set('wizard_draft_id', (string) $this->input('_wizard_draft_id'));
         $this->attributes->set('wizard_resource_key', (string) $this->input('_wizard_resource_key'));
         $this->attributes->set('wizard_tenant_id', tenant()?->getKey() ?? '');

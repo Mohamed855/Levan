@@ -9,6 +9,20 @@ use Tests\TestCase;
 
 final class AuctionReportRendererTest extends TestCase
 {
+    public function test_unsold_only_result_continuation_has_no_repeated_sold_table_and_starts_near_the_top(): void
+    {
+        $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';
+        $html = app(AuctionReportRenderer::class)->html($snapshot, 'outputs');
+        $document = new \DOMDocument;
+        @$document->loadHTML($html);
+        $xpath = new \DOMXPath($document);
+        $page = $xpath->query('//*[@data-page-type="haram-results-continuation"]')->item(0);
+        self::assertNotNull($page);
+        self::assertSame(0, $xpath->query('.//*[@data-report-cell and starts-with(@data-report-cell,"sold:")]', $page)->length);
+        self::assertSame(1, $xpath->query('.//*[@data-result-section="unsold"]', $page)->length, 'A one-section continuation needs its own table geometry.');
+        $cell = $xpath->query('.//*[@data-report-cell="unsold:0:0"]', $page)->item(0);
+        self::assertLessThan(200, (float) $cell->getAttribute('y'));
+    }
     public function test_long_subtitle_status_and_seven_digit_campaign_values_remain_atomic(): void
     {
         $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';

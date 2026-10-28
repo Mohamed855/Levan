@@ -9,6 +9,14 @@ use PHPUnit\Framework\TestCase;
 
 final class AuctionReportTextLayoutTest extends TestCase
 {
+    public function test_conservative_wrap_width_keeps_the_original_field_geometry_and_full_text(): void
+    {
+        $layout = new AuctionReportTextLayout(dirname(__DIR__, 3).'/resources/auction-reports');
+        $definition = ['groups' => ['body' => ['f1']], 'fields' => ['f1' => ['x' => 0.0, 'y' => 50.0, 'width' => 180.0, 'size' => 20.0, 'sy' => 20.0, 'font' => 'Arimo-Bold']], 'layouts' => ['body' => ['max_width' => 180, 'wrap_width' => 70, 'max_lines' => 4]], 'tables' => []];
+        $parts = $layout->flow(['values' => ['body' => 'TEST TEST TEST TEST'], 'tables' => [], 'images' => []], $definition);
+        self::assertCount(1, $parts);
+        self::assertSame("TEST\nTEST\nTEST\nTEST", $parts[0]['values']['body']);
+    }
     public function test_titles_shrink_only_when_needed_and_never_continue_to_another_page(): void
     {
         $layout = new AuctionReportTextLayout(dirname(__DIR__, 3).'/resources/auction-reports');

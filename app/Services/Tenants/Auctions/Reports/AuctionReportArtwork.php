@@ -61,6 +61,13 @@ final class AuctionReportArtwork
                 $node->parentNode?->removeChild($node);
             }
         }
+        foreach ($page['clear_boxes'] ?? [] as [$left, $top, $right, $bottom]) {
+            $rect = $document->createElementNS(self::SVG, 'rect');
+            foreach (['x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top, 'fill' => '#f5f6fa'] as $key => $value) {
+                $rect->setAttribute($key, (string) $value);
+            }
+            $svg->appendChild($rect);
+        }
         foreach ($xpath->query('//*[@data-image-def]') as $definition) {
             $id = $definition->getAttribute('data-image-def');
             if (! isset($page['image_defs'][$id])) {
@@ -68,7 +75,7 @@ final class AuctionReportArtwork
             }
             $frame = $page['image_defs'][$id];
             $item = $images[$frame['section']][$frame['slot']] ?? [];
-            if (in_array($frame['section'], $page['hide_sections'] ?? [], true) || ($item === [] && $frame['section'] !== 'report_image')) {
+            if (in_array($id, $page['hidden_image_defs'] ?? [], true) || in_array($frame['section'], $page['hide_sections'] ?? [], true) || ($item === [] && $frame['section'] !== 'report_image')) {
                 $definition->setAttributeNS(self::XLINK, 'xlink:href', 'data:image/svg+xml;base64,'.base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>'));
                 $definition->setAttribute('visibility', 'hidden');
                 foreach ($xpath->query('//*[@data-image="'.$id.'"]') as $usage) {
@@ -119,7 +126,7 @@ final class AuctionReportArtwork
 
         $emptySections = [];
         foreach ($page['image_defs'] as $id => $frame) {
-            if ($frame['section'] === 'report_image' || !empty($images[$frame['section']]) || in_array($frame['section'], $page['hide_sections'] ?? [], true)) {
+            if (in_array($id, $page['hidden_image_defs'] ?? [], true) || $frame['section'] === 'report_image' || !empty($images[$frame['section']]) || in_array($frame['section'], $page['hide_sections'] ?? [], true)) {
                 continue;
             }
             foreach ($page['fallback_frames'][$id] ?? [] as $bounds) {
@@ -180,6 +187,7 @@ final class AuctionReportArtwork
                 if (isset($layout['box'])) {
                     $field['x'] = $layout['box'][0];
                     $field['width'] = $layout['box'][2] - $layout['box'][0];
+                    $field['max_width'] = $field['width'];
                 }
             }
             $this->text($document, $svg, $field, $values[$role] ?? '-', ['data-report-field' => $role], $layout['center'] ?? false);
@@ -191,7 +199,7 @@ final class AuctionReportArtwork
                 throw new InvalidArgumentException('Invalid report table or capacity exceeded: '.$id);
             }
             $geometry = $tableLayouts[$id]['rows'] ?? [];
-            if (($tableLayouts[$id]['dynamic'] ?? false) && $rows !== []) {
+            if ((($tableLayouts[$id]['dynamic'] ?? false) || ($table['redraw'] ?? false)) && $rows !== []) {
                 $this->tableBody($document, $svg, $table, $page, $id, $geometry);
             }
             foreach ($rows as $rowIndex => $cells) {
@@ -299,17 +307,47 @@ final class AuctionReportArtwork
 
     private function tableBody(DOMDocument $document, DOMElement $svg, array $table, array $page, string $id, array $rows): void
     {
+        if ($table['redraw'] ?? false) {
+            $group = $document->createElementNS(self::SVG, 'g');
+            $group->setAttribute('data-result-section', $id);
+            $svg->appendChild($group);
+            $svg = $group;
+        }
         $fieldId = $table['rows'][0]['cells'][0]['fields'][0];
         $color = $page['fields'][$fieldId]['color'];
         $left = $table['columns'][0];
         $right = $table['columns'][array_key_last($table['columns'])];
         $top = $table['rows'][0]['top'];
-        $bottom = $table['rows'][array_key_last($table['rows'])]['bottom'];
+        $bottom = ($table['redraw'] ?? false) ? $rows[array_key_last($rows)]['bottom'] : $table['rows'][array_key_last($table['rows'])]['bottom'];
         $body = $document->createElementNS(self::SVG, 'rect');
         foreach (['data-reflowed-table' => $id, 'x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top, 'fill' => strtolower($color) === '#ffffff' ? '#205883' : '#ffffff', 'stroke' => $color, 'stroke-width' => .5] as $attribute => $value) {
             $body->setAttribute($attribute, (string) $value);
         }
         $svg->appendChild($body);
+        if (isset($table['row_fills'])) {
+            foreach ($rows as $index => $row) {
+                $rect = $document->createElementNS(self::SVG, 'rect');
+                foreach (['x' => $left, 'y' => $row['top'], 'width' => $right - $left, 'height' => $row['bottom'] - $row['top'], 'fill' => $table['row_fills'][$index % count($table['row_fills'])]] as $key => $value) {
+                    $rect->setAttribute($key, (string) $value);
+                }
+                $svg->appendChild($rect);
+            }
+        }
+        if (isset($table['header'])) {
+            $header = $table['header'];
+            $rect = $document->createElementNS(self::SVG, 'rect');
+            foreach (['x' => $left, 'y' => $header['top'], 'width' => $right - $left, 'height' => $header['bottom'] - $header['top'], 'fill' => $header['fill']] as $key => $value) {
+                $rect->setAttribute($key, (string) $value);
+            }
+            $svg->appendChild($rect);
+            foreach ($header['labels'] as $column => $label) {
+                $field = $header['field'];
+                $field['x'] = $table['columns'][$column] + 4;
+                $field['width'] = $table['columns'][$column + 1] - $table['columns'][$column] - 8;
+                $field['y'] = ($header['top'] + $header['bottom']) / 2 + $field['sy'] * .32;
+                $this->text($document, $svg, $field, $label, ['data-result-header' => $id.':'.$column], true);
+            }
+        }
         foreach (array_slice($table['columns'], 1, -1) as $x) {
             $line = $document->createElementNS(self::SVG, 'line');
             foreach (['x1' => $x, 'x2' => $x, 'y1' => $top, 'y2' => $bottom, 'stroke' => $color, 'stroke-width' => .5] as $attribute => $value) {
@@ -343,7 +381,14 @@ final class AuctionReportArtwork
 
         $page = $this->documents[$design][$index] ?? throw new InvalidArgumentException('Unknown report page.');
 
-        return array_replace($page, $this->bindings[$design][$index] ?? []);
+        $page = array_replace($page, $this->bindings[$design][$index] ?? []);
+        foreach ($page['image_slots'] ?? [] as $id => $slot) {
+            if (isset($page['image_defs'][$id])) {
+                $page['image_defs'][$id]['slot'] = $slot;
+            }
+        }
+
+        return $page;
     }
 
     private function text(DOMDocument $document, DOMElement $parent, array $field, string $value, array $attributes, bool $center = false, bool $centerVertically = false): void

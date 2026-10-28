@@ -26,6 +26,47 @@ use Tests\Support\TenantAuctionReportTestCase;
 
 final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
 {
+    public function test_draft_restores_report_uploads_and_metadata_through_final_create_then_is_discarded(): void
+    {
+        $this->withoutMiddleware([CheckSubscription::class, EnsureUserHasActiveLicense::class]);
+        Storage::fake('tenant_public');
+        Storage::fake('local');
+        Bus::fake([GenerateAuctionReportsJob::class]);
+        $owner = User::query()->where('email', 'demo@levan.com')->firstOrFail();
+        $assignment = $this->assignment('DRAFT');
+        $property = $this->property($assignment, 'DRAFT');
+        $this->actingAs($owner, 'tenant');
+        $resource = '/auctions';
+        $first = $this->postJson('http://test.localhost/wizard-drafts', ['resource_key' => $resource, 'step' => 1, 'name' => 'مسودة مزاد'])->assertOk()->json();
+        $name = 'مزاد استعادة التقرير '.uniqid();
+        $payload = array_replace($this->validPayload($assignment), [
+            'resource_key' => $resource, 'step' => 4, 'name' => $name,
+            'property_ids' => [$property->id],
+            'property_results' => [$property->id => ['status' => 'pending', 'board_count' => 0, 'board_dimensions' => '3×6']],
+            'marketing' => ['introduction' => 'مقدمة محفوظة', 'contacts' => ['phone' => '0534811800'], 'campaigns' => [['platform' => 'youtube', 'views' => 0]]],
+            'marketing_evidence_meta' => [['section' => 'video', 'channel' => 'youtube', 'kind' => 'screenshot', 'display_name' => 'فيديو محفوظ']],
+            'report_image' => UploadedFile::fake()->image('draft-report.png'),
+            'marketing_evidence' => [UploadedFile::fake()->image('draft-video.png')],
+        ]);
+        $this->post('http://test.localhost/wizard-drafts', $payload, ['Accept' => 'application/json'])->assertOk();
+        $restored = $this->getJson('http://test.localhost/wizard-drafts?resource_key='.urlencode($resource))->assertOk()->json();
+        self::assertSame($first['draft_id'], $restored['draft_id']);
+        self::assertSame(0, $restored['data']['marketing']['campaigns'][0]['views']);
+        self::assertSame('youtube', $restored['data']['marketing_evidence_meta'][0]['channel']);
+        self::assertSame('draft-report.png', $restored['files']['report_image']['name']);
+        self::assertSame('draft-video.png', $restored['files']['marketing_evidence'][0]['name']);
+        $response = $this->post('http://test.localhost/auctions', ['_wizard_draft_id' => $first['draft_id'], '_wizard_resource_key' => $resource, 'assignment_id' => $assignment->id, 'property_ids' => [$property->id]]);
+        $response->assertSessionHasNoErrors();
+        $auction = Auction::query()->where('name', $name)->sole();
+        $response->assertRedirect('http://test.localhost/auctions/'.$auction->id);
+        $snapshot = $auction->latestReportGeneration()->sole()->snapshot;
+        self::assertSame('0534811800', $snapshot['marketing']['contacts']['phone']);
+        self::assertSame(0, $snapshot['marketing']['campaigns'][0]['views']);
+        self::assertSame(0, $snapshot['properties'][0]['board']['count']);
+        self::assertSame('youtube', $snapshot['evidence']['video'][0]['channel']);
+        self::assertNotNull($snapshot['evidence']['video'][0]['uri']);
+        self::assertNull(\App\Models\Shared\WizardDraft::query()->find($first['draft_id']));
+    }
     public function test_final_create_and_update_dispatch_report_generation_automatically(): void
     {
         Storage::fake('tenant_public');

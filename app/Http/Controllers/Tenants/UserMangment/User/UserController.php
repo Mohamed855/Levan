@@ -257,6 +257,13 @@ class UserController extends Controller
     */
     public function toggleStatus(UpdateManagedUserStatusRequest $request, User $user): JsonResponse
     {
+        if ($user->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لا يمكن تغيير حالة مدير النظام.',
+            ], 422);
+        }
+
         try {
             $newStatus = $request->validated('status');
             $this->userService->updateStatus($user, $newStatus);
@@ -269,6 +276,11 @@ class UserController extends Controller
                 'new_status' => $newStatus,
                 'status_text' => $statusText,
             ]);
+        } catch (\DomainException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

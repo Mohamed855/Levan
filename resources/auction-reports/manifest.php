@@ -10,7 +10,7 @@ return array (
   ),
   'files' => 
   array (
-    'asir/bindings.php' => '237fc8c2d23f877d99d995638b53d5caf1df10cbe0af112b29553b5b4d61fcc0',
+    'asir/bindings.php' => 'cb14a68a84c3ea33d26cbee3b845f2df467b8ba25020699f911efb08f3efb2df',
     'asir/image-frames.php' => '4870fb4d70da76f5d169c54b1f930adfaa35c7c73b652c828697900ca81b467e',
     'asir/page-1.svg' => '8f16b52c3d583adb757d304ed00d3fb675764ff0883daebd5f57404a7d8756cc',
     'asir/page-10.svg' => '06cb53a3b22cb08f2e3739fbd5332c02109617820b9ff169dca0b31612839c42',
@@ -161,7 +161,7 @@ return array (
     'haram/background-5.png' => 'ba4db63eedce122662843ce0655a25f33f102c976613fd04960b73a238d78335',
     'haram/background-6.png' => '06f01bde3cdf3cb625267adfe2c36495bbb215102fca9174e16c78364a03b207',
     'haram/background-7.png' => 'e2cc02a8a4dd08e726e416323b94c961732aa4916001195c63e3a9b13df1653d',
-    'haram/bindings.php' => 'bd1784ebdc9b0444186d5df8e774a8da1d8188799ef55fdee3b142ef07954e44',
+    'haram/bindings.php' => '2938848aed07dc283347c52bbbcd33564ee496bd5387eef59079ea16d8741e94',
     'haram/page-1.svg' => 'e833cb1e90305a18c62273e086f5f145c1752e11db5bb8bac1c1fafbbb2c0cd9',
     'haram/page-2.svg' => '615d2ced7a4ffa52ed62b66663f92b4c50b95111dcbb832f722cefed37191a64',
     'haram/page-3.svg' => '52f9b87a5b47c548c85df9bc66956639d3a62669d42d6a024e83dc7802eccb11',

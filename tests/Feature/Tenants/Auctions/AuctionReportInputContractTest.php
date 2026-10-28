@@ -126,6 +126,24 @@ final class AuctionReportInputContractTest extends TenantAuctionReportTestCase
         self::assertTrue(str_contains($html, 'data-field-name="marketing[campaigns][0][views]"'));
     }
 
+    public function test_whatsapp_total_must_agree_with_complete_delivery_counts_on_create_and_edit(): void
+    {
+        foreach ([StoreAuctionRequest::class, \App\Http\Requests\Tenants\Auctions\UpdateAuctionRequest::class] as $class) {
+            $request = $class::create('/', 'POST', ['property_ids' => []]);
+            $rules = array_filter($request->rules(), static fn (string $key): bool => str_starts_with($key, 'marketing'), ARRAY_FILTER_USE_KEY);
+            $campaign = ['platform' => 'whatsapp', 'delivered' => 70, 'failed' => 20, 'pending' => 10, 'total' => 101];
+            $invalid = Validator::make(['marketing' => ['campaigns' => [$campaign]]], $rules);
+            self::assertTrue($invalid->errors()->has('marketing.campaigns.0'), 'An inconsistent delivery total must fail before saving.');
+            $campaign['total'] = 100;
+            self::assertFalse(Validator::make(['marketing' => ['campaigns' => [$campaign]]], $rules)->fails());
+            $campaign = ['platform' => 'whatsapp', 'delivered' => 0, 'failed' => 0, 'pending' => 0, 'total' => 0];
+            self::assertFalse(Validator::make(['marketing' => ['campaigns' => [$campaign]]], $rules)->fails());
+            $campaign['failed'] = null;
+            $campaign['total'] = 10;
+            self::assertFalse(Validator::make(['marketing' => ['campaigns' => [$campaign]]], $rules)->fails(), 'Unknown counts must not be silently treated as zero.');
+        }
+    }
+
     private function auction(): Auction
     {
         $assignment = Assignment::query()->create(['assignment_number' => 'CI-'.uniqid(), 'name' => 'إسناد اختبار', 'issuing_entity' => 'اختبار', 'is_active' => true]);

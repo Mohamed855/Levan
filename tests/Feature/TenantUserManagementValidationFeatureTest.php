@@ -42,6 +42,19 @@ class TenantUserManagementValidationFeatureTest extends TestCase
             ->assertJsonValidationErrors('status');
     }
 
+    public function test_cannot_toggle_status_for_admin_role_user(): void
+    {
+        $this->actingAs($this->owner, 'tenant')
+            ->patchJson($this->tenantUrl("users/{$this->owner->id}/toggle-status"), [
+                'status' => 'inactive',
+            ])
+            ->assertUnprocessable()
+            ->assertJson([
+                'success' => false,
+                'message' => 'لا يمكن تغيير حالة مدير النظام.',
+            ]);
+    }
+
     public function test_user_without_management_permission_cannot_change_a_user_status(): void
     {
         $limitedUser = User::create([

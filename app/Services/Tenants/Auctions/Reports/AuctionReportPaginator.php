@@ -94,7 +94,7 @@ final class AuctionReportPaginator
 
         $evidence = $snapshot['evidence'] ?? [];
         $pages = array_merge($pages, $this->boardPages('asir-board-installation', $evidence['board_before'] ?? [], 'board_before'));
-        foreach (['brochure' => 24, 'platform' => 2, 'video' => 3, 'x' => 7, 'whatsapp' => 1] as $section => $capacity) {
+        foreach (['brochure' => 24, 'platform' => 2, 'video' => 2, 'x' => 7, 'whatsapp' => 1] as $section => $capacity) {
             $pages = array_merge($pages, $this->nativeMediaPages('asir-'.$section, $section, $evidence[$section] ?? [], $capacity));
         }
         [$campaigns, $extraCampaigns] = $this->campaignParts($snapshot['marketing']['campaigns'] ?? [], ['snapchat', 'tiktok', 'x', 'youtube', 'whatsapp', 'google']);
@@ -200,29 +200,6 @@ final class AuctionReportPaginator
         $capacities = $templates[$type]['capacities'];
 
         return $capacities;
-    }
-
-    /** @param array<string, list<array<string, mixed>>> $sections
-     * @param  array<string, int>  $capacities
-     * @return list<array{page_type: string, payload: array<string, mixed>}>
-     */
-    private function mediaPages(string $type, array $sections, array $capacities): array
-    {
-        $chunks = [];
-        foreach ($sections as $section => $items) {
-            $chunks[$section] = $this->chunks(array_values($items), $capacities[$section]);
-        }
-        $count = max(array_map('count', $chunks));
-        $pages = [];
-        for ($index = 0; $index < $count; $index++) {
-            $payload = [];
-            foreach ($chunks as $section => $sectionChunks) {
-                $payload[$section] = $sectionChunks[$index] ?? [];
-            }
-            $pages[] = $this->page($index === 0 ? $type : $type.'-continuation', $payload);
-        }
-
-        return $pages;
     }
 
     private function boardPages(string $type, array $items, string $section): array

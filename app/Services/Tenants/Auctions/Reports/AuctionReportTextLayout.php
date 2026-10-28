@@ -77,7 +77,7 @@ final class AuctionReportTextLayout
             $height = max(array_column($fields, 'y')) - min(array_column($fields, 'y')) + $field['sy'] * 1.5;
             $maxLines = $layout['max_lines'] ?? max(1, (int) floor($height / ($field['sy'] * 1.17)));
             $fieldChunks[$role] = array_map(static fn (array $lines): string => implode("\n", $lines), array_chunk(
-                $this->wrap($content['values'][$role] ?? '-', $width, $field['size'], $field['font']), $maxLines,
+                $this->wrap($content['values'][$role] ?? '-', $layout['wrap_width'] ?? $width, $field['size'], $field['font']), $maxLines,
             ));
         }
         $pages = [];
@@ -123,7 +123,7 @@ final class AuctionReportTextLayout
     private function tableChunks(array $rows, array $table, array $definition): array
     {
         $top = $table['rows'][0]['top'];
-        $bottom = $table['rows'][array_key_last($table['rows'])]['bottom'];
+        $bottom = $table['body_bottom'] ?? $table['rows'][array_key_last($table['rows'])]['bottom'];
         $chunks = [];
         $chunk = ['rows' => [], 'layout' => ['rows' => [], 'dynamic' => false]];
         $cursor = $top;

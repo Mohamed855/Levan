@@ -93,6 +93,24 @@ class UsersDataTable extends AbstractDataTable
             })
             ->editColumn('status', function (User $user) {
                 $checked = $user->status === 'active' ? 'checked' : '';
+
+                if ($user->isAdmin()) {
+                    return '
+                        <div class="d-flex justify-content-center" data-bs-toggle="tooltip" title="لا يمكن تغيير حالة مدير النظام">
+                            <div class="form-check form-switch mb-0">
+                                <input
+                                    type="checkbox"
+                                    class="form-check-input"
+                                    id="status_'.$user->id.'"
+                                    '.$checked.'
+                                    disabled
+                                    aria-label="لا يمكن تغيير حالة مدير النظام"
+                                >
+                            </div>
+                        </div>
+                    ';
+                }
+
                 $url = tenant_route_name('users.toggle-status', ['user' => $user->id]);
 
                 return '
