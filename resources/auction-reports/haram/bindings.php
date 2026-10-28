@@ -20,12 +20,12 @@ return [
     ],
     1 => [
         'groups' => ['manager' => ['f5'], 'name' => ['f6'], 'project' => ['f7'], 'end_date' => ['f11'], 'start_date' => ['f12'], 'footer' => ['f89']],
-        'layouts' => ['manager' => ['max_width' => 150, 'center' => true], 'name' => ['max_width' => 150, 'center' => true], 'project' => ['max_width' => 150, 'center' => true], 'footer' => ['max_width' => 84.749, 'max_lines' => 2]],
+        'layouts' => ['manager' => ['max_width' => 150, 'center' => true], 'name' => ['max_width' => 150, 'center' => true], 'project' => ['max_width' => 150, 'center' => true], 'footer' => ['max_width' => 84.749, 'wrap_width' => 78.749, 'max_lines' => 2]],
         'images' => [],
     ],
     2 => [
         'groups' => ['narrative' => ['f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12'], 'footer' => ['f84']],
-        'layouts' => ['narrative' => ['continue' => true], 'footer' => ['max_width' => 84.749, 'max_lines' => 2]],
+        'layouts' => ['narrative' => ['continue' => true], 'footer' => ['max_width' => 84.749, 'wrap_width' => 78.749, 'max_lines' => 2]],
         'images' => [],
     ],
     3 => [
@@ -39,7 +39,7 @@ return [
             'snapchat_views' => ['f63'], 'marketing_url' => ['f65'], 'boards_url' => ['f68'], 'footer' => ['f69'],
         ],
         'layouts' => [
-            'footer' => ['max_width' => 84.749, 'max_lines' => 2],
+            'footer' => ['max_width' => 84.749, 'wrap_width' => 78.749, 'max_lines' => 2],
             'snapchat_impressions' => ['max_width' => 80], 'tiktok_impressions' => ['max_width' => 80], 'x_impressions' => ['max_width' => 80],
             'tiktok_profile_views' => ['max_width' => 50], 'tiktok_reach' => ['max_width' => 50], 'tiktok_views' => ['max_width' => 50],
             'tiktok_profile_change' => ['max_width' => 50], 'tiktok_reach_change' => ['max_width' => 50], 'tiktok_views_change' => ['max_width' => 50],
@@ -53,7 +53,7 @@ return [
     ],
     4 => [
         'groups' => ['removal_date' => ['f6', 'f7'], 'footer' => ['f8']],
-        'layouts' => ['footer' => ['max_width' => 84.749, 'max_lines' => 2]],
+        'layouts' => ['footer' => ['max_width' => 84.749, 'wrap_width' => 78.749, 'max_lines' => 2]],
         'images' => [
             ['section' => 'board_before', 'slot' => 0, 'box' => [302.66, 119.78, 550.26, 244.33]],
             ['section' => 'board_before', 'slot' => 1, 'box' => [45.0, 119.78, 292.0, 244.33]],
@@ -67,7 +67,7 @@ return [
     ],
     5 => [
         'groups' => ['broker_1' => ['f3', 'f4'], 'broker_2' => ['f1', 'f2'], 'broker_3' => ['f5'], 'footer' => ['f6']],
-        'layouts' => ['footer' => ['max_width' => 84.749, 'max_lines' => 2]],
+        'layouts' => ['footer' => ['max_width' => 84.749, 'wrap_width' => 78.749, 'max_lines' => 2]],
         'images' => [
             ['section' => 'brokers', 'slot' => 0, 'box' => [372.08, 148.35, 547.83, 365.97]],
             ['section' => 'brokers', 'slot' => 1, 'box' => [47.0, 148.35, 222.74, 365.97]],

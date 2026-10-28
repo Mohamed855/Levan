@@ -165,18 +165,18 @@
                         </li>
                     @endcan
 
-                    @can('assignments_archive.view')
-                        <li class="menu-item @if (Helpers::isActiveRoute('archive.assignments.*')) active @endif">
-                            <a href="{{ tenant_route_name('archive.assignments.index') }}" class="menu-link">
-                                <div>الإسنادات</div>
-                            </a>
-                        </li>
-                    @endcan
-
                     @can('properties_archive.view')
                         <li class="menu-item @if (Helpers::isActiveRoute('archive.properties.*')) active @endif">
                             <a href="{{ tenant_route_name('archive.properties.index') }}" class="menu-link">
                                 <div>العقارات</div>
+                            </a>
+                        </li>
+                    @endcan
+
+                    @can('assignments_archive.view')
+                        <li class="menu-item @if (Helpers::isActiveRoute('archive.assignments.*')) active @endif">
+                            <a href="{{ tenant_route_name('archive.assignments.index') }}" class="menu-link">
+                                <div>الإسنادات</div>
                             </a>
                         </li>
                     @endcan

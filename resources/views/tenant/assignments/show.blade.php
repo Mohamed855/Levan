@@ -87,19 +87,11 @@
                         <h6 class="card-title mb-0">المستندات والمرفقات</h6>
                     </div>
                     <div class="card-body">
-                        <ul class="list-unstyled mb-0">
+                        <div class="mb-0">
                             @foreach ($assignmentDocuments as $doc)
-                                <li class="d-flex align-items-center justify-content-between py-2 border-bottom">
-                                    <div class="d-flex align-items-center gap-2 text-truncate me-2">
-                                        <i class="ti ti-file text-primary fs-5"></i>
-                                        <span class="text-truncate" title="{{ $doc->original_name }}">{{ $doc->original_name }}</span>
-                                    </div>
-                                    <a href="{{ tasset($doc->file_path) }}" target="_blank" class="btn btn-sm btn-icon btn-primary" title="عرض أو تحميل">
-                                        <i class="ti ti-download"></i>
-                                    </a>
-                                </li>
+                                <x-ui.file-card :file="$doc" layout="list" />
                             @endforeach
-                        </ul>
+                        </div>
                     </div>
                 </div>
             @endif

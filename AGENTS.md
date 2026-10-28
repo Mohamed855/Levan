@@ -47,6 +47,11 @@
     -   Actions with `<x-form.wizard.actions>`
 -   **Validation Errors:**
     -   Prefer `<x-ui.validation-errors class="mb-4" />`
+-   **File / Attachment Preview Cards (Mandatory across all Show / Edit / Review Views):**
+    -   ALL uploaded image and file previews across the entire system (show views, edit forms, review steps) MUST use the shared `<x-ui.file-card>` component (or its alias `<x-ui.attachment-card>`).
+    -   Never write raw, bespoke HTML cards or unformatted `<ul><li>` lists for displaying attachments.
+    -   **Card Layout** (`layout="card"`, default): Standard preview card (`195px × 195px`) with image thumbnail, file-type indicator, hover preview action, and metadata.
+    -   **List Layout** (`layout="list"`): Clean horizontal item with icon/thumbnail and action button for show page sidebars.
 
 ## Form Standards (Create vs Edit)
 

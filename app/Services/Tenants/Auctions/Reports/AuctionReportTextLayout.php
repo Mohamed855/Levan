@@ -177,7 +177,7 @@ final class AuctionReportTextLayout
         for ($size = $maximum; $size >= $minimum - .001; $size = max($minimum, $size - .25)) {
             $verticalSize = $field['sy'] * $size / $field['size'];
             // Reserve 1pt per edge for FreeType/Chromium shaping differences.
-            $availableWidth = max(1.0, $right - $left - 2);
+            $availableWidth = max(1.0, min($layout['wrap_width'] ?? INF, $right - $left - 2));
             $lines = $this->wrap($value, $availableWidth, $size, $field['font'], false);
             $height = $this->height($lines, $size, $verticalSize, $field['font']);
             $width = max(array_map(fn (string $line): float => $this->width($line, $size, $file, $field['font']), $lines));

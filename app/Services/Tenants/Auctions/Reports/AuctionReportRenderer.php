@@ -36,6 +36,7 @@ final class AuctionReportRenderer
             foreach ($this->textLayout->flow($content, $definition) as $index => $part) {
                 $partDefinition = $definition;
                 if ($design === 'haram' && $content['index'] === 2 && $index > 0 && (empty($part['tables']['sold']) xor empty($part['tables']['unsold']))) {
+                    $part['values']['footer'] = $content['values']['footer'];
                     $part = (new AuctionReportResultPage)->continuation($part, empty($part['tables']['sold']) ? 'unsold' : 'sold');
                     unset($part['field_layouts'], $part['table_layouts']);
                     $partDefinition = array_replace($definition, $part['artwork_overrides']);

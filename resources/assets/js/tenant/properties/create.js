@@ -1091,9 +1091,153 @@ document.addEventListener("DOMContentLoaded", () => {
                 .join("")}</dl>`;
         }
 
-        // Review Documents
+        // Review Documents (Categorized sections matching standard architecture)
+        const reviewLegal = document.getElementById("review-legal-documents");
+        const reviewLegalCount = document.getElementById("review-legal-documents-count");
+        if (reviewLegal) {
+            const legalItems = [];
+            const legalFields = [
+                { id: "deed_document", label: "صك الملكية" },
+                { id: "cadastral_plan", label: "مخطط العقار" },
+                { id: "coordinates_statement", label: "كشف الإحداثيات" },
+                { id: "building_permit", label: "رخصة البناء" },
+                { id: "assignment_letter_image", label: "صورة الإسناد" },
+            ];
+
+            legalFields.forEach(({ id, label }) => {
+                const input = form.elements.namedItem(id);
+                const file = input?.files?.[0];
+                if (file) {
+                    legalItems.push({ name: file.name, file, metaLabel: label });
+                } else {
+                    const wrapper =
+                        input?.closest("[data-file-upload-wrapper]") ||
+                        input?.parentElement;
+                    const existingName = wrapper
+                        ?.querySelector(".file-item-name")
+                        ?.textContent?.trim();
+                    const existingImg = wrapper?.querySelector(
+                        "img.file-item-preview",
+                    )?.src;
+                    if (existingName) {
+                        legalItems.push({
+                            name: existingName,
+                            url: existingImg || null,
+                            metaLabel: label,
+                        });
+                    }
+                }
+            });
+
+            if (reviewLegalCount) reviewLegalCount.textContent = String(legalItems.length);
+            if (!legalItems.length) {
+                reviewLegal.innerHTML =
+                    '<p class="text-muted mb-0" data-empty>لم يتم إرفاق مستندات رسمية بعد.</p>';
+            } else {
+                reviewLegal.innerHTML = legalItems.map(renderFileCardHtml).join("");
+            }
+        }
+
+        const reviewGallery = document.getElementById("review-gallery-documents");
+        const reviewGalleryCount = document.getElementById("review-gallery-documents-count");
+        if (reviewGallery) {
+            const galleryItems = [];
+            const mainImgInput = form.elements.namedItem("main_image");
+            const mainFile = mainImgInput?.files?.[0];
+            if (mainFile) {
+                galleryItems.push({ name: mainFile.name, file: mainFile, metaLabel: "الصورة الرئيسية" });
+            } else {
+                const wrapper =
+                    mainImgInput?.closest("[data-file-upload-wrapper]") ||
+                    mainImgInput?.parentElement;
+                const existingName = wrapper
+                    ?.querySelector(".file-item-name")
+                    ?.textContent?.trim();
+                const existingImg = wrapper?.querySelector(
+                    "img.file-item-preview",
+                )?.src;
+                if (existingName) {
+                    galleryItems.push({
+                        name: existingName,
+                        url: existingImg || null,
+                        metaLabel: "الصورة الرئيسية",
+                    });
+                }
+            }
+
+            const propImagesInput = form.elements.namedItem("property_images[]");
+            if (propImagesInput?.files?.length) {
+                Array.from(propImagesInput.files).forEach((file) => {
+                    galleryItems.push({
+                        name: file.name,
+                        file,
+                        metaLabel: "معرض الصور",
+                    });
+                });
+            } else {
+                const wrapper = propImagesInput?.closest("[data-file-upload-wrapper]");
+                wrapper?.querySelectorAll("[data-existing-file-card]").forEach((card) => {
+                    const name = card.querySelector(".file-item-name")?.textContent?.trim();
+                    const url = card.querySelector("img.file-item-preview")?.src;
+                    if (name) galleryItems.push({ name, url: url || null, metaLabel: "معرض الصور" });
+                });
+            }
+
+            if (reviewGalleryCount) reviewGalleryCount.textContent = String(galleryItems.length);
+            if (!galleryItems.length) {
+                reviewGallery.innerHTML =
+                    '<p class="text-muted mb-0" data-empty>لم يتم إرفاق صور بعد.</p>';
+            } else {
+                reviewGallery.innerHTML = galleryItems.map(renderFileCardHtml).join("");
+            }
+        }
+
+        const reviewAddDocs = document.getElementById("review-additional-documents");
+        const reviewAddCount = document.getElementById("review-additional-documents-count");
+        if (reviewAddDocs) {
+            const addItems = [];
+            const addDocsInput = form.elements.namedItem("additional_documents[]");
+            if (addDocsInput?.files?.length) {
+                Array.from(addDocsInput.files).forEach((file) => {
+                    addItems.push({
+                        name: file.name,
+                        file,
+                        metaLabel: "مستند إضافي",
+                    });
+                });
+            } else {
+                const wrapper = addDocsInput?.closest("[data-file-upload-wrapper]");
+                wrapper?.querySelectorAll("[data-existing-file-card]").forEach((card) => {
+                    const name = card.querySelector(".file-item-name")?.textContent?.trim();
+                    const url = card.querySelector("img.file-item-preview")?.src;
+                    if (name) addItems.push({ name, url: url || null, metaLabel: "مستند إضافي" });
+                });
+            }
+
+            const draftChips = Array.from(
+                form.querySelectorAll("[data-archived-draft-files] span"),
+            )
+                .map((el) => el.textContent.trim())
+                .filter(Boolean);
+
+            draftChips.forEach((name) => {
+                if (!addItems.some((item) => item.name === name)) {
+                    addItems.push({ name, metaLabel: "مسودة" });
+                }
+            });
+
+            if (reviewAddCount) reviewAddCount.textContent = String(addItems.length);
+            if (!addItems.length) {
+                reviewAddDocs.innerHTML =
+                    '<p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات إضافية بعد.</p>';
+            } else {
+                reviewAddDocs.innerHTML = addItems.map(renderFileCardHtml).join("");
+            }
+        }
+
+        // Fallback for single review-files container if present
         const reviewDocs = document.getElementById("review-files");
-        if (reviewDocs) {
+        if (reviewDocs && !reviewLegal) {
             const items = [];
 
             const singleFields = [
@@ -1110,60 +1254,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const file = input?.files?.[0];
                 if (file) {
                     items.push({ name: file.name, file, metaLabel: label });
-                } else {
-                    const wrapper =
-                        input?.closest("[data-file-upload-wrapper]") ||
-                        input?.parentElement;
-                    const existingName = wrapper
-                        ?.querySelector(".file-item-name")
-                        ?.textContent?.trim();
-                    const existingImg = wrapper?.querySelector(
-                        "img.file-item-preview",
-                    )?.src;
-                    if (existingName) {
-                        items.push({
-                            name: existingName,
-                            url: existingImg || null,
-                            metaLabel: label,
-                        });
-                    }
-                }
-            });
-
-            const propImagesInput =
-                form.elements.namedItem("property_images[]");
-            if (propImagesInput?.files) {
-                Array.from(propImagesInput.files).forEach((file) => {
-                    items.push({
-                        name: file.name,
-                        file,
-                        metaLabel: "معرض الصور",
-                    });
-                });
-            }
-
-            const addDocsInput =
-                form.elements.namedItem("additional_documents[]");
-            if (addDocsInput?.files) {
-                Array.from(addDocsInput.files).forEach((file) => {
-                    items.push({
-                        name: file.name,
-                        file,
-                        metaLabel: "مستند إضافي",
-                    });
-                });
-            }
-
-            // Also check any archived draft files
-            const draftChips = Array.from(
-                form.querySelectorAll("[data-archived-draft-files] span"),
-            )
-                .map((el) => el.textContent.trim())
-                .filter(Boolean);
-
-            draftChips.forEach((name) => {
-                if (!items.some((item) => item.name === name)) {
-                    items.push({ name, metaLabel: "مسودة" });
                 }
             });
 

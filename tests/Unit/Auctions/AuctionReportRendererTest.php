@@ -27,6 +27,7 @@ final class AuctionReportRendererTest extends TestCase
     public function test_measured_result_overflow_also_uses_a_single_section_continuation(): void
     {
         $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';
+        $snapshot['auction']['name'] = 'مزاد جوار الحرم للعقارات السكنية';
         $sold = array_values(array_filter($snapshot['properties'], fn ($row) => $row['result_status'] === 'sold'));
         $unsold = array_slice(array_values(array_filter($snapshot['properties'], fn ($row) => $row['result_status'] === 'unsold')), 0, 7);
         foreach ($unsold as &$property) {
@@ -44,6 +45,9 @@ final class AuctionReportRendererTest extends TestCase
         self::assertSame(1, $xpath->query('.//*[@data-result-section="unsold"]', $page)->length);
         self::assertLessThan(200, (float) $xpath->query('.//*[@data-report-cell="unsold:0:0"]', $page)->item(0)->getAttribute('y'));
         self::assertSame(7, $xpath->query('//*[@data-report-cell and starts-with(@data-report-cell,"unsold:") and substring(@data-report-cell,string-length(@data-report-cell)-1)=":2"]')->length);
+        $baseFooter = $xpath->query('//*[@data-page-type="haram-results"]//*[@data-report-field="footer"]')->item(0);
+        $continuedFooter = $xpath->query('.//*[@data-report-field="footer"]', $page)->item(0);
+        self::assertSame($baseFooter->getAttribute('font-size'), $continuedFooter->getAttribute('font-size'), 'Reflow must fit the original scalar, not previously wrapped fragments at a different size.');
     }
 
     public function test_campaign_appendices_preserve_each_metric_and_its_own_safe_link_and_evidence_channel(): void

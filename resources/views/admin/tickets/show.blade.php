@@ -303,20 +303,14 @@
                 </div>
                 <div class="card-body pt-3">
                     @if (count($allAttachments) > 0)
-                        <div class="d-flex flex-column gap-2">
+                        <div class="assignment-file-list d-flex flex-column gap-2">
                             @foreach ($allAttachments as $attachment)
-                                <a href="{{ $attachment['url'] }}" target="_blank"
-                                    class="d-flex align-items-center justify-content-between p-2 border rounded text-decoration-none text-body bg-secondary">
-                                    <div class="d-flex align-items-center text-truncate me-2">
-                                        <i class="ti ti-paperclip text-primary me-2"></i>
-                                        <div class="d-flex flex-column text-truncate">
-                                            <span class="small fw-semibold text-truncate">{{ $attachment['name'] }}</span>
-                                            <small class="text-muted"
-                                                style="font-size: 0.75rem;">{{ $attachment['source'] }}</small>
-                                        </div>
-                                    </div>
-                                    <i class="ti ti-download text-muted"></i>
-                                </a>
+                                <x-ui.file-card
+                                    :name="$attachment['name']"
+                                    :url="$attachment['url']"
+                                    :meta="$attachment['source']"
+                                    layout="list"
+                                />
                             @endforeach
                         </div>
                     @else

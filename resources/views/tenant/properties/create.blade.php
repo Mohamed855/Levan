@@ -402,21 +402,64 @@
                                     body-id="review-ownership" col="" class="h-100 assignment-review__card" />
                             </div>
                             <div class="col-lg-6">
-                                <x-form.wizard.review-card title="الملفات والمستندات" step="4"
-                                    body-id="review-files" col="" class="h-100 assignment-review__card">
-                                    <div id="review-files" class="assignment-file-list">
-                                        <p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات بعد.</p>
-                                    </div>
-                                </x-form.wizard.review-card>
-                            </div>
-                            <div class="col-12">
-                                <div class="card assignment-review__card">
+                                <div class="card h-100 assignment-review__card">
                                     <div class="card-body">
                                         <x-form.controls.textarea name="notes" label="ملاحظات إضافية (اختياري)"
                                             placeholder="أدخل أي ملاحظات إدارية أو توجيهات إضافية للعقار..."
                                             :required="false" col="col-12" rows="3" />
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col-12">
+                                <x-form.wizard.review-card title="الملفات والمستندات" step="4" col=""
+                                    class="h-100 assignment-review__card">
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <section class="assignment-selection"
+                                                aria-labelledby="review-legal-documents-title">
+                                                <div class="w-100 d-flex align-items-center justify-content-between mb-3">
+                                                    <h6 id="review-legal-documents-title" class="mb-0">المستندات الرسمية
+                                                        (الصك، المخطط، الإحداثيات، الرخصة)</h6>
+                                                    <span class="badge bg-primary"><span
+                                                            id="review-legal-documents-count">0</span> ملف</span>
+                                                </div>
+                                                <div id="review-legal-documents" class="assignment-file-list">
+                                                    <p class="text-muted mb-0" data-empty>لم يتم إرفاق مستندات رسمية بعد.
+                                                    </p>
+                                                </div>
+                                            </section>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <section class="assignment-selection"
+                                                aria-labelledby="review-gallery-documents-title">
+                                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                                    <h6 id="review-gallery-documents-title" class="mb-0">صور العقار والمعرض
+                                                    </h6>
+                                                    <span class="badge bg-primary"><span
+                                                            id="review-gallery-documents-count">0</span> صورة</span>
+                                                </div>
+                                                <div id="review-gallery-documents" class="assignment-file-list">
+                                                    <p class="text-muted mb-0" data-empty>لم يتم إرفاق صور بعد.</p>
+                                                </div>
+                                            </section>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <section class="assignment-selection"
+                                                aria-labelledby="review-additional-documents-title">
+                                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                                    <h6 id="review-additional-documents-title" class="mb-0">مستندات
+                                                        ومرفقات إضافية</h6>
+                                                    <span class="badge bg-primary"><span
+                                                            id="review-additional-documents-count">0</span> ملف</span>
+                                                </div>
+                                                <div id="review-additional-documents" class="assignment-file-list">
+                                                    <p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات إضافية بعد.
+                                                    </p>
+                                                </div>
+                                            </section>
+                                        </div>
+                                    </div>
+                                </x-form.wizard.review-card>
                             </div>
                         </div>
                     </div>

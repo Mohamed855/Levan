@@ -67,8 +67,12 @@
     </div>
     <div class="col-12 border-top pt-3">
         <h6 class="fw-bold mb-3">مرفقات ووثائق المزاد</h6>
-        @if ($isEdit)
-            <ul>@foreach ($auction->attachments->where('category', 'auction_doc') as $attachment)<li>{{ $attachment->file_name }}</li>@endforeach</ul>
+        @if ($isEdit && $auction->attachments->where('category', 'auction_doc')->isNotEmpty())
+            <div class="assignment-file-grid mb-3">
+                @foreach ($auction->attachments->where('category', 'auction_doc') as $attachment)
+                    <x-ui.file-card :file="$attachment" />
+                @endforeach
+            </div>
         @endif
         <x-form.controls.file name="attachments[]" label="ملفات إضافية" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx" help="الحد الأقصى لكل ملف: 10MB" col="col-12" />
     </div>

@@ -9,6 +9,14 @@ use PHPUnit\Framework\TestCase;
 
 final class AuctionReportTextLayoutTest extends TestCase
 {
+    public function test_fitted_fields_also_honor_a_conservative_wrap_width(): void
+    {
+        $layout = new AuctionReportTextLayout(dirname(__DIR__, 3).'/resources/auction-reports');
+        $definition = ['groups' => ['title' => ['f1']], 'fields' => ['f1' => ['x' => 0.0, 'y' => 50.0, 'width' => 180.0, 'size' => 20.0, 'sy' => 20.0, 'font' => 'Arimo-Bold']], 'layouts' => ['title' => ['box' => [0, 0, 180, 100], 'wrap_width' => 90, 'fit' => 'shrink', 'max_lines' => 2]], 'tables' => []];
+        $parts = $layout->flow(['values' => ['title' => 'TEST TEST TEST'], 'tables' => [], 'images' => []], $definition);
+        self::assertCount(2, $parts[0]['field_layouts']['title']['lines']);
+    }
+
     public function test_a_long_footer_wraps_inside_its_actual_left_hand_frame(): void
     {
         $root = dirname(__DIR__, 3).'/resources/auction-reports';

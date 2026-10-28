@@ -166,6 +166,14 @@ final class UpdatePropertyAction
                 }
 
                 // Attach any new files
+                $singleCategories = [
+                    PropertyAttachmentCategory::DEED_DOCUMENT->value,
+                    PropertyAttachmentCategory::CADASTRAL_PLAN->value,
+                    PropertyAttachmentCategory::BUILDING_PERMIT->value,
+                    PropertyAttachmentCategory::COORDINATES_STATEMENT->value,
+                    PropertyAttachmentCategory::ASSIGNMENT_LETTER_IMAGE->value,
+                ];
+
                 foreach ($fileMap as $category => $uploads) {
                     if (! is_array($uploads)) {
                         $uploads = [$uploads];
@@ -174,6 +182,16 @@ final class UpdatePropertyAction
                     foreach ($uploads as $upload) {
                         if (! $upload instanceof UploadedFile) {
                             continue;
+                        }
+
+                        if (in_array($category, $singleCategories, true)) {
+                            $oldAttachments = $property->attachments()->where('category', $category)->get();
+                            foreach ($oldAttachments as $old) {
+                                if ($old->file_path) {
+                                    Storage::disk($old->disk ?: 'tenant_public')->delete($old->file_path);
+                                }
+                                $old->delete();
+                            }
                         }
 
                         $folder = match ($category) {

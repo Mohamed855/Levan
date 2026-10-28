@@ -178,22 +178,11 @@
                         <h6 class="card-title mb-0">وثائق ومرفقات المزاد</h6>
                     </div>
                     <div class="card-body">
-                        <ul class="list-unstyled mb-0">
+                        <div class="mb-0">
                             @foreach ($auction->attachments as $attachment)
-                                <li class="d-flex align-items-center justify-content-between gap-2 py-2 border-bottom">
-                                    <div class="d-flex align-items-center gap-2 text-truncate">
-                                        <i class="ti ti-file text-primary fs-5" aria-hidden="true"></i>
-                                        <span class="text-truncate"
-                                            title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</span>
-                                    </div>
-                                    <a href="{{ tasset($attachment->file_path) }}" target="_blank"
-                                        class="btn btn-sm btn-icon btn-primary"
-                                        title="تنزيل {{ $attachment->file_name }}">
-                                        <i class="ti ti-download" aria-hidden="true"></i>
-                                    </a>
-                                </li>
+                                <x-ui.file-card :file="$attachment" layout="list" />
                             @endforeach
-                        </ul>
+                        </div>
                     </div>
                 </div>
             @endif

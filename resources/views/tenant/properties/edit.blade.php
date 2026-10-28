@@ -395,79 +395,26 @@
                         :value="$property->main_image ? tasset($property->main_image) : null" accept="image/jpeg,image/png,image/webp"
                         help="JPG أو PNG أو WebP، بحد أقصى 10MB" col="col-md-6" />
                     <x-form.controls.file name="deed_document" label="صك الملكية" :required="false"
+                        :value="$property->deedAttachment ? tasset($property->deedAttachment->file_path) : null"
                         accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
                     <x-form.controls.file name="cadastral_plan" label="مخطط العقار" :required="false"
+                        :value="$property->cadastralPlanAttachment ? tasset($property->cadastralPlanAttachment->file_path) : null"
                         accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
                     <x-form.controls.file name="coordinates_statement" label="كشف الإحداثيات" :required="false"
+                        :value="$property->coordinatesAttachment ? tasset($property->coordinatesAttachment->file_path) : null"
                         accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
                     <x-form.controls.file name="building_permit" label="رخصة البناء (اختياري)" accept=".pdf,image/*"
+                        :value="$property->buildingPermitAttachment ? tasset($property->buildingPermitAttachment->file_path) : null"
                         help="PDF أو صورة، بحد أقصى 10MB" :required="false" col="col-md-6" />
                     <x-form.controls.file name="assignment_letter_image" label="صورة الإسناد (اختياري)" accept="image/*"
+                        :value="$property->assignmentLetterAttachment ? tasset($property->assignmentLetterAttachment->file_path) : null"
                         help="صورة فقط بحد أقصى 10MB" :required="false" col="col-md-6" />
                     <x-form.controls.file name="property_images[]" label="صور إضافية للمعرض (اختياري)" multiple
+                        :value="$property->galleryAttachments->pluck('file_path')->filter()->map(fn($p) => tasset($p))->all()"
                         accept="image/*" help="يمكن اختيار عدة صور للمعرض" :required="false" col="col-md-6" />
                     <x-form.controls.file name="additional_documents[]" label="مستندات إضافية (اختياري)" multiple
+                        :value="$property->additionalDocuments->pluck('file_path')->filter()->map(fn($p) => tasset($p))->all()"
                         accept=".pdf,image/*" help="يمكن اختيار عدة ملفات" :required="false" col="col-md-6" />
-
-                    @if ($property->attachments->isNotEmpty())
-                        <div class="col-12">
-                            <h6 class="mb-2 text-muted">المرفقات الحالية المسجلة:</h6>
-                            <div class="assignment-file-list">
-                                @foreach ($property->attachments as $att)
-                                    @php
-                                        $ext = strtolower($att->extension ?: pathinfo($att->original_name, PATHINFO_EXTENSION));
-                                        $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg']) || str_starts_with($att->mime_type ?? '', 'image/');
-                                        $url = tasset($att->file_path);
-                                        $sizeFormatted = $att->file_size ? number_format($att->file_size / 1024, 1) . ' KB' : 'ملف محفوظ';
-                                        $typeCategory = match ($ext) {
-                                            'pdf' => 'pdf',
-                                            'doc', 'docx' => 'word',
-                                            'xls', 'xlsx', 'csv' => 'excel',
-                                            'zip', 'rar', '7z' => 'zip',
-                                            default => 'generic',
-                                        };
-                                        $iconClass = match ($typeCategory) {
-                                            'pdf' => 'ti-file-type-pdf',
-                                            'word' => 'ti-file-description',
-                                            'excel' => 'ti-file-spreadsheet',
-                                            'zip' => 'ti-file-zip',
-                                            default => 'ti-file',
-                                        };
-                                        $badgeColor = match ($typeCategory) {
-                                            'pdf' => 'danger',
-                                            'word' => 'primary',
-                                            'excel' => 'success',
-                                            'zip' => 'warning',
-                                            default => ($isImage ? 'info' : 'secondary'),
-                                        };
-                                    @endphp
-                                    <article class="assignment-file-card" data-file-type="{{ $ext }}">
-                                        <div class="assignment-file-card__preview">
-                                            @if ($isImage)
-                                                <img src="{{ $url }}" alt="{{ $att->original_name }}" class="assignment-file-card__img" loading="lazy">
-                                                <span class="assignment-file-card__type-pill">{{ strtoupper($ext ?: 'IMG') }}</span>
-                                            @else
-                                                <div class="assignment-file-card__doc-wrap type-{{ $typeCategory }}">
-                                                    <div class="assignment-file-card__icon-circle">
-                                                        <i class="ti {{ $iconClass }}"></i>
-                                                    </div>
-                                                    <span class="assignment-file-card__type-pill">{{ strtoupper($ext ?: 'FILE') }}</span>
-                                                </div>
-                                            @endif
-                                            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="assignment-file-card__action" title="معاينة الملف" aria-label="معاينة"><i class="ti ti-eye"></i></a>
-                                        </div>
-                                        <div class="assignment-file-card__info">
-                                            <span class="assignment-file-card__name" title="{{ $att->original_name }}">{{ $att->original_name }}</span>
-                                            <div class="assignment-file-card__meta">
-                                                <span class="text-muted text-truncate me-1">{{ $sizeFormatted }}</span>
-                                                <span class="badge bg-label-{{ $badgeColor }}">{{ strtoupper($ext ?: 'FILE') }}</span>
-                                            </div>
-                                        </div>
-                                    </article>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
 
                     <x-form.wizard.actions>
                         <x-form.wizard.previous-button />
@@ -500,21 +447,65 @@
                                     body-id="review-ownership" col="" class="h-100 assignment-review__card" />
                             </div>
                             <div class="col-lg-6">
-                                <x-form.wizard.review-card title="الملفات والمستندات" step="4"
-                                    body-id="review-files" col="" class="h-100 assignment-review__card">
-                                    <div id="review-files" class="assignment-file-list">
-                                        <p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات بعد.</p>
-                                    </div>
-                                </x-form.wizard.review-card>
-                            </div>
-                            <div class="col-12">
-                                <div class="card assignment-review__card">
+                                <div class="card h-100 assignment-review__card">
                                     <div class="card-body">
                                         <x-form.controls.textarea name="notes" label="ملاحظات إضافية (اختياري)"
+                                            :value="$property->notes"
                                             placeholder="أدخل أي ملاحظات إدارية أو توجيهات إضافية للعقار..."
                                             :required="false" col="col-12" rows="3" />
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col-12">
+                                <x-form.wizard.review-card title="الملفات والمستندات" step="4" col=""
+                                    class="h-100 assignment-review__card">
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <section class="assignment-selection"
+                                                aria-labelledby="review-legal-documents-title">
+                                                <div class="w-100 d-flex align-items-center justify-content-between mb-3">
+                                                    <h6 id="review-legal-documents-title" class="mb-0">المستندات الرسمية
+                                                        (الصك، المخطط، الإحداثيات، الرخصة)</h6>
+                                                    <span class="badge bg-primary"><span
+                                                            id="review-legal-documents-count">0</span> ملف</span>
+                                                </div>
+                                                <div id="review-legal-documents" class="assignment-file-list">
+                                                    <p class="text-muted mb-0" data-empty>لم يتم إرفاق مستندات رسمية بعد.
+                                                    </p>
+                                                </div>
+                                            </section>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <section class="assignment-selection"
+                                                aria-labelledby="review-gallery-documents-title">
+                                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                                    <h6 id="review-gallery-documents-title" class="mb-0">صور العقار والمعرض
+                                                    </h6>
+                                                    <span class="badge bg-primary"><span
+                                                            id="review-gallery-documents-count">0</span> صورة</span>
+                                                </div>
+                                                <div id="review-gallery-documents" class="assignment-file-list">
+                                                    <p class="text-muted mb-0" data-empty>لم يتم إرفاق صور بعد.</p>
+                                                </div>
+                                            </section>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <section class="assignment-selection"
+                                                aria-labelledby="review-additional-documents-title">
+                                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                                    <h6 id="review-additional-documents-title" class="mb-0">مستندات
+                                                        ومرفقات إضافية</h6>
+                                                    <span class="badge bg-primary"><span
+                                                            id="review-additional-documents-count">0</span> ملف</span>
+                                                </div>
+                                                <div id="review-additional-documents" class="assignment-file-list">
+                                                    <p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات إضافية بعد.
+                                                    </p>
+                                                </div>
+                                            </section>
+                                        </div>
+                                    </div>
+                                </x-form.wizard.review-card>
                             </div>
                         </div>
                     </div>

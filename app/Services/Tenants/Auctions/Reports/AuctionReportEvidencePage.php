@@ -25,16 +25,13 @@ final class AuctionReportEvidencePage
         $layouts = $haram ? [
             'gallery_header' => ['box' => [150, 5, 555, 43], 'fit' => 'shrink', 'min_font_size' => 9, 'max_lines' => 2],
             'gallery_title' => ['max_width' => 300],
-            'footer' => ['max_width' => 84.749, 'max_lines' => 2],
+            'footer' => ['max_width' => 84.749, 'wrap_width' => 78.749, 'max_lines' => 2],
         ] : [
             'gallery_title' => ['box' => [80, 170, 520, 255], 'fit' => 'shrink', 'min_font_size' => 18, 'max_lines' => 2, 'center' => true],
         ];
         $frames = [];
         $count = count($items);
-        foreach (range(0, max(0, $count - 1)) as $slot) {
-            if ($count === 0) {
-                break;
-            }
+        foreach ($items as $slot => $item) {
             $single = $count === 1 && $section === 'brokers';
             $x = $single ? ($haram ? 45 : 100) : ($haram ? 45 + ($slot % 2) * 265 : 95 + ($slot % 2) * 215);
             $y = $haram ? 135 + intdiv($slot, 2) * 215 : 350 + intdiv($slot, 2) * 135;
@@ -44,7 +41,6 @@ final class AuctionReportEvidencePage
             $groups[$id] = [$id];
             $fields[$id] = ['id' => $id, 'x' => $x, 'y' => $y + $height + 16, 'width' => $width, 'size' => 11.0, 'sy' => 11.0, 'font' => 'NotoSansArabic-Regular', 'color' => $haram ? '#214570' : '#ffffff', 'rtl' => true];
             $layouts[$id] = ['box' => [$x, $y + $height + 2, $x + $width, $y + $height + 30], 'fit' => 'shrink', 'min_font_size' => 7, 'max_lines' => 2, 'center' => true];
-            $item = $items[$slot];
             $frames[] = ['section' => 'gallery', 'slot' => $slot, 'box' => [$x, $y, $x + $width, $y + $height]];
             $values[$id] = (string) (($item['display_name'] ?? '') ?: __('auction_reports.attachment', [], 'ar').' '.($slot + 1));
             if (! empty($item['channel'])) {
@@ -83,12 +79,13 @@ final class AuctionReportEvidencePage
         };
         $add('campaign_heading', (string) $label, $top, 16, 2);
         $position = 0;
+        $format = new AuctionReportFormat;
         foreach (__('auction_reports.metrics', [], 'ar') as $metric => $metricLabel) {
             if (! array_key_exists($metric, $campaign) || $campaign[$metric] === null) {
                 continue;
             }
             $precision = in_array($metric, ['watch_hours', 'profile_change', 'reach_change', 'views_change'], true) ? 2 : 0;
-            $value = (new AuctionReportFormat)->number(is_numeric($campaign[$metric]) ? (float) $campaign[$metric] : null, $precision);
+            $value = $format->number(is_numeric($campaign[$metric]) ? (float) $campaign[$metric] : null, $precision);
             $add('campaign_metric_'.$metric, $metricLabel.': '.$value, $top + 40 + $position++ * 20);
         }
         if ($position === 0) {
@@ -101,7 +98,7 @@ final class AuctionReportEvidencePage
         if ($haram) {
             $groups['footer'] = ['f8'];
             $values['footer'] = 'مخرجات المزاد - '.$snapshot['auction']['name'];
-            $layouts['footer'] = ['max_width' => 84.749, 'max_lines' => 2];
+            $layouts['footer'] = ['max_width' => 84.749, 'wrap_width' => 78.749, 'max_lines' => 2];
         }
 
         return [
