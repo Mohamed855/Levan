@@ -1,384 +1,179 @@
 @extends('admin.layouts.layoutMaster')
 
-@section('title', 'الملف الشخصي للمستخدم')
-
-@section('vendor-style')
-    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.scss'])
-@endsection
-
-@section('page-style')
-    @vite(['resources/assets/vendor/scss/pages/page-profile.scss'])
-
-@endsection
-
-@section('vendor-script')
-    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js'])
-@endsection
+@section('title', 'الملف الشخصي — ' . $user->name)
 
 @section('toastr')
     @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
 @endsection
 
-@section('page-script')
-    @vite(['resources/assets/js/tenant/user-management/user/pages-profile.js'])
-@endsection
-
-
 @section('content')
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <i class="ti ti-user me-2 text-primary"></i>الملف الشخصي: {{ $user->name }}
+            </h4>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-{{ $user->status === \App\Enums\Admin\Users\AdminUserStatus::ACTIVE ? 'success' : 'danger' }}">
+                    {{ $user->status === \App\Enums\Admin\Users\AdminUserStatus::ACTIVE ? 'نشط' : 'غير نشط' }}
+                </span>
+                @if ($user->isSuperAdmin())
+                    <span class="badge bg-primary">مدير النظام</span>
+                @endif
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            @can('users.edit')
+                <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-primary">
+                    <i class="ti ti-edit me-1"></i> تعديل المستخدم
+                </a>
+            @endcan
+            <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
+                <i class="ti ti-arrow-right me-1"></i> العودة
+            </a>
+        </div>
+    </div>
 
     <div class="row">
-        <div class="col-12">
-            <div class="card mb-3">
-
-                @php
-                    $hasCover = !empty($user->background_image) && Storage::disk('public')->exists($user->background_image);
-                @endphp
-                @if ($hasCover)
-                    <div class="background-image-container"
-                        style="position: relative; width: 100%; height: 143px; overflow: hidden;">
-                        <img src="{{ asset('storage/' . $user->background_image) }}" alt="صورة الغلاف"
-                            class="rounded-top w-100 h-100 object-fit-cover">
-                    </div>
-                @else
-                    <div class="background-image-container rounded-top"
-                        style="position: relative; width: 100%; height: 143px; background: linear-gradient(135deg, var(--bs-primary, #1D4F44) 0%, #163e35 50%, #0d2822 100%);">
-                    </div>
-                @endif
-                <div class="user-profile-header d-flex flex-column flex-lg-row text-sm-start text-center mb-5">
-                    <div class="profile-image-container mt-n5 mx-sm-0 mx-auto"
-                        style="position: relative; display: inline-block;">
+        {{-- العمود الأيمن (معلومات المستخدم) --}}
+        <div class="col-xl-4 col-lg-5 col-md-5 mb-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="mx-auto mb-3">
                         <img src="{{ $user->image && Storage::disk('public')->exists($user->image) ? asset('storage/' . $user->image) : asset('static/brand/logos/logo.svg') }}"
-                            alt="صورة المستخدم" class="d-block h-auto ms-0 ms-sm-6 border bg-white"
-                            style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;"
+                            alt="صورة المستخدم" class="rounded-circle border shadow-sm"
+                            style="width: 100px; height: 100px; object-fit: cover;"
                             onerror="this.onerror=null;this.src='{{ asset('static/brand/logos/logo.svg') }}';">
                     </div>
-                    <div class="flex-grow-1 mt-3 mt-lg-5">
-                        <div
-                            class="d-flex align-items-md-end align-items-sm-start align-items-center justify-content-md-between justify-content-start mx-5 flex-md-row flex-column gap-4">
-                            <div class="user-profile-info">
-                                <h5 class="mb-2 mt-lg-6 fw-bold">{{ $user->name }}</h5>
-                                <ul
-                                    class="list-inline mb-0 d-flex align-items-center flex-wrap justify-content-sm-start justify-content-center gap-4 my-2">
-                                    @isset($role)
-                                        <li class="list-inline-item d-flex gap-2 align-items-center">
-                                            <i class='ti ti-id-badge fs-5 text-primary'></i>
-                                            <span class="fw-bold small">
-                                                {{ \App\Support\AccessLabels::role($role->name) }}
-                                            </span>
-                                        </li>
-                                    @endisset
+                    <h5 class="mb-1 fw-bold">{{ $user->name }}</h5>
+                    <span class="badge bg-info mb-3">
+                        {{ $role ? \App\Support\AccessLabels::role($role->name) : 'بدون دور' }}
+                    </span>
 
-                                    @isset($user->created_at)
-                                        <li class="list-inline-item d-flex gap-2 align-items-center">
-                                            <i class='ti ti-calendar-event fs-5 text-primary'></i>
-                                            <span class="fw-bold small">
-                                                تاريخ الإضافة
-                                                {{ optional($user->created_at)->format('Y-m-d') ?? '' }}
-                                            </span>
-                                        </li>
-                                    @endisset
-
-                                </ul>
-                            </div>
-
+                    <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
+                        <div>
+                            <h6 class="mb-0 text-muted small">تاريخ الإضافة</h6>
+                            <span class="fw-semibold">{{ optional($user->created_at)->format('Y-m-d') ?? '-' }}</span>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 text-muted small">آخر دخول</h6>
+                            <span class="fw-semibold">{{ $user->last_login_at ? $user->last_login_at->locale('ar')->diffForHumans() : 'لم يسجل' }}</span>
                         </div>
                     </div>
-                </div>
 
+                    <div class="info-container text-start">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-user-circle text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">الاسم:</span>
+                                <span class="text-muted">{{ $user->name }}</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-mail text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">البريد:</span>
+                                <a href="mailto:{{ $user->email }}" class="text-truncate">{{ $user->email }}</a>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-phone text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">الهاتف:</span>
+                                <span class="text-muted" dir="ltr">{{ $user->phone ?? 'غير محدد' }}</span>
+                            </li>
+                            <li class="mb-2 d-flex align-items-center">
+                                <i class="ti ti-id-badge text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">الدور:</span>
+                                <span class="badge bg-label-primary">{{ $role ? \App\Support\AccessLabels::role($role->name) : 'غير متوفر' }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-
-
-
-
-            <div class="tab-pane fade show active" id="general_info_tab">
-                <div class="row g-4 d-flex align-items-stretch">
-                    <div class="col-xl-8">
-                        <!-- معلومات عن الموظف -->
-                        <div class="card mb-6">
-                            <div class="card-header py-4">
-                                <h6 class="card-title mb-0">
-                                    <i class="ti ti-list-details text-warning me-2"></i>
-                                    البيانات الاساسية
-                                </h6>
-                            </div>
-
-                            <div class="border-1 border-light border-dashed mb-2"></div>
-
-                            <div class="card-body row">
-                                <div class="col-6">
-                                    <small class="card-text text-primary fw-bold">معلومات الموظف</small>
-                                    <ul class="list-unstyled my-3 py-1">
-                                        <li class="d-flex align-items-center mb-4">
-                                            <i class="ti ti-user-circle  text-primary"></i>
-                                            <small class="mx-2 fw-semibold">
-                                                {{ $user->name }}</small>
-                                        </li>
-
-                                        <li class="d-flex align-items-center mb-4">
-                                            <i class="ti ti-id-badge  text-primary"></i>
-                                            <small
-                                                class="mx-2 fw-semibold">{{ $role ? \App\Support\AccessLabels::role($role->name) : 'غير متوفر' }}</small>
-                                        </li>
-
-                                    </ul>
-                                </div>
-
-                                <div class="col-6">
-                                    <small class="card-text text-primary fw-bold">التواصل</small>
-                                    <ul class="list-unstyled my-3 py-1">
-                                        <li class="d-flex align-items-center mb-4">
-                                            <i class="ti ti-phone text-primary"></i>
-                                            <small class="mx-2 fw-semibold">{{ $user->phone ?? 'غير محدد' }}</small>
-                                        </li>
-                                        <li class="d-flex align-items-center mb-4">
-                                            <i class="ti ti-mail text-primary"></i>
-                                            <small class="mx-2 fw-semibold">{{ $user->email ?? 'غير محدد' }}</small>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                            </div>
-
-                        </div>
-                    </div>
-                    <div class="col-xl-4">
-                        <!-- سجل النشاطات -->
-                        <div class="card mb-6">
-                            <div class="card-header d-flex justify-content-between py-4">
-                                <h6 class="card-title mb-0">
-                                    <i class="ti ti-history text-warning me-2"></i>
-                                    سجل النشاطات
-                                </h6>
-                                <h6 class="small mb-0">اخر 5 نشاطات</h6>
-
-                            </div>
-                            <div class="border-1 border-light border-dashed mb-2"></div>
-
-                            <div class="card-body pt-3 small fw-bold">
-                                <ul class="timeline mb-0">
-                                    @forelse ($recentActivities as $activity)
-                                        <li class="timeline-item">
-                                            <span class="timeline-point bg-secondary"></span>
-                                            <div class="timeline-event">
-                                                <small class="timeline-title text-capitalize">
-                                                    {{ $activity->description }}
-                                                </small>
-                                                <small class="text-muted d-block">
-                                                    {{ $activity->created_at->diffForHumans() }}
-                                                </small>
-                                            </div>
-                                        </li>
-                                    @empty
-                                        <h6 class="mb-0 small text-center">لا توجد نشاطات</h6>
-                                    @endforelse
-                                </ul>
-                            </div>
-                        </div>
-                        <!--/ سجل النشاطات -->
-                    </div>
-                </div>
-
-                <!-- قسم الكوبونات -->
-                <div class="row g-4">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header py-4 d-flex justify-content-between align-items-center">
-                                <h6 class="card-title mb-0">
-                                    <i class="ti ti-ticket text-success me-2"></i>
-                                    الكوبونات المُسندة
-                                </h6>
-                                <span class="badge bg-primary rounded-pill">{{ $coupons->count() }} كوبون</span>
-                            </div>
-
-                            <div class="border-1 border-light border-dashed mb-2"></div>
-
-                            <div class="card-body">
-                                @forelse ($coupons as $coupon)
-                                    @php
-                                        $expiryDate = $coupon->expiry_date
-                                            ? \Carbon\Carbon::parse($coupon->expiry_date)
-                                            : null;
-                                        $isExpired = $expiryDate && $expiryDate->isPast();
-                                        $isExhausted =
-                                            $coupon->usage_limit && $coupon->used_count >= $coupon->usage_limit;
-                                    @endphp
-
-                                    <div class="card mb-3 border border-2 {{ $coupon->is_active && !$isExpired && !$isExhausted ? 'border-primary' : 'border-secondary' }}"
-                                        style="border-radius: 0.75rem; overflow: hidden;">
-                                        <div class="card-body p-4">
-                                            <!-- الصف الأول: العنوان والحالة -->
-                                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                                <div class="flex-grow-1">
-                                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                                        <h5 class="mb-0 fw-bold text-dark">
-                                                            {{ $coupon->name }}
-                                                        </h5>
-                                                        <i class="ti ti-discount-2 text-primary fs-4"></i>
-                                                    </div>
-                                                    <div class="d-flex align-items-center gap-2">
-                                                        <span class="text-muted small">الكود:</span>
-                                                        <code class="bg-secondary px-2 py-1 rounded fw-bold"
-                                                            style="font-size: 14px;">{{ $coupon->code }}</code>
-                                                        <i class="ti ti-copy text-primary cursor-pointer"
-                                                            onclick="navigator.clipboard.writeText('{{ $coupon->code }}')"
-                                                            title="نسخ الكود"></i>
-                                                    </div>
-                                                </div>
-
-                                                <div class="text-end">
-                                                    @if (!$coupon->is_active)
-                                                        <span class="badge bg-secondary rounded-pill mb-1">
-                                                            <i class="ti ti-circle-x me-1"></i>
-                                                            غير نشط
-                                                        </span>
-                                                    @elseif($isExpired)
-                                                        <span class="badge bg-danger rounded-pill mb-1">
-                                                            <i class="ti ti-alert-circle me-1"></i>
-                                                            منتهي
-                                                        </span>
-                                                    @elseif($isExhausted)
-                                                        <span class="badge bg-warning rounded-pill mb-1">
-                                                            <i class="ti ti-alert-triangle me-1"></i>
-                                                            مستنفذ
-                                                        </span>
-                                                    @else
-                                                        <span class="badge bg-success rounded-pill mb-1">
-                                                            <i class="ti ti-circle-check me-1"></i>
-                                                            نشط
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                            </div>
-
-                                            <hr class="my-3">
-
-                                            <!-- الصف الثاني: المعلومات الأساسية -->
-                                            <div class="row g-4">
-                                                <!-- قيمة الخصم -->
-                                                <div class="col-md-3">
-                                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                                        <i class="ti ti-percentage text-success fs-5"></i>
-                                                        <small class="text-muted">قيمة الخصم</small>
-                                                    </div>
-                                                    <div class="fw-bold fs-5 text-success">
-                                                        @if ($coupon->discount_type === 'fixed')
-                                                            {{ number_format($coupon->discount_value, 0) }} جنيه
-                                                        @else
-                                                            {{ number_format($coupon->discount_value, 0) }}%
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-                                                <!-- حد الاستخدام -->
-                                                <div class="col-md-3">
-                                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                                        <i class="ti ti-users text-info fs-5"></i>
-                                                        <small class="text-muted">حد الاستخدام</small>
-                                                    </div>
-                                                    <div
-                                                        class="fw-bold fs-5 {{ $isExhausted ? 'text-danger' : 'text-info' }}">
-                                                        @if ($coupon->usage_limit)
-                                                            {{ $coupon->used_count }} / {{ $coupon->usage_limit }}
-                                                            <i class="ti ti-user-check fs-6"></i>
-                                                        @else
-                                                            غير محدود
-                                                            <i class="ti ti-infinity fs-6"></i>
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-                                                <!-- عدد مرات الاستخدام -->
-                                                <div class="col-md-3">
-                                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                                        <i class="ti ti-chart-bar text-warning fs-5"></i>
-                                                        <small class="text-muted">عدد مرات الاستخدام</small>
-                                                    </div>
-                                                    <div class="fw-bold fs-5 text-warning">
-                                                        {{ $coupon->used_count }}
-                                                        <i class="ti ti-ticket fs-6"></i>
-                                                    </div>
-                                                </div>
-
-                                                <!-- تاريخ الانتهاء -->
-                                                <div class="col-md-3">
-                                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                                        <i
-                                                            class="ti ti-calendar-time {{ $isExpired ? 'text-danger' : 'text-primary' }} fs-5"></i>
-                                                        <small class="text-muted">تاريخ الانتهاء</small>
-                                                    </div>
-                                                    @if ($expiryDate)
-                                                        <div
-                                                            class="fw-bold fs-6 {{ $isExpired ? 'text-danger' : 'text-primary' }}">
-                                                            {{ $expiryDate->locale('ar')->isoFormat('D MMMM YYYY') }}
-                                                        </div>
-                                                        <small class="text-muted">
-                                                            @if ($isExpired)
-                                                                منذ {{ $expiryDate->locale('ar')->diffForHumans() }}
-                                                            @else
-                                                                {{ $expiryDate->locale('ar')->diffForHumans() }}
-                                                            @endif
-                                                        </small>
-                                                    @else
-                                                        <div class="fw-bold fs-6 text-success">
-                                                            بدون تاريخ انتهاء
-                                                            <i class="ti ti-infinity"></i>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            </div>
-
-                                            @if ($coupon->max_discount)
-                                                <div class="alert alert-info mt-3 mb-0 py-2" role="alert">
-                                                    <i class="ti ti-info-circle me-1"></i>
-                                                    <small>الحد الأقصى للخصم:
-                                                        <strong>{{ number_format($coupon->max_discount, 0) }}</strong>
-                                                        جنيه</small>
-                                                </div>
-                                            @endif
-
-                                            <!-- التواريخ السفلية -->
-                                            <div
-                                                class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                                                <small class="text-muted">
-                                                    <i class="ti ti-calendar-plus me-1"></i>
-                                                    تاريخ الإنشاء:
-                                                    <span
-                                                        class="fw-semibold">{{ $coupon->created_at->locale('ar')->isoFormat('D MMMM YYYY') }}</span>
-                                                </small>
-
-                                                @if ($coupon->updated_at && $coupon->updated_at->ne($coupon->created_at))
-                                                    <small class="text-muted">
-                                                        <i class="ti ti-refresh me-1"></i>
-                                                        آخر تحديث:
-                                                        <span
-                                                            class="fw-semibold">{{ $coupon->updated_at->locale('ar')->diffForHumans() }}</span>
-                                                    </small>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="text-center py-5">
-                                        <div class="mb-3">
-                                            <i class="ti ti-ticket-off text-muted"
-                                                style="font-size: 80px; opacity: 0.3;"></i>
-                                        </div>
-                                        <h5 class="text-muted mb-2">لا توجد كوبونات</h5>
-                                        <p class="text-muted small">لم يتم إسناد أي كوبونات لهذا المستخدم حتى الآن</p>
-                                    </div>
-                                @endforelse
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--/ قسم الكوبونات -->
-
-            </div>
-
-
-
         </div>
 
+        {{-- العمود الأيسر (النشاطات والكوبونات) --}}
+        <div class="col-xl-8 col-lg-7 col-md-7">
+            {{-- كارت سجل النشاطات --}}
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center py-3">
+                    <h6 class="card-title mb-0">
+                        <i class="ti ti-history text-warning me-2"></i> سجل النشاطات
+                    </h6>
+                    <span class="badge bg-label-secondary">آخر 5 نشاطات</span>
+                </div>
+                <div class="card-body">
+                    <ul class="timeline mb-0">
+                        @forelse ($recentActivities as $activity)
+                            <li class="timeline-item timeline-item-transparent">
+                                <span class="timeline-point timeline-point-primary"></span>
+                                <div class="timeline-event">
+                                    <div class="timeline-header mb-1">
+                                        <h6 class="mb-0 text-capitalize">{{ $activity->description }}</h6>
+                                        <small class="text-muted">{{ $activity->created_at->diffForHumans() }}</small>
+                                    </div>
+                                </div>
+                            </li>
+                        @empty
+                            <div class="text-center text-muted py-4">
+                                <i class="ti ti-history-off fs-2 d-block mb-2"></i>
+                                لا توجد نشاطات مسجلة
+                            </div>
+                        @endforelse
+                    </ul>
+                </div>
+            </div>
 
+            {{-- كارت الكوبونات المُسندة --}}
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center py-3">
+                    <h6 class="card-title mb-0">
+                        <i class="ti ti-ticket text-success me-2"></i> الكوبونات المُسندة
+                    </h6>
+                    <span class="badge bg-primary rounded-pill">{{ $coupons->count() }} كوبون</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        @forelse ($coupons as $coupon)
+                            @php
+                                $expiryDate = $coupon->expiry_date ? \Carbon\Carbon::parse($coupon->expiry_date) : null;
+                                $isExpired = $expiryDate && $expiryDate->isPast();
+                                $isExhausted = $coupon->usage_limit && $coupon->used_count >= $coupon->usage_limit;
+                                $isActive = $coupon->is_active && !$isExpired && !$isExhausted;
+                            @endphp
+                            <div class="col-md-6">
+                                <div class="card border h-100 shadow-none p-3 {{ $isActive ? 'border-primary' : 'border-secondary' }}">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-0 fw-bold">{{ $coupon->name }}</h6>
+                                        @if (!$coupon->is_active)
+                                            <span class="badge bg-label-secondary">غير نشط</span>
+                                        @elseif ($isExpired)
+                                            <span class="badge bg-label-danger">منتهي</span>
+                                        @elseif ($isExhausted)
+                                            <span class="badge bg-label-warning">مستنفد</span>
+                                        @else
+                                            <span class="badge bg-label-success">نشط</span>
+                                        @endif
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <span class="text-muted small">الكود:</span>
+                                        <code class="bg-light px-2 py-1 rounded fw-bold cursor-pointer"
+                                            onclick="navigator.clipboard.writeText('{{ $coupon->code }}'); toastr.success('تم نسخ الكود');"
+                                            title="انقر للنسخ">
+                                            {{ $coupon->code }}
+                                        </code>
+                                    </div>
+                                    <div class="d-flex justify-content-between text-muted small mt-auto pt-2 border-top">
+                                        <span>الاستخدام: {{ $coupon->used_count ?? 0 }} / {{ $coupon->usage_limit ?? '∞' }}</span>
+                                        <span>{{ $expiryDate ? $expiryDate->format('Y-m-d') : 'بدون انتهاء' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="col-12 text-center text-muted py-4">
+                                <i class="ti ti-ticket-off fs-2 d-block mb-2"></i>
+                                لا توجد كوبونات مسندة لهذا المستخدم
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
