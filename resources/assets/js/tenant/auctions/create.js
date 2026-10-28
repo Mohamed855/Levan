@@ -1,8 +1,11 @@
+import { mountReportInputs } from "./report-inputs.js";
+
 "use strict";
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("wizard-validation-form");
     if (!form) return;
+    const reportInputs = mountReportInputs(form);
 
     let restoredPropertyIds = [];
     const selectedProperties = new Map();
@@ -53,22 +56,6 @@ document.addEventListener("DOMContentLoaded", () => {
             : '<p class="text-muted mb-0" data-empty>لم يتم اختيار عقارات بعد.</p>';
     }
 
-    function resultCard(property) {
-        const id = escapeHtml(property.id);
-        return `<article class="card mb-3 border" data-property-result="${id}">
-            <header class="card-header py-2"><h6 class="mb-0">${escapeHtml(property.name)} <code class="ms-1">${escapeHtml(property.number)}</code></h6></header>
-            <div class="card-body"><div class="row g-3">
-                <div class="col-md-4"><label class="form-label">الحالة</label><select name="property_results[${id}][status]" class="form-select" data-form-control><option value="pending">قيد الانتظار</option><option value="sold">مُباع</option><option value="unsold">لم يُباع</option></select></div>
-                <div class="col-md-4"><label class="form-label">سعر الافتتاح</label><input type="number" min="0" step="0.01" class="form-control" name="property_results[${id}][opening_price]" data-form-control></div>
-                <div class="col-md-4"><label class="form-label">سعر البيع</label><input type="number" min="0" step="0.01" class="form-control" name="property_results[${id}][sale_price]" data-form-control></div>
-                <div class="col-md-3"><label class="form-label">المشاركون</label><input type="number" min="0" class="form-control" name="property_results[${id}][participants_count]" data-form-control></div>
-                <div class="col-md-3"><label class="form-label">المزايدات</label><input type="number" min="0" class="form-control" name="property_results[${id}][bids_count]" data-form-control></div>
-                <div class="col-md-6"><label class="form-label">سبب عدم البيع</label><input type="text" class="form-control" name="property_results[${id}][unsold_reason]" data-form-control></div>
-                <div class="col-md-6"><label class="form-label">موقع اللوحة</label><input type="text" class="form-control" name="property_results[${id}][board_location]" data-form-control></div>
-                <div class="col-md-6"><label class="form-label">ملاحظات اللوحة</label><input type="text" class="form-control" name="property_results[${id}][board_notes]" data-form-control></div>
-            </div></div></article>`;
-    }
-
     function boardUpload(property, phase) {
         const id = escapeHtml(property.id);
         const label = phase === "before" ? "قبل الفك" : "بعد الفك";
@@ -91,16 +78,15 @@ document.addEventListener("DOMContentLoaded", () => {
                         `[data-property-result="${CSS.escape(String(property.id))}"]`,
                     )
                 ) {
-                    results.insertAdjacentHTML(
-                        "beforeend",
-                        resultCard(property),
-                    );
+                    results.append(reportInputs.propertyCard(property));
                 }
             });
             results
                 .querySelector("#results-empty-msg")
                 ?.classList.toggle("d-none", selectedIds.size > 0);
         }
+
+        reportInputs.restorePropertyResults();
 
         [
             ["before", "board-before-container"],
@@ -137,6 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
     $(form).on("wizardDraftRestored", function (event) {
         const detailData =
             event.originalEvent?.detail?.data || event.detail?.data || {};
+        reportInputs.restore(detailData, event.originalEvent?.detail?.files || event.detail?.files || {});
         if (detailData.property_ids) {
             restoredPropertyIds = (
                 Array.isArray(detailData.property_ids)
@@ -155,6 +142,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function updateLivePreview() {
+        $("#review-marketing-counts").text(`${form.querySelectorAll('.campaign-row').length} حملة / ${form.querySelectorAll('.link-row').length} رابط`);
+        $("#review-report-introduction").text(form.elements.namedItem('marketing[introduction]')?.value || 'غير مضافة');
+        $("#review-results-narrative").text(form.elements.namedItem('marketing[results_narrative]')?.value || 'غير مضافة');
         const nameVal = $("#name").val();
         $("#preview-auction-name").text(nameVal || "اسم المزاد");
         $("#review-name").text(nameVal || "-");
@@ -180,6 +170,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const typeText = $("#type option:selected").text();
         $("#review-type").text(typeText || "-");
+
+        const asgText = $("#assignment_id option:selected").text();
+        if (asgText && $("#assignment_id").val()) {
+            $("#review-assignment-name").text(asgText);
+        }
 
         const supervising = $("#supervising_entity").val();
         $("#review-supervising").text(supervising || "-");
@@ -228,6 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#start_time").on("change input", syncTimeConstraints);
     $("#type").on("change", updateLivePreview);
     $("#supervising_entity").on("input", updateLivePreview);
+    $("#assignment_id").on("change", updateLivePreview);
     $(
         "#platform_name, #project_manager_name, #description, #expected_properties_count",
     ).on("input change", updateLivePreview);
@@ -257,8 +253,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!assignmentId) {
             $("#selected-assignment-card").addClass("d-none");
             $("#properties-container").html(
-                '<tr><td colspan="6" class="text-center py-4 text-muted">يرجى اختيار الإسناد في الخطوة السابقة لعرض العقارات التابعة له</td></tr>',
+                '<tr><td colspan="6" class="text-center py-4 text-muted">يرجى اختيار الإسناد في الخطوة الأولى لعرض العقارات التابعة له</td></tr>',
             );
+            $("#start_date").removeAttr("min").removeAttr("max");
+            $("#end_date").removeAttr("min").removeAttr("max");
             calculateSelectedProperties();
             return;
         }
@@ -297,11 +295,43 @@ document.addEventListener("DOMContentLoaded", () => {
                     $("#asg-summary-dates").text(asgDatesText);
                     $("#selected-assignment-card").removeClass("d-none");
 
-                    if (!$("#supervising_entity").val()) {
+                    // Auto-fill supervising entity
+                    if (res.assignment.issuing_entity) {
                         $("#supervising_entity")
-                            .val(res.assignment.issuing_entity || "")
+                            .val(res.assignment.issuing_entity)
                             .trigger("input");
                     }
+
+                    // Auto-fill dates and constrain min/max based on assignment
+                    if (res.assignment.start_date) {
+                        const startDateInput = $("#start_date");
+                        startDateInput.val(res.assignment.start_date);
+                        startDateInput.attr("min", res.assignment.start_date);
+                        if (res.assignment.end_date) {
+                            startDateInput.attr("max", res.assignment.end_date);
+                        }
+                        startDateInput.trigger("input").trigger("change");
+                    }
+                    if (res.assignment.end_date) {
+                        const endDateInput = $("#end_date");
+                        endDateInput.val(res.assignment.end_date);
+                        endDateInput.attr("max", res.assignment.end_date);
+                        if (res.assignment.start_date) {
+                            endDateInput.attr("min", res.assignment.start_date);
+                        }
+                        endDateInput.trigger("input").trigger("change");
+                    }
+
+                    // Auto-fill default expected properties count based on assignment properties count
+                    const propCount = res.properties ? res.properties.length : 0;
+                    if (propCount > 0) {
+                        $("#expected_properties_count")
+                            .val(propCount)
+                            .trigger("input")
+                            .trigger("change");
+                    }
+
+                    syncTimeConstraints();
 
                     $("#review-assignment-name").text(
                         (res.assignment.name || "") +
@@ -421,40 +451,6 @@ document.addEventListener("DOMContentLoaded", () => {
             false,
         );
         calculateSelectedProperties();
-    });
-
-    let campaignIndex = document.querySelectorAll(".campaign-row").length;
-    $("#add-campaign-btn").on("click", function () {
-        const i = campaignIndex++;
-        $("#campaigns-empty").remove();
-        $("#campaigns-container")
-            .append(`<div class="row g-2 mb-3 border-bottom pb-3 campaign-row" data-index="${i}">
-            <div class="col-md-3"><input class="form-control" name="marketing[campaigns][${i}][platform]" placeholder="المنصة" required data-form-control></div>
-            <div class="col-md-2"><input type="number" min="0" class="form-control" name="marketing[campaigns][${i}][reach]" placeholder="الوصول" data-form-control></div>
-            <div class="col-md-2"><input type="number" min="0" class="form-control" name="marketing[campaigns][${i}][impressions]" placeholder="المشاهدات" data-form-control></div>
-            <div class="col-md-2"><input type="number" min="0" class="form-control" name="marketing[campaigns][${i}][engagements]" placeholder="التفاعل" data-form-control></div>
-            <div class="col-md-2"><input type="number" min="0" class="form-control" name="marketing[campaigns][${i}][clicks]" placeholder="النقرات" data-form-control></div>
-            <div class="col-md-1"><button type="button" class="btn btn-icon btn-sm btn-danger remove-campaign" aria-label="حذف الحملة"><i class="ti ti-trash"></i></button></div>
-            <div class="col-12"><input type="url" class="form-control" name="marketing[campaigns][${i}][url]" placeholder="رابط الحملة" data-form-control></div>
-        </div>`);
-    });
-    $(form).on("click", ".remove-campaign", function () {
-        $(this).closest(".campaign-row").remove();
-    });
-
-    let linkIndex = document.querySelectorAll(".link-row").length;
-    $("#add-link-btn").on("click", function () {
-        const i = linkIndex++;
-        $("#links-empty").remove();
-        $("#links-container")
-            .append(`<div class="row g-2 mb-2 link-row" data-index="${i}">
-            <div class="col-md-5"><input class="form-control" name="marketing[links][${i}][label]" placeholder="التسمية" required data-form-control></div>
-            <div class="col-md-6"><input type="url" class="form-control" name="marketing[links][${i}][url]" placeholder="الرابط" required data-form-control></div>
-            <div class="col-md-1"><button type="button" class="btn btn-icon btn-sm btn-danger remove-link" aria-label="حذف الرابط"><i class="ti ti-trash"></i></button></div>
-        </div>`);
-    });
-    $(form).on("click", ".remove-link", function () {
-        $(this).closest(".link-row").remove();
     });
 
     // Quick jump step buttons in Step 5 Review

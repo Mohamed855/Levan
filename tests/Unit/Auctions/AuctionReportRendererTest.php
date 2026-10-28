@@ -9,6 +9,19 @@ use Tests\TestCase;
 
 final class AuctionReportRendererTest extends TestCase
 {
+    public function test_unknown_statistics_never_reuse_the_reference_pie_and_metrics_stay_on_one_page(): void
+    {
+        $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';
+        $renderer = app(AuctionReportRenderer::class);
+        $html = $renderer->html($snapshot, 'report');
+        self::assertFalse(str_contains($html, 'clip-path="url(#report_12_p13_clip_32)"'));
+        self::assertTrue(str_contains($html, 'data-report-empty-statistics'));
+        $snapshot['marketing']['campaigns'] = [['platform' => 'whatsapp', 'messages' => 100000, 'views' => 78000, 'delivered' => 70000, 'failed' => 20000, 'pending' => 10000, 'total' => 100000]];
+        $html = $renderer->html($snapshot, 'report');
+        self::assertSame(19, substr_count($html, 'data-page-type='), 'Atomic campaign statistics must not create repeated template pages.');
+        self::assertTrue(str_contains($html, 'data-report-chart="whatsapp"'));
+        self::assertTrue(str_contains($html, 'data-percent="70"'));
+    }
     public function test_every_channel_image_reaches_the_document_when_its_capacity_is_exceeded(): void
     {
         $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';
@@ -35,7 +48,7 @@ final class AuctionReportRendererTest extends TestCase
     public function test_reference_capacity_fixtures_render_as_seven_and_twenty_one_pages(): void
     {
         $renderer = app(AuctionReportRenderer::class);
-        foreach (['haram' => ['outputs', 7], 'asir' => ['report', 21]] as $fixture => [$type, $count]) {
+        foreach (['haram' => ['outputs', 7], 'asir' => ['report', 19]] as $fixture => [$type, $count]) {
             $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/'.$fixture.'.php';
             $html = $renderer->html($snapshot, $type);
             self::assertSame($count, substr_count($html, 'data-page-type='), $fixture);
@@ -79,7 +92,7 @@ final class AuctionReportRendererTest extends TestCase
         self::assertGreaterThanOrEqual(7, substr_count($outputs, 'data-page-type='));
         self::assertStringContainsString('NotoReport', $outputs);
         self::assertTrue(str_contains($report, 'data-page-type="asir-cover"'));
-        self::assertGreaterThanOrEqual(21, substr_count($report, 'data-page-type='));
+        self::assertGreaterThanOrEqual(19, substr_count($report, 'data-page-type='));
         self::assertTrue(str_contains($report, 'GEReport'));
 
         self::assertStringContainsString('اسم مزاد حقيقي طويل دون قص', $report);
@@ -105,7 +118,7 @@ final class AuctionReportRendererTest extends TestCase
         $outputs = $renderer->html($snapshot, 'outputs');
         $report = $renderer->html($snapshot, 'report');
         self::assertStringContainsString('data-page-type="haram-index-continuation"', $outputs);
-        self::assertStringContainsString('data-page-type="asir-social-continuation"', $report);
+        self::assertTrue(str_contains($report, 'data-page-type="asir-campaigns-continuation"'), 'Extra campaigns must render in a campaign appendix.');
         self::assertStringContainsString('P-17', $outputs);
         self::assertStringContainsString('Campaign-25', $report);
     }

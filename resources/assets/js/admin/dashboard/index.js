@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
         success:   '#28a745',
         warning:   '#ffc107',
         danger:    '#dc3545',
-        secondary: '#7c7c7cff',
+        secondary: '#6c757d',
         info:      '#17a2b8',
         dark:      '#2f3349',
     };
@@ -56,6 +56,10 @@ document.addEventListener('DOMContentLoaded', function () {
             options: {
                 responsive:          true,
                 maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index',
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: {

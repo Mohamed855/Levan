@@ -10,7 +10,11 @@
     @foreach ($pages as $page)
         @php($content = $page['content'])
         <section class="auction-print-page" data-page-type="{{ $page['page_type'] }}">
-            {!! $artwork->render($design, $content['index'], $content['values'], $content['tables'], $content['images'], $page['page_number'], $content['table_layouts'] ?? [], $content['field_layouts'] ?? []) !!}
+            {!! $artwork->render($design, $content['index'], $content['values'], $content['tables'], $content['images'], $page['page_number'], $content['table_layouts'] ?? [], $content['field_layouts'] ?? [], $content['artwork_overrides'] ?? []) !!}
+            @foreach ($content['links'] ?? [] as $role => $link)
+                @php([$left, $top, $right, $bottom] = $link['box'])
+                <a class="auction-report-link" data-link-role="{{ $role }}" href="{{ $link['url'] }}" aria-label="{{ $role }}" style="left:{{ $left }}pt;top:{{ $top }}pt;width:{{ $right - $left }}pt;height:{{ $bottom - $top }}pt"></a>
+            @endforeach
         </section>
     @endforeach
 </body>

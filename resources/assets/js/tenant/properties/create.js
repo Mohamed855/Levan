@@ -257,18 +257,18 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         tr.innerHTML = `
-      <td><input type="text" name="units[${index}][unit_number]" class="form-control form-control-sm w-100"
+      <td class="text-center align-middle"><input type="text" name="units[${index}][unit_number]" class="form-control form-control-sm w-100"
                  value="${escapeHtml(data.unit_number || "")}" placeholder="رقم الوحدة (مثال: 101)" data-form-control></td>
-      <td><select name="units[${index}][unit_type]" class="form-select form-select-sm select2 w-100" data-placeholder="اختر نوع الوحدة" data-select2-search="false" data-form-control>${unitTypeOptions}</select></td>
-      <td><input type="number" step="0.01" name="units[${index}][area]" class="form-control form-control-sm w-100"
+      <td class="text-center align-middle"><select name="units[${index}][unit_type]" class="form-select form-select-sm select2 w-100" data-placeholder="اختر نوع الوحدة" data-select2-search="false" data-form-control>${unitTypeOptions}</select></td>
+      <td class="text-center align-middle"><input type="number" step="0.01" name="units[${index}][area]" class="form-control form-control-sm w-100"
                  value="${escapeHtml(data.area || "")}" placeholder="المساحة (م²)" data-form-control></td>
-      <td><select name="units[${index}][current_use]" class="form-select form-select-sm select2 w-100" data-placeholder="اختر الاستخدام الحالي" data-select2-search="false" data-form-control>${unitUsageOptions}</select></td>
-      <td>
+      <td class="text-center align-middle"><select name="units[${index}][current_use]" class="form-select form-select-sm select2 w-100" data-placeholder="اختر الاستخدام الحالي" data-select2-search="false" data-form-control>${unitUsageOptions}</select></td>
+      <td class="text-center align-middle">
         <select name="units[${index}][status]" class="form-select form-select-sm select2 w-100" data-placeholder="اختر الحالة" data-select2-search="false" data-form-control>
           ${statusOptions}
         </select>
       </td>
-      <td class="text-center">
+      <td class="text-center align-middle">
         <button type="button" class="btn btn-icon btn-sm btn-danger btn-remove-unit" aria-label="حذف الوحدة">
           <i class="ti ti-trash"></i>
         </button>
@@ -342,6 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const pointsBadge = document.getElementById("points-count-badge");
     const statusText = document.getElementById("polygon-status-text");
     const btnDownload = document.getElementById("btn-download-annotated");
+    const btnChangeImage = document.getElementById("btn-change-image");
     const btnClearBoundary = document.getElementById("btn-clear-boundary");
     const aerialImageInput = document.getElementById("property-aerial-image");
     const boundaryGeoJsonInput = document.getElementById(
@@ -355,7 +356,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let annotatedDataUrl = "";
 
     function setImageActionVisibility(visible) {
-        [btnDownload, btnClearBoundary].forEach((button) => {
+        [btnDownload, btnClearBoundary, btnChangeImage].forEach((button) => {
             if (!button) return;
             button.classList.toggle("d-none", !visible);
             button.setAttribute("aria-hidden", visible ? "false" : "true");
@@ -654,26 +655,79 @@ document.addEventListener("DOMContentLoaded", () => {
         img.src = src;
     }
 
+    function handleImageFile(file) {
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            notifyUser("error", "يرجى اختيار ملف صورة صالح بصيغة PNG أو JPG أو WebP.");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            points = [];
+            loadImageSrc(event.target.result);
+            notifyUser(
+                "info",
+                "تم تحميل الصورة. انقر الآن على زوايا العقار لتحديد حدوده.",
+            );
+        };
+        reader.readAsDataURL(file);
+    }
+
     if (imageUploadInput) {
         imageUploadInput.addEventListener("change", (e) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
+            handleImageFile(e.target.files?.[0]);
+        });
+    }
 
-            if (!file.type.startsWith("image/")) {
-                notifyUser("error", "يرجى اختيار ملف صورة صالح.");
-                return;
+    if (emptyPlaceholder && imageUploadInput) {
+        emptyPlaceholder.addEventListener("click", () => {
+            imageUploadInput.value = "";
+            imageUploadInput.click();
+        });
+
+        emptyPlaceholder.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                imageUploadInput.value = "";
+                imageUploadInput.click();
             }
+        });
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                points = [];
-                loadImageSrc(event.target.result);
-                notifyUser(
-                    "info",
-                    "تم تحميل الصورة. انقر الآن على زوايا العقار لتحديد حدوده.",
-                );
-            };
-            reader.readAsDataURL(file);
+        emptyPlaceholder.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            emptyPlaceholder.classList.add("drag-over");
+        });
+
+        emptyPlaceholder.addEventListener("dragleave", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            emptyPlaceholder.classList.remove("drag-over");
+        });
+
+        emptyPlaceholder.addEventListener("drop", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            emptyPlaceholder.classList.remove("drag-over");
+
+            const files = e.dataTransfer?.files;
+            if (files && files.length > 0) {
+                try {
+                    imageUploadInput.files = files;
+                } catch (err) {
+                    // Browser restriction fallback
+                }
+                handleImageFile(files[0]);
+            }
+        });
+    }
+
+    if (btnChangeImage && imageUploadInput) {
+        btnChangeImage.addEventListener("click", () => {
+            imageUploadInput.value = "";
+            imageUploadInput.click();
         });
     }
 

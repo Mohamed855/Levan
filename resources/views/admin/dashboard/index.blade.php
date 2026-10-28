@@ -1,21 +1,17 @@
 @extends('admin.layouts.layoutMaster')
 
-@section('title', 'لوحة التحكم الرئيسية - LOT')
+@section('title', 'لوحة القيادة الرئيسية - Levan')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
+    @vite(['resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/vendor/libs/select2/select2.js'])
-@endsection
-
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
+    @vite(['resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('page-style')
-    @vite(['resources/assets/css/shared/dataTable.css', 'resources/assets/scss/admin/pages/dashboard.scss'])
+    @vite(['resources/assets/scss/admin/pages/dashboard.scss'])
 @endsection
 
 @section('page-script')
@@ -51,10 +47,11 @@
     </div>
 
     <div class="row g-4 mb-4">
-        <div class="col-md-6">
+        <div class="col-lg-6">
             <x-admin.dashboard-panel class="h-100" title="استخدام المنصة" icon="ti-chart-bar">
                 <x-slot:headerAction>
-                    <select id="platform-activity-range" class="form-select select2 chart-range-select">
+                    <select id="platform-activity-range" class="form-select select2 chart-range-select"
+                        aria-label="تحديد النطاق الزمني">
                         <x-form.controls.enum-options :enum="\App\Enums\Admin\Dashboard\ActivityRange::class" :selected="\App\Enums\Admin\Dashboard\ActivityRange::ONE_MONTH->value" />
                     </select>
                 </x-slot:headerAction>
@@ -65,7 +62,7 @@
             </x-admin.dashboard-panel>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-lg-6">
             <x-admin.dashboard-panel class="h-100" title="توزيع حالات الاشتراكات" icon="ti-donut" icon-color="info">
                 <div class="row g-0 row-gap-3 h-100">
                     {{-- القائمة اليمين --}}

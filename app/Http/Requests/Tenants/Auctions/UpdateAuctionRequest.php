@@ -9,6 +9,7 @@ use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Enums\Tenants\Auctions\AuctionType;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Http\Requests\Concerns\AuctionReportEvidenceRules;
+use App\Http\Requests\Concerns\AuctionReportDetailRules;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use Carbon\Carbon;
@@ -18,6 +19,7 @@ use Illuminate\Validation\Rule;
 class UpdateAuctionRequest extends WizardFormRequest
 {
     use AuctionReportEvidenceRules;
+    use AuctionReportDetailRules;
     private ?Assignment $resolvedAssignment = null;
     private bool $assignmentResolved = false;
 
@@ -28,7 +30,7 @@ class UpdateAuctionRequest extends WizardFormRequest
 
     public function rules(): array
     {
-        return $this->reportEvidenceRules() + [
+        return $this->reportEvidenceRules() + $this->reportDetailRules() + [
             // Step 1: Basic Info
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:500'],

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Tenants\Auctions\Reports;
 
 use InvalidArgumentException;
+use App\Enums\Tenants\Auctions\AuctionStatus;
 
 final class AsirReportData
 {
@@ -19,6 +20,9 @@ final class AsirReportData
 
     public function page(array $snapshot, array $page): array
     {
+        if (array_key_exists('gallery', $page['payload'])) {
+            return (new AuctionReportEvidencePage)->content($snapshot, $page, 'asir');
+        }
         $type = preg_replace('/-continuation$/', '', $page['page_type']);
         $index = array_search($type, self::TYPES, true);
         if ($index === false) {
@@ -31,6 +35,7 @@ final class AsirReportData
         $end = $this->format->dateParts($auction['end_date'] ?? null);
         $marketing = $snapshot['marketing'] ?? [];
         $contacts = $marketing['contacts'] ?? [];
+        $destinations = (new AuctionReportLinks)->destinations($snapshot);
         $values = [
             'name' => $name, 'subtitle' => 'التقرير النهائي '.(str_starts_with($name, 'مزاد') ? 'ل'.$name : 'لمزاد '.$name),
             'manager' => (string) ($auction['project_manager_name'] ?? '-'),
@@ -42,17 +47,19 @@ final class AsirReportData
             'end_time' => $this->format->arabicDigits($this->format->time($auction['end_time'] ?? null)),
             'end_time_short' => $this->format->arabicDigits(str_replace(['الساعة ', 'صباحًا', 'مساءً'], ['', 'ص', 'م'], $this->format->time($auction['end_time'] ?? null))),
             'property_count' => $this->format->arabicDigits((string) count($snapshot['properties'])),
-            'introduction' => (string) ($marketing['introduction'] ?? $auction['description'] ?? '-'),
+            'introduction' => (string) (($marketing['introduction'] ?? '') ?: (($auction['description'] ?? '') ?: '-')),
             'name_context' => 'اختيار اسم المزاد وإعداد الهوية البصرية - '.$name,
             'city_context' => 'المملكة ومنطقة '.($auction['city'] ?? '-').' .',
             'platform_context' => 'نشر المزاد على '.($auction['platform_name'] ?? '-'),
-            'platform_url' => (string) ($auction['platform_url'] ?? '-'),
+            'platform_url' => empty($destinations['platform']) ? '-' : 'رابط المزاد على '.($auction['platform_name'] ?? 'المنصة'),
             'auction_type' => (string) ($auction['type'] ?? '-'),
-            'duration' => '', 'status' => '', 'start_mark' => '', 'duplicate_header' => '', 'contract_text' => '',
+            'duration' => $this->format->duration($auction),
+            'status' => ($status = AuctionStatus::tryFrom((string) ($auction['status'] ?? ''))) ? 'مزاد '.$status->label() : 'غير متوفر',
+            'start_mark' => '', 'duplicate_header' => '', 'contract_text' => '',
             'phone' => (string) ($contacts['phone'] ?? '-'), 'unified_phone' => (string) ($contacts['unified_phone'] ?? '-'),
             'social' => (string) ($contacts['social'] ?? '-'),
-            'brochure_url' => (string) ($marketing['brochure_url'] ?? '-'),
-            'video_url' => (string) ($marketing['video_url'] ?? '-'),
+            'brochure_url' => empty($destinations['brochure']) ? '-' : 'رابط الكتيب',
+            'video_url' => empty($destinations['video']) ? '-' : 'رابط فيديو المزاد',
             'sales_total' => $this->format->arabicDigits($this->format->number($snapshot['totals']['recorded_sales_total'] ?? null)),
             'sold_count' => '('.$this->format->arabicDigits((string) ($snapshot['totals']['sold_count'] ?? 0)).') عقار تم بيعها',
             'unsold_count' => $this->format->arabicDigits((string) ($snapshot['totals']['unsold_count'] ?? 0)),
@@ -65,19 +72,22 @@ final class AsirReportData
         foreach (['youtube' => ['youtube', 'يوتيوب'], 'x' => ['x', 'أكس'], 'tiktok' => ['tiktok', 'تيك توك'], 'snapchat' => ['snapchat', 'سناب شات'], 'google' => ['google', 'جوجل'], 'whatsapp' => ['whatsapp', 'واتساب']] as $channel => $names) {
             $campaign = $this->campaign($snapshot, $names);
             foreach (['views', 'posts', 'subscribers', 'watch_hours', 'messages', 'delivered', 'failed', 'pending', 'total'] as $metric) {
-                $value = $campaign[$metric] ?? ($metric === 'views' ? ($campaign['impressions'] ?? null) : null);
-                $values[$channel.'_'.$metric] = $this->format->number(is_numeric($value) ? (float) $value : null);
+                $value = $campaign[$metric] ?? null;
+                $values[$channel.'_'.$metric] = $this->format->number(is_numeric($value) ? (float) $value : null, $metric === 'watch_hours' ? 2 : 0);
                 $values[$channel.'_'.$metric.'_2'] = $values[$channel.'_'.$metric];
             }
         }
         $values['whatsapp_date'] = $this->format->date($marketing['whatsapp_date'] ?? null);
+        $values['whatsapp_summary'] = $values['whatsapp_messages'] === '-' ? 'لا تتوفر بيانات عن عدد الرسائل' : 'عدد الرسائل المسجلة: '.$values['whatsapp_messages'];
+        $values['whatsapp_views_summary'] = $values['whatsapp_views'] === '-' ? 'لا تتوفر بيانات عن المشاهدات' : 'المشاهدات المسجلة: '.$values['whatsapp_views'];
         $views = array_column($marketing['campaigns'] ?? [], 'impressions');
         $values['social_total'] = $views === [] ? '-' : $this->format->arabicDigits($this->format->number(array_sum($views)));
         foreach (range(1, 3) as $slot) {
             $values['chart_'.$slot] = '';
             $values['sold_position_'.$slot] = $this->position($snapshot, $payload['properties'][$slot - 1] ?? []);
-            $values['broker_'.$slot] = (string) ($payload['brokers'][$slot - 1]['name'] ?? '-');
-            $campaign = $payload['campaigns'][$slot - 1] ?? [];
+            $values['broker_'.$slot] = (string) (($payload['brokers'][$slot - 1]['display_name'] ?? '') ?: '-');
+            $channel = ['snapchat', 'tiktok', 'x'][$slot - 1];
+            $campaign = AuctionReportChannels::campaign($marketing['campaigns'] ?? [], $channel);
             $values['campaign_'.$slot.'_name'] = (string) ($campaign['platform'] ?? '-');
             $values['campaign_'.$slot.'_views'] = $this->format->number($campaign['impressions'] ?? null);
         }
@@ -85,7 +95,7 @@ final class AsirReportData
             $relative = $slot - (in_array($index, [8, 17], true) ? 7 : 1);
             $section = $index >= 16 ? 'board_after' : 'board_before';
             $item = $payload[$section][$relative] ?? null;
-            $values['board_'.$slot] = $item === null ? '-' : $this->format->arabicDigits((string) (($payload['offset'] ?? 0) + $relative + 1));
+            $values['board_'.$slot] = $item === null ? '' : $this->format->arabicDigits((string) (($payload['offset'] ?? 0) + $relative + 1));
         }
         $tables = [];
         if ($index === 1) {
@@ -114,7 +124,17 @@ final class AsirReportData
         $images = $payload;
         $images['report_image'] = array_fill(0, 2, ['uri' => $auction['report_image'] ?? null]);
 
-        return ['index' => $index, 'values' => $values, 'tables' => $tables, 'images' => $images];
+        $overrides = [];
+        if ($index === 13) {
+            $chart = (new AuctionReportCharts)->whatsapp(AuctionReportChannels::campaign($marketing['campaigns'] ?? [], 'whatsapp'));
+            $overrides['hide_clips'] = ['p13_clip_32'];
+            $overrides[$chart === null ? 'empty_regions' : 'charts'] = $chart === null ? [[125, 395, 253, 520]] : [$chart];
+        }
+        if ($index === 11 && empty($payload['video'][2]['uri'])) {
+            $overrides['empty_regions'] = [[144.445, 635.937, 464.458, 732.191]];
+        }
+
+        return ['index' => $index, 'values' => $values, 'tables' => $tables, 'images' => $images, 'artwork_overrides' => $overrides];
     }
 
     private function position(array $snapshot, array $property): string

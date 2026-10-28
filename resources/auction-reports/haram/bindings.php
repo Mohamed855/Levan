@@ -28,6 +28,7 @@ return [
         'images' => [],
     ],
     3 => [
+        'link_fields' => ['x' => 'x_url', 'tiktok' => 'tiktok_url', 'snapchat' => 'snapchat_label', 'marketing_evidence' => 'marketing_url', 'boards' => 'boards_url'],
         'groups' => [
             'snapchat_label' => ['f3', 'f4', 'f5', 'f6'], 'tiktok_label' => ['f7', 'f8', 'f9', 'f10'], 'x_label' => ['f11', 'f12'],
             'snapchat_impressions' => ['f13'], 'tiktok_impressions' => ['f14'], 'x_impressions' => ['f15'],
@@ -38,8 +39,8 @@ return [
         ],
         'layouts' => ['footer' => ['max_width' => 230]],
         'images' => [
-            ['section' => 'marketing_evidence', 'slot' => 0, 'box' => [243.34, 196.87, 383.49, 339.20]],
-            ['section' => 'marketing_evidence', 'slot' => 1, 'box' => [371.29, 601.79, 466.72, 777.36]],
+            ['section' => 'x', 'slot' => 0, 'box' => [243.34, 196.87, 383.49, 339.20]],
+            ['section' => 'snapchat', 'slot' => 0, 'box' => [371.29, 601.79, 466.72, 777.36]],
         ],
     ],
     4 => [
@@ -66,6 +67,7 @@ return [
         ],
     ],
     6 => [
+        'link_fields' => ['phone' => 'phone', 'unified_phone' => 'unified_phone', 'social' => 'social'],
         'groups' => ['phone' => ['f2'], 'unified_phone' => ['f3'], 'social' => ['f4'], 'footer' => ['f6']],
         'images' => [],
     ],

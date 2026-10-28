@@ -1,22 +1,35 @@
 <div class="card assignment-properties-table-card h-100">
     <div class="card-body d-flex flex-column gap-3">
-        <div>
-            <label class="form-label fw-medium mb-1">
+        <div class="d-flex align-items-center justify-content-between">
+            <label class="form-label fw-semibold mb-0 fs-6">
                 صورة العقار <span class="text-danger">*</span>
             </label>
-            <input type="file" id="property-image-upload" class="form-control" accept="image/png,image/jpeg,image/webp">
-            <small class="text-muted">اختر صورة بصيغة PNG أو JPG أو WebP للبدء في تحديد حدود العقار عليها.</small>
+            <span class="badge bg-label-primary">كروكي مساحي / جوي</span>
         </div>
+        <input type="file" id="property-image-upload" class="d-none" accept="image/png,image/jpeg,image/webp">
 
         {{-- لوحة الرسم التفاعلية --}}
         <div class="flex-grow-1 position-relative d-flex flex-column">
-            {{-- مربع رسالة الانتظار عند عدم وجود صورة --}}
+            {{-- مربع رسالة الانتظار عند عدم وجود صورة (قابل للنقر لاختيار صورة أو إفلاتها) --}}
             <div id="property-image-empty-placeholder"
-                class="border rounded-3 p-4 text-center text-muted bg-light d-flex flex-column align-items-center justify-content-center flex-grow-1"
-                style="min-height: 320px;">
-                <i class="ti ti-photo-scan fs-1 text-primary mb-2"></i>
-                <span class="fw-semibold">لم يتم رفع صورة للعقار بعد</span>
-                <small class="text-muted mt-1">ارفع صورة جوية أو كروكي مساحي لتحديد العقار عليها</small>
+                class="property-image-dropzone rounded-3 p-4 text-center d-flex flex-column align-items-center justify-content-center flex-grow-1"
+                role="button"
+                tabindex="0"
+                aria-label="اضغط لاختيار صورة العقار أو اسحب الصورة هنا"
+                style="min-height: 340px;">
+                <div class="property-image-upload-icon-box mb-3">
+                    <i class="ti ti-photo-up text-primary"></i>
+                </div>
+                <h6 class="fw-bold mb-1 text-dark">اضغط هنا لاختيار صورة العقار</h6>
+                <p class="text-muted small mb-3">أو اسحب ملف الصورة وأفلته داخل هذا المربع</p>
+                <span class="btn btn-sm btn-label-primary px-3 py-1 mb-2 d-inline-flex align-items-center gap-1 shadow-none">
+                    <i class="ti ti-upload fs-5"></i>
+                    <span>استعراض من الجهاز</span>
+                </span>
+                <div class="text-muted d-flex flex-column align-items-center gap-1 small mt-2">
+                    <span class="badge bg-label-secondary font-monospace">PNG, JPG, WebP</span>
+                    <span class="text-xs text-muted">صورة جوية أو كروكي مساحي لتحديد أضلاع العقار عليها</span>
+                </div>
             </div>
 
             {{-- حاوية الرسم التفاعلية مع الكانفاس --}}
@@ -42,6 +55,11 @@
                     id="btn-download-annotated" disabled title="تحميل الصورة المحددة إلى جهازك">
                     <i class="ti ti-download fs-5"></i>
                     <span>تحميل الصورة المحددة</span>
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 d-none"
+                    id="btn-change-image" title="اختيار صورة أخرى للعقار">
+                    <i class="ti ti-photo-edit fs-5"></i>
+                    <span>تغيير الصورة</span>
                 </button>
             </div>
             <button type="button" class="btn btn-danger btn-sm d-flex align-items-center gap-1 d-none"

@@ -60,7 +60,7 @@ final class AuctionReportInputService
             $result = $results[$propertyId] ?? $results[(string) $propertyId] ?? null;
             $syncData[$propertyId] = ['sort_order' => $index + 1] + ($result === null
                 ? $this->retainedResult($currentById->get($propertyId))
-                : $this->normalizedResult($result));
+                : $this->normalizedResult($result, $currentById->get($propertyId)));
         }
 
         return $syncData;
@@ -85,7 +85,7 @@ final class AuctionReportInputService
         foreach ($marketingEvidence as $index => $file) {
             if ($file instanceof UploadedFile) {
                 $meta = (array) ($metadata[$index] ?? []);
-                $section = $meta['section'] ?? 'marketing_evidence';
+                $section = $this->evidenceSection($meta['section'] ?? 'marketing_evidence', $meta['channel'] ?? null);
                 $propertyId = isset($meta['property_id']) ? (int) $meta['property_id'] : null;
                 if ($propertyId !== null && ! in_array($propertyId, $propertyIds, true)) {
                     throw ValidationException::withMessages(['marketing_evidence_meta' => 'المرفق يجب أن يخص عقارًا مرتبطًا بالمزاد.']);
@@ -111,7 +111,7 @@ final class AuctionReportInputService
             $attachment = $attachments->get($id);
             $attributes = [];
             if (array_key_exists('section', $values) && $values['section'] !== null) {
-                $attributes['report_section'] = $values['section'];
+                $attributes['report_section'] = $this->evidenceSection($values['section'], $values['channel'] ?? $attachment->report_metadata['channel'] ?? null);
             }
             if (array_key_exists('display_order', $values) && $values['display_order'] !== null) {
                 $attributes['display_order'] = (int) $values['display_order'];
@@ -127,6 +127,18 @@ final class AuctionReportInputService
             $attachment->update($attributes);
         }
         $auction->unsetRelation('attachments');
+    }
+
+    private function evidenceSection(string $section, ?string $channel): string
+    {
+        if ($section !== 'marketing_evidence') {
+            return $section;
+        }
+
+        return match ($channel) {
+            'youtube' => 'video', 'x' => 'x', 'whatsapp' => 'whatsapp',
+            'snapchat', 'tiktok' => 'social', default => 'marketing_evidence',
+        };
     }
 
     /**
@@ -174,17 +186,23 @@ final class AuctionReportInputService
     }
 
     /** @param array<string, mixed> $result @return array<string, mixed> */
-    private function normalizedResult(array $result): array
+    private function normalizedResult(array $result, ?Property $currentProperty = null): array
     {
         $status = (string) ($result['status'] ?? '');
         if (! in_array($status, ['pending', 'sold', 'unsold'], true)) {
             throw ValidationException::withMessages(['property_results' => 'حالة نتيجة العقار غير صحيحة.']);
         }
 
-        $boardData = array_filter([
-            'location' => $result['board_location'] ?? null,
-            'notes' => $result['board_notes'] ?? null,
-        ], static fn (mixed $value): bool => filled($value));
+        $boardData = $currentProperty?->pivot?->board_data ?? [];
+        if (is_string($boardData)) {
+            $boardData = json_decode($boardData, true) ?: [];
+        }
+        foreach (['location' => 'board_location', 'notes' => 'board_notes', 'count' => 'board_count', 'dimensions' => 'board_dimensions'] as $key => $input) {
+            if (array_key_exists($input, $result)) {
+                $boardData[$key] = $result[$input];
+            }
+        }
+        $boardData = array_filter($boardData, static fn (mixed $value): bool => filled($value));
 
         return [
             'result_status' => $status,

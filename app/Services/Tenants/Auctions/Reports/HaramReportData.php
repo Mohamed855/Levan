@@ -10,6 +10,9 @@ final class HaramReportData
 
     public function page(array $snapshot, array $page): array
     {
+        if (array_key_exists('gallery', $page['payload'])) {
+            return (new AuctionReportEvidencePage)->content($snapshot, $page, 'haram');
+        }
         $type = preg_replace('/-continuation$/', '', $page['page_type']);
         $index = array_search($type, ['haram-cover', 'haram-index', 'haram-results', 'haram-marketing', 'haram-board-before', 'haram-brokers', 'haram-closing'], true);
         $auction = $snapshot['auction'];
@@ -26,7 +29,7 @@ final class HaramReportData
             'date_range' => $this->format->dateRange($auction['start_date'] ?? null, $auction['end_date'] ?? null),
             'property_count' => (string) count($snapshot['properties'] ?? []),
             'footer' => 'مخرجات المزاد - '.$name,
-            'narrative' => (string) (($auction['description'] ?? '') ?: 'نتائج المزاد '.$name.' تحت إشراف '.($auction['supervising_entity'] ?? '-')),
+            'narrative' => (string) (($marketing['results_narrative'] ?? '') ?: (($auction['description'] ?? '') ?: 'نتائج المزاد '.$name.' تحت إشراف '.($auction['supervising_entity'] ?? '-'))),
             'removal_date' => 'فك اللوحات - '.$this->format->date($auction['end_date'] ?? null),
             'phone' => (string) ($contacts['phone'] ?? '-'),
             'unified_phone' => (string) ($contacts['unified_phone'] ?? '-'),
@@ -48,16 +51,8 @@ final class HaramReportData
                 }
             }
         }
-        foreach ($campaigns as $key => $campaign) {
-            if (isset($used[$key])) {
-                continue;
-            }
-            foreach ($slots as $channel => $slot) {
-                if ($slot === null) {
-                    $slots[$channel] = $campaign;
-                    break;
-                }
-            }
+        foreach (array_keys($channels) as $channel) {
+            $slots[$channel] = AuctionReportChannels::campaign($campaigns, $channel);
         }
         foreach ($slots as $channel => $campaign) {
             $values[$channel.'_impressions'] = $this->format->number($campaign['impressions'] ?? null);
@@ -71,13 +66,14 @@ final class HaramReportData
             $value = $tiktok[$metric] ?? null;
             $values['tiktok_'.$metric] = is_numeric($value) ? $this->format->number((float) $value) : (string) ($value ?? '-');
         }
-        $values['x_url'] = (string) ($this->campaign($snapshot, ['x', 'أكس'])['url'] ?? '-');
-        $values['tiktok_url'] = (string) ($tiktok['url'] ?? '-');
+        $destinations = (new AuctionReportLinks)->destinations($snapshot);
+        $values['x_url'] = empty($destinations['x']) ? '-' : 'رابط حملة X';
+        $values['tiktok_url'] = empty($destinations['tiktok']) ? '-' : 'رابط حملة تيك توك';
         $values['snapchat_views'] = $this->format->number($this->campaign($snapshot, ['snapchat', 'سناب شات'])['impressions'] ?? null);
-        $values['marketing_url'] = (string) ($marketing['evidence_url'] ?? '-');
-        $values['boards_url'] = (string) ($marketing['boards_url'] ?? '-');
+        $values['marketing_url'] = empty($destinations['marketing_evidence']) ? '-' : 'رابط أدلة التسويق';
+        $values['boards_url'] = empty($destinations['boards']) ? '-' : 'رابط اللوحات';
         foreach (range(1, 3) as $slot) {
-            $values['broker_'.$slot] = (string) ($payload['brokers'][$slot - 1]['name'] ?? '-');
+            $values['broker_'.$slot] = (string) (($payload['brokers'][$slot - 1]['display_name'] ?? '') ?: '-');
         }
         $position = static function (array $property) use ($snapshot): string {
             foreach ($snapshot['properties'] as $key => $candidate) {

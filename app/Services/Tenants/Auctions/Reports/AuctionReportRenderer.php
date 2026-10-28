@@ -32,7 +32,9 @@ final class AuctionReportRenderer
         $pages = [];
         foreach ($this->paginator->paginate($snapshot, $type) as $page) {
             $content = $pageData->page($snapshot, $page);
-            foreach ($this->textLayout->flow($content, $this->artwork->page($design, $content['index'])) as $index => $part) {
+            $definition = array_replace($this->artwork->page($design, $content['index']), $content['artwork_overrides'] ?? []);
+            foreach ($this->textLayout->flow($content, $definition) as $index => $part) {
+                $part['links'] = (new AuctionReportLinks)->forPage($snapshot, $definition);
                 $pages[] = [
                     'page_type' => $page['page_type'].($index > 0 && ! str_ends_with($page['page_type'], '-continuation') ? '-continuation' : ''),
                     'page_number' => count($pages) + 1,

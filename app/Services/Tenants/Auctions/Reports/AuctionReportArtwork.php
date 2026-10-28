@@ -31,9 +31,9 @@ final class AuctionReportArtwork
      * @param  array<string, list<list<string>>>  $tables
      * @param  array<string, list<array<string, mixed>>>  $images
      */
-    public function render(string $design, int $index, array $values, array $tables, array $images, int $pageNumber, array $tableLayouts = [], array $fieldLayouts = []): string
+    public function render(string $design, int $index, array $values, array $tables, array $images, int $pageNumber, array $tableLayouts = [], array $fieldLayouts = [], array $overrides = []): string
     {
-        $page = $this->page($design, $index);
+        $page = array_replace($this->page($design, $index), $overrides);
         $source = file_get_contents($this->path($design.'/page-'.($index + 1).'.svg'));
         if (str_contains($source, '__BACKGROUND__')) {
             $source = str_replace('__BACKGROUND__', $this->uri($design.'/background-'.($index + 1).'.png', 'image/png'), $source);
@@ -45,6 +45,16 @@ final class AuctionReportArtwork
         $svg = $document->documentElement;
         $svg->setAttribute('data-report-page', (string) $pageNumber);
         $xpath = new DOMXPath($document);
+        foreach ($xpath->query('//*[@data-field]') as $node) {
+            if (in_array($node->getAttribute('data-field'), $page['hide_fields'] ?? [], true)) {
+                $node->parentNode?->removeChild($node);
+            }
+        }
+        foreach ($page['hide_clips'] ?? [] as $clip) {
+            foreach ($xpath->query('//*[@clip-path="url(#report_'.$pageNumber.'_'.$clip.')"]') as $node) {
+                $node->parentNode?->removeChild($node);
+            }
+        }
         foreach ($xpath->query('//*[@data-image-def]') as $definition) {
             $id = $definition->getAttribute('data-image-def');
             if (! isset($page['image_defs'][$id])) {
@@ -52,21 +62,36 @@ final class AuctionReportArtwork
             }
             $frame = $page['image_defs'][$id];
             $item = $images[$frame['section']][$frame['slot']] ?? [];
+            if (in_array($frame['section'], $page['hide_sections'] ?? [], true) || ($item === [] && $frame['section'] !== 'report_image')) {
+                $definition->setAttributeNS(self::XLINK, 'xlink:href', 'data:image/svg+xml;base64,'.base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>'));
+                $definition->setAttribute('visibility', 'hidden');
+                foreach ($xpath->query('//*[@data-image="'.$id.'"]') as $usage) {
+                    $usage->setAttribute('visibility', 'hidden');
+                }
+
+                continue;
+            }
             $uri = $item['uri'] ?? null;
             $valid = $this->isImage($uri);
-            $definition->setAttribute('preserveAspectRatio', $valid && ($item['fit'] ?? 'cover') !== 'contain' ? 'xMidYMid slice' : 'xMidYMid meet');
+            $fit = $valid ? $this->imageFit($item, $frame['section']) : 'contain';
+            $definition->setAttribute('preserveAspectRatio', $fit === 'cover' ? 'xMidYMid slice' : 'xMidYMid meet');
             $definition->setAttributeNS(self::XLINK, 'xlink:href', $valid ? $uri : $this->uri('fallback.svg', 'image/svg+xml'));
             $definition->setAttribute('data-report-media', $frame['section'].':'.$frame['slot']);
+            $definition->setAttribute('data-report-attachment', (string) ($item['id'] ?? ''));
+            $definition->setAttribute('data-document-page', (string) ($item['document_page'] ?? ''));
             foreach ($xpath->query('//*[@data-image="'.$id.'"]') as $usage) {
                 $usage->setAttribute('data-report-media', $frame['section'].':'.$frame['slot']);
             }
-            if (! $valid || ($item['fit'] ?? 'cover') === 'contain') {
-                $this->fitInFrame($document, $xpath, $page['fallback_frames'][$id] ?? [], $id, $definition->getAttributeNS(self::XLINK, 'href'), $frame['section'].':'.$frame['slot'], $pageNumber);
+            if (isset($page['fallback_frames'][$id])) {
+                $this->fitInFrame($document, $xpath, $page['fallback_frames'][$id], $id, $definition->getAttributeNS(self::XLINK, 'href'), $frame['section'].':'.$frame['slot'], $pageNumber, $fit, $item);
             }
         }
 
         foreach ($page['images'] as $frame) {
             $item = $images[$frame['section']][$frame['slot']] ?? [];
+            if ($item === []) {
+                continue;
+            }
             $uri = $item['uri'] ?? null;
             $valid = $this->isImage($uri);
             [$x, $y, $right, $bottom] = $frame['box'];
@@ -74,10 +99,35 @@ final class AuctionReportArtwork
             foreach (['x' => $x, 'y' => $y, 'width' => $right - $x, 'height' => $bottom - $y] as $key => $value) {
                 $image->setAttribute($key, (string) $value);
             }
-            $image->setAttribute('preserveAspectRatio', $valid && ($item['fit'] ?? 'cover') !== 'contain' ? 'xMidYMid slice' : 'xMidYMid meet');
+            $fit = $valid ? $this->imageFit($item, $frame['section']) : 'contain';
+            $image->setAttribute('preserveAspectRatio', 'xMidYMid meet');
             $image->setAttribute('data-report-media', $frame['section'].':'.$frame['slot']);
+            $image->setAttribute('data-report-attachment', (string) ($item['id'] ?? ''));
+            $image->setAttribute('data-document-page', (string) ($item['document_page'] ?? ''));
             $image->setAttributeNS(self::XLINK, 'xlink:href', $valid ? $uri : $this->uri('fallback.svg', 'image/svg+xml'));
+            if ($fit === 'cover') {
+                $this->coverImage($document, $image, $frame['box'], $item, 'report_'.$pageNumber.'_manual_'.$frame['section'].'_'.$frame['slot']);
+            }
             $svg->appendChild($image);
+        }
+
+        foreach ($page['empty_regions'] ?? [] as $box) {
+            [$left, $top, $right, $bottom] = $box;
+            $rect = $document->createElementNS(self::SVG, 'rect');
+            foreach (['x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top, 'fill' => '#ffffff'] as $key => $value) {
+                $rect->setAttribute($key, (string) $value);
+            }
+            $svg->appendChild($rect);
+            $this->text($document, $svg, ['x' => $left, 'y' => ($top + $bottom) / 2, 'width' => $right - $left, 'max_width' => $right - $left, 'size' => 10, 'sy' => 10, 'font' => 'NotoSansArabic-Regular', 'color' => '#757575', 'rtl' => true], 'لا تتوفر إحصاءات', ['data-report-empty-statistics' => 'true'], true);
+        }
+        foreach ($page['charts'] ?? [] as $chart) {
+            $chartDocument = new DOMDocument;
+            if ($chartDocument->loadXML($chart, LIBXML_NONET | LIBXML_COMPACT)) {
+                $node = $document->importNode($chartDocument->documentElement, true);
+                $node->setAttribute('width', (string) $page['width']);
+                $node->setAttribute('height', (string) $page['height']);
+                $svg->appendChild($node);
+            }
         }
 
         foreach ($page['groups'] as $role => $ids) {
@@ -136,7 +186,16 @@ final class AuctionReportArtwork
         return $document->saveXML($svg);
     }
 
-    private function fitInFrame(DOMDocument $document, DOMXPath $xpath, array $frames, string $id, string $uri, string $media, int $pageNumber): void
+    private function imageFit(array $item, string $section): string
+    {
+        if (in_array($item['fit'] ?? null, ['contain', 'cover'], true)) {
+            return $item['fit'];
+        }
+
+        return $section === 'report_image' || in_array($item['kind'] ?? null, ['photo', 'artwork'], true) ? 'cover' : 'contain';
+    }
+
+    private function fitInFrame(DOMDocument $document, DOMXPath $xpath, array $frames, string $id, string $uri, string $media, int $pageNumber, string $fit = 'contain', array $item = []): void
     {
         foreach ($frames as $frame) {
             $query = $frame['clip'] === null ? '/*' : '//*[@clip-path="url(#report_'.$pageNumber.'_'.$frame['clip'].')"]';
@@ -161,12 +220,49 @@ final class AuctionReportArtwork
                         $node->setAttribute('preserveAspectRatio', 'xMidYMid meet');
                         $node->setAttribute('data-report-contained', $media);
                         $node->setAttribute('data-report-media', $media);
+                        $node->setAttribute('data-report-attachment', (string) ($item['id'] ?? ''));
+                        $node->setAttribute('data-document-page', (string) ($item['document_page'] ?? ''));
                         $node->setAttributeNS(self::XLINK, 'xlink:href', $uri);
+                        if ($fit === 'cover') {
+                            $node->removeAttribute('data-report-contained');
+                            $node->setAttribute('data-report-cover', $media);
+                            $this->coverImage($document, $node, $frame['box'], $item, 'report_'.$pageNumber.'_frame_'.$id.'_'.substr(hash('sha256', json_encode($frame)), 0, 8));
+                        }
                     }
                     $container->appendChild($node);
                 }
             }
         }
+    }
+
+    private function coverImage(DOMDocument $document, DOMElement $image, array $box, array $item, string $clipId): void
+    {
+        $uri = $item['uri'] ?? '';
+        $bytes = str_contains($uri, ',') ? base64_decode(explode(',', $uri, 2)[1], true) : false;
+        $size = $bytes === false ? false : @getimagesizefromstring($bytes);
+        if ($size === false) {
+            $image->setAttribute('preserveAspectRatio', 'xMidYMid slice');
+            return;
+        }
+        [$left, $top, $right, $bottom] = $box;
+        $width = $right - $left;
+        $height = $bottom - $top;
+        $scale = max($width / $size[0], $height / $size[1]);
+        $focalX = max(0, min(100, (float) ($item['focal_x'] ?? 50))) / 100;
+        $focalY = max(0, min(100, (float) ($item['focal_y'] ?? 50))) / 100;
+        foreach (['x' => $left - ($size[0] * $scale - $width) * $focalX, 'y' => $top - ($size[1] * $scale - $height) * $focalY, 'width' => $size[0] * $scale, 'height' => $size[1] * $scale] as $key => $value) {
+            $image->setAttribute($key, (string) $value);
+        }
+        $clip = $document->createElementNS(self::SVG, 'clipPath');
+        $clip->setAttribute('id', $clipId);
+        $rect = $document->createElementNS(self::SVG, 'rect');
+        foreach (['x' => $left, 'y' => $top, 'width' => $width, 'height' => $height] as $key => $value) {
+            $rect->setAttribute($key, (string) $value);
+        }
+        $clip->appendChild($rect);
+        $document->documentElement->appendChild($clip);
+        $image->setAttribute('clip-path', 'url(#'.$clipId.')');
+        $image->setAttribute('preserveAspectRatio', 'none');
     }
 
     private function tableBody(DOMDocument $document, DOMElement $svg, array $table, array $page, string $id, array $rows): void

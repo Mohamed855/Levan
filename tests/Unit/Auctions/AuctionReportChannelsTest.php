@@ -10,6 +10,16 @@ use PHPUnit\Framework\TestCase;
 
 final class AuctionReportChannelsTest extends TestCase
 {
+    public function test_platform_status_and_inclusive_calendar_duration_come_from_the_auction(): void
+    {
+        $snapshot = ['auction' => ['name' => 'اختبار', 'status' => 'active', 'start_date' => '2026-05-19', 'end_date' => '2026-05-21', 'start_time' => '10:00', 'end_time' => '17:00', 'timezone' => 'Asia/Riyadh'], 'properties' => [], 'totals' => []];
+        $binder = new AsirReportData(new AuctionReportFormat);
+        $content = $binder->page($snapshot, ['page_type' => 'asir-platform', 'payload' => []]);
+        self::assertSame('مزاد نشط', $content['values']['status']);
+        self::assertSame('أيام المزاد: ٣', $content['values']['duration']);
+        unset($snapshot['auction']['status']);
+        self::assertSame('غير متوفر', $binder->page($snapshot, ['page_type' => 'asir-platform', 'payload' => []])['values']['status']);
+    }
     public function test_social_card_metrics_do_not_depend_on_campaign_input_order(): void
     {
         $snapshot = ['auction' => ['name' => 'اختبار'], 'properties' => [], 'marketing' => ['campaigns' => [

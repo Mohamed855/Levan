@@ -75,7 +75,7 @@
             color="success" />
 
         <x-ui.stat-card title="العقارات المباعة" :value="number_format($kpis['sold_properties'])" subtitle="تمت ترسيتها بنجاح" icon="ti-circle-check"
-            color="label-dark text-dark text-dark" />
+            color="label-dark text-dark" />
     </div>
 
     {{-- قسم الرسوم البيانية التفاعلية --}}
@@ -198,7 +198,7 @@
                     <div class="col-4">
                         <a href="{{ tenant_route_name('tickets.index') }}" class="quick-action-box">
                             <div class="avatar avatar-md mb-2">
-                                <span class="avatar-initial rounded bg-label-dark text-dark text-dark">
+                                <span class="avatar-initial rounded bg-label-dark text-dark">
                                     <i class="ti ti-headset fs-4"></i>
                                 </span>
                             </div>
@@ -251,7 +251,16 @@
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center gap-1">
-                                            <span class="badge bg-primary small dashboard-activity-event"
+                                            @php
+                                                $eventClass = match($activity->event) {
+                                                    'created' => 'bg-label-success',
+                                                    'updated' => 'bg-label-info',
+                                                    'deleted' => 'bg-label-danger',
+                                                    'login'   => 'bg-label-primary',
+                                                    default   => 'bg-label-secondary',
+                                                };
+                                            @endphp
+                                            <span class="badge {{ $eventClass }} small dashboard-activity-event"
                                                 title="{{ $activity->formatted_event }}">
                                                 {{ $activity->formatted_event }}
                                             </span>

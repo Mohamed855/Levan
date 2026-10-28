@@ -10,10 +10,14 @@
         </div>
         <div class="row g-3">
             <div class="col-lg-6">
-                <x-form.wizard.review-card title="البيانات الأساسية" step="1" col="" class="h-100 assignment-review__card">
+                <x-form.wizard.review-card title="البيانات الأساسية والإسناد" step="1" col="" class="h-100 assignment-review__card">
                     <dl class="row mb-0 small">
                         <dt class="col-5 text-muted">اسم المزاد</dt>
                         <dd class="col-7 fw-semibold" id="review-name">{{ $isEdit ? $auction->name : '-' }}</dd>
+                        <dt class="col-5 text-muted">الإسناد المرتبط</dt>
+                        <dd class="col-7 fw-semibold" id="review-assignment-name">{{ $isEdit ? ($auction->assignment?->name ?: '-') : '-' }}</dd>
+                        <dt class="col-5 text-muted">الجهة المشرفة</dt>
+                        <dd class="col-7 fw-semibold" id="review-supervising">{{ $isEdit ? ($auction->supervising_entity ?: '-') : '-' }}</dd>
                         <dt class="col-5 text-muted">النوع والتصنيف</dt>
                         <dd class="col-7 fw-semibold"><span id="review-type">{{ $isEdit ? $auction->type_label : '-' }}</span> / <span id="review-category">{{ $isEdit ? $auction->category_label : '-' }}</span></dd>
                         <dt class="col-5 text-muted">المدينة</dt>
@@ -29,15 +33,11 @@
             </div>
 
             <div class="col-lg-6">
-                <x-form.wizard.review-card title="الإسناد والمنصة" step="2" col="" class="h-100 assignment-review__card">
+                <x-form.wizard.review-card title="المنصة وإدارة المشروع" step="2" col="" class="h-100 assignment-review__card">
                     <dl class="row mb-0 small">
-                        <dt class="col-5 text-muted">الإسناد</dt>
-                        <dd class="col-7 fw-semibold" id="review-assignment-name">{{ $isEdit ? ($auction->assignment?->name ?: '-') : '-' }}</dd>
-                        <dt class="col-5 text-muted">الجهة المشرفة</dt>
-                        <dd class="col-7 fw-semibold" id="review-supervising">{{ $isEdit ? ($auction->supervising_entity ?: '-') : '-' }}</dd>
                         <dt class="col-5 text-muted">مدير المشروع</dt>
                         <dd class="col-7 fw-semibold" id="review-project-manager">{{ $isEdit ? ($auction->project_manager_name ?: '-') : '-' }}</dd>
-                        <dt class="col-5 text-muted">المنصة</dt>
+                        <dt class="col-5 text-muted">منصة المزاد</dt>
                         <dd class="col-7 fw-semibold" id="review-platform">{{ $isEdit ? ($auction->platform_name ?: '-') : '-' }}</dd>
                     </dl>
                 </x-form.wizard.review-card>
@@ -61,6 +61,12 @@
                         <dd class="col-7 fw-semibold" id="review-cover-image">{{ $isEdit ? ($auction->cover_image ? 'محفوظة' : 'غير محددة') : 'غير محددة' }}</dd>
                         <dt class="col-5 text-muted">المرفقات</dt>
                         <dd class="col-7 fw-semibold" id="review-attachments-count">{{ $isEdit ? $auction->attachments->count() : 0 }} ملف</dd>
+                        <dt class="col-5 text-muted">الحملات والروابط</dt>
+                        <dd class="col-7 fw-semibold" id="review-marketing-counts">—</dd>
+                        <dt class="col-5 text-muted">مقدمة التقرير</dt>
+                        <dd class="col-7 fw-semibold" id="review-report-introduction">—</dd>
+                        <dt class="col-5 text-muted">تفاصيل النتائج</dt>
+                        <dd class="col-7 fw-semibold" id="review-results-narrative">—</dd>
                     </dl>
                 </x-form.wizard.review-card>
             </div>

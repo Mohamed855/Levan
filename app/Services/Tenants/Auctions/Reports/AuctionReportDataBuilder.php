@@ -86,6 +86,8 @@ final class AuctionReportDataBuilder
                 'city' => (string) ($auction->city ?: '-'),
                 'type' => (string) $auction->type_label,
                 'category' => (string) $auction->category_label,
+                'status' => (string) $auction->status,
+                'timezone' => (string) config('app.timezone', 'Asia/Riyadh'),
                 'start_date' => $auction->start_date?->format('Y-m-d'),
                 'start_time' => $auction->start_time,
                 'end_date' => $auction->end_date?->format('Y-m-d'),

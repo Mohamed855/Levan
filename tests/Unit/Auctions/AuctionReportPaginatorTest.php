@@ -68,7 +68,10 @@ final class AuctionReportPaginatorTest extends TestCase
 
     public function test_it_emits_the_twenty_one_asir_reference_families_for_the_reference_index_capacity(): void
     {
-        $pages = $this->paginator()->paginate($this->snapshot(13), 'report');
+        $snapshot = $this->snapshot(13);
+        $snapshot['evidence']['board_before'] = array_fill(0, 13, ['id' => 'before']);
+        $snapshot['evidence']['board_after'] = array_fill(0, 13, ['id' => 'after']);
+        $pages = $this->paginator()->paginate($snapshot, 'report');
 
         self::assertCount(21, $pages);
         self::assertSame('asir-cover', $pages[0]['page_type']);
@@ -149,11 +152,13 @@ final class AuctionReportPaginatorTest extends TestCase
         $snapshot['evidence']['x'] = [['id' => 'x']];
         $snapshot['evidence']['social'] = [['id' => 'social']];
         $snapshot['evidence']['design_asset'] = [['id' => 'ornament']];
-        $actual = [];
+        $actual = ['platform' => [], 'x' => [], 'social' => []];
         foreach ($this->paginator()->paginate($snapshot, 'outputs') as $page) {
-            $actual = array_merge($actual, $page['payload']['marketing_evidence'] ?? []);
+            foreach (array_keys($actual) as $section) {
+                $actual[$section] = array_merge($actual[$section], array_column($page['payload'][$section] ?? [], 'id'));
+            }
         }
-        self::assertSame(['platform', 'x', 'social'], array_column($actual, 'id'));
+        self::assertSame(['platform' => ['platform'], 'x' => ['x'], 'social' => ['social']], $actual);
     }
 
     public function test_channel_page_capacity_matches_the_available_artwork_slots(): void

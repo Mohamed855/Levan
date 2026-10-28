@@ -7,6 +7,7 @@ namespace Tests\Feature\Tenants\Auctions;
 use App\Http\Requests\Tenants\Auctions\StoreAuctionRequest;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
+use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Auctions\AuctionReportInputService;
 use App\Services\Tenants\Auctions\Reports\AuctionReportDataBuilder;
 use Illuminate\Http\UploadedFile;
@@ -49,6 +50,15 @@ final class AuctionReportInputContractTest extends TenantAuctionReportTestCase
         self::assertSame('اسم الوسيط', $attachment->fresh()->report_metadata['display_name']);
     }
 
+    public function test_a_channel_classification_routes_generic_evidence_to_its_own_section(): void
+    {
+        Storage::fake('tenant_public');
+        $auction = $this->auction();
+        $paths = [];
+        app(AuctionReportInputService::class)->storeEvidence($auction, [UploadedFile::fake()->image('youtube.png')], [], [], [], $paths, [0 => ['channel' => 'youtube', 'section' => 'marketing_evidence']]);
+        self::assertSame('video', $auction->attachments()->sole()->report_section);
+    }
+
     public function test_an_attachment_from_another_auction_cannot_be_reclassified(): void
     {
         Storage::fake('tenant_public');
@@ -70,6 +80,50 @@ final class AuctionReportInputContractTest extends TenantAuctionReportTestCase
         self::assertTrue($validator->fails());
         self::assertTrue($validator->errors()->has('marketing_evidence_meta.0.channel'));
         self::assertTrue($validator->errors()->has('marketing_evidence_meta.0.focal_x'));
+    }
+
+    public function test_board_dimensions_and_zero_count_survive_partial_result_updates(): void
+    {
+        $auction = $this->auction();
+        $property = Property::query()->create(['assignment_id' => $auction->assignment_id, 'property_number' => 'BOARD-'.uniqid(), 'name' => 'عقار', 'type' => 'residential_land', 'city' => 'الرياض']);
+        $auction->properties()->attach($property->id, ['board_data' => json_encode(['location' => 'شارع رئيسي', 'notes' => 'ملاحظة محفوظة']), 'result_status' => 'pending']);
+        $pivot = app(AuctionReportInputService::class)->pivotData([$property->id], [$property->id => ['status' => 'pending', 'board_count' => 0, 'board_dimensions' => '3×6']], $auction->properties()->get())[$property->id];
+        $board = json_decode($pivot['board_data'], true);
+        self::assertSame(0, $board['count']);
+        self::assertSame('3×6', $board['dimensions']);
+        self::assertSame('شارع رئيسي', $board['location']);
+        self::assertSame('ملاحظة محفوظة', $board['notes']);
+    }
+
+    public function test_detailed_marketing_fields_are_validated_and_returned_in_the_validated_payload(): void
+    {
+        $request = StoreAuctionRequest::create('/', 'POST', ['property_ids' => []]);
+        $rules = array_filter($request->rules(), static fn (string $key): bool => str_starts_with($key, 'marketing'), ARRAY_FILTER_USE_KEY);
+        $data = ['marketing' => ['introduction' => 'مقدمة التقرير', 'results_narrative' => 'نتائج تفصيلية', 'contacts' => ['phone' => '0534811800'], 'campaigns' => [['platform' => 'whatsapp', 'messages' => -1, 'delivered' => 0, 'watch_hours' => 2.5]]]];
+        $invalid = Validator::make($data, $rules);
+        self::assertTrue($invalid->errors()->has('marketing.campaigns.0.messages'));
+        $data['marketing']['campaigns'][0]['messages'] = 0;
+        $valid = Validator::make($data, $rules);
+        self::assertFalse($valid->fails());
+        self::assertSame(0, $valid->validated()['marketing']['campaigns'][0]['messages']);
+        self::assertSame('0534811800', $valid->validated()['marketing']['contacts']['phone']);
+    }
+
+    public function test_report_settings_expose_shared_controls_for_details_and_existing_evidence(): void
+    {
+        Storage::fake('tenant_public');
+        $auction = $this->auction();
+        $auction->update(['marketing_data' => ['contacts' => ['phone' => '0534811800'], 'campaigns' => [['platform' => 'snapchat', 'views' => 0]]]]);
+        $paths = [];
+        app(AuctionReportInputService::class)->storeEvidence($auction, [UploadedFile::fake()->image('proof.png')], [], [], [], $paths);
+        $attachment = $auction->attachments()->sole();
+        view()->share('errors', new \Illuminate\Support\ViewErrorBag);
+        $html = view('tenant.auctions.partials.steps.step4-settings', ['auction' => $auction->fresh()->load('properties', 'attachments')])->render();
+        foreach (['marketing[introduction]', 'marketing[results_narrative]', 'marketing[contacts][phone]', 'marketing[whatsapp_date]', 'marketing[campaigns][0][views]', 'report_attachments['.$attachment->id.'][section]', 'marketing_evidence_meta[__INDEX__][channel]'] as $name) {
+            self::assertTrue(str_contains($html, 'name="'.$name.'"'), 'Missing report control: '.$name);
+        }
+        self::assertTrue(str_contains($html, 'value="0534811800"'));
+        self::assertTrue(str_contains($html, 'data-field-name="marketing[campaigns][0][views]"'));
     }
 
     private function auction(): Auction

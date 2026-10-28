@@ -33,8 +33,8 @@
 @section('content')
     @php
         $steps = [
-            ['id' => 'step-basic-info', 'title' => 'البيانات الأساسية'],
-            ['id' => 'step-assignment', 'title' => 'الإسناد والمنصة'],
+            ['id' => 'step-basic-info', 'title' => 'البيانات الأساسية والإسناد'],
+            ['id' => 'step-assignment', 'title' => 'المنصة والمشروع'],
             ['id' => 'step-properties', 'title' => 'العقارات المرتبطة'],
             ['id' => 'step-settings', 'title' => 'النتائج والملفات'],
             ['id' => 'step-review', 'title' => 'المراجعة والإرسال'],
@@ -64,10 +64,12 @@
                     data-draft-resource-key="tenant.auction-create">
                     @csrf
 
-                    {{-- الخطوة 1: البيانات الأساسية --}}
+                    {{-- الخطوة 1: البيانات الأساسية والإسناد --}}
                     <x-form.wizard.step id="step-basic-info" :fields="[
                         'name',
                         'description',
+                        'assignment_id',
+                        'supervising_entity',
                         'start_date',
                         'start_time',
                         'end_date',
@@ -88,8 +90,8 @@
                         </x-form.wizard.actions>
                     </x-form.wizard.step>
 
-                    {{-- الخطوة 2: الإسناد والجهات والمنصة --}}
-                    <x-form.wizard.step id="step-assignment" :fields="['assignment_id', 'supervising_entity', 'project_manager_name', 'platform_name', 'platform_url', 'notes']">
+                    {{-- الخطوة 2: المنصة وإدارة المشروع --}}
+                    <x-form.wizard.step id="step-assignment" :fields="['platform_name', 'platform_url', 'project_manager_name', 'notes']">
                         @include('tenant.auctions.partials.steps.step2-assignment', ['auction' => null])
 
                         <x-form.wizard.actions>

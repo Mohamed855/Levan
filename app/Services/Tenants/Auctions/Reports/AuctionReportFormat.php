@@ -93,6 +93,26 @@ final class AuctionReportFormat
         return 'الساعة '.$time->format('h:i').' '.((int) $time->format('G') < 12 ? 'صباحًا' : 'مساءً');
     }
 
+    public function duration(array $auction): string
+    {
+        if ($this->date($auction['start_date'] ?? null) === '-' || $this->date($auction['end_date'] ?? null) === '-') {
+            return 'غير متوفر';
+        }
+        try {
+            $timezone = new \DateTimeZone($auction['timezone'] ?? 'Asia/Riyadh');
+            $start = new DateTimeImmutable($auction['start_date'].' '.($auction['start_time'] ?? '00:00'), $timezone);
+            $end = new DateTimeImmutable($auction['end_date'].' '.($auction['end_time'] ?? '23:59'), $timezone);
+            if ($end < $start) {
+                return 'غير متوفر';
+            }
+            $days = (int) $start->setTime(0, 0)->diff($end->setTime(0, 0))->format('%a') + 1;
+
+            return 'أيام المزاد: '.$this->arabicDigits((string) $days);
+        } catch (\Exception) {
+            return 'غير متوفر';
+        }
+    }
+
     public function hijriDate(?string $value): string
     {
         if ($this->date($value) === '-') {

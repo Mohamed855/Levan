@@ -37,7 +37,7 @@ final class AuctionReportArtworkTest extends TestCase
         self::assertTrue($document->loadXML($svg));
         $xpath = new DOMXPath($document);
         self::assertSame(5, $xpath->query('//*[@data-report-cell]')->length);
-        $gallery = $artwork->render('haram', 4, [], [], [], 5);
+        $gallery = $artwork->render('haram', 4, [], [], ['board_before' => [['uri' => null]]], 5);
         self::assertStringContainsString('data:image/svg+xml;base64,', $gallery);
         self::assertStringContainsString('xMidYMid meet', $gallery);
     }
@@ -57,7 +57,7 @@ final class AuctionReportArtworkTest extends TestCase
     {
         $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
         $document = new DOMDocument;
-        $document->loadXML($artwork->render('asir', 8, [], [], [], 9));
+        $document->loadXML($artwork->render('asir', 8, [], [], ['board_before' => [['uri' => null]]], 9));
         $node = (new DOMXPath($document))->query('//*[@data-report-contained="board_before:0"]')->item(0);
         self::assertNotNull($node);
         self::assertSame('xMidYMid meet', $node->getAttribute('preserveAspectRatio'));
@@ -88,5 +88,22 @@ final class AuctionReportArtworkTest extends TestCase
         $svg = $artwork->render('haram', 1, [], $parts[0]['tables'], [], 3, $parts[0]['table_layouts']);
         self::assertTrue(str_contains($svg, 'data-reflowed-table="properties"'));
         self::assertSame(8, substr_count($svg, '>123456</tspan>'));
+    }
+
+    public function test_screenshots_are_contained_by_default_and_cover_photos_use_focal_coordinates(): void
+    {
+        $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
+        $image = imagecreatetruecolor(346, 1107);
+        ob_start(); imagepng($image); $uri = 'data:image/png;base64,'.base64_encode(ob_get_clean()); imagedestroy($image);
+        $document = new DOMDocument;
+        $document->loadXML($artwork->render('asir', 8, [], [], ['board_before' => [['uri' => $uri, 'kind' => 'screenshot']]], 9));
+        $node = (new DOMXPath($document))->query('//*[@data-report-contained="board_before:0"]')->item(0);
+        self::assertNotNull($node, 'Tall evidence must remain fully visible by default.');
+        self::assertSame('xMidYMid meet', $node->getAttribute('preserveAspectRatio'));
+        $document->loadXML($artwork->render('asir', 0, [], [], ['report_image' => [1 => ['uri' => $uri, 'fit' => 'cover', 'focal_y' => 100]]], 1));
+        $node = (new DOMXPath($document))->query('//*[@data-report-cover="report_image:1"]')->item(0);
+        self::assertNotNull($node, 'A replacement landscape needs its own clean frame, not the old skyline mask.');
+        self::assertLessThan(0, (float) $node->getAttribute('y'));
+        self::assertEqualsWithDelta(841.89, (float) $node->getAttribute('y') + (float) $node->getAttribute('height'), .01);
     }
 }
