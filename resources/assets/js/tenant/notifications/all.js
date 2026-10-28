@@ -6,55 +6,55 @@
 | select-all / mass actions and notification management.
 */
 
-'use strict';
+"use strict";
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
     // تهيئة Select2
-    $('.select2').select2({
+    $(".select2").select2({
         allowClear: true,
-        placeholder: 'الكل',
-        dir: 'rtl'
+        placeholder: "الكل",
+        dir: "rtl",
     });
 
     // تهيئة DataTable
-    $('#notifications-table').on('init.dt', function () {
+    $("#notifications-table").on("init.dt", function () {
         const table = $(this).DataTable();
 
         // تطبيق الفلاتر
         function applyFilters() {
-            const type = $('#filter-type').val() || '';
-            const status = $('#filter-status').val() || '';
+            const type = $("#filter-type").val() || "";
+            const status = $("#filter-status").val() || "";
             const baseUrl = window.location.pathname;
             const params = new URLSearchParams();
 
-            if (type) params.append('type', type);
-            if (status) params.append('status', status);
+            if (type) params.append("type", type);
+            if (status) params.append("status", status);
 
             const query = params.toString();
-            const newUrl = query ? baseUrl + '?' + query : baseUrl;
+            const newUrl = query ? baseUrl + "?" + query : baseUrl;
 
             table.ajax.url(newUrl).load();
         }
 
         // استماع لتغييرات الفلاتر
-        $('#filter-type, #filter-status').on('change', applyFilters);
+        $("#filter-type, #filter-status").on("change", applyFilters);
 
-        const tableWrapper = $('#notifications-table_wrapper');
+        const tableWrapper = $("#notifications-table_wrapper");
 
         // تحديد الكل/إلغاء تحديد الكل
-        tableWrapper.on('click', '#select-all', function () {
-            const rows = table.rows({ search: 'applied' }).nodes();
-            $('input.row-checkbox', rows).prop('checked', this.checked);
+        tableWrapper.on("click", "#select-all", function () {
+            const rows = table.rows({ search: "applied" }).nodes();
+            $("input.row-checkbox", rows).prop("checked", this.checked);
         });
 
-        tableWrapper.on('change', '.row-checkbox', function () {
+        tableWrapper.on("change", ".row-checkbox", function () {
             if (!this.checked) {
-                $('#select-all').prop('checked', false);
+                $("#select-all").prop("checked", false);
             }
         });
 
-        table.on('draw', function () {
-            $('#select-all').prop('checked', false);
+        table.on("draw", function () {
+            $("#select-all").prop("checked", false);
         });
     });
 });
@@ -62,39 +62,39 @@ document.addEventListener('DOMContentLoaded', function () {
 // تحديد إشعار كمقروء
 function markAsRead(notificationId) {
     if (!notificationId) {
-        console.error('معرف الإشعار مطلوب');
+        console.error("معرف الإشعار مطلوب");
         return;
     }
 
-    const url = window.routes.markAsRead.replace('__ID__', notificationId);
+    const url = window.routes.markAsRead.replace("__ID__", notificationId);
 
     $.ajax({
         url: url,
-        type: 'POST',
+        type: "POST",
         data: {
-            _token: window.csrfToken
+            _token: window.csrfToken,
         },
         success: function (response) {
             if (response.message) {
-                $('#notifications-table').DataTable().draw(false);
+                $("#notifications-table").DataTable().draw(false);
                 updateNotificationCount();
-                if (typeof toastr !== 'undefined') {
+                if (typeof toastr !== "undefined") {
                     toastr.success(response.message);
                 }
             }
         },
         error: function (xhr) {
-            let errorMessage = 'حدث خطأ أثناء تحديد الإشعار كمقروء';
+            let errorMessage = "حدث خطأ أثناء تحديد الإشعار كمقروء";
             if (xhr.responseJSON && xhr.responseJSON.message) {
                 errorMessage = xhr.responseJSON.message;
             }
 
-            if (typeof toastr !== 'undefined') {
+            if (typeof toastr !== "undefined") {
                 toastr.error(errorMessage);
             }
 
-            console.error('خطأ في تحديد الإشعار كمقروء:', xhr);
-        }
+            console.error("خطأ في تحديد الإشعار كمقروء:", xhr);
+        },
     });
 }
 
@@ -102,165 +102,168 @@ function markAsRead(notificationId) {
 function markAllAsRead() {
     $.ajax({
         url: window.routes.markAllAsRead,
-        type: 'POST',
+        type: "POST",
         data: {
-            _token: window.csrfToken
+            _token: window.csrfToken,
         },
         success: function (response) {
             if (response.message) {
-                $('#notifications-table').DataTable().draw(false);
+                $("#notifications-table").DataTable().draw(false);
                 updateNotificationCount();
-                if (typeof toastr !== 'undefined') {
+                if (typeof toastr !== "undefined") {
                     toastr.success(response.message);
                 }
             }
         },
         error: function (xhr) {
-            let errorMessage = 'حدث خطأ أثناء تحديد جميع الإشعارات كمقروءة';
+            let errorMessage = "حدث خطأ أثناء تحديد جميع الإشعارات كمقروءة";
             if (xhr.responseJSON && xhr.responseJSON.message) {
                 errorMessage = xhr.responseJSON.message;
             }
 
-            if (typeof toastr !== 'undefined') {
+            if (typeof toastr !== "undefined") {
                 toastr.error(errorMessage);
             }
 
-            console.error('خطأ في تحديد جميع الإشعارات كمقروءة:', xhr);
-        }
+            console.error("خطأ في تحديد جميع الإشعارات كمقروءة:", xhr);
+        },
     });
 }
 
 // حذف إشعار
 function deleteNotification(notificationId) {
     if (!notificationId) {
-        console.error('معرف الإشعار مطلوب');
+        console.error("معرف الإشعار مطلوب");
         return;
     }
 
     window.confirmAction({
-        title: 'تأكيد حذف الإشعار',
-        text: 'هل أنت متأكد من عملية الحذف؟ لا يمكن التراجع عن هذا الإجراء!',
-        variant: 'danger',
-        icon: 'ti-trash',
-        confirmText: 'نعم، احذف',
-        confirmClass: 'btn btn-danger px-4',
-        cancelText: 'إلغاء',
+        title: "تأكيد حذف الإشعار",
+        text: "هل أنت متأكد من عملية الحذف؟ لا يمكن التراجع عن هذا الإجراء!",
+        variant: "danger",
+        icon: "ti-trash",
+        confirmText: "تأكيد الحذف",
+        confirmClass: "btn btn-danger px-4",
+        cancelText: "إلغاء",
         onConfirm: function () {
-            const url = window.routes.deleteNotification.replace('__ID__', notificationId);
+            const url = window.routes.deleteNotification.replace(
+                "__ID__",
+                notificationId,
+            );
 
             $.ajax({
                 url: url,
-                type: 'DELETE',
+                type: "DELETE",
                 data: {
-                    _token: window.csrfToken
+                    _token: window.csrfToken,
                 },
                 success: function (response) {
                     if (response.message) {
-                        $('#notifications-table').DataTable().draw(false);
+                        $("#notifications-table").DataTable().draw(false);
                         updateNotificationCount();
-                        if (typeof toastr !== 'undefined') {
+                        if (typeof toastr !== "undefined") {
                             toastr.success(response.message);
                         }
                     }
                 },
                 error: function (xhr) {
-                    let errorMessage = 'حدث خطأ أثناء حذف الإشعار';
+                    let errorMessage = "حدث خطأ أثناء حذف الإشعار";
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
                     }
 
-                    if (typeof toastr !== 'undefined') {
+                    if (typeof toastr !== "undefined") {
                         toastr.error(errorMessage);
                     }
 
-                    console.error('خطأ في حذف الإشعار:', xhr);
-                }
+                    console.error("خطأ في حذف الإشعار:", xhr);
+                },
             });
-        }
+        },
     });
 }
 
 // حذف متعدد للإشعارات
 function handleMassDelete() {
     const selectedIds = [];
-    $('.row-checkbox:checked').each(function () {
+    $(".row-checkbox:checked").each(function () {
         selectedIds.push($(this).val());
     });
 
     if (selectedIds.length < 1) {
-        if (typeof toastr !== 'undefined') {
-            toastr.warning('يرجى تحديد عنصر واحد على الأقل.');
+        if (typeof toastr !== "undefined") {
+            toastr.warning("يرجى تحديد عنصر واحد على الأقل.");
         }
 
         return;
     }
 
-    if (!confirm('هل أنت متأكد من حذف الإشعارات المحددة؟')) {
+    if (!confirm("هل أنت متأكد من حذف الإشعارات المحددة؟")) {
         return;
     }
 
     $.ajax({
         url: window.routes.massDelete,
-        type: 'POST',
+        type: "POST",
         data: {
             _token: window.csrfToken,
-            ids: selectedIds
+            ids: selectedIds,
         },
         success: function (response) {
             if (response.message) {
-                $('#notifications-table').DataTable().draw(false);
+                $("#notifications-table").DataTable().draw(false);
                 updateNotificationCount();
-                if (typeof toastr !== 'undefined') {
+                if (typeof toastr !== "undefined") {
                     toastr.success(response.message);
                 }
             }
         },
         error: function (xhr) {
-            let errorMessage = 'حدث خطأ أثناء حذف الإشعارات';
+            let errorMessage = "حدث خطأ أثناء حذف الإشعارات";
             if (xhr.responseJSON && xhr.responseJSON.message) {
                 errorMessage = xhr.responseJSON.message;
             }
 
-            if (typeof toastr !== 'undefined') {
+            if (typeof toastr !== "undefined") {
                 toastr.error(errorMessage);
             }
 
-            console.error('خطأ في حذف الإشعارات:', xhr);
-        }
+            console.error("خطأ في حذف الإشعارات:", xhr);
+        },
     });
 }
 
 // تحديث عدد الإشعارات غير المقروءة
 function updateNotificationCount() {
     fetch(window.routes.unreadCount, {
-        method: 'GET',
+        method: "GET",
         headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': window.csrfToken,
-            'Accept': 'application/json'
-        }
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRF-TOKEN": window.csrfToken,
+            Accept: "application/json",
+        },
     })
-        .then(response => {
+        .then((response) => {
             if (!response.ok) {
-                throw new Error('فشل في تحديث عدد الإشعارات');
+                throw new Error("فشل في تحديث عدد الإشعارات");
             }
 
             return response.json();
         })
-        .then(data => {
-            const badge = document.querySelector('.badge-notifications');
-            const countBadge = document.getElementById('unreadCountBadge');
+        .then((data) => {
+            const badge = document.querySelector(".badge-notifications");
+            const countBadge = document.getElementById("unreadCountBadge");
 
             if (data.count > 0) {
-                if (badge) badge.style.display = 'block';
+                if (badge) badge.style.display = "block";
                 if (countBadge) countBadge.textContent = `${data.count} جديد`;
             } else {
-                if (badge) badge.style.display = 'none';
-                if (countBadge) countBadge.textContent = '0 جديد';
+                if (badge) badge.style.display = "none";
+                if (countBadge) countBadge.textContent = "0 جديد";
             }
         })
-        .catch(error => {
-            console.error('خطأ في تحديث عدد الإشعارات:', error);
+        .catch((error) => {
+            console.error("خطأ في تحديث عدد الإشعارات:", error);
         });
 }
 

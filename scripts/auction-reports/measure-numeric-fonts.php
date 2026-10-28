@@ -3,13 +3,14 @@
 declare(strict_types=1);
 
 use App\Services\Tenants\Auctions\Reports\AuctionReportArtwork;
+use App\Services\Tenants\Auctions\Reports\AuctionReportFonts;
 use Illuminate\Contracts\Console\Kernel;
 use Spatie\Browsershot\Browsershot;
 
 require dirname(__DIR__, 2).'/vendor/autoload.php';
 $app = require dirname(__DIR__, 2).'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
-$catalog = require resource_path('auction-reports/fonts/catalog.php');
+$catalog = app(AuctionReportFonts::class)->faces();
 $html = '<html><head><style>'.app(AuctionReportArtwork::class)->fontCss().'</style></head><body></body></html>';
 $browser = Browsershot::html($html)->timeout(60)->waitUntilNetworkIdle();
 foreach (['node_binary' => 'setNodeBinary', 'npm_binary' => 'setNpmBinary', 'chrome_path' => 'setChromePath'] as $key => $method) {
@@ -24,8 +25,8 @@ $expression = <<<'JS'
     const context = canvas.getContext('2d');
     const result = {};
     for (const [name, font] of Object.entries(catalog)) {
-        await document.fonts.load(`100px ${font.family}`);
-        context.font = `100px ${font.family}`;
+        await document.fonts.load(`${font.weight} 100px ${font.family}`);
+        context.font = `${font.weight} 100px ${font.family}`;
         context.fontKerning = 'none';
         result[name] = {};
         for (const character of '0123456789٠١٢٣٤٥٦٧٨٩ ()/,:%×*+.-') {

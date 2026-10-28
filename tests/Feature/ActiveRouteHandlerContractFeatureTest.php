@@ -138,6 +138,8 @@ class ActiveRouteHandlerContractFeatureTest extends TestCase
             'App\\Http\\Controllers\\Admin\\Auth\\AdminTwoFactorChallengeController@store',
             'App\\Http\\Controllers\\Tenants\\Auth\\AuthenticatedSessionController@store',
             'App\\Http\\Controllers\\Tenants\\Auth\\PasswordResetLinkController@store',
+            'App\\Http\\Controllers\\Tenants\\Auth\\PasswordResetLinkController@verifyOtp',
+            'App\\Http\\Controllers\\Tenants\\Auth\\PasswordResetLinkController@resendOtp',
             'App\\Http\\Controllers\\Tenants\\Auth\\NewPasswordController@store',
             'App\\Http\\Controllers\\Tenants\\Auth\\RegisteredUserController@store',
             'App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorChallengeController@store',

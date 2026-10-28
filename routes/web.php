@@ -17,7 +17,6 @@ Route::name('site.')->group(function () {
         Route::get('edit', [TrialController::class, 'edit'])->name('trial.edit');
         Route::post('verify-email', [TrialController::class, 'verify'])->middleware('throttle:10,1')->name('trial.verify');
         Route::post('resend-otp', [TrialController::class, 'resendOtp'])->middleware('throttle:6,1')->name('trial.resend');
-        Route::get('submitted', [TrialController::class, 'submitted'])->name('trial.submitted');
     });
 
     Route::name('plans.')->group(function () {

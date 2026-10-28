@@ -47,6 +47,19 @@ The HTML and JSON package files are analysis-only artifacts. They must not be in
 
 ## Compiled geometry and fonts
 
+### Actual originals and test safety (28 October 2026)
+
+The immutable original PDF hashes and MediaBoxes are recorded in
+`tests/Fixtures/AuctionReports/acceptance-manifest.json`. These Canva/Illustrator
+originals supersede the reconstructed print PDFs for final acceptance; previous
+static-region scores are not dynamic content acceptance.
+
+Auction report Feature tests now require the explicit isolated central database
+`levan_report_ci_central`, tenant database `levan_report_ci_tenant`, tenant ID
+`auction_report_ci`, and no DB_URL. `AuctionReportDatabaseGuard` runs before
+application boot and checks effective configuration again before database writes.
+Do not run this suite against the shared manual-test tenant or refresh/seed it.
+
 `resources/auction-reports/{haram,asir}/pages.php` records the measured field coordinates, original font/size/vertical scale/color, semantic groups, table columns and row envelopes. The corresponding SVG files retain original static glyph outlines, ornaments, clipping paths and image transforms. `bindings.php` maps semantic values and local image slots; `manifest.php` records SHA-256 for every shipped design asset. Runtime consumes these local files only.
 
 Asir's `image-frames.php` records 69 image definitions' visible rectangles in their original clipping-container coordinate spaces. Missing media and PDF pages are fitted within those rectangles so the source photograph's crop cannot cut off the replacement logo/document. Ordinary photographs retain their original crop behavior.

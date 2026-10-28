@@ -48,7 +48,7 @@ class NotificationDeadlineScanner
         if ($subscription->tenant?->lastSubscription?->id !== $subscription->id) {
             return;
         }
-        if ($subscription->periods()->where('status', 'queued')->where('period_start', '<=', now())->where('period_end', '>', now())->exists()) {
+        if ($subscription->periods()->where('status', 'queued')->where('period_end', '>', now())->exists()) {
             return;
         }
         $end = $subscription->currentPeriod?->period_end ?? $subscription->ends_at;

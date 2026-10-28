@@ -15,7 +15,7 @@ const VARIANT_CONFIGS = {
     danger: {
         wrapperClass:
             "avatar avatar-xl mx-auto rounded-circle d-flex align-items-center justify-content-center bg-danger mb-3",
-        iconClass: "ti ti-trash fs-2 text-danger",
+        iconClass: "ti ti-trash fs-2 text-white",
         btnClass: "btn btn-danger px-4",
     },
     warning: {
@@ -214,7 +214,7 @@ window.confirmDelete = function (id) {
         text: "هل أنت متأكد من عملية الحذف؟ لا يمكن التراجع عن هذا الإجراء!",
         variant: "danger",
         icon: "ti-trash",
-        confirmText: "نعم، احذف",
+        confirmText: "تأكيد الحذف",
         confirmClass: "btn btn-danger px-4",
         onConfirm: function () {
             const form = document.getElementById("delete-form-" + id);

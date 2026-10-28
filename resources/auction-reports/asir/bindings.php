@@ -3,7 +3,17 @@
 declare(strict_types=1);
 
 return [
-    0 => ['groups' => ['name' => ['f0'], 'subtitle' => ['f1']]],
+    0 => ['groups' => ['name' => ['f0'], 'subtitle' => ['f1']], 'layouts' => [
+        'name' => ['box' => [35, 165, 560, 315], 'fit' => 'shrink', 'max_lines' => 2, 'center' => true],
+        'subtitle' => ['box' => [45, 320, 550, 380], 'fit' => 'shrink', 'max_lines' => 2, 'center' => true],
+    ], 'layouts' => [
+        'manager' => ['max_width' => 150, 'max_lines' => 2, 'center' => true],
+        'name' => ['max_width' => 150, 'max_lines' => 2, 'center' => true],
+        'project' => ['max_width' => 140, 'max_lines' => 2, 'center' => true],
+        'start_month' => ['max_width' => 60], 'end_month' => ['max_width' => 60],
+        'start_weekday' => ['max_width' => 115], 'end_weekday' => ['max_width' => 115],
+        'start_time' => ['max_width' => 140], 'end_time' => ['max_width' => 140],
+    ]],
     1 => ['groups' => [
         'manager' => ['f3'], 'name' => ['f4'], 'project' => ['f5'],
         'end_weekday' => ['f9'], 'start_weekday' => ['f11'], 'end_month' => ['f12'], 'start_month' => ['f13'],
@@ -52,7 +62,9 @@ return [
     16 => ['groups' => ['board_2' => ['f4'], 'board_1' => ['f5'], 'board_4' => ['f6'], 'board_3' => ['f7'], 'board_6' => ['f8'], 'board_5' => ['f9'], 'google_views' => ['f10']]],
     17 => ['groups' => ['board_8' => ['f4'], 'board_7' => ['f5'], 'board_10' => ['f6'], 'board_9' => ['f7'], 'board_12' => ['f8'], 'board_11' => ['f9'], 'board_13' => ['f10']],
         'image_slots' => ['i8' => 0, 'i9' => 1, 'i2' => 2, 'i3' => 3, 'i4' => 4, 'i5' => 5, 'i6' => 5, 'i7' => 6]],
-    18 => ['groups' => ['sales_total' => ['f4'], 'sold_count' => ['f5'], 'sold_position_1' => ['f7'], 'sold_position_2' => ['f20'], 'sold_position_3' => ['f34']]],
+    18 => ['groups' => ['sales_total' => ['f4'], 'sold_count' => ['f5'], 'sold_position_1' => ['f7'], 'sold_position_2' => ['f20'], 'sold_position_3' => ['f34']], 'layouts' => [
+        'sold_position_1' => ['max_width' => 40], 'sold_position_2' => ['max_width' => 40], 'sold_position_3' => ['max_width' => 40],
+    ]],
     19 => ['groups' => ['unsold_count' => ['f5']]],
     20 => ['groups' => ['phone' => ['f1'], 'unified_phone' => ['f2'], 'social' => ['f3']]],
 ];

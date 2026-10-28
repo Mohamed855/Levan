@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Tenants\Auctions\Reports;
 
+use InvalidArgumentException;
+
 final class AuctionReportTextLayout
 {
     private ?array $forms = null;
@@ -13,12 +15,12 @@ final class AuctionReportTextLayout
     public function __construct(private readonly string $root = '') {}
 
     /** @return list<string> */
-    public function wrap(string $value, float $width, float $size, string $font): array
+    public function wrap(string $value, float $width, float $size, string $font, bool $breakWords = true): array
     {
         $file = $this->font($font);
         $lines = [];
         foreach (explode("\n", $value) as $paragraph) {
-            if ($this->width($paragraph, $size, $file, $font) <= $width * 1.1) {
+            if ($this->width($paragraph, $size, $file, $font) <= $width * ($breakWords ? 1.1 : 1)) {
                 $lines[] = $paragraph;
 
                 continue;
@@ -34,6 +36,11 @@ final class AuctionReportTextLayout
                 if ($line !== '') {
                     $lines[] = $line;
                     $line = '';
+                }
+                if (! $breakWords) {
+                    $line = $word;
+
+                    continue;
                 }
                 foreach (preg_split('//u', $word, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $character) {
                     if ($line !== '' && $this->width($line.$character, $size, $file, $font) > $width) {
@@ -59,6 +66,13 @@ final class AuctionReportTextLayout
             $left = min(array_column($fields, 'x'));
             $right = max(array_map(static fn (array $field): float => $field['x'] + $field['width'], $fields));
             $layout = $definition['layouts'][$role] ?? [];
+            if (($layout['fit'] ?? null) === 'shrink') {
+                $fitted = $this->fitTitle((string) ($content['values'][$role] ?? '-'), $field, $layout);
+                $content['field_layouts'][$role] = $fitted;
+                $fieldChunks[$role] = [implode("\n", $fitted['lines'])];
+
+                continue;
+            }
             $width = $layout['max_width'] ?? $right - $left;
             $height = max(array_column($fields, 'y')) - min(array_column($fields, 'y')) + $field['sy'] * 1.5;
             $maxLines = $layout['max_lines'] ?? max(1, (int) floor($height / ($field['sy'] * 1.17)));
@@ -133,6 +147,31 @@ final class AuctionReportTextLayout
         return $pages;
     }
 
+    private function fitTitle(string $value, array $field, array $layout): array
+    {
+        [$left, $top, $right, $bottom] = $layout['box'];
+        $maximum = (float) ($layout['max_font_size'] ?? $field['size']);
+        $minimum = (float) ($layout['min_font_size'] ?? $maximum * .7);
+        $file = $this->font($field['font']);
+        for ($size = $maximum; $size >= $minimum - .001; $size = max($minimum, $size - .25)) {
+            $verticalSize = $field['sy'] * $size / $field['size'];
+            $lines = $this->wrap($value, $right - $left, $size, $field['font'], false);
+            $height = $this->height($lines, $size, $verticalSize, $field['font']);
+            $width = max(array_map(fn (string $line): float => $this->width($line, $size, $file, $field['font']), $lines));
+            if (count($lines) <= ($layout['max_lines'] ?? 2) && $width <= $right - $left && $height <= $bottom - $top) {
+                $bounds = imagettfbbox($size * .75, 0, $file, $this->shapeForMeasurement($lines[0]));
+                $ascent = -min($bounds[1], $bounds[3], $bounds[5], $bounds[7]) * $verticalSize / $size;
+
+                return ['font_size' => $size, 'lines' => $lines, 'y' => count($lines) === 1 ? $field['y'] : $top + ($bottom - $top - $height) / 2 + $ascent];
+            }
+            if ($size <= $minimum) {
+                break;
+            }
+        }
+
+        throw new InvalidArgumentException('العنوان أطول من المساحة المخصصة لسطرين عند الحد الأدنى المقروء. يرجى اختصار العنوان.');
+    }
+
     private function width(string $value, float $size, string $font, string $name): float
     {
         if ($value === '') {
@@ -166,15 +205,7 @@ final class AuctionReportTextLayout
 
     private function font(string $name): string
     {
-        $root = $this->root ?: resource_path('auction-reports');
-        $file = match (true) {
-            $name === 'NizarBBCKurdish' => 'nizar-bbc-kurdish.ttf',
-            str_starts_with($name, 'GEContrast') => 'ge-contrast-bold.ttf',
-            str_starts_with($name, 'IBMPlex') => 'ibm-plex-sans-arabic.ttf',
-            default => 'noto-sans-arabic.ttf',
-        };
-
-        return $root.'/fonts/'.$file;
+        return (new AuctionReportFonts($this->root))->resolve($name)['file'];
     }
 
     private function shapeForMeasurement(string $value): string

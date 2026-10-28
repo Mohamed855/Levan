@@ -124,7 +124,7 @@
                 <div class="row g-4">
                     <x-form.controls.file name="assignment_image" label="صورة الإسناد" required
                         accept="image/jpeg,image/png,image/webp,image/svg+xml"
-                        help="JPG أو PNG أو WebP أو SVG، بحد أقصى 2MB" col="col-md-6" />
+                        help="JPG أو PNG أو WebP أو SVG، بحد أقصى 10MB" col="col-md-6" />
                     <x-form.controls.file name="assignment_letter" label="خطاب الإسناد" required accept="application/pdf"
                         help="PDF فقط، بحد أقصى 10MB" col="col-md-6" />
                     <x-form.controls.file name="general_documents" id="general_documents" label="مستندات عامة" required
@@ -173,8 +173,8 @@
                         </div>
                         <div class="row g-3">
                             <div class="col-lg-6">
-                                <x-form.wizard.review-card title="البيانات الأساسية" step="1" body-id="review-basic" col=""
-                                    class="h-100 assignment-review__card" />
+                                <x-form.wizard.review-card title="البيانات الأساسية" step="1"
+                                    body-id="review-basic" col="" class="h-100 assignment-review__card" />
                             </div>
                             <div class="col-lg-6">
                                 <x-form.wizard.review-card title="العقارات المرتبطة" step="2" col=""
@@ -190,7 +190,8 @@
                                             <section class="assignment-selection assignment-attachment-box"
                                                 aria-labelledby="review-general-documents-title">
                                                 <div class="d-flex align-items-center justify-content-between mb-3">
-                                                    <h5 id="review-general-documents-title" class="mb-0">مستندات عامة</h5>
+                                                    <h5 id="review-general-documents-title" class="mb-0">مستندات عامة
+                                                    </h5>
                                                     <span class="badge bg-primary"><span
                                                             id="review-general-documents-count">0</span> ملف</span>
                                                 </div>
@@ -201,11 +202,13 @@
                                             <section class="assignment-selection assignment-attachment-box"
                                                 aria-labelledby="review-additional-attachments-title">
                                                 <div class="d-flex align-items-center justify-content-between mb-3">
-                                                    <h5 id="review-additional-attachments-title" class="mb-0">مرفقات إضافية</h5>
+                                                    <h5 id="review-additional-attachments-title" class="mb-0">مرفقات
+                                                        إضافية</h5>
                                                     <span class="badge bg-primary"><span
                                                             id="review-additional-attachments-count">0</span> ملف</span>
                                                 </div>
-                                                <div id="review-additional-attachments" class="assignment-file-list"></div>
+                                                <div id="review-additional-attachments" class="assignment-file-list">
+                                                </div>
                                             </section>
                                         </div>
                                     </div>

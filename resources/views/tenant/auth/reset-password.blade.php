@@ -6,6 +6,7 @@
         : (Route::has('admin.password.store')
             ? route('admin.password.store')
             : route('password.store'));
+    $resolvedEmail = old('email', $email ?? ($request->email ?? request('email')));
 @endphp
 
 @extends('tenant.layouts.layoutMaster')
@@ -22,7 +23,7 @@
 
 @section('content')
     <x-auth.split-layout form-title="إعادة تعيين كلمة المرور"
-        form-subtitle="الرجاء إدخال بريدك الإلكتروني واختيار كلمة مرور جديدة قوية" :bg-image="asset('static/auth/backgrounds/auth-security-bg.jpg')"
+        form-subtitle="الرجاء إدخال كلمة مرور جديدة قوية وتأكيدها لإتمام الاستعادة" :bg-image="asset('static/auth/backgrounds/auth-security-bg.jpg')"
         media-tagline="حماية الحساب | لوت LOT" media-title="تحديث وتأمين | كلمة المرور الخاصة بك"
         media-desc="اختر كلمة مرور قوية ومعقدة لحماية حساب شركتك وبيانات عملائك ومزاداتك العقارية وفق أعلى معايير الأمان."
         :features="[
@@ -34,14 +35,9 @@
             data-validation-url="{{ tenant() ? tenant_route_name('form-validation') : route('admin.wizard-drafts.validate-step') }}">
             @csrf
 
-            <input type="hidden" name="token" value="{{ $request->token ?? request('token') }}">
-            @if (isset($request->tenant_id) || request('tenant_id'))
-                <input type="hidden" name="tenant_id" value="{{ $request->tenant_id ?? request('tenant_id') }}">
-            @endif
-
             <x-form.controls.input name="email" label="البريد الإلكتروني" placeholder="أدخل البريد الإلكتروني"
-                type="email" :value="old('email', $request->email ?? request('email'))" required autocomplete="username" col="col-12 mb-3"
-                icon="ti ti-mail" />
+                type="email" :value="$resolvedEmail" required autocomplete="username" col="col-12 mb-3"
+                icon="ti ti-mail" :readonly="!empty($resolvedEmail)" />
 
             <x-form.controls.password name="password" id="password" label="كلمة المرور الجديدة"
                 placeholder="أدخل كلمة المرور الجديدة" required autocomplete="new-password" col="col-12 mb-2"
@@ -49,9 +45,10 @@
 
             <x-form.controls.password name="password_confirmation" id="password_confirmation"
                 label="تأكيد كلمة المرور الجديدة" placeholder="أعد إدخال كلمة المرور للتأكيد" required
-                autocomplete="new-password" col="col-12 mb-2" icon="ti ti-lock-check" />
+                autocomplete="new-password" col="col-12 mb-3" icon="ti ti-lock-check" />
+
             <button type="submit" class="btn-auth-primary mb-3">
-                <span>إعادة تعيين كلمة المرور</span>
+                <span>حفظ كلمة المرور الجديدة</span>
                 <i class="ti ti-arrow-left" aria-hidden="true"></i>
             </button>
         </form>

@@ -268,20 +268,52 @@ async function restoreDraft(form) {
   }
   syncSelects(form);
 
-  let targetStep = Math.max(1, Number(draft.step || 1));
+  const wizard = wizardFor(form);
+  const panes = wizard ? [...wizard.querySelectorAll('.content, .bs-stepper-pane, [data-form-step]')] : [];
+  const controls = Array.from(
+    form.querySelectorAll(
+      'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])'
+    )
+  );
+
+  const populatedControls = controls.filter((control) => {
+    if (!control || control.disabled || control.type === 'hidden') return false;
+    if (control.type === 'checkbox' || control.type === 'radio') return control.checked;
+    if (control.type === 'password' || control.type === 'file') return false;
+    if (control.tagName === 'SELECT') return Boolean(control.value && control.value !== '');
+    return Boolean(control.value && String(control.value).trim() !== '');
+  });
+  const lastPopulatedControl = populatedControls.length
+    ? populatedControls[populatedControls.length - 1]
+    : null;
+
   const passwordInput = form.querySelector('input[type="password"]:not([disabled])');
-  if (passwordInput) {
-    const wizard = wizardFor(form);
-    const panes = wizard ? [...wizard.querySelectorAll('.content, .bs-stepper-pane, [data-form-step]')] : [];
-    const passwordPane = passwordInput.closest('.content, .bs-stepper-pane, [data-form-step]');
-    const paneIndex = panes.indexOf(passwordPane);
+  const passwordIndex = passwordInput ? controls.indexOf(passwordInput) : -1;
+  const lastPopulatedIndex = lastPopulatedControl ? controls.indexOf(lastPopulatedControl) : -1;
+
+  const isPasswordBeforeLastPopulated =
+    passwordInput !== null &&
+    lastPopulatedControl !== null &&
+    passwordIndex !== -1 &&
+    lastPopulatedIndex !== -1 &&
+    passwordIndex < lastPopulatedIndex;
+
+  const targetControl = isPasswordBeforeLastPopulated
+    ? passwordInput
+    : lastPopulatedControl;
+
+  let targetStep = Math.max(1, Number(draft.step || 1));
+  if (panes.length && targetControl) {
+    const pane = targetControl.closest('.content, .bs-stepper-pane, [data-form-step]');
+    const paneIndex = panes.indexOf(pane);
     if (paneIndex >= 0) {
       targetStep = paneIndex + 1;
     }
   }
+
   stepperFor(form)?.to(Math.max(0, targetStep - 1));
-  if (passwordInput) {
-    setTimeout(() => passwordInput.focus?.(), 300);
+  if (targetControl) {
+    setTimeout(() => targetControl.focus?.(), 300);
   }
 }
 

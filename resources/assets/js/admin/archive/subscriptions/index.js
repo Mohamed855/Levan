@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 $(function () {
     initializeComponents();
@@ -6,19 +6,19 @@ $(function () {
 });
 
 function initializeComponents() {
-    $('.select2').select2({
+    $(".select2").select2({
         allowClear: true,
-        placeholder: 'الكل',
-        dir: 'rtl',
-        width: '100%',
-        language: 'ar'
+        placeholder: "الكل",
+        dir: "rtl",
+        width: "100%",
+        language: "ar",
     });
 }
 
 function initializeDataTableEvents() {
-    $('#subscriptions-archive-table').on('init.dt', function () {
+    $("#subscriptions-archive-table").on("init.dt", function () {
         const table = $(this).DataTable();
-        const tableWrapper = $('#subscriptions-archive-table_wrapper');
+        const tableWrapper = $("#subscriptions-archive-table_wrapper");
 
         bindFilters(table);
         bindSelectionEvents(table, tableWrapper);
@@ -27,115 +27,121 @@ function initializeDataTableEvents() {
 }
 
 function bindFilters(table) {
-    $('#filter-status, #filter-authorized-count').on('change', function () {
+    $("#filter-status, #filter-authorized-count").on("change", function () {
         applyFilters(table);
     });
-
 }
 
 function applyFilters(table) {
     const filters = {
-        status: $('#filter-status').val() || '',
-        authorizedCount: $('#filter-authorized-count').val() || ''
+        status: $("#filter-status").val() || "",
+        authorizedCount: $("#filter-authorized-count").val() || "",
     };
 
     const baseUrl = window.location.pathname;
     const params = new URLSearchParams();
 
-    if (filters.status) params.append('status', filters.status);
-    if (filters.authorizedCount) params.append('authorized_count', filters.authorizedCount);
-    if (filters.searchQuery) params.append('search_query', filters.searchQuery);
+    if (filters.status) params.append("status", filters.status);
+    if (filters.authorizedCount)
+        params.append("authorized_count", filters.authorizedCount);
+    if (filters.searchQuery) params.append("search_query", filters.searchQuery);
 
     const query = params.toString();
-    const newUrl = query ? baseUrl + '?' + query : baseUrl;
+    const newUrl = query ? baseUrl + "?" + query : baseUrl;
 
     table.ajax.url(newUrl).load();
 }
 
 function bindSelectionEvents(table, tableWrapper) {
-    tableWrapper.on('click', '#select-all', function () {
+    tableWrapper.on("click", "#select-all", function () {
         const isChecked = this.checked;
-        const rows = table.rows({ search: 'applied' }).nodes();
-        $('input.row-checkbox', rows).prop('checked', isChecked);
+        const rows = table.rows({ search: "applied" }).nodes();
+        $("input.row-checkbox", rows).prop("checked", isChecked);
     });
 
-    tableWrapper.on('change', '.row-checkbox', function () {
+    tableWrapper.on("change", ".row-checkbox", function () {
         if (!this.checked) {
-            $('#select-all').prop('checked', false);
+            $("#select-all").prop("checked", false);
         }
     });
 }
 
 function bindTableEvents(table) {
-    table.on('draw', function () {
-        $('#select-all').prop('checked', false);
+    table.on("draw", function () {
+        $("#select-all").prop("checked", false);
     });
 }
 
-document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.js-restore-btn');
-        console.log(btn);
-        if (!btn) return;
-         const id = btn.dataset.id;
-        if (!id) return;
+document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".js-restore-btn");
+    console.log(btn);
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (!id) return;
 
-        confirmRestore(id);
-    });
+    confirmRestore(id);
+});
 
-  document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.js-force-btn');
-        console.log(btn);
-        if (!btn) return;
-         const id = btn.dataset.id;
-        if (!id) return;
+document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".js-force-btn");
+    console.log(btn);
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (!id) return;
 
-        confirmForceDelete(id);
-    });
+    confirmForceDelete(id);
+});
 
 function confirmRestore(id) {
     if (!id || !validateCompanyId(id)) {
-        showError('معرف المستخدم غير صحيح');
+        showError("معرف المستخدم غير صحيح");
         return;
     }
 
     window.confirmAction({
-        title: 'هل أنت متأكد؟',
-        text: 'سيتم استرجاع هذا الاشتراك من الأرشيف',
-        confirmButtonText: 'نعم، استرجع',
-        confirmButtonClass: 'btn btn-primary',
-        icon: 'ti ti-refresh text-primary',
+        title: "هل أنت متأكد؟",
+        text: "سيتم استرجاع هذا الاشتراك من الأرشيف",
+        confirmButtonText: "نعم، استرجع",
+        confirmButtonClass: "btn btn-primary",
+        icon: "ti ti-refresh text-primary",
         onConfirm: function () {
             executeRestore(id);
-        }
+        },
     });
 }
 
 function executeRestore(id) {
-    const form = createFormForAction('PATCH', window.routes.restore.replace(':id', id));
+    const form = createFormForAction(
+        "PATCH",
+        window.routes.restore.replace(":id", id),
+    );
     document.body.appendChild(form);
     form.submit();
 }
 
 function confirmForceDelete(userId) {
     if (!userId || !validateCompanyId(userId)) {
-        showError('معرف المستخدم غير صحيح');
+        showError("معرف المستخدم غير صحيح");
         return;
     }
 
     window.confirmAction({
-        title: 'تحذير!',
-        text: 'سيتم حذف هذا الاشتراك نهائياً ولا يمكن استرجاعه',
-        confirmButtonText: 'نعم، احذف نهائياً',
-        confirmButtonClass: 'btn btn-danger',
-        icon: 'ti ti-trash text-danger',
+        title: "تحذير!",
+        text: "سيتم حذف هذا الاشتراك نهائياً ولا يمكن استرجاعه",
+        confirmButtonText: "تأكيد الحذف نهائياً",
+        confirmButtonClass: "btn btn-danger",
+        icon: "ti ti-trash text-white",
         onConfirm: function () {
             executeForceDelete(userId);
-        }
+        },
     });
 }
 
 function executeForceDelete(userId) {
-    const form = createFormForAction('DELETE', window.routes.forceDelete.replace(':id', userId));
+    const form = createFormForAction(
+        "DELETE",
+        window.routes.forceDelete.replace(":id", userId),
+    );
     document.body.appendChild(form);
     form.submit();
 }
@@ -148,26 +154,26 @@ function handleMassRestore() {
     }
 
     window.confirmAction({
-        title: 'استعادة جماعية',
+        title: "استعادة جماعية",
         text: `سيتم استرجاع ${selectedIds.length} اشتراك من الأرشيف`,
-        confirmButtonText: 'استرجع الكل',
-        confirmButtonClass: 'btn btn-primary',
-        icon: 'ti ti-refresh text-primary',
+        confirmButtonText: "استرجع الكل",
+        confirmButtonClass: "btn btn-primary",
+        icon: "ti ti-refresh text-primary",
         onConfirm: function () {
             executeMassRestore(selectedIds);
-        }
+        },
     });
 }
 
 function executeMassRestore(selectedIds) {
-    showLoadingSpinner('جاري الاستعادة...');
+    showLoadingSpinner("جاري الاستعادة...");
 
     $.ajax({
         url: window.routes.massRestore,
-        type: 'POST',
+        type: "POST",
         data: {
             _token: window.csrfToken,
-            ids: selectedIds
+            ids: selectedIds,
         },
         success: function (response) {
             hideLoadingSpinner();
@@ -176,7 +182,7 @@ function executeMassRestore(selectedIds) {
         error: function (xhr) {
             hideLoadingSpinner();
             handleMassRestoreError(xhr);
-        }
+        },
     });
 }
 
@@ -188,26 +194,26 @@ function handleMassForceDelete() {
     }
 
     window.confirmAction({
-        title: 'تحذير خطير!',
+        title: "تحذير خطير!",
         text: `سيتم حذف ${selectedIds.length} اشتراك نهائياً ولا يمكن استرجاعها. هل أنت متأكد؟`,
-        confirmButtonText: 'نعم، احذف الكل نهائياً',
-        confirmButtonClass: 'btn btn-danger',
-        icon: 'ti ti-trash text-danger',
+        confirmButtonText: "تأكيد الحذف الكل نهائياً",
+        confirmButtonClass: "btn btn-danger",
+        icon: "ti ti-trash text-white",
         onConfirm: function () {
             executeMassForceDelete(selectedIds);
-        }
+        },
     });
 }
 
 function executeMassForceDelete(selectedIds) {
-    showLoadingSpinner('جاري الحذف النهائي...');
+    showLoadingSpinner("جاري الحذف النهائي...");
 
     $.ajax({
         url: window.routes.massForceDelete,
-        type: 'DELETE',
+        type: "DELETE",
         data: {
             _token: window.csrfToken,
-            ids: selectedIds
+            ids: selectedIds,
         },
         success: function (response) {
             hideLoadingSpinner();
@@ -216,13 +222,13 @@ function executeMassForceDelete(selectedIds) {
         error: function (xhr) {
             hideLoadingSpinner();
             handleMassForceDeleteError(xhr);
-        }
+        },
     });
 }
 
 function getSelectedCompanyIds() {
     const selectedIds = [];
-    $('.row-checkbox:checked').each(function () {
+    $(".row-checkbox:checked").each(function () {
         selectedIds.push($(this).val());
     });
     return selectedIds;
@@ -230,7 +236,7 @@ function getSelectedCompanyIds() {
 
 function validateSelectedIds(selectedIds) {
     if (selectedIds.length < 1) {
-        showWarning('يرجى تحديد شركة واحدة على الأقل');
+        showWarning("يرجى تحديد شركة واحدة على الأقل");
         return false;
     }
     return true;
@@ -241,20 +247,20 @@ function validateCompanyId(companyId) {
 }
 
 function createFormForAction(method, actionUrl) {
-    const form = document.createElement('form');
-    form.method = 'POST';
+    const form = document.createElement("form");
+    form.method = "POST";
     form.action = actionUrl;
 
-    const csrfToken = document.createElement('input');
-    csrfToken.type = 'hidden';
-    csrfToken.name = '_token';
+    const csrfToken = document.createElement("input");
+    csrfToken.type = "hidden";
+    csrfToken.name = "_token";
     csrfToken.value = window.csrfToken;
     form.appendChild(csrfToken);
 
-    if (method !== 'POST') {
-        const methodField = document.createElement('input');
-        methodField.type = 'hidden';
-        methodField.name = '_method';
+    if (method !== "POST") {
+        const methodField = document.createElement("input");
+        methodField.type = "hidden";
+        methodField.name = "_method";
         methodField.value = method;
         form.appendChild(methodField);
     }
@@ -263,9 +269,9 @@ function createFormForAction(method, actionUrl) {
 }
 
 function refreshTableAndResetSelection() {
-    if ($.fn.DataTable.isDataTable('#subscriptions-archive-table')) {
-        $('#subscriptions-archive-table').DataTable().draw(false);
-        $('#select-all').prop('checked', false);
+    if ($.fn.DataTable.isDataTable("#subscriptions-archive-table")) {
+        $("#subscriptions-archive-table").DataTable().draw(false);
+        $("#select-all").prop("checked", false);
     }
 }
 
@@ -274,12 +280,13 @@ function handleMassRestoreSuccess(response) {
         showSuccess(response.message);
         refreshTableAndResetSelection();
     } else {
-        showError(response.message || 'حدث خطأ غير متوقع');
+        showError(response.message || "حدث خطأ غير متوقع");
     }
 }
 
 function handleMassRestoreError(xhr) {
-    const message = xhr.responseJSON?.message || 'حدث خطأ أثناء الاستعادة الجماعية';
+    const message =
+        xhr.responseJSON?.message || "حدث خطأ أثناء الاستعادة الجماعية";
     showError(message);
 }
 
@@ -288,35 +295,36 @@ function handleMassForceDeleteSuccess(response) {
         showSuccess(response.message);
         refreshTableAndResetSelection();
     } else {
-        showError(response.message || 'حدث خطأ غير متوقع');
+        showError(response.message || "حدث خطأ غير متوقع");
     }
 }
 
 function handleMassForceDeleteError(xhr) {
-    const message = xhr.responseJSON?.message || 'حدث خطأ أثناء الحذف النهائي الجماعي';
+    const message =
+        xhr.responseJSON?.message || "حدث خطأ أثناء الحذف النهائي الجماعي";
     showError(message);
 }
 
 function showSuccess(message) {
-    if (typeof toastr !== 'undefined') {
+    if (typeof toastr !== "undefined") {
         toastr.success(message);
     }
 }
 
 function showError(message) {
-    if (typeof toastr !== 'undefined') {
+    if (typeof toastr !== "undefined") {
         toastr.error(message);
     }
 }
 
 function showWarning(message) {
-    if (typeof toastr !== 'undefined') {
+    if (typeof toastr !== "undefined") {
         toastr.warning(message);
     }
 }
 
-function showLoadingSpinner(message = 'جاري المعالجة...') {
-    if (typeof toastr !== 'undefined') {
+function showLoadingSpinner(message = "جاري المعالجة...") {
+    if (typeof toastr !== "undefined") {
         toastr.info(message);
     }
 }

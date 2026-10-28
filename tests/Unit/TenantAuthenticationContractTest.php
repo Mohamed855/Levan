@@ -15,11 +15,13 @@ use App\Http\Controllers\Tenants\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Tenants\Auth\RegisteredUserController;
 use App\Http\Requests\Tenants\Auth\ConfirmTenantPasswordRequest;
 use App\Http\Requests\Tenants\Auth\ConfirmTenantTwoFactorRequest;
+use App\Http\Requests\Tenants\Auth\ResendPasswordResetOtpRequest;
 use App\Http\Requests\Tenants\Auth\ResetTenantPasswordRequest;
 use App\Http\Requests\Tenants\Auth\SendPasswordResetLinkRequest;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Http\Requests\Tenants\Auth\TenantTwoFactorChallengeRequest;
 use App\Http\Requests\Tenants\Auth\UpdateTenantPasswordRequest;
+use App\Http\Requests\Tenants\Auth\VerifyPasswordResetOtpRequest;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -29,6 +31,8 @@ class TenantAuthenticationContractTest extends TestCase
     {
         $contracts = [
             [PasswordResetLinkController::class, 'store', SendPasswordResetLinkRequest::class],
+            [PasswordResetLinkController::class, 'verifyOtp', VerifyPasswordResetOtpRequest::class],
+            [PasswordResetLinkController::class, 'resendOtp', ResendPasswordResetOtpRequest::class],
             [NewPasswordController::class, 'store', ResetTenantPasswordRequest::class],
             [NewPasswordController::class, 'updatePassword', ResetTenantPasswordRequest::class],
             [PasswordController::class, 'update', UpdateTenantPasswordRequest::class],
@@ -53,6 +57,8 @@ class TenantAuthenticationContractTest extends TestCase
     {
         foreach ([
             SendPasswordResetLinkRequest::class,
+            VerifyPasswordResetOtpRequest::class,
+            ResendPasswordResetOtpRequest::class,
             ResetTenantPasswordRequest::class,
             ConfirmTenantPasswordRequest::class,
             ConfirmTenantTwoFactorRequest::class,

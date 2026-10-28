@@ -137,9 +137,4 @@ class TrialController extends Controller
 
         return redirect()->route('site.index')->with('success', 'تم إرسال طلب التجربة بنجاح، وطلبك الآن قيد مراجعة الإدارة.');
     }
-
-    public function submitted()
-    {
-        return view('web.trial-submitted');
-    }
 }

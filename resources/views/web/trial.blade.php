@@ -84,14 +84,11 @@
                                                 <button type="button" class="otp-action-btn" id="btn-resend-otp" disabled>
                                                     <i class="ti ti-rotate-clockwise"></i>
                                                     <span>إعادة إرسال الرمز</span>
-                                                    <span class="text-xs text-muted"
-                                                        id="otp-remaining-attempts">({{ max(0, ($maxResends ?? 3) - ($resendCount ?? 0)) }}
-                                                        محاولة متبقية)</span>
+                                                    <span class="text-xs text-muted" id="otp-remaining-attempts">({{ max(0, ($maxResends ?? 3) - ($resendCount ?? 0)) }} محاولة متبقية)</span>
                                                 </button>
                                             </div>
 
-                                            <div id="otp-edit-container"
-                                                class="{{ ($resendCount ?? 0) >= ($maxResends ?? 3) ? '' : 'd-none' }}">
+                                            <div id="otp-edit-container" class="{{ ($resendCount ?? 0) >= ($maxResends ?? 3) ? '' : 'd-none' }}">
                                                 <a href="{{ route('site.trial.edit') }}" class="otp-action-btn">
                                                     <i class="ti ti-arrow-right"></i>
                                                     العودة لتعديل البيانات

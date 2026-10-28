@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Site;
 use App\Actions\Admin\PublicRequests\CreateContactRequestAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\StoreContactRequest;
-use App\Jobs\Admin\Mail\SendContactMailJob;
 use App\Models\Admin\Faq;
 use App\Models\Admin\Plans\Plan;
 use Illuminate\Support\Facades\Schema;

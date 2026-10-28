@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Tenants\Auth;
 
 use App\Actions\Tenants\Auth\ResetTenantPasswordAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\ResetTenantPasswordRequest;
+use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -17,14 +19,34 @@ class NewPasswordController extends Controller
     /**
      * Display the password reset view.
      */
-    public function create(Request $request): View
+    public function create(Request $request): View|RedirectResponse
     {
-        return view('tenant.auth.reset-password', ['request' => $request]);
-    }
+        $verification = $request->session()->get('password_reset_verification');
 
-    public function resetPasswordForm()
-    {
-        return view('tenant.auth.reset-password');
+        if (is_array($verification) && ! empty($verification['verified'])) {
+            if ((int) ($verification['expires_at'] ?? 0) < now()->timestamp) {
+                $request->session()->forget('password_reset_verification');
+
+                return redirect()->to(tenant_route_name('password.request'))
+                    ->withErrors(['email' => 'انتهت مهلة تعيين كلمة المرور، يرجى طلب رمز تحقق جديد.']);
+            }
+
+            return view('tenant.auth.reset-password', [
+                'email' => $verification['email'] ?? '',
+                'request' => $request,
+            ]);
+        }
+
+        // Support admin central token route if tenant is not active
+        if (! tenant() && $request->route('token')) {
+            return view('tenant.auth.reset-password', [
+                'email' => $request->email ?? '',
+                'request' => $request,
+            ]);
+        }
+
+        return redirect()->to(tenant_route_name('password.request'))
+            ->withErrors(['email' => 'يرجى إدخال بريدك الإلكتروني والتحقق من الرمز أولاً.']);
     }
 
     /**
@@ -34,25 +56,36 @@ class NewPasswordController extends Controller
      */
     public function store(ResetTenantPasswordRequest $request, ResetTenantPasswordAction $resetPassword): RedirectResponse
     {
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user) use ($request, $resetPassword) {
-                $resetPassword->execute($user, $request->validated('password'));
+        $verification = $request->session()->get('password_reset_verification');
 
-                event(new PasswordReset($user));
-            }
-        );
+        if (! is_array($verification) || empty($verification['verified'])) {
+            return redirect()->to(tenant_route_name('password.request'))
+                ->withErrors(['email' => 'جلسة التحقق غير صالحة، يرجى البدء من جديد.']);
+        }
 
-        // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
-        // redirect them back to where they came from with their error message.
-        return $status == Password::PASSWORD_RESET
-            ? redirect()->to(tenant_route_name('login'))->with('status', __($status))
-            : back()->withInput($request->only('email'))
-                ->withErrors(['email' => __($status)]);
+        if ((int) ($verification['expires_at'] ?? 0) < now()->timestamp) {
+            $request->session()->forget('password_reset_verification');
+
+            return redirect()->to(tenant_route_name('password.request'))
+                ->withErrors(['email' => 'انتهت مهلة تعيين كلمة المرور، يرجى إعادة طلب رمز التحقق.']);
+        }
+
+        $email = (string) ($verification['email'] ?? $request->validated('email'));
+        $user = User::query()->where('email', $email)->first();
+
+        if (! $user) {
+            $request->session()->forget('password_reset_verification');
+
+            return redirect()->to(tenant_route_name('password.request'))
+                ->withErrors(['email' => 'المستخدم المرتبط بهذا البريد لم يعد موجوداً.']);
+        }
+
+        $resetPassword->execute($user, (string) $request->validated('password'));
+        event(new PasswordReset($user));
+        $request->session()->forget('password_reset_verification');
+
+        return redirect()->to(tenant_route_name('login'))
+            ->with('status', 'تم إعادة تعيين كلمة المرور بنجاح، يمكنك الآن تسجيل الدخول.');
     }
 
     public function updatePassword(ResetTenantPasswordRequest $request, ResetTenantPasswordAction $resetPassword)
@@ -64,7 +97,8 @@ class NewPasswordController extends Controller
         );
 
         if ($user) {
-            return redirect('https://levan.com')->with('success', 'تم تعديل كلمة المرور بنجاح يمكنك الاستفادة بخدماتنا');
+            return redirect()->to(tenant_route_name('login'))
+                ->with('success', 'تم تعديل كلمة المرور بنجاح يمكنك الاستفادة بخدماتنا');
         }
 
         return back()->withErrors(['email' => 'المستخدم غير موجود.']);

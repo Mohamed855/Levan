@@ -14,11 +14,16 @@ class ResetTenantPasswordAction
     public function execute(User $user, string $password): User
     {
         return DB::transaction(function () use ($user, $password): User {
-            $user->forceFill([
+            $payload = [
                 'password' => Hash::make($password),
                 'remember_token' => Str::random(60),
-                'must_change_password' => false,
-            ])->save();
+            ];
+
+            if (\Illuminate\Support\Facades\Schema::connection($user->getConnectionName())->hasColumn($user->getTable(), 'must_change_password')) {
+                $payload['must_change_password'] = false;
+            }
+
+            $user->forceFill($payload)->save();
 
             return $user;
         });

@@ -20,11 +20,11 @@ use App\Services\shared\Bills\BillService;
 use App\Services\shared\Coupons\CouponService;
 use App\Services\shared\Payment\Moyasar\MoyasarCallbackHandler;
 use App\Services\shared\Payment\Moyasar\MoyasarFormConfiguration;
+use App\Services\Shared\Registration\RegistrationOtpService;
 use App\Services\shared\Subscription\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 
 class SubscriptionController extends Controller
@@ -34,7 +34,8 @@ class SubscriptionController extends Controller
         private BillService $billingService,
         private MoyasarCallbackHandler $moyasarCallbackHandler,
         private MoyasarFormConfiguration $moyasarFormConfiguration,
-        private SubscriptionService $subscriptionService
+        private SubscriptionService $subscriptionService,
+        private RegistrationOtpService $otpService
     ) {}
 
     public function checkout(Plan $plan)
@@ -123,10 +124,8 @@ class SubscriptionController extends Controller
         } else {
             $checkout['coupon_code'] = null;
         }
-        $otp = $this->checkoutOtp();
-        $checkout['otp_hash'] = hash('sha256', $otp);
+        $checkout['otp_hash'] = $this->otpService->issue($checkout['billing_email']);
         $request->session()->put('checkout_verification', $checkout);
-        $this->sendCheckoutOtp($checkout['billing_email'], $otp);
 
         return redirect()->route('site.plans.checkout', $plan);
     }
@@ -158,12 +157,10 @@ class SubscriptionController extends Controller
                 ->withErrors(['otp' => 'لقد استنفدت الحد الأقصى لمحاولات إعادة الإرسال (3 مرات). يرجى العودة لتعديل البيانات.']);
         }
 
-        $otp = $this->checkoutOtp();
-        $checkout['otp_hash'] = hash('sha256', $otp);
+        $checkout['otp_hash'] = $this->otpService->issue($checkout['billing_email']);
         $checkout['expires_at'] = now()->addMinutes(2)->timestamp;
         $checkout['resend_count'] = $resendCount + 1;
         $request->session()->put('checkout_verification', $checkout);
-        $this->sendCheckoutOtp($checkout['billing_email'], $otp);
 
         $message = 'تم إعادة إرسال رمز التحقق بنجاح إلى بريدك الإلكتروني.';
         if ($request->wantsJson() || $request->ajax()) {
@@ -415,24 +412,6 @@ class SubscriptionController extends Controller
             && isset($checkout['verified_at'])
             && (int) ($checkout['plan_id'] ?? 0) === (int) $plan->getKey()
             && (int) ($checkout['expires_at'] ?? 0) >= now()->timestamp;
-    }
-
-    private function checkoutOtp(): string
-    {
-        return config('services.moyasar.mode', 'test') === 'test'
-            ? '000000'
-            : (string) random_int(100000, 999999);
-    }
-
-    private function sendCheckoutOtp(string $email, string $otp): void
-    {
-        if (config('services.moyasar.mode', 'test') === 'test') {
-            Log::info('Checkout OTP issued in test mode', ['email' => $email, 'otp' => $otp]);
-
-            return;
-        }
-
-        \App\Services\Shared\Mail\SystemMailService::sendOtp($email, $otp, 'إكمال الاشتراك');
     }
 
     private function showMoyasarCheckout(Bill $bill, Plan $plan)

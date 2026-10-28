@@ -417,7 +417,7 @@ function loadTaskComments(taskId) {
                                                 <i class="ti ti-edit text-primary"></i>
                                             </button>
                                             <button type="button" class="btn btn-icon delete-comment-btn" title="حذف">
-                                                <i class="ti ti-trash text-danger"></i>
+                                                <i class="ti ti-trash text-white"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -524,12 +524,12 @@ function loadTaskComments(taskId) {
                                 text: "لا يمكن التراجع عن هذا الإجراء!",
                                 variant: "danger",
                                 icon: "ti-trash",
-                                confirmText: "نعم، احذف",
+                                confirmText: "تأكيد الحذف",
                                 confirmClass: "btn btn-danger px-4",
                                 cancelText: "إلغاء",
-                                onConfirm: function() {
+                                onConfirm: function () {
                                     deleteComment(commentId, taskId);
-                                }
+                                },
                             });
                         });
                     });
@@ -672,7 +672,7 @@ $(document).on("click", ".delete-attachment", function (e) {
         text: "لا يمكن التراجع عن هذا الإجراء!",
         variant: "danger",
         icon: "ti-trash",
-        confirmText: "نعم، احذف",
+        confirmText: "تأكيد الحذف",
         confirmClass: "btn btn-danger px-4",
         cancelText: "إلغاء",
         onConfirm: function () {
@@ -703,7 +703,7 @@ $(document).on("click", ".delete-attachment", function (e) {
                     console.error("Error deleting attachment:", error);
                     toastr.error("حدث خطأ أثناء حذف المرفق");
                 });
-        }
+        },
     });
 });
 
@@ -1010,7 +1010,7 @@ function confirmDelete(taskId) {
         text: "لا يمكن التراجع عن هذا الإجراء!",
         variant: "danger",
         icon: "ti-trash",
-        confirmText: "نعم، احذف",
+        confirmText: "تأكيد الحذف",
         confirmClass: "btn btn-danger px-4",
         cancelText: "إلغاء",
         onConfirm: function () {
@@ -1047,7 +1047,7 @@ function confirmDelete(taskId) {
                     });
                 },
             });
-        }
+        },
     });
 }
 

@@ -11,11 +11,18 @@
         );
 
         if ($subscription && $subscription->status === \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE) {
-            $currentPeriod = $subscription->currentPeriod;
-            if ($currentPeriod) {
-                $daysRemaining = app(
-                    \App\Services\shared\Subscription\SubscriptionManager::class,
-                )->calculateDaysRemaining($currentPeriod);
+            $hasUpcomingPeriods = $subscription->periods()
+                ->where('status', \App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus::QUEUED)
+                ->where('period_end', '>', now())
+                ->exists();
+
+            if (! $hasUpcomingPeriods) {
+                $currentPeriod = $subscription->currentPeriod;
+                if ($currentPeriod) {
+                    $daysRemaining = app(
+                        \App\Services\shared\Subscription\SubscriptionManager::class,
+                    )->calculateDaysRemaining($currentPeriod);
+                }
             }
         }
     }

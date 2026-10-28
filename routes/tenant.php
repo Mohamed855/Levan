@@ -425,11 +425,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
 | Authentication: Password Reset & Change
 |--------------------------------------------------------------------------
 */
-Route::middleware('guest')->prefix('forgot-password')->group(function () {
-    Route::name('password.request')->get('/', [PasswordResetLinkController::class, 'create']);
-    Route::name('password.email')->post('/', [PasswordResetLinkController::class, 'store']);
-});
-
 Route::get('impersonate', [AuthenticatedSessionController::class, 'impersonate'])
     ->name('impersonate');
 
@@ -439,6 +434,7 @@ Route::middleware('guest:tenant')->group(function () {
             AuthenticatedSessionController::class.'@store',
             RegisteredUserController::class.'@store',
             PasswordResetLinkController::class.'@store',
+            PasswordResetLinkController::class.'@verifyOtp',
             NewPasswordController::class.'@store',
             TenantTwoFactorChallengeController::class.'@store',
         ])
@@ -450,7 +446,10 @@ Route::middleware('guest:tenant')->group(function () {
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
     Route::name('password.request')->get('forgot-password', [PasswordResetLinkController::class, 'create']);
     Route::name('password.email')->post('forgot-password', [PasswordResetLinkController::class, 'store']);
-    Route::name('password.reset')->get('reset-password/{token}', [NewPasswordController::class, 'create']);
+    Route::name('password.otp.verify')->post('forgot-password/verify', [PasswordResetLinkController::class, 'verifyOtp']);
+    Route::name('password.otp.resend')->post('forgot-password/resend-otp', [PasswordResetLinkController::class, 'resendOtp'])->middleware('throttle:6,1');
+    Route::name('password.otp.edit')->get('forgot-password/edit', [PasswordResetLinkController::class, 'editEmail']);
+    Route::name('password.reset')->get('reset-password', [NewPasswordController::class, 'create']);
     Route::name('password.store')->post('reset-password', [NewPasswordController::class, 'store']);
 
     Route::get('two-factor-challenge', [TenantTwoFactorChallengeController::class, 'create'])->name('tenants.two-factor.login');

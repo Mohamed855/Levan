@@ -619,35 +619,72 @@ function hasVisibleServerErrors(form) {
     return false;
 }
 
-function resolveDraftTargetStep(form, defaultStep) {
+function isControlPopulated(control) {
+    if (!control || control.disabled || control.type === "hidden") {
+        return false;
+    }
+    if (control.type === "checkbox" || control.type === "radio") {
+        return control.checked;
+    }
+    if (control.type === "password" || control.type === "file") {
+        return false;
+    }
+    if (control.tagName === "SELECT") {
+        return Boolean(control.value && control.value !== "");
+    }
+    return Boolean(control.value && String(control.value).trim() !== "");
+}
+
+function resolveDraftNavigation(form, defaultStep) {
     const fallbackStep = Math.max(1, Number(defaultStep || 1));
     const stepperElement = form.closest("[data-form-stepper]");
     const steps = stepperElement
         ? Array.from(stepperElement.querySelectorAll("[data-form-step]"))
         : Array.from(form.querySelectorAll("[data-form-step]"));
 
-    if (!steps.length) {
-        return fallbackStep;
-    }
+    const controls = Array.from(
+        form.querySelectorAll(
+            'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])'
+        )
+    );
+
+    const populatedControls = controls.filter(isControlPopulated);
+    const lastPopulatedControl = populatedControls.length
+        ? populatedControls[populatedControls.length - 1]
+        : null;
 
     const passwordInput = form.querySelector(
-        'input[type="password"]:not([disabled])',
+        'input[type="password"]:not([disabled])'
     );
-    if (!passwordInput) {
-        return fallbackStep;
+
+    const passwordIndex = passwordInput ? controls.indexOf(passwordInput) : -1;
+    const lastPopulatedIndex = lastPopulatedControl ? controls.indexOf(lastPopulatedControl) : -1;
+
+    const isPasswordBeforeLastPopulated =
+        passwordInput !== null &&
+        lastPopulatedControl !== null &&
+        passwordIndex !== -1 &&
+        lastPopulatedIndex !== -1 &&
+        passwordIndex < lastPopulatedIndex;
+
+    const targetControl = isPasswordBeforeLastPopulated
+        ? passwordInput
+        : lastPopulatedControl;
+
+    let targetStep = fallbackStep;
+    if (steps.length && targetControl) {
+        const stepElement = targetControl.closest("[data-form-step]");
+        const stepIndex = stepElement ? steps.indexOf(stepElement) : -1;
+        if (stepIndex !== -1) {
+            targetStep = stepIndex + 1;
+        }
     }
 
-    const passwordStep = passwordInput.closest("[data-form-step]");
-    if (!passwordStep) {
-        return fallbackStep;
-    }
+    return { targetStep, targetControl };
+}
 
-    const passwordStepIndex = steps.indexOf(passwordStep);
-    if (passwordStepIndex === -1) {
-        return fallbackStep;
-    }
-
-    return passwordStepIndex + 1;
+function resolveDraftTargetStep(form, defaultStep) {
+    return resolveDraftNavigation(form, defaultStep).targetStep;
 }
 
 async function restoreDraft(form) {
@@ -715,7 +752,10 @@ async function restoreDraft(form) {
                 },
             }),
         );
-        const targetStep = resolveDraftTargetStep(form, draft.step);
+        const { targetStep, targetControl } = resolveDraftNavigation(
+            form,
+            draft.step,
+        );
         const stepper =
             getFormState(form).stepper ||
             form.closest("[data-form-stepper]")?.bsStepper;
@@ -739,12 +779,9 @@ async function restoreDraft(form) {
                 updateStepNextButton(form, currentStep);
             }
         }
-        const passwordInput = form.querySelector(
-            'input[type="password"]:not([disabled])',
-        );
-        if (passwordInput) {
+        if (targetControl) {
             setTimeout(() => {
-                passwordInput.focus?.();
+                targetControl.focus?.();
             }, 300);
         }
         window.toastr?.success?.("تمت استعادة المسودة بنجاح.");

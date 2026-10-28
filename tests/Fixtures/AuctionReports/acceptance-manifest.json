@@ -1,0 +1,18 @@
+{
+  "references": {
+    "outputs": {
+      "path": "C:/Users/moham/Downloads/outputs/samples/مخرجات مزاد جوار الحرم .pdf",
+      "sha256": "7c2d047ff0aaa4d6dcae7117996121d595291c5545deb8e299eab9c6f7bce797",
+      "media_box": [595.5, 842.2499787]
+    },
+    "report": {
+      "path": "C:/Users/moham/Downloads/outputs/samples/تقرير مزاد واجهة عسير.pdf",
+      "sha256": "22d7d2e448f2c6ebac35933b40dac0ad97fa5e79654d32067eb1c7e2fc2f8b6b",
+      "media_box": [595.276, 841.89]
+    }
+  },
+  "auctions": {
+    "haram": {"properties": 11, "sold": 4, "unsold": 7, "sales_total": 5670000, "media_inventory": "requires_source_audit"},
+    "asir": {"properties": 13, "sold": 3, "unsold": 10, "sales_total": 4026000, "media_inventory": "requires_source_audit"}
+  }
+}

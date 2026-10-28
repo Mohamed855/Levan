@@ -10,7 +10,7 @@
     @foreach ($pages as $page)
         @php($content = $page['content'])
         <section class="auction-print-page" data-page-type="{{ $page['page_type'] }}">
-            {!! $artwork->render($design, $content['index'], $content['values'], $content['tables'], $content['images'], $page['page_number'], $content['table_layouts'] ?? []) !!}
+            {!! $artwork->render($design, $content['index'], $content['values'], $content['tables'], $content['images'], $page['page_number'], $content['table_layouts'] ?? [], $content['field_layouts'] ?? []) !!}
         </section>
     @endforeach
 </body>

@@ -70,7 +70,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             ->addColumn('city', fn ($row) => $row->tenant?->city?->name ?? '-')
             ->addColumn('tax_number', fn ($row) => $row->tenant?->tax_number ?? '-')
             ->editColumn('tenant_id', function ($row) {
-                if (!$row->tenant_id) {
+                if (! $row->tenant_id) {
                     return '-';
                 }
                 $dashboardUrl = url('/'.$row->tenant_id.'/dashboard');
@@ -107,15 +107,15 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 }
 
                 if ($days <= 0) {
-                    return '<span class="badge bg-danger">منتهي (0 يوم)</span>';
+                    return '<span class="badge bg-danger">منتهي</span>';
                 }
 
                 if ($days <= 7) {
-                    return '<span class="badge bg-danger fw-bold"><i class="ti ti-alert-triangle ti-xs me-1"></i>'.$days.' '.($days == 1 ? 'يوم' : ($days == 2 ? 'يومان' : 'أيام')).'</span>';
+                    return '<span class="badge bg-danger fw-bold">'.$days.' '.($days == 1 ? 'يوم' : ($days == 2 ? 'يومان' : 'أيام')).'</span>';
                 }
 
                 if ($days <= 30) {
-                    return '<span class="badge bg-warning fw-semibold"><i class="ti ti-clock ti-xs me-1"></i>'.$days.' يوماً</span>';
+                    return '<span class="badge bg-warning fw-semibold">'.$days.' يوماً</span>';
                 }
 
                 return '<span class="badge bg-success">'.$days.' يوماً</span>';

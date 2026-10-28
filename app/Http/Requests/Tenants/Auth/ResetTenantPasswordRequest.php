@@ -17,8 +17,8 @@ class ResetTenantPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'token' => ['required'],
-            'email' => ['required', 'email'],
+            'token' => ['sometimes', 'nullable', 'string'],
+            'email' => ['sometimes', 'nullable', 'email'],
             'password' => ['required', 'confirmed', Password::defaults()],
         ];
     }

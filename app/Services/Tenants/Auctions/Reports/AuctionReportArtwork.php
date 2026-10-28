@@ -17,9 +17,13 @@ final class AuctionReportArtwork
 
     private array $documents = [];
 
+    private array $bindings = [];
+
     private array $uris = [];
 
     private ?AuctionReportTextLayout $textLayout = null;
+
+    private ?AuctionReportFonts $fonts = null;
 
     public function __construct(private readonly string $root = '') {}
 
@@ -27,7 +31,7 @@ final class AuctionReportArtwork
      * @param  array<string, list<list<string>>>  $tables
      * @param  array<string, list<array<string, mixed>>>  $images
      */
-    public function render(string $design, int $index, array $values, array $tables, array $images, int $pageNumber, array $tableLayouts = []): string
+    public function render(string $design, int $index, array $values, array $tables, array $images, int $pageNumber, array $tableLayouts = [], array $fieldLayouts = []): string
     {
         $page = $this->page($design, $index);
         $source = file_get_contents($this->path($design.'/page-'.($index + 1).'.svg'));
@@ -86,6 +90,16 @@ final class AuctionReportArtwork
             $field['y'] = min(array_column($fields, 'y'));
             $layout = $page['layouts'][$role] ?? [];
             $field['max_width'] = $layout['max_width'] ?? $field['width'];
+            if (isset($fieldLayouts[$role])) {
+                $fitted = $fieldLayouts[$role];
+                $field['sy'] *= $fitted['font_size'] / $field['size'];
+                $field['size'] = $fitted['font_size'];
+                $field['y'] = $fitted['y'];
+                if (isset($layout['box'])) {
+                    $field['x'] = $layout['box'][0];
+                    $field['width'] = $layout['box'][2] - $layout['box'][0];
+                }
+            }
             $this->text($document, $svg, $field, $values[$role] ?? '-', ['data-report-field' => $role], $layout['center'] ?? false);
         }
 
@@ -182,15 +196,9 @@ final class AuctionReportArtwork
 
     public function fontCss(): string
     {
-        $css = '';
-        foreach (['NotoReport' => 'noto-sans-arabic.ttf', 'IBMReport' => 'ibm-plex-sans-arabic.ttf', 'GEReport' => 'ge-contrast-bold.ttf', 'NizarReport' => 'nizar-bbc-kurdish.ttf'] as $family => $file) {
-            $css .= '@font-face{font-family:'.$family.';font-weight:100 900;src:url("'.$this->uri('fonts/'.$file, 'font/ttf').'") format("truetype");font-display:block;}';
-        }
-        foreach (require $this->path('fonts/catalog.php') as $font) {
-            $css .= '@font-face{font-family:'.$font['family'].';src:url("'.$this->uri($font['path'], 'font/woff').'");font-display:block;}';
-        }
+        $this->fonts ??= new AuctionReportFonts($this->root);
 
-        return $css;
+        return $this->fonts->css();
     }
 
     public function page(string $design, int $index): array
@@ -199,8 +207,11 @@ final class AuctionReportArtwork
             throw new InvalidArgumentException('Invalid report artwork.');
         }
         $this->documents[$design] ??= require $this->path($design.'/pages.php');
+        $this->bindings[$design] ??= require $this->path($design.'/bindings.php');
 
-        return $this->documents[$design][$index] ?? throw new InvalidArgumentException('Unknown report page.');
+        $page = $this->documents[$design][$index] ?? throw new InvalidArgumentException('Unknown report page.');
+
+        return array_replace($page, $this->bindings[$design][$index] ?? []);
     }
 
     private function text(DOMDocument $document, DOMElement $parent, array $field, string $value, array $attributes, bool $center = false, bool $centerVertically = false): void
@@ -211,17 +222,12 @@ final class AuctionReportArtwork
         $size = $field['sy'];
         $x = $field['x'] + ($center ? $field['width'] / 2 : ($field['rtl'] ? $field['width'] : 0));
         $font = $field['font'];
-        $family = str_starts_with($font, 'GEContrast') ? 'GEReport' : (str_starts_with($font, 'IBMPlex') ? 'IBMReport' : 'NotoReport');
-        if ($font === 'NizarBBCKurdish') {
-            $family = 'NizarReport';
-        } elseif (preg_match('/^[\p{N}\s.,:\/(\)%×*+\-]+$/u', $value)) {
-            $catalog = require $this->path('fonts/catalog.php');
-            $family = $catalog[$font]['family'] ?? $family;
-        }
+        $this->fonts ??= new AuctionReportFonts($this->root);
+        $face = $this->fonts->resolve($font);
         $text = $document->createElementNS(self::SVG, 'text');
         foreach ($attributes + [
-            'x' => $x, 'y' => $field['y'], 'fill' => $field['color'], 'font-family' => $family,
-            'font-size' => $size, 'font-weight' => str_contains($font, 'Bold') ? 700 : 400,
+            'x' => $x, 'y' => $field['y'], 'fill' => $field['color'], 'font-family' => $face['family'],
+            'font-size' => $size, 'font-weight' => $face['weight'],
             'text-anchor' => $center ? 'middle' : 'start',
             'direction' => $field['rtl'] ? 'rtl' : 'ltr', 'unicode-bidi' => 'plaintext', 'font-kerning' => 'none',
             'data-report-width' => $field['max_width'] ?? $field['width'],

@@ -262,20 +262,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Send the password reset notification using Levan branded email.
-     */
-    public function sendPasswordResetNotification($token): void
-    {
-        try {
-            $resetUrl = tenant_route_name('password.reset', ['token' => $token, 'email' => $this->getEmailForPasswordReset()]);
-        } catch (\Throwable $e) {
-            $resetUrl = url("reset-password/{$token}?email=" . urlencode((string) $this->getEmailForPasswordReset()));
-        }
-
-        \App\Services\Shared\Mail\SystemMailService::sendPasswordReset($this->getEmailForPasswordReset(), $resetUrl, $this->name);
-    }
-
-    /**
      * Send the email verification notification using Levan branded email.
      */
     public function sendEmailVerificationNotification(): void

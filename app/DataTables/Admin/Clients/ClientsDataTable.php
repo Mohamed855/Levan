@@ -126,7 +126,7 @@ class ClientsDataTable extends AbstractDataTable
                     return '<span class="badge bg-secondary">-</span>';
                 }
                 if ($days <= 0) {
-                    return '<span class="badge bg-danger">منتهي (0 يوم)</span>';
+                    return '<span class="badge bg-danger">منتهي</span>';
                 }
                 if ($days <= 7) {
                     return '<span class="badge bg-danger fw-bold">'.$days.' '.($days === 1 ? 'يوم' : ($days === 2 ? 'يومان' : 'أيام')).'</span>';

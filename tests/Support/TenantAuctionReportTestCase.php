@@ -16,7 +16,19 @@ abstract class TenantAuctionReportTestCase extends TestCase
 
     protected function setUp(): void
     {
+        $settings = [
+            'central' => (string) ($_ENV['DB_DATABASE'] ?? $_SERVER['DB_DATABASE'] ?? getenv('DB_DATABASE') ?: ''),
+            'tenant' => (string) ($_ENV['AUCTION_REPORT_TEST_TENANT_DATABASE'] ?? $_SERVER['AUCTION_REPORT_TEST_TENANT_DATABASE'] ?? getenv('AUCTION_REPORT_TEST_TENANT_DATABASE') ?: ''),
+            'tenant_id' => (string) ($_ENV['AUCTION_REPORT_TEST_TENANT_ID'] ?? $_SERVER['AUCTION_REPORT_TEST_TENANT_ID'] ?? getenv('AUCTION_REPORT_TEST_TENANT_ID') ?: ''),
+            'url' => (string) ($_ENV['DB_URL'] ?? $_SERVER['DB_URL'] ?? getenv('DB_URL') ?: ''),
+        ];
+        AuctionReportDatabaseGuard::assertSafe($settings);
+
         parent::setUp();
+        AuctionReportDatabaseGuard::assertSafe(array_replace($settings, [
+            'central' => (string) config('database.connections.mysql.database'),
+            'url' => (string) config('database.connections.mysql.url'),
+        ]));
 
         // This middleware switches to central and reconnects the tenant DB,
         // discarding uncommitted report fixtures before HTTP assertions run.
@@ -26,10 +38,10 @@ abstract class TenantAuctionReportTestCase extends TestCase
 
         $central = config('database.connections.mysql');
         $this->tenant = Tenant::query()->firstOrCreate(
-            ['id' => 'test'],
+            ['id' => $settings['tenant_id']],
             [
-                'folderName' => 'test',
-                'db_database' => 'levan_test',
+                'folderName' => $settings['tenant_id'],
+                'db_database' => $settings['tenant'],
                 'db_username' => (string) ($central['username'] ?? 'root'),
                 'db_password' => (string) ($central['password'] ?? ''),
                 'db_host' => (string) ($central['host'] ?? '127.0.0.1'),
@@ -42,6 +54,10 @@ abstract class TenantAuctionReportTestCase extends TestCase
         );
 
         $this->tenant->domains()->firstOrCreate(['domain' => 'test.localhost']);
+
+        AuctionReportDatabaseGuard::assertSafe(array_replace($settings, [
+            'tenant' => (string) $this->tenant->db_database,
+        ]));
 
         tenancy()->initialize($this->tenant);
         DB::connection('tenant')->beginTransaction();

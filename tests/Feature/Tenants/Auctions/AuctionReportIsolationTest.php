@@ -72,7 +72,7 @@ final class AuctionReportIsolationTest extends TenantAuctionReportTestCase
         $otherTenant = Tenant::query()->create([
             'id' => 'report-isolation-'.uniqid(),
             'folderName' => 'report-isolation-'.uniqid(),
-            'db_database' => 'levan_test',
+            'db_database' => 'levan_report_ci_tenant',
             'db_username' => (string) ($central['username'] ?? 'root'),
             'db_password' => (string) ($central['password'] ?? ''),
             'db_host' => (string) ($central['host'] ?? '127.0.0.1'),

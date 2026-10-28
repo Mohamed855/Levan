@@ -9,6 +9,13 @@ return [
             'property_count' => ['f6'], 'manager' => ['f7'], 'project' => ['f8'], 'footer' => ['f14'],
         ],
         'images' => [],
+        'layouts' => [
+            'name' => ['box' => [70, 335, 535, 433], 'fit' => 'shrink', 'max_lines' => 2, 'center' => true],
+            'manager' => ['max_width' => 85, 'max_lines' => 2],
+            'project' => ['max_width' => 85, 'max_lines' => 2],
+            'property_count' => ['max_width' => 35],
+            'footer' => ['max_width' => 145],
+        ],
     ],
     1 => [
         'groups' => ['manager' => ['f5'], 'name' => ['f6'], 'project' => ['f7'], 'end_date' => ['f11'], 'start_date' => ['f12'], 'footer' => ['f89']],
