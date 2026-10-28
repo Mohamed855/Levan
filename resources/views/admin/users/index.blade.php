@@ -1,6 +1,6 @@
 @extends('admin.layouts.layoutMaster')
 
-@section('title', 'المستحدمين ')
+@section('title', 'المستخدمين')
 
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
@@ -16,7 +16,7 @@
 @section('page-script')
     <script>
         window.routes = {
-            massDelete: "{{ route('admin.users.bulk-delete') }}",
+            massDelete: "{{ route('admin.mass-delete') }}",
             getUserRoles: "{{ route('admin.roles.get-user-roles', ':id') }}",
             updateUserRole: "{{ route('admin.roles.update-user-role', ':id') }}"
         };

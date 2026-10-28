@@ -59,7 +59,7 @@ class UsersDataTable extends AbstractDataTable
             ['data' => 'roles', 'name' => 'roles.name', 'title' => 'الأدوار', 'orderable' => false, 'searchable' => true],
             ['data' => 'last_login_at', 'name' => 'last_login_at', 'title' => 'آخر دخول'],
             ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'className' => 'text-center'],
-            ['data' => 'action', 'name' => 'action', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false],
+            ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false],
         ];
     }
 
@@ -135,7 +135,7 @@ class UsersDataTable extends AbstractDataTable
                     ? $user->last_login_at->locale('ar')->diffForHumans()
                     : 'لم يسجل دخول';
             })
-            ->addColumn('action', fn ($row) => view('tenant.user-management.users.action', ['id' => $row->id, 'route' => $this->route])->render());
+            ->addColumn('actions', fn ($row) => view('tenant.user-management.users.action', ['id' => $row->id, 'route' => $this->route])->render());
     }
 
     /*
@@ -145,7 +145,7 @@ class UsersDataTable extends AbstractDataTable
     */
     protected function rawColumns(): array
     {
-        return ['checkbox', 'image', 'name', 'email', 'roles', 'status', 'last_login_at', 'action'];
+        return ['checkbox', 'image', 'name', 'email', 'roles', 'status', 'last_login_at', 'actions'];
     }
 
     /*

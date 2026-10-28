@@ -19,43 +19,5 @@
 @endsection
 
 @section('content')
-    @php
-        $steps = [
-            ['id' => 'user-info-validation', 'title' => 'بيانات المستخدم'],
-        ];
-    @endphp
-
-    <div class="row">
-        <div class="col-12 mb-6">
-            <x-form.wizard.stepper id="wizard-validation" class="mt-2" :steps="$steps">
-                @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul class="mb-0">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                <form id="wizard-validation-form" action="{{ tenant_route_name('users.update', $user) }}" method="POST"
-                    enctype="multipart/form-data" autocomplete="off" data-form-validate
-                    data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
-                    @csrf
-                    @method('PUT')
-
-                    <x-form.wizard.step id="user-info-validation" :fields="['name', 'email', 'phone', 'role_id', 'password', 'password_confirmation', 'image']">
-                        @include('tenant.user-management.users.partials.steps.user-info', ['user' => $user])
-
-                        <x-form.wizard.actions>
-                            <x-form.wizard.previous-button :href="tenant_route_name('users.index')" text="العودة" />
-                            <div class="d-flex gap-2">
-                                <x-form.wizard.save-button text="حفظ التعديلات" />
-                            </div>
-                        </x-form.wizard.actions>
-                    </x-form.wizard.step>
-                </form>
-            </x-form.wizard.stepper>
-        </div>
-    </div>
+    @include('tenant.user-management.users.partials._form', ['is_edit' => true, 'user' => $user])
 @endsection

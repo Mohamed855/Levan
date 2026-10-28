@@ -95,7 +95,8 @@
                                         novalidate>
                                         @csrf
                                         <x-form.controls.input name="otp" label="رمز التحقق" inputmode="numeric"
-                                            maxlength="6" autocomplete="one-time-code" class="otp-input" required />
+                                            placeholder="000000" maxlength="6" autocomplete="one-time-code"
+                                            class="otp-input" required />
 
                                         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3"
                                             id="otp-timer-actions">
@@ -109,16 +110,10 @@
                                                 <button type="button" class="otp-action-btn" id="btn-resend-otp" disabled>
                                                     <i class="ti ti-rotate-clockwise"></i>
                                                     <span>إعادة إرسال الرمز</span>
-                                                    <span class="text-xs text-muted" id="otp-remaining-attempts">({{ max(0, ($maxResends ?? 3) - ($resendCount ?? 0)) }} محاولة متبقية)</span>
+                                                    <span class="text-xs text-muted"
+                                                        id="otp-remaining-attempts">({{ max(0, ($maxResends ?? 3) - ($resendCount ?? 0)) }}
+                                                        محاولة متبقية)</span>
                                                 </button>
-                                            </div>
-
-                                            <div id="otp-edit-container" class="{{ ($resendCount ?? 0) >= ($maxResends ?? 3) ? '' : 'd-none' }}">
-                                                <a href="{{ route('site.plans.checkout.edit', $plan) }}"
-                                                    class="otp-action-btn">
-                                                    <i class="ti ti-arrow-right"></i>
-                                                    العودة لتعديل البيانات
-                                                </a>
                                             </div>
                                         </div>
                                     </form>

@@ -110,10 +110,24 @@ class AdminUserController extends Controller
     public function destroy(AdminAuthenticatedRequest $request, AdminUser $user)
     {
         if ($user->isSuperAdmin()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكن حذف السوبر أدمن',
+                ], 403);
+            }
+
             return redirect()->route($this->route.'.index')->with('error', 'لا يمكن حذف السوبر أدمن');
         }
 
         $this->userService->deleteUser($user);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حذف المستخدم بنجاح',
+            ]);
+        }
 
         return redirect()->route('admin.users.index')->with('success', 'تم حذف المستخدم بنجاح');
     }

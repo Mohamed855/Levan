@@ -10,7 +10,6 @@ use App\Models\Admin\Bank\Bank;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
-use App\Models\Admin\PublicRequests\ContactRequest;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -233,7 +232,6 @@ final class SiteActionsFeatureTest extends TestCase
             ->get(route('site.plans.checkout', $plan));
         $viewRes->assertOk();
         $viewContent = $viewRes->getContent();
-        $this->assertStringContainsString('id="otp-edit-container" class=""', $viewContent);
         $this->assertStringContainsString('(0 محاولة متبقية)', $viewContent);
     }
 
@@ -285,7 +283,6 @@ final class SiteActionsFeatureTest extends TestCase
             ->get(route('site.trial'));
         $viewRes->assertOk();
         $viewContent = $viewRes->getContent();
-        $this->assertStringContainsString('id="otp-edit-container" class=""', $viewContent);
         $this->assertStringContainsString('(0 محاولة متبقية)', $viewContent);
     }
 

@@ -138,8 +138,22 @@ class AdminRoleController extends Controller
         try {
             $this->roleService->deleteRole($role);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم حذف الدور بنجاح',
+                ]);
+            }
+
             return redirect()->route($this->route.'.index')->with('success', 'تم حذف الدور بنجاح');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
             return redirect()->route($this->route.'.index')->with('error', $e->getMessage());
         }
     }

@@ -7,19 +7,9 @@ document.addEventListener("DOMContentLoaded", function () {
         let resendCount = Number(otpTimer.dataset.resendCount || 0);
         const maxResends = Number(otpTimer.dataset.maxResends || 3);
         const resendContainer = document.querySelector("#otp-resend-container");
-        const editContainer = document.querySelector("#otp-edit-container");
         const resendBtn = document.querySelector("#btn-resend-otp");
         const resendForm = document.querySelector("#otp-resend-form");
         let timer = null;
-
-        const updateEditContainerVisibility = () => {
-            if (!editContainer) return;
-            if (resendCount >= maxResends) {
-                editContainer.classList.remove("d-none");
-            } else {
-                editContainer.classList.add("d-none");
-            }
-        };
 
         const renderResendButton = (isLoading = false) => {
             if (!resendBtn) return;
@@ -50,7 +40,6 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 if (resendBtn) resendBtn.disabled = true;
             }
-            updateEditContainerVisibility();
         };
 
         const updateOtpTimer = () => {
@@ -64,7 +53,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             otpTimer.classList.remove("text-danger");
             if (resendBtn) resendBtn.disabled = true;
-            updateEditContainerVisibility();
 
             const totalSeconds = Math.ceil(remaining / 1000);
             const minutes = String(Math.floor(totalSeconds / 60)).padStart(
@@ -148,7 +136,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                             renderResendButton(false);
                             resendBtn.disabled = true;
-                            updateEditContainerVisibility();
 
                             startTimer();
                             return;
@@ -184,7 +171,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     } else {
                         resendBtn.disabled = true;
                     }
-                    updateEditContainerVisibility();
                 }
             });
         }
