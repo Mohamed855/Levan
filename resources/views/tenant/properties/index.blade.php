@@ -60,6 +60,8 @@
                     label="حالة البيانات" placeholder="جميع الحالات" :enum="\App\Enums\Tenants\Properties\PropertyDataStatus::class" />
                 <x-filter.select id="filter-city" filterKey="city" table="#properties-table" label="المدينة"
                     placeholder="جميع المدن" :options="$cityOptions" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
             </x-data-table.filters>
         </x-slot:filters>
 

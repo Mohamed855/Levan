@@ -20,6 +20,8 @@ class AdminActivityLogIndexRequest extends FormRequest
             'log_name' => ['nullable', 'string', 'max:100'],
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+            'created_from' => ['nullable', 'date'],
+            'created_to' => ['nullable', 'date'],
             'search' => ['nullable', 'array'],
             'search.value' => ['nullable', 'string', 'max:255'],
         ];

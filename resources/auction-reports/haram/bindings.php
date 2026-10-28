@@ -11,6 +11,7 @@ return [
         'images' => [],
         'layouts' => [
             'name' => ['box' => [70, 335, 535, 433], 'fit' => 'shrink', 'min_font_size' => 36, 'max_lines' => 2, 'center' => true],
+            'subtitle' => ['max_width' => 350, 'max_lines' => 2],
             'manager' => ['max_width' => 85, 'max_lines' => 2],
             'project' => ['max_width' => 85, 'max_lines' => 2],
             'property_count' => ['max_width' => 35],
@@ -37,7 +38,14 @@ return [
             'tiktok_views_change' => ['f45'], 'date_range' => ['f47', 'f48'], 'tiktok_url' => ['f49', 'f50'],
             'snapchat_views' => ['f63'], 'marketing_url' => ['f65'], 'boards_url' => ['f68'], 'footer' => ['f69'],
         ],
-        'layouts' => ['footer' => ['max_width' => 230]],
+        'layouts' => [
+            'footer' => ['max_width' => 230],
+            'snapchat_impressions' => ['max_width' => 80], 'tiktok_impressions' => ['max_width' => 80], 'x_impressions' => ['max_width' => 80],
+            'tiktok_profile_views' => ['max_width' => 50], 'tiktok_reach' => ['max_width' => 50], 'tiktok_views' => ['max_width' => 50],
+            'tiktok_profile_change' => ['max_width' => 50], 'tiktok_reach_change' => ['max_width' => 50], 'tiktok_views_change' => ['max_width' => 50],
+            'x_url' => ['max_width' => 150, 'max_lines' => 2], 'tiktok_url' => ['max_width' => 150, 'max_lines' => 2],
+            'marketing_url' => ['max_width' => 150], 'boards_url' => ['max_width' => 100],
+        ],
         'images' => [
             ['section' => 'x', 'slot' => 0, 'box' => [243.34, 196.87, 383.49, 339.20]],
             ['section' => 'snapchat', 'slot' => 0, 'box' => [371.29, 601.79, 466.72, 777.36]],
@@ -68,6 +76,11 @@ return [
     ],
     6 => [
         'link_fields' => ['phone' => 'phone', 'unified_phone' => 'unified_phone', 'social' => 'social'],
+        'layouts' => [
+            'phone' => ['box' => [130, 510, 470, 565], 'fit' => 'shrink', 'max_lines' => 1, 'min_font_size' => 28, 'center' => true],
+            'unified_phone' => ['box' => [130, 570, 470, 625], 'fit' => 'shrink', 'max_lines' => 1, 'min_font_size' => 28, 'center' => true],
+            'social' => ['box' => [140, 695, 455, 738], 'fit' => 'shrink', 'max_lines' => 2, 'min_font_size' => 10, 'center' => true],
+        ],
         'groups' => ['phone' => ['f2'], 'unified_phone' => ['f3'], 'social' => ['f4'], 'footer' => ['f6']],
         'images' => [],
     ],

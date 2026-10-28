@@ -26,7 +26,7 @@
             massDelete: "{{ route('admin.mass-delete') }}"
         };
 
-        window.handleMassDelete = function () {
+        window.handleMassDelete = function() {
             window.executeMassDelete('ControlDomain', window.routes.massDelete, 'يرجى تحديد امتداد واحد على الأقل');
         };
     </script>
@@ -38,8 +38,10 @@
     <x-data-table.page table-id="domain-setting-table">
         <x-slot:filters>
             <x-data-table.filters table="#domain-setting-table">
-                <x-filter.select id="filter-status" filterKey="status" label="الحالة"
-                    placeholder="اختر الحالة" :options="$filterOptions['statuses'] ?? []" />
+                <x-filter.select id="filter-status" filterKey="status" label="الحالة" placeholder="اختر الحالة"
+                    :options="$filterOptions['statuses'] ?? []" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
             </x-data-table.filters>
         </x-slot:filters>
 
@@ -51,4 +53,3 @@
         </x-slot:table>
     </x-data-table.page>
 @endsection
-

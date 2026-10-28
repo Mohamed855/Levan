@@ -9,6 +9,21 @@ use Tests\TestCase;
 
 final class AuctionReportRendererTest extends TestCase
 {
+    public function test_long_subtitle_status_and_seven_digit_campaign_values_remain_atomic(): void
+    {
+        $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';
+        $snapshot['auction']['status'] = 'pending_approval';
+        $snapshot['marketing']['contacts'] = ['phone' => '0534811800', 'unified_phone' => '920000000', 'social' => 'https://example.com/social'];
+        $snapshot['marketing']['campaigns'] = [['platform' => 'tiktok', 'impressions' => 1000006], ['platform' => 'snapchat', 'impressions' => 78000], ['platform' => 'x', 'impressions' => 1547]];
+        $renderer = app(AuctionReportRenderer::class);
+        foreach (['outputs', 'report'] as $type) {
+            $html = $renderer->html($snapshot, $type);
+            foreach (['cover', 'marketing', 'platform', 'social', 'closing'] as $role) {
+                self::assertFalse(str_contains($html, '-'.$role.'-continuation"'), 'A scalar '.$role.' value duplicated its page in '.$type);
+            }
+            self::assertTrue(str_contains($html, '>1,000,006</tspan>'), 'A seven-digit metric was broken into separate text chunks.');
+        }
+    }
     public function test_unknown_statistics_never_reuse_the_reference_pie_and_metrics_stay_on_one_page(): void
     {
         $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';

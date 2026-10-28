@@ -25,12 +25,14 @@
     <x-data-table.page table-id="bill-table">
         <x-slot:filters>
             <x-data-table.filters table="#bill-table">
-                <x-filter.select id="filter-type" filterKey="type" label="نوع العملية"
-                    placeholder="اختر نوع العملية" :enum="\App\Enums\Tenants\Billing\BillOperationType::class" />
-                <x-filter.select id="filter-status" filterKey="status" label="حالة العملية"
-                    placeholder="اختر حالة العملية" :enum="\App\Enums\Tenants\Billing\BillStatus::class" />
+                <x-filter.select id="filter-type" filterKey="type" label="نوع العملية" placeholder="اختر نوع العملية"
+                    :enum="\App\Enums\Tenants\Billing\BillOperationType::class" />
+                <x-filter.select id="filter-status" filterKey="status" label="حالة العملية" placeholder="اختر حالة العملية"
+                    :enum="\App\Enums\Tenants\Billing\BillStatus::class" />
                 <x-filter.select id="filter-payment-method" filterKey="payment_method" label="طريقة الدفع"
                     placeholder="اختر طريقة الدفع" :enum="\App\Enums\Tenants\Billing\PaymentMethod::class" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
             </x-data-table.filters>
         </x-slot:filters>
 

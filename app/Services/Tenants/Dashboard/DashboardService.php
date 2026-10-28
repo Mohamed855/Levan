@@ -10,6 +10,7 @@ use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Tenants\Properties\PropertyService;
 use App\Services\Tenants\Shared\CentralSubscriptionContextGateway;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -18,7 +19,10 @@ use Spatie\Activitylog\Models\Activity;
 
 class DashboardService
 {
-    public function __construct(private readonly CentralSubscriptionContextGateway $subscriptionGateway) {}
+    public function __construct(
+        private readonly CentralSubscriptionContextGateway $subscriptionGateway,
+        private readonly PropertyService $propertyService
+    ) {}
 
     /** @return array{stats:array<string,mixed>,tenant:mixed,subscription:null} */
     public function getFoundationDashboardData(): array
@@ -86,6 +90,7 @@ class DashboardService
         $totalSeats = (int) ($subscription['total_seats'] ?? 0);
 
         return [
+            'total_auctions' => Auction::query()->count(),
             'active_auctions' => $activeAuctionsCount,
             'upcoming_auctions' => $upcomingAuctionsCount,
             'total_properties' => $totalProperties,
@@ -152,58 +157,39 @@ class DashboardService
 
     public function getPropertyStatusDistribution(): array
     {
-        $total = Property::query()->count();
-
-        $completedCount = Property::query()
-            ->where('data_status', PropertyDataStatus::COMPLETED)
-            ->count();
-
-        $needsReviewCount = Property::query()
-            ->whereIn('data_status', [PropertyDataStatus::NEEDS_REVIEW, PropertyDataStatus::NEEDS_IMAGES])
-            ->count();
-
-        $incompleteCount = Property::query()
-            ->where('data_status', PropertyDataStatus::INCOMPLETE)
-            ->count();
-
-        $auctionedCount = DB::table('auction_properties')
-            ->distinct('property_id')
-            ->count('property_id');
-
-        $activeCount = Property::query()
-            ->where('status', 'active')
-            ->count();
+        $statistics = $this->propertyService->getStatistics();
+        $total = $statistics['total'];
 
         $statuses = [
             [
-                'key' => 'completed',
-                'label' => 'مكتملة وجاهزة',
-                'color' => 'success',
-                'count' => $completedCount,
+                'key' => 'total',
+                'label' => 'إجمالي العقارات',
+                'color' => 'primary',
+                'count' => $statistics['total'],
             ],
             [
-                'key' => 'auctioned',
-                'label' => 'مسندة لمزادات',
-                'color' => 'primary',
-                'count' => $auctionedCount,
+                'key' => 'active',
+                'label' => 'عقار نشط',
+                'color' => 'success',
+                'count' => $statistics['active'],
+            ],
+            [
+                'key' => 'completed',
+                'label' => 'مكتملة البيانات',
+                'color' => 'info',
+                'count' => $statistics['completed'],
+            ],
+            [
+                'key' => 'unlinked',
+                'label' => 'غير مرتبطة بإسناد',
+                'color' => 'warning',
+                'count' => $statistics['unlinked'],
             ],
             [
                 'key' => 'needs_review',
                 'label' => 'تحتاج للمراجعة',
-                'color' => 'warning',
-                'count' => $needsReviewCount,
-            ],
-            [
-                'key' => 'incomplete',
-                'label' => 'بيانات غير مكتملة',
                 'color' => 'danger',
-                'count' => $incompleteCount,
-            ],
-            [
-                'key' => 'active',
-                'label' => 'عقارات نشطة',
-                'color' => 'info',
-                'count' => $activeCount,
+                'count' => $statistics['needs_review'],
             ],
         ];
 

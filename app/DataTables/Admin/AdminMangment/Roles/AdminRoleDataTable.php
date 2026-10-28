@@ -107,6 +107,7 @@ final class AdminRoleDataTable extends AbstractDataTable
         if (auth('admin')->user()?->can('roles.delete')) {
             $buttons[] = [
                 'text' => 'حذف المحدد',
+                'className' => 'btn btn-default btn-delete-selected',
                 'action' => 'function() { handleMassDelete(); }',
             ];
         }

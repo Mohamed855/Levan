@@ -377,7 +377,9 @@ input[type="checkbox"].row-checkbox:hover,
     border-color: var(--primary-color, #1d4f44);
 }
 
-.dt-buttons .dt-button-collection .dropdown-item {
+.dt-buttons .dt-button-collection .dropdown-item,
+.dt-button-collection .dropdown-item,
+div.dt-button-collection .dropdown-item {
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -385,40 +387,59 @@ input[type="checkbox"].row-checkbox:hover,
     text-align: start;
 }
 
-.dt-buttons .dt-button-collection .dropdown-item::before {
+.dt-buttons .dt-button-collection .dropdown-item::before,
+.dt-button-collection .dropdown-item::before,
+div.dt-button-collection .dropdown-item::before {
     content: "\ea96";
     font-family: "tabler-icons";
     font-size: 1.125rem;
     line-height: 1;
 }
 
-.dt-buttons .dt-button-collection .buttons-copy::before {
+.dt-buttons .dt-button-collection .buttons-copy::before,
+.dt-button-collection .buttons-copy::before,
+div.dt-button-collection .buttons-copy::before {
     content: "\ea7a";
 }
 
 .dt-buttons .dt-button-collection .buttons-excel::before,
-.dt-buttons .dt-button-collection .buttons-csv::before {
+.dt-buttons .dt-button-collection .buttons-csv::before,
+.dt-button-collection .buttons-excel::before,
+.dt-button-collection .buttons-csv::before,
+div.dt-button-collection .buttons-excel::before,
+div.dt-button-collection .buttons-csv::before {
     content: "\fb1b";
 }
 
-.dt-buttons .dt-button-collection .buttons-pdf::before {
+.dt-buttons .dt-button-collection .buttons-pdf::before,
+.dt-button-collection .buttons-pdf::before,
+div.dt-button-collection .buttons-pdf::before {
     content: "\fb10";
 }
 
-.dt-buttons .dt-button-collection .buttons-print::before {
+.dt-buttons .dt-button-collection .buttons-print::before,
+.dt-button-collection .buttons-print::before,
+div.dt-button-collection .buttons-print::before {
     content: "\eb0e";
 }
 
-.dt-buttons .dt-button-collection .btn-accept-selected::before {
+.dt-buttons .dt-button-collection .btn-accept-selected::before,
+.dt-button-collection .btn-accept-selected::before,
+div.dt-button-collection .btn-accept-selected::before {
     content: "\ea67";
 }
 
-.dt-buttons .dt-button-collection .btn-reject-selected::before {
+.dt-buttons .dt-button-collection .btn-reject-selected::before,
+.dt-button-collection .btn-reject-selected::before,
+div.dt-button-collection .btn-reject-selected::before {
     content: "\ea6a";
 }
 
-.dt-buttons .dt-button-collection .btn-delete-selected::before {
-    content: "\eb41";
+.dt-buttons .dt-button-collection .btn-delete-selected::before,
+.dt-button-collection .btn-delete-selected::before,
+div.dt-button-collection .btn-delete-selected::before,
+.btn-delete-selected::before {
+    content: "\eb41" !important;
 }
 
 .dataTable .d-flex.justify-content-center > .form-switch {

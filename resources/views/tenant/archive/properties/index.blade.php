@@ -23,7 +23,8 @@
     <x-data-table.archive-page>
         <x-slot:filters>
             <x-data-table.filters table="#properties-archive-table">
-                <x-filter.date id="filter-deleted-date" filterKey="deleted_at" target="#properties-archive-table" label="تاريخ الحذف" />
+                <x-filter.date id="filter-deleted-from" filterKey="deleted_from" label="من تاريخ الحذف" />
+                <x-filter.date id="filter-deleted-to" filterKey="deleted_to" label="إلى تاريخ الحذف" />
             </x-data-table.filters>
         </x-slot:filters>
 
@@ -33,4 +34,3 @@
         ) !!}
     </x-data-table.archive-page>
 @endsection
-

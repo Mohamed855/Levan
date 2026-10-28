@@ -401,57 +401,18 @@ input[type="file"].form-control,
     }
 }
 
-.property-image-dropzone {
-    border: 2px dashed rgba(29, 79, 68, 0.28) !important;
-    background-color: rgba(247, 243, 236, 0.45);
-    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+#property-image-empty-placeholder {
     cursor: pointer;
-    user-select: none;
-    outline: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
 
-    &:hover,
-    &:focus-visible {
-        border-color: var(--primary-color, #1d4f44) !important;
-        background-color: rgba(247, 243, 236, 0.85);
-        box-shadow: 0 4px 18px rgba(29, 79, 68, 0.09);
-
-        .property-image-upload-icon-box {
-            background-color: rgba(29, 79, 68, 0.16);
-            transform: translateY(-3px) scale(1.05);
-        }
-
-        .btn-label-primary {
-            background-color: var(--primary-color, #1d4f44) !important;
-            color: #ffffff !important;
-        }
+    &:hover {
+        background-color: #f1f3f5 !important;
+        border-color: #ced4da !important;
     }
 
     &.drag-over {
+        background-color: rgba(29, 79, 68, 0.08) !important;
         border-color: var(--primary-color, #1d4f44) !important;
-        background-color: rgba(29, 79, 68, 0.1) !important;
-        transform: scale(1.01);
-
-        .property-image-upload-icon-box {
-            background-color: rgba(29, 79, 68, 0.22);
-            transform: scale(1.1);
-        }
-    }
-
-    .property-image-upload-icon-box {
-        width: 68px;
-        height: 68px;
-        border-radius: 50%;
-        background-color: rgba(29, 79, 68, 0.08);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-        color: var(--primary-color, #1d4f44);
-
-        i {
-            font-size: 2rem;
-            line-height: 1;
-        }
     }
 }
 

@@ -207,12 +207,12 @@ class ActivityLogController extends Controller
             $query->where('log_name', $request->log_name);
         }
 
-        if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
+        if ($request->filled('date_from') || $request->filled('created_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from ?? $request->created_from);
         }
 
-        if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
+        if ($request->filled('date_to') || $request->filled('created_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to ?? $request->created_to);
         }
 
         $search = $request->input('search.value', $request->input('search'));

@@ -22,12 +22,8 @@
     @php
         $steps = [
             [
-                'id' => 'basic-info-validation',
-                'title' => 'المعلومات الأساسية',
-            ],
-            [
-                'id' => 'security-info-validation',
-                'title' => 'كلمة المرور والصورة',
+                'id' => 'user-info-validation',
+                'title' => 'بيانات المستخدم',
             ],
         ];
     @endphp
@@ -54,7 +50,7 @@
                     @csrf
                     @method('PUT')
 
-                    <x-form.wizard.step id="basic-info-validation" :fields="['name', 'email', 'phone']">
+                    <x-form.wizard.step id="user-info-validation" :fields="['name', 'email', 'phone', 'password', 'password_confirmation', 'image']">
                         <div class="row g-4">
                             <x-form.controls.input name="name" label="الاسم الكامل" :value="$user->name"
                                 placeholder="ادخل الاسم الكامل" required col="col-md-6" />
@@ -62,30 +58,22 @@
                                 placeholder="ادخل البريد الإلكتروني" autocomplete="off" required col="col-md-6" />
                             <x-form.controls.input name="phone" label="رقم الهاتف" :value="$user->phone"
                                 placeholder="05xxxxxxxx" maxlength="10" inputmode="numeric" required col="col-md-6" />
-                        </div>
-
-                        <x-form.wizard.actions>
-                            <x-form.wizard.previous-button :href="route('admin.users.index')" />
-                            <x-form.wizard.next-button />
-                        </x-form.wizard.actions>
-                    </x-form.wizard.step>
-
-                    <x-form.wizard.step id="security-info-validation" :fields="['password', 'password_confirmation', 'image']">
-                        <div class="row g-4">
+                            <x-form.controls.file name="image" label="الصورة الشخصية" :value="$user->image
+                                ? asset('storage/' . $user->image)
+                                : null"
+                                accept="image/*" col="col-md-6" />
                             <x-form.controls.password name="password" label="كلمة المرور الجديدة"
                                 placeholder="اتركه فارغاً إذا لم ترغب بالتعديل"
                                 data-validation-dependents="password_confirmation" col="col-md-6" />
                             <x-form.controls.password name="password_confirmation" label="تأكيد كلمة المرور الجديدة"
                                 placeholder="أعد إدخال كلمة المرور" col="col-md-6" />
-                            <x-form.controls.file name="image" label="الصورة الشخصية" :value="$user->image
-                                ? asset('storage/' . $user->image)
-                                : null"
-                                accept="image/*" col="col-md-6" />
                         </div>
 
                         <x-form.wizard.actions>
-                            <x-form.wizard.previous-button />
-                            <x-form.wizard.save-button text="حفظ التعديلات" />
+                            <x-form.wizard.previous-button :href="route('admin.users.index')" text="العودة" />
+                            <div class="d-flex gap-2">
+                                <x-form.wizard.save-button text="حفظ التعديلات" />
+                            </div>
                         </x-form.wizard.actions>
                     </x-form.wizard.step>
                 </form>

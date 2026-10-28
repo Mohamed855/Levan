@@ -39,6 +39,8 @@
             <x-data-table.filters table="#admin-user-archive-table">
                 <x-filter.select id="filter-status" filterKey="status" label="الحالة" placeholder="اختر الحالة" :options="$filterOptions['statuses'] ?? []" />
                 <x-filter.select id="filter-role" filterKey="role" label="الدور" placeholder="اختر الدور" :options="$filterOptions['roles'] ?? []" />
+                <x-filter.date id="filter-deleted-from" filterKey="deleted_from" label="من تاريخ الحذف" />
+                <x-filter.date id="filter-deleted-to" filterKey="deleted_to" label="إلى تاريخ الحذف" />
             </x-data-table.filters>
         </x-slot:filters>
 

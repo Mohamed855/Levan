@@ -174,7 +174,7 @@ class UsersDataTable extends AbstractDataTable
             'buttons' => [
                 ['extend' => 'copy', 'text' => 'نسخ'],
                 ['extend' => 'excel', 'text' => 'إكسل'],
-                ['text' => 'حذف المحدد', 'action' => 'function() { handleMassDelete(); }'],
+                ['text' => 'حذف المحدد', 'className' => 'btn btn-default btn-delete-selected', 'action' => 'function() { handleMassDelete(); }'],
             ],
         ];
     }

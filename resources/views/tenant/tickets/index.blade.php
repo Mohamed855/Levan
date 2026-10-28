@@ -45,8 +45,10 @@
 
         <x-slot:filters>
             <x-data-table.filters table="#tickets-table" reset-id="btn-reset-filters">
-                <x-filter.select id="filter-status" filterKey="status" label="حالة التذكرة"
-                    placeholder="اختر حالة التذكرة" :enum="\App\Enums\Tenants\Tickets\TicketStatus::class" />
+                <x-filter.select id="filter-status" filterKey="status" label="حالة التذكرة" placeholder="اختر حالة التذكرة"
+                    :enum="\App\Enums\Tenants\Tickets\TicketStatus::class" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
             </x-data-table.filters>
         </x-slot:filters>
 

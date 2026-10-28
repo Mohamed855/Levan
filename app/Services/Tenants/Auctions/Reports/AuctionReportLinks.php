@@ -44,7 +44,7 @@ final class AuctionReportLinks
         return $destinations;
     }
 
-    public function forPage(array $snapshot, array $definition): array
+    public function forPage(array $snapshot, array $definition, array $fieldLayouts = []): array
     {
         $destinations = $this->destinations($snapshot);
         $links = [];
@@ -60,6 +60,9 @@ final class AuctionReportLinks
             $top = max(0.0, min(array_map(static fn (array $field): float => $field['y'] - $field['sy'], $fields)));
             $right = min((float) $definition['width'], max(array_map(static fn (array $field): float => $field['x'] + $field['width'], $fields)));
             $bottom = min((float) $definition['height'], max(array_map(static fn (array $field): float => $field['y'] + $field['sy'] * .25, $fields)));
+            if (isset($fieldLayouts[$fieldRole], $definition['layouts'][$fieldRole]['box'])) {
+                [$left, $top, $right, $bottom] = array_map('floatval', $definition['layouts'][$fieldRole]['box']);
+            }
             if ($right > $left && $bottom > $top) {
                 $links[$role] = ['url' => $destinations[$role], 'box' => [$left, $top, $right, $bottom]];
             }

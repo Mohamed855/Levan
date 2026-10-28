@@ -22,12 +22,8 @@
     @php
         $steps = [
             [
-                'id' => 'basic-info-validation',
-                'title' => 'المعلومات الأساسية',
-            ],
-            [
-                'id' => 'security-info-validation',
-                'title' => 'كلمة المرور والصورة',
+                'id' => 'user-info-validation',
+                'title' => 'بيانات المستخدم',
             ],
         ];
     @endphp
@@ -43,7 +39,7 @@
                     data-draft-url="{{ route('admin.wizard-drafts.store') }}" data-draft-resource-key="admin.user-create">
                     @csrf
 
-                    <x-form.wizard.step id="basic-info-validation" :fields="['name', 'email', 'phone']">
+                    <x-form.wizard.step id="user-info-validation" :fields="['name', 'email', 'phone', 'password', 'password_confirmation', 'image']">
                         <div class="row g-4">
                             <x-form.controls.input name="name" label="الاسم الكامل" placeholder="ادخل الاسم الكامل"
                                 required col="col-md-6" />
@@ -51,31 +47,18 @@
                                 placeholder="ادخل البريد الإلكتروني" autocomplete="off" required col="col-md-6" />
                             <x-form.controls.input name="phone" label="رقم الهاتف" placeholder="05xxxxxxxx" maxlength="10"
                                 inputmode="numeric" required col="col-md-6" />
-                        </div>
-
-                        <x-form.wizard.actions>
-                            <x-form.wizard.previous-button :href="route('admin.users.index')" />
-                            <div class="d-flex gap-2">
-                                <x-form.wizard.draft-button step="1" />
-                                <x-form.wizard.next-button :disabled="true" />
-                            </div>
-                        </x-form.wizard.actions>
-                    </x-form.wizard.step>
-
-                    <x-form.wizard.step id="security-info-validation" :fields="['password', 'password_confirmation', 'image']">
-                        <div class="row g-4">
+                            <x-form.controls.file name="image" label="الصورة الشخصية" accept="image/*" col="col-md-6" />
                             <x-form.controls.password name="password" label="كلمة المرور" placeholder="ادخل كلمة المرور"
                                 data-validation-dependents="password_confirmation" required col="col-md-6" />
                             <x-form.controls.password name="password_confirmation" label="تأكيد كلمة المرور"
                                 placeholder="أعد إدخال كلمة المرور" required col="col-md-6" />
-                            <x-form.controls.file name="image" label="الصورة الشخصية" accept="image/*" col="col-md-6" />
                         </div>
 
                         <x-form.wizard.actions>
-                            <x-form.wizard.previous-button />
+                            <x-form.wizard.previous-button :href="route('admin.users.index')" text="العودة" />
                             <div class="d-flex gap-2">
-                                <x-form.wizard.draft-button step="2" />
-                                <x-form.wizard.save-button />
+                                <x-form.wizard.draft-button step="1" />
+                                <x-form.wizard.save-button text="إضافة المستخدم" />
                             </div>
                         </x-form.wizard.actions>
                     </x-form.wizard.step>

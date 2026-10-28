@@ -77,7 +77,7 @@ foreach ($tables['auctions'] as $row) {
             $attributes['report_section'] = $classification['proposed_section'];
             $attributes['display_order'] = $classification['proposed_order'];
             if ($attributes['report_section'] === 'social') {
-                $meta['channel'] = ['i48' => 'snapchat', 'i14' => 'tiktok', 'i15' => 'tiktok', 'i32' => 'x'][$classification['reference_match']['reference_image']] ?? 'other';
+                $meta['channel'] = ['i48' => 'tiktok', 'i14' => 'snapchat', 'i15' => 'snapchat', 'i32' => 'x'][$classification['reference_match']['reference_image']] ?? 'other';
             }
             if (in_array($attributes['report_section'], ['x', 'video', 'whatsapp'], true)) {
                 $meta['channel'] = $attributes['report_section'] === 'video' ? 'youtube' : $attributes['report_section'];

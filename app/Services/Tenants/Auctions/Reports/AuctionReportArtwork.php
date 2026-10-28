@@ -45,13 +45,19 @@ final class AuctionReportArtwork
         $svg = $document->documentElement;
         $svg->setAttribute('data-report-page', (string) $pageNumber);
         $xpath = new DOMXPath($document);
+        $replacedFields = array_merge($page['hide_fields'] ?? [], ...array_values($page['groups']));
         foreach ($xpath->query('//*[@data-field]') as $node) {
-            if (in_array($node->getAttribute('data-field'), $page['hide_fields'] ?? [], true)) {
+            if (in_array($node->getAttribute('data-field'), $replacedFields, true)) {
                 $node->parentNode?->removeChild($node);
             }
         }
         foreach ($page['hide_clips'] ?? [] as $clip) {
             foreach ($xpath->query('//*[@clip-path="url(#report_'.$pageNumber.'_'.$clip.')"]') as $node) {
+                $node->parentNode?->removeChild($node);
+            }
+        }
+        foreach ($page['hide_fills'] ?? [] as $fill) {
+            foreach ($xpath->query('//*[@fill="'.$fill.'" and not(ancestor::*[local-name()="defs"])]') as $node) {
                 $node->parentNode?->removeChild($node);
             }
         }
@@ -109,6 +115,32 @@ final class AuctionReportArtwork
                 $this->coverImage($document, $image, $frame['box'], $item, 'report_'.$pageNumber.'_manual_'.$frame['section'].'_'.$frame['slot']);
             }
             $svg->appendChild($image);
+        }
+
+        $emptySections = [];
+        foreach ($page['image_defs'] as $id => $frame) {
+            if ($frame['section'] === 'report_image' || !empty($images[$frame['section']]) || in_array($frame['section'], $page['hide_sections'] ?? [], true)) {
+                continue;
+            }
+            foreach ($page['fallback_frames'][$id] ?? [] as $bounds) {
+                $emptySections[$frame['section']] ??= $bounds['box'];
+            }
+        }
+        foreach ($page['images'] as $frame) {
+            if (empty($images[$frame['section']])) {
+                $emptySections[$frame['section']] ??= $frame['box'];
+            }
+        }
+        foreach ($emptySections as $section => [$left, $top, $right, $bottom]) {
+            if (isset($page['empty_evidence_boxes'][$section])) {
+                [$left, $top, $right, $bottom] = $page['empty_evidence_boxes'][$section];
+                $rect = $document->createElementNS(self::SVG, 'rect');
+                foreach (['x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top, 'fill' => '#ffffff'] as $key => $value) {
+                    $rect->setAttribute($key, (string) $value);
+                }
+                $svg->appendChild($rect);
+            }
+            $this->text($document, $svg, ['x' => $left, 'y' => ($top + $bottom) / 2, 'width' => $right - $left, 'max_width' => $right - $left, 'size' => 9, 'sy' => 9, 'font' => 'NotoSansArabic-Regular', 'color' => $design === 'haram' || $section === 'brokers' ? '#214570' : '#ffffff', 'rtl' => true], 'لا توجد مرفقات مضافة', ['data-report-empty-evidence' => $section], true);
         }
 
         foreach ($page['empty_regions'] ?? [] as $box) {

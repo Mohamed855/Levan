@@ -53,6 +53,8 @@
                     placeholder="اختر حالة المستخدم" :options="$filterOptions['statuses']" />
                 <x-filter.select id="filter-role" filterKey="role" table="#users-table" label="دور المستخدم"
                     placeholder="اختر الدور" :options="$filterOptions['roles']" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
             </x-data-table.filters>
         </x-slot:filters>
 

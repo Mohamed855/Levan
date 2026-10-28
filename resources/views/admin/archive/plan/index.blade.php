@@ -40,6 +40,8 @@
                     :options="$filterOptions['statuses'] ?? []" />
                 <x-filter.select id="filter-domain" filterKey="domain_management_enabled" label="إدارة الدومينات"
                     placeholder="اختر حالة إدارة الدومين" :options="$filterOptions['domains'] ?? []" />
+                <x-filter.date id="filter-deleted-from" filterKey="deleted_from" label="من تاريخ الحذف" />
+                <x-filter.date id="filter-deleted-to" filterKey="deleted_to" label="إلى تاريخ الحذف" />
             </x-data-table.filters>
         </x-slot:filters>
 

@@ -90,79 +90,98 @@
 
     {{-- Tables Row --}}
     <div class="row g-4 mb-4">
-        <div class="col-lg-6 d-flex flex-column gap-3">
+        <div class="col-lg-6 d-flex flex-column gap-4">
             {{-- إجراءات سريعة --}}
             <x-admin.dashboard-panel title="إجراءات سريعة" icon="ti-bolt">
-                <div class="row g-2">
-                    <div class="col-4">
-                        <a href="{{ route('admin.clients.create') }}" class="quick-action-box">
-                            <div class="avatar avatar-md mb-4">
-                                <span class="avatar-initial rounded bg-primary">
-                                    <i class="ti ti-building fs-4"></i>
-                                </span>
-                            </div>
-                            <span class="action-title">إضافة عميل</span>
-                        </a>
-                    </div>
-                    <div class="col-4">
-                        <a href="{{ route('admin.users.create') }}" class="quick-action-box">
-                            <div class="avatar avatar-md mb-4">
-                                <span class="avatar-initial rounded bg-success">
-                                    <i class="ti ti-user-cog fs-4"></i>
-                                </span>
-                            </div>
-                            <span class="action-title">إضافة مستخدم</span>
-                        </a>
-                    </div>
-                    <div class="col-4">
-                        <a href="{{ route('admin.plans.create') }}" class="quick-action-box">
-                            <div class="avatar avatar-md mb-4">
-                                <span class="avatar-initial rounded bg-info">
-                                    <i class="ti ti-package fs-4"></i>
-                                </span>
-                            </div>
-                            <span class="action-title">إضافة باقة</span>
-                        </a>
-                    </div>
-                    <div class="col-4">
-                        <a href="{{ route('admin.coupons.create') }}" class="quick-action-box">
-                            <div class="avatar avatar-md mb-4">
-                                <span class="avatar-initial rounded bg-warning">
-                                    <i class="ti ti-ticket fs-4"></i>
-                                </span>
-                            </div>
-                            <span class="action-title">إضافة كوبون</span>
-                        </a>
-                    </div>
-                    <div class="col-4">
-                        <a href="{{ route('admin.subscriptionManage.expired') }}" class="quick-action-box">
-                            <div class="avatar avatar-md mb-4">
-                                <span class="avatar-initial rounded bg-danger">
-                                    <i class="ti ti-timeline-event fs-4"></i>
-                                </span>
-                            </div>
-                            <span class="action-title">تفعيل اشتراك</span>
-                        </a>
-                    </div>
-                    <div class="col-4">
-                        <a href="{{ route('admin.tickets.index') }}" class="quick-action-box">
-                            <div class="avatar avatar-md mb-4">
-                                <span class="avatar-initial rounded bg-label-dark text-dark">
-                                    <i class="ti ti-messages fs-4"></i>
-                                </span>
-                            </div>
-                            <span class="action-title">الدعم الفنى</span>
-                        </a>
-                    </div>
+                <div class="row g-3">
+                    @can('clients.create')
+                        <div class="col-4">
+                            <a href="{{ route('admin.clients.create') }}" class="quick-action-box">
+                                <div class="avatar avatar-md mb-2">
+                                    <span class="avatar-initial rounded bg-primary">
+                                        <i class="ti ti-building fs-4"></i>
+                                    </span>
+                                </div>
+                                <span class="action-title">إضافة عميل</span>
+                            </a>
+                        </div>
+                    @endcan
+
+                    @can('users.create')
+                        <div class="col-4">
+                            <a href="{{ route('admin.users.create') }}" class="quick-action-box">
+                                <div class="avatar avatar-md mb-2">
+                                    <span class="avatar-initial rounded bg-success">
+                                        <i class="ti ti-user-cog fs-4"></i>
+                                    </span>
+                                </div>
+                                <span class="action-title">إضافة مستخدم</span>
+                            </a>
+                        </div>
+                    @endcan
+
+                    @can('plans.create')
+                        <div class="col-4">
+                            <a href="{{ route('admin.plans.create') }}" class="quick-action-box">
+                                <div class="avatar avatar-md mb-2">
+                                    <span class="avatar-initial rounded bg-info">
+                                        <i class="ti ti-package fs-4"></i>
+                                    </span>
+                                </div>
+                                <span class="action-title">إضافة باقة</span>
+                            </a>
+                        </div>
+                    @endcan
+
+                    @can('coupons.create')
+                        <div class="col-4">
+                            <a href="{{ route('admin.coupons.create') }}" class="quick-action-box">
+                                <div class="avatar avatar-md mb-2">
+                                    <span class="avatar-initial rounded bg-warning">
+                                        <i class="ti ti-ticket fs-4"></i>
+                                    </span>
+                                </div>
+                                <span class="action-title">إضافة كوبون</span>
+                            </a>
+                        </div>
+                    @endcan
+
+                    @can('subscriptions.view')
+                        <div class="col-4">
+                            <a href="{{ route('admin.subscriptionManage.expired') }}" class="quick-action-box">
+                                <div class="avatar avatar-md mb-2">
+                                    <span class="avatar-initial rounded bg-danger">
+                                        <i class="ti ti-timeline-event fs-4"></i>
+                                    </span>
+                                </div>
+                                <span class="action-title">تفعيل اشتراك</span>
+                            </a>
+                        </div>
+                    @endcan
+
+                    @can('tickets.view')
+                        <div class="col-4">
+                            <a href="{{ route('admin.tickets.index') }}" class="quick-action-box">
+                                <div class="avatar avatar-md mb-2">
+                                    <span class="avatar-initial rounded bg-label-dark text-dark">
+                                        <i class="ti ti-messages fs-4"></i>
+                                    </span>
+                                </div>
+                                <span class="action-title">الدعم الفنى</span>
+                            </a>
+                        </div>
+                    @endcan
                 </div>
             </x-admin.dashboard-panel>
 
             {{-- أحدث الأنشطة --}}
             <x-admin.dashboard-panel class="flex-grow-1" title="أحدث الأنشطة" icon="ti-clock" body-class="p-0">
                 <x-slot:headerAction>
-                    <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-sm btn-primary">
-                        عرض الكل
-                    </a>
+                    @can('activity_log.view')
+                        <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-sm btn-primary">
+                            عرض الكل
+                        </a>
+                    @endcan
                 </x-slot:headerAction>
 
                 <div class="table-responsive text-nowrap">
@@ -195,19 +214,32 @@
                                                         $avatarUrl = $causer->profile_photo_url;
                                                     }
                                                 }
-                                                $avatarUrl = $avatarUrl ?: asset('static/brand/logos/logo.svg');
                                             @endphp
                                             <div class="avatar avatar-xs me-2">
-                                                <img src="{{ $avatarUrl }}" alt="{{ $activity->causer_name }}"
-                                                    class="rounded-circle object-fit-cover w-100 h-100 border"
-                                                    onerror="this.onerror=null;this.src='{{ asset('static/brand/logos/logo.svg') }}';">
+                                                @if ($avatarUrl)
+                                                    <img src="{{ $avatarUrl }}" alt="{{ $activity->causer_name }}"
+                                                        class="rounded-circle object-fit-cover w-100 h-100 border">
+                                                @else
+                                                    <span class="avatar-initial rounded-circle bg-label-primary">
+                                                        <i class="ti ti-user ti-xs"></i>
+                                                    </span>
+                                                @endif
                                             </div>
                                             <span class="fw-medium text-heading small">{{ $activity->causer_name }}</span>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="d-inline-flex align-items-center gap-1 overflow-hidden" style="max-width: 210px;">
-                                            <span class="badge bg-primary small dashboard-activity-event text-truncate"
+                                            @php
+                                                $eventClass = match($activity->event) {
+                                                    'created' => 'bg-label-success',
+                                                    'updated' => 'bg-label-info',
+                                                    'deleted' => 'bg-label-danger',
+                                                    'login'   => 'bg-label-primary',
+                                                    default   => 'bg-label-secondary',
+                                                };
+                                            @endphp
+                                            <span class="badge {{ $eventClass }} small dashboard-activity-event text-truncate"
                                                 title="{{ $activity->formatted_event }}">{{ $activity->formatted_event }}</span>
                                             @if ($activity->formatted_module)
                                                 <span class="text-muted small text-truncate" style="max-width: 90px;"
@@ -234,12 +266,14 @@
         </div>
 
         {{-- أحدث طلبات الإشتراك --}}
-        <div class="col-md-6">
+        <div class="col-lg-6">
             <x-admin.dashboard-panel class="h-100" title="أحدث طلبات الإشتراك" icon="ti-list" body-class="p-0">
                 <x-slot:headerAction>
-                    <a href="{{ route('admin.subscriptionManage.pending') }}" class="btn btn-sm btn-primary">
-                        عرض الكل
-                    </a>
+                    @can('subscriptions.view')
+                        <a href="{{ route('admin.subscriptionManage.pending') }}" class="btn btn-sm btn-primary">
+                            عرض الكل
+                        </a>
+                    @endcan
                 </x-slot:headerAction>
 
                 <div class="table-responsive text-nowrap">
@@ -251,7 +285,7 @@
                                 <th>تاريخ الطلب</th>
                                 <th>المبلغ</th>
                                 <th>الحالة</th>
-                                <th class="text-center">الإجراءات</th>
+                                <th class="text-center">الإجراء</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
@@ -278,7 +312,7 @@
                                     </td>
                                     <td class="text-center">
                                         <a href="{{ route('admin.subscriptionManage.pending') }}"
-                                            class="btn btn-icon btn-primary" title="عرض في الطلبات">
+                                            class="btn btn-sm btn-icon btn-primary" title="عرض في الطلبات">
                                             <i class="ti ti-arrow-left"></i>
                                         </a>
                                     </td>

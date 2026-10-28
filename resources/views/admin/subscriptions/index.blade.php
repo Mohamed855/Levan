@@ -50,12 +50,14 @@
             <x-data-table.filters table="#subscriptions-table">
                 <x-filter.select id="filter-sub-status" filterKey="status" label="حالة الاشتراك"
                     placeholder="اختر حالة الاشتراك" :options="$filterOptions['statuses'] ?? []" />
-                <x-filter.select id="filter-plan" filterKey="plan_id" label="الباقة"
-                    placeholder="اختر الباقة" :options="$filterOptions['plans'] ?? []" />
-                <x-filter.select id="filter-city" filterKey="city_id" label="مدينة الشركة"
-                    placeholder="اختر المدينة" :options="$filterOptions['cities'] ?? []" />
+                <x-filter.select id="filter-plan" filterKey="plan_id" label="الباقة" placeholder="اختر الباقة"
+                    :options="$filterOptions['plans'] ?? []" />
+                <x-filter.select id="filter-city" filterKey="city_id" label="مدينة الشركة" placeholder="اختر المدينة"
+                    :options="$filterOptions['cities'] ?? []" />
                 <x-filter.select id="filter-expiring" filterKey="expiring_in" label="قرب الانتهاء"
                     placeholder="قرب الانتهاء" :options="$filterOptions['expiring'] ?? []" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
             </x-data-table.filters>
         </x-slot:filters>
 

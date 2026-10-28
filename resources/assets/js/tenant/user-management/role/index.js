@@ -57,6 +57,9 @@ function initializeDataTable() {
             data: function (d) {
                 d.status = $('#filter-status').val();
                 d.role = $('#filter-role').val();
+                d.usage_status = $('#filter-usage-status').val();
+                d.date_from = $('#filter-date-from').val();
+                d.date_to = $('#filter-date-to').val();
             }
         },
         columns: getTableColumns(),
@@ -175,6 +178,7 @@ function getTableButtons() {
                 },
                 {
                     text: 'حذف المحدد',
+                    className: 'btn btn-default btn-delete-selected',
                     action: function () {
                         handleMassDelete();
                     }

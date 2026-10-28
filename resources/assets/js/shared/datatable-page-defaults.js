@@ -187,6 +187,18 @@ $(function () {
             },
         });
     });
+
+    // 8. Ensure mass delete button in collection dropdown always has trash icon / btn-delete-selected
+    $(document).on("click", ".dt-buttons .btn-export, .buttons-collection", function () {
+        setTimeout(function () {
+            $(".dt-button-collection .dropdown-item, div.dropdown-menu .dt-button").each(function () {
+                const text = $(this).text().trim();
+                if (text.includes("حذف المحدد")) {
+                    $(this).addClass("btn-delete-selected");
+                }
+            });
+        }, 10);
+    });
 });
 
 /**

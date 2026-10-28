@@ -66,7 +66,57 @@ abstract class AbstractDataTable extends DataTable
     {
         $baseQuery = $this->resource();
 
-        return $this->applyCustomFilters($baseQuery);
+        $query = $this->applyCustomFilters($baseQuery);
+
+        return $this->applyDefaultDateFilters($query);
+    }
+
+    protected function applyDefaultDateFilters($query)
+    {
+        if (! ($query instanceof Builder)) {
+            return $query;
+        }
+
+        $model = $query->getModel();
+
+        // 1. فلترة المحذوفات (deleted_at)
+        if (method_exists($model, 'getDeletedAtColumn')) {
+            $deletedAt = $model->qualifyColumn($model->getDeletedAtColumn());
+
+            if (request()->filled('deleted_from')) {
+                $query->whereDate($deletedAt, '>=', request('deleted_from'));
+            }
+            if (request()->filled('deleted_to')) {
+                $query->whereDate($deletedAt, '<=', request('deleted_to'));
+            }
+            if (request()->filled('deleted_at') && ! request()->filled('deleted_from') && ! request()->filled('deleted_to')) {
+                $query->whereDate($deletedAt, request('deleted_at'));
+            }
+        }
+
+        // 2. فلترة تاريخ الإنشاء (created_at)
+        if ($model->usesTimestamps()) {
+            $createdAt = $model->qualifyColumn($model->getCreatedAtColumn());
+
+            $existingWheres = collect($query->getQuery()->wheres ?? []);
+            $hasCreatedFrom = $existingWheres->contains(fn ($w) => in_array($w['column'] ?? null, ['created_at', $createdAt], true) && ($w['operator'] ?? null) === '>=');
+            $hasCreatedTo = $existingWheres->contains(fn ($w) => in_array($w['column'] ?? null, ['created_at', $createdAt], true) && ($w['operator'] ?? null) === '<=');
+
+            if (request()->filled('created_from') && ! $hasCreatedFrom) {
+                $query->whereDate($createdAt, '>=', request('created_from'));
+            }
+            if (request()->filled('created_to') && ! $hasCreatedTo) {
+                $query->whereDate($createdAt, '<=', request('created_to'));
+            }
+            if (request()->filled('date_from') && ! request()->filled('created_from') && ! $hasCreatedFrom) {
+                $query->whereDate($createdAt, '>=', request('date_from'));
+            }
+            if (request()->filled('date_to') && ! request()->filled('created_to') && ! $hasCreatedTo) {
+                $query->whereDate($createdAt, '<=', request('date_to'));
+            }
+        }
+
+        return $query;
     }
 
     /*

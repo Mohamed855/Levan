@@ -159,6 +159,7 @@ class AdminBillsDataTable extends AbstractDataTable
             ]],
             [
                 'text' => 'حذف المحدد',
+                'className' => 'btn btn-default btn-delete-selected',
                 'action' => 'function() { handleMassDelete(); }',
             ],
         ];

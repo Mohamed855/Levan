@@ -40,8 +40,8 @@
 
 @section('content')
     <div id="top_card" class="row g-4 mb-4">
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي النشاطات" :value="number_format($statistics['total'])" subtitle="منذ البداية"
-            icon="ti-users" color="primary" />
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي النشاطات" :value="number_format($statistics['total'])" subtitle="منذ البداية" icon="ti-users"
+            color="primary" />
         <x-ui.stat-card col="col-sm-6 col-xl-3" title="اليوم" :value="number_format($statistics['today'])" subtitle="نشاطات اليوم"
             icon="ti-calendar-week" color="success" />
         <x-ui.stat-card col="col-sm-6 col-xl-3" title="هذا الأسبوع" :value="number_format($statistics['this_week'])" subtitle="نشاطات الأسبوع"
@@ -54,7 +54,8 @@
     <x-data-table.filters table="#activity-logs-table" reset-id="btn-reset-filters">
         <div>
             <label class="form-label" for="filter-user">المستخدم</label>
-            <select id="filter-user" class="form-control select2" data-datatable-filter="true" data-filter-key="user_id" data-placeholder="اختر المستخدم">
+            <select id="filter-user" class="form-control select2" data-datatable-filter="true" data-filter-key="user_id"
+                data-placeholder="اختر المستخدم">
                 <option value=""></option>
                 @foreach ($users as $user)
                     <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -64,12 +65,15 @@
 
         <div>
             <label class="form-label" for="filter-log-name">نوع النشاط</label>
-            <select id="filter-log-name" class="form-control select2" data-datatable-filter="true" data-filter-key="log_name" data-placeholder="اختر النوع">
+            <select id="filter-log-name" class="form-control select2" data-datatable-filter="true"
+                data-filter-key="log_name" data-placeholder="اختر النوع">
                 <option value=""></option>
                 <x-form.controls.enum-options :enum="\App\Enums\Tenants\ActivityLogs\ActivityLogName::class" />
             </select>
         </div>
 
+        <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+        <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
     </x-data-table.filters>
 
     <div class="card" id="card-activity-logs">

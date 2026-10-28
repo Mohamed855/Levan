@@ -35,8 +35,8 @@
                 icon="ti-files" color="primary" />
             <x-ui.stat-card col="col-sm-6 col-xl" title="قوالب مفعلة" :value="$statistics['active']" subtitle="القوالب النشطة المتاحة"
                 icon="ti-check" color="success" />
-            <x-ui.stat-card col="col-sm-6 col-xl" title="قوالب البروشور" :value="$statistics['brochure']" subtitle="قوالب الكتيبات التعريفية"
-                icon="ti-file-description" color="info" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="قوالب البروشور" :value="$statistics['brochure']"
+                subtitle="قوالب الكتيبات التعريفية" icon="ti-file-description" color="info" />
             <x-ui.stat-card col="col-sm-6 col-xl" title="اللوحات الإعلانية" :value="$statistics['billboard']"
                 subtitle="قوالب اللوحات الخارجية" icon="ti-ad" color="warning" />
             <x-ui.stat-card col="col-sm-6 col-xl" title="قوالب معطلة" :value="$statistics['inactive']" subtitle="القوالب غير المفعلة"
@@ -49,6 +49,8 @@
                     placeholder="جميع الأنواع" :enum="\App\Enums\Admin\AuctionTemplates\AuctionTemplateType::class" />
                 <x-filter.select id="filter-status" filterKey="is_active" table="#auction-templates-table"
                     label="حالة القالب" placeholder="جميع الحالات" :options="$statusFilterOptions ?? []" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
             </x-data-table.filters>
         </x-slot:filters>
 

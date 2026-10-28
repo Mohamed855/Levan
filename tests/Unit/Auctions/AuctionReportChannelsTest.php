@@ -32,5 +32,12 @@ final class AuctionReportChannelsTest extends TestCase
         self::assertSame('220,000', $content['values']['campaign_1_views']);
         self::assertSame('554,000', $content['values']['campaign_2_views']);
         self::assertSame('573,000', $content['values']['campaign_3_views']);
+        $artwork = new \App\Services\Tenants\Auctions\Reports\AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
+        $document = new \DOMDocument;
+        $document->loadXML($artwork->render('asir', 14, $content['values'], [], [], 15));
+        $xpath = new \DOMXPath($document);
+        self::assertLessThan(300, (float) $xpath->query('//*[@data-report-field="campaign_1_views"]')->item(0)->getAttribute('x'), 'Snapchat belongs to the left reference phone.');
+        self::assertGreaterThan(350, (float) $xpath->query('//*[@data-report-field="campaign_2_views"]')->item(0)->getAttribute('x'), 'TikTok belongs to the right reference phone.');
+        self::assertSame(0, $artwork->page('asir', 14)['image_defs']['i14']['slot']);
     }
 }

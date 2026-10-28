@@ -67,20 +67,20 @@
                 <span class="menu-header-text">المزادات والعقارات</span>
             </li>
 
-            @can('assignments.view')
-                <li class="menu-item @if (Helpers::isActiveRoute('assignments.*')) active @endif">
-                    <a href="{{ tenant_route_name('assignments.index') }}" class="menu-link">
-                        <i class="menu-icon tf-icons ti ti-file-certificate"></i>
-                        <div>الإسنادات</div>
-                    </a>
-                </li>
-            @endcan
-
             @can('properties.view')
                 <li class="menu-item @if (Helpers::isActiveRoute('properties.*')) active @endif">
                     <a href="{{ tenant_route_name('properties.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons ti ti-building"></i>
                         <div>العقارات</div>
+                    </a>
+                </li>
+            @endcan
+
+            @can('assignments.view')
+                <li class="menu-item @if (Helpers::isActiveRoute('assignments.*')) active @endif">
+                    <a href="{{ tenant_route_name('assignments.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons ti ti-file-certificate"></i>
+                        <div>الإسنادات</div>
                     </a>
                 </li>
             @endcan

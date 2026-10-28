@@ -39,6 +39,8 @@
                 <x-filter.select id="filter-status" filterKey="is_active" label="الحالة" placeholder="اختر الحالة" :options="$filterOptions['statuses'] ?? []" />
                 <x-filter.select id="filter-type" filterKey="discount_type" label="نوع الخصم" placeholder="اختر نوع الخصم"
                     :options="$filterOptions['types'] ?? []" />
+                <x-filter.date id="filter-deleted-from" filterKey="deleted_from" label="من تاريخ الحذف" />
+                <x-filter.date id="filter-deleted-to" filterKey="deleted_to" label="إلى تاريخ الحذف" />
             </x-data-table.filters>
         </x-slot:filters>
 

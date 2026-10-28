@@ -57,6 +57,8 @@
                 <x-data-table.filters table="#subscriptions-table">
                     <x-filter.select id="filter-status" filterKey="status" label="حالة الشركات"
                         placeholder="اختر حالة الشركة" :enum="\App\Enums\Admin\Subscriptions\SubscriptionStatus::class" />
+                    <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+                    <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
                 </x-data-table.filters>
             </x-slot:filters>
         @endif

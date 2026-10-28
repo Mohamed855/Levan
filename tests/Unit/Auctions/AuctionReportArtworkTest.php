@@ -11,6 +11,18 @@ use PHPUnit\Framework\TestCase;
 
 final class AuctionReportArtworkTest extends TestCase
 {
+    public function test_runtime_replacement_removes_the_original_static_claim_and_marks_empty_evidence_once(): void
+    {
+        $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
+        $definition = $artwork->page('asir', 4);
+        $document = new DOMDocument;
+        $document->loadXML($artwork->render('asir', 4, ['methodology' => 'منهجية عامة وليست إثبات تنفيذ'], [], [], 5, [], [], ['groups' => ['methodology' => ['f2', 'f3', 'f4', 'f5']]]));
+        $xpath = new DOMXPath($document);
+        self::assertSame(0, $xpath->query('//*[@data-field="f2"]')->length);
+        $document->loadXML($artwork->render('asir', 7, [], [], [], 8));
+        self::assertSame(1, (new DOMXPath($document))->query('//*[@data-report-empty-evidence="board_before"]')->length);
+        self::assertSame(0, (new DOMXPath($document))->query('//*[@fill="#4a6810"]')->length, 'Unallocated slots must not leave the compiler placeholder rectangles.');
+    }
     public function test_dynamic_text_is_escaped_and_reference_business_values_are_removed_from_the_artwork(): void
     {
         $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');

@@ -62,6 +62,8 @@
                     placeholder="اختر حالة الدومين" :options="$filterOptions['domains'] ?? []" />
                 <x-filter.select id="filter-most-requested" filterKey="most_requested" label="الأكثر طلباً"
                     placeholder="اختر الأكثر طلباً" :options="$filterOptions['most_requested'] ?? []" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
             </x-data-table.filters>
         </x-slot:filters>
 

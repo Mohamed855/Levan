@@ -21,8 +21,7 @@
 @section('content')
     @php
         $steps = [
-            ['id' => 'basic-info-validation', 'title' => 'المعلومات الأساسية'],
-            ['id' => 'security-info-validation', 'title' => 'كلمة المرور والصورة'],
+            ['id' => 'user-info-validation', 'title' => 'بيانات المستخدم'],
         ];
     @endphp
 
@@ -45,24 +44,13 @@
                     @csrf
                     @method('PUT')
 
-                    <x-form.wizard.step id="basic-info-validation" :fields="['name', 'email', 'phone', 'role_id']">
-                        @include('tenant.user-management.users.partials.steps.step1-basic-info', ['user' => $user])
+                    <x-form.wizard.step id="user-info-validation" :fields="['name', 'email', 'phone', 'role_id', 'password', 'password_confirmation', 'image']">
+                        @include('tenant.user-management.users.partials.steps.user-info', ['user' => $user])
 
                         <x-form.wizard.actions>
                             <x-form.wizard.previous-button :href="tenant_route_name('users.index')" text="العودة" />
                             <div class="d-flex gap-2">
-                                <x-form.wizard.next-button />
-                            </div>
-                        </x-form.wizard.actions>
-                    </x-form.wizard.step>
-
-                    <x-form.wizard.step id="security-info-validation" :fields="['password', 'password_confirmation', 'image']">
-                        @include('tenant.user-management.users.partials.steps.step2-security', ['user' => $user])
-
-                        <x-form.wizard.actions>
-                            <x-form.wizard.previous-button />
-                            <div class="d-flex gap-2">
-                                <x-form.wizard.save-button text="تحديث" />
+                                <x-form.wizard.save-button text="حفظ التعديلات" />
                             </div>
                         </x-form.wizard.actions>
                     </x-form.wizard.step>

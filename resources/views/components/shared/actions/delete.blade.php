@@ -4,10 +4,10 @@
     'title' => 'حذف',
     'permission' => null,
     'icon' => 'ti ti-trash',
-    'class' => 'btn-icon btn-primary bg-primary',
+    'class' => 'btn-icon btn-label-primary',
 ])
 
-@if (! $permission)
+@if (!$permission)
     <button type="button" data-id="{{ $id }}"
         {{ $attributes->merge(['class' => 'btn ' . $class . ' js-delete-btn', 'title' => $title, 'aria-label' => $title]) }}>
         <i class="{{ $icon }}" aria-hidden="true"></i>

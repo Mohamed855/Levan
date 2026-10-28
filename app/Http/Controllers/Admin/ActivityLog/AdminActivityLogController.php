@@ -128,12 +128,12 @@ class AdminActivityLogController extends Controller
             $query->where('log_name', $filters['log_name']);
         }
 
-        if (isset($filters['date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['date_from']);
+        if (isset($filters['date_from']) || isset($filters['created_from'])) {
+            $query->whereDate('created_at', '>=', $filters['date_from'] ?? $filters['created_from']);
         }
 
-        if (isset($filters['date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['date_to']);
+        if (isset($filters['date_to']) || isset($filters['created_to'])) {
+            $query->whereDate('created_at', '<=', $filters['date_to'] ?? $filters['created_to']);
         }
 
         $search = $filters['search']['value'] ?? null;

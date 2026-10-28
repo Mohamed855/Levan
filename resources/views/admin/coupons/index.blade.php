@@ -51,6 +51,8 @@
                     placeholder="اختر حالة الكوبون" :options="$filterOptions['statuses'] ?? []" />
                 <x-filter.select id="filter-type" filterKey="discount_type" label="نوع الخصم" placeholder="اختر نوع الخصم"
                     :options="$filterOptions['types'] ?? []" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
             </x-data-table.filters>
         </x-slot:filters>
 

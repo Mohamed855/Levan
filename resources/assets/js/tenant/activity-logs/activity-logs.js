@@ -46,6 +46,8 @@ function initializeDataTable() {
             data: function (d) {
                 d.user_id = $('#filter-user').val();
                 d.log_name = $('#filter-log-name').val();
+                d.created_from = $('#filter-created-from').val();
+                d.created_to = $('#filter-created-to').val();
             }
         },
         columns: getTableColumns(),

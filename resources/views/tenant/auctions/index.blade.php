@@ -55,11 +55,11 @@
                     placeholder="جميع الحالات" :enum="\App\Enums\Tenants\Auctions\AuctionStatus::class" />
                 <x-filter.select id="filter-assignment" filterKey="assignment_id" table="#auctions-table" label="الإسناد"
                     placeholder="جميع الإسنادات" :options="$assignments->pluck('name', 'id')->all()" />
+                <x-filter.select id="filter-city" filterKey="city" table="#auctions-table" label="المدينة"
+                    placeholder="جميع المدن" :options="$cityOptions" />
                 <x-filter.date id="filter-start-date" filterKey="start_date" target="#auctions-table"
                     label="تاريخ البداية" />
                 <x-filter.date id="filter-end-date" filterKey="end_date" target="#auctions-table" label="تاريخ النهاية" />
-                <x-filter.select id="filter-city" filterKey="city" table="#auctions-table" label="المدينة"
-                    placeholder="جميع المدن" :options="$cityOptions" />
             </x-data-table.filters>
         </x-slot:filters>
 

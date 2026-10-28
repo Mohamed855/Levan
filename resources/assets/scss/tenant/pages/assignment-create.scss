@@ -98,21 +98,10 @@
     overflow: hidden;
     position: relative;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: box-shadow 0.2s ease;
 
     &:hover {
-        transform: translateY(-2px);
-        border-color: rgba(var(--bs-primary-rgb), 0.45);
         box-shadow: 0 6px 18px rgba(var(--bs-primary-rgb), 0.12);
-
-        .assignment-file-card__img {
-            transform: scale(1.05);
-        }
-
-        .assignment-file-card__action {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
 
     &__preview {

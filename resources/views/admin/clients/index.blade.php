@@ -60,8 +60,10 @@
                     :options="$filterOptions['cities'] ?? []" />
                 <x-filter.select id="filter-expiring" filterKey="expiring_in" label="انتهاء الاشتراك"
                     placeholder="انتهاء الاشتراك" :options="$filterOptions['expiring'] ?? []" />
-                <x-filter.date id="filter-created-from" filterKey="created_from" data-filter-key="created_from" label="من تاريخ الإنشاء" />
-                <x-filter.date id="filter-created-to" filterKey="created_to" data-filter-key="created_to" label="إلى تاريخ الإنشاء" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" data-filter-key="created_from"
+                    label="تاريخ الإنشاء من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" data-filter-key="created_to"
+                    label="تاريخ الإنشاء إلى" />
             </x-data-table.filters>
         </x-slot:filters>
 

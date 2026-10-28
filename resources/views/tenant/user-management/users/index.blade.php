@@ -20,7 +20,6 @@
 
 @section('page-script')
     <script>
-        // متغيرات JavaScript العامة
         window.routes = {
             usersIndex: "{{ tenant_route_name('users.index') }}",
             usersCreate: "{{ tenant_route_name('users.create') }}",
@@ -45,14 +44,14 @@
 
     <x-data-table.page table-id="users-table">
         <x-slot:stats>
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين" :value="$totalUsers" subtitle="إجمالي المستخدمين"
-                icon="ti-users" color="primary" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين النشطين" :value="$activeUsers" subtitle="المستخدمين النشطين"
-                icon="ti-user-check" color="success" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين غير النشطين" :value="$inactiveUsers"
-                subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="danger" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين المحذوفين" :value="$archivedUsers"
-                subtitle="المستخدمين في الأرشيف" icon="ti-archive" color="warning" />
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي المستخدمين" :value="$totalUsers" icon="ti-users"
+                color="primary" />
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين النشطين" :value="$activeUsers" icon="ti-user-check"
+                color="success" />
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين غير النشطين" :value="$inactiveUsers" icon="ti-user-off"
+                color="warning" />
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين المحذوفين" :value="$archivedUsers" icon="ti-archive"
+                color="danger" />
         </x-slot:stats>
 
         <x-slot:filters>
@@ -61,6 +60,8 @@
                     placeholder="اختر حالة المستخدم" :enum="\App\Enums\Shared\ActivityStatus::class" />
                 <x-filter.select id="filter-role" filterKey="role" label="دور المستخدم" placeholder="اختر الدور"
                     :options="\App\Support\AccessLabels::roleOptions($roles)" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
             </x-data-table.filters>
         </x-slot:filters>
 

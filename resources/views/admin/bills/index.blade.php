@@ -57,6 +57,8 @@
                     :options="$filterOptions['statuses'] ?? []" />
                 <x-filter.select id="filter-type" filterKey="payment_method" label="نوع الدفع" placeholder="اختر نوع الدفع"
                     :options="$filterOptions['paymentTypes'] ?? []" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
             </x-data-table.filters>
         </x-slot:filters>
 
