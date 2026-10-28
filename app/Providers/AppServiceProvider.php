@@ -39,6 +39,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if (PHP_OS_FAMILY === 'Windows' && empty(ini_get('openssl.cafile'))) {
+            $caPath = storage_path('certificates/cacert.pem');
+            if (file_exists($caPath)) {
+                @ini_set('openssl.cafile', $caPath);
+                @ini_set('curl.cainfo', $caPath);
+            }
+        }
+
         Relation::morphMap([
             'assignment' => Assignment::class,
         ]);
