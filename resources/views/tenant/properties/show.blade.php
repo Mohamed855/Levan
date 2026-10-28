@@ -134,9 +134,9 @@
                         <h6 class="card-title mb-0">المستندات والمرفقات</h6>
                     </div>
                     <div class="card-body">
-                        <div class="mb-0">
+                        <div class="assignment-file-list">
                             @foreach ($property->attachments as $doc)
-                                <x-ui.file-card :file="$doc" layout="list" />
+                                <x-ui.file-card :file="$doc" layout="card" />
                             @endforeach
                         </div>
                     </div>

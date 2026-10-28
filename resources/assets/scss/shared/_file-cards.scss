@@ -6,8 +6,8 @@
 .assignment-file-list,
 .app-file-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap: 0.875rem;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
 
     [data-empty],
     > p.text-muted {
@@ -21,10 +21,10 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
-    width: 195px;
-    height: 195px;
+    width: 150px;
+    height: 150px;
     border: 1px solid var(--bs-border-color);
-    border-radius: var(--bs-border-radius-lg, 0.625rem);
+    border-radius: var(--bs-border-radius-lg, 0.5rem);
     background: var(--bs-card-bg);
     overflow: hidden;
     position: relative;
@@ -32,7 +32,7 @@
     transition: box-shadow 0.2s ease;
 
     &:hover {
-        box-shadow: 0 6px 18px rgba(var(--bs-primary-rgb), 0.12);
+        box-shadow: 0 4px 14px rgba(var(--bs-primary-rgb), 0.12);
 
         .assignment-file-card__action,
         .app-file-card__action {
@@ -43,7 +43,7 @@
 
     &__preview {
         position: relative;
-        height: 125px;
+        height: 95px;
         width: 100%;
         background: rgba(var(--bs-secondary-rgb, 108, 117, 125), 0.06);
         display: flex;
@@ -68,18 +68,18 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
-        padding: 0.5rem;
+        gap: 0.25rem;
+        padding: 0.35rem;
     }
 
     &__icon-circle {
-        width: 48px;
-        height: 48px;
+        width: 38px;
+        height: 38px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.6rem;
+        font-size: 1.25rem;
         transition: transform 0.2s ease;
     }
 
@@ -130,13 +130,13 @@
 
     &__type-pill {
         position: absolute;
-        bottom: 8px;
-        right: 8px;
-        font-size: 0.65rem;
+        bottom: 6px;
+        right: 6px;
+        font-size: 0.6rem;
         font-weight: 700;
         letter-spacing: 0.5px;
-        padding: 0.15rem 0.45rem;
-        border-radius: 4px;
+        padding: 0.1rem 0.35rem;
+        border-radius: 3px;
         background: rgba(0, 0, 0, 0.65);
         color: #fff;
         backdrop-filter: blur(2px);
@@ -145,20 +145,20 @@
 
     &__action {
         position: absolute;
-        top: 8px;
-        left: 8px;
-        width: 32px;
-        height: 32px;
+        top: 6px;
+        left: 6px;
+        width: 26px;
+        height: 26px;
         border-radius: 50%;
         background: rgba(255, 255, 255, 0.92);
         color: var(--bs-primary);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.05rem;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+        font-size: 0.9rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
         opacity: 0;
-        transform: translateY(-4px);
+        transform: translateY(-3px);
         transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
         text-decoration: none;
         z-index: 2;
@@ -182,7 +182,7 @@
 
     &__info {
         flex: 1;
-        padding: 0.6rem 0.75rem;
+        padding: 0.4rem 0.5rem;
         background: var(--bs-card-bg);
         border-top: 1px solid var(--bs-border-color);
         display: flex;
@@ -192,27 +192,27 @@
     }
 
     &__name {
-        font-size: 0.8125rem;
+        font-size: 0.75rem;
         font-weight: 600;
         color: var(--bs-body-color);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         display: block;
-        line-height: 1.35;
+        line-height: 1.3;
     }
 
     &__meta {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-top: 0.35rem;
-        font-size: 0.72rem;
+        margin-top: 0.2rem;
+        font-size: 0.68rem;
         color: var(--bs-secondary-color);
 
         .badge {
-            font-size: 0.65rem;
-            padding: 0.15rem 0.4rem;
+            font-size: 0.6rem;
+            padding: 0.1rem 0.3rem;
         }
     }
 }

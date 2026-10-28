@@ -100,68 +100,36 @@
     }
 @endphp
 
-@if ($layout === 'list')
-    <div {{ $attributes->merge(['class' => 'd-flex align-items-center justify-content-between py-2 border-bottom assignment-file-list-item app-file-list-item']) }}>
-        <div class="d-flex align-items-center gap-2 text-truncate me-2">
-            @if ($isImage && $url)
-                <img src="{{ $url }}" alt="{{ $name }}" class="rounded flex-shrink-0" style="width: 38px; height: 38px; object-fit: cover;" loading="lazy">
-            @else
-                <div class="avatar avatar-sm flex-shrink-0">
-                    <span class="avatar-initial rounded bg-label-{{ $badgeColor }}">
-                        <i class="ti {{ $iconClass }} fs-5"></i>
-                    </span>
+<article {{ $attributes->merge(['class' => 'assignment-file-card app-file-card'])->except('data-file-type') }} data-file-type="{{ $ext }}">
+    <div class="assignment-file-card__preview">
+        @if ($isImage && $url)
+            <img src="{{ $url }}" alt="{{ $name }}" class="assignment-file-card__img" loading="lazy">
+            <span class="assignment-file-card__type-pill">{{ strtoupper($ext ?: 'IMG') }}</span>
+        @else
+            <div class="assignment-file-card__doc-wrap type-{{ $typeCategory }}">
+                <div class="assignment-file-card__icon-circle">
+                    <i class="ti {{ $iconClass }}"></i>
                 </div>
-            @endif
-            <div class="text-truncate">
-                <span class="d-block text-truncate fw-medium small" title="{{ $name }}">{{ $name }}</span>
-                <span class="text-muted text-xs d-block">{{ $sizeFormatted }}</span>
+                <span class="assignment-file-card__type-pill">{{ strtoupper($ext ?: 'FILE') }}</span>
             </div>
-        </div>
-        <div class="d-flex align-items-center gap-1 flex-shrink-0">
-            @if ($url)
-                <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-icon btn-primary" title="معاينة أو تحميل" aria-label="معاينة أو تحميل">
-                    <i class="ti {{ $isImage ? 'ti-eye' : 'ti-download' }}"></i>
-                </a>
-            @endif
-            @if ($removable && $deleteAction)
-                <button type="button" class="btn btn-sm btn-icon btn-danger" {!! $deleteAction !!} title="حذف الملف" aria-label="حذف">
-                    <i class="ti ti-trash"></i>
-                </button>
-            @endif
+        @endif
+
+        @if ($url)
+            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="assignment-file-card__action" title="معاينة الملف" aria-label="معاينة">
+                <i class="ti ti-eye"></i>
+            </a>
+        @endif
+        @if ($removable && $deleteAction)
+            <button type="button" class="assignment-file-card__action text-danger" {!! $deleteAction !!} title="حذف الملف" aria-label="حذف" style="left: auto; right: 8px;">
+                <i class="ti ti-trash"></i>
+            </button>
+        @endif
+    </div>
+    <div class="assignment-file-card__info">
+        <span class="assignment-file-card__name" title="{{ $name }}">{{ $name }}</span>
+        <div class="assignment-file-card__meta">
+            <span class="text-muted text-truncate me-1">{{ $sizeFormatted }}</span>
+            <span class="badge bg-label-{{ $badgeColor }}">{{ strtoupper($ext ?: 'FILE') }}</span>
         </div>
     </div>
-@else
-    <article {{ $attributes->merge(['class' => 'assignment-file-card app-file-card'])->except('data-file-type') }} data-file-type="{{ $ext }}">
-        <div class="assignment-file-card__preview">
-            @if ($isImage && $url)
-                <img src="{{ $url }}" alt="{{ $name }}" class="assignment-file-card__img" loading="lazy">
-                <span class="assignment-file-card__type-pill">{{ strtoupper($ext ?: 'IMG') }}</span>
-            @else
-                <div class="assignment-file-card__doc-wrap type-{{ $typeCategory }}">
-                    <div class="assignment-file-card__icon-circle">
-                        <i class="ti {{ $iconClass }}"></i>
-                    </div>
-                    <span class="assignment-file-card__type-pill">{{ strtoupper($ext ?: 'FILE') }}</span>
-                </div>
-            @endif
-
-            @if ($url)
-                <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="assignment-file-card__action" title="معاينة الملف" aria-label="معاينة">
-                    <i class="ti ti-eye"></i>
-                </a>
-            @endif
-            @if ($removable && $deleteAction)
-                <button type="button" class="assignment-file-card__action text-danger" {!! $deleteAction !!} title="حذف الملف" aria-label="حذف" style="left: auto; right: 8px;">
-                    <i class="ti ti-trash"></i>
-                </button>
-            @endif
-        </div>
-        <div class="assignment-file-card__info">
-            <span class="assignment-file-card__name" title="{{ $name }}">{{ $name }}</span>
-            <div class="assignment-file-card__meta">
-                <span class="text-muted text-truncate me-1">{{ $sizeFormatted }}</span>
-                <span class="badge bg-label-{{ $badgeColor }}">{{ strtoupper($ext ?: 'FILE') }}</span>
-            </div>
-        </div>
-    </article>
-@endif
+</article>

@@ -104,6 +104,7 @@ app/DataTables/{PhpBoundary}/Archive/{Module}/Archived{Entity}DataTable.php # أ
 resources/views/{view-boundary}/{module}/index.blade.php
 resources/views/{view-boundary}/{module}/create.blade.php
 resources/views/{view-boundary}/{module}/edit.blade.php
+resources/views/{view-boundary}/{module}/partials/_form.blade.php    # الفورم الموحد المشترك بين Create و Edit
 resources/views/{view-boundary}/{module}/show.blade.php             # إن كان العرض مطلوبًا
 resources/views/{view-boundary}/{module}/action.blade.php
 resources/views/{view-boundary}/archive/{module}/index.blade.php
@@ -442,6 +443,7 @@ final class CreateEntityAction
 -   transaction تشمل كل DB writes الخاصة بالعملية.
 -   تحقق مرة أخرى من العلاقات الحساسة داخل transaction عند وجود race condition.
 -   نظف الملفات الجديدة عند rollback، واحذف القديمة فقط بعد نجاح الاستبدال.
+-   في `UpdateAction`: عند رفع ملف جديد لفئة أحادية (Single category مثل الصك أو المخطط أو رخصة البناء)، يجب حذف الملف القديم فعلياً من التخزين (`Storage::disk()->delete($old->file_path)`) وحذف سجله من قاعدة البيانات قبل ربط الملف الجديد لمنع تراكم الملفات المهملة.
 -   dispatch لما يعتمد على commit يكون `afterCommit`.
 -   لا يرجع RedirectResponse أو View؛ يرجع entity/value/DTO.
 -   Action لا يصبح Service شاملًا لكل عمليات الإدارة.
@@ -580,6 +582,15 @@ protected function buttons(): array
 
 ### العقد العام لـ`create.blade.php` و`edit.blade.php`
 
+-   **عقد النموذج المشترك (Shared Partial Form)**:
+    -   يُمنع منعاً باتاً تكرار كود الاستمارة أو الحقول بين صفحتي Create و Edit.
+    -   تُحفظ الاستمارة داخل ملف جزئي موحد داخل مجلد `partials/` التابع للإدارة: `resources/views/{boundary}/{module}/partials/_form.blade.php`.
+    -   يتم استدعاء هذا الملف الجزئي عبر `@include` في كل من `create.blade.php` و `edit.blade.php`.
+    -   يُدار التمايز بين الإنشاء والتعديل حصرياً عبر متغير منطقي موحد `$is_edit`:
+        -   في `create.blade.php`: يُمرر `$is_edit = false`، ويوجه الـ action إلى `store` بطريقة `POST`، ويظهر زر المسودة، وتكون الحقول فارغة أو تعتمد على `old()` أو المسودة المسترجعة.
+        -   في `edit.blade.php`: يُمرر `$is_edit = true`، ويوجه الـ action إلى `update` بطريقة `POST` مع `@method('PUT')`، ولا يظهر زر المسودة، وتُملأ الحقول بقيم السجل الحالية، والحقول غير القابلة للتعديل تكون `readonly` مصحوبة بـ hidden inputs.
+-   **التطابق الهيكلي الصارم**:
+    -   شاشة `edit` يجب أن تطابق شاشة `create` في نفس عدد الخطوات، وترتيبها، وعناوينها، وتوزيع حقولها بالضبط.
 -   كل الحقول تستخدم shared form controls بعقد validation وaccessibility الكامل؛ لا raw controls محلية.
 -   Create، سواء كان single-card أو wizard، يعلن FormRequest الحقيقي وdraft resource key ويرتبط بعقد `wizard_drafts` كاملًا.
 -   Create الذي يحتوي ملفات يستخدم `multipart/form-data`، ويحافظ على old input والمسودة والملفات المؤرشفة وفق precedence واضح ومختبر.
@@ -587,16 +598,16 @@ protected function buttons(): array
 -   Edit لا يرث مسودة Create تلقائيًا، ولا يستخدم resource key نفسه.
 -   النموذج أحادي الخطوة يبقى single-card منظمًا، مع «حفظ كمسودة» بجوار زر الإنشاء في Create؛ ولا يضاف له stepper أو review step صوريان.
 
-| نوع النموذج          |      مسودة إلزامية | Stepper | Review أخيرة |
-| -------------------- | -----------------: | ------: | -----------: |
-| Create أحادي الخطوة  |                نعم |      لا |           لا |
-| Create متعدد الخطوات |                نعم |     نعم |          نعم |
-| Edit أحادي الخطوة    | لا، إلا بعقد مستقل |      لا |           لا |
-| Edit متعدد الخطوات   | لا، إلا بعقد مستقل |     نعم |          نعم |
+| نوع النموذج          |      مسودة إلزامية | Stepper | Review أخيرة | الفورم المشترك |
+| -------------------- | -----------------: | ------: | -----------: | -------------: |
+| Create أحادي الخطوة  |                نعم |      لا |           لا | `partials/_form.blade.php` مع `$is_edit = false` |
+| Create متعدد الخطوات |                نعم |     نعم |          نعم | `partials/_form.blade.php` مع `$is_edit = false` |
+| Edit أحادي الخطوة    | لا، إلا بعقد مستقل |      لا |           لا | `partials/_form.blade.php` مع `$is_edit = true`  |
+| Edit متعدد الخطوات   | لا، إلا بعقد مستقل |     نعم |          نعم | `partials/_form.blade.php` مع `$is_edit = true`  |
 
 ### `create.blade.php` و`edit.blade.php` متعددا الخطوات (معمارية وتجربة الـWizard)
 
-القواعد البصرية وقواعد المكونات التالية مشتركة بين Create وEdit. عقد المسودات إلزامي لـCreate فقط؛ لا يضاف إلى Edit إلا إذا عرّف المجال صراحةً ميزة edit drafts مستقلة بعقد واختبارات خاصين بها. كل Create أو Edit متعدد الخطوات (خطوتان فأكثر) ينتهي بخطوة مراجعة أخيرة، أما النموذج أحادي الخطوة فلا يحول إلى wizard مصطنع.
+القواعد البصرية وقواعد المكونات التالية مشتركة بين Create وEdit عبر الفورم المشترك. عقد المسودات إلزامي لـCreate فقط؛ لا يضاف إلى Edit إلا إذا عرّف المجال صراحةً ميزة edit drafts مستقلة بعقد واختبارات خاصين بها. كل Create أو Edit متعدد الخطوات (خطوتان فأكثر) ينتهي بخطوة مراجعة أخيرة، أما النموذج أحادي الخطوة فلا يحول إلى wizard مصطنع.
 
 -   **مرجعية التصميم المعتمدة**: إدارة الإسنادات (Assignments) والعقارات (Properties) هما المرجع المعماري الموحد لجميع المعالجات متعددة الخطوات في النظام.
 -   **شريط مؤشر الخطوات (Stepper Header)**:
@@ -604,7 +615,7 @@ protected function buttons(): array
     -   **يمنع تمامًا** إقحام نصوص فرعية مشوشة (`subtitles`) داخل مؤشرات الخطوات العلوية.
 -   **تخطيط خطوات الإدخال (Step Grid Layout)**:
     -   تعتمد الخطوة على شبكة مدخلات مفتوحة ونظيفة بعرض الصفحة الكامل `<div class="row g-4">` باستخدام `col-md-6` و `col-12`.
-    -   يجوز أن تحتوي بعض الخطوات، عندما يبرر المحتوى ذلك، على بطاقتين بتقسيم غير متناظر مثل خطوة المراجعة: **Form Card رئيسية** داخل `col-lg-8` و**Side Card** داخل `col-lg-4`. محتوى البطاقتين يحدده use case ولا يقتصر على نوع معين، مع استخدام `h-100` عند الحاجة وعودة العمودين تلقائيًا إلى full-width تحت breakpoint `lg`. هذا تخطيط مقصود للبطاقات الوظيفية، وليس sidebar زخرفيًا أو بديلًا عن شبكة الحقول داخل الـForm Card.
+    -   يُمنع تماماً إقحام سايدبار جانبي زخرفي أو عناصر مصطنعة داخل خطوات الإدخال.
 -   **عقد الجداول الفرعية الديناميكية (Dynamic Subtables)**:
     -   عند احتواء الخطوة على كيانات فرعية متعددة (مثل حدود العقار، الملاك، الوحدات، البنود الفرعية):
         1. توضع داخل بطاقة فرعية قياسية بنمط `.assignment-properties-table-card` داخل الخطوة.
@@ -612,26 +623,35 @@ protected function buttons(): array
         3. يوضع الجدول داخل `.table-responsive` ويلتزم بعقد الجداول العام نفسه حرفيًا: `table table-striped table-bordered w-100`؛ لا يستخدم تصميمًا أو classes محلية مختلفة.
         4. زر الحذف لكل صف يكون أيقونة سلة مهملات حمراء موحدة `btn-icon btn-sm btn-danger`.
         5. ترقيم وتسمية المدخلات المصفوفية (`items[idx][field]`) يعاد فهرستها برمجيًا عند الإضافة والحذف مع إطلاق حدث `change`.
--   **خطوة الملفات والمستندات**:
+-   **خطوة الملفات والمستندات وعقد بطاقات المعاينة الموحدة**:
     -   توزيع متوازن لحقول الرفع (`col-md-4` للحقول الفردية، و `col-md-6` أو `col-12` للمرفقات المتعددة).
-    -   شبكة عرض بطاقات الملفات تعتمد `.assignment-file-list` و `.assignment-file-card` الموحدة.
+    -   **عقد بطاقات الملفات (File Cards Contract)**:
+        -   جميع معاينات الملفات والصور المرفوعة عبر كامل النظام (في خطوة الملفات، وخطوة المراجعة، وصفحة العرض Show) تعتمد حصرياً المكون المشترك `<x-ui.file-card>` (أو اسمه المستعار `<x-ui.attachment-card>`).
+        -   **نمط البطاقة الموحد فقط (`layout="card"` بحجم $150\text{px} \times 150\text{px}$)**: تُلغى القوائم النصية (`layout="list"`) نهائياً، وتُعرض كافة الملفات كبطاقات مربعة موحدة الحجم ($150\text{px} \times 150\text{px}$) داخل شبكة متجاوبة بنمط `.assignment-file-list`، متضمنة صورة مصغرة (Thumbnail)، وشارة لنوع الملف، وزر معاينة بالتحويم (hover)، وخيار حذف الملف عند السماح بذلك.
 -   **خطوة المراجعة والاعتماد (Review Step Architecture)**:
-    -   **تقسيم الشاشة إلزامي**:
-        -   **عمود كروت المراجعة الأيمن (`col-lg-8`)**: يحتوي على كروت المراجعة الموحدة `<x-form.wizard.review-card title="..." step="1" body-id="...">`.
-        -   **عمود المعاينة الحية الأيسر (`col-lg-4`)**: يحتوي على بطاقة المعاينة البصرية الحية `<article class="card assignment-preview h-100">` متضمنة الصورة الرئيسية بالأعلى (`.assignment-preview__image` بأبعاد متناسقة `aspect-ratio: 4 / 3`) وأسفلها اسم الكيان ووصفه.
-    -   **أزرار التعديل السريع**: بداية كل كارت مراجعة تحتوي زر تعديل مباشر ذكي ينقل المستخدم فورًا إلى رقم الخطوة المعنية عبر `wizard.bsStepper.to(step)`.
-    -   زر التعديل السريع يستخدم أيقونة `ti ti-edit` فقط مع `aria-label` وtooltip واضحين، ولا يعرض كلمة «تعديل».
+    -   **التخطيط الإلزامي**:
+        -   حاوية موحدة بعرض الصفحة الكامل: `.col-12.d-flex.flex-column.gap-4`.
+        -   شريط تنبيه تحذيري عريض في البداية: `<div class="alert alert-warning mb-0 d-flex align-items-center gap-2" role="alert"><i class="ti ti-alert-triangle fs-3"></i><span>برجاء مراجعة بيانات الكيان ومرفقاته قبل الاعتماد النهائي...</span></div>`.
+        -   شبكة كروت مراجعة متوازنة بعمودين متساويين: `<div class="row g-3">` حيث كروت المراجعة العادية تأخذ `col-lg-6` عبر `<x-form.wizard.review-card title="..." step="..." col="" class="h-100 assignment-review__card">`.
+        -   الكروت الكبيرة (الملاحظات الإضافية، أو المستندات، أو الجداول الفرعية التابعة) تأخذ العرض الكامل `col-12`.
+        -   كارت مراجعة الملفات والمستندات يكون مقسماً داخلياً إلى أقسام وظيفية بتصنيفات واضحة (المستندات الرسمية، معرض الصور، المرفقات الإضافية) مع شارات بعدد الملفات في كل تصنيف (`badge bg-primary`).
+        -   محتوى الكروت يعتمد التنسيق المزدوج (`<dl class="row mb-0 small"><dt class="col-5 text-muted">...</dt><dd class="col-7 fw-semibold">...</dd></dl>`).
+    -   **أزرار التعديل السريع**:
+        -   تحتوي ترويسة كل كارت مراجعة على زر تعديل ذكي ينقل المستخدم فوراً لرقم الخطوة المعنية عبر `wizard.bsStepper.to(step)`.
+        -   زر التعديل السريع يستخدم أيقونة `ti ti-edit` فقط مع `aria-label` و tooltip، وممنوع عرض كلمة «تعديل» نصياً.
     -   لا تنفذ عملية submit نهائية إلا من داخل خطوة المراجعة الأخيرة.
--   **عقد أزرار التنقل (Wizard Actions)**:
+-   **عقد أزرار التنقل (Wizard Actions) وتوحيد النصوص**:
     -   زر «التالي/المراجعة» يظل enabled دائمًا، ولا يجوز ربط `disabled` بصحة الحقول أو بنتيجة validation سابقة.
     -   الضغط على زر «التالي/المراجعة» يشغّل `validate-step` على حقول **الخطوة الحالية فقط** كما هي معرّفة في `data-validation-fields`، ولا ينتقل إلى الخطوة التالية إلا بعد نجاح FormRequest الحقيقي.
     -   عند فشل validation يبقى المستخدم في الخطوة الحالية وتظهر الأخطاء بجوار الحقول من خلال shared validation contract؛ لا يتم التحقق من الخطوات الأخرى في هذه اللحظة.
     -   أثناء انتظار استجابة السيرفر يظل الزر enabled بصريًا، ويستخدم المحرك حالة داخلية و`aria-busy` لمنع تنفيذ طلبات متكررة دون إضافة `disabled` أو `.disabled`.
-    -   Create — الخطوة الأولى: زر «العودة» إلى الفهرس + زران في اليسار مجمّعان داخل `<div class="d-flex gap-2">`: «حفظ كمسودة» و«التالي».
-    -   Create — الخطوات الوسطى: زر «السابق» + زران في اليسار مجمّعان داخل `<div class="d-flex gap-2">`: «حفظ كمسودة» و«التالي».
-    -   Create — خطوة ما قبل المراجعة: زر «السابق» + زران في اليسار مجمّعان داخل `<div class="d-flex gap-2">`: «حفظ كمسودة» و«المراجعة».
-    -   Create — خطوة المراجعة الأخيرة: زر «السابق» + زران في اليسار مجمّعان داخل `<div class="d-flex gap-2">`: «حفظ كمسودة» وزر «إنشاء الكيان» (`save-button`).
-    -   Edit — نفس اتجاهات «السابق/التالي/المراجعة»، لكن بلا زر مسودة افتراضيًا، ويظهر زر «تحديث الكيان» فقط في خطوة المراجعة الأخيرة.
+    -   **تجميع أزرار الإجراء والمسودة**: في كافة الخطوات، يُجمع زر المسودة وزر الإجراء التالي دائماً داخل حاوية مرنة `<div class="d-flex gap-2">`:
+        -   Create — الخطوة الأولى: زر «العودة» إلى الفهرس + زران في اليسار مجمّعان داخل `<div class="d-flex gap-2">`: «حفظ كمسودة» و«التالي».
+        -   Create — الخطوات الوسطى: زر «السابق» + زران في اليسار مجمّعان داخل `<div class="d-flex gap-2">`: «حفظ كمسودة» و«التالي».
+        -   Create — خطوة ما قبل المراجعة: زر «السابق» + زران في اليسار مجمّعان داخل `<div class="d-flex gap-2">`: «حفظ كمسودة» و«المراجعة».
+        -   Create — خطوة المراجعة الأخيرة: زر «السابق» + زران في اليسار مجمّعان داخل `<div class="d-flex gap-2">`: «حفظ كمسودة» وزر «إنشاء الكيان» (`save-button`).
+        -   Edit — نفس اتجاهات «السابق/التالي/المراجعة»، لكن بلا زر مسودة، ويظهر زر «تحديث الكيان» فقط في خطوة المراجعة الأخيرة.
+    -   **منع تغيير نصوص الأزرار (إلزامي)**: يُمنع منعاً باتاً تغيير أو تخصيص النصوص داخل الأزرار عبر وسيط `text="..."`. تلتزم كافة الإدارات بالنصوص الافتراضية القياسية المعتمدة لمكونات الأزرار («حفظ كمسودة»، «التالي»، «السابق»، «المراجعة»، «حفظ») دون أي استثناء، للحفاظ على تناسق تجربة الاستخدام الموحدة عبر النظام بالكامل.
     -   الأسهم تأتي حصريًا من مكونات `next-button` و`previous-button`: في RTL «التالي» بسهم لليسار و«السابق/العودة» بسهم لليمين؛ لا تمرر الصفحة أيقونات معكوسة محليًا.
 
 ### `show.blade.php` (هندسة صفحة العرض والتفاصيل)
@@ -651,7 +671,8 @@ protected function buttons(): array
         - قائمة البيانات الوصفية المنظمة (`info-container text-start` مع `list-unstyled`) لعرض الخصائص والمحددات الرسمية والتواريخ.
     - **كارت المستندات والمرفقات (Documents & Attachments Card)**:
         - يوضع إلزاميًا في العمود الأيسر أسفل كارت الهوية.
-        - يعرض قائمة المرفقات بتنسيق سطور أنيقة مع أيقونة الملف وزر تحميل مباشر في أقصى اليسار (`btn-icon btn-sm btn-primary` مع أيقونة `ti ti-download`).
+        - يعرض المرفقات حصرياً بنمط البطاقات الموحدة `<x-ui.file-card :file="$doc" layout="card" />` بحجم $150\text{px} \times 150\text{px}$ داخل شبكة متجاوبة من نوع `.assignment-file-list`.
+        - يمنع استخدام القوائم النصية (`layout="list"` أو `<ul><li>`)؛ فكل المعاينات عبر النظام موحدة بنمط البطاقات القياسي.
 3. **العمود الرئيسي الأيمن (`col-xl-8 col-lg-7 col-md-7`)**:
     - مخصص حصريًا لعرض **الجداول الفرعية والعلاقات التشغيلية التابعة (Child Subtables & Related Records)**.
     - كل علاقة تابعة (مثل الحدود، الملاك، الوحدات الفرعية، المزادات، العمليات، إلخ) توضع في بطاقة كلاسيكية مستقلة:
@@ -768,6 +789,7 @@ protected function buttons(): array
 5. «تجاهل والبدء من جديد» يحذف سجل المسودة وكل الملفات المؤرشفة التابعة له أولًا، ثم يعيد النموذج فارغًا؛ فشل الحذف يمنع البدء الجديد ويعرض رسالة قابلة لإعادة المحاولة حتى لا تترك ملفات orphaned.
 6. «حفظ كمسودة» موجود في كل create form ويحفظ المدخلات الناقصة والملفات دون full create validation.
     - **تجميع أزرار الإجراء والمسودة**: في كافة نماذج الإنشاء (سواء كانت wizard أو نموذج بطاقة واحدة single-card)، يجب إدراج زر المسودة («حفظ كمسودة» / `<x-form.wizard.draft-button />`) وزر الإجراء التالي أو الحفظ والاعتماد (`next-button` / `save-button` / submit) معًا داخل حاوية مرنة `<div class="d-flex gap-2">` لضمان اتساق المحاذاة والتباعد البصري (spacing/flex gap) في شريط إجراءات النموذج.
+    - **منع تغيير نصوص الأزرار**: تلتزم كافة الإدارات بالنصوص الافتراضية القياسية لمكونات الأزرار («حفظ كمسودة»، «التالي»، «السابق»، «المراجعة»، «حفظ») ويُمنع منعاً باتاً تمرير `text="..."` مخصص لتغيير مسميات الأزرار.
 7. validate-step يشغل FormRequest الحقيقي ويطبق subset الخطوة، لا قواعد JS بديلة.
    زر «التالي/المراجعة» لا يُعطّل قبل اكتمال الحقول؛ الضغط عليه هو بوابة التحقق من subset الخطوة الحالية، والفشل يمنع الانتقال فقط.
 8. كل رفع تدريجي مرتبط بمسودة ومالك وboundary ومسار غير قابل للتخمين.
@@ -922,11 +944,12 @@ Toastr يعتمد flash messages في browser flow. لا ترجع JSON خامً�
 [ ] Events/Jobs: idempotency + tenant context + ownership
 [ ] DataTable: query/filters/checkbox/image/status/actions/buttons + shared activity toggler
 [ ] Index: stats first + filters + table؛ لا banner/add button خارجي
-[ ] Create: shared controls فقط + draft modal + full data/files restore + discard purge + final validation
-[ ] Multi-step create: final review step + reusable assignment-style cards + icon-only edit navigation
-[ ] Multi-step edit: final review step + reusable review cards + icon-only edit navigation؛ بلا drafts إلا بعقد صريح
+[ ] Create/Edit: فورم مشترك داخل `partials/_form.blade.php` يدار بـ `$is_edit` مع تطابق كامل في هيكل وخطوات Create و Edit
+[ ] Buttons: تجميع زر المسودة والتالي داخل `d-flex gap-2` + التزام تام بالنصوص الافتراضية الموحدة للأزرار دون تعديل
+[ ] File Cards: بطاقات معاينة الملفات بحجم موحد 150px × 150px بنمط الكارت فقط عبر `<x-ui.file-card layout="card">`؛ لا قوائم نصية
+[ ] Multi-step create/edit: خطوة مراجعة نهائية بعرض كامل `.col-12.d-flex.flex-column.gap-4` تبدأ بتنبيه تحذيري وشبكة كروت متوازنة وأقسام ملفات مصنفة وتنقل سريع بالأيقونة فقط
 [ ] Components: كل UI قابل لإعادة الاستخدام مشترك بين Admin/Tenant ما لم يوجد اختلاف وظيفي حقيقي
-[ ] Edit/Show/Action: authorization + no GET mutation
+[ ] Edit/Show/Action: authorization + no GET mutation + Show يعرض المرفقات كبطاقات 150px موحدة
 [ ] Archive: strict layout + restore/force-delete policies
 [ ] JavaScript: orchestration only + shared handlers
 [ ] Tests: CRUD + validation + policy + isolation + files + drafts
@@ -944,7 +967,10 @@ Toastr يعتمد flash messages في browser flow. لا ترجع JSON خامً�
 -   لا توجد قواعد validation منسوخة في JavaScript.
 -   لا يوجد Tenant/Central crossing مباشر.
 -   كل create form يدعم draft lifecycle كاملًا.
--   كل create متعدد الخطوات ينتهي بخطوة مراجعة تستخدم review-card components المشتركة وزر edit icon ينقل للخطوة المطلوبة.
+-   الفورم مشترك بين Create و Edit داخل `partials/_form.blade.php` ويُدار بـ `$is_edit` مع تطابق تام في الخطوات والهيكل.
+-   نصوص أزرار التنقل والمسودة قياسية موحدة ولا يتم تمرير `text` مخصص يغير مسمياتها.
+-   معاينات الملفات والمستندات عبر كامل النظام (Show/Edit/Review) تستخدم حصرياً نمط البطاقات الموحدة `<x-ui.file-card layout="card">` بحجم 150px × 150px وتُلغى القوائم النصية.
+-   كل create أو edit متعدد الخطوات ينتهي بخطوة مراجعة بعرض كامل تبدأ بتنبيه تحذيري وتستخدم review-card components المشتركة وزر edit icon ينقل للخطوة المطلوبة.
 -   كل زر «التالي/المراجعة» يظل enabled، ويتحقق عند الضغط من الخطوة الحالية فقط عبر FormRequest، مع منع double-click داخليًا دون تعطيل بصري.
 -   كل form control يستخدم component المشروع؛ وأي نوع غير موجود له component عام جديد.
 -   كل activity table يستخدم status toggle المشترك والـmethod العامة وترتيب الأعمدة الصحيح.

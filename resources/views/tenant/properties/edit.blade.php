@@ -295,7 +295,8 @@
                                                 <th style="width: 15%;" class="text-center align-middle">رقم الوحدة</th>
                                                 <th style="width: 20%;" class="text-center align-middle">نوع الوحدة</th>
                                                 <th style="width: 15%;" class="text-center align-middle">المساحة (م²)</th>
-                                                <th style="width: 20%;" class="text-center align-middle">الاستخدام الحالي</th>
+                                                <th style="width: 20%;" class="text-center align-middle">الاستخدام الحالي
+                                                </th>
                                                 <th style="width: 20%;" class="text-center align-middle">الحالة</th>
                                                 <th style="width: 10%;" class="text-center align-middle">حذف</th>
                                             </tr>
@@ -309,10 +310,22 @@
                                                             ->map(
                                                                 fn($u) => [
                                                                     'unit_number' => $u->unit_number,
-                                                                    'unit_type' => $u->unit_type instanceof \App\Enums\Tenants\Properties\PropertyUnitType ? $u->unit_type->value : (string) $u->unit_type,
+                                                                    'unit_type' =>
+                                                                        $u->unit_type instanceof
+                                                                        \App\Enums\Tenants\Properties\PropertyUnitType
+                                                                            ? $u->unit_type->value
+                                                                            : (string) $u->unit_type,
                                                                     'area' => $u->area,
-                                                                    'current_use' => $u->current_use instanceof \App\Enums\Tenants\Properties\PropertyUnitUsage ? $u->current_use->value : (string) $u->current_use,
-                                                                    'status' => $u->status instanceof \App\Enums\Tenants\Properties\PropertyUnitStatus ? $u->status->value : (string) $u->status,
+                                                                    'current_use' =>
+                                                                        $u->current_use instanceof
+                                                                        \App\Enums\Tenants\Properties\PropertyUnitUsage
+                                                                            ? $u->current_use->value
+                                                                            : (string) $u->current_use,
+                                                                    'status' =>
+                                                                        $u->status instanceof
+                                                                        \App\Enums\Tenants\Properties\PropertyUnitStatus
+                                                                            ? $u->status->value
+                                                                            : (string) $u->status,
                                                                 ],
                                                             )
                                                             ->toArray()
@@ -326,10 +339,11 @@
                                                             class="form-control form-control-sm w-100"
                                                             value="{{ $unit['unit_number'] ?? '' }}"
                                                             placeholder="رقم الوحدة (مثال: 101)" data-form-control></td>
-                                                    <td class="text-center align-middle"><select name="units[{{ $idx }}][unit_type]"
+                                                    <td class="text-center align-middle"><select
+                                                            name="units[{{ $idx }}][unit_type]"
                                                             class="form-select form-select-sm select2 w-100"
-                                                            data-placeholder="اختر نوع الوحدة"
-                                                            data-select2-search="false" data-form-control>
+                                                            data-placeholder="اختر نوع الوحدة" data-select2-search="false"
+                                                            data-form-control>
                                                             <option value=""></option>
                                                             @foreach (\App\Enums\Tenants\Properties\PropertyUnitType::cases() as $unitType)
                                                                 <option value="{{ $unitType->value }}"
@@ -337,12 +351,13 @@
                                                                 </option>
                                                             @endforeach
                                                         </select></td>
-                                                    <td class="text-center align-middle"><input type="number" step="0.01"
-                                                            name="units[{{ $idx }}][area]"
+                                                    <td class="text-center align-middle"><input type="number"
+                                                            step="0.01" name="units[{{ $idx }}][area]"
                                                             class="form-control form-control-sm w-100"
                                                             value="{{ $unit['area'] ?? '' }}" placeholder="المساحة (م²)"
                                                             data-form-control></td>
-                                                    <td class="text-center align-middle"><select name="units[{{ $idx }}][current_use]"
+                                                    <td class="text-center align-middle"><select
+                                                            name="units[{{ $idx }}][current_use]"
                                                             class="form-select form-select-sm select2 w-100"
                                                             data-placeholder="اختر الاستخدام الحالي"
                                                             data-select2-search="false" data-form-control>
@@ -356,8 +371,8 @@
                                                     <td class="text-center align-middle">
                                                         <select name="units[{{ $idx }}][status]"
                                                             class="form-select form-select-sm select2 w-100"
-                                                            data-placeholder="اختر الحالة"
-                                                            data-select2-search="false" data-form-control>
+                                                            data-placeholder="اختر الحالة" data-select2-search="false"
+                                                            data-form-control>
                                                             @foreach (\App\Enums\Tenants\Properties\PropertyUnitStatus::cases() as $unitStatus)
                                                                 <option value="{{ $unitStatus->value }}"
                                                                     {{ ($unit['status'] ?? '') === $unitStatus->value ? 'selected' : '' }}>
@@ -394,27 +409,38 @@
                     <x-form.controls.file name="main_image" label="الصورة الرئيسية للعقار" :required="false"
                         :value="$property->main_image ? tasset($property->main_image) : null" accept="image/jpeg,image/png,image/webp"
                         help="JPG أو PNG أو WebP، بحد أقصى 10MB" col="col-md-6" />
-                    <x-form.controls.file name="deed_document" label="صك الملكية" :required="false"
-                        :value="$property->deedAttachment ? tasset($property->deedAttachment->file_path) : null"
+                    <x-form.controls.file name="deed_document" label="صك الملكية" :required="false" :value="$property->deedAttachment ? tasset($property->deedAttachment->file_path) : null"
                         accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
-                    <x-form.controls.file name="cadastral_plan" label="مخطط العقار" :required="false"
-                        :value="$property->cadastralPlanAttachment ? tasset($property->cadastralPlanAttachment->file_path) : null"
+                    <x-form.controls.file name="cadastral_plan" label="مخطط العقار" :required="false" :value="$property->cadastralPlanAttachment
+                        ? tasset($property->cadastralPlanAttachment->file_path)
+                        : null"
                         accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
                     <x-form.controls.file name="coordinates_statement" label="كشف الإحداثيات" :required="false"
-                        :value="$property->coordinatesAttachment ? tasset($property->coordinatesAttachment->file_path) : null"
-                        accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
+                        :value="$property->coordinatesAttachment
+                            ? tasset($property->coordinatesAttachment->file_path)
+                            : null" accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
                     <x-form.controls.file name="building_permit" label="رخصة البناء (اختياري)" accept=".pdf,image/*"
-                        :value="$property->buildingPermitAttachment ? tasset($property->buildingPermitAttachment->file_path) : null"
-                        help="PDF أو صورة، بحد أقصى 10MB" :required="false" col="col-md-6" />
+                        :value="$property->buildingPermitAttachment
+                            ? tasset($property->buildingPermitAttachment->file_path)
+                            : null" help="PDF أو صورة، بحد أقصى 10MB" :required="false" col="col-md-6" />
                     <x-form.controls.file name="assignment_letter_image" label="صورة الإسناد (اختياري)" accept="image/*"
-                        :value="$property->assignmentLetterAttachment ? tasset($property->assignmentLetterAttachment->file_path) : null"
-                        help="صورة فقط بحد أقصى 10MB" :required="false" col="col-md-6" />
+                        :value="$property->assignmentLetterAttachment
+                            ? tasset($property->assignmentLetterAttachment->file_path)
+                            : null" help="صورة فقط بحد أقصى 10MB" :required="false" col="col-md-6" />
                     <x-form.controls.file name="property_images[]" label="صور إضافية للمعرض (اختياري)" multiple
-                        :value="$property->galleryAttachments->pluck('file_path')->filter()->map(fn($p) => tasset($p))->all()"
-                        accept="image/*" help="يمكن اختيار عدة صور للمعرض" :required="false" col="col-md-6" />
+                        :value="$property->galleryAttachments
+                            ->pluck('file_path')
+                            ->filter()
+                            ->map(fn($p) => tasset($p))
+                            ->all()" accept="image/*" help="يمكن اختيار عدة صور للمعرض" :required="false"
+                        col="col-md-6" />
                     <x-form.controls.file name="additional_documents[]" label="مستندات إضافية (اختياري)" multiple
-                        :value="$property->additionalDocuments->pluck('file_path')->filter()->map(fn($p) => tasset($p))->all()"
-                        accept=".pdf,image/*" help="يمكن اختيار عدة ملفات" :required="false" col="col-md-6" />
+                        :value="$property->additionalDocuments
+                            ->pluck('file_path')
+                            ->filter()
+                            ->map(fn($p) => tasset($p))
+                            ->all()" accept=".pdf,image/*" help="يمكن اختيار عدة ملفات" :required="false"
+                        col="col-md-6" />
 
                     <x-form.wizard.actions>
                         <x-form.wizard.previous-button />
@@ -479,7 +505,8 @@
                                             <section class="assignment-selection"
                                                 aria-labelledby="review-gallery-documents-title">
                                                 <div class="d-flex align-items-center justify-content-between mb-3">
-                                                    <h6 id="review-gallery-documents-title" class="mb-0">صور العقار والمعرض
+                                                    <h6 id="review-gallery-documents-title" class="mb-0">صور العقار
+                                                        والمعرض
                                                     </h6>
                                                     <span class="badge bg-primary"><span
                                                             id="review-gallery-documents-count">0</span> صورة</span>

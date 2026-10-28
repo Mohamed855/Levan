@@ -50,17 +50,21 @@
 -   **File / Attachment Preview Cards (Mandatory across all Show / Edit / Review Views):**
     -   ALL uploaded image and file previews across the entire system (show views, edit forms, review steps) MUST use the shared `<x-ui.file-card>` component (or its alias `<x-ui.attachment-card>`).
     -   Never write raw, bespoke HTML cards or unformatted `<ul><li>` lists for displaying attachments.
-    -   **Card Layout** (`layout="card"`, default): Standard preview card (`195px × 195px`) with image thumbnail, file-type indicator, hover preview action, and metadata.
-    -   **List Layout** (`layout="list"`): Clean horizontal item with icon/thumbnail and action button for show page sidebars.
+    -   **Card Layout Only** (Unified 150px): All previews across the system strictly use the card format with dimensions `150px × 150px` (thumbnail, file-type indicator, hover preview action, and metadata). The list layout is completely deprecated and abolished.
 
-## Form Standards (Create vs Edit)
+## Form Standards (Create vs Edit & Shared Partials)
 
+-   **Shared Form Architecture (Mandatory):**
+    -   Forms for `create` and `edit` views MUST NOT be duplicated. The form markup MUST reside in a shared partial file inside `partials/` within the module view directory: `resources/views/{boundary}/{module}/partials/_form.blade.php`.
+    -   Both `create.blade.php` and `edit.blade.php` MUST `@include` this shared `_form.blade.php`, controlling differences exclusively via the `$is_edit` boolean variable (`false` in create, `true` in edit).
 -   **Create Views:**
-    -   May include `<x-form.wizard.draft-button />` and draft auto-saving endpoints.
+    -   Pass `$is_edit = false` to the shared `_form.blade.php`.
+    -   Includes `<x-form.wizard.draft-button />` and draft auto-saving endpoints.
     -   Method: `POST`.
 -   **Edit Views:**
-    -   Must mirror the exact layout and step structure of the corresponding `create` view.
-    -   **No draft button:** Never include `<x-form.wizard.draft-button />`.
+    -   Pass `$is_edit = true` to the shared `_form.blade.php`.
+    -   Must mirror the exact layout, steps, and structure of the corresponding `create` view.
+    -   **No draft button:** When `$is_edit` is true, omit `<x-form.wizard.draft-button />`.
     -   Method: `POST` with `@method('PUT')`.
     -   **Non-editable fields:** Must be styled as `readonly` or visually `disabled` with an accompanying `<input type="hidden" name="field" value="...">` to ensure Laravel FormRequests validate successfully without missing required payloads.
 
@@ -73,6 +77,7 @@
 -   **Create Forms & Drafts Contract (Mandatory)**:
     -   ALL create forms (single-card forms and wizards alike) MUST include a "حفظ كمسودة" (Save as Draft) button alongside primary form action buttons.
     -   The draft button (`<x-form.wizard.draft-button />`) and the next/save button (`<x-form.wizard.next-button />` or `<x-form.wizard.save-button>` / submit) MUST be enclosed together inside `<div class="d-flex gap-2">` to maintain uniform spacing and flex alignment across all create views.
+    -   **No Custom Button Texts (Mandatory):** Button texts inside `<x-form.wizard.actions>` MUST NEVER be modified or customized via custom `text="..."` attributes. All modules must adhere strictly to the standard uniform default texts of the button components («حفظ كمسودة», «التالي», «السابق», «حفظ», «المراجعة») to guarantee system-wide visual and UX consistency.
     -   All create forms must be wired to the drafts subsystem/table: clicking "حفظ كمسودة" saves current inputs and uploaded files progressively without enforcing full mandatory creation validation, restores saved draft data upon reopening the form, and automatically discards/purges the draft upon successful record creation.
     -   **Drafts Table Multi-Tenancy**: The drafts table for Tenant administrations MUST reside in the **tenant database** (tenant migrations/connection) so tenant forms store and isolate drafts directly within each tenant's database. Central/SuperAdmin forms store drafts in the central database drafts table.
 

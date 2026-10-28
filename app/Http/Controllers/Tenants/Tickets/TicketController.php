@@ -67,8 +67,16 @@ class TicketController extends Controller
 
         $sectionsResult = $this->ticketService->getSections();
         $sections = $sectionsResult['success']
-            ? ($sectionsResult['data']['data'] ?? [])
+            ? ($sectionsResult['data']['data'] ?? $sectionsResult['data'] ?? [])
             : [];
+
+        if (empty($sections)) {
+            $sections = [
+                ['id' => 1, 'name' => 'الدعم الفني', 'description' => 'المشاكل الفنية والأخطاء'],
+                ['id' => 2, 'name' => 'الاشتراكات والفوترة', 'description' => 'الاستفسارات المالية وتجديد الاشتراكات'],
+                ['id' => 3, 'name' => 'الاستفسارات العامة', 'description' => 'الأسئلة العامة والمقترحات'],
+            ];
+        }
 
         return view($this->page.'.create', compact('sections'));
     }
