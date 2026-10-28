@@ -17,9 +17,9 @@ class PasswordResetOtpService
         $isTest = app()->environment(['local', 'testing']) && config('services.moyasar.mode', 'test') === 'test';
         $otp = $isTest ? '000000' : (string) random_int(100000, 999999);
 
-        if (! $isTest) {
-            SystemMailService::sendOtp($email, $otp, 'استعادة كلمة المرور');
-        } else {
+        SystemMailService::sendOtp($email, $otp, 'استعادة كلمة المرور');
+
+        if ($isTest) {
             Log::info('Password reset OTP issued in test mode', [
                 'email' => $email,
                 'otp' => $otp,

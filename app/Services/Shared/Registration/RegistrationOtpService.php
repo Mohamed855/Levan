@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Shared\Registration;
 
-use Illuminate\Support\Facades\Mail;
+use App\Services\Shared\Mail\SystemMailService;
+use Illuminate\Support\Facades\Log;
 
 class RegistrationOtpService
 {
@@ -12,8 +13,14 @@ class RegistrationOtpService
     {
         $test = app()->environment(['local', 'testing']) && config('services.moyasar.mode', 'test') === 'test';
         $otp = $test ? '000000' : (string) random_int(100000, 999999);
-        if (! $test) {
-            \App\Services\Shared\Mail\SystemMailService::sendOtp($email, $otp, 'تأكيد البريد الإلكتروني');
+
+        SystemMailService::sendOtp($email, $otp, 'تأكيد البريد الإلكتروني');
+
+        if ($test) {
+            Log::info('Registration OTP issued in test mode', [
+                'email' => $email,
+                'otp' => $otp,
+            ]);
         }
 
         return hash('sha256', $otp);

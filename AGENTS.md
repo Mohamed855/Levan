@@ -45,6 +45,7 @@
     -   Use `<x-form.wizard.stepper id="..." :steps="$steps">`
     -   Wrap steps with `<x-form.wizard.step id="..." :fields="[...]">`
     -   Actions with `<x-form.wizard.actions>`
+    -   **Single-Step Forms Contract (Mandatory):** When a form consists of only a single step (`count($steps) <= 1`), the stepper header (`class="bs-stepper-header"`) MUST NOT be rendered at all. The form renders cleanly as an open single-card step without step indicators.
 -   **Validation Errors:**
     -   Prefer `<x-ui.validation-errors class="mb-4" />`
 -   **File / Attachment Preview Cards (Mandatory across all Show / Edit / Review Views):**

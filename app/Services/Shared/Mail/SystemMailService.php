@@ -56,6 +56,10 @@ class SystemMailService
             $queueConnection = config('queue.default', 'sync');
 
             // If sync queue or forced immediate send (e.g. OTP/Security), send synchronously
+            if ($forceSync) {
+                $mailable->onConnection('sync');
+            }
+
             if ($forceSync || $queueConnection === 'sync') {
                 Mail::to($recipientEmail)->send($mailable);
             } else {
