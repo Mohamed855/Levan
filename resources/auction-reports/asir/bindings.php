@@ -6,13 +6,6 @@ return [
     0 => ['groups' => ['name' => ['f0'], 'subtitle' => ['f1']], 'layouts' => [
         'name' => ['box' => [35, 165, 560, 315], 'fit' => 'shrink', 'max_lines' => 2, 'center' => true],
         'subtitle' => ['box' => [45, 320, 550, 380], 'fit' => 'shrink', 'max_lines' => 2, 'center' => true],
-    ], 'layouts' => [
-        'manager' => ['max_width' => 150, 'max_lines' => 2, 'center' => true],
-        'name' => ['max_width' => 150, 'max_lines' => 2, 'center' => true],
-        'project' => ['max_width' => 140, 'max_lines' => 2, 'center' => true],
-        'start_month' => ['max_width' => 60], 'end_month' => ['max_width' => 60],
-        'start_weekday' => ['max_width' => 115], 'end_weekday' => ['max_width' => 115],
-        'start_time' => ['max_width' => 140], 'end_time' => ['max_width' => 140],
     ]],
     1 => ['groups' => [
         'manager' => ['f3'], 'name' => ['f4'], 'project' => ['f5'],
@@ -20,6 +13,13 @@ return [
         'end_hijri' => ['f14'], 'start_hijri' => ['f15'], 'start_mark' => ['f16'],
         'end_year' => ['f17'], 'start_year' => ['f18'], 'end_time' => ['f19', 'f23'],
         'start_time' => ['f20'], 'end_day' => ['f21'], 'start_day' => ['f22'], 'duplicate_header' => ['f24'],
+    ], 'layouts' => [
+        'manager' => ['max_width' => 150, 'max_lines' => 2, 'center' => true],
+        'name' => ['max_width' => 150, 'max_lines' => 2, 'center' => true],
+        'project' => ['max_width' => 140, 'max_lines' => 2, 'center' => true],
+        'start_month' => ['max_width' => 60], 'end_month' => ['max_width' => 60],
+        'start_weekday' => ['max_width' => 115], 'end_weekday' => ['max_width' => 115],
+        'start_time' => ['max_width' => 140], 'end_time' => ['max_width' => 140],
     ]],
     2 => ['groups' => ['introduction' => ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6']]],
     3 => ['groups' => ['city_context' => ['f6']]],

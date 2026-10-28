@@ -10,7 +10,7 @@ return [
         ],
         'images' => [],
         'layouts' => [
-            'name' => ['box' => [70, 335, 535, 433], 'fit' => 'shrink', 'max_lines' => 2, 'center' => true],
+            'name' => ['box' => [70, 335, 535, 433], 'fit' => 'shrink', 'min_font_size' => 36, 'max_lines' => 2, 'center' => true],
             'manager' => ['max_width' => 85, 'max_lines' => 2],
             'project' => ['max_width' => 85, 'max_lines' => 2],
             'property_count' => ['max_width' => 35],

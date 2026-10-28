@@ -13,6 +13,7 @@
 @php
     $fieldId = $id ?: str_replace(['[', ']'], '-', $name);
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
+    $placeholder = $placeholder ?? '············';
 @endphp
 
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help"

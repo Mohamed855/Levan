@@ -10,12 +10,9 @@
             <small class="text-muted">حدد العقارات التي سيتم إدراجها رسمياً في هذا المزاد.</small>
         </div>
         <div class="d-flex gap-3 text-start">
-            <div class="badge bg-primary fs-6 p-2">المحددة: <span
-                    id="selected-props-count">{{ $initialCount }}</span></div>
-            <div class="badge bg-info fs-6 p-2">إجمالي المساحة: <span
-                    id="selected-props-area">0 م²</span></div>
-            <div class="badge bg-success fs-6 p-2">إجمالي القيمة: <span
-                    id="selected-props-val">0 ر.س</span></div>
+            <div class="badge bg-primary  p-2">المحددة: <span id="selected-props-count">{{ $initialCount }}</span></div>
+            <div class="badge bg-info  p-2">إجمالي المساحة: <span id="selected-props-area">0 م²</span></div>
+            <div class="badge bg-success  p-2">إجمالي القيمة: <span id="selected-props-val">0 ر.س</span></div>
         </div>
     </div>
 
@@ -24,8 +21,7 @@
             <thead class="table-light">
                 <tr>
                     <th style="width: 2.5rem;">
-                        <input type="checkbox" id="select-all-properties"
-                            class="form-check-input">
+                        <input type="checkbox" id="select-all-properties" class="form-check-input">
                     </th>
                     <th>رقم العقار</th>
                     <th>اسم العقار</th>

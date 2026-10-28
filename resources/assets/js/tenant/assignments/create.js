@@ -10,30 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const propertyCount = document.getElementById("selected-properties-count");
     const propertyImageFallback =
         form.dataset.propertyImageFallback || "/static/brand/logos/logo.svg";
-    const fileInputs = [
-        {
-            input: document.getElementById("general_documents"),
-            list: document.getElementById("general-documents-cards"),
-            count: document.getElementById("general-documents-count"),
-            reviewList: document.getElementById("review-general-documents"),
-            reviewCount: document.getElementById(
-                "review-general-documents-count",
-            ),
-        },
-        {
-            input: document.getElementById("additional_attachments"),
-            list: document.getElementById("additional-attachments-cards"),
-            count: document.getElementById("additional-attachments-count"),
-            reviewList: document.getElementById(
-                "review-additional-attachments",
-            ),
-            reviewCount: document.getElementById(
-                "review-additional-attachments-count",
-            ),
-        },
-    ];
-    const accumulatedFiles = new Map();
-    const restoredDraftFiles = new Map();
 
     function escapeHtml(value) {
         const element = document.createElement("div");
@@ -189,121 +165,173 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    function fileKey(file) {
-        return `${file.name}:${file.size}:${file.lastModified}`;
+    function formatFileSize(bytes) {
+        if (!bytes || bytes <= 0) return "";
+        const units = ["B", "KB", "MB", "GB"];
+        const index = Math.floor(Math.log(bytes) / Math.log(1024));
+        return (
+            Math.round((bytes / Math.pow(1024, index)) * 10) / 10 +
+            " " +
+            units[index]
+        );
     }
 
-    function renderFileCards(target, entries, removable = false) {
-        if (!target) return;
-        if (!entries.length) {
-            target.innerHTML =
+    function renderFileCardHtml({
+        name,
+        file = null,
+        url = null,
+        metaLabel = "",
+    }) {
+        const fileName = name || file?.name || "ملف مرفق";
+        const ext = (fileName.split(".").pop() || "").toLowerCase();
+        const isImage =
+            (file && file.type && file.type.startsWith("image/")) ||
+            ["jpg", "jpeg", "png", "webp", "gif", "svg"].includes(ext) ||
+            (typeof url === "string" && url.startsWith("data:image/"));
+
+        let previewUrl = url;
+        if (
+            !previewUrl &&
+            file &&
+            isImage &&
+            window.URL &&
+            typeof window.URL.createObjectURL === "function"
+        ) {
+            try {
+                previewUrl = URL.createObjectURL(file);
+            } catch (e) {
+                previewUrl = null;
+            }
+        }
+
+        let typeCategory = "generic";
+        let iconClass = "ti-file";
+        let badgeColor = "secondary";
+        let typeName = "مستند";
+
+        if (isImage) {
+            typeName = "صورة";
+            badgeColor = "info";
+        } else if (ext === "pdf") {
+            typeCategory = "pdf";
+            iconClass = "ti-file-type-pdf";
+            badgeColor = "danger";
+            typeName = "مستند PDF";
+        } else if (["doc", "docx"].includes(ext)) {
+            typeCategory = "word";
+            iconClass = "ti-file-description";
+            badgeColor = "primary";
+            typeName = "مستند Word";
+        } else if (["xls", "xlsx", "csv"].includes(ext)) {
+            typeCategory = "excel";
+            iconClass = "ti-file-spreadsheet";
+            badgeColor = "success";
+            typeName = "جدول بيانات";
+        } else if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) {
+            typeCategory = "zip";
+            iconClass = "ti-file-zip";
+            badgeColor = "warning";
+            typeName = "أرشيف مضغوط";
+        }
+
+        const actionMarkup = previewUrl
+            ? `<a href="${escapeHtml(previewUrl)}" target="_blank" rel="noopener noreferrer" class="assignment-file-card__action" title="معاينة الملف" aria-label="معاينة"><i class="ti ti-eye"></i></a>`
+            : "";
+
+        const previewMarkup =
+            isImage && previewUrl
+                ? `<img src="${escapeHtml(previewUrl)}" alt="${escapeHtml(fileName)}" class="assignment-file-card__img" loading="lazy">
+           <span class="assignment-file-card__type-pill">${escapeHtml((ext || "IMG").toUpperCase())}</span>`
+                : `<div class="assignment-file-card__doc-wrap type-${typeCategory}">
+             <div class="assignment-file-card__icon-circle">
+               <i class="ti ${iconClass}"></i>
+             </div>
+             <span class="assignment-file-card__type-pill">${escapeHtml((ext || "FILE").toUpperCase())}</span>
+           </div>`;
+
+        const sizeFormatted = file?.size
+            ? formatFileSize(file.size)
+            : metaLabel || typeName;
+
+        return `
+      <article class="assignment-file-card" data-file-type="${escapeHtml(ext)}">
+        <div class="assignment-file-card__preview">
+          ${previewMarkup}
+          ${actionMarkup}
+        </div>
+        <div class="assignment-file-card__info">
+          <span class="assignment-file-card__name" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</span>
+          <div class="assignment-file-card__meta">
+            <span class="text-muted text-truncate me-1">${escapeHtml(sizeFormatted)}</span>
+            <span class="badge bg-label-${badgeColor}">${escapeHtml((ext || "FILE").toUpperCase())}</span>
+          </div>
+        </div>
+      </article>`;
+    }
+
+    function renderReviewPrimaryDocuments() {
+        const list = document.getElementById("review-primary-documents");
+        const count = document.getElementById("review-primary-documents-count");
+        if (!list) return;
+
+        const items = [];
+        const imgInput = form.elements.namedItem("assignment_image");
+        const letterInput = form.elements.namedItem("assignment_letter");
+
+        if (imgInput?.files?.[0]) {
+            items.push({
+                name: imgInput.files[0].name,
+                file: imgInput.files[0],
+                metaLabel: "صورة الإسناد",
+            });
+        }
+        if (letterInput?.files?.[0]) {
+            items.push({
+                name: letterInput.files[0].name,
+                file: letterInput.files[0],
+                metaLabel: "خطاب الإسناد",
+            });
+        }
+
+        if (count) count.textContent = String(items.length);
+
+        if (!items.length) {
+            list.innerHTML =
+                '<p class="text-muted mb-0" data-empty>لم يتم إرفاق مستندات أساسية بعد.</p>';
+            return;
+        }
+
+        list.innerHTML = items.map(renderFileCardHtml).join("");
+    }
+
+    function renderReviewFileList(containerId, countId, inputId) {
+        const list = document.getElementById(containerId);
+        const count = document.getElementById(countId);
+        if (!list) return;
+
+        const input = document.getElementById(inputId);
+        const files = Array.from(input?.files || []);
+        const wrapper =
+            input?.closest("[data-form-field]") || input?.parentElement;
+        const archivedNames = Array.from(
+            wrapper?.querySelectorAll("[data-archived-draft-files] span") || [],
+        ).map((el) => el.textContent.trim());
+
+        const items = [
+            ...files.map((file) => ({ name: file.name, file })),
+            ...archivedNames.map((name) => ({ name })),
+        ];
+
+        if (count) count.textContent = String(items.length);
+
+        if (!items.length) {
+            list.innerHTML =
                 '<p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات بعد.</p>';
             return;
         }
 
-        target.innerHTML = entries
-            .map(
-                (file) => `
-      <article class="assignment-file-card">
-        <i class="${file.restored ? "ti ti-file-check text-success" : "ti ti-file text-primary"} fs-4"></i>
-        <span class="assignment-file-card__name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
-        ${removable ? `<button type="button" class="btn btn-sm btn-icon btn-danger" ${file.restored ? `data-remove-draft-file="${escapeHtml(file.key)}"` : `data-remove-file="${escapeHtml(file.key)}"`} data-input-id="${file.inputId}" aria-label="إزالة ${escapeHtml(file.name)}"><i class="ti ti-x"></i></button>` : ""}
-      </article>`,
-            )
-            .join("");
+        list.innerHTML = items.map(renderFileCardHtml).join("");
     }
-
-    function currentFiles(config) {
-        const files = accumulatedFiles.get(config.input.id) || new Map();
-        const restored = restoredDraftFiles.get(config.input.id) || new Map();
-        return [
-            ...[...files.entries()].map(([key, file]) => ({
-                key,
-                name: file.name,
-                inputId: config.input.id,
-                restored: false,
-            })),
-            ...[...restored.values()].map((file) => ({
-                key: file.key,
-                name: file.name,
-                inputId: config.input.id,
-                restored: true,
-            })),
-        ];
-    }
-
-    function syncFileInput(config) {
-        const files = accumulatedFiles.get(config.input.id) || new Map();
-        const transfer = new DataTransfer();
-        files.forEach((file) => transfer.items.add(file));
-        config.input.files = transfer.files;
-        const filesForDisplay = currentFiles(config);
-        config.count.textContent = String(filesForDisplay.length);
-        config.reviewCount.textContent = String(filesForDisplay.length);
-        renderFileCards(config.list, filesForDisplay, true);
-        renderFileCards(config.reviewList, filesForDisplay);
-        config.input.dispatchEvent(new Event("input", { bubbles: true }));
-        buildReview();
-    }
-
-    fileInputs.forEach((config) => {
-        if (!config.input) return;
-        accumulatedFiles.set(config.input.id, new Map());
-        config.input.addEventListener("change", () => {
-            const files = accumulatedFiles.get(config.input.id);
-            [...config.input.files].forEach((file) =>
-                files.set(fileKey(file), file),
-            );
-            syncFileInput(config);
-        });
-    });
-
-    document.addEventListener("click", (event) => {
-        const button = event.target.closest("[data-remove-file]");
-        if (!button) return;
-        const config = fileInputs.find(
-            (item) => item.input?.id === button.dataset.inputId,
-        );
-        if (!config) return;
-        accumulatedFiles
-            .get(config.input.id)
-            ?.delete(button.dataset.removeFile);
-        syncFileInput(config);
-    });
-
-    document.addEventListener("click", async (event) => {
-        const button = event.target.closest("[data-remove-draft-file]");
-        if (!button) return;
-        const config = fileInputs.find(
-            (item) => item.input?.id === button.dataset.inputId,
-        );
-        if (!config || !form.dataset.draftFileUrl) return;
-        button.disabled = true;
-        const response = await fetch(form.dataset.draftFileUrl, {
-            method: "DELETE",
-            credentials: "same-origin",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                "X-CSRF-TOKEN":
-                    document.querySelector('meta[name="csrf-token"]')
-                        ?.content || "",
-            },
-            body: JSON.stringify({
-                resource_key: form.dataset.draftResourceKey,
-                file_key: button.dataset.removeDraftFile,
-            }),
-        });
-        if (!response.ok) {
-            button.disabled = false;
-            window.toastr?.error?.("تعذر حذف الملف من المسودة.");
-            return;
-        }
-        restoredDraftFiles
-            .get(config.input.id)
-            ?.delete(button.dataset.removeDraftFile);
-        syncFileInput(config);
-    });
 
     function selectedText(name) {
         const select = form.elements.namedItem(name);
@@ -330,11 +358,17 @@ document.addEventListener("DOMContentLoaded", () => {
             false,
         );
 
-        fileInputs.forEach((config) => {
-            const files = currentFiles(config);
-            config.reviewCount.textContent = String(files.length);
-            renderFileCards(config.reviewList, files);
-        });
+        renderReviewPrimaryDocuments();
+        renderReviewFileList(
+            "review-general-documents",
+            "review-general-documents-count",
+            "general_documents",
+        );
+        renderReviewFileList(
+            "review-additional-attachments",
+            "review-additional-attachments-count",
+            "additional_attachments",
+        );
         const reviewName = document.getElementById("review-name");
         if (reviewName) reviewName.textContent = value("name");
         const reviewDesc = document.getElementById("review-description");
@@ -342,6 +376,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     form.addEventListener("change", buildReview);
+    form.addEventListener("input", buildReview);
+    form.addEventListener("file:changed", buildReview);
+    form.addEventListener("file:removed", buildReview);
+    form.addEventListener("file:removed-existing", buildReview);
     document.querySelectorAll("[data-edit-step]").forEach((button) =>
         button.addEventListener("click", () => {
             const wizard = document.getElementById("wizard-validation");
@@ -377,19 +415,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         const draftFiles = event.detail?.files || {};
-        ["general_documents", "additional_attachments"].forEach((inputId) => {
-            const entries = Object.values(draftFiles[inputId] || {}).filter(
-                (file) => file?.key && file?.name,
-            );
-            restoredDraftFiles.set(
-                inputId,
-                new Map(entries.map((file) => [file.key, file])),
-            );
-            const config = fileInputs.find(
-                (item) => item.input?.id === inputId,
-            );
-            if (config) syncFileInput(config);
-        });
         const singleDraftFiles = [
             draftFiles.assignment_image,
             draftFiles.assignment_letter,

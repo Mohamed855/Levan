@@ -23,7 +23,7 @@ final class AuctionReportArtworkTest extends TestCase
         $document = new DOMDocument;
         $document->loadXML($svg);
         $xpath = new DOMXPath($document);
-        self::assertSame('start', $xpath->query('//*[@data-report-field="name"]')->item(0)->getAttribute('text-anchor'));
+        self::assertSame('middle', $xpath->query('//*[@data-report-field="name"]')->item(0)->getAttribute('text-anchor'));
         self::assertSame(0, $xpath->query('//*[@id and not(starts-with(@id,"report_1_"))]')->length);
     }
 
@@ -79,9 +79,14 @@ final class AuctionReportArtworkTest extends TestCase
 
     public function test_an_expanded_continuation_row_uses_the_table_body_without_clipping_the_text(): void
     {
-        $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
-        $svg = $artwork->render('haram', 1, [], ['properties' => [['-', str_repeat("123456\n", 8), 'DEED', 'أرض', '1']]], [], 3, ['properties' => ['expanded' => true]]);
-        self::assertTrue(str_contains($svg, 'data-expanded-table="properties"'));
+        $root = dirname(__DIR__, 3).'/resources/auction-reports';
+        $artwork = new AuctionReportArtwork($root);
+        $definition = $artwork->page('haram', 1);
+        $definition['groups'] = [];
+        $parts = (new \App\Services\Tenants\Auctions\Reports\AuctionReportTextLayout($root))->flow(['values' => [], 'tables' => ['properties' => [['-', str_repeat("123456\n", 8), 'DEED', 'أرض', '1']]], 'images' => []], $definition);
+        self::assertCount(1, $parts);
+        $svg = $artwork->render('haram', 1, [], $parts[0]['tables'], [], 3, $parts[0]['table_layouts']);
+        self::assertTrue(str_contains($svg, 'data-reflowed-table="properties"'));
         self::assertSame(8, substr_count($svg, '>123456</tspan>'));
     }
 }

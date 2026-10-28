@@ -21,6 +21,7 @@ class AuctionAttachment extends Model
         'file_size',
         'category',
         'report_section',
+        'report_metadata',
         'property_id',
         'display_order',
         'channels',
@@ -28,6 +29,7 @@ class AuctionAttachment extends Model
 
     protected $casts = [
         'channels' => 'array',
+        'report_metadata' => 'array',
         'file_size' => 'integer',
         'property_id' => 'integer',
         'display_order' => 'integer',

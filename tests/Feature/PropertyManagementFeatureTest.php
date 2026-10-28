@@ -83,9 +83,7 @@ class PropertyManagementFeatureTest extends TestCase
         $response->assertSee('الملكية والتفاصيل');
         $response->assertSee('المستندات والصور');
         $response->assertSee('المراجعة والحفظ');
-        $response->assertSee('value="1"', false);
-        $response->assertSee('value="0"', false);
-        $response->assertDontSee('value="نشط"', false);
+        $response->assertDontSee('name="is_active"', false);
         $this->assertMatchesRegularExpression(
             '/class="[^"]*\bd-none\b[^"]*"[^>]*id="btn-download-annotated"/',
             $response->getContent(),
@@ -328,6 +326,56 @@ class PropertyManagementFeatureTest extends TestCase
 
         $property = Property::where('deed_number', '320000002')->firstOrFail();
         $this->assertTrue($property->is_active);
+
+        $property->forceDelete();
+    }
+
+    public function test_property_creation_defaults_to_active_without_form_input(): void
+    {
+        Storage::fake('tenant_public');
+        Property::where('deed_number', '330000003')->forceDelete();
+
+        $payload = [
+            'name' => 'عقار افتراضي نشط',
+            'type' => PropertyType::APARTMENT->value,
+            'usage_classification' => PropertyUsageClassification::RESIDENTIAL->value,
+            'area' => 180.5,
+            'short_description' => 'شقة فاخرة مع حديقة',
+            'city' => 'الدمام',
+            'district' => 'الشاطئ',
+            'administrative_region' => 'المنطقة الشرقية',
+            'plan_number' => '404',
+            'parcel_number' => '505',
+            'aerial_image' => UploadedFile::fake()->image('aerial.jpg', 600, 600),
+            'boundary_geojson' => [
+                'type' => 'Polygon',
+                'coordinates' => [
+                    [[0.1, 0.1], [0.8, 0.1], [0.8, 0.8], [0.1, 0.8], [0.1, 0.1]],
+                ],
+            ],
+            'deed_number' => '330000003',
+            'deed_date' => now()->toDateString(),
+            'issuing_authority' => 'كتابة عدل الدمام',
+            'ownership_type' => PropertyOwnershipType::SOLE_OWNERSHIP->value,
+            'owners' => [
+                ['owner_name' => 'محمد الأحمد', 'national_id_or_cr' => '1029384755'],
+            ],
+            'boundaries' => [
+                ['direction' => 'north', 'border_type' => 'street', 'border_description' => 'شارع', 'length' => 15],
+            ],
+            'deed_document' => UploadedFile::fake()->create('deed.pdf', 100, 'application/pdf'),
+            'cadastral_plan' => UploadedFile::fake()->create('plan.pdf', 100, 'application/pdf'),
+            'coordinates_statement' => UploadedFile::fake()->create('coords.pdf', 100, 'application/pdf'),
+            'main_image' => UploadedFile::fake()->image('main.jpg', 400, 400),
+        ];
+
+        $response = $this->actingAs($this->owner, 'tenant')
+            ->post($this->tenantUrl('properties'), $payload);
+
+        $response->assertRedirect($this->tenantUrl('properties'));
+
+        $property = Property::where('deed_number', '330000003')->firstOrFail();
+        $this->assertTrue($property->is_active, 'Newly created property must be active by default.');
 
         $property->forceDelete();
     }

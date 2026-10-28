@@ -151,6 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         updateLivePreview();
         updateAttachmentReviewCount();
+        syncTimeConstraints();
     });
 
     function updateLivePreview() {
@@ -201,11 +202,30 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
+    function syncTimeConstraints() {
+        const startDate = $("#start_date").val();
+        const endDate = $("#end_date").val();
+        const startTime = $("#start_time").val();
+        const endTimeInput = document.getElementById("end_time");
+
+        if (!endTimeInput) return;
+
+        if (startDate && endDate && startDate === endDate && startTime) {
+            endTimeInput.min = startTime;
+        } else {
+            endTimeInput.removeAttribute("min");
+        }
+    }
+
     // Live preview event listeners
     $("#name").on("input", updateLivePreview);
     $("#city").on("change", updateLivePreview);
     $("#category").on("change", updateLivePreview);
-    $("#start_date, #end_date").on("change input", updateLivePreview);
+    $("#start_date, #end_date").on("change input", function () {
+        updateLivePreview();
+        syncTimeConstraints();
+    });
+    $("#start_time").on("change input", syncTimeConstraints);
     $("#type").on("change", updateLivePreview);
     $("#supervising_entity").on("input", updateLivePreview);
     $(
@@ -269,6 +289,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     $("#asg-summary-status").text(
                         res.assignment.status_label || "-",
                     );
+                    const asgStartDate = res.assignment.start_date || "-";
+                    const asgEndDate = res.assignment.end_date || "-";
+                    const asgDatesText = (res.assignment.start_date || res.assignment.end_date)
+                        ? `${asgStartDate} إلى ${asgEndDate}`
+                        : "غير محددة";
+                    $("#asg-summary-dates").text(asgDatesText);
                     $("#selected-assignment-card").removeClass("d-none");
 
                     if (!$("#supervising_entity").val()) {
@@ -447,4 +473,5 @@ document.addEventListener("DOMContentLoaded", () => {
     updateLivePreview();
     updateAttachmentReviewCount();
     syncReportInputs();
+    syncTimeConstraints();
 });

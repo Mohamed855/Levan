@@ -34,7 +34,7 @@ class StoreSubscriptionRequest extends FormRequest
             'plan_id' => ['required', 'integer', 'exists:plans,id'],
             'payment_type' => ['required', 'string', 'in:trial,paid,unpaid'], //  حالة الدفع تم الدفع - لم يتم الدفع
             'payment_method' => ['nullable', 'required_if:payment_type,paid', 'string', Rule::in(PaymentMethod::values())],
-            'receipt_upload' => ['nullable', 'required_if:payment_method,bank_transfer', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'receipt_upload' => ['nullable', 'required_if:payment_method,bank_transfer', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'],
             'has_discount' => ['nullable', 'string', 'in:yes,no'], // التسوية (الخصم)
             'discount_value' => ['nullable', 'required_if:has_discount,yes', 'numeric', 'min:0', 'max:999999.99'],
         ];
@@ -92,7 +92,7 @@ class StoreSubscriptionRequest extends FormRequest
             'receipt_upload.required_if' => 'يجب رفع إيصال التحويل البنكي عند اختيار الدفع بالتحويل البنكي',
             'receipt_upload.file' => 'يجب أن يكون الإيصال ملفاً صحيحاً',
             'receipt_upload.mimes' => 'يجب أن يكون الإيصال بصيغة: jpg, jpeg, png, أو pdf',
-            'receipt_upload.max' => 'حجم الإيصال يجب ألا يتجاوز 5 ميجابايت',
+            'receipt_upload.max' => 'حجم الإيصال يجب ألا يتجاوز 10 ميجابايت',
 
             'has_discount.required' => 'يجب تحديد ما إذا كان هناك تسوية أم لا',
             'has_discount.in' => 'قيمة التسوية المختارة غير صحيحة',

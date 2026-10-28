@@ -49,7 +49,7 @@ class UpdatePropertyRequest extends WizardFormRequest
             'type' => ['required', Rule::enum(PropertyType::class)],
             'usage_classification' => ['required', Rule::enum(PropertyUsageClassification::class)],
             'area' => ['required', 'numeric', 'min:0.01'],
-            'is_active' => ['required', 'boolean'],
+            'is_active' => ['nullable', 'boolean'],
             'short_description' => ['required', 'string', 'max:500'],
             'property_number' => ['nullable', 'string', 'max:100'],
 
@@ -89,7 +89,7 @@ class UpdatePropertyRequest extends WizardFormRequest
             'boundaries.*.length' => ['nullable', 'numeric', 'min:0'],
 
             // Step 3: الملكية والتفاصيل
-            'assignment_letter_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'assignment_letter_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             'deed_number' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
             'deed_date' => ['required', 'date'],
             'issuing_authority' => ['required', 'string', 'max:255'],
@@ -115,9 +115,9 @@ class UpdatePropertyRequest extends WizardFormRequest
             'coordinates_statement' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
             'additional_documents' => ['nullable', 'array'],
             'additional_documents.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
-            'main_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'main_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             'property_images' => ['nullable', 'array'],
-            'property_images.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'property_images.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
 
             // Step 5: المراجعة والملاحظات
             'notes' => ['nullable', 'string', 'max:1000'],
@@ -131,7 +131,6 @@ class UpdatePropertyRequest extends WizardFormRequest
             'type.required' => 'نوع العقار مطلوب.',
             'usage_classification.required' => 'تصنيف الاستخدام مطلوب.',
             'area.required' => 'المساحة مطلوبة.',
-            'is_active.required' => 'حالة العقار مطلوبة.',
             'short_description.required' => 'الوصف المختصر للعقار مطلوب.',
             'city.required' => 'المدينة مطلوبة.',
             'district.required' => 'الحي مطلوب.',

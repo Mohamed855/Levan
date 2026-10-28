@@ -62,7 +62,7 @@
 
                     <div class="mb-3">
                         <x-form.controls.file name="receipt" id="receipt" label="إيصال التحويل" required
-                            accept="image/*,application/pdf" help="PDF أو صورة بحد أقصى 5MB" :max-size="5" col="col-12" />
+                            accept="image/*,application/pdf" help="PDF أو صورة بحد أقصى 10MB" :max-size="10" col="col-12" />
                     </div>
 
                     {{-- <div class="form-group mb-3">

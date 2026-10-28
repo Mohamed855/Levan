@@ -84,6 +84,18 @@ select:not(.select2):not(.select2-hidden-accessible),
     }
 }
 
+// Hide spin buttons / arrows from number inputs completely
+input[type="number"] {
+    -moz-appearance: textfield !important;
+    appearance: textfield !important;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+        -webkit-appearance: none !important;
+        margin: 0 !important;
+    }
+}
+
 textarea.form-control {
     border: 1px solid rgba(29, 79, 68, 0.16) !important;
     border-radius: 0.5rem;
@@ -582,6 +594,8 @@ input[type="file"].form-control,
 // Select2 Harmony (1px border, No shadow)
 // -----------------------------------------------------------------------------
 .select2-container {
+    width: 100% !important;
+
     &,
     &:focus,
     &:focus-within,

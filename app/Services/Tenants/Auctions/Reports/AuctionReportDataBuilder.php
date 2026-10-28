@@ -59,7 +59,15 @@ final class AuctionReportDataBuilder
         })->values();
 
         $attachments = $auction->attachments->map(fn ($attachment): array => [
+            'id' => (int) $attachment->id,
             'name' => (string) $attachment->file_name,
+            'display_name' => (string) ($attachment->report_metadata['display_name'] ?? ''),
+            'channel' => $attachment->report_metadata['channel'] ?? null,
+            'kind' => $attachment->report_metadata['kind'] ?? null,
+            'link_role' => $attachment->report_metadata['link_role'] ?? null,
+            'fit' => $attachment->report_metadata['fit'] ?? null,
+            'focal_x' => $attachment->report_metadata['focal_x'] ?? 50,
+            'focal_y' => $attachment->report_metadata['focal_y'] ?? 50,
             'section' => $attachment->report_section,
             'property_id' => $attachment->property_id ? (int) $attachment->property_id : null,
             'display_order' => (int) $attachment->display_order,

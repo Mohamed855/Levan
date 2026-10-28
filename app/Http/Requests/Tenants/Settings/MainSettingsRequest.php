@@ -30,17 +30,17 @@ class MainSettingsRequest extends FormRequest
             // عامة
             'office_name' => 'nullable|string|max:255',
             'logo_text' => 'nullable|string|max:14',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:800',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
             'maintenance_mode' => 'nullable',
             'breadcrumb_visibility' => 'nullable',
             'force_two_factor_auth' => 'nullable',
 
             // طباعة
-            'horizontal_header_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1200',
-            'vertical_header_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1200',
-            'horizontal_footer_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1200',
-            'vertical_footer_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1200',
-            'signature' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:500',
+            'horizontal_header_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'vertical_header_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'horizontal_footer_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'vertical_footer_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'signature' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
 
             // WhatsApp (Twilio)
             // 'twilio_account_sid'        => 'nullable|string',
@@ -78,18 +78,18 @@ class MainSettingsRequest extends FormRequest
             'logo_text.max' => 'نص الشعار لا يجب أن يتجاوز 14 حرفًا.',
             'image.image' => 'الحقل يجب أن يكون صورة.',
             'image.mimes' => 'الصورة يجب أن تكون من نوع jpeg، png، jpg، gif.',
-            'image.max' => 'حجم الصورة لا يجب أن يتجاوز 800 كيلوبايت.',
+            'image.max' => 'حجم الصورة لا يجب أن يتجاوز 10 ميجابايت.',
 
             'horizontal_header_image.image' => 'الترويسة يجب أن تكون صورة.',
-            'horizontal_header_image.max' => 'حجم الترويسة لا يجب أن يتجاوز 1200 كيلوبايت.',
+            'horizontal_header_image.max' => 'حجم الترويسة لا يجب أن يتجاوز 10 ميجابايت.',
             'vertical_header_image.image' => 'الترويسة العمودية يجب أن تكون صورة.',
-            'vertical_header_image.max' => 'حجم الترويسة العمودية لا يجب أن يتجاوز 1200 كيلوبايت.',
+            'vertical_header_image.max' => 'حجم الترويسة العمودية لا يجب أن يتجاوز 10 ميجابايت.',
             'horizontal_footer_image.image' => 'الفوتر يجب أن يكون صورة.',
-            'horizontal_footer_image.max' => 'حجم الفوتر لا يجب أن يتجاوز 1200 كيلوبايت.',
+            'horizontal_footer_image.max' => 'حجم الفوتر لا يجب أن يتجاوز 10 ميجابايت.',
             'vertical_footer_image.image' => 'الفوتر العمودي يجب أن يكون صورة.',
-            'vertical_footer_image.max' => 'حجم الفوتر العمودي لا يجب أن يتجاوز 1200 كيلوبايت.',
+            'vertical_footer_image.max' => 'حجم الفوتر العمودي لا يجب أن يتجاوز 10 ميجابايت.',
             'signature.image' => 'الختم يجب أن يكون صورة.',
-            'signature.max' => 'حجم الختم لا يجب أن يتجاوز 500 كيلوبايت.',
+            'signature.max' => 'حجم الختم لا يجب أن يتجاوز 10 ميجابايت.',
 
             // 'twilio_account_sid.string'     => 'معرّف حساب Twilio يجب أن يكون نصًا.',
             // 'twilio_auth_token.string'      => 'رمز توثيق Twilio يجب أن يكون نصًا.',

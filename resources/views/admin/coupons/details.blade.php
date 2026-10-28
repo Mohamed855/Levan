@@ -349,11 +349,11 @@
                                             </div>
                                             <div class="flex-shrink-0">
                                                 @if ($couponDetails->admin_user->is_super_admin)
-                                                    <span class="badge bg-primary fs-6">
+                                                    <span class="badge bg-primary">
                                                         <i class="ti ti-crown me-1"></i>مدير عام
                                                     </span>
                                                 @else
-                                                    <span class="badge bg-info fs-6">
+                                                    <span class="badge bg-info">
                                                         <i class="ti ti-user-check me-1"></i>مستخدم إداري
                                                     </span>
                                                 @endif

@@ -108,15 +108,12 @@ final class AuctionReportArtwork
             if ($table === null || count($rows) > count($table['rows'])) {
                 throw new InvalidArgumentException('Invalid report table or capacity exceeded: '.$id);
             }
-            $expanded = $tableLayouts[$id]['expanded'] ?? false;
-            if ($expanded && $rows !== []) {
-                $this->expandedBody($document, $svg, $table, $page, $id);
+            $geometry = $tableLayouts[$id]['rows'] ?? [];
+            if (($tableLayouts[$id]['dynamic'] ?? false) && $rows !== []) {
+                $this->tableBody($document, $svg, $table, $page, $id, $geometry);
             }
             foreach ($rows as $rowIndex => $cells) {
-                $slot = $table['rows'][$rowIndex];
-                if ($expanded) {
-                    $slot['bottom'] = max($table['rows'][array_key_last($table['rows'])]['bottom'], $page['height'] - 60);
-                }
+                $slot = array_replace($table['rows'][$rowIndex], $geometry[$rowIndex] ?? []);
                 foreach ($cells as $column => $value) {
                     $fieldId = $slot['cells'][$column]['fields'][0] ?? null;
                     if ($fieldId === null) {
@@ -172,22 +169,29 @@ final class AuctionReportArtwork
         }
     }
 
-    private function expandedBody(DOMDocument $document, DOMElement $svg, array $table, array $page, string $id): void
+    private function tableBody(DOMDocument $document, DOMElement $svg, array $table, array $page, string $id, array $rows): void
     {
         $fieldId = $table['rows'][0]['cells'][0]['fields'][0];
         $color = $page['fields'][$fieldId]['color'];
         $left = $table['columns'][0];
         $right = $table['columns'][array_key_last($table['columns'])];
         $top = $table['rows'][0]['top'];
-        $bottom = max($table['rows'][array_key_last($table['rows'])]['bottom'], $page['height'] - 60);
+        $bottom = $table['rows'][array_key_last($table['rows'])]['bottom'];
         $body = $document->createElementNS(self::SVG, 'rect');
-        foreach (['data-expanded-table' => $id, 'x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top, 'fill' => strtolower($color) === '#ffffff' ? '#205883' : '#ffffff', 'stroke' => $color, 'stroke-width' => .5] as $attribute => $value) {
+        foreach (['data-reflowed-table' => $id, 'x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top, 'fill' => strtolower($color) === '#ffffff' ? '#205883' : '#ffffff', 'stroke' => $color, 'stroke-width' => .5] as $attribute => $value) {
             $body->setAttribute($attribute, (string) $value);
         }
         $svg->appendChild($body);
         foreach (array_slice($table['columns'], 1, -1) as $x) {
             $line = $document->createElementNS(self::SVG, 'line');
             foreach (['x1' => $x, 'x2' => $x, 'y1' => $top, 'y2' => $bottom, 'stroke' => $color, 'stroke-width' => .5] as $attribute => $value) {
+                $line->setAttribute($attribute, (string) $value);
+            }
+            $svg->appendChild($line);
+        }
+        foreach ($rows as $row) {
+            $line = $document->createElementNS(self::SVG, 'line');
+            foreach (['x1' => $left, 'x2' => $right, 'y1' => $row['bottom'], 'y2' => $row['bottom'], 'stroke' => $color, 'stroke-width' => .5] as $attribute => $value) {
                 $line->setAttribute($attribute, (string) $value);
             }
             $svg->appendChild($line);

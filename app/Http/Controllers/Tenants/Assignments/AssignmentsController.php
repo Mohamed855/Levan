@@ -204,6 +204,8 @@ class AssignmentsController extends Controller
                 'name' => $assignment->name,
                 'issuing_entity' => $assignment->issuing_entity,
                 'status_label' => $assignment->status_label,
+                'start_date' => $assignment->start_date?->format('Y-m-d'),
+                'end_date' => $assignment->end_date?->format('Y-m-d'),
             ],
             'properties' => $properties,
         ]);

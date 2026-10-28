@@ -40,7 +40,7 @@ class StoreSubscriptionRequest extends WizardFormRequest
                 Rule::requiredIf(fn () => $this->input('payment_type') === 'paid' && $this->input('payment_method') === 'bank_transfer'),
                 'file',
                 'mimes:jpeg,jpg,png,pdf',
-                'max:5120',
+                'max:10240',
             ],
             'has_discount' => ['nullable', 'in:yes,no'],
             'discount_value' => ['nullable', 'numeric', 'min:0'],
@@ -60,7 +60,7 @@ class StoreSubscriptionRequest extends WizardFormRequest
             'payment_method.required_if' => 'يرجى اختيار وسيلة الدفع',
             'receipt_upload.required' => 'يرجى رفع إيصال التحويل البنكي',
             'receipt_upload.mimes' => 'ملف الإيصال يجب أن يكون صورة أو PDF',
-            'receipt_upload.max' => 'حجم ملف الإيصال يجب ألا يتجاوز 5 ميجابايت',
+            'receipt_upload.max' => 'حجم ملف الإيصال يجب ألا يتجاوز 10 ميجابايت',
         ];
     }
 }

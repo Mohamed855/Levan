@@ -12,6 +12,11 @@
 @php
     $fieldId = $id ?: str_replace(['[', ']'], '-', $name);
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
+
+    if ($placeholder === null && $label) {
+        $cleanedLabel = trim(str_replace(['(اختياري)', '*', ':', '..'], '', $label));
+        $placeholder = 'أدخل ' . $cleanedLabel . '...';
+    }
 @endphp
 
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help" :col="$col">

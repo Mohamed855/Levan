@@ -105,6 +105,18 @@ html[dir='ltr'] .site-select {
   padding-left: 1.15rem;
 }
 
+// Hide spin buttons / arrows from number inputs completely
+input[type="number"] {
+  -moz-appearance: textfield !important;
+  appearance: textfield !important;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+  }
+}
+
 // =============================================================================
 // Input Group & Password Toggle (Site)
 // =============================================================================

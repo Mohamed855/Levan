@@ -16,6 +16,23 @@
 @php
     $fieldId = $id ?: str_replace(['[', ']'], '-', $name);
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
+
+    if ($placeholder === null) {
+        if ($type === 'date') {
+            $placeholder = 'اختر التاريخ';
+        } elseif ($type === 'datetime-local') {
+            $placeholder = 'اختر التاريخ والوقت';
+        } elseif ($type === 'time') {
+            $placeholder = 'اختر الوقت';
+        } elseif ($type === 'email') {
+            $placeholder = 'example@domain.com';
+        } elseif ($type === 'password') {
+            $placeholder = '············';
+        } elseif ($label) {
+            $cleanedLabel = trim(str_replace(['(اختياري)', '*', ':', '..'], '', $label));
+            $placeholder = 'أدخل ' . $cleanedLabel;
+        }
+    }
 @endphp
 
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help"

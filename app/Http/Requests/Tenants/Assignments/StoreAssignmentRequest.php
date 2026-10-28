@@ -31,7 +31,7 @@ class StoreAssignmentRequest extends WizardFormRequest
             'property_ids.*' => ['required', 'integer', 'distinct', Rule::exists('properties', 'id')->where(
                 fn ($query) => $query->whereNull('assignment_id')->whereNull('deleted_at'),
             )],
-            'assignment_image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
+            'assignment_image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:10240'],
             'assignment_letter' => ['required', 'file', 'mimes:pdf', 'max:10240'],
             'general_documents' => ['required', 'array', 'min:1'],
             'general_documents.*' => ['required', 'file', 'max:10240'],
@@ -60,7 +60,7 @@ class StoreAssignmentRequest extends WizardFormRequest
             'assignment_image.required' => 'صورة الإسناد مطلوبة.',
             'assignment_image.image' => 'صورة الإسناد يجب أن تكون صورة صالحة.',
             'assignment_image.mimes' => 'صيغة صورة الإسناد غير مدعومة.',
-            'assignment_image.max' => 'حجم صورة الإسناد يجب ألا يتجاوز 2 ميجابايت.',
+            'assignment_image.max' => 'حجم صورة الإسناد يجب ألا يتجاوز 10 ميجابايت.',
             'assignment_letter.required' => 'خطاب الإسناد مطلوب.',
             'assignment_letter.mimes' => 'خطاب الإسناد يجب أن يكون ملف PDF.',
             'assignment_letter.max' => 'حجم خطاب الإسناد يجب ألا يتجاوز 10 ميجابايت.',

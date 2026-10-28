@@ -11,6 +11,7 @@ use App\Models\Tenants\Auctions\AuctionAttachment;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Auctions\AuctionReportInputService;
 use App\Services\Tenants\Auctions\Reports\AuctionReportService;
+use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -76,6 +77,53 @@ final class UpdateAuctionAction
                     ]);
                 }
 
+                $isSameAssignment = (int) $auction->assignment_id === (int) $targetAssignmentId;
+                if (! $isSameAssignment) {
+                    if (! $assignment->is_active) {
+                        throw ValidationException::withMessages([
+                            'assignment_id' => 'الإسناد المختار غير نشط ولا يمكن ربطه بالمزاد.',
+                        ]);
+                    }
+
+                    $today = now()->startOfDay();
+                    if ($assignment->end_date && $assignment->end_date->startOfDay()->lt($today)) {
+                        throw ValidationException::withMessages([
+                            'assignment_id' => 'الإسناد المختار منتهي الصلاحية بتاريخ '.$assignment->end_date->format('Y-m-d').'.',
+                        ]);
+                    }
+                }
+
+                $startDate = $data['start_date'] ?? $auction->start_date?->format('Y-m-d');
+                $endDate = $data['end_date'] ?? $auction->end_date?->format('Y-m-d');
+                if ($startDate && $assignment->start_date && Carbon::parse((string) $startDate)->startOfDay()->lt($assignment->start_date->startOfDay())) {
+                    throw ValidationException::withMessages([
+                        'start_date' => 'تاريخ بداية المزاد يجب ألا يسبق تاريخ بداية الإسناد ('.$assignment->start_date->format('Y-m-d').').',
+                    ]);
+                }
+                if ($endDate && $assignment->end_date && Carbon::parse((string) $endDate)->startOfDay()->gt($assignment->end_date->startOfDay())) {
+                    throw ValidationException::withMessages([
+                        'end_date' => 'تاريخ نهاية المزاد يجب ألا يتجاوز تاريخ نهاية الإسناد ('.$assignment->end_date->format('Y-m-d').').',
+                    ]);
+                }
+
+                $startTime = $data['start_time'] ?? $auction->start_time;
+                $endTime = $data['end_time'] ?? $auction->end_time;
+                if ($startDate && $endDate && $startDate === $endDate && $startTime && $endTime) {
+                    try {
+                        $start = Carbon::createFromFormat('H:i', (string) $startTime);
+                        $end = Carbon::createFromFormat('H:i', (string) $endTime);
+                        if ($end->lessThanOrEqualTo($start)) {
+                            throw ValidationException::withMessages([
+                                'end_time' => 'وقت نهاية المزاد يجب أن يكون بعد وقت البداية عندما يكون المزاد في نفس اليوم.',
+                            ]);
+                        }
+                    } catch (\Throwable $e) {
+                        if ($e instanceof ValidationException) {
+                            throw $e;
+                        }
+                    }
+                }
+
                 $currentProperties = $auction->properties()->get();
                 $propertyIds = array_key_exists('property_ids', $data)
                     ? $this->reportInputs->validatePropertyIds((array) $data['property_ids'], $targetAssignmentId)
@@ -117,6 +165,8 @@ final class UpdateAuctionAction
                 if (array_key_exists('marketing', $data)) {
                     $data['marketing_data'] = $data['marketing'];
                 }
+                $evidenceMetadata = (array) ($data['marketing_evidence_meta'] ?? []);
+                $retainedEvidenceMetadata = (array) ($data['report_attachments'] ?? []);
 
                 unset(
                     $data['property_ids'],
@@ -124,6 +174,8 @@ final class UpdateAuctionAction
                     $data['marketing'],
                     $data['attachments'],
                     $data['marketing_evidence'],
+                    $data['marketing_evidence_meta'],
+                    $data['report_attachments'],
                     $data['board_images_before'],
                     $data['board_images_after'],
                     $data['_wizard_draft_id'],
@@ -168,7 +220,9 @@ final class UpdateAuctionAction
                     $boardImagesAfter,
                     $propertyIds,
                     $storedPaths,
+                    $evidenceMetadata,
                 );
+                $this->reportInputs->syncEvidenceMetadata($auction, $retainedEvidenceMetadata);
 
                 return $auction->fresh(['properties', 'attachments', 'assignment']);
             });

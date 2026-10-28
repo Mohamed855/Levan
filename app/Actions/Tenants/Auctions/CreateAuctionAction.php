@@ -11,6 +11,7 @@ use App\Models\Tenants\Auctions\AuctionAttachment;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Auctions\AuctionReportInputService;
 use App\Services\Tenants\Auctions\Reports\AuctionReportService;
+use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -73,6 +74,50 @@ final class CreateAuctionAction
                     ]);
                 }
 
+                if (! $assignment->is_active) {
+                    throw ValidationException::withMessages([
+                        'assignment_id' => 'الإسناد المختار غير نشط ولا يمكن ربطه بالمزاد.',
+                    ]);
+                }
+
+                $today = now()->startOfDay();
+                if ($assignment->end_date && $assignment->end_date->startOfDay()->lt($today)) {
+                    throw ValidationException::withMessages([
+                        'assignment_id' => 'الإسناد المختار منتهي الصلاحية بتاريخ '.$assignment->end_date->format('Y-m-d').'.',
+                    ]);
+                }
+
+                $startDate = $data['start_date'] ?? null;
+                $endDate = $data['end_date'] ?? null;
+                if ($startDate && $assignment->start_date && Carbon::parse((string) $startDate)->startOfDay()->lt($assignment->start_date->startOfDay())) {
+                    throw ValidationException::withMessages([
+                        'start_date' => 'تاريخ بداية المزاد يجب ألا يسبق تاريخ بداية الإسناد ('.$assignment->start_date->format('Y-m-d').').',
+                    ]);
+                }
+                if ($endDate && $assignment->end_date && Carbon::parse((string) $endDate)->startOfDay()->gt($assignment->end_date->startOfDay())) {
+                    throw ValidationException::withMessages([
+                        'end_date' => 'تاريخ نهاية المزاد يجب ألا يتجاوز تاريخ نهاية الإسناد ('.$assignment->end_date->format('Y-m-d').').',
+                    ]);
+                }
+
+                $startTime = $data['start_time'] ?? null;
+                $endTime = $data['end_time'] ?? null;
+                if ($startDate && $endDate && $startDate === $endDate && $startTime && $endTime) {
+                    try {
+                        $start = Carbon::createFromFormat('H:i', (string) $startTime);
+                        $end = Carbon::createFromFormat('H:i', (string) $endTime);
+                        if ($end->lessThanOrEqualTo($start)) {
+                            throw ValidationException::withMessages([
+                                'end_time' => 'وقت نهاية المزاد يجب أن يكون بعد وقت البداية عندما يكون المزاد في نفس اليوم.',
+                            ]);
+                        }
+                    } catch (\Throwable $e) {
+                        if ($e instanceof ValidationException) {
+                            throw $e;
+                        }
+                    }
+                }
+
                 $propertyIds = $this->reportInputs->validatePropertyIds((array) ($data['property_ids'] ?? []), $assignmentId);
                 $pivotData = $this->reportInputs->pivotData($propertyIds, (array) ($data['property_results'] ?? []));
 
@@ -86,6 +131,7 @@ final class CreateAuctionAction
                 $storedPaths[] = $reportImagePath;
                 $data['report_image'] = $reportImagePath;
                 $data['marketing_data'] = $data['marketing'] ?? null;
+                $evidenceMetadata = (array) ($data['marketing_evidence_meta'] ?? []);
 
                 unset(
                     $data['property_ids'],
@@ -93,6 +139,8 @@ final class CreateAuctionAction
                     $data['marketing'],
                     $data['attachments'],
                     $data['marketing_evidence'],
+                    $data['marketing_evidence_meta'],
+                    $data['report_attachments'],
                     $data['board_images_before'],
                     $data['board_images_after'],
                     $data['_wizard_draft_id'],
@@ -141,6 +189,7 @@ final class CreateAuctionAction
                     $boardImagesAfter,
                     $propertyIds,
                     $storedPaths,
+                    $evidenceMetadata,
                 );
 
                 return $auction->load(['properties', 'attachments', 'assignment']);

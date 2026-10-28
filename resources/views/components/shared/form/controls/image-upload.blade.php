@@ -10,7 +10,7 @@
     'col' => 'col-md-6',
     'title' => 'انقر أو اسحب الصورة هنا',
     'desc' => null,
-    'maxSize' => 5,
+    'maxSize' => 10,
     'compact' => false,
 ])
 

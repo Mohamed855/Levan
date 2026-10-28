@@ -21,7 +21,7 @@ final class CompleteCheckoutPaymentRequest extends FormRequest
             'payment_method' => ['required', 'in:card,bank_transfer'],
             'coupon_code' => ['nullable', 'string', 'max:255'],
             'bank_id' => $bankTransfer ? ['required', 'exists:banks,id,is_active,1'] : ['nullable'],
-            'transfer_receipt' => $bankTransfer ? ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'] : ['nullable'],
+            'transfer_receipt' => $bankTransfer ? ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'] : ['nullable'],
         ];
     }
 
@@ -45,7 +45,7 @@ final class CompleteCheckoutPaymentRequest extends FormRequest
             'transfer_receipt.required' => 'يرجى إرفاق إيصال التحويل البنكي.',
             'transfer_receipt.file' => 'يجب رفع ملف إيصال صالح.',
             'transfer_receipt.mimes' => 'صيغة الملف غير مدعومة، يرجى رفع ملف بصيغة JPG أو PNG أو PDF.',
-            'transfer_receipt.max' => 'حجم إيصال التحويل يجب ألا يتجاوز 5 ميجابايت.',
+            'transfer_receipt.max' => 'حجم إيصال التحويل يجب ألا يتجاوز 10 ميجابايت.',
         ];
     }
 }

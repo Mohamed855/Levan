@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenants\UserMangment\Role;
 
+use App\DataTables\Tenants\UserManagement\Role\RoleDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Http\Requests\Tenants\UserManagement\Role\StoreRoleRequest;
@@ -17,7 +18,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
-use Yajra\DataTables\Facades\DataTables;
 
 class RoleController extends Controller
 {
@@ -53,105 +53,24 @@ class RoleController extends Controller
     |--------------------------------------------------------------------------
     | Display Roles List
     |--------------------------------------------------------------------------
-    | Display a listing of roles with users DataTables integration.
+    | Display a listing of roles with DataTables integration.
     */
-    public function index(Request $request): View|JsonResponse
+    public function index(RoleDataTable $dataTable)
     {
         try {
-            if ($request->ajax()) {
-                $query = User::query()
-                    ->with(['roles'])
-                    ->accessible();
-
-                if ($request->filled('status')) {
-                    $query->where('status', $request->get('status'));
-                }
-
-                if ($request->filled('role')) {
-                    $roleId = $request->get('role');
-                    $query->whereHas('roles', function ($q) use ($roleId) {
-                        $q->where('id', $roleId);
-                    });
-                }
-
-                return DataTables::of($query)
-                    ->addColumn('checkbox', function ($row) {
-                        return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
-                    })
-                    ->addColumn('image', function (User $user) {
-                        $profilePicture = $user->image
-                            ? tasset($user->image)
-                            : asset('static/brand/logos/logo.svg');
-
-                        return '<img src="'.$profilePicture.'" alt="'.$user->name.'"
-                             class="rounded-circle" style="width: 2.5rem; height: 2.5rem; object-fit: cover;">';
-                    })
-                    ->addColumn('name', function (User $user) {
-                        return '<span>'.$user->name.'</span>';
-                    })
-                    ->addColumn('email', function (User $user) {
-                        return '<a href="mailto:'.$user->email.'">'.$user->email.'</a>';
-                    })
-                    ->addColumn('role', function (User $user) {
-                        $roleName = $user->roles->isNotEmpty() ? AccessLabels::role($user->roles->first()->name) : 'غير محدد';
-
-                        return '<span class="badge bg-primary">'.e($roleName).'</span>';
-                    })
-                    ->addColumn('status', function (User $user) {
-                        if (auth()->user()->can('roles.assign')) {
-                            $checked = $user->status === 'active' ? 'checked' : '';
-                            $url = tenant_route_name('roles.user.status', ['userId' => $user->id]);
-
-                            return '
-                                <div class="d-flex justify-content-center">
-                                    <div class="form-check form-switch mb-0">
-                                        <input
-                                            type="checkbox"
-                                            class="form-check-input js-table-status-toggle"
-                                            id="status_'.$user->id.'"
-                                            data-url="'.e($url).'"
-                                            data-active-value="active"
-                                            data-inactive-value="inactive"
-                                            '.$checked.'
-                                            aria-label="تبديل حالة المستخدم"
-                                        >
-                                    </div>
-                                </div>
-                            ';
-                        } else {
-                            $statusClass = $user->status === 'active' ? 'bg-success' : 'bg-danger';
-                            $statusText = $user->status === 'active' ? 'نشط' : 'غير نشط';
-
-                            return '<div class="d-flex justify-content-center"><span class="badge '.$statusClass.'">'.$statusText.'</span></div>';
-                        }
-                    })
-                    ->addColumn('created_at_formatted', function (User $user) {
-                        return $user->created_at->locale('ar')->translatedFormat('d F Y');
-                    })
-                    ->addColumn('actions', function (User $user) {
-                        if (! auth()->user()->can('roles.assign')) {
-                            return '-';
-                        }
-
-                        return '<button type="button" class="btn btn-icon btn-primary edit-role-link" data-user-id="'.e((string) $user->id).'" aria-label="تعديل دور المستخدم"><i class="ti ti-shield-check" aria-hidden="true"></i></button>';
-                    })
-                    ->orderColumn('name', fn ($query, $order) => $query->orderBy('name', $order))
-                    ->orderColumn('email', fn ($query, $order) => $query->orderBy('email', $order))
-                    ->orderColumn('status', fn ($query, $order) => $query->orderBy('status', $order))
-                    ->orderColumn('created_at', fn ($query, $order) => $query->orderBy('created_at', $order))
-                    ->filterColumn('name', fn ($query, $keyword) => $query->where('name', 'like', "%{$keyword}%"))
-                    ->filterColumn('email', fn ($query, $keyword) => $query->where('email', 'like', "%{$keyword}%"))
-                    ->filterColumn('phone', fn ($query, $keyword) => $query->where('phone', 'like', "%{$keyword}%"))
-                    ->rawColumns(['checkbox', 'image', 'name', 'email', 'role', 'status', 'actions'])
-                    ->make(true);
-            }
-
             $roles = $this->roleService->getAllRoles();
-            $permissions = $this->roleService->getGroupedPermissions();
+            $roleOptions = $roles->mapWithKeys(fn ($role) => [
+                $role->id => AccessLabels::role($role->name),
+            ])->toArray();
 
-            return view('tenant.user-management.roles.index', compact('roles', 'permissions'));
+            return $dataTable->render('tenant.user-management.roles.index', [
+                'statistics' => $this->roleService->getRoleStatistics(),
+                'roleOptions' => $roleOptions,
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات. يرجى المحاولة لاحقاً.');
+            report($e);
+
+            return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
 

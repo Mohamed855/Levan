@@ -81,7 +81,7 @@ class RoleService
     */
     public function deleteRole(Role $role): bool
     {
-        if ($role->id == 1) {
+        if (! $this->canDeleteRole($role)) {
             throw new \Exception('لا يمكن حذف هذا الدور');
         }
 
@@ -229,6 +229,19 @@ class RoleService
             ->get();
     }
 
+    public function getRoleStatistics(): array
+    {
+        $roles = Role::query()->where('guard_name', 'tenant');
+
+        return [
+            'total' => (clone $roles)->count(),
+            'assigned' => (clone $roles)->has('users')->count(),
+            'unassigned' => (clone $roles)->doesntHave('users')->count(),
+            'permissions' => Permission::query()->where('guard_name', 'tenant')->count(),
+            'custom' => (clone $roles)->where('name', '!=', 'Admin')->where('id', '!=', 1)->count(),
+        ];
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Validate Role Deletion
@@ -237,6 +250,6 @@ class RoleService
     */
     public function canDeleteRole(Role $role): bool
     {
-        return $role->id !== 1;
+        return $role->id !== 1 && $role->name !== 'Admin';
     }
 }

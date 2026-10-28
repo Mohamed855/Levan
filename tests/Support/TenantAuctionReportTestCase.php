@@ -7,6 +7,8 @@ namespace Tests\Support;
 use App\Http\Middleware\Tenancy\EnsureTenantTwoFactorIsEnforced;
 use App\Models\Admin\Tenants\Tenant;
 use Illuminate\Support\Facades\DB;
+use App\Models\Tenants\UserMangment\User\User;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 use Throwable;
 
@@ -61,6 +63,14 @@ abstract class TenantAuctionReportTestCase extends TestCase
 
         tenancy()->initialize($this->tenant);
         DB::connection('tenant')->beginTransaction();
+
+        $owner = User::query()->firstOrCreate(['email' => 'demo@levan.com'], [
+            'name' => 'Report CI owner', 'password' => bcrypt('Report-CI-only-123!'), 'status' => 'active',
+        ]);
+        foreach (['auctions.view', 'auctions.create', 'auctions.edit', 'auctions.delete'] as $name) {
+            $permission = Permission::query()->firstOrCreate(['name' => $name, 'guard_name' => 'tenant']);
+            $owner->givePermissionTo($permission);
+        }
     }
 
     protected function tearDown(): void

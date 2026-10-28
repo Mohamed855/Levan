@@ -10,7 +10,7 @@
                     :value="$settings->image ? asset('storage/' . $settings->image) : null"
                     accept="image/png, image/jpeg, image/webp"
                     help="الملفات المسموح بها: JPG, PNG أو WebP. الأبعاد الموصى بها: 150px × 150px"
-                    :max-size="2" col="col-md-6" />
+                    :max-size="10" col="col-md-6" />
             </div>
 
             <div class="card-body pt-4">

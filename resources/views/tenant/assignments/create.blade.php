@@ -66,16 +66,16 @@
             ]">
                 <div class="row g-4">
                     <x-form.controls.input name="assignment_number" label="رقم الإسناد" :value="$generatedAssignmentNumber" required
-                        col="col-md-6" />
-                    <x-form.controls.input name="name" label="اسم الإسناد" required col="col-md-6" />
+                        placeholder="رقم الإسناد" col="col-md-6" />
+                    <x-form.controls.input name="name" label="اسم الإسناد" placeholder="أدخل اسم الإسناد (مثال: إسناد بيع عقارات المحمدية)" required col="col-md-6" />
                     <x-form.controls.select name="category" label="تصنيف الإسناد" required col="col-md-6"
                         :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
-                    <x-form.controls.input name="issuing_entity" label="الجهة المسندة" required col="col-md-6" />
+                    <x-form.controls.input name="issuing_entity" label="الجهة المسندة" placeholder="أدخل الجهة المسندة (مثال: محكمة التنفيذ)" required col="col-md-6" />
                     <x-form.controls.select name="city" label="المدينة" required col="col-md-6" :options="$cityOptions" />
-                    <x-form.controls.input name="district" label="النطاق/الحي" col="col-md-6" />
-                    <x-form.controls.input name="start_date" type="date" label="تاريخ البداية" required col="col-md-6" />
-                    <x-form.controls.input name="end_date" type="date" label="تاريخ النهاية" required col="col-md-6" />
-                    <x-form.controls.textarea name="notes" label="وصف الإسناد" required col="col-md-6" rows="4" />
+                    <x-form.controls.input name="district" label="النطاق/الحي" placeholder="أدخل النطاق أو الحي" col="col-md-6" />
+                    <x-form.controls.input name="start_date" type="date" label="تاريخ البداية" placeholder="اختر تاريخ البداية" required col="col-md-6" />
+                    <x-form.controls.input name="end_date" type="date" label="تاريخ النهاية" placeholder="اختر تاريخ النهاية" required col="col-md-6" />
+                    <x-form.controls.textarea name="notes" label="وصف الإسناد" placeholder="أدخل وصفاً تفصيلياً للإسناد..." required col="col-md-6" rows="4" />
                     <x-form.wizard.actions>
                         <x-form.wizard.previous-button :href="tenant_route_name('assignments.index')" text="العودة" />
                         <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div>
@@ -131,32 +131,6 @@
                         multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-6" />
                     <x-form.controls.file name="additional_attachments" id="additional_attachments" label="مرفقات إضافية"
                         multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-6" />
-                    <div class="col-12">
-                        <section class="assignment-selection assignment-attachment-box"
-                            aria-labelledby="general-documents-title">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <h5 id="general-documents-title" class="mb-0">مستندات عامة</h5>
-                                <span class="badge bg-primary"><span id="general-documents-count">0</span>
-                                    ملف</span>
-                            </div>
-                            <div id="general-documents-cards" class="assignment-file-list" aria-live="polite">
-                                <p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات بعد.</p>
-                            </div>
-                        </section>
-                    </div>
-                    <div class="col-12">
-                        <section class="assignment-selection assignment-attachment-box"
-                            aria-labelledby="additional-attachments-title">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <h5 id="additional-attachments-title" class="mb-0">مرفقات إضافية</h5>
-                                <span class="badge bg-primary"><span id="additional-attachments-count">0</span>
-                                    ملف</span>
-                            </div>
-                            <div id="additional-attachments-cards" class="assignment-file-list" aria-live="polite">
-                                <p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات بعد.</p>
-                            </div>
-                        </section>
-                    </div>
                 </div>
                 <x-form.wizard.actions><x-form.wizard.previous-button />
                     <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button text="المراجعة" />
@@ -186,8 +160,21 @@
                                 <x-form.wizard.review-card title="الملفات والمستندات" step="3" col=""
                                     class="h-100 assignment-review__card">
                                     <div class="row g-3">
+                                        <div class="col-12">
+                                            <section class="assignment-selection"
+                                                aria-labelledby="review-primary-documents-title">
+                                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                                    <h5 id="review-primary-documents-title" class="mb-0">مستندات الإسناد الأساسية (صورة وخطاب الإسناد)</h5>
+                                                    <span class="badge bg-primary"><span
+                                                            id="review-primary-documents-count">0</span> ملف</span>
+                                                </div>
+                                                <div id="review-primary-documents" class="assignment-file-list">
+                                                    <p class="text-muted mb-0" data-empty>لم يتم إرفاق مستندات أساسية بعد.</p>
+                                                </div>
+                                            </section>
+                                        </div>
                                         <div class="col-md-6">
-                                            <section class="assignment-selection assignment-attachment-box"
+                                            <section class="assignment-selection"
                                                 aria-labelledby="review-general-documents-title">
                                                 <div class="d-flex align-items-center justify-content-between mb-3">
                                                     <h5 id="review-general-documents-title" class="mb-0">مستندات عامة
@@ -195,11 +182,13 @@
                                                     <span class="badge bg-primary"><span
                                                             id="review-general-documents-count">0</span> ملف</span>
                                                 </div>
-                                                <div id="review-general-documents" class="assignment-file-list"></div>
+                                                <div id="review-general-documents" class="assignment-file-list">
+                                                    <p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات بعد.</p>
+                                                </div>
                                             </section>
                                         </div>
                                         <div class="col-md-6">
-                                            <section class="assignment-selection assignment-attachment-box"
+                                            <section class="assignment-selection"
                                                 aria-labelledby="review-additional-attachments-title">
                                                 <div class="d-flex align-items-center justify-content-between mb-3">
                                                     <h5 id="review-additional-attachments-title" class="mb-0">مرفقات
@@ -208,6 +197,7 @@
                                                             id="review-additional-attachments-count">0</span> ملف</span>
                                                 </div>
                                                 <div id="review-additional-attachments" class="assignment-file-list">
+                                                    <p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات بعد.</p>
                                                 </div>
                                             </section>
                                         </div>

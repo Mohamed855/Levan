@@ -107,9 +107,17 @@ final class CentralAdminUsersRolesGoldenPatternTest extends TestCase
         self::assertStringContainsString('id="filter-date-from"', $adminIndex);
         self::assertStringContainsString('id="filter-date-to"', $adminIndex);
 
-        self::assertStringContainsString('<x-data-table.filters table="#users-table"', $tenantIndex);
-        self::assertStringContainsString('id="filter-status"', $tenantIndex);
+        $tenantDataTable = file_get_contents(app_path('DataTables/Tenants/UserManagement/Role/RoleDataTable.php'));
+        self::assertStringContainsString('applyCustomFilters', $tenantDataTable);
+        self::assertStringContainsString('usage_status', $tenantDataTable);
+        self::assertStringContainsString('date_from', $tenantDataTable);
+        self::assertStringContainsString('date_to', $tenantDataTable);
+
+        self::assertStringContainsString('<x-slot:filters>', $tenantIndex);
+        self::assertStringContainsString('<x-data-table.filters table="#roles-table">', $tenantIndex);
         self::assertStringContainsString('id="filter-role"', $tenantIndex);
-        self::assertStringContainsString('id="filter-roles-table"', $tenantIndex);
+        self::assertStringContainsString('id="filter-usage-status"', $tenantIndex);
+        self::assertStringContainsString('id="filter-date-from"', $tenantIndex);
+        self::assertStringContainsString('id="filter-date-to"', $tenantIndex);
     }
 }

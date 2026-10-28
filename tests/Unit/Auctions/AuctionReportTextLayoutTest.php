@@ -58,7 +58,7 @@ final class AuctionReportTextLayoutTest extends TestCase
         $definition['groups'] = [];
         $rows = [
             ['-', 'A', '-', 'أرض', '1'],
-            ['-', 'B', "816993652240000\n720105007238", 'مبنى تعليمي', '2'],
+            ['-', 'B', "816993652240000\n720105007238", str_repeat('عقار طويل الاسم ', 25), '2'],
             ['-', 'C', '-', 'أرض', '3'],
         ];
         $parts = (new AuctionReportTextLayout($root))->flow(['values' => [], 'tables' => ['properties' => $rows], 'images' => []], $definition);
@@ -66,7 +66,7 @@ final class AuctionReportTextLayoutTest extends TestCase
         self::assertSame(['A', 'B', 'C'], array_column($parts[0]['tables']['properties'], 1));
         $geometry = $parts[0]['table_layouts']['properties']['rows'];
         self::assertGreaterThan($geometry[0]['bottom'] - $geometry[0]['top'], $geometry[1]['bottom'] - $geometry[1]['top']);
-        self::assertLessThan(100, $geometry[1]['bottom'] - $geometry[1]['top']);
+        self::assertLessThan(200, $geometry[1]['bottom'] - $geometry[1]['top']);
     }
 
     public function test_long_text_is_wrapped_without_truncating_words_or_changing_the_font_size(): void
@@ -102,7 +102,8 @@ final class AuctionReportTextLayoutTest extends TestCase
             $identifiers = array_merge($identifiers, array_column($page['tables']['properties'], 1));
         }
         self::assertSame(['A', 'B', 'C'], $identifiers);
-        self::assertTrue($pages[1]['table_layouts']['properties']['expanded']);
+        self::assertCount(1, $pages);
+        self::assertTrue($pages[0]['table_layouts']['properties']['dynamic']);
     }
 
     public function test_reference_numeric_fonts_keep_two_digit_board_labels_on_one_line(): void

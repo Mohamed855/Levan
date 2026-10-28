@@ -9,6 +9,7 @@ use App\Models\Tenants\Auctions\AuctionAttachment;
 use App\Models\Tenants\Properties\Property;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 
 final class AuctionReportInputService
@@ -79,15 +80,53 @@ final class AuctionReportInputService
         array $boardImagesAfter,
         array $propertyIds,
         array &$storedPaths,
+        array $metadata = [],
     ): void {
         foreach ($marketingEvidence as $index => $file) {
             if ($file instanceof UploadedFile) {
-                $this->storeAttachment($auction, $file, 'marketing_evidence', null, $index, $storedPaths);
+                $meta = (array) ($metadata[$index] ?? []);
+                $section = $meta['section'] ?? 'marketing_evidence';
+                $propertyId = isset($meta['property_id']) ? (int) $meta['property_id'] : null;
+                if ($propertyId !== null && ! in_array($propertyId, $propertyIds, true)) {
+                    throw ValidationException::withMessages(['marketing_evidence_meta' => 'المرفق يجب أن يخص عقارًا مرتبطًا بالمزاد.']);
+                }
+                $this->storeAttachment($auction, $file, $section, $propertyId, (int) ($meta['display_order'] ?? $index), $storedPaths, $meta);
             }
         }
 
         $this->storeBoardImages($auction, $boardImagesBefore, 'board_before', $propertyIds, $storedPaths);
         $this->storeBoardImages($auction, $boardImagesAfter, 'board_after', $propertyIds, $storedPaths);
+    }
+
+    public function syncEvidenceMetadata(Auction $auction, array $metadata): void
+    {
+        if ($metadata === []) {
+            return;
+        }
+        $attachments = $auction->attachments()->whereKey(array_keys($metadata))->get()->keyBy('id');
+        if ($attachments->count() !== count($metadata)) {
+            throw ValidationException::withMessages(['report_attachments' => 'لا يمكن تعديل مرفقات مزاد آخر.']);
+        }
+        foreach ($metadata as $id => $values) {
+            $attachment = $attachments->get($id);
+            $attributes = [];
+            if (array_key_exists('section', $values) && $values['section'] !== null) {
+                $attributes['report_section'] = $values['section'];
+            }
+            if (array_key_exists('display_order', $values) && $values['display_order'] !== null) {
+                $attributes['display_order'] = (int) $values['display_order'];
+            }
+            if (array_key_exists('property_id', $values)) {
+                $propertyId = $values['property_id'] === null ? null : (int) $values['property_id'];
+                if ($propertyId !== null && ! $auction->properties()->whereKey($propertyId)->exists()) {
+                    throw ValidationException::withMessages(['report_attachments' => 'المرفق يجب أن يخص عقارًا مرتبطًا بالمزاد.']);
+                }
+                $attributes['property_id'] = $propertyId;
+            }
+            $attributes['report_metadata'] = array_replace($attachment->report_metadata ?? [], Arr::only($values, config('auction-report-inputs.metadata')));
+            $attachment->update($attributes);
+        }
+        $auction->unsetRelation('attachments');
     }
 
     /**
@@ -114,7 +153,7 @@ final class AuctionReportInputService
     }
 
     /** @param list<string> $storedPaths */
-    private function storeAttachment(Auction $auction, UploadedFile $file, string $section, ?int $propertyId, int $displayOrder, array &$storedPaths): void
+    private function storeAttachment(Auction $auction, UploadedFile $file, string $section, ?int $propertyId, int $displayOrder, array &$storedPaths, array $metadata = []): void
     {
         $path = $file->store('auctions/report-evidence', 'tenant_public');
         $storedPaths[] = $path;
@@ -127,6 +166,7 @@ final class AuctionReportInputService
             'file_size' => $file->getSize(),
             'category' => 'marketing',
             'report_section' => $section,
+            'report_metadata' => Arr::only($metadata, config('auction-report-inputs.metadata')),
             'property_id' => $propertyId,
             'display_order' => $displayOrder,
             'channels' => ['report'],

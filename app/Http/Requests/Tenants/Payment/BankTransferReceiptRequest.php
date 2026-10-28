@@ -25,7 +25,7 @@ class BankTransferReceiptRequest extends FormRequest
                     }
                 },
             ],
-            'receipt' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'receipt' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'],
         ];
     }
 
@@ -38,7 +38,7 @@ class BankTransferReceiptRequest extends FormRequest
             'receipt.required' => 'يجب رفع صورة الإيصال.',
             'receipt.image' => 'الملف المرفوع يجب أن يكون صورة.',
             'receipt.mimes' => 'صيغة الملف المسموح بها هي: jpeg, png, jpg, gif.',
-            'receipt.max' => 'حجم الصورة يجب ألا يتجاوز 2 ميجابايت.',
+            'receipt.max' => 'حجم الملف يجب ألا يتجاوز 10 ميجابايت.',
         ];
     }
 

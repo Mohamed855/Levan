@@ -17,6 +17,8 @@ table.dataTable {
         border-top: none !important;
         padding: 0.85rem 1rem !important;
         white-space: nowrap;
+        text-align: center !important;
+        vertical-align: middle !important;
 
         &.sorting:before,
         &.sorting:after,
@@ -39,6 +41,7 @@ table.dataTable {
             td {
                 padding: 0.85rem 1rem !important;
                 vertical-align: middle !important;
+                text-align: center !important;
                 border-bottom: 1px solid rgba(29, 79, 68, 0.06) !important;
                 color: var(--brand-dark-green, #12332C);
                 font-size: var(--font-size-base, 0.9375rem);
@@ -539,5 +542,69 @@ table.dataTable td.custom-checkbox input[type="checkbox"],
 
     .avatar {
         position: relative !important;
+    }
+}
+
+// =============================================================================
+// Universal Table Data Centering Contract (All tables, th, td & child controls)
+// =============================================================================
+table,
+.table,
+table.dataTable {
+    th,
+    td {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
+    thead th,
+    th {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
+    tbody td,
+    td {
+        text-align: center !important;
+        vertical-align: middle !important;
+
+        .d-flex {
+            justify-content: center !important;
+            align-items: center !important;
+        }
+
+        .form-switch,
+        .form-check {
+            display: inline-flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            margin: 0 auto !important;
+        }
+
+        .avatar-group,
+        .btn-group {
+            justify-content: center !important;
+            margin: 0 auto !important;
+        }
+
+        .table-cell-clamp {
+            text-align: center !important;
+            margin: 0 auto !important;
+        }
+
+        .copyable-code-wrapper {
+            justify-content: center !important;
+            margin: 0 auto !important;
+        }
+
+        input:not([type="checkbox"]):not([type="radio"]),
+        select {
+            text-align: center !important;
+            text-align-last: center !important;
+        }
+
+        .select2-container .select2-selection--single .select2-selection__rendered {
+            text-align: center !important;
+        }
     }
 }

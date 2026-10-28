@@ -22,6 +22,6 @@ class UpdateUserBackgroundImageRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['background_image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:4096']];
+        return ['background_image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240']];
     }
 }

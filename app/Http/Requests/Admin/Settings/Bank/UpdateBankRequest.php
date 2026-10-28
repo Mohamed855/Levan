@@ -10,7 +10,7 @@ class UpdateBankRequest extends StoreBankRequest
     {
         return [
             ...parent::rules(),
-            'icon' => ['nullable', 'image', 'mimes:jpeg,png,jpg,svg', 'max:2048'],
+            'icon' => ['nullable', 'image', 'mimes:jpeg,png,jpg,svg', 'max:10240'],
         ];
     }
 }

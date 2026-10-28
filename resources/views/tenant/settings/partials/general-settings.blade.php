@@ -32,7 +32,7 @@
                     <x-form.controls.file name="image" label="شعار الشركة" :value="$settings->image ? tasset($settings->image) : null"
                         accept="image/png, image/jpeg, image/webp"
                         help="الملفات المسموح بها: JPG, PNG أو WebP. الأبعاد الموصى بها: 150px × 150px"
-                        :max-size="2" col="col-12" />
+                        :max-size="10" col="col-12" />
 
                     <div class="mb-4 col-md-6">
                         <label for="maintenance_mode" class="form-label">وضع الصيانة</label>

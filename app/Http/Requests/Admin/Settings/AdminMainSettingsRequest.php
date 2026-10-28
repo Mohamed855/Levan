@@ -28,7 +28,7 @@ class AdminMainSettingsRequest extends FormRequest
         return [
             'office_name' => ['nullable', 'string', 'max:255'],
             'logo_text' => ['nullable', 'string', 'max:14'],
-            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:800'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240'],
             'maintenance_mode' => ['nullable'],
             'trial_days_mode' => ['nullable'],
             'force_two_factor_auth' => ['nullable'],
@@ -63,7 +63,7 @@ class AdminMainSettingsRequest extends FormRequest
             'logo_text.max' => 'نص الشعار يجب ألا يزيد عن 14 حرفًا.',
             'image.image' => 'يجب أن يكون الملف صورة.',
             'image.mimes' => 'يجب أن تكون الصورة من نوع: jpeg, png, jpg, gif.',
-            'image.max' => 'حجم الصورة يجب ألا يتجاوز 800 كيلوبايت.',
+            'image.max' => 'حجم الصورة يجب ألا يتجاوز 10 ميجابايت.',
 
             'office_address.max' => 'عنوان المكتب يجب ألا يزيد عن 255 حرفًا.',
             'commercial_register.max' => 'السجل التجاري يجب ألا يزيد عن 100 حرف.',

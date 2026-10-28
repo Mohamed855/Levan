@@ -346,7 +346,7 @@
                                                         label="إيصال التحويل البنكي" required
                                                         accept="image/jpeg,image/jpg,image/png,application/pdf"
                                                         title="انقر أو اسحب إيصال التحويل هنا"
-                                                        desc="صيغ JPG · PNG · PDF — أقصى حجم 5 ميجابايت" :max-size="5"
+                                                        desc="صيغ JPG · PNG · PDF — أقصى حجم 10 ميجابايت" :max-size="10"
                                                         col="col-12" data-validation-skip />
                                                 </div>
 

@@ -94,57 +94,65 @@ final class AuctionReportTextLayout
             $pages[] = $copy;
         }
 
-        $extraRows = [];
+        $tables = [];
         foreach ($pages[0]['tables'] as $id => $rows) {
-            $table = $definition['tables'][$id];
-            $normal = [];
-            $segments = [];
-            foreach ($rows as $row) {
-                $slot = $table['rows'][count($normal)];
-                $expanded = false;
-                $wrapped = [];
-                foreach ($row as $column => $value) {
-                    $field = $definition['fields'][$slot['cells'][$column]['fields'][0]];
-                    $lines = $this->wrap($value, $table['columns'][$column + 1] - $table['columns'][$column] - 8, $field['size'], $field['font']);
-                    $expanded = $expanded || $this->height($lines, $field['size'], $field['sy'], $field['font']) > $slot['bottom'] - $slot['top'];
-                    $wrapped[] = implode("\n", $lines);
+            $tables[$id] = $this->tableChunks($rows, $definition['tables'][$id], $definition);
+        }
+        $tableCount = max(array_merge([1], array_map('count', $tables)));
+        for ($index = 0; $index < $tableCount; $index++) {
+            $copy = $index === 0 ? $pages[0] : $content;
+            $copy['tables'] = [];
+            $copy['table_layouts'] = [];
+            foreach ($tables as $id => $chunks) {
+                $copy['tables'][$id] = $chunks[$index]['rows'] ?? [];
+                $copy['table_layouts'][$id] = $chunks[$index]['layout'] ?? ['rows' => [], 'dynamic' => false];
+            }
+            if ($index === 0) {
+                $pages[0] = $copy;
+            } else {
+                foreach ($fieldChunks as $role => $chunks) {
+                    $copy['values'][$role] = $chunks[0];
                 }
-                if ($expanded) {
-                    if ($normal !== []) {
-                        $segments[] = ['rows' => $normal, 'expanded' => false];
-                        $normal = [];
-                    }
-                    $segments[] = ['rows' => [$wrapped], 'expanded' => true];
-                } else {
-                    $normal[] = $wrapped;
-                }
-            }
-            if ($segments === []) {
-                $pages[0]['tables'][$id] = $normal;
-
-                continue;
-            }
-            if ($normal !== []) {
-                $segments[] = ['rows' => $normal, 'expanded' => false];
-            }
-            $pages[0]['tables'][$id] = $segments[0]['expanded'] ? [] : array_shift($segments)['rows'];
-            foreach ($segments as $segment) {
-                $extraRows[] = [$id, $segment];
+                $copy['images'] = array_intersect_key($content['images'], ['report_image' => true]);
+                $pages[] = $copy;
             }
         }
-        foreach ($extraRows as [$id, $segment]) {
-            $copy = $content;
-            $copy['tables'] = array_fill_keys(array_keys($content['tables']), []);
-            $copy['tables'][$id] = $segment['rows'];
-            $copy['table_layouts'] = [$id => ['expanded' => $segment['expanded']]];
-            $copy['images'] = array_intersect_key($content['images'], ['report_image' => true]);
-            foreach ($fieldChunks as $role => $chunks) {
-                $copy['values'][$role] = $chunks[0];
-            }
-            $pages[] = $copy;
-        }
-
         return $pages;
+    }
+
+    private function tableChunks(array $rows, array $table, array $definition): array
+    {
+        $top = $table['rows'][0]['top'];
+        $bottom = $table['rows'][array_key_last($table['rows'])]['bottom'];
+        $chunks = [];
+        $chunk = ['rows' => [], 'layout' => ['rows' => [], 'dynamic' => false]];
+        $cursor = $top;
+        foreach ($rows as $index => $row) {
+            $slot = $table['rows'][min($index, count($table['rows']) - 1)];
+            $height = $slot['bottom'] - $slot['top'];
+            $wrapped = [];
+            foreach ($row as $column => $value) {
+                $field = $definition['fields'][$slot['cells'][$column]['fields'][0]];
+                $lines = $this->wrap((string) $value, $table['columns'][$column + 1] - $table['columns'][$column] - 8, $field['size'], $field['font']);
+                $height = max($height, $this->height($lines, $field['size'], $field['sy'], $field['font']) + 4);
+                $wrapped[] = implode("\n", $lines);
+            }
+            if ($height > $bottom - $top) {
+                throw new InvalidArgumentException('A report row exceeds the available table body height.');
+            }
+            if ($cursor + $height > $bottom + .01 && $chunk['rows'] !== []) {
+                $chunks[] = $chunk;
+                $chunk = ['rows' => [], 'layout' => ['rows' => [], 'dynamic' => false]];
+                $cursor = $top;
+            }
+            $chunk['rows'][] = $wrapped;
+            $chunk['layout']['rows'][] = ['top' => $cursor, 'bottom' => $cursor + $height];
+            $chunk['layout']['dynamic'] = $chunk['layout']['dynamic'] || $height > $slot['bottom'] - $slot['top'] + .01;
+            $cursor += $height;
+        }
+        $chunks[] = $chunk;
+
+        return $chunks;
     }
 
     private function fitTitle(string $value, array $field, array $layout): array

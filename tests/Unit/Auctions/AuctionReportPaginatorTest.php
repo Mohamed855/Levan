@@ -10,6 +10,34 @@ use PHPUnit\Framework\TestCase;
 
 final class AuctionReportPaginatorTest extends TestCase
 {
+    public function test_outputs_keep_x_evidence_separate_from_video_and_tiktok(): void
+    {
+        $snapshot = $this->snapshot(0);
+        $snapshot['evidence']['x'] = [['id' => 'tweet', 'channel' => 'x']];
+        $snapshot['evidence']['video'] = [['id' => 'youtube', 'channel' => 'youtube']];
+        $snapshot['evidence']['social'] = [['id' => 'tiktok', 'channel' => 'tiktok']];
+        $pages = $this->paginator()->paginate($snapshot, 'outputs');
+        $marketing = array_values(array_filter($pages, static fn (array $page): bool => $page['page_type'] === 'haram-marketing'))[0];
+        self::assertSame(['tweet'], array_column($marketing['payload']['x'], 'id'));
+        self::assertSame([], $marketing['payload']['snapchat']);
+        $extra = array_values(array_filter($pages, static fn (array $page): bool => isset($page['payload']['gallery'])));
+        self::assertSame(['youtube', 'tiktok'], array_merge(...array_map(static fn (array $page): array => array_column($page['payload']['gallery'], 'id'), $extra)));
+    }
+
+    public function test_after_gallery_continuations_do_not_create_empty_before_slots(): void
+    {
+        $snapshot = $this->snapshot(0);
+        $snapshot['evidence']['board_before'] = [['id' => 'before']];
+        $snapshot['evidence']['board_after'] = array_map(static fn (int $id): array => ['id' => $id], range(1, 13));
+        $pages = $this->paginator()->paginate($snapshot, 'outputs');
+        $continuations = array_values(array_filter($pages, static fn (array $page): bool => $page['page_type'] === 'haram-board-after-continuation'));
+        self::assertCount(2, $continuations);
+        foreach ($continuations as $page) {
+            self::assertArrayNotHasKey('board_before', $page['payload']);
+        }
+        self::assertSame(range(3, 13), array_merge(...array_map(static fn (array $page): array => array_column($page['payload']['board_after'], 'id'), $continuations)));
+    }
+
     public function test_it_emits_the_seven_haram_reference_families_in_order(): void
     {
         $pages = $this->paginator()->paginate($this->snapshot(11, 4), 'outputs');

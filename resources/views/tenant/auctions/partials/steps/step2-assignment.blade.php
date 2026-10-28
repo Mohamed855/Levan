@@ -32,6 +32,7 @@
                             <div><strong>رقم الإسناد:</strong> <span id="asg-summary-num">-</span></div>
                             <div><strong>الجهة المسندة:</strong> <span id="asg-summary-entity">-</span></div>
                             <div><strong>الحالة:</strong> <span id="asg-summary-status">-</span></div>
+                            <div><strong>فترة الإسناد:</strong> <span id="asg-summary-dates">-</span></div>
                         </div>
                     </div>
                 </div>

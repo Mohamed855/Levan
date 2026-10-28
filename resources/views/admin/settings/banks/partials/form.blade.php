@@ -24,7 +24,7 @@
     <x-form.controls.file name="icon" id="icon" label="أيقونة البنك" :value="$isEdit && $bank->icon ? asset('storage/' . $bank->icon) : null"
         accept="image/jpeg,image/png,image/jpg,image/svg+xml" :help="$isEdit
             ? 'اترك الحقل فارغاً للإبقاء على الصورة الحالية'
-            : 'الصيغ المسموحة: JPG, PNG, SVG | الحجم الأقصى: 2MB'" :required="!$isEdit" col="col-md-6" />
+            : 'الصيغ المسموحة: JPG, PNG, SVG | الحجم الأقصى: 10MB'" :required="!$isEdit" col="col-md-6" />
 </div>
 
 <!-- الأزرار -->

@@ -29,7 +29,7 @@ class FinalizeCompanySubscriptionRequest extends WizardFormRequest
             'total_users' => ['required', 'integer', 'min:1'], 'activate_immediately' => ['required', 'boolean'],
             'payment_type' => ['required', 'in:trial,paid,unpaid'],
             'payment_method' => ['nullable', 'required_if:payment_type,paid', Rule::in(PaymentMethod::values())],
-            'receipt_upload' => ['nullable', 'required_if:payment_method,bank_transfer', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'receipt_upload' => ['nullable', 'required_if:payment_method,bank_transfer', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'],
             'has_discount' => ['nullable', 'required_unless:payment_type,trial', 'in:yes,no'],
             'discount_value' => ['nullable', 'required_if:has_discount,yes', 'numeric', 'min:0'],
             'trial_end_date' => ['nullable', 'required_if:payment_type,trial', 'date', 'after:today'],

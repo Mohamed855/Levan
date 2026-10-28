@@ -210,8 +210,8 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
         Storage::fake('tenant_public');
 
         $owner = User::query()->where('email', 'demo@levan.com')->firstOrFail();
-        $property = Property::query()->whereNotNull('assignment_id')->firstOrFail();
-        $assignment = Assignment::query()->findOrFail($property->assignment_id);
+        $assignment = $this->assignment('HTTP');
+        $property = $this->property($assignment, 'HTTP');
         $payload = array_replace($this->validPayload($assignment), [
             'name' => 'مزاد HTTP '.uniqid(),
             'report_image' => UploadedFile::fake()->image('http-report.webp'),

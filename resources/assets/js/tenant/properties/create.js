@@ -257,14 +257,14 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         tr.innerHTML = `
-      <td><input type="text" name="units[${index}][unit_number]" class="form-control form-control-sm"
-                 value="${escapeHtml(data.unit_number || "")}" placeholder="وحدة ..." data-form-control></td>
-      <td><select name="units[${index}][unit_type]" class="form-select form-select-sm select2" data-select2-search="false" data-form-control>${unitTypeOptions}</select></td>
-      <td><input type="number" step="0.01" name="units[${index}][area]" class="form-control form-control-sm"
-                 value="${escapeHtml(data.area || "")}" placeholder="المساحة" data-form-control></td>
-      <td><select name="units[${index}][current_use]" class="form-select form-select-sm select2" data-select2-search="false" data-form-control>${unitUsageOptions}</select></td>
+      <td><input type="text" name="units[${index}][unit_number]" class="form-control form-control-sm w-100"
+                 value="${escapeHtml(data.unit_number || "")}" placeholder="رقم الوحدة (مثال: 101)" data-form-control></td>
+      <td><select name="units[${index}][unit_type]" class="form-select form-select-sm select2 w-100" data-placeholder="اختر نوع الوحدة" data-select2-search="false" data-form-control>${unitTypeOptions}</select></td>
+      <td><input type="number" step="0.01" name="units[${index}][area]" class="form-control form-control-sm w-100"
+                 value="${escapeHtml(data.area || "")}" placeholder="المساحة (م²)" data-form-control></td>
+      <td><select name="units[${index}][current_use]" class="form-select form-select-sm select2 w-100" data-placeholder="اختر الاستخدام الحالي" data-select2-search="false" data-form-control>${unitUsageOptions}</select></td>
       <td>
-        <select name="units[${index}][status]" class="form-select form-select-sm select2" data-select2-search="false" data-form-control>
+        <select name="units[${index}][status]" class="form-select form-select-sm select2 w-100" data-placeholder="اختر الحالة" data-select2-search="false" data-form-control>
           ${statusOptions}
         </select>
       </td>
@@ -312,6 +312,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
         });
+        if (window.jQuery?.fn?.select2) {
+            window.jQuery(unitsList).find("select.select2").each(function () {
+                const $select = window.jQuery(this);
+                $select.select2({
+                    placeholder: $select.data("placeholder") || "اختر",
+                    allowClear: true,
+                    width: "100%",
+                    dir: "rtl",
+                    minimumResultsForSearch: Infinity,
+                });
+            });
+        }
         form.dispatchEvent(new CustomEvent("stepChanged"));
     }
 
@@ -817,22 +829,108 @@ document.addEventListener("DOMContentLoaded", () => {
         return select?.selectedOptions?.[0]?.textContent?.trim() || "-";
     }
 
-    function filesFromInput(name) {
-        return Array.from(form.elements.namedItem(name)?.files || []);
+    function formatFileSize(bytes) {
+        if (!bytes || bytes <= 0) return "";
+        const units = ["B", "KB", "MB", "GB"];
+        const index = Math.floor(Math.log(bytes) / Math.log(1024));
+        return (
+            Math.round((bytes / Math.pow(1024, index)) * 10) / 10 +
+            " " +
+            units[index]
+        );
     }
 
-    function buildAttachmentBox(title, files, icon) {
-        const countLabel = `${files.length} ${files.length === 1 ? "ملف" : "ملفات"}`;
-        const content = files.length
-            ? files
-                  .map(
-                      (file) =>
-                          `<article class="assignment-file-card"><i class="ti ${icon} text-primary fs-4"></i><span class="assignment-file-card__name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span></article>`,
-                  )
-                  .join("")
-            : '<p class="text-muted mb-0">لم يتم إرفاق ملفات بعد.</p>';
+    function renderFileCardHtml({
+        name,
+        file = null,
+        url = null,
+        metaLabel = "",
+    }) {
+        const fileName = name || file?.name || "ملف مرفق";
+        const ext = (fileName.split(".").pop() || "").toLowerCase();
+        const isImage =
+            (file && file.type && file.type.startsWith("image/")) ||
+            ["jpg", "jpeg", "png", "webp", "gif", "svg"].includes(ext) ||
+            (typeof url === "string" && url.startsWith("data:image/"));
 
-        return `<section class="assignment-properties-table-card mb-3"><header class="assignment-properties-table-card__header"><h6 class="mb-0">${title}</h6><span class="badge bg-primary">${countLabel}</span></header><div class="assignment-file-list p-3">${content}</div></section>`;
+        let previewUrl = url;
+        if (
+            !previewUrl &&
+            file &&
+            isImage &&
+            window.URL &&
+            typeof window.URL.createObjectURL === "function"
+        ) {
+            try {
+                previewUrl = URL.createObjectURL(file);
+            } catch (e) {
+                previewUrl = null;
+            }
+        }
+
+        let typeCategory = "generic";
+        let iconClass = "ti-file";
+        let badgeColor = "secondary";
+        let typeName = "مستند";
+
+        if (isImage) {
+            typeName = "صورة";
+            badgeColor = "info";
+        } else if (ext === "pdf") {
+            typeCategory = "pdf";
+            iconClass = "ti-file-type-pdf";
+            badgeColor = "danger";
+            typeName = "مستند PDF";
+        } else if (["doc", "docx"].includes(ext)) {
+            typeCategory = "word";
+            iconClass = "ti-file-description";
+            badgeColor = "primary";
+            typeName = "مستند Word";
+        } else if (["xls", "xlsx", "csv"].includes(ext)) {
+            typeCategory = "excel";
+            iconClass = "ti-file-spreadsheet";
+            badgeColor = "success";
+            typeName = "جدول بيانات";
+        } else if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) {
+            typeCategory = "zip";
+            iconClass = "ti-file-zip";
+            badgeColor = "warning";
+            typeName = "أرشيف مضغوط";
+        }
+
+        const actionMarkup = previewUrl
+            ? `<a href="${escapeHtml(previewUrl)}" target="_blank" rel="noopener noreferrer" class="assignment-file-card__action" title="معاينة الملف" aria-label="معاينة"><i class="ti ti-eye"></i></a>`
+            : "";
+
+        const previewMarkup =
+            isImage && previewUrl
+                ? `<img src="${escapeHtml(previewUrl)}" alt="${escapeHtml(fileName)}" class="assignment-file-card__img" loading="lazy">
+           <span class="assignment-file-card__type-pill">${escapeHtml((ext || "IMG").toUpperCase())}</span>`
+                : `<div class="assignment-file-card__doc-wrap type-${typeCategory}">
+             <div class="assignment-file-card__icon-circle">
+               <i class="ti ${iconClass}"></i>
+             </div>
+             <span class="assignment-file-card__type-pill">${escapeHtml((ext || "FILE").toUpperCase())}</span>
+           </div>`;
+
+        const sizeFormatted = file?.size
+            ? formatFileSize(file.size)
+            : metaLabel || typeName;
+
+        return `
+      <article class="assignment-file-card" data-file-type="${escapeHtml(ext)}">
+        <div class="assignment-file-card__preview">
+          ${previewMarkup}
+          ${actionMarkup}
+        </div>
+        <div class="assignment-file-card__info">
+          <span class="assignment-file-card__name" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</span>
+          <div class="assignment-file-card__meta">
+            <span class="text-muted text-truncate me-1">${escapeHtml(sizeFormatted)}</span>
+            <span class="badge bg-label-${badgeColor}">${escapeHtml((ext || "FILE").toUpperCase())}</span>
+          </div>
+        </div>
+      </article>`;
     }
 
     function safeAerialReviewMarkup(value) {
@@ -856,7 +954,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 ["نوع العقار", getSelectedText("type")],
                 ["تصنيف الاستخدام", getSelectedText("usage_classification")],
                 ["المساحة (م²)", getVal("area") + " م²"],
-                ["حالة العقار", getSelectedText("is_active")],
                 ["الوصف المختصر", getVal("short_description")],
             ];
             reviewBasic.innerHTML = `<dl class="row mb-0">${basicFields
@@ -943,115 +1040,85 @@ document.addEventListener("DOMContentLoaded", () => {
         // Review Documents
         const reviewDocs = document.getElementById("review-files");
         if (reviewDocs) {
-            const files = [];
-            if (form.elements.namedItem("main_image")?.files?.[0])
-                files.push(form.elements.namedItem("main_image").files[0].name);
-            if (form.elements.namedItem("deed_document")?.files?.[0])
-                files.push(
-                    form.elements.namedItem("deed_document").files[0].name,
-                );
-            if (form.elements.namedItem("cadastral_plan")?.files?.[0])
-                files.push(
-                    form.elements.namedItem("cadastral_plan").files[0].name,
-                );
-            if (form.elements.namedItem("coordinates_statement")?.files?.[0])
-                files.push(
-                    form.elements.namedItem("coordinates_statement").files[0]
-                        .name,
-                );
-            if (form.elements.namedItem("building_permit")?.files?.[0])
-                files.push(
-                    form.elements.namedItem("building_permit").files[0].name,
-                );
-            if (form.elements.namedItem("assignment_letter_image")?.files?.[0])
-                files.push(
-                    form.elements.namedItem("assignment_letter_image").files[0]
-                        .name,
-                );
+            const items = [];
 
-            const addDocs = form.elements.namedItem(
-                "additional_documents[]",
-            )?.files;
-            if (addDocs) {
-                for (let i = 0; i < addDocs.length; i++)
-                    files.push(addDocs[i].name);
+            const singleFields = [
+                { id: "main_image", label: "الصورة الرئيسية" },
+                { id: "deed_document", label: "صك الملكية" },
+                { id: "cadastral_plan", label: "مخطط العقار" },
+                { id: "coordinates_statement", label: "كشف الإحداثيات" },
+                { id: "building_permit", label: "رخصة البناء" },
+                { id: "assignment_letter_image", label: "صورة الإسناد" },
+            ];
+
+            singleFields.forEach(({ id, label }) => {
+                const input = form.elements.namedItem(id);
+                const file = input?.files?.[0];
+                if (file) {
+                    items.push({ name: file.name, file, metaLabel: label });
+                } else {
+                    const wrapper =
+                        input?.closest("[data-file-upload-wrapper]") ||
+                        input?.parentElement;
+                    const existingName = wrapper
+                        ?.querySelector(".file-item-name")
+                        ?.textContent?.trim();
+                    const existingImg = wrapper?.querySelector(
+                        "img.file-item-preview",
+                    )?.src;
+                    if (existingName) {
+                        items.push({
+                            name: existingName,
+                            url: existingImg || null,
+                            metaLabel: label,
+                        });
+                    }
+                }
+            });
+
+            const propImagesInput =
+                form.elements.namedItem("property_images[]");
+            if (propImagesInput?.files) {
+                Array.from(propImagesInput.files).forEach((file) => {
+                    items.push({
+                        name: file.name,
+                        file,
+                        metaLabel: "معرض الصور",
+                    });
+                });
             }
 
-            const propImages =
-                form.elements.namedItem("property_images[]")?.files;
-            if (propImages) {
-                for (let i = 0; i < propImages.length; i++)
-                    files.push(propImages[i].name);
+            const addDocsInput =
+                form.elements.namedItem("additional_documents[]");
+            if (addDocsInput?.files) {
+                Array.from(addDocsInput.files).forEach((file) => {
+                    items.push({
+                        name: file.name,
+                        file,
+                        metaLabel: "مستند إضافي",
+                    });
+                });
             }
 
-            if (files.length) {
-                reviewDocs.innerHTML = files
-                    .map(
-                        (name) => `
-          <article class="assignment-file-card">
-            <i class="ti ti-file text-primary fs-4"></i>
-            <span class="assignment-file-card__name" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
-          </article>
-        `,
-                    )
-                    .join("");
-            } else {
+            // Also check any archived draft files
+            const draftChips = Array.from(
+                form.querySelectorAll("[data-archived-draft-files] span"),
+            )
+                .map((el) => el.textContent.trim())
+                .filter(Boolean);
+
+            draftChips.forEach((name) => {
+                if (!items.some((item) => item.name === name)) {
+                    items.push({ name, metaLabel: "مسودة" });
+                }
+            });
+
+            if (!items.length) {
                 reviewDocs.innerHTML =
-                    '<p class="text-muted mb-0">لم يتم اختيار ملفات بعد.</p>';
+                    '<p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات بعد.</p>';
+            } else {
+                reviewDocs.innerHTML = items.map(renderFileCardHtml).join("");
             }
-        }
-
-        if (reviewDocs) {
-            const files = [];
-            if (form.elements.namedItem("main_image")?.files?.[0])
-                files.push(form.elements.namedItem("main_image").files[0].name);
-            if (form.elements.namedItem("deed_document")?.files?.[0])
-                files.push(
-                    form.elements.namedItem("deed_document").files[0].name,
-                );
-            if (form.elements.namedItem("cadastral_plan")?.files?.[0])
-                files.push(
-                    form.elements.namedItem("cadastral_plan").files[0].name,
-                );
-            if (form.elements.namedItem("coordinates_statement")?.files?.[0])
-                files.push(
-                    form.elements.namedItem("coordinates_statement").files[0]
-                        .name,
-                );
-            if (form.elements.namedItem("building_permit")?.files?.[0])
-                files.push(
-                    form.elements.namedItem("building_permit").files[0].name,
-                );
-            if (form.elements.namedItem("assignment_letter_image")?.files?.[0])
-                files.push(
-                    form.elements.namedItem("assignment_letter_image").files[0]
-                        .name,
-                );
-            const standardFiles = files.length
-                ? `<div class="assignment-file-list mt-3">${files
-                      .map(
-                          (name) => `
-        <article class="assignment-file-card">
-          <i class="ti ti-file text-primary fs-4"></i>
-          <span class="assignment-file-card__name" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
-        </article>
-      `,
-                      )
-                      .join("")}</div>`
-                : "";
-            reviewDocs.innerHTML = [
-                buildAttachmentBox(
-                    "صور إضافية للمعرض",
-                    filesFromInput("property_images[]"),
-                    "ti-photo",
-                ),
-                buildAttachmentBox(
-                    "مستندات إضافية",
-                    filesFromInput("additional_documents[]"),
-                    "ti-paperclip",
-                ),
-                standardFiles,
-            ].join("");
         }
 
         const reviewName = document.getElementById("review-name");
@@ -1065,6 +1132,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     form.addEventListener("change", buildReview);
     form.addEventListener("input", buildReview);
+    form.addEventListener("file:changed", buildReview);
+    form.addEventListener("file:removed", buildReview);
+    form.addEventListener("file:removed-existing", buildReview);
 
     // Jump to step via edit buttons
     document.querySelectorAll("[data-edit-step]").forEach((btn) => {

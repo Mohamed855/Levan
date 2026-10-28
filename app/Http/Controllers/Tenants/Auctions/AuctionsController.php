@@ -53,6 +53,10 @@ class AuctionsController extends Controller
     public function create(): View
     {
         $assignments = Assignment::where('is_active', true)
+            ->where(function ($query) {
+                $query->whereNull('end_date')
+                    ->orWhereDate('end_date', '>=', now()->toDateString());
+            })
             ->select(['id', 'name', 'assignment_number', 'issuing_entity'])
             ->get();
 
@@ -97,7 +101,13 @@ class AuctionsController extends Controller
     public function edit(Auction $auction): View
     {
         $auction->load(['assignment', 'properties.pivot', 'attachments']);
-        $assignments = Assignment::where('is_active', true)
+        $assignments = Assignment::where(function ($query) {
+                $query->where('is_active', true)
+                    ->where(function ($q) {
+                        $q->whereNull('end_date')
+                            ->orWhereDate('end_date', '>=', now()->toDateString());
+                    });
+            })
             ->when($auction->assignment_id, fn ($q) => $q->orWhere('id', $auction->assignment_id))
             ->select(['id', 'name', 'assignment_number', 'issuing_entity'])
             ->get();

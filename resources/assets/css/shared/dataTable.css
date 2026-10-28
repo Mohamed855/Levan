@@ -498,3 +498,66 @@ input[type="checkbox"].row-checkbox:hover,
     display: inline-flex !important;
     align-items: center !important;
 }
+
+/* =============================================================================
+   Universal Table Data Centering Contract (All tables, th, td & child controls)
+   ============================================================================= */
+table th,
+table td,
+.table th,
+.table td,
+.dataTable th,
+.dataTable td {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.table tbody td .d-flex,
+.dataTable tbody td .d-flex {
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.table tbody td .form-switch,
+.table tbody td .form-check,
+.dataTable tbody td .form-switch,
+.dataTable tbody td .form-check {
+    display: inline-flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 0 auto !important;
+}
+
+.table tbody td .avatar-group,
+.table tbody td .btn-group,
+.dataTable tbody td .avatar-group,
+.dataTable tbody td .btn-group {
+    justify-content: center !important;
+    margin: 0 auto !important;
+}
+
+.table tbody td .table-cell-clamp,
+.dataTable tbody td .table-cell-clamp {
+    text-align: center !important;
+    margin: 0 auto !important;
+}
+
+.table tbody td .copyable-code-wrapper,
+.dataTable tbody td .copyable-code-wrapper {
+    justify-content: center !important;
+    margin: 0 auto !important;
+}
+
+.table tbody td input:not([type="checkbox"]):not([type="radio"]),
+.table tbody td select,
+.dataTable tbody td input:not([type="checkbox"]):not([type="radio"]),
+.dataTable tbody td select {
+    text-align: center !important;
+    text-align-last: center !important;
+}
+
+.table tbody td .select2-container .select2-selection--single .select2-selection__rendered,
+.dataTable tbody td .select2-container .select2-selection--single .select2-selection__rendered {
+    text-align: center !important;
+}
+

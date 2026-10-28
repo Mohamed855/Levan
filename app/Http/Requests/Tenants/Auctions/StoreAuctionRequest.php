@@ -8,10 +8,18 @@ use App\Enums\Tenants\Auctions\AuctionCategory;
 use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Enums\Tenants\Auctions\AuctionType;
 use App\Http\Requests\Concerns\WizardFormRequest;
+use App\Http\Requests\Concerns\AuctionReportEvidenceRules;
+use App\Models\Tenants\Assignments\Assignment;
+use Carbon\Carbon;
+use Closure;
 use Illuminate\Validation\Rule;
 
 class StoreAuctionRequest extends WizardFormRequest
 {
+    use AuctionReportEvidenceRules;
+    private ?Assignment $resolvedAssignment = null;
+    private bool $assignmentResolved = false;
+
     public function authorize(): bool
     {
         return $this->user('tenant')?->can('auctions.create') ?? false;
@@ -19,21 +27,111 @@ class StoreAuctionRequest extends WizardFormRequest
 
     public function rules(): array
     {
-        return [
+        return $this->reportEvidenceRules() + [
             // Step 1: Basic Info
             'name' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:500'],
-            'start_date' => ['required', 'date'],
+            'start_date' => [
+                'required',
+                'date',
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    $assignment = $this->resolveAssignment();
+                    if ($assignment && $assignment->start_date && $value) {
+                        $auctionStart = Carbon::parse((string) $value)->startOfDay();
+                        $asgStart = $assignment->start_date->startOfDay();
+                        if ($auctionStart->lt($asgStart)) {
+                            $fail('تاريخ بداية المزاد يجب ألا يسبق تاريخ بداية الإسناد ('.$assignment->start_date->format('Y-m-d').').');
+                        }
+                    }
+                },
+            ],
             'start_time' => ['required', 'date_format:H:i'],
-            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
-            'end_time' => ['required', 'date_format:H:i'],
+            'end_date' => [
+                'required',
+                'date',
+                'after_or_equal:start_date',
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    $assignment = $this->resolveAssignment();
+                    if ($assignment && $assignment->end_date && $value) {
+                        $auctionEnd = Carbon::parse((string) $value)->startOfDay();
+                        $asgEnd = $assignment->end_date->startOfDay();
+                        if ($auctionEnd->gt($asgEnd)) {
+                            $fail('تاريخ نهاية المزاد يجب ألا يتجاوز تاريخ نهاية الإسناد ('.$assignment->end_date->format('Y-m-d').').');
+                        }
+                    }
+                },
+            ],
+            'end_time' => [
+                'required',
+                'date_format:H:i',
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    $startDate = $this->input('start_date');
+                    $endDate = $this->input('end_date');
+                    $startTime = $this->input('start_time');
+
+                    if ($startDate && $endDate && $startDate === $endDate && $startTime && $value) {
+                        try {
+                            $start = Carbon::createFromFormat('H:i', (string) $startTime);
+                            $end = Carbon::createFromFormat('H:i', (string) $value);
+                            if ($end->lessThanOrEqualTo($start)) {
+                                $fail('وقت نهاية المزاد يجب أن يكون بعد وقت البداية عندما يكون المزاد في نفس اليوم.');
+                            }
+                        } catch (\Throwable) {}
+                    }
+                },
+            ],
             'type' => ['required', Rule::enum(AuctionType::class)],
             'category' => ['required', Rule::enum(AuctionCategory::class)],
             'city' => ['required', 'string', 'max:100'],
             'expected_properties_count' => ['required', 'integer', 'min:1'],
 
             // Step 2: Assignment & Platform
-            'assignment_id' => ['required', Rule::exists('assignments', 'id')->whereNull('deleted_at')],
+            'assignment_id' => [
+                'required',
+                Rule::exists('assignments', 'id')->whereNull('deleted_at'),
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    if (! $value) {
+                        return;
+                    }
+
+                    $assignment = $this->resolveAssignment();
+                    if (! $assignment) {
+                        return;
+                    }
+
+                    if (! $assignment->is_active) {
+                        $fail('الإسناد المختار غير نشط ولا يمكن ربطه بالمزاد.');
+
+                        return;
+                    }
+
+                    $today = now()->startOfDay();
+                    if ($assignment->end_date && $assignment->end_date->startOfDay()->lt($today)) {
+                        $fail('الإسناد المختار منتهي الصلاحية بتاريخ '.$assignment->end_date->format('Y-m-d').'.');
+
+                        return;
+                    }
+
+                    $startDate = $this->input('start_date');
+                    $endDate = $this->input('end_date');
+
+                    if ($startDate && $assignment->start_date) {
+                        $auctionStart = Carbon::parse((string) $startDate)->startOfDay();
+                        $asgStart = $assignment->start_date->startOfDay();
+                        if ($auctionStart->lt($asgStart)) {
+                            $fail('تاريخ بداية المزاد يجب ألا يسبق تاريخ بداية الإسناد ('.$assignment->start_date->format('Y-m-d').').');
+                        }
+                    }
+
+                    if ($endDate && $assignment->end_date) {
+                        $auctionEnd = Carbon::parse((string) $endDate)->startOfDay();
+                        $asgEnd = $assignment->end_date->startOfDay();
+                        if ($auctionEnd->gt($asgEnd)) {
+                            $fail('تاريخ نهاية المزاد يجب ألا يتجاوز تاريخ نهاية الإسناد ('.$assignment->end_date->format('Y-m-d').').');
+                        }
+                    }
+                },
+            ],
             'supervising_entity' => ['nullable', 'string', 'max:255'],
             'project_manager_name' => ['required', 'string', 'max:255'],
             'platform_name' => ['required', 'string', 'max:255'],
@@ -145,5 +243,24 @@ class StoreAuctionRequest extends WizardFormRequest
     private function selectedPropertyKeys(): array
     {
         return array_map(static fn (mixed $id): string => (string) $id, (array) $this->input('property_ids', []));
+    }
+
+    public function setResolvedAssignment(?Assignment $assignment): void
+    {
+        $this->resolvedAssignment = $assignment;
+        $this->assignmentResolved = true;
+    }
+
+    private function resolveAssignment(): ?Assignment
+    {
+        if (! $this->assignmentResolved) {
+            $assignmentId = $this->input('assignment_id');
+            $this->resolvedAssignment = $assignmentId
+                ? Assignment::query()->whereKey($assignmentId)->whereNull('deleted_at')->first()
+                : null;
+            $this->assignmentResolved = true;
+        }
+
+        return $this->resolvedAssignment;
     }
 }

@@ -1,13 +1,24 @@
 @extends('tenant.layouts.layoutMaster')
 
-@section('title', 'قائمة الأدوار')
+@section('title', 'الأدوار والصلاحيات')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+    @vite([
+        'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
+        'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
+        'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
+        'resources/assets/vendor/libs/select2/select2.scss',
+        'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss',
+    ])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
+    @vite([
+        'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
+        'resources/assets/vendor/libs/select2/select2.js',
+        'resources/assets/vendor/libs/sweetalert2/sweetalert2.js',
+    ])
+    {!! $dataTable->scripts() !!}
 @endsection
 
 @section('toastr')
@@ -16,187 +27,52 @@
 
 @section('page-style')
     @vite(['resources/assets/css/shared/dataTable.css'])
-    {{-- .cursor-pointer and #card-roles tooltip fix are now in resources/assets/scss/shared/ --}}
 @endsection
 
 @section('page-script')
     <script>
-        // Route data — must stay in Blade (dynamic per-dashboard)
         window.routes = {
-            rolesIndex: "{{ tenant_route_name('roles.index') }}",
-            rolesCreate: "{{ tenant_route_name('roles.create') }}",
-            getUserRoles: "{{ tenant_route_name('roles.user.get', ['id' => '___ID___']) }}",
-            updateUserRoles: "{{ tenant_route_name('roles.user.update', ['id' => '___ID___']) }}",
-            updateStatus: "{{ tenant_route_name('roles.user.status', ['userId' => '___ID___']) }}",
-            massDelete: "{{ tenant_route_name('mass-delete') }}"
+            massDelete: "{{ tenant_route_name('mass-delete') }}",
         };
-        window.assets = {
-            arabicDataTable: "{{ asset('static/i18n/ar.json') }}"
-        };
-        window.csrfToken = "{{ csrf_token() }}";
-        window.permissions = {
-            canAddRole: {{ auth()->user()?->can('roles.create') ?? true ? 'true' : 'false' }},
+        window.handleMassDelete = function() {
+            window.executeMassDelete('Role', window.routes.massDelete, 'يرجى تحديد دور واحد على الأقل');
         };
     </script>
-
-    @vite(['resources/assets/js/tenant/user-management/role/index.js'])
 @endsection
 
 @section('content')
-    <!-- جدول قائمة الأدوار -->
-    <div class="card mb-4" id="card-roles">
-        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <h5 class="card-title mb-0">قائمة الأدوار والصلاحيات</h5>
-            <div class="d-flex align-items-center gap-2">
-                <input type="text" id="filter-roles-table" class="form-control form-control-sm" placeholder="بحث في الأدوار..." style="max-width: 220px;">
-                @can('roles.create')
-                    <a href="{{ tenant_route_name('roles.create') }}" class="btn btn-sm btn-primary">
-                        <i class="ti ti-plus me-1"></i> إضافة دور
-                    </a>
-                @endcan
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table id="roles-table" class="table table-striped table-bordered text-center w-100">
-                    <thead>
-                        <tr>
-                            <th style="width: 70px;">#</th>
-                            <th>اسم الدور</th>
-                            <th>المستخدمين</th>
-                            <th>تاريخ الإضافة</th>
-                            <th style="width: 140px;">الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($roles as $index => $role)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>
-                                    <span class="fw-semibold text-heading">{{ \App\Support\AccessLabels::role($role->name) }}</span>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center justify-content-center gap-2">
-                                        <span class="badge bg-primary">{{ $role->users->count() }} مستخدم</span>
-                                        @if ($role->users->count() > 0)
-                                            <ul class="list-unstyled d-flex align-items-center avatar-group mb-0">
-                                                @foreach ($role->users->take(4) as $user)
-                                                    <li data-bs-toggle="tooltip" data-bs-placement="top"
-                                                        data-bs-title="{{ $user->name }}"
-                                                        class="avatar avatar-xs pull-up">
-                                                        <img class="rounded-circle"
-                                                            src="{{ $user->image ? tasset($user->image) : asset('static/brand/logos/logo.svg') }}"
-                                                            alt="Avatar" width="26" height="26">
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td>
-                                    {{ $role->created_at ? $role->created_at->locale('ar')->translatedFormat('d F Y') : '-' }}
-                                </td>
-                                <td>
-                                    <div class="d-flex justify-content-center gap-2">
-                                        @can('roles.edit')
-                                            <a href="{{ tenant_route_name('roles.edit', $role->id) }}"
-                                                class="btn btn-icon btn-primary" title="تعديل الدور">
-                                                <i class="ti ti-edit"></i>
-                                            </a>
-                                        @endcan
-                                        @can('roles.delete')
-                                            @if ($role->id != 1)
-                                                <button type="button" class="btn btn-icon btn-primary"
-                                                    onclick="confirmDelete({{ $role->id }})" title="حذف الدور">
-                                                    <i class="ti ti-trash"></i>
-                                                </button>
-                                                <form id="delete-form-{{ $role->id }}"
-                                                    action="{{ tenant_route_name('roles.destroy', $role->id) }}" method="POST"
-                                                    class="d-hidden">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                </form>
-                                            @endif
-                                        @endcan
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    <x-ui.validation-errors />
 
-    {{-- Filters Card --}}
-    <x-data-table.filters table="#users-table" reset-id="btn-reset-filters">
-        <x-filter.select id="filter-status" filterKey="status" table="#users-table" label="حالة المستخدم"
-            placeholder="اختر حالة المستخدم" :enum="\App\Enums\Shared\ActivityStatus::class" />
-        <x-filter.select id="filter-role" filterKey="role" table="#users-table" label="الدور"
-            placeholder="اختر الدور" :options="\App\Support\AccessLabels::roleOptions($roles)" />
-    </x-data-table.filters>
+    <x-data-table.page table-id="roles-table">
+        <x-slot:stats>
+            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي الأدوار" :value="$statistics['total']" subtitle="كل أدوار الشركة" icon="ti-shield"
+                color="primary" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="أدوار مستخدمة" :value="$statistics['assigned']" subtitle="مرتبطة بمستخدم واحد أو أكثر" icon="ti-users"
+                color="success" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="أدوار غير مستخدمة" :value="$statistics['unassigned']" subtitle="جاهزة للإسناد" icon="ti-user-question"
+                color="info" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي الصلاحيات" :value="$statistics['permissions']" subtitle="صلاحيات حارس الشركة" icon="ti-key"
+                color="warning" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="أدوار مخصصة" :value="$statistics['custom']" subtitle="أدوار تم إنشاؤها" icon="ti-settings"
+                color="danger" />
+        </x-slot:stats>
 
-    <div class="card" id="card-users">
-        <div class="card-body">
-            <table id="users-table" class="table table-striped table-bordered text-center">
-                <thead>
-                    <tr>
-                        <th class="custom-checkbox">
-                            <input type="checkbox" id="select-all">
-                        </th>
-                        <th>الصورة</th>
-                        <th>المستخدم</th>
-                        <th>البريد الإلكتروني</th>
-                        <th>رقم الهاتف</th>
-                        <th>الدور</th>
-                        <th>تاريخ الإضافة</th>
-                        <th>الحالة</th>
-                        <th>الإجراءات</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- سيتم تعبئة البيانات بواسطة DataTables -->
-                </tbody>
-            </table>
-        </div>
-    </div>
+        <x-slot:filters>
+            <x-data-table.filters table="#roles-table">
+                <x-filter.select id="filter-role" filterKey="role" table="#roles-table" label="اسم الدور"
+                    placeholder="اختر الدور" :options="$roleOptions ?? []" />
+                <x-filter.select id="filter-usage-status" filterKey="usage_status" table="#roles-table" label="حالة الاستخدام"
+                    placeholder="اختر حالة الاستخدام" :options="[
+                        'assigned' => 'أدوار مستخدمة (مرتبطة بمستخدمين)',
+                        'unassigned' => 'أدوار غير مستخدمة (جاهزة للإسناد)',
+                    ]" />
+                <x-filter.date id="filter-date-from" filterKey="date_from" table="#roles-table" label="تاريخ الإضافة من" />
+                <x-filter.date id="filter-date-to" filterKey="date_to" table="#roles-table" label="تاريخ الإضافة إلى" />
+            </x-data-table.filters>
+        </x-slot:filters>
 
-    <!-- مودال تعديل الدور والحالة -->
-    <x-bootstrap.modal id="editRoleModal" title="تعديل دور المستخدم والحالة" icon="ti-user-shield">
-        <form id="updateRoleForm">
-            <input type="hidden" id="user-id" name="user_id">
-
-            <!-- اختيار الدور -->
-            <div class="mb-3">
-                <label for="user-role" class="form-label">
-                    الدور
-                    <span data-toggle="tooltip" data-placement="top"
-                        title="عند تحديث دور المستخدم، سيتم حذف جميع الصلاحيات المضافة فردياً والصلاحيات المنزوعة، وسيتم الاعتماد على صلاحيات الدور الجديد."
-                        class="text-primary-color">
-                        <i class="fa fa-question-circle fa-lg" aria-hidden="true"></i>
-                    </span>
-                </label>
-                <select id="user-role" name="role" class="form-control select2" required>
-                    <option value=""></option>
-                    @foreach ($roles as $role)
-                        <option value="{{ $role->id }}">{{ \App\Support\AccessLabels::role($role->name) }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- تحديث الحالة (مخفية حالياً) -->
-            <div class="mb-3 d-hidden">
-                <label for="user-status" class="form-label">الحالة</label>
-                <select id="user-status" name="status" class="form-control select2" required>
-                    <option value=""></option>
-                    <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivityStatus::class" />
-                </select>
-            </div>
-
-            <x-slot:footer>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                <button type="submit" class="btn btn-primary">تحديث</button>
-            </x-slot:footer>
-        </form>
-    </x-bootstrap.modal>
+        <x-slot:table>
+            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'roles-table'], false) !!}
+        </x-slot:table>
+    </x-data-table.page>
 @endsection

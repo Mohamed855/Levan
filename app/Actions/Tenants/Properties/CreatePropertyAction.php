@@ -91,6 +91,7 @@ final class CreatePropertyAction
 
                 $data['created_by'] = $creatorId;
                 $data['data_status'] = PropertyDataStatus::COMPLETED->value;
+                $data['is_active'] = true;
 
                 $property = Property::query()->create($data);
 

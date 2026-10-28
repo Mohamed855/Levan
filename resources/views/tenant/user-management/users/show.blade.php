@@ -93,8 +93,8 @@
                                 @csrf
                                 <x-form.controls.file name="profile_image" id="profile_image" label="اختر صورة شخصية جديدة"
                                     :value="$user->image ? tasset($user->image) : null"
-                                    accept="image/*" help="الصيغ المسموح بها: JPG, PNG, GIF. الحد الأقصى: 2MB"
-                                    :max-size="2" col="col-12" />
+                                    accept="image/*" help="الصيغ المسموح بها: JPG, PNG, GIF. الحد الأقصى: 10MB"
+                                    :max-size="10" col="col-12" />
                                 <x-slot:footer>
                                     <button type="button" class="btn btn-secondary"
                                         data-bs-dismiss="modal">إلغاء</button>
@@ -115,7 +115,7 @@
                                 <x-form.controls.file name="background_image" id="background_image" label="اختر صورة خلفية جديدة"
                                     :value="$user->background_image ? asset('storage/' . $user->background_image) : asset('static/dashboard/backgrounds/cta-bg-secondary3.png')"
                                     accept="image/*" required help="الأبعاد الموصى بها: 1693 × 376 بكسل"
-                                    :max-size="5" col="col-12" />
+                                    :max-size="10" col="col-12" />
                                 <x-slot:footer>
                                     <button type="button" class="btn btn-secondary"
                                         data-bs-dismiss="modal">إلغاء</button>

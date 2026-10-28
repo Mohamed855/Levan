@@ -17,7 +17,7 @@ class StoreBankRequest extends WizardFormRequest
     {
         return [
             'bank_name' => ['required', 'string', 'max:255'],
-            'icon' => ['required', 'image', 'mimes:jpeg,png,jpg,svg', 'max:2048'],
+            'icon' => ['required', 'image', 'mimes:jpeg,png,jpg,svg', 'max:10240'],
             'account_name' => ['required', 'string', 'max:255'],
             'iban' => ['required', 'string', 'max:255'],
             'account_number' => ['required', 'string', 'max:255'],
@@ -31,7 +31,7 @@ class StoreBankRequest extends WizardFormRequest
             'icon.required' => 'أيقونة البنك مطلوبة',
             'icon.image' => 'يجب أن يكون الملف صورة',
             'icon.mimes' => 'الصيغ المسموحة: jpeg, png, jpg, svg',
-            'icon.max' => 'حجم الصورة يجب ألا يتجاوز 2 ميجابايت',
+            'icon.max' => 'حجم الصورة يجب ألا يتجاوز 10 ميجابايت',
             'account_name.required' => 'اسم الحساب مطلوب',
             'iban.required' => 'رقم الآيبان مطلوب',
             'account_number.required' => 'رقم الحساب مطلوب',

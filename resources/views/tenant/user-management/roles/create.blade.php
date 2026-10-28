@@ -3,14 +3,22 @@
 @section('title', 'إضافة دور جديد')
 
 @section('page-script')
-    @vite('resources/assets/js/shared/form-validation.js')
+    @vite(['resources/assets/js/shared/form-validation.js'])
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-12 mb-4">
             <div class="card">
-                <h5 class="card-header">إضافة دور جديد</h5>
+                <div class="card-header py-4">
+                    <h6 class="card-title mb-0">
+                        <i class="ti ti-automatic-gearbox text-warning me-2"></i>
+                        إضافة دور جديد
+                    </h6>
+                </div>
+
+                <div class="border-1 border-light border-dashed mb-2"></div>
+
                 <div class="card-body">
 
                     @if ($errors->any())
@@ -23,7 +31,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ tenant_route_name('roles.store') }}" method="POST" novalidate data-form-validate
+                    <form action="{{ tenant_route_name('roles.store') }}" method="POST" data-form-validate
                         data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
                         data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
                         data-draft-resource-key="tenant.role-create">

@@ -389,10 +389,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     return false;
                 }
 
-                if (receiptFile.size > 5 * 1024 * 1024) {
+                if (receiptFile.size > 10 * 1024 * 1024) {
                     event.preventDefault();
                     event.stopImmediatePropagation();
-                    notifyError("حجم إيصال التحويل يجب ألا يتجاوز 5 ميجابايت");
+                    notifyError("حجم إيصال التحويل يجب ألا يتجاوز 10 ميجابايت");
                     return false;
                 }
 

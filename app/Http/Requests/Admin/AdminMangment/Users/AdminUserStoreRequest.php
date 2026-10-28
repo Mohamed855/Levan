@@ -18,7 +18,7 @@ class AdminUserStoreRequest extends WizardFormRequest
             'email' => ['required', 'email:rfc', 'max:255', 'unique:admin_users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
-            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048', 'dimensions:min_width=100,min_height=100,max_width=2000,max_height=2000'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240', 'dimensions:min_width=100,min_height=100,max_width=2000,max_height=2000'],
         ];
     }
 
@@ -52,7 +52,7 @@ class AdminUserStoreRequest extends WizardFormRequest
             // image
             'image.image' => 'الملف يجب أن يكون صورة',
             'image.mimes' => 'الصورة يجب أن تكون من نوع: jpeg, png, jpg, gif',
-            'image.max' => 'حجم الصورة يجب ألا يزيد عن 2 ميجابايت',
+            'image.max' => 'حجم الصورة يجب ألا يزيد عن 10 ميجابايت',
             'image.dimensions' => 'أبعاد الصورة يجب أن تكون بين 100x100 و 2000x2000 بكسل',
         ];
     }

@@ -22,6 +22,6 @@ class UpdateUserProfileImageRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['profile_image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048']];
+        return ['profile_image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240']];
     }
 }

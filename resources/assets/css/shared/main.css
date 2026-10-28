@@ -156,3 +156,18 @@ html.layout-menu-fixed {
     display: none !important;
     width: 0 !important;
 }
+
+/* =============================================================================
+   Number Input - Completely Hide Spin Buttons / Arrows
+   ============================================================================= */
+input[type="number"] {
+    -moz-appearance: textfield !important;
+    appearance: textfield !important;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+}
+

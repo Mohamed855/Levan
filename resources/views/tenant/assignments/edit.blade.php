@@ -62,28 +62,28 @@
                     ]">
                         <div class="row g-6">
                             <x-form.controls.input name="assignment_number" label="رقم الإسناد" :value="$assignment->assignment_number" readonly
-                                required col="col-md-6" class="text-uppercase"
+                                placeholder="رقم الإسناد" required col="col-md-6" class="text-uppercase"
                                 help="رقم الإسناد معرّف ثابت لا يمكن تعديله." />
 
-                            <x-form.controls.input name="name" label="اسم الإسناد" :value="$assignment->name" required
+                            <x-form.controls.input name="name" label="اسم الإسناد" :value="$assignment->name" placeholder="أدخل اسم الإسناد" required
                                 col="col-md-6" />
 
                             <x-form.controls.select name="category" label="تصنيف الإسناد" :value="$assignment->category" required
                                 col="col-md-6" :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
 
-                            <x-form.controls.input name="issuing_entity" label="الجهة المسندة" :value="$assignment->issuing_entity" required
+                            <x-form.controls.input name="issuing_entity" label="الجهة المسندة" :value="$assignment->issuing_entity" placeholder="أدخل الجهة المسندة" required
                                 col="col-md-6" />
 
                             <x-form.controls.select name="city" label="المدينة" :value="$assignment->city" col="col-md-6"
                                 :options="$cityOptions" />
 
-                            <x-form.controls.input name="district" label="النطاق/الحي" :value="$assignment->district" col="col-md-6" />
+                            <x-form.controls.input name="district" label="النطاق/الحي" :value="$assignment->district" placeholder="أدخل النطاق أو الحي" col="col-md-6" />
 
                             <x-form.controls.file name="assignment_image" label="صورة الإسناد" :value="$assignment->assignmentImage
                                 ? tasset($assignment->assignmentImage->file_path)
                                 : null"
                                 accept="image/jpeg,image/png,image/webp,image/svg+xml"
-                                help="JPG أو PNG أو WebP أو SVG. الحد الأقصى 2MB" col="col-md-6" />
+                                help="JPG أو PNG أو WebP أو SVG. الحد الأقصى 10MB" col="col-md-6" />
 
                             <x-form.wizard.actions>
                                 <x-form.wizard.previous-button :href="tenant_route_name('assignments.index')" text="العودة" />

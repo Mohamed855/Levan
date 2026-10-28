@@ -201,7 +201,7 @@
                             <x-form.controls.file name="receipt_upload" id="sub_receipt_upload"
                                 wrapper-id="sub_receipt-upload-wrapper" label="إيصال التحويل"
                                 accept="image/jpeg,image/png,image/jpg,application/pdf"
-                                help="يُقبل PDF أو صور بحد أقصى 5 ميجابايت" col="col-md-6" />
+                                help="يُقبل PDF أو صور بحد أقصى 10 ميجابايت" col="col-md-6" />
 
                             <!-- تاريخ نهاية التجربة -->
                             <x-form.controls.input type="date" name="trial_end_date" id="sub_trial_end_date"

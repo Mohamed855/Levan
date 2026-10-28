@@ -86,33 +86,33 @@
                                     <div class="flex-grow-1">
                                         <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                                             <h4 class="fw-bold mb-0 text-heading">{{ $plan->name }}</h4>
-                                            <span
-                                                class="badge bg-label-dark text-dark fw-bold fs-6">{{ $plan->code }}</span>
+                                            <span class="badge bg-label-dark text-dark fw-bold ">{{ $plan->code }}</span>
 
-                                            <span class="badge bg-{{ $plan->plan_type?->color() ?? 'primary' }} fs-6">
+                                            <span class="badge bg-{{ $plan->plan_type?->color() ?? 'primary' }} ">
                                                 {{ $plan->plan_type?->label() ?? 'أساسي' }}
                                             </span>
 
                                             @if ($plan->is_active)
-                                                <span class="badge bg-success fs-6">
+                                                <span class="badge bg-success ">
                                                     <i class="ti ti-circle-check me-1"></i>نشط
                                                 </span>
                                             @else
-                                                <span class="badge bg-secondary fs-6">
+                                                <span class="badge bg-secondary ">
                                                     <i class="ti ti-circle-x me-1"></i>غير نشط
                                                 </span>
                                             @endif
 
-                                            <span class="badge bg-{{ $plan->isUnlimited() ? 'primary' : 'info' }} fs-6">
+                                            <span class="badge bg-{{ $plan->isUnlimited() ? 'primary' : 'info' }} ">
                                                 {{ $plan->isUnlimited() ? 'حدود غير محدودة (∞)' : 'حدود محددة' }}
                                             </span>
 
-                                            <span class="badge bg-info fs-6">
-                                                دورة: {{ $plan->isTrial() ? '7 أيام' : ($plan->subscription_billing_cycle?->label() ?? 'غير محدد') }}
+                                            <span class="badge bg-info">
+                                                دورة:
+                                                {{ $plan->isTrial() ? '7 أيام' : $plan->subscription_billing_cycle?->label() ?? 'غير محدد' }}
                                             </span>
 
                                             @if (!empty($statistics['is_most_requested']))
-                                                <span class="badge bg-gradient-danger text-white fs-6">
+                                                <span class="badge bg-gradient-danger text-white ">
                                                     <i class="ti ti-flame me-1"></i>الأكثر طلباً
                                                 </span>
                                             @endif
@@ -153,7 +153,7 @@
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">السعر الأساسي للدورة</small>
-                                                    <span class="fw-bold fs-6">{{ number_format((float) $plan->price, 2) }}
+                                                    <span class="fw-bold ">{{ number_format((float) $plan->price, 2) }}
                                                         ر.س</span>
                                                 </div>
                                             </div>
@@ -171,8 +171,7 @@
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">نسبة الخصم</small>
-                                                    <span
-                                                        class="fw-bold fs-6">{{ $plan->discount_percentage ?? 0 }}%</span>
+                                                    <span class="fw-bold ">{{ $plan->discount_percentage ?? 0 }}%</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -190,7 +189,7 @@
                                                 <div>
                                                     <small class="text-muted d-block">السعر النهائي</small>
                                                     <span
-                                                        class="fw-bold fs-6 text-success">{{ number_format($plan->price_after_discount, 2) }}
+                                                        class="fw-bold  text-success">{{ number_format($plan->price_after_discount, 2) }}
                                                         ر.س</span>
                                                 </div>
                                             </div>
@@ -209,7 +208,7 @@
                                                 <div>
                                                     <small class="text-muted d-block">سعر العرض السنوي</small>
                                                     <span
-                                                        class="fw-bold fs-6">{{ $plan->yearly_renewal_price ? number_format((float) $plan->yearly_renewal_price, 2) . ' ر.س' : 'غير متوفر' }}</span>
+                                                        class="fw-bold ">{{ $plan->yearly_renewal_price ? number_format((float) $plan->yearly_renewal_price, 2) . ' ر.س' : 'غير متوفر' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -227,7 +226,7 @@
                                                 <div>
                                                     <small class="text-muted d-block">المستخدمين المشمولين</small>
                                                     <span
-                                                        class="fw-bold fs-6">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->included_users . ' مستخدم' }}</span>
+                                                        class="fw-bold ">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->included_users . ' مستخدم' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -245,7 +244,7 @@
                                                 <div>
                                                     <small class="text-muted d-block">ترخيص المستخدم الإضافي</small>
                                                     <span
-                                                        class="fw-bold fs-6">{{ $plan->isUnlimited() ? 'غير مطلوب' : ($plan->extra_user_license_price ? number_format((float) $plan->extra_user_license_price, 2) . ' ر.س' : '0.00 ر.س') }}</span>
+                                                        class="fw-bold ">{{ $plan->isUnlimited() ? 'غير مطلوب' : ($plan->extra_user_license_price ? number_format((float) $plan->extra_user_license_price, 2) . ' ر.س' : '0.00 ر.س') }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -263,7 +262,7 @@
                                                 <div>
                                                     <small class="text-muted d-block">حد العقارات</small>
                                                     <span
-                                                        class="fw-bold fs-6">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->properties_limit ?? '-' }}</span>
+                                                        class="fw-bold ">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->properties_limit ?? '-' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -281,7 +280,7 @@
                                                 <div>
                                                     <small class="text-muted d-block">حصة التخزين</small>
                                                     <span
-                                                        class="fw-bold fs-6">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : ($plan->storage_quota_gb ? $plan->storage_quota_gb . ' GB' : '-') }}</span>
+                                                        class="fw-bold ">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : ($plan->storage_quota_gb ? $plan->storage_quota_gb . ' GB' : '-') }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -299,7 +298,7 @@
                                                 <div>
                                                     <small class="text-muted d-block">حد المزادات النشطة</small>
                                                     <span
-                                                        class="fw-bold fs-6">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->active_auctions_limit ?? '-' }}</span>
+                                                        class="fw-bold ">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->active_auctions_limit ?? '-' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -317,7 +316,7 @@
                                                 <div>
                                                     <small class="text-muted d-block">إدارة الدومينات</small>
                                                     <span
-                                                        class="fw-bold fs-6">{{ $plan->domain_management_enabled ? 'مفعّلة' : 'غير مفعّلة' }}</span>
+                                                        class="fw-bold ">{{ $plan->domain_management_enabled ? 'مفعّلة' : 'غير مفعّلة' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -335,7 +334,7 @@
                                                 <div>
                                                     <small class="text-muted d-block">تاريخ بدء الإتاحة</small>
                                                     <span
-                                                        class="fw-bold fs-6">{{ $plan->available_from ? $plan->available_from->format('Y-m-d') : 'متاحة فوراً' }}</span>
+                                                        class="fw-bold ">{{ $plan->available_from ? $plan->available_from->format('Y-m-d') : 'متاحة فوراً' }}</span>
                                                 </div>
                                             </div>
                                         </div>

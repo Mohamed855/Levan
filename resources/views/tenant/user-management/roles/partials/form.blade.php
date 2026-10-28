@@ -2,12 +2,12 @@
     $isEdit = isset($role) && $role->exists;
 @endphp
 
-<x-form.controls.input name="name" label="معرّف الدور" :value="old('name', isset($role) ? \App\Support\AccessLabels::role($role->name) : '')" placeholder="مثال: collection_manager"
-    :readonly="$isEdit" required col="col-md-6 mb-3" :help="$isEdit
-        ? 'معرّف الدور ثابت ولا يمكن تعديله بعد الإنشاء للحفاظ على استقرار الصلاحيات.'
-        : 'يُحفظ معرفاً إنجليزياً فقط، وتُترجم التسمية في الواجهة.'" />
+<div class="row g-4">
+    <x-form.controls.input name="name" label="اسم الدور" :value="old('name', isset($role) ? \App\Support\AccessLabels::role($role->name) : '')" placeholder="مثال: ContentManager" required
+        col="col-12" />
+</div>
 
-<div class="mb-3" data-form-field data-field-name="permissions">
+<div class="mb-3">
     <div class="d-flex justify-content-between align-items-center my-3 gap-3">
         <label for="permissions" class="form-label">الصلاحيات</label>
         <!-- تحديد الكل العام -->
@@ -57,7 +57,7 @@
                                                         value="{{ $permission->name }}"
                                                         class="form-check-input permission-checkbox"
                                                         id="permission-{{ $permission->id }}"
-                                                        data-section="{{ $loop->parent->index }}" data-form-control
+                                                        data-section="{{ $loop->parent->index }}"
                                                         {{ $isEdit && $role->hasPermissionTo($permission->name) ? 'checked' : '' }}>
                                                     <label class="form-check-label"
                                                         for="permission-{{ $permission->id }}">
@@ -75,14 +75,13 @@
             @endforeach
         </div>
     </div>
-    <div class="invalid-feedback d-block" data-form-error role="alert" hidden></div>
 </div>
 
 <div class="d-flex justify-content-between align-items-center mt-4">
     <x-form.wizard.previous-button :href="tenant_route_name('roles.index')" text="العودة" />
     <div class="d-flex gap-2">
         @if (!$isEdit)
-            <x-form.wizard.draft-button />
+            <x-form.wizard.draft-button step="1" />
         @endif
         <x-form.wizard.save-button :text="$isEdit ? 'حفظ التعديلات' : 'حفظ'" />
     </div>
