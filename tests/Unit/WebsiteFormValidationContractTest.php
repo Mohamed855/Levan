@@ -7,6 +7,8 @@ namespace Tests\Unit;
 use App\Http\Requests\Site\StoreContactRequest;
 use App\Http\Requests\Site\StoreTrialRequest;
 use App\Http\Requests\Site\SubscriptionCheckoutRequest;
+use App\Models\Admin\Plans\Plan;
+use App\Models\Admin\Tenants\Tenant;
 use ReflectionClass;
 use Tests\TestCase;
 
@@ -70,5 +72,82 @@ class WebsiteFormValidationContractTest extends TestCase
 
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['billing_email' => 'البريد الإلكتروني موجود بالفعل']);
+    }
+
+    public function test_tenant_attributes_uniqueness_validation_on_trial_and_checkout_forms(): void
+    {
+        $tenantId = 'test_uniq_'.bin2hex(random_bytes(4));
+        $tenant = Tenant::create([
+            'id' => $tenantId,
+            'db_database' => 'levan_'.$tenantId,
+            'db_username' => 'root',
+            'db_password' => '',
+            'company_name' => 'شركة يونيك تجريبية',
+            'commercial_number' => '1099887766',
+            'tax_number' => '399999999999993',
+            'primary_contact_email' => 'tenant-unique@example.com',
+            'primary_contact_phone' => '0599887766',
+        ]);
+
+        try {
+            $plan = Plan::firstOrFail();
+            $endpoints = [
+                ['path' => '/trial', 'action' => 'trial'],
+                ['path' => route('site.plans.checkout.store', $plan->id, false), 'action' => 'checkout'],
+            ];
+
+            foreach ($endpoints as $endpoint) {
+                // 1. Commercial number
+                $this->postJson(route('site.form-validation'), [
+                    'target_path' => $endpoint['path'],
+                    'target_method' => 'POST',
+                    'fields' => ['billing_commercial_number'],
+                    'billing_commercial_number' => '1099887766',
+                ])->assertUnprocessable()->assertJsonValidationErrors([
+                    'billing_commercial_number' => 'رقم السجل التجاري مستخدم مسبقًا',
+                ]);
+
+                // 2. Tax number
+                $this->postJson(route('site.form-validation'), [
+                    'target_path' => $endpoint['path'],
+                    'target_method' => 'POST',
+                    'fields' => ['billing_tax_number'],
+                    'billing_tax_number' => '399999999999993',
+                ])->assertUnprocessable()->assertJsonValidationErrors([
+                    'billing_tax_number' => 'الرقم الضريبي مستخدم مسبقًا',
+                ]);
+
+                // 3. Email
+                $this->postJson(route('site.form-validation'), [
+                    'target_path' => $endpoint['path'],
+                    'target_method' => 'POST',
+                    'fields' => ['billing_email'],
+                    'billing_email' => 'tenant-unique@example.com',
+                ])->assertUnprocessable()->assertJsonValidationErrors([
+                    'billing_email' => 'البريد الإلكتروني موجود بالفعل',
+                ]);
+
+                // 4. Phone (testing standard and 966 candidate)
+                $this->postJson(route('site.form-validation'), [
+                    'target_path' => $endpoint['path'],
+                    'target_method' => 'POST',
+                    'fields' => ['billing_phone'],
+                    'billing_phone' => '0599887766',
+                ])->assertUnprocessable()->assertJsonValidationErrors([
+                    'billing_phone' => 'رقم الجوال مستخدم بالفعل في النظام.',
+                ]);
+
+                $this->postJson(route('site.form-validation'), [
+                    'target_path' => $endpoint['path'],
+                    'target_method' => 'POST',
+                    'fields' => ['billing_phone'],
+                    'billing_phone' => '966599887766',
+                ])->assertUnprocessable()->assertJsonValidationErrors([
+                    'billing_phone' => 'رقم الجوال مستخدم بالفعل في النظام.',
+                ]);
+            }
+        } finally {
+            $tenant->forceDelete();
+        }
     }
 }

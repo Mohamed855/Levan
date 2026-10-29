@@ -111,8 +111,7 @@
                                                     <i class="ti ti-rotate-clockwise"></i>
                                                     <span>إعادة إرسال الرمز</span>
                                                     <span class="text-xs text-muted"
-                                                        id="otp-remaining-attempts">({{ max(0, ($maxResends ?? 3) - ($resendCount ?? 0)) }}
-                                                        محاولة متبقية)</span>
+                                                        id="otp-remaining-attempts">({{ max(0, ($maxResends ?? 3) - ($resendCount ?? 0)) }} محاولة متبقية)</span>
                                                 </button>
                                             </div>
                                         </div>

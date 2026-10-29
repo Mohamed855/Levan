@@ -19,14 +19,24 @@ final class SystemPhoneAvailable implements ValidationRule
             return;
         }
 
-        if (AdminUser::query()->where('phone', $phone)->exists()
-            || Tenant::query()->where('primary_contact_phone', $phone)->exists()
-            || $this->existsInTenantUsers($phone)) {
+        $candidates = [$phone];
+        if (str_starts_with($phone, '05') && strlen($phone) === 10) {
+            $candidates[] = '966'.substr($phone, 1);
+        } elseif (str_starts_with($phone, '9665') && strlen($phone) === 12) {
+            $candidates[] = '0'.substr($phone, 3);
+        }
+
+        if (AdminUser::query()->whereIn('phone', $candidates)->exists()
+            || Tenant::query()->whereIn('primary_contact_phone', $candidates)->exists()
+            || $this->existsInTenantUsers($candidates)) {
             $fail('رقم الجوال مستخدم بالفعل في النظام.');
         }
     }
 
-    private function existsInTenantUsers(string $phone): bool
+    /**
+     * @param list<string> $candidates
+     */
+    private function existsInTenantUsers(array $candidates): bool
     {
         if (app()->environment('testing')) {
             return false;
@@ -36,7 +46,7 @@ final class SystemPhoneAvailable implements ValidationRule
             try {
                 $exists = $tenant->run(
                     fn (): bool => Schema::connection('tenant')->hasTable('users')
-                        && TenantUser::query()->where('phone', $phone)->exists()
+                        && TenantUser::query()->whereIn('phone', $candidates)->exists()
                 );
             } catch (\Throwable) {
                 $exists = false;

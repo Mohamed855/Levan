@@ -55,6 +55,7 @@ final class ApproveTrialRequestAction
                 Validator::make($metadata, [
                     'billing_company_name' => 'unique:tenants,company_name',
                     'billing_commercial_number' => 'unique:tenants,commercial_number',
+                    'billing_tax_number' => 'unique:tenants,tax_number',
                     'billing_email' => [new SystemEmailAvailable],
                     'billing_phone' => [new SystemPhoneAvailable],
                 ])->validate();

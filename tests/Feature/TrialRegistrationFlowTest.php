@@ -61,7 +61,8 @@ class TrialRegistrationFlowTest extends TestCase
         return [
             'billing_company_name' => 'شركة اختبار التجربة '.Str::random(8),
             'billing_commercial_number' => (string) random_int(1000000000, 1999999999),
-            'billing_tax_number' => '300000000000003', 'billing_city_id' => City::firstOrFail()->id,
+            'billing_tax_number' => '3'.random_int(1000000000000, 9999999999999).'3',
+            'billing_city_id' => City::firstOrFail()->id,
             'billing_address' => 'الرياض', 'billing_name' => 'مدير التجربة',
             'billing_email' => 'trial-'.Str::lower(Str::random(12)).'@example.test',
             'billing_phone' => '05'.random_int(10000000, 99999999),

@@ -46,12 +46,12 @@ class SubscriptionCheckoutRequest extends FormRequest
         return [
             'billing_company_name' => ['required', 'string', 'min:2', 'max:255', Rule::unique('tenants', 'company_name')],
             'billing_commercial_number' => ['required', 'digits:10', 'regex:/^\d{10}$/', Rule::unique('tenants', 'commercial_number')],
-            'billing_tax_number' => ['required', 'digits:15', 'regex:/^3\d{13}3$/'],
+            'billing_tax_number' => ['required', 'digits:15', 'regex:/^3\d{13}3$/', Rule::unique('tenants', 'tax_number')],
             'billing_city_id' => ['required', 'exists:cities,id'],
             'billing_address' => ['required', 'string', 'max:255'],
             'billing_name' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\p{Arabic}a-zA-Z\s\.\-]+$/u'],
-            'billing_email' => ['required', 'email', 'max:255', new SystemEmailAvailable()],
-            'billing_phone' => ['required', 'regex:/^(05\d{8}|966\d{9})$/', new SystemPhoneAvailable()],
+            'billing_email' => ['required', 'email', 'max:255', Rule::unique('tenants', 'primary_contact_email'), new SystemEmailAvailable()],
+            'billing_phone' => ['required', 'regex:/^(05\d{8}|966\d{9})$/', Rule::unique('tenants', 'primary_contact_phone'), new SystemPhoneAvailable()],
             'billing_password' => ['required', 'string', 'min:8', 'max:50', 'confirmed'],
             'coupon_code' => ['nullable', 'string', 'max:255'],
 
@@ -72,6 +72,7 @@ class SubscriptionCheckoutRequest extends FormRequest
 
             'billing_tax_number.required' => 'الرقم الضريبي مطلوب',
             'billing_tax_number.digits' => 'يجب أن يحتوي الرقم الضريبي على 15 رقمًا',
+            'billing_tax_number.unique' => 'الرقم الضريبي مستخدم مسبقًا',
             'billing_tax_number.regex' => 'الرقم الضريبي يجب أن يتكون من 15 رقمًا، يبدأ بالرقم 3 وينتهي بالرقم 3',
 
             'billing_city_id.required' => 'المدينة مطلوبة',
@@ -89,6 +90,7 @@ class SubscriptionCheckoutRequest extends FormRequest
             'billing_email.unique' => 'البريد الإلكتروني موجود بالفعل',
 
             'billing_phone.required' => 'رقم الجوال مطلوب',
+            'billing_phone.unique' => 'رقم الجوال مستخدم بالفعل في النظام.',
             'billing_phone.regex' => 'صيغة رقم الجوال غير صحيحة (يجب أن يبدأ بـ 05 أو 966)',
 
             'billing_password.required' => 'كلمة المرور مطلوبة',

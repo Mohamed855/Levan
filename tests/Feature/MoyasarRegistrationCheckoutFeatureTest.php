@@ -63,7 +63,7 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
         $payload = [
             'billing_company_name' => $companyName,
             'billing_commercial_number' => $commercialNumber,
-            'billing_tax_number' => '300000000000003',
+            'billing_tax_number' => '3'.rand(1000000000000, 9999999999999).'3',
             'billing_city_id' => $city?->id,
             'billing_address' => 'الرياض، حي الصحافة',
             'billing_name' => 'أحمد محمد',
@@ -333,7 +333,7 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
             'plan_id' => $this->publicPlan->id,
             'billing_company_name' => 'Resend Company '.rand(1000, 9999),
             'billing_commercial_number' => '1010'.rand(100000, 999999),
-            'billing_tax_number' => '300000000000003',
+            'billing_tax_number' => '3'.rand(1000000000000, 9999999999999).'3',
             'billing_city_id' => City::firstOrFail()->id,
             'billing_address' => 'Riyadh',
             'billing_name' => 'Resend User',

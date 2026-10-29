@@ -1,0 +1,482 @@
+[
+    {
+        "boundary": "admin",
+        "view": "admin.activity-logs.index",
+        "path": "resources/views/admin/activity-logs/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.activity-logs.show",
+        "path": "resources/views/admin/activity-logs/show.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.archive.bill.index",
+        "path": "resources/views/admin/archive/bill/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.archive.coupon.index",
+        "path": "resources/views/admin/archive/coupon/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.archive.admin_user.index",
+        "path": "resources/views/admin/archive/admin_user/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.archive.plan.index",
+        "path": "resources/views/admin/archive/plan/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.archive.tenant.index",
+        "path": "resources/views/admin/archive/tenant/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.clients.create",
+        "path": "resources/views/admin/clients/create.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.clients.edit",
+        "path": "resources/views/admin/clients/edit.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.clients.index",
+        "path": "resources/views/admin/clients/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.clients.show",
+        "path": "resources/views/admin/clients/show.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.public-requests.contact.index",
+        "path": "resources/views/admin/public-requests/contact/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.public-requests.contact.show",
+        "path": "resources/views/admin/public-requests/contact/show.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.coupons.details",
+        "path": "resources/views/admin/coupons/details.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.dashboard.index",
+        "path": "resources/views/admin/dashboard/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "shared.dashboard-notifications",
+        "path": "resources/views/shared/dashboard-notifications.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.faqs.form",
+        "path": "resources/views/admin/faqs/form.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.faqs.index",
+        "path": "resources/views/admin/faqs/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.auth.login",
+        "path": "resources/views/admin/auth/login.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.subscriptions.create",
+        "path": "resources/views/admin/subscriptions/create.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.subscriptions.index",
+        "path": "resources/views/admin/subscriptions/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.public-requests.trial.index",
+        "path": "resources/views/admin/public-requests/trial/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.public-requests.trial.show",
+        "path": "resources/views/admin/public-requests/trial/show.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.auth.two-factor-settings",
+        "path": "resources/views/admin/auth/two-factor-settings.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "admin",
+        "view": "admin.auth.two-factor-challenge",
+        "path": "resources/views/admin/auth/two-factor-challenge.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.activity-logs.archives",
+        "path": "resources/views/tenant/activity-logs/archives.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.activity-logs.index",
+        "path": "resources/views/tenant/activity-logs/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.activity-logs.show",
+        "path": "resources/views/tenant/activity-logs/show.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.settings.api_token.index",
+        "path": "resources/views/tenant/settings/api_token/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.archive.assignments.index",
+        "path": "resources/views/tenant/archive/assignments/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.archive.auctions.index",
+        "path": "resources/views/tenant/archive/auctions/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.archive.properties.index",
+        "path": "resources/views/tenant/archive/properties/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.archive.users.index",
+        "path": "resources/views/tenant/archive/users/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.assignments.create",
+        "path": "resources/views/tenant/assignments/create.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.assignments.edit",
+        "path": "resources/views/tenant/assignments/edit.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.assignments.index",
+        "path": "resources/views/tenant/assignments/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.assignments.show",
+        "path": "resources/views/tenant/assignments/show.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.auctions.create",
+        "path": "resources/views/tenant/auctions/create.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.auctions.edit",
+        "path": "resources/views/tenant/auctions/edit.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.auctions.index",
+        "path": "resources/views/tenant/auctions/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.auctions.show",
+        "path": "resources/views/tenant/auctions/show.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.payment.moyasar-checkout",
+        "path": "resources/views/tenant/payment/moyasar-checkout.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.dashboard.index",
+        "path": "resources/views/tenant/dashboard/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "shared.dashboard-notifications",
+        "path": "resources/views/shared/dashboard-notifications.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.domains.explain",
+        "path": "resources/views/tenant/domains/explain.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.domains.faq",
+        "path": "resources/views/tenant/domains/faq.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.domains.linkdomain",
+        "path": "resources/views/tenant/domains/linkdomain.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.domains.linksubdomain",
+        "path": "resources/views/tenant/domains/linksubdomain.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.domains.index",
+        "path": "resources/views/tenant/domains/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.domains.renewalpayment",
+        "path": "resources/views/tenant/domains/renewalpayment.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.domains.setting",
+        "path": "resources/views/tenant/domains/setting.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.domains.explain-create-subdomain",
+        "path": "resources/views/tenant/domains/explain-create-subdomain.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.auth.login",
+        "path": "resources/views/tenant/auth/login.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.notifications.all",
+        "path": "resources/views/tenant/notifications/all.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.notifications.index",
+        "path": "resources/views/tenant/notifications/index.blade.php",
+        "exists": false
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.auth.confirm-password",
+        "path": "resources/views/tenant/auth/confirm-password.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.auth.forgot-password",
+        "path": "resources/views/tenant/auth/forgot-password.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.auth.reset-password",
+        "path": "resources/views/tenant/auth/reset-password.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.properties.create",
+        "path": "resources/views/tenant/properties/create.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.properties.edit",
+        "path": "resources/views/tenant/properties/edit.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.properties.index",
+        "path": "resources/views/tenant/properties/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.properties.show",
+        "path": "resources/views/tenant/properties/show.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.auth.register",
+        "path": "resources/views/tenant/auth/register.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.user-management.roles.create",
+        "path": "resources/views/tenant/user-management/roles/create.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.user-management.roles.edit",
+        "path": "resources/views/tenant/user-management/roles/edit.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.user-management.roles.index",
+        "path": "resources/views/tenant/user-management/roles/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.user-management.roles.show",
+        "path": "resources/views/tenant/user-management/roles/show.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.settings.center",
+        "path": "resources/views/tenant/settings/center.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.settings.settings",
+        "path": "resources/views/tenant/settings/settings.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.subscriptions.index",
+        "path": "resources/views/tenant/subscriptions/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.subscriptions.upgrade.checkout",
+        "path": "resources/views/tenant/subscriptions/upgrade/checkout.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.subscriptions.renew.checkout",
+        "path": "resources/views/tenant/subscriptions/renew/checkout.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.auth.two-factor-settings",
+        "path": "resources/views/tenant/auth/two-factor-settings.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.auth.two-factor-challenge",
+        "path": "resources/views/tenant/auth/two-factor-challenge.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.user-management.users.create",
+        "path": "resources/views/tenant/user-management/users/create.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.user-management.users.edit",
+        "path": "resources/views/tenant/user-management/users/edit.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.user-management.users.index",
+        "path": "resources/views/tenant/user-management/users/index.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.user-management.users.reset",
+        "path": "resources/views/tenant/user-management/users/reset.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "tenant.user-management.users.show",
+        "path": "resources/views/tenant/user-management/users/show.blade.php",
+        "exists": true
+    },
+    {
+        "boundary": "tenant",
+        "view": "auth.verify-email",
+        "path": "resources/views/auth/verify-email.blade.php",
+        "exists": false
+    }
+]

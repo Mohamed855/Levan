@@ -109,7 +109,7 @@ final class SiteActionsFeatureTest extends TestCase
         $detailsPayload = [
             'billing_company_name' => "شركة التقنية {$unique}",
             'billing_commercial_number' => '1010'.rand(100000, 999999),
-            'billing_tax_number' => '300000000000003',
+            'billing_tax_number' => '3'.rand(1000000000000, 9999999999999).'3',
             'billing_city_id' => $city->id,
             'billing_address' => 'الرياض، حي النخيل',
             'billing_name' => 'سلطان القحطاني',
