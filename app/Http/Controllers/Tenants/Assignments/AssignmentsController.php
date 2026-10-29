@@ -9,6 +9,7 @@ use App\Actions\Tenants\Assignments\UpdateAssignmentAction;
 use App\DataTables\Tenants\Assignments\AssignmentPropertySelectionDataTable;
 use App\DataTables\Tenants\Assignments\AssignmentsDataTable;
 use App\Enums\Tenants\Assignments\AssignmentCategory;
+use App\Helpers\Tenants\Settings\SettingsHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Assignments\SelectedAssignmentPropertiesRequest;
 use App\Http\Requests\Tenants\Assignments\StoreAssignmentRequest;
@@ -19,9 +20,9 @@ use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Assignments\AssignmentService;
 use App\Services\Tenants\Shared\CentralCityOptionsGateway;
-use App\Helpers\Tenants\Settings\SettingsHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -44,6 +45,7 @@ class AssignmentsController extends Controller
     public function index(AssignmentsDataTable $dataTable)
     {
         $statistics = $this->assignmentService->getStatistics();
+
         return $dataTable->render('tenant.assignments.index', [
             'totalAssignments' => $statistics['total'],
             'activeAssignments' => $statistics['active'],
@@ -160,7 +162,7 @@ class AssignmentsController extends Controller
         } catch (ValidationException $exception) {
             throw $exception;
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Assignment update failed.', ['exception' => $e]);
+            Log::error('Assignment update failed.', ['exception' => $e]);
 
             return redirect()->back()
                 ->withInput()
@@ -226,12 +228,12 @@ class AssignmentsController extends Controller
             ->select(['id', 'property_number', 'name', 'type', 'city', 'district', 'area', 'deed_number', 'estimated_value', 'data_status', 'status', 'main_image'])
             ->get()
             ->map(function ($prop) {
-                $isSold = $prop->status === 'sold' || \Illuminate\Support\Facades\DB::table('auction_properties')
+                $isSold = $prop->status === 'sold' || DB::table('auction_properties')
                     ->where('property_id', $prop->id)
                     ->where('result_status', 'sold')
                     ->exists();
 
-                $activeAuction = \Illuminate\Support\Facades\DB::table('auction_properties')
+                $activeAuction = DB::table('auction_properties')
                     ->join('auctions', 'auctions.id', '=', 'auction_properties.auction_id')
                     ->where('auction_properties.property_id', $prop->id)
                     ->whereIn('auctions.status', ['active', 'in_preparation', 'pending_approval'])
@@ -249,6 +251,43 @@ class AssignmentsController extends Controller
                 return $prop;
             });
 
+        $city = $assignment->city;
+        if (empty($city)) {
+            $city = $assignment->properties()->whereNotNull('city')->where('city', '!=', '')->value('city');
+        }
+
+        $cityMap = [
+            'Riyadh' => 'الرياض',
+            'Jeddah' => 'جدة',
+            'Dammam' => 'الدمام',
+            'Mecca' => 'مكة المكرمة',
+            'Makkah' => 'مكة المكرمة',
+            'Medina' => 'المدينة المنورة',
+            'Madinah' => 'المدينة المنورة',
+            'Khobar' => 'الخبر',
+            'Al Khobar' => 'الخبر',
+            'Dhahran' => 'الظهران',
+            'Abha' => 'أبها',
+            'Taif' => 'الطائف',
+            'Tabuk' => 'تبوك',
+            'Buraidah' => 'بريدة',
+            'Jazan' => 'جازان',
+            'Jizan' => 'جازان',
+            'Hail' => 'حائل',
+            'Jubail' => 'الجبيل',
+            'Al Jubail' => 'الجبيل',
+            'Yanbu' => 'ينبع',
+            'Najran' => 'نجران',
+        ];
+
+        if ($city && isset($cityMap[$city])) {
+            $city = $cityMap[$city];
+        }
+
+        $category = $assignment->category instanceof \BackedEnum
+            ? $assignment->category->value
+            : (string) $assignment->category;
+
         return response()->json([
             'success' => true,
             'assignment' => [
@@ -256,8 +295,8 @@ class AssignmentsController extends Controller
                 'assignment_number' => $assignment->assignment_number,
                 'name' => $assignment->name,
                 'issuing_entity' => $assignment->issuing_entity,
-                'city' => $assignment->city,
-                'category' => $assignment->category instanceof \BackedEnum ? $assignment->category->value : (string) $assignment->category,
+                'city' => $city,
+                'category' => $category,
                 'status_label' => $assignment->status_label,
                 'start_date' => $assignment->start_date?->format('Y-m-d'),
                 'end_date' => $assignment->end_date?->format('Y-m-d'),

@@ -425,9 +425,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
 | Authentication: Password Reset & Change
 |--------------------------------------------------------------------------
 */
-Route::get('impersonate', [AuthenticatedSessionController::class, 'impersonate'])
-    ->name('impersonate');
-
 Route::middleware('guest:tenant')->group(function () {
     Route::match(['post', 'put', 'patch'], 'form-validation', [WizardDraftController::class, 'validateStep'])
         ->defaults('shared_form_validation_actions', [

@@ -180,6 +180,56 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    function syncSelectValue(selector, targetVal) {
+        if (!targetVal) return;
+        const $select = $(selector);
+        if (!$select.length) return;
+
+        // 1. Direct match by option value
+        if ($select.find(`option[value="${targetVal}"]`).length > 0) {
+            $select.val(targetVal).trigger("change").trigger("change.select2");
+            return;
+        }
+
+        // 2. Case-insensitive or trimmed match by option value
+        let found = null;
+        $select.find("option").each(function () {
+            const val = $(this).val();
+            if (val && val.toString().trim().toLowerCase() === targetVal.toString().trim().toLowerCase()) {
+                found = val;
+                return false;
+            }
+        });
+
+        // 3. Match by option text
+        if (!found) {
+            $select.find("option").each(function () {
+                const text = $(this).text().trim();
+                if (text && text === targetVal.toString().trim()) {
+                    found = $(this).val();
+                    return false;
+                }
+            });
+        }
+
+        // 4. Substring / contains match
+        if (!found) {
+            $select.find("option").each(function () {
+                const val = $(this).val();
+                const text = $(this).text().trim();
+                const sTarget = targetVal.toString().trim();
+                if (val && (val.includes(sTarget) || sTarget.includes(val) || text.includes(sTarget) || sTarget.includes(text))) {
+                    found = val;
+                    return false;
+                }
+            });
+        }
+
+        if (found !== null) {
+            $select.val(found).trigger("change").trigger("change.select2");
+        }
+    }
+
     // Dynamic Assignment Handling & Properties Loading
     function loadAssignmentProperties(
         assignmentId,
@@ -234,35 +284,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     const isEditForm = form.id === "auction-edit-form";
 
-                    // Step 1: Link main city and category automatically matching assignment
-                    if (!isEditForm || !$("#city").val()) {
+                    // Step 1: Link main city, category, times, etc.
+                    if (!isEditForm) {
+                        // In create mode: unconditionally link city and category
                         if (res.assignment.city) {
-                            $("#city")
-                                .val(res.assignment.city)
-                                .trigger("change");
+                            syncSelectValue("#city", res.assignment.city);
                         }
-                    }
-
-                    if (!isEditForm || !$("#category").val()) {
                         if (res.assignment.category) {
-                            $("#category")
-                                .val(res.assignment.category)
-                                .trigger("change");
+                            syncSelectValue("#category", res.assignment.category);
                         }
-                    }
-
-                    // Auto-fill start_time: 00:00 and end_time: 23:59
-                    if (!isEditForm || !$("#start_time").val()) {
+                        // Default start_time: 00:00 and end_time: 23:59
                         $("#start_time")
                             .val("00:00")
                             .trigger("input")
                             .trigger("change");
-                    }
-                    if (!isEditForm || !$("#end_time").val()) {
                         $("#end_time")
                             .val("23:59")
                             .trigger("input")
                             .trigger("change");
+
+                        if (!$("#type").val()) {
+                            syncSelectValue("#type", "electronic");
+                        }
+                    } else {
+                        // In edit mode: only fill if empty
+                        if (!$("#city").val() && res.assignment.city) {
+                            syncSelectValue("#city", res.assignment.city);
+                        }
+                        if (!$("#category").val() && res.assignment.category) {
+                            syncSelectValue("#category", res.assignment.category);
+                        }
+                        if (!$("#start_time").val()) {
+                            $("#start_time")
+                                .val("00:00")
+                                .trigger("input")
+                                .trigger("change");
+                        }
+                        if (!$("#end_time").val()) {
+                            $("#end_time")
+                                .val("23:59")
+                                .trigger("input")
+                                .trigger("change");
+                        }
                     }
 
                     // Auto-fill supervising entity
@@ -270,7 +333,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         if (res.assignment.issuing_entity) {
                             $("#supervising_entity")
                                 .val(res.assignment.issuing_entity)
-                                .trigger("input");
+                                .trigger("input")
+                                .trigger("change");
                         }
                     }
 

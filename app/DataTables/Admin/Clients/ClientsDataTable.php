@@ -95,12 +95,7 @@ class ClientsDataTable extends AbstractDataTable
             ->editColumn('tax_number', fn (Tenant $row) => $row->tax_number ?: '-')
             ->editColumn('commercial_number', fn (Tenant $row) => $row->commercial_number ?: '-')
             ->editColumn('tenant_id', function (Tenant $row) {
-                $dashboardUrl = url('/'.$row->id.'/dashboard');
-
-                return '<a href="'.$dashboardUrl.'" class="text-dark d-inline-block fw-semibold" title="فتح لوحة التحكم" target="_blank">'
-                    .'<i class="ti ti-external-link me-1 text-primary"></i>'
-                    .e($row->id)
-                    .'</a>';
+                return e($row->id);
             })
             ->addColumn('plan', fn (Tenant $row) => $row->lastSubscription?->plan?->name ?: '-')
             ->addColumn('used_users', fn (Tenant $row) => $row->lastSubscription ? $row->lastSubscription->used_users : '-')

@@ -6,7 +6,7 @@ use App\Enums\Tenants\Assignments\AssignmentAttachmentCategory;
 use App\Models\Shared\Attachment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
-use App\Models\Tenants\UserMangment\User;
+use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

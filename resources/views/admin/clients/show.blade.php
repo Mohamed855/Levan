@@ -60,10 +60,6 @@
                                 بيانات العميل الأساسية
                             </h6>
                             <div class="d-flex align-items-center gap-2">
-                                <a href="{{ url('/' . $target->id . '/dashboard') }}" target="_blank"
-                                    class="btn btn-primary">
-                                    <i class="ti ti-dashboard me-1"></i>لوحة التحكم
-                                </a>
                                 @canany(['clients.edit', 'companies.edit'])
                                     <a href="{{ route('admin.clients.edit', $target->id) }}" class="btn btn-success">
                                         <i class="ti ti-edit me-1"></i>تعديل

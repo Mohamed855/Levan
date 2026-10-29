@@ -15,11 +15,8 @@ use App\Http\Requests\Admin\SubscriptionManagement\UpdateCompanySubscriptionRequ
 use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
-use App\Models\Admin\Tenants\Tenant;
-use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Admin\SubscriptionManagement\SubscriptionManagementService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 
 class SubscriptionManagementController extends Controller
@@ -191,27 +188,6 @@ class SubscriptionManagementController extends Controller
 
             return redirect()->back()->withInput()->with('error', 'حدث خطأ أثناء إضافة العميل');
         }
-    }
-
-    public function access(Tenant $tenant): RedirectResponse
-    {
-        tenancy()->initialize($tenant);
-
-        try {
-            $user = User::role('Admin')->orderBy('id')->first() ?? User::orderBy('id')->first();
-
-            abort_if(! $user, 404, 'لا يوجد مستخدم إداري لهذا العميل.');
-        } finally {
-            tenancy()->end();
-        }
-
-        $handoff = Crypt::encryptString(json_encode([
-            'tenant_id' => $tenant->id,
-            'user_id' => $user->getKey(),
-            'expires_at' => now()->addMinute()->timestamp,
-        ], JSON_THROW_ON_ERROR));
-
-        return redirect()->to(url($tenant->id.'/impersonate?token='.urlencode($handoff)));
     }
 
     public function edit(Subscription $subscription)

@@ -71,4 +71,28 @@ class AuctionFormAndDataTableParityTest extends TestCase
         $this->assertStringContainsString('برجاء الانتظار، جار تحضير تقارير المزاد', $showContent);
         $this->assertStringContainsString('reports-progress-bar', $showContent);
     }
+
+    public function test_auction_and_assignment_categories_are_identical(): void
+    {
+        $auctionCategories = collect(\App\Enums\Tenants\Auctions\AuctionCategory::cases())
+            ->mapWithKeys(fn ($c) => [$c->value => $c->label()])
+            ->all();
+
+        $assignmentCategories = collect(\App\Enums\Tenants\Assignments\AssignmentCategory::cases())
+            ->mapWithKeys(fn ($c) => [$c->value => $c->label()])
+            ->all();
+
+        $this->assertSame($assignmentCategories, $auctionCategories);
+    }
+
+    public function test_step1_basic_info_defaults_and_js_sync(): void
+    {
+        $step1Content = file_get_contents(resource_path('views/tenant/auctions/partials/steps/step1-basic-info.blade.php'));
+        $this->assertStringContainsString('AuctionType::ELECTRONIC->value', $step1Content);
+
+        $jsContent = file_get_contents(resource_path('assets/js/tenant/auctions/create.js'));
+        $this->assertStringContainsString('syncSelectValue', $jsContent);
+        $this->assertStringContainsString('"00:00"', $jsContent);
+        $this->assertStringContainsString('"23:59"', $jsContent);
+    }
 }

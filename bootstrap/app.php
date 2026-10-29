@@ -53,17 +53,21 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->group('admin', [
             'web',
         ]);
+        $middleware->appendToGroup('web', \App\Http\Middleware\PreventCrossPanelLogin::class);
 
         // Middleware aliases
         $middleware->priority([
             \Illuminate\Cookie\Middleware\EncryptCookies::class,
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \App\Http\Middleware\PreventCrossPanelLogin::class,
             \App\Http\Middleware\Tenancy\InitializeTenancyBySession::class,
             \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class,
             \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
             \App\Http\Middleware\Authenticate::class,
             \App\Http\Middleware\RedirectIfAuthenticated::class,
+            // Bind tenant records only after the session/domain/path initialized its database.
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ]);
 
         $middleware->alias([
