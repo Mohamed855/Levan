@@ -79,16 +79,12 @@ final class ApproveTrialRequestAction
             });
             cache()->forget("tenant:{$tenant->id}:subscription");
 
-            $loginUrl = route('path.dashboard', ['tenant' => $tenant->id], false);
-            if (! str_starts_with($loginUrl, 'http')) {
-                $loginUrl = url($loginUrl);
-            }
-            \App\Services\Shared\Mail\SystemMailService::sendTrialRequestApproved(
-                $request->customer_email,
-                $request->customer_name,
-                $loginUrl,
-                (int) config('trial.days', 7),
-                isset($end) ? $end->toDateString() : null
+            \App\Services\Shared\Mail\SystemMailService::sendTenantWelcome(
+                tenant: $tenant,
+                loginEmail: $request->customer_email,
+                source: 'trial',
+                trialDays: (int) config('trial.days', 7),
+                trialEndDate: isset($end) ? $end->toDateString() : null
             );
         } catch (Throwable $exception) {
             $request->update(['provisioning_status' => 'failed', 'provisioning_error' => 'تعذر إكمال إنشاء الحساب. يرجى إعادة المحاولة أو مراجعة سجل الأخطاء.']);

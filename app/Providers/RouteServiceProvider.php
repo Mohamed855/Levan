@@ -96,7 +96,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->domain($cleanDomain)
                 ->prefix('{tenant}')
                 ->name($index === 0 ? 'path.' : "central-domain-{$index}.path.")
-                ->where(['tenant' => '^(?!(?i)(admin|api)(?:\/|$))[^/]+$'])
+                ->where(['tenant' => '^(?!(?i)(admin|api)(?:\/|$))[a-zA-Z0-9_\-]+$'])
                 ->group(base_path('routes/tenant.php'));
         }
 

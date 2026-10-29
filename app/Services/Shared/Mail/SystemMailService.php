@@ -24,6 +24,7 @@ use App\Mail\Subscriptions\RenewSubscriptionMail;
 use App\Mail\Subscriptions\SubscriptionExpiredMail;
 use App\Mail\Subscriptions\SubscriptionExpiringMail;
 use App\Mail\Subscriptions\UpgradeSubscriptionMail;
+use App\Mail\Tenants\TenantWelcomeMail;
 use App\Mail\Tickets\TicketCreatedAdminMail;
 use App\Mail\Tickets\TicketCreatedClientMail;
 use App\Mail\Tickets\TicketReplyMail;
@@ -32,6 +33,7 @@ use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\PublicRequests\TrialRequest;
 use App\Models\Admin\Settings\Settings;
 use App\Models\Admin\Subscription\Subscription;
+use App\Models\Admin\Tenants\Tenant;
 use App\Models\Admin\Tickets\Ticket;
 use App\Models\Admin\Tickets\TicketReply;
 use Illuminate\Mail\Mailable;
@@ -128,6 +130,37 @@ class SystemMailService
     public static function sendVerifyEmail(string $email, string $verifyUrl, ?string $userName = null): bool
     {
         return self::sendSafely($email, new VerifyEmailMail($verifyUrl, $userName), true);
+    }
+
+    public static function sendTenantWelcome(
+        Tenant $tenant,
+        ?string $loginEmail = null,
+        string $source = 'subscription',
+        ?int $trialDays = null,
+        ?string $trialEndDate = null,
+        ?string $temporaryPassword = null
+    ): bool {
+        $loginEmail = $loginEmail ?: $tenant->primary_contact_email;
+        if (empty($loginEmail)) {
+            Log::warning("SystemMailService::sendTenantWelcome: Tenant {$tenant->id} has no valid contact email.");
+
+            return false;
+        }
+
+        $loginUrl = $tenant->getLoginUrl();
+
+        return self::sendSafely(
+            $loginEmail,
+            new TenantWelcomeMail(
+                tenant: $tenant,
+                loginUrl: $loginUrl,
+                loginEmail: $loginEmail,
+                creationSource: $source,
+                temporaryPassword: $temporaryPassword,
+                trialDays: $trialDays,
+                trialEndDate: $trialEndDate
+            )
+        );
     }
 
     /*

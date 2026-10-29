@@ -261,4 +261,20 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 
         return $plainTextToken;
     }
+
+    /**
+     * رابط تسجيل الدخول المباشر للـ Tenant.
+     */
+    public function getLoginUrl(): string
+    {
+        if ($this->access_type === 'domain' && $this->custom_domain_active && $domain = $this->domains()->first()) {
+            $scheme = request()->getScheme() ?: (app()->environment('local') ? 'http' : 'https');
+
+            return "{$scheme}://{$domain->domain}/login";
+        }
+
+        $url = route('path.login', ['tenant' => $this->id], false);
+
+        return str_starts_with($url, 'http') ? $url : url($url);
+    }
 }

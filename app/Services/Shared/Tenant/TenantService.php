@@ -83,6 +83,12 @@ class TenantService
         // إرسال الإيميل
         SendSubscriptionMailJob::dispatch($data['email'], $subscription, 'new')->onQueue('email');
 
+        \App\Services\Shared\Mail\SystemMailService::sendTenantWelcome(
+            $tenant,
+            $data['email'] ?? $tenant->primary_contact_email,
+            'subscription'
+        );
+
         return $tenant;
     }
 

@@ -266,6 +266,13 @@ class SubscriptionService
             //  إرسال البريد الإلكتروني
             SendSubscriptionMailJob::dispatch($metadata['billing_email'], $subscription, 'new')->onQueue('email');
 
+            // إرسال البريد الترحيبي للـ Tenant
+            \App\Services\Shared\Mail\SystemMailService::sendTenantWelcome(
+                $tenant,
+                $metadata['billing_email'] ?? $tenant->primary_contact_email,
+                'subscription'
+            );
+
             return [
                 'tenant_id' => $tenant->id,
                 'message'   => 'تم إنشاء الاشتراك بنجاح.',
@@ -317,6 +324,14 @@ class SubscriptionService
         // $this->applyCoupon($bill);
 
         SendSubscriptionMailJob::dispatch($bill->metadata['billing_email'], $subscription, 'new')->onQueue('email');
+
+        // إرسال البريد الترحيبي للـ Tenant
+        \App\Services\Shared\Mail\SystemMailService::sendTenantWelcome(
+            $tenant,
+            $bill->metadata['billing_email'] ?? $tenant->primary_contact_email,
+            'superadmin',
+            temporaryPassword: $data['password'] ?? null
+        );
 
         return ['tenant_id' => $tenant->id, 'message' => 'تم إنشاء الاشتراك بنجاح.'];
     }
