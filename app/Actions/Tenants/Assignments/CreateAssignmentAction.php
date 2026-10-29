@@ -18,21 +18,54 @@ final class CreateAssignmentAction
 {
     public function __construct(private readonly AssignmentService $assignmentService) {}
 
-    public function execute(array $data, int $creatorId): Assignment
-    {
+    public function execute(
+        array $data,
+        int $creatorId,
+        ?UploadedFile $image = null,
+        ?UploadedFile $letter = null,
+        array $generalDocuments = [],
+        array $additionalAttachments = [],
+    ): Assignment {
         $storedPaths = [];
 
         try {
-            return DB::transaction(function () use ($data, $creatorId, &$storedPaths): Assignment {
-                $propertyIds = array_values(array_unique(array_map('intval', $data['property_ids'])));
+            return DB::transaction(function () use (
+                $data,
+                $creatorId,
+                $image,
+                $letter,
+                $generalDocuments,
+                $additionalAttachments,
+                &$storedPaths
+            ): Assignment {
+                $propertyIds = array_values(array_unique(array_map('intval', (array) ($data['property_ids'] ?? []))));
+
+                $image = $image ?? ($data['assignment_image'] ?? null);
+                $letter = $letter ?? ($data['assignment_letter'] ?? null);
+
+                $rawGeneral = ! empty($generalDocuments) ? $generalDocuments : ($data['general_documents'] ?? []);
+                $generalDocs = is_array($rawGeneral) ? $rawGeneral : array_filter([$rawGeneral]);
+
+                $rawAdditional = ! empty($additionalAttachments) ? $additionalAttachments : ($data['additional_attachments'] ?? []);
+                $additionalDocs = is_array($rawAdditional) ? $rawAdditional : array_filter([$rawAdditional]);
+
                 $files = [
-                    AssignmentAttachmentCategory::IMAGE->value => [$data['assignment_image']],
-                    AssignmentAttachmentCategory::LETTER->value => [$data['assignment_letter']],
-                    AssignmentAttachmentCategory::GENERAL_DOCUMENT->value => $data['general_documents'],
-                    AssignmentAttachmentCategory::ADDITIONAL_ATTACHMENT->value => $data['additional_attachments'],
+                    AssignmentAttachmentCategory::IMAGE->value => array_filter([$image]),
+                    AssignmentAttachmentCategory::LETTER->value => array_filter([$letter]),
+                    AssignmentAttachmentCategory::GENERAL_DOCUMENT->value => array_filter($generalDocs),
+                    AssignmentAttachmentCategory::ADDITIONAL_ATTACHMENT->value => array_filter($additionalDocs),
                 ];
 
-                unset($data['property_ids'], $data['assignment_image'], $data['assignment_letter'], $data['general_documents'], $data['additional_attachments'], $data['_wizard_draft_id'], $data['_wizard_resource_key']);
+                unset(
+                    $data['property_ids'],
+                    $data['assignment_image'],
+                    $data['assignment_letter'],
+                    $data['general_documents'],
+                    $data['additional_attachments'],
+                    $data['_wizard_draft_id'],
+                    $data['_wizard_resource_key'],
+                    $data['status'],
+                );
 
                 if (empty($data['assignment_number'])) {
                     $data['assignment_number'] = $this->assignmentService->generateAssignmentNumber();
@@ -40,7 +73,10 @@ final class CreateAssignmentAction
 
                 $data['created_by'] = $creatorId;
                 $data['is_active'] = (bool) ($data['is_active'] ?? true);
-                unset($data['status']);
+                if (isset($data['category']) && $data['category'] instanceof \BackedEnum) {
+                    $data['category'] = $data['category']->value;
+                }
+
                 $assignment = Assignment::query()->create($data);
 
                 $properties = Property::query()
@@ -79,7 +115,9 @@ final class CreateAssignmentAction
                 return $assignment->load(['properties', 'attachments']);
             });
         } catch (Throwable $exception) {
-            Storage::disk('tenant_public')->delete($storedPaths);
+            if (! empty($storedPaths)) {
+                Storage::disk('tenant_public')->delete($storedPaths);
+            }
             throw $exception;
         }
     }

@@ -72,10 +72,22 @@ class AssignmentsController extends Controller
     public function store(StoreAssignmentRequest $request, CreateAssignmentAction $action): RedirectResponse
     {
         try {
-            $action->execute($request->validated(), (int) $request->user('tenant')->getAuthIdentifier());
+            $generalDocs = $request->file('general_documents');
+            $additionalDocs = $request->file('additional_attachments');
+
+            $action->execute(
+                $request->validated(),
+                (int) $request->user('tenant')->getAuthIdentifier(),
+                $request->file('assignment_image'),
+                $request->file('assignment_letter'),
+                is_array($generalDocs) ? $generalDocs : array_filter([$generalDocs]),
+                is_array($additionalDocs) ? $additionalDocs : array_filter([$additionalDocs]),
+            );
 
             return redirect()->to(tenant_route_name('assignments.index'))
                 ->with('success', 'تم إضافة الإسناد بنجاح');
+        } catch (ValidationException $exception) {
+            throw $exception;
         } catch (\Exception $e) {
             Log::error('Assignment creation failed.', ['exception' => $e]);
 

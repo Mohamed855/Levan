@@ -110,7 +110,7 @@ class TenantAssetModulesFeatureTest extends TestCase
             'assignment_id' => null,
             'property_number' => 'PROP-'.uniqid(),
             'name' => 'عقار إسناد جديد',
-            'type' => 'villa',
+            'type' => 'residential_land',
             'city' => 'الرياض',
             'district' => 'الياسمين',
             'area' => 400,

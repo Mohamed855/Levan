@@ -28,6 +28,9 @@ final class UpdateAssignmentAction
     ): Assignment {
         $storedPaths = [];
 
+        $generalDocuments = is_array($generalDocuments) ? $generalDocuments : array_filter([$generalDocuments]);
+        $additionalAttachments = is_array($additionalAttachments) ? $additionalAttachments : array_filter([$additionalAttachments]);
+
         try {
             return DB::transaction(function () use ($assignment, $data, $image, $letter, $generalDocuments, $additionalAttachments, &$storedPaths): Assignment {
                 $assignment = Assignment::query()->whereKey($assignment->getKey())->lockForUpdate()->firstOrFail();
