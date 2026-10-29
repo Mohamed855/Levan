@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services\Tenants\Auctions\Reports;
 
 use InvalidArgumentException;
-use App\Enums\Tenants\Auctions\AuctionStatus;
 
 final class AsirReportData
 {
@@ -63,7 +62,7 @@ final class AsirReportData
             'platform_url' => empty($destinations['platform']) ? '-' : 'رابط المزاد على '.($auction['platform_name'] ?? 'المنصة'),
             'auction_type' => (string) ($auction['type'] ?? '-'),
             'duration' => $this->format->duration($auction),
-            'status' => ($status = AuctionStatus::tryFrom((string) ($auction['status'] ?? ''))) ? 'مزاد '.$status->label() : 'غير متوفر',
+            'status' => ($auction['is_active'] ?? true) ? 'مزاد نشط' : 'مزاد متوقف',
             'start_mark' => '', 'duplicate_header' => '', 'contract_text' => '',
             'phone' => (string) ($contacts['phone'] ?? '-'), 'unified_phone' => (string) ($contacts['unified_phone'] ?? '-'),
             'social' => (string) ($contacts['social'] ?? '-'),

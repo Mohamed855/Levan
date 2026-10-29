@@ -46,6 +46,7 @@
 }
 
 .assignment-property-card {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -71,9 +72,46 @@
         }
     }
 
-    .btn,
-    .btn-danger {
-        flex-shrink: 0;
+    .remove-property-card-btn,
+    button[data-remove-property],
+    button[data-remove-auction-property] {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        color: var(--bs-secondary, #6c757d) !important;
+        font-size: 0.85rem;
+        line-height: 1;
+        cursor: pointer;
+        transform: none !important;
+        animation: none !important;
+        transition: color 0.15s ease-in-out !important;
+
+        &:hover,
+        &:focus,
+        &:active {
+            color: var(--bs-danger, #ea5455) !important;
+            background: transparent !important;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            transform: none !important;
+            animation: none !important;
+        }
+
+        i {
+            font-size: 0.85rem;
+            line-height: 1;
+        }
     }
 }
 

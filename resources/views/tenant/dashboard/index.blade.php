@@ -309,28 +309,9 @@
                                             class="text-muted">{{ $auction->start_date ? $auction->start_date->format('Y-m-d') : '-' }}</small>
                                     </td>
                                     <td>
-                                        @php
-                                            $statusVal =
-                                                $auction->status instanceof \BackedEnum
-                                                    ? $auction->status->value
-                                                    : (string) $auction->status;
-                                            $badgeClass = match ($statusVal) {
-                                                'active' => 'bg-success',
-                                                'in_preparation' => 'bg-warning',
-                                                'pending_approval' => 'bg-info',
-                                                'completed' => 'bg-secondary',
-                                                default => 'bg-primary',
-                                            };
-                                            $statusLabel =
-                                                $auction->status instanceof \App\Enums\Tenants\Auctions\AuctionStatus
-                                                    ? $auction->status->label()
-                                                    : ($statusVal === 'active'
-                                                        ? 'نشط'
-                                                        : ($statusVal === 'in_preparation'
-                                                            ? 'قيد الإعداد'
-                                                            : $statusVal));
-                                        @endphp
-                                        <span class="badge {{ $badgeClass }}">{{ $statusLabel }}</span>
+                                        <span class="badge {{ $auction->is_active ? 'bg-success' : 'bg-danger' }}">
+                                            {{ $auction->is_active ? 'نشط' : 'متوقف' }}
+                                        </span>
                                     </td>
                                     <td class="text-center">
                                         <x-actions.show :url="tenant_route_name('auctions.show', $auction)" title="عرض التفاصيل" />

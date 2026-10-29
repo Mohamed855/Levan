@@ -149,7 +149,7 @@ final class AuctionReportGenerationTest extends TenantAuctionReportTestCase
             'start_date' => now()->toDateString(), 'end_date' => now()->addDay()->toDateString(),
             'type' => 'electronic', 'category' => 'lands', 'city' => 'الرياض',
             'project_manager_name' => 'مدير المشروع', 'report_image' => 'report.jpg',
-            'status' => 'completed', 'is_active' => false,
+            'is_active' => false,
         ]);
         $snapshot = app(AuctionReportDataBuilder::class)->build($auction);
         $generation = $auction->reportGenerations()->create([

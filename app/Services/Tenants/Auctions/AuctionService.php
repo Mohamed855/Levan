@@ -16,10 +16,10 @@ class AuctionService
     {
         return [
             'total' => Auction::count(),
-            'active' => Auction::where('status', 'active')->count(),
-            'in_preparation' => Auction::where('status', 'in_preparation')->count(),
-            'pending_approval' => Auction::where('status', 'pending_approval')->count(),
-            'needs_review' => Auction::where('status', 'suspended')->count(),
+            'active' => Auction::where('is_active', true)->count(),
+            'inactive' => Auction::where('is_active', false)->count(),
+            'without_properties' => Auction::doesntHave('properties')->count(),
+            'ready_reports' => Auction::whereHas('reportGenerations', fn ($q) => $q->where('status', 'ready'))->count(),
         ];
     }
 

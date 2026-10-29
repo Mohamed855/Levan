@@ -368,7 +368,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
                         ['label' => 'حملة إطلاق المزاد', 'url' => 'https://soum.sa/dorra-riyadh'],
                     ],
                 ],
-                'status'                   => 'active',
                 'is_active'                => true,
                 'properties_to_sync'       => [
                     'PROP-001' => ['sort_order' => 1, 'result_status' => 'sold', 'opening_price' => 2500000.00, 'sale_price' => 3100000.00, 'participants_count' => 18, 'bids_count' => 45],
@@ -398,7 +397,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
                         ['platform' => 'Instagram', 'reach' => 19000, 'impressions' => 34000, 'engagements' => 1400, 'clicks' => 460],
                     ],
                 ],
-                'status'                   => 'in_preparation',
                 'is_active'                => true,
                 'properties_to_sync'       => [
                     'PROP-004' => ['sort_order' => 1, 'result_status' => 'sold', 'opening_price' => 8500000.00, 'sale_price' => 10200000.00, 'participants_count' => 22, 'bids_count' => 58],
@@ -427,7 +425,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
                         ['platform' => 'Instagram', 'reach' => 28000, 'impressions' => 48000, 'engagements' => 1950, 'clicks' => 730],
                     ],
                 ],
-                'status'                   => 'in_preparation',
                 'is_active'                => true,
                 'properties_to_sync'       => [
                     'PROP-007' => ['sort_order' => 1, 'result_status' => 'sold', 'opening_price' => 3200000.00, 'sale_price' => 3750000.00, 'participants_count' => 16, 'bids_count' => 39],
@@ -451,7 +448,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'platform_name'            => 'منصة سومات',
                 'platform_url'             => 'https://soum.sa',
                 'report_image'             => null,
-                'status'                   => 'suspended',
                 'is_active'                => false,
                 'properties_to_sync'       => [],
             ],

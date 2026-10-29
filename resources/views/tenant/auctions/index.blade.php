@@ -36,15 +36,15 @@
 
     <x-data-table.page table-id="auctions-table">
         <x-slot:stats>
-            <x-ui.stat-card title="إجمالي المزادات" :value="$totalAuctions" subtitle="مزاد في جميع الحالات" icon="ti-gavel"
+            <x-ui.stat-card title="إجمالي المزادات" :value="$totalAuctions" subtitle="مزاد مسجل" icon="ti-gavel"
                 color="primary" />
-            <x-ui.stat-card title="مزادات نشطة" :value="$activeAuctions" subtitle="قيد التنفيذ حالياً" icon="ti-player-play"
+            <x-ui.stat-card title="مزادات نشطة" :value="$activeAuctions" subtitle="قيد التشغيل حالياً" icon="ti-player-play"
                 color="success" />
-            <x-ui.stat-card title="قيد الإعداد" :value="$inPreparationAuctions" subtitle="تحت الإعداد" icon="ti-clock" color="warning" />
-            <x-ui.stat-card title="بانتظار الاعتماد" :value="$pendingAuctions" subtitle="في انتظار المراجعة" icon="ti-file-check"
+            <x-ui.stat-card title="مزادات متوقفة" :value="$inactiveAuctions" subtitle="غير نشطة" icon="ti-player-pause" color="secondary" />
+            <x-ui.stat-card title="بدون عقارات" :value="$withoutPropertiesAuctions" subtitle="تحتاج ربط عقارات" icon="ti-home-question"
+                color="warning" />
+            <x-ui.stat-card title="تقارير جاهزة" :value="$readyReportsAuctions" subtitle="جاهزة للتحميل" icon="ti-file-check"
                 color="info" />
-            <x-ui.stat-card title="تحتاج مراجعة" :value="$needsReviewAuctions" subtitle="مزادات معلقة" icon="ti-alert-triangle"
-                color="danger" />
         </x-slot:stats>
 
         <x-slot:filters>
@@ -52,7 +52,7 @@
                 <x-filter.select id="filter-type" filterKey="type" table="#auctions-table" label="نوع المزاد"
                     placeholder="جميع الأنواع" :enum="\App\Enums\Tenants\Auctions\AuctionType::class" />
                 <x-filter.select id="filter-status" filterKey="status" table="#auctions-table" label="الحالة"
-                    placeholder="جميع الحالات" :enum="\App\Enums\Tenants\Auctions\AuctionStatus::class" />
+                    placeholder="جميع الحالات" :options="$statusOptions" />
                 <x-filter.select id="filter-assignment" filterKey="assignment_id" table="#auctions-table" label="الإسناد"
                     placeholder="جميع الإسنادات" :options="$assignments->pluck('name', 'id')->all()" />
                 <x-filter.select id="filter-city" filterKey="city" table="#auctions-table" label="المدينة"

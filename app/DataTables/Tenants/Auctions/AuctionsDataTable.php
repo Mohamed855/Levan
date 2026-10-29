@@ -35,7 +35,6 @@ class AuctionsDataTable extends AbstractDataTable
             ['data' => 'end_date', 'name' => 'end_date', 'title' => 'تاريخ النهاية', 'width' => '130px'],
             ['data' => 'properties_count', 'name' => 'properties_count', 'title' => 'عدد العقارات', 'width' => '90px', 'className' => 'text-center'],
             ['data' => 'outputs', 'name' => 'outputs', 'title' => 'المخرجات', 'orderable' => false, 'searchable' => false, 'width' => '110px', 'className' => 'text-center'],
-            ['data' => 'auction_status', 'name' => 'status', 'title' => 'حالة المزاد', 'width' => '100px', 'className' => 'text-center'],
             ['data' => 'is_active', 'name' => 'is_active', 'title' => 'الحالة', 'width' => '90px', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
@@ -81,9 +80,6 @@ class AuctionsDataTable extends AbstractDataTable
             })
             ->editColumn('properties_count', function ($row) {
                 return '<span class="badge bg-info">'.(int) $row->properties_count.'</span>';
-            })
-            ->addColumn('auction_status', function ($row) {
-                return '<span class="badge '.$row->status_badge_class.'">'.e($row->status_label).'</span>';
             })
             ->addColumn('outputs', function ($row) {
                 $gen = $row->latestReportGeneration;
@@ -134,7 +130,7 @@ class AuctionsDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'image', 'name', 'assignment', 'start_date', 'end_date', 'properties_count', 'auction_status', 'is_active', 'outputs', 'actions'];
+        return ['checkbox', 'image', 'name', 'assignment', 'start_date', 'end_date', 'properties_count', 'is_active', 'outputs', 'actions'];
     }
 
     protected function applyCustomFilters($query)
@@ -146,7 +142,11 @@ class AuctionsDataTable extends AbstractDataTable
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            if ($request->status === 'active' || $request->status === '1') {
+                $query->where('is_active', true);
+            } elseif ($request->status === 'inactive' || $request->status === 'suspended' || $request->status === '0') {
+                $query->where('is_active', false);
+            }
         }
 
         if ($request->filled('assignment_id')) {

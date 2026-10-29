@@ -17,7 +17,7 @@
                     onclick="navigator.clipboard.writeText('AUC-{{ str_pad((string) $auction->id, 5, '0', STR_PAD_LEFT) }}'); toastr.success('تم نسخ رقم المزاد');">
                     AUC-{{ str_pad((string) $auction->id, 5, '0', STR_PAD_LEFT) }}
                 </code>
-                <span class="badge {{ $auction->status_badge_class }}">{{ $auction->status_label }}</span>
+                <span class="badge {{ $auction->is_active ? 'bg-success' : 'bg-danger' }}">{{ $auction->is_active ? 'نشط' : 'متوقف' }}</span>
                 <span class="badge bg-info">{{ $auction->type_label }}</span>
                 @if ($auction->city)
                     <span class="badge bg-secondary"><i class="ti ti-map-pin me-1"></i>{{ $auction->city }}</span>

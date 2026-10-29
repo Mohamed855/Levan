@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Requests\Tenants\Auctions;
 
 use App\Enums\Tenants\Auctions\AuctionCategory;
-use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Enums\Tenants\Auctions\AuctionType;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Http\Requests\Concerns\AuctionReportEvidenceRules;
@@ -141,7 +140,7 @@ class StoreAuctionRequest extends WizardFormRequest
             'notes' => ['nullable', 'string', 'max:500'],
 
             // Step 3: Linked Properties
-            'property_ids' => ['nullable', 'array'],
+            'property_ids' => ['required', 'array', 'min:1'],
             'property_ids.*' => [
                 'distinct',
                 Rule::exists('properties', 'id')->where(
@@ -172,16 +171,16 @@ class StoreAuctionRequest extends WizardFormRequest
                     $isInActiveAuction = \Illuminate\Support\Facades\DB::table('auction_properties')
                         ->join('auctions', 'auctions.id', '=', 'auction_properties.auction_id')
                         ->where('auction_properties.property_id', $value)
-                        ->whereIn('auctions.status', ['active', 'in_preparation', 'pending_approval'])
+                        ->where('auctions.is_active', true)
                         ->whereNull('auctions.deleted_at')
                         ->exists();
                     if ($isInActiveAuction) {
-                        $fail("العقار ({$property->name}) مدرج حالياً في مزاد نشط أو قيد الإعداد.");
+                        $fail("العقار ({$property->name}) مدرج حالياً في مزاد نشط.");
                     }
                 },
             ],
 
-            // Step 4: Results, marketing and files
+            // Step 4, 5, 6: Results, marketing and files
             'property_results' => ['nullable', Rule::array($this->selectedPropertyKeys())],
             'property_results.*' => ['array'],
             'property_results.*.status' => ['required', Rule::in(['pending', 'sold', 'unsold'])],
@@ -194,15 +193,19 @@ class StoreAuctionRequest extends WizardFormRequest
             'property_results.*.board_notes' => ['nullable', 'string', 'max:1000'],
             'marketing' => ['nullable', 'array'],
             'marketing.campaigns' => ['nullable', 'array', 'max:50'],
-            'marketing.campaigns.*.platform' => ['required', 'string', 'max:100'],
+            'marketing.campaigns.*.platform' => ['nullable', 'string', 'max:100'],
+            'marketing.campaigns.*.platform_label' => ['nullable', 'string', 'max:100'],
             'marketing.campaigns.*.reach' => ['nullable', 'integer', 'min:0'],
             'marketing.campaigns.*.impressions' => ['nullable', 'integer', 'min:0'],
             'marketing.campaigns.*.engagements' => ['nullable', 'integer', 'min:0'],
             'marketing.campaigns.*.clicks' => ['nullable', 'integer', 'min:0'],
             'marketing.campaigns.*.url' => ['nullable', 'url', 'max:2048'],
+            'marketing.campaigns.*.link_label' => ['nullable', 'string', 'max:255'],
+            'marketing.campaigns.*.link_role' => ['nullable', Rule::in(config('auction-report-inputs.link_roles', ['brochure', 'video', 'marketing_evidence', 'boards', 'platform', 'other']))],
             'marketing.links' => ['nullable', 'array', 'max:50'],
-            'marketing.links.*.label' => ['required', 'string', 'max:255'],
-            'marketing.links.*.url' => ['required', 'url', 'max:2048'],
+            'marketing.links.*.label' => ['nullable', 'string', 'max:255'],
+            'marketing.links.*.url' => ['nullable', 'url', 'max:2048'],
+            'marketing.links.*.role' => ['nullable', Rule::in(config('auction-report-inputs.link_roles', ['brochure', 'video', 'marketing_evidence', 'boards', 'platform', 'other']))],
             'cover_image' => ['nullable', 'image', 'max:10240'],
             'report_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             'attachments' => ['nullable', 'array'],
@@ -239,6 +242,8 @@ class StoreAuctionRequest extends WizardFormRequest
             'project_manager_name.required' => 'اسم مدير المشروع مطلوب.',
             'report_image.image' => 'يجب أن تكون صورة التقرير ملف صورة صالحًا.',
             'assignment_id.exists' => 'الإسناد المختار غير موجود.',
+            'property_ids.required' => 'يجب اختيار عقار واحد على الأقل.',
+            'property_ids.min' => 'يجب اختيار عقار واحد على الأقل.',
             'property_ids.*.exists' => 'يجب أن تكون جميع العقارات المختارة تابعة للإسناد المختار.',
             'property_ids.*.distinct' => 'لا يمكن اختيار العقار نفسه أكثر من مرة.',
             'platform_url.url' => 'رابط المنصة يجب أن يكون رابطاً صالحاً.',

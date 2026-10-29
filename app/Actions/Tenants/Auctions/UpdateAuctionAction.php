@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Actions\Tenants\Auctions;
 
-use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
@@ -185,10 +184,7 @@ final class UpdateAuctionAction
                     $data['social_template_id'],
                 );
 
-                if (isset($data['status'])) {
-                    $statusValue = is_object($data['status']) ? $data['status']->value : (string) $data['status'];
-                    $data['is_active'] = $statusValue === AuctionStatus::ACTIVE->value;
-                }
+                unset($data['status']);
 
                 $auction->update($data);
                 $auction->properties()->sync($syncData);

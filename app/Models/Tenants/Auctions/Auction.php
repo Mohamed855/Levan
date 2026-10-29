@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models\Tenants\Auctions;
 
-use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User;
@@ -39,7 +38,6 @@ class Auction extends Model
         'cover_image',
         'report_image',
         'marketing_data',
-        'status',
         'is_active',
         'created_by',
     ];
@@ -109,41 +107,16 @@ class Auction extends Model
     public function getCategoryLabelAttribute(): string
     {
         return match ($this->category) {
+            'lands' => 'أراضي',
+            'villas' => 'فلل سكنية',
+            'commercial_buildings' => 'عمائر تجارية',
+            'educational' => 'مباني تعليمية',
+            'industrial' => 'أراضي صناعية',
             'residential' => 'سكني',
             'commercial' => 'تجاري',
             'investment' => 'استثماري',
-            'educational' => 'تعليمي',
-            'lands' => 'أراضي',
             'mixed_use' => 'متعدد الاستخدام',
             default => $this->category ?? 'أراضي',
-        };
-    }
-
-    public function getStatusLabelAttribute(): string
-    {
-        $status = $this->status instanceof AuctionStatus ? $this->status->value : (string) ($this->status ?? '');
-
-        return match ($status) {
-            'in_preparation' => 'قيد الإعداد',
-            'pending_approval' => 'بانتظار الاعتماد',
-            'active' => 'نشط',
-            'completed' => 'منتهي',
-            'suspended' => 'معلق',
-            default => 'قيد الإعداد',
-        };
-    }
-
-    public function getStatusBadgeClassAttribute(): string
-    {
-        $status = $this->status instanceof AuctionStatus ? $this->status->value : (string) ($this->status ?? '');
-
-        return match ($status) {
-            'in_preparation' => 'bg-warning',
-            'pending_approval' => 'bg-info',
-            'active' => 'bg-success',
-            'completed' => 'bg-label-dark text-dark',
-            'suspended' => 'bg-danger',
-            default => 'bg-primary',
         };
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Actions\Tenants\Auctions;
 
-use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
@@ -152,11 +151,8 @@ final class CreateAuctionAction
 
                 $creator = $creatorId ?? auth('tenant')->id() ?? auth()->id();
                 $data['created_by'] = $creator ? (int) $creator : null;
-                if (! isset($data['status'])) {
-                    $data['status'] = AuctionStatus::PENDING_APPROVAL->value;
-                }
-                $statusValue = is_object($data['status']) ? $data['status']->value : (string) $data['status'];
-                $data['is_active'] = $statusValue === AuctionStatus::ACTIVE->value;
+                $data['is_active'] = isset($data['is_active']) ? (bool) $data['is_active'] : true;
+                unset($data['status']);
 
                 $auction = Auction::query()->create($data);
 

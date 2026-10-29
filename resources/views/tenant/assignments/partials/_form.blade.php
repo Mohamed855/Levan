@@ -113,8 +113,8 @@
                         @endforeach
                     @endif
                 </div>
-                <div class="card assignment-properties-table-card">
-                    <div class="card-body">
+                <x-tenants.properties.property-selection-table cardClass="assignment-properties-table-card mb-4">
+                    <x-slot:filters>
                         <div class="row g-3 mb-4" data-datatable-filter-group="assignment-properties"
                             data-datatable-target="#assignment-properties-table">
                             <x-filter.select id="assignment-property-type" filterKey="type" label="نوع العقار"
@@ -124,43 +124,20 @@
                             <x-filter.select id="assignment-property-city" filterKey="city" label="المدينة"
                                 placeholder="جميع المدن" :options="$cityOptions" col="col-md-4" />
                         </div>
-                        {!! $dataTable->table(
-                            ['class' => 'table table-striped table-bordered w-100', 'id' => 'assignment-properties-table'],
-                            false,
-                        ) !!}
-                    </div>
-                </div>
+                    </x-slot:filters>
+                    {!! $dataTable->table(
+                        ['class' => 'table table-striped table-bordered w-100', 'id' => 'assignment-properties-table'],
+                        false,
+                    ) !!}
+                </x-tenants.properties.property-selection-table>
                 <div id="property_ids-error" class="invalid-feedback d-block" data-form-error role="alert" hidden>
                 </div>
             </div>
-            <section class="assignment-selection mt-4" aria-live="polite">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h6 class="mb-0">العقارات المحددة</h6>
-                    <span class="badge bg-primary">
-                        <span id="selected-properties-count">{{ $is_edit && $assignment->properties ? $assignment->properties->count() : 0 }}</span> عقار
-                    </span>
-                </div>
-                <div id="selected-properties-cards" class="assignment-selection__items">
-                    @if ($is_edit && $assignment->properties && $assignment->properties->isNotEmpty())
-                        @foreach ($assignment->properties as $prop)
-                            <div class="assignment-selection__item" data-property-card="{{ $prop->id }}">
-                                <img src="{{ $prop->main_image ? tasset($prop->main_image) : $propertyImageFallback }}"
-                                    alt="{{ $prop->name }}" class="assignment-selection__image rounded">
-                                <div class="assignment-selection__details flex-grow-1">
-                                    <div class="fw-semibold text-body">{{ $prop->name }}</div>
-                                    <div class="text-muted small"><code>{{ $prop->property_number }}</code> · {{ $prop->type_label }} · {{ $prop->city }}</div>
-                                </div>
-                                <button type="button" class="btn btn-sm btn-icon btn-danger remove-property-btn"
-                                    data-property-id="{{ $prop->id }}" aria-label="إزالة {{ $prop->name }}">
-                                    <i class="ti ti-x"></i>
-                                </button>
-                            </div>
-                        @endforeach
-                    @else
-                        <p class="text-muted mb-0" data-empty>لم يتم اختيار عقارات بعد.</p>
-                    @endif
-                </div>
-            </section>
+            <x-tenants.properties.selected-properties-box
+                :count="$is_edit && $assignment->properties ? $assignment->properties->count() : 0"
+                :properties="$is_edit && $assignment->properties ? $assignment->properties : collect([])"
+                :fallbackImage="$propertyImageFallback"
+            />
             <x-form.wizard.actions>
                 <x-form.wizard.previous-button />
                 <div class="d-flex gap-2">
