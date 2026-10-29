@@ -31,7 +31,7 @@ final class AuctionReportIsolationTest extends TenantAuctionReportTestCase
         $auction = Auction::query()->create([
             'assignment_id' => $assignment->id, 'name' => 'مزاد تنزيل خاص', 'start_date' => now()->toDateString(),
             'end_date' => now()->addDay()->toDateString(), 'type' => 'electronic', 'category' => 'lands',
-            'city' => 'الرياض', 'status' => 'completed', 'is_active' => false,
+            'city' => 'الرياض', 'is_active' => false,
         ]);
         $auction->reportGenerations()->create([
             'revision_token' => 'download-'.uniqid(), 'status' => 'ready', 'snapshot' => [],

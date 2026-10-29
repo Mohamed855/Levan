@@ -33,9 +33,8 @@ class AssignmentsController extends Controller
     ) {
         $this->middleware('auth:tenant');
         $this->authorizeResource(Assignment::class, 'assignment');
-        $this->middleware('can:assignments.view')->only(['index', 'show', 'getProperties']);
+        $this->middleware('can:assignments.view')->only(['index', 'show', 'getProperties', 'selectedProperties']);
         $this->middleware('can:assignments.create')->only(['create', 'store']);
-        $this->middleware('can:assignments.create')->only(['selectedProperties']);
         $this->middleware('can:assignments.edit')->only(['edit', 'update', 'toggleStatus']);
         $this->middleware('can:assignments.delete')->only(['destroy']);
         $this->middleware('can:view,assignment')->only(['getProperties']);
@@ -228,6 +227,8 @@ class AssignmentsController extends Controller
                 $prop->is_in_active_auction = (bool) $activeAuction;
                 $prop->active_auction_name = $activeAuction?->name;
                 $prop->is_selectable = ! $isSold && ! $activeAuction;
+                $prop->image_url = $prop->main_image ? tasset($prop->main_image) : asset('static/brand/logos/logo.svg');
+                $prop->type_label = $prop->type_label;
 
                 return $prop;
             });
@@ -239,6 +240,8 @@ class AssignmentsController extends Controller
                 'assignment_number' => $assignment->assignment_number,
                 'name' => $assignment->name,
                 'issuing_entity' => $assignment->issuing_entity,
+                'city' => $assignment->city,
+                'category' => $assignment->category instanceof \BackedEnum ? $assignment->category->value : (string) $assignment->category,
                 'status_label' => $assignment->status_label,
                 'start_date' => $assignment->start_date?->format('Y-m-d'),
                 'end_date' => $assignment->end_date?->format('Y-m-d'),

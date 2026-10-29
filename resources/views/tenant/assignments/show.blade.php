@@ -180,7 +180,7 @@
                                     </td>
                                     <td>{{ $auc->start_date?->format('Y-m-d') }}</td>
                                     <td><span class="badge bg-secondary">{{ $auc->type_label }}</span></td>
-                                    <td><span class="badge {{ $auc->status_badge_class }}">{{ $auc->status_label }}</span>
+                                    <td><span class="badge {{ $auc->is_active ? 'bg-success' : 'bg-danger' }}">{{ $auc->is_active ? 'نشط' : 'متوقف' }}</span>
                                     </td>
                                 </tr>
                             @empty

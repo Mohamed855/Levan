@@ -11,15 +11,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const propertyImageFallback =
         form.dataset.propertyImageFallback || "/static/brand/logos/logo.svg";
 
-    propertyCards.querySelectorAll("[data-property-card]").forEach((card) => {
+    propertyCards?.querySelectorAll("[data-property-card]").forEach((card) => {
         const id = String(card.dataset.propertyCard);
-        const metadata = card.querySelector(".text-muted")?.textContent.split("·") || [];
         selectedProperties.set(id, {
             id,
-            name: card.querySelector(".fw-semibold")?.textContent.trim() || "",
+            name: card.querySelector("h6, .text-truncate")?.textContent.trim() || card.querySelector(".fw-semibold")?.textContent.trim() || "",
             number: card.querySelector("code")?.textContent.trim() || "",
-            type: metadata[1]?.trim() || "",
-            city: metadata[2]?.trim() || "",
+            type: card.querySelector(".badge")?.textContent.trim() || "",
+            city: card.querySelector(".text-muted")?.textContent.replace(/[\n\r]+/g, " ").trim() || "",
             image: card.querySelector("img")?.src || propertyImageFallback,
         });
     });
@@ -407,8 +406,40 @@ document.addEventListener("DOMContentLoaded", () => {
         if (file && reviewImage) reviewImage.src = URL.createObjectURL(file);
     });
 
+    // Guard against moving to next step without selecting at least 1 property
+    const asgPropertiesStep = document.getElementById("assignment-properties-validation");
+    if (asgPropertiesStep) {
+        const nextBtn = asgPropertiesStep.querySelector("[data-wizard-next], .btn-next");
+        if (nextBtn) {
+            nextBtn.addEventListener("click", (e) => {
+                if (selectedProperties.size === 0) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    const errorEl = document.getElementById("property_ids-error");
+                    if (errorEl) {
+                        errorEl.textContent = "يجب اختيار عقار واحد على الأقل للإسناد.";
+                        errorEl.removeAttribute("hidden");
+                        errorEl.classList.remove("hidden");
+                        errorEl.style.display = "block";
+                    }
+                    const wrapper = form.querySelector('[data-form-field][data-field-name="property_ids"]');
+                    if (wrapper) wrapper.classList.add("is-invalid");
+                    if (window.toastr) {
+                        toastr.error("يجب اختيار عقار واحد على الأقل للإسناد.");
+                    }
+                    return false;
+                }
+            }, true);
+        }
+    }
+
     form.addEventListener("wizardDraftRestored", async (event) => {
-        const ids = event.detail?.data?.property_ids || [];
+        let ids = event.detail?.data?.property_ids || [];
+        if (!Array.isArray(ids)) {
+            ids = ids ? [ids] : [];
+        }
+        ids = ids.map(String).filter(Boolean);
         if (ids.length && form.dataset.selectedPropertiesUrl) {
             const url = new URL(
                 form.dataset.selectedPropertiesUrl,

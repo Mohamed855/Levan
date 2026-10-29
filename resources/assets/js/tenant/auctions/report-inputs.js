@@ -90,11 +90,28 @@ export function mountReportInputs(form) {
         restoredResults = data.property_results || {};
         [['campaign', 'campaigns'], ['link', 'links']].forEach(([row, plural]) => {
             const container = form.querySelector(`#${plural}-container`);
+            if (!container) return;
             container.querySelectorAll(`.${row}-row`).forEach((element) => element.remove());
-            Object.keys(data.marketing?.[plural] || {}).forEach((index) => {
-                const element = cloneRow(`report-${row}-template`, index);
-                if (element) container.append(element);
-            });
+            const items = Object.keys(data.marketing?.[plural] || {});
+            if (items.length > 0) {
+                items.forEach((index) => {
+                    const element = cloneRow(`report-${row}-template`, index);
+                    if (element) {
+                        if (plural === 'campaigns' && Number(index) === 0) {
+                            element.className = 'campaign-row mb-4';
+                            element.querySelector('.remove-campaign')?.closest('.d-flex')?.remove();
+                        }
+                        container.append(element);
+                    }
+                });
+            } else if (plural === 'campaigns') {
+                const defaultRow = cloneRow('report-campaign-template', 0);
+                if (defaultRow) {
+                    defaultRow.className = 'campaign-row mb-4';
+                    defaultRow.querySelector('.remove-campaign')?.closest('.d-flex')?.remove();
+                    container.append(defaultRow);
+                }
+            }
         });
         evidenceContainer.replaceChildren();
         const indices = new Set([...Object.keys(data.marketing_evidence_meta || {}), ...Object.keys(files.marketing_evidence || {})]);

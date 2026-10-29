@@ -212,7 +212,7 @@ Controller: App\Http\Controllers\Tenants\Auctions\AuctionsController, App\Http\C
 FormRequests: StoreAuctionRequest, UpdateAuctionRequest, UpdateResourceStatusRequest, RetryAuctionReportsRequest
 Policy registration + abilities: App\Policies\Tenants\Auctions\AuctionPolicy registered in AuthServiceProvider (viewAny, view, create, update, delete, restore, forceDelete)
 Actions / Services / Gateways: CreateAuctionAction, UpdateAuctionAction, RestoreAuctionAction, ForceDeleteAuctionAction, AuctionService, AuctionReportService, AuctionReportDataBuilder, CentralCityOptionsGateway
-Models / Enums / Events / Jobs: Auction, AuctionAttachment, AuctionType, AuctionCategory, AuctionStatus, AuctionReportGeneration, GenerateAuctionReportsJob (dead template columns and obsolete controller purged)
+Models / Enums / Events / Jobs: Auction, AuctionAttachment, AuctionType, AuctionCategory, AuctionReportGeneration, GenerateAuctionReportsJob (dead template columns and obsolete controller purged)
 DataTable / index / filters / buttons: AuctionsDataTable (5 lifecycle stat cards, no top banner, action collection with copy/excel/mass-delete, add button guarded by auctions.create, js-table-status-toggle before actions, 60px rounded thumbnail)
 Create UI + draft resource key + restore/purge evidence: resources/views/tenant/auctions/create.blade.php + resources/views/tenant/auctions/partials/_form.blade.php (shared 5-step wizard, tenant.auction-create draft key, progressive restore and automatic purge)
 Edit UI: resources/views/tenant/auctions/edit.blade.php + resources/views/tenant/auctions/partials/_form.blade.php (shared 5-step wizard with $is_edit=true parity, eliminated under_review crash)

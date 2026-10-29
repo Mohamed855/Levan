@@ -148,6 +148,6 @@ final class AuctionReportInputContractTest extends TenantAuctionReportTestCase
     {
         $assignment = Assignment::query()->create(['assignment_number' => 'CI-'.uniqid(), 'name' => 'إسناد اختبار', 'issuing_entity' => 'اختبار', 'is_active' => true]);
 
-        return Auction::query()->create(['assignment_id' => $assignment->id, 'name' => 'مزاد اختبار', 'start_date' => '2026-05-19', 'end_date' => '2026-05-21', 'type' => 'electronic', 'category' => 'lands', 'city' => 'الرياض', 'status' => 'completed', 'is_active' => false]);
+        return Auction::query()->create(['assignment_id' => $assignment->id, 'name' => 'مزاد اختبار', 'start_date' => '2026-05-19', 'end_date' => '2026-05-21', 'type' => 'electronic', 'category' => 'lands', 'city' => 'الرياض', 'is_active' => false]);
     }
 }

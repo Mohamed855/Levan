@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Tenants\Auctions;
 
-use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionReportGeneration;
@@ -23,7 +22,7 @@ class AuctionDatabaseCleanlinessTest extends TestCase
         $this->assertNotContains('brochure_template_id', $fillable);
         $this->assertNotContains('billboard_template_id', $fillable);
         $this->assertNotContains('social_template_id', $fillable);
-        $this->assertContains('status', $fillable);
+        $this->assertNotContains('status', $fillable);
     }
 
     public function test_assignment_model_has_no_entity_logo_in_fillable(): void

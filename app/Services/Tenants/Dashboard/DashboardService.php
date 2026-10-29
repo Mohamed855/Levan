@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Tenants\Dashboard;
 
-use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Enums\Tenants\Properties\PropertyDataStatus;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
@@ -71,11 +70,12 @@ class DashboardService
     private function getKPIs(array $subscription): array
     {
         $activeAuctionsCount = Auction::query()
-            ->where('status', AuctionStatus::ACTIVE)
+            ->where('is_active', true)
             ->count();
 
         $upcomingAuctionsCount = Auction::query()
-            ->whereIn('status', [AuctionStatus::IN_PREPARATION, AuctionStatus::PENDING_APPROVAL])
+            ->where('is_active', true)
+            ->whereDate('start_date', '>', now()->toDateString())
             ->count();
 
         $totalProperties = Property::query()->count();

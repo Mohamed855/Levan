@@ -21,10 +21,10 @@ class AuctionFormAndDataTableParityTest extends TestCase
 
         $this->assertContains('image', $columnNames);
         $this->assertContains('is_active', $columnNames);
-        $this->assertContains('status', $columnNames);
+        $this->assertNotContains('status', $columnNames);
     }
 
-    public function test_auction_shared_form_partial_exists_and_contains_five_steps(): void
+    public function test_auction_shared_form_partial_exists_and_contains_seven_steps(): void
     {
         $partialPath = resource_path('views/tenant/auctions/partials/_form.blade.php');
         $this->assertFileExists($partialPath);
@@ -33,7 +33,9 @@ class AuctionFormAndDataTableParityTest extends TestCase
         $this->assertStringContainsString('step-basic-info', $content);
         $this->assertStringContainsString('step-assignment', $content);
         $this->assertStringContainsString('step-properties', $content);
-        $this->assertStringContainsString('step-settings', $content);
+        $this->assertStringContainsString('step-reports-attachments', $content);
+        $this->assertStringContainsString('step-results-boards', $content);
+        $this->assertStringContainsString('step-campaigns', $content);
         $this->assertStringContainsString('step-review', $content);
     }
 

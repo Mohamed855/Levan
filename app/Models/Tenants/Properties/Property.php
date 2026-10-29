@@ -257,4 +257,9 @@ class Property extends Model
             default => 'متاح',
         };
     }
+
+    public function getMainImageUrlAttribute(): string
+    {
+        return $this->main_image ? (tasset($this->main_image) ?? asset('static/brand/logos/logo.svg')) : asset('static/brand/logos/logo.svg');
+    }
 }

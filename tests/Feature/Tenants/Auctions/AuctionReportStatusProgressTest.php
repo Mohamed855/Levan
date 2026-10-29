@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Tenants\Auctions;
 
-use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionReportGeneration;
 use Tests\TestCase;

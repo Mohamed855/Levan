@@ -42,11 +42,12 @@ class AuctionsController extends Controller
         return $dataTable->render('tenant.auctions.index', [
             'totalAuctions' => $statistics['total'],
             'activeAuctions' => $statistics['active'],
-            'inPreparationAuctions' => $statistics['in_preparation'],
-            'pendingAuctions' => $statistics['pending_approval'],
-            'needsReviewAuctions' => $statistics['needs_review'],
+            'inactiveAuctions' => $statistics['inactive'],
+            'withoutPropertiesAuctions' => $statistics['without_properties'],
+            'readyReportsAuctions' => $statistics['ready_reports'],
             'assignments' => Assignment::query()->select(['id', 'name', 'assignment_number'])->orderBy('name')->get(),
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'statusOptions' => ['active' => 'نشط', 'inactive' => 'متوقف'],
         ]);
     }
 

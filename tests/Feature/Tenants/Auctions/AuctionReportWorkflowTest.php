@@ -448,7 +448,6 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
             'type' => 'electronic',
             'category' => 'lands',
             'city' => 'الرياض',
-            'status' => 'in_preparation',
             'is_active' => false,
         ]);
     }
