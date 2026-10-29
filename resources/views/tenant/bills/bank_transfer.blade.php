@@ -75,7 +75,7 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <label for="notes">ملاحظات (اختياري)</label>
+                        <label for="notes">ملاحظات</label>
                         <textarea class="form-control" id="notes" name="notes" rows="3">{{ old('notes') }}</textarea>
                     </div> --}}
 

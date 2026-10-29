@@ -174,19 +174,19 @@
                 :value="$is_edit ? ($property->ownership_type instanceof \BackedEnum ? $property->ownership_type->value : $property->ownership_type) : old('ownership_type')"
                 :enum="\App\Enums\Tenants\Properties\PropertyOwnershipType::class" />
 
-            {{-- بيانات الوكيل (اختياري) --}}
-            <x-form.controls.input name="agent_name" label="اسم الوكيل (اختياري)" placeholder="أدخل اسم الوكيل"
+            {{-- بيانات الوكيل --}}
+            <x-form.controls.input name="agent_name" label="اسم الوكيل" placeholder="أدخل اسم الوكيل"
                 :value="$is_edit ? $property->agent_name : old('agent_name')"
                 :required="false" col="col-md-6" />
             <x-form.controls.input name="agent_national_id" type="number" step="1" min="0"
-                label="رقم هوية الوكيل (اختياري)" placeholder="أدخل رقم هوية الوكيل" :required="false"
+                label="رقم هوية الوكيل" placeholder="أدخل رقم هوية الوكيل" :required="false"
                 :value="$is_edit ? $property->agent_national_id : old('agent_national_id')"
                 col="col-md-6" />
             <x-form.controls.input name="agency_number" type="number" step="1" min="0"
-                label="رقم الوكالة (اختياري)" placeholder="أدخل رقم الوكالة" :required="false"
+                label="رقم الوكالة" placeholder="أدخل رقم الوكالة" :required="false"
                 :value="$is_edit ? $property->agency_number : old('agency_number')"
                 col="col-md-6" />
-            <x-form.controls.input name="agency_date" type="date" label="تاريخ الوكالة (اختياري)"
+            <x-form.controls.input name="agency_date" type="date" label="تاريخ الوكالة"
                 :value="$is_edit ? ($property->agency_date instanceof \DateTimeInterface ? $property->agency_date->format('Y-m-d') : $property->agency_date) : old('agency_date')"
                 placeholder="اختر تاريخ الوكالة" :required="false" col="col-md-6" />
 
@@ -248,12 +248,12 @@
                 </div>
             </div>
 
-            {{-- وحدات العقار (اختياري) --}}
+            {{-- وحدات العقار --}}
             <div class="col-12">
                 <div class="card assignment-properties-table-card">
                     <div class="card-header pb-2 d-flex justify-content-between align-items-center">
                         <div>
-                            <h5 class="card-title mb-0"><i class="ti ti-layout-grid me-2 text-primary"></i>وحدات العقار (اختياري)</h5>
+                            <h5 class="card-title mb-0"><i class="ti ti-layout-grid me-2 text-primary"></i>وحدات العقار</h5>
                             <small class="text-muted">إذا كان العقار يحتوي على وحدات متعددة (شقق، محلات، ملحقات)</small>
                         </div>
                         <button type="button" class="btn btn-sm btn-primary" id="btn-add-unit">
@@ -362,14 +362,14 @@
                 help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
             <x-form.controls.file name="coordinates_statement" label="كشف الإحداثيات" :required="!$is_edit"
                 accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
-            <x-form.controls.file name="building_permit" label="رخصة البناء (اختياري)" accept=".pdf,image/*"
+            <x-form.controls.file name="building_permit" label="رخصة البناء" accept=".pdf,image/*"
                 help="PDF أو صورة، بحد أقصى 10MB" :required="false" col="col-md-6" />
-            <x-form.controls.file name="assignment_letter_image" label="صورة الإسناد (اختياري)" accept="image/*"
+            <x-form.controls.file name="assignment_letter_image" label="صورة الإسناد" accept="image/*"
                 help="صورة فقط بحد أقصى 10MB" :required="false" col="col-md-6" />
-            <x-form.controls.file name="property_images[]" label="صور إضافية للمعرض (اختياري)" multiple
-                accept="image/*" help="يمكن اختيار عدة صور للمعرض" :required="false" col="col-md-6" />
-            <x-form.controls.file name="additional_documents[]" label="مستندات إضافية (اختياري)" multiple
-                accept=".pdf,image/*" help="يمكن اختيار عدة ملفات" :required="false" col="col-md-6" />
+            <x-form.controls.file name="property_images[]" label="صور إضافية للمعرض" multiple
+                accept="image/*" help="يمكن اختيار عدة صور للمعرض (بحد أقصى 10MB لكل صورة)" :required="false" col="col-md-6" />
+            <x-form.controls.file name="additional_documents[]" label="مستندات إضافية" multiple
+                accept=".pdf,image/*" help="يمكن اختيار عدة ملفات (بحد أقصى 10MB لكل ملف)" :required="false" col="col-md-6" />
 
             <x-form.wizard.actions>
                 <x-form.wizard.previous-button />
@@ -407,7 +407,7 @@
                     <div class="col-lg-6">
                         <div class="card h-100 assignment-review__card">
                             <div class="card-body">
-                                <x-form.controls.textarea name="notes" label="ملاحظات إضافية (اختياري)"
+                                <x-form.controls.textarea name="notes" label="ملاحظات إضافية"
                                     placeholder="أدخل أي ملاحظات إدارية أو توجيهات إضافية للعقار..."
                                     :value="$is_edit ? $property->notes : old('notes')"
                                     :required="false" col="col-12" rows="3" />

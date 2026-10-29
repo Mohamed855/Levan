@@ -7,7 +7,7 @@
     <div class="col-12">
         <div class="d-flex align-items-center justify-content-between mb-2">
             <h6 class="fw-bold mb-0"><i class="ti ti-chart-bar me-1"></i>نتائج عقارات المزاد</h6>
-            <small class="text-muted">النتائج اختيارية للمزادات المستقبلية، وتُسجَّل عند انتهاء المزاد.</small>
+            <small class="text-muted">النتائج تُسجَّل للمزادات المنتهية عند الحاجة.</small>
         </div>
         <div id="property-results-container">
             @if ($isEdit)

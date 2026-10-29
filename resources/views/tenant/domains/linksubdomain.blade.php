@@ -84,7 +84,7 @@
                             <div class="form-group-custom">
                                 <label class="form-custom">
                                     <i class="ti ti-world me-2"></i>
-                                    اسم الدومين الفرعي
+                                    اسم الدومين الفرعي <span class="text-danger">*</span>
                                 </label>
                                 <input type="text" id="domainInput" class="form-control-custom"
                                     placeholder="test.example.com " dir="ltr">

@@ -52,7 +52,7 @@ class SingleSessionPerUser
         $isCentralDomain = in_array($currentHost, $centralDomains);
 
         if ($isCentralDomain) {
-            return redirect('/'.tenant('id').'/login');
+            return redirect('/admin/login');
         }
 
         return redirect('/login');

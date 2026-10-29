@@ -280,5 +280,3 @@ Route::prefix('superadmin')->name('admin.')->group(function () {
     });
 });
 
-Route::redirect('admin', '/superadmin', 307);
-Route::redirect('admin/{any}', '/superadmin/{any}', 307)->where('any', '.*');

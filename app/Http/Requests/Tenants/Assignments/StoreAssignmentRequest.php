@@ -6,6 +6,7 @@ namespace App\Http\Requests\Tenants\Assignments;
 
 use App\Enums\Tenants\Assignments\AssignmentCategory;
 use App\Http\Requests\Concerns\WizardFormRequest;
+use App\Models\Tenants\Properties\Property;
 use Illuminate\Validation\Rule;
 
 class StoreAssignmentRequest extends WizardFormRequest
@@ -27,7 +28,31 @@ class StoreAssignmentRequest extends WizardFormRequest
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'notes' => ['required', 'string', 'max:1000'],
-            'property_ids' => ['required', 'array', 'min:1'],
+            'property_ids' => [
+                'required',
+                'array',
+                'min:1',
+                function ($attribute, $value, $fail): void {
+                    $categoryValue = $this->input('category');
+                    $category = AssignmentCategory::tryFrom((string) $categoryValue);
+                    if (! $category) {
+                        return;
+                    }
+
+                    $allowedTypes = $category->allowedPropertyTypes();
+                    $invalidProperties = Property::query()
+                        ->whereIn('id', (array) $value)
+                        ->whereNotIn('type', $allowedTypes)
+                        ->get(['id', 'name', 'type', 'property_number']);
+
+                    if ($invalidProperties->isNotEmpty()) {
+                        $invalidDetails = $invalidProperties
+                            ->map(fn (Property $p) => $p->name.' ('.$p->type_label.')')
+                            ->join('، ');
+                        $fail("العقارات التالية: [{$invalidDetails}] لا تتطابق مع تصنيف الإسناد المختار ({$category->label()}). يرجى اختيار عقارات متوافقة مع التصنيف فقط.");
+                    }
+                },
+            ],
             'property_ids.*' => ['required', 'integer', 'distinct', Rule::exists('properties', 'id')->where(
                 fn ($query) => $query->whereNull('assignment_id')->whereNull('deleted_at'),
             )],

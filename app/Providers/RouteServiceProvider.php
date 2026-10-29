@@ -25,7 +25,7 @@ class RouteServiceProvider extends ServiceProvider
 
         $isCentralDomain = in_array($host, $centralDomains, true) || in_array('www.'.$host, $centralDomains, true);
 
-        return $isCentralDomain ? '/'.tenant('id').'/dashboard' : '/dashboard';
+        return $isCentralDomain ? '/admin/dashboard' : '/dashboard';
     }
 
     public const ADMIN = '/superadmin';
@@ -88,9 +88,23 @@ class RouteServiceProvider extends ServiceProvider
         foreach ($this->centralDomains() as $index => $domain) {
             $cleanDomain = str_replace(['http://', 'https://'], '', $domain);
 
+            // Clean Tenant Routes under /admin (Session-based Tenancy)
+            Route::middleware([
+                'web',
+                'tenant.session',
+                'tenant.redirect',
+                'tenant.maintenance',
+            ])
+                ->domain($cleanDomain)
+                ->prefix('admin')
+                ->name($index === 0 ? 'tenant.' : "central-domain-{$index}.tenant.")
+                ->group(base_path('routes/tenant.php'));
+
+            // Legacy Inbound Routes under /{tenant}/*
             Route::middleware([
                 'web',
                 'tenant.path',
+                'tenant.legacy.transfer',
                 'tenant.redirect',
                 'tenant.maintenance',
             ])

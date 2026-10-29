@@ -142,12 +142,15 @@ class TrialRegistrationFlowTest extends TestCase
         self::assertSame(1, Subscription::where('tenant_id', $request->tenant_id)->count());
         Auth::forgetGuards();
         $login = route('path.login', ['tenant' => $request->tenant_id]);
-        $this->get($login)->assertOk();
-        $this->post($login, ['email' => $data['billing_email'], 'password' => $data['billing_password']])->assertRedirect();
+        $this->get($login)->assertRedirect('/admin/login');
+        $this->post('/admin/login', [
+            'tenant_id' => $request->tenant_id,
+            'email' => $data['billing_email'],
+            'password' => $data['billing_password'],
+        ])->assertRedirect('/admin/dashboard');
         $this->assertAuthenticated('tenant');
-        $dashboard = route('path.dashboard', ['tenant' => $request->tenant_id]);
-        $this->get($dashboard)->assertOk();
-        $this->get(route('path.assignments.index', ['tenant' => $request->tenant_id]))->assertOk();
+        $this->get('/admin/dashboard')->assertOk();
+        $this->get('/admin/assignments')->assertOk();
         self::assertSame(1, User::count());
         $owner = User::firstOrFail();
         self::assertTrue($owner->hasRole('Admin'));

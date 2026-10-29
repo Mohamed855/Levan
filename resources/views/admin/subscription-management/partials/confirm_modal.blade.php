@@ -11,8 +11,7 @@
         <p id="subscriptionConfirmModalMessage" class="text-muted mb-0">هل تريد المتابعة في هذا الإجراء؟</p>
 
         <div id="subscriptionRejectReasonContainer" class="mt-4 text-start d-none">
-            <label for="subscription_reject_reason" class="form-label fw-medium">سبب الرفض <span
-                    class="text-muted small">(اختياري)</span></label>
+            <label for="subscription_reject_reason" class="form-label fw-medium">سبب الرفض</label>
             <textarea class="form-control" id="subscription_reject_reason" rows="3" placeholder="أدخل سبب الرفض هنا..."></textarea>
             <div id="subscription_reject_reason_error" class="text-danger small mt-1 d-none"></div>
         </div>

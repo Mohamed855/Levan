@@ -7,6 +7,10 @@
         ['id' => 'assignment-files-validation', 'title' => 'الملفات والمستندات'],
         ['id' => 'assignment-review-validation', 'title' => 'المراجعة والحفظ'],
     ];
+    $categoryMapping = array_combine(
+        array_map(fn ($c) => $c->value, \App\Enums\Tenants\Assignments\AssignmentCategory::cases()),
+        array_map(fn ($c) => $c->allowedPropertyTypes(), \App\Enums\Tenants\Assignments\AssignmentCategory::cases())
+    );
 @endphp
 
 <x-form.wizard.stepper id="wizard-validation" class="mt-2" :steps="$steps">
@@ -33,7 +37,8 @@
             data-draft-resource-key="tenant.assignment-create"
         @endif
         data-selected-properties-url="{{ tenant_route_name('assignments.selected-properties') }}"
-        data-property-image-fallback="{{ $propertyImageFallback }}">
+        data-property-image-fallback="{{ $propertyImageFallback }}"
+        data-category-mapping="{{ json_encode($categoryMapping) }}">
         @csrf
         @if ($is_edit)
             @method('PUT')
@@ -62,8 +67,8 @@
                     :value="$is_edit ? $assignment->name : old('name')"
                     placeholder="أدخل اسم الإسناد (مثال: إسناد بيع عقارات المحمدية)" required col="col-md-6" />
 
-                <x-form.controls.select name="category" label="تصنيف الإسناد" required col="col-md-6"
-                    :value="$is_edit ? $assignment->category : old('category')"
+                <x-form.controls.select name="category" id="assignment_category" label="تصنيف الإسناد" required col="col-md-6"
+                    :value="$is_edit ? $assignment->category : old('category', \App\Enums\Tenants\Assignments\AssignmentCategory::LANDS->value)"
                     :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
 
                 <x-form.controls.input name="issuing_entity" label="الجهة المسندة"
@@ -117,6 +122,9 @@
                     <x-slot:filters>
                         <div class="row g-3 mb-4" data-datatable-filter-group="assignment-properties"
                             data-datatable-target="#assignment-properties-table">
+                            <input type="hidden" id="assignment-category-filter" name="assignment_category"
+                                data-datatable-filter data-filter-key="assignment_category" data-datatable-target="#assignment-properties-table"
+                                value="{{ $is_edit && $assignment->category ? ($assignment->category instanceof \BackedEnum ? $assignment->category->value : $assignment->category) : old('category', \App\Enums\Tenants\Assignments\AssignmentCategory::LANDS->value) }}">
                             <x-filter.select id="assignment-property-type" filterKey="type" label="نوع العقار"
                                 placeholder="جميع الأنواع" :enum="\App\Enums\Tenants\Properties\PropertyType::class" col="col-md-4" />
                             <x-filter.select id="assignment-property-data-status" filterKey="data_status"

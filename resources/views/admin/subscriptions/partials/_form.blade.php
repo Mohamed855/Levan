@@ -155,7 +155,7 @@
 
                         <!-- كوبون الخصم -->
                         <div class="col-md-6">
-                            <label class="form-label" for="coupon_code">كود كوبون الخصم (اختياري)</label>
+                            <label class="form-label" for="coupon_code">كود كوبون الخصم</label>
                             <div class="input-group">
                                 <input type="text" name="coupon_code" id="coupon_code" class="form-control text-uppercase"
                                     placeholder="أدخل كود الكوبون إن وجد" style="text-transform: uppercase;">
@@ -186,7 +186,7 @@
                             help="الامتدادات المسموحة: PDF, PNG, JPG, JPEG (الحد الأقصى 5 ميجابايت)" />
 
                         <!-- ملاحظات إدارية -->
-                        <x-form.controls.textarea name="admin_notes" id="admin_notes" label="ملاحظات إدارية داخلية (اختياري)"
+                        <x-form.controls.textarea name="admin_notes" id="admin_notes" label="ملاحظات إدارية داخلية"
                             placeholder="أي ملاحظات تخص الاتفاق أو الاستثناءات..." rows="3" col="col-12" />
 
                         <!-- بطاقة الحسابات المالية الحية -->

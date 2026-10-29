@@ -23,6 +23,53 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    const categorySelect = form.querySelector('select[name="category"]');
+    const categoryFilter = document.getElementById("assignment-category-filter");
+    let categoryMapping = {};
+    try {
+        categoryMapping = JSON.parse(form.dataset.categoryMapping || "{}");
+    } catch (_) {}
+
+    function updateTypeFilterOptions(currentCategory) {
+        const typeSelect = document.getElementById("assignment-property-type");
+        if (!typeSelect) return;
+        const allowed = categoryMapping[currentCategory] || [];
+        Array.from(typeSelect.options).forEach((opt) => {
+            if (!opt.value) return;
+            const isAllowed = allowed.length === 0 || allowed.includes(opt.value);
+            opt.disabled = !isAllowed;
+            opt.hidden = !isAllowed;
+        });
+        if (typeSelect.value && allowed.length > 0 && !allowed.includes(typeSelect.value)) {
+            $(typeSelect).val("").trigger("change");
+        }
+        if (window.jQuery && $.fn.select2 && $(typeSelect).hasClass("select2-hidden-accessible")) {
+            $(typeSelect).select2({
+                dir: "rtl",
+                width: "100%",
+            });
+        }
+    }
+
+    function syncCategoryFilter() {
+        if (!categorySelect) return;
+        const currentCategory = categorySelect.value;
+        if (categoryFilter && categoryFilter.value !== currentCategory) {
+            categoryFilter.value = currentCategory;
+            $(categoryFilter).trigger("change");
+        }
+        updateTypeFilterOptions(currentCategory);
+
+        if (window.jQuery && $.fn.DataTable && $.fn.DataTable.isDataTable("#assignment-properties-table")) {
+            $("#assignment-properties-table").DataTable().ajax.reload();
+        }
+    }
+
+    if (categorySelect) {
+        $(categorySelect).on("change", syncCategoryFilter);
+        setTimeout(() => updateTypeFilterOptions(categorySelect.value), 100);
+    }
+
     function escapeHtml(value) {
         const element = document.createElement("div");
         element.textContent = String(value ?? "");
@@ -405,6 +452,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const reviewImage = document.getElementById("review-image");
         if (file && reviewImage) reviewImage.src = URL.createObjectURL(file);
     });
+
+    // Sync category filter before entering properties step
+    const asgBasicStep = document.getElementById("assignment-basic-validation");
+    if (asgBasicStep) {
+        const nextBtn = asgBasicStep.querySelector("[data-wizard-next], .btn-next");
+        if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
+                syncCategoryFilter();
+            });
+        }
+    }
 
     // Guard against moving to next step without selecting at least 1 property
     const asgPropertiesStep = document.getElementById("assignment-properties-validation");

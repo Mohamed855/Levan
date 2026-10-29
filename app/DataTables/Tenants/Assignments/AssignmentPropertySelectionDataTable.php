@@ -5,16 +5,25 @@ declare(strict_types=1);
 namespace App\DataTables\Tenants\Assignments;
 
 use App\DataTables\Abstract\AbstractDataTable;
+use App\Enums\Tenants\Assignments\AssignmentCategory;
 use App\Models\Tenants\Properties\Property;
 use App\Helpers\Tenants\Settings\SettingsHelper;
 
 class AssignmentPropertySelectionDataTable extends AbstractDataTable
 {
     protected ?int $assignmentId = null;
+    protected ?string $assignmentCategory = null;
 
     public function forAssignment(?int $assignmentId): self
     {
         $this->assignmentId = $assignmentId;
+
+        return $this;
+    }
+
+    public function forCategory(?string $category): self
+    {
+        $this->assignmentCategory = $category;
 
         return $this;
     }
@@ -81,6 +90,14 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
 
     protected function applyCustomFilters($query)
     {
+        $assignmentCategory = request('assignment_category') ?? $this->assignmentCategory;
+        if ($assignmentCategory) {
+            $catEnum = AssignmentCategory::tryFrom($assignmentCategory);
+            if ($catEnum) {
+                $query->whereIn('type', $catEnum->allowedPropertyTypes());
+            }
+        }
+
         return $query
             ->when(request()->filled('type'), fn ($builder) => $builder->where('type', request('type')))
             ->when(request()->filled('city'), fn ($builder) => $builder->where('city', request('city')))

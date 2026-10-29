@@ -22,7 +22,22 @@ class Authenticate extends Middleware
             $isCentralDomain = in_array($currentHost, $centralDomains) ||
                 in_array('www.'.$currentHost, $centralDomains);
 
-            return $isCentralDomain ? '/'.tenant('id').'/login' : '/login';
+            if ($isCentralDomain) {
+                session()->put('tenant_login_context', tenant('id'));
+                cookie()->queue(cookie('tenant_login_hint', tenant('id'), 60 * 24 * 30));
+
+                return '/admin/login';
+            }
+
+            return '/login';
+        }
+
+        if ($request->is('superadmin*')) {
+            return route('admin.login');
+        }
+
+        if ($request->is('admin*')) {
+            return '/admin/login';
         }
 
         return '/';

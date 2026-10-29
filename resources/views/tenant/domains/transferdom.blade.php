@@ -50,7 +50,7 @@
                                 <form method="GET" action="{{ tenant_route_name('domains.transfer-domain') }}">
                                     <input type="hidden" name="step" value="2">
                                     <div class="mb-4">
-                                        <label class="form-label" for="transfer-domain">اسم النطاق</label>
+                                        <label class="form-label" for="transfer-domain">اسم النطاق <span class="text-danger">*</span></label>
                                         <input class="form-control" id="transfer-domain" name="domain" type="text"
                                             value="{{ $currentDomain }}" placeholder="example.com" dir="ltr"
                                             autocomplete="off" required>
@@ -81,7 +81,7 @@
                                     <input type="hidden" name="domain" value="{{ $currentDomain }}">
 
                                     <div class="mb-4">
-                                        <label class="form-label" for="epp-code">كود EPP / Auth Code</label>
+                                        <label class="form-label" for="epp-code">كود EPP / Auth Code <span class="text-danger">*</span></label>
                                         <input class="form-control" id="epp-code" name="eppCode" type="text"
                                             value="{{ old('eppCode') }}" dir="ltr" autocomplete="off" minlength="6"
                                             required>

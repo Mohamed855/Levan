@@ -24,9 +24,12 @@
         <thead>
             <tr>
                 <th style="width: 22%;" class="text-center align-middle">الجهة <span class="text-danger">*</span></th>
-                <th style="width: 25%;" class="text-center align-middle">نوع الحد <span class="text-danger">*</span></th>
-                <th style="width: 28%;" class="text-center align-middle">وصف الحد <span class="text-danger">*</span></th>
-                <th style="width: 17%;" class="text-center align-middle">الطول (م) <span class="text-danger">*</span></th>
+                <th style="width: 25%;" class="text-center align-middle">نوع الحد <span class="text-danger">*</span>
+                </th>
+                <th style="width: 28%;" class="text-center align-middle">وصف الحد <span class="text-danger">*</span>
+                </th>
+                <th style="width: 17%;" class="text-center align-middle">الطول (م) <span class="text-danger">*</span>
+                </th>
                 <th style="width: 8%;" class="text-center align-middle">حذف</th>
             </tr>
         </thead>
@@ -35,14 +38,13 @@
                 <tr class="boundary-row">
                     <td class="text-center align-middle">
                         <x-form.controls.select name="boundaries[{{ $idx }}][direction]"
-                            id="boundaries-{{ $idx }}-direction" :options="$boundaryDirectionOptions"
-                            :value="$border['direction'] ?? null" placeholder="اختر الجهة" required col="" />
+                            id="boundaries-{{ $idx }}-direction" :options="$boundaryDirectionOptions" :value="$border['direction'] ?? null"
+                            placeholder="اختر الجهة" required col="" />
                     </td>
                     <td class="text-center align-middle">
                         <x-form.controls.select name="boundaries[{{ $idx }}][border_type]"
-                            id="boundaries-{{ $idx }}-border-type" :options="$boundaryTypeOptions"
-                            :value="$border['border_type'] ?? null" placeholder="اختر نوع الحد" required col=""
-                            data-select2-search="false" />
+                            id="boundaries-{{ $idx }}-border-type" :options="$boundaryTypeOptions" :value="$border['border_type'] ?? null"
+                            placeholder="اختر نوع الحد" required col="" data-select2-search="false" />
                     </td>
                     <td class="text-center align-middle">
                         <x-form.controls.input name="boundaries[{{ $idx }}][border_description]"
@@ -51,11 +53,12 @@
                     </td>
                     <td class="text-center align-middle">
                         <x-form.controls.input name="boundaries[{{ $idx }}][length]"
-                            id="boundaries-{{ $idx }}-length" type="number" step="0.01"
-                            :value="(isset($border['length']) && $border['length'] !== '' && $border['length'] !== null) ? $border['length'] : 0" placeholder="0.00" required col="" />
+                            id="boundaries-{{ $idx }}-length" type="number" step="0.01" :value="(isset($border['length']) && $border['length'] !== '' && $border['length'] !== null) ? $border['length'] : 0"
+                            placeholder="0.00" required col="" />
                     </td>
                     <td class="text-center align-middle">
-                        <button type="button" class="btn btn-icon btn-sm btn-danger btn-remove-border" aria-label="حذف الحد">
+                        <button type="button" class="btn btn-icon btn-sm btn-label-danger btn-remove-border"
+                            aria-label="حذف الحد">
                             <i class="ti ti-trash"></i>
                         </button>
                     </td>
@@ -68,26 +71,24 @@
 <template id="boundary-row-template">
     <tr class="boundary-row">
         <td class="text-center align-middle">
-            <x-form.controls.select name="boundaries[__INDEX__][direction]"
-                id="boundaries-__INDEX__-direction" :options="$boundaryDirectionOptions"
-                placeholder="اختر الجهة" required col="" />
+            <x-form.controls.select name="boundaries[__INDEX__][direction]" id="boundaries-__INDEX__-direction"
+                :options="$boundaryDirectionOptions" placeholder="اختر الجهة" required col="" />
         </td>
         <td class="text-center align-middle">
-            <x-form.controls.select name="boundaries[__INDEX__][border_type]"
-                id="boundaries-__INDEX__-border-type" :options="$boundaryTypeOptions"
-                placeholder="اختر نوع الحد" required col="" data-select2-search="false" />
+            <x-form.controls.select name="boundaries[__INDEX__][border_type]" id="boundaries-__INDEX__-border-type"
+                :options="$boundaryTypeOptions" placeholder="اختر نوع الحد" required col="" data-select2-search="false" />
         </td>
         <td class="text-center align-middle">
             <x-form.controls.input name="boundaries[__INDEX__][border_description]"
-                id="boundaries-__INDEX__-border-description" value="عرض 20 متر" placeholder="عرض 20 متر..." required col="" />
+                id="boundaries-__INDEX__-border-description" value="عرض 20 متر" placeholder="عرض 20 متر..." required
+                col="" />
         </td>
         <td class="text-center align-middle">
-            <x-form.controls.input name="boundaries[__INDEX__][length]"
-                id="boundaries-__INDEX__-length" type="number" step="0.01"
-                value="0" placeholder="0.00" required col="" />
+            <x-form.controls.input name="boundaries[__INDEX__][length]" id="boundaries-__INDEX__-length" type="number"
+                step="0.01" value="0" placeholder="0.00" required col="" />
         </td>
         <td class="text-center align-middle">
-            <button type="button" class="btn btn-icon btn-sm btn-danger btn-remove-border" aria-label="حذف الحد">
+            <button type="button" class="btn btn-icon btn-sm btn-label-danger btn-remove-border" aria-label="حذف الحد">
                 <i class="ti ti-trash"></i>
             </button>
         </td>

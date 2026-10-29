@@ -61,27 +61,23 @@ if (! function_exists('tenant_route_name')) {
         if ($isCentralDomain) {
             $cleanHost = str_replace('www.', '', $currentHost);
             $domainIndex = array_search($cleanHost, $centralDomains, true);
-            $prefix = ($domainIndex === false || $domainIndex === 0) ? 'path.' : "central-domain-{$domainIndex}.path.";
+            $prefix = ($domainIndex === false || $domainIndex === 0) ? 'tenant.' : "central-domain-{$domainIndex}.tenant.";
             $routeName = $prefix.$name;
 
-            if (! isset($parameters['tenant'])) {
+            if (Route::has($routeName)) {
+                return route($routeName, $parameters, $absolute);
+            }
+
+            // Fallback to legacy path prefix
+            $legacyPrefix = ($domainIndex === false || $domainIndex === 0) ? 'path.' : "central-domain-{$domainIndex}.path.";
+            $legacyRouteName = $legacyPrefix.$name;
+
+            if (! isset($parameters['tenant']) && tenant()) {
                 $parameters = array_merge(['tenant' => tenant('id')], $parameters);
             }
 
-            if (! Route::has($routeName)) {
-                $routeName = 'path.'.$name;
-            }
-
-            if (Route::has($routeName)) {
-                // ✅ الحل هنا
-                $url = route($routeName, $parameters, $absolute);
-
-                // تأكد أن الرابط يحتوي على tenant path
-                if (! str_contains($url, '/'.tenant('id').'/')) {
-                    $url = url(tenant('id').'/'.ltrim(parse_url($url, PHP_URL_PATH), '/'));
-                }
-
-                return $url;
+            if (Route::has($legacyRouteName)) {
+                return route($legacyRouteName, $parameters, $absolute);
             }
         } else {
             // Domain-based
@@ -94,10 +90,6 @@ if (! function_exists('tenant_route_name')) {
 
         // Fallback: try without prefix
         if (Route::has($name)) {
-            if ($isCentralDomain && ! isset($parameters['tenant'])) {
-                $parameters = array_merge(['tenant' => tenant('id')], $parameters);
-            }
-
             return route($name, $parameters, $absolute);
         }
 
@@ -124,6 +116,6 @@ if (! function_exists('current_tenant_route_name')) {
             return null;
         }
 
-        return preg_replace('/^(path|domain)\./', '', $currentRoute);
+        return preg_replace('/^(tenant|path|domain|central-domain-\d+\.tenant|central-domain-\d+\.path)\./', '', $currentRoute);
     }
 }

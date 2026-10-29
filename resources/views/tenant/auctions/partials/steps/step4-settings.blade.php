@@ -4,8 +4,8 @@
 @endphp
 <div class="row g-4">
     <div class="col-12"><h6 class="fw-bold mb-0"><i class="ti ti-photo me-1"></i>صور التقرير والمزاد</h6></div>
-    <x-form.controls.image-upload name="report_image" label="صورة غلاف التقرير" :value="$isEdit && $auction->report_image ? tasset($auction->report_image) : null" accept="image/jpeg,image/png,image/webp" help="اختيارية؛ عند عدم رفع صورة تُستخدم صورة المثال الأصلية. اتركها دون تغيير للاحتفاظ بالصورة المحفوظة." col="col-md-6" />
-    <x-form.controls.image-upload name="cover_image" label="صورة غلاف المزاد" :value="$isEdit && $auction->cover_image ? tasset($auction->cover_image) : null" accept="image/jpeg,image/png,image/webp" help="اختيارية؛ خلفية للصفحة الأولى من المخرجات فقط. بدونها يظل الغلاف الافتراضي الحالي." col="col-md-6" />
+    <x-form.controls.image-upload name="report_image" label="صورة غلاف التقرير" :value="$isEdit && $auction->report_image ? tasset($auction->report_image) : null" accept="image/jpeg,image/png,image/webp" help="عند عدم رفع صورة تُستخدم صورة المثال الأصلية. اتركها دون تغيير للاحتفاظ بالصورة المحفوظة." col="col-md-6" />
+    <x-form.controls.image-upload name="cover_image" label="صورة غلاف المزاد" :value="$isEdit && $auction->cover_image ? tasset($auction->cover_image) : null" accept="image/jpeg,image/png,image/webp" help="خلفية للصفحة الأولى من المخرجات فقط. بدونها يظل الغلاف الافتراضي الحالي." col="col-md-6" />
     <div class="col-12 border-top pt-3">
         <h6 class="fw-bold mb-3">نتائج عقارات المزاد واللوحات</h6>
         <div id="property-results-container">

@@ -8,8 +8,8 @@
     $hasMultipleSteps = count($steps) > 1;
 @endphp
 
-<div id="{{ $id }}" {{ $attributes->class(['bs-stepper' => $hasMultipleSteps]) }} @if($hasMultipleSteps) data-form-stepper @endif>
-    @if ($hasMultipleSteps)
+@if ($hasMultipleSteps)
+    <div id="{{ $id }}" {{ $attributes->class(['bs-stepper']) }} data-form-stepper>
         <div class="bs-stepper-header">
             @foreach ($steps as $index => $step)
                 @php
@@ -33,9 +33,15 @@
                 @endif
             @endforeach
         </div>
-    @endif
 
-    <div class="{{ $contentClass }}">
-        {{ $slot }}
+        <div class="{{ $contentClass }}">
+            {{ $slot }}
+        </div>
     </div>
-</div>
+@else
+    <div id="{{ $id }}" {{ $attributes->class(['card']) }}>
+        <div class="{{ $contentClass === 'bs-stepper-content' ? 'card-body' : $contentClass }}">
+            {{ $slot }}
+        </div>
+    </div>
+@endif

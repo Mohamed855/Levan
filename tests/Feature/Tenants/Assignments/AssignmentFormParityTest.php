@@ -32,5 +32,24 @@ class AssignmentFormParityTest extends TestCase
         $this->assertStringContainsString("tenant.assignments.partials._form", $editContent);
         $this->assertStringContainsString("'is_edit' => true", $editContent);
     }
+
+    public function test_assignment_shared_form_compiles_without_syntax_errors(): void
+    {
+        \Illuminate\Support\Facades\View::share('errors', new \Illuminate\Support\ViewErrorBag());
+
+        $dataTable = app(\App\DataTables\Tenants\Assignments\AssignmentPropertySelectionDataTable::class);
+        $rendered = view('tenant.assignments.partials._form', [
+            'is_edit' => false,
+            'assignment' => null,
+            'generatedAssignmentNumber' => 'ASG-TEST-001',
+            'cityOptions' => ['Riyadh' => 'الرياض'],
+            'propertyImageFallback' => '/test.png',
+            'dataTable' => $dataTable->html(),
+        ])->render();
+
+        $this->assertNotEmpty($rendered);
+        $this->assertStringContainsString('assignment-basic-validation', $rendered);
+        $this->assertStringContainsString('data-category-mapping', $rendered);
+    }
 }
 

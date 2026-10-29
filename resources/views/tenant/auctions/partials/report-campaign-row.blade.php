@@ -31,7 +31,7 @@
 
         <x-form.controls.input
             :name="$prefix.'[platform_label]'"
-            label="اسم القناة الأخرى (اختياري)"
+            label="اسم القناة الأخرى"
             placeholder="مثال: إنستغرام أو قناة خاصة"
             :value="$campaign['platform_label'] ?? ($channel === 'other' ? ($campaign['platform'] ?? '') : '')"
             col="col-md-4"

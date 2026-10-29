@@ -16,7 +16,7 @@
             <div class="card-body pt-4">
                 <div class="row g-2">
                     <div class="mb-4 col-md-6">
-                        <label for="officeName" class="form-label">إسم الشركة</label>
+                        <label for="officeName" class="form-label">إسم الشركة <span class="text-danger">*</span></label>
                         <input class="form-control" type="text" id="officeName" name="office_name" required
                             value="{{ old('office_name', $settings->office_name ?? '') }}"
                             placeholder="أدخل إسم الشركة" />
@@ -26,7 +26,7 @@
                     </div>
                     <!-- وضع الصيانة -->
                     <div class="mb-4 col-md-6">
-                        <label for="logoText" class="form-label">النص بجانب الشعار</label>
+                        <label for="logoText" class="form-label">النص بجانب الشعار <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="logoText" name="logo_text" required
                             value="{{ old('logo_text', $settings->logo_text ?? '') }}"
                             placeholder="أدخل النص بجانب الشعار" maxlength="14" />

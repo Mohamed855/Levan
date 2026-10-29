@@ -49,7 +49,7 @@
             <div class="form-group-custom">
                 <label class="form-custom">
                     <i class="ti ti-world"></i>
-                    اسم الدومين
+                    اسم الدومين <span class="text-danger">*</span>
                 </label>
                 <input type="text" id="domainInput" class="form-control-custom" placeholder="example.com" dir="ltr">
                 <div class="alert-box alert-info mt-3">

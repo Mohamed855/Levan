@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Tenants\Auctions;
 
+use App\Enums\Tenants\Assignments\AssignmentCategory;
 use App\Enums\Tenants\Auctions\AuctionCategory;
 use App\Enums\Tenants\Auctions\AuctionType;
 use App\Http\Requests\Concerns\WizardFormRequest;
@@ -154,6 +155,11 @@ class StoreAuctionRequest extends WizardFormRequest
                     }
                     $property = \App\Models\Tenants\Properties\Property::query()->find($value);
                     if (! $property) {
+                        return;
+                    }
+                    $category = AssignmentCategory::tryFrom((string) $this->input('category'));
+                    if ($category && ! $category->allowsPropertyType($property->type)) {
+                        $fail("العقار ({$property->name}) نوعه ({$property->type_label}) لا يتطابق مع تصنيف المزاد المختار ({$category->label()}).");
                         return;
                     }
                     if ($property->status === 'sold') {

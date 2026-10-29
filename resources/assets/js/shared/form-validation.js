@@ -1,6 +1,10 @@
 "use strict";
 
-import { initAllFileUploadZones, getFileUploadController, setFilesOnUploadZone } from "./file-upload.js";
+import {
+    initAllFileUploadZones,
+    getFileUploadController,
+    setFilesOnUploadZone,
+} from "./file-upload.js";
 
 const INPUT_VALIDATION_DEBOUNCE_MS = 250;
 const VALIDATION_ERROR_TOAST_MESSAGE = "برجاء إدخال بيانات صالحة للمتابعة";
@@ -305,7 +309,7 @@ function parseDependencies(control) {
 
 function passwordConfirmationDependencies(control) {
     const name = String(control.name || "");
-    const suffix = '_confirmation';
+    const suffix = "_confirmation";
 
     return name.endsWith(suffix) ? [name.slice(0, -suffix.length)] : [];
 }
@@ -464,7 +468,9 @@ function findFileInputForDraftKey(form, key) {
     if (!key) return null;
     const strKey = String(key);
     const rootName = strKey.split(".")[0];
-    const bracketName = strKey.replace(/\.([0-9]+)/g, "[$1]").replace(/\.([^.\[\]]+)/g, "[$1]");
+    const bracketName = strKey
+        .replace(/\.([0-9]+)/g, "[$1]")
+        .replace(/\.([^.\[\]]+)/g, "[$1]");
     const bracketWithoutIndex = strKey.replace(/\.[0-9]+/g, "");
     const bracketRoot = bracketWithoutIndex.replace(/\.([^.\[\]]+)/g, "[$1]");
 
@@ -504,7 +510,11 @@ async function createFileFromDraftItem(item) {
                 blob = await res.blob();
             }
         } catch (e) {
-            console.warn("Could not fetch draft file blob from URL:", item.url, e);
+            console.warn(
+                "Could not fetch draft file blob from URL:",
+                item.url,
+                e,
+            );
         }
     }
 
@@ -558,7 +568,9 @@ async function restoreDraftFiles(form, files) {
     // Process each input
     for (const [input, fileItems] of filesByInput.entries()) {
         const isMultiple = input.hasAttribute("multiple");
-        const itemsToLoad = isMultiple ? fileItems : [fileItems[fileItems.length - 1]];
+        const itemsToLoad = isMultiple
+            ? fileItems
+            : [fileItems[fileItems.length - 1]];
 
         const reconstructedFiles = [];
         for (const item of itemsToLoad) {
@@ -732,8 +744,8 @@ function resolveDraftNavigation(form, defaultStep) {
 
     const controls = Array.from(
         form.querySelectorAll(
-            'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])'
-        )
+            'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])',
+        ),
     );
 
     const populatedControls = controls.filter(isControlPopulated);
@@ -742,11 +754,13 @@ function resolveDraftNavigation(form, defaultStep) {
         : null;
 
     const passwordInput = form.querySelector(
-        'input[type="password"]:not([disabled])'
+        'input[type="password"]:not([disabled])',
     );
 
     const passwordIndex = passwordInput ? controls.indexOf(passwordInput) : -1;
-    const lastPopulatedIndex = lastPopulatedControl ? controls.indexOf(lastPopulatedControl) : -1;
+    const lastPopulatedIndex = lastPopulatedControl
+        ? controls.indexOf(lastPopulatedControl)
+        : -1;
 
     const isPasswordBeforeLastPopulated =
         passwordInput !== null &&
@@ -811,8 +825,8 @@ async function restoreDraft(form) {
                 title: "مسودة محفوظة",
                 text: "توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟",
                 variant: "primary",
-                confirmButtonText: "نعم، استعادة المسودة",
-                cancelButtonText: "تجاهل والبدء من جديد",
+                confirmButtonText: "تأكيد استعادة المسودة",
+                cancelButtonText: "تجاهل",
                 confirmButtonClass: "btn btn-primary",
                 icon: "ti ti-file-text text-primary",
             });
@@ -854,7 +868,9 @@ async function restoreDraft(form) {
             stepper.to(targetStep);
             const stepperElement = form.closest("[data-form-stepper]");
             const steps = stepperElement
-                ? Array.from(stepperElement.querySelectorAll("[data-form-step]"))
+                ? Array.from(
+                      stepperElement.querySelectorAll("[data-form-step]"),
+                  )
                 : Array.from(form.querySelectorAll("[data-form-step]"));
             const targetIndex = targetStep - 1;
             const currentStep = steps[targetIndex];
@@ -885,10 +901,14 @@ async function restoreDraft(form) {
         retry.type = "button";
         retry.className = "btn btn-secondary mb-3";
         retry.textContent = "إعادة محاولة استرجاع المسودة أو تجاهلها";
-        retry.addEventListener("click", () => {
-            retry.remove();
-            restoreDraft(form);
-        }, { once: true });
+        retry.addEventListener(
+            "click",
+            () => {
+                retry.remove();
+                restoreDraft(form);
+            },
+            { once: true },
+        );
         form.insertAdjacentElement("beforebegin", retry);
     } finally {
         form.removeAttribute("aria-busy");
@@ -1478,11 +1498,17 @@ function scrollToFirstInvalid(container, preferredInvalidElement = null) {
     const control = invalidEl.matches("input, select, textarea")
         ? invalidEl
         : invalidEl.querySelector("input, select, textarea") ||
-          invalidEl.closest("[data-form-field]")?.querySelector("input, select, textarea");
+          invalidEl
+              .closest("[data-form-field]")
+              ?.querySelector("input, select, textarea");
 
     const scrollTarget =
-        invalidEl.closest(".form-floating, [data-form-field], .mb-3, .mb-4, .input-group, .assignment-properties-table-card") ||
-        control?.closest(".form-floating, [data-form-field], .mb-3, .mb-4, .input-group") ||
+        invalidEl.closest(
+            ".form-floating, [data-form-field], .mb-3, .mb-4, .input-group, .assignment-properties-table-card",
+        ) ||
+        control?.closest(
+            ".form-floating, [data-form-field], .mb-3, .mb-4, .input-group",
+        ) ||
         control ||
         invalidEl;
 
@@ -1498,12 +1524,18 @@ function scrollToFirstInvalid(container, preferredInvalidElement = null) {
             control.tagName === "SELECT" &&
             control.classList.contains("select2-hidden-accessible")
         ) {
-            const select2Container =
-                control.nextElementSibling?.matches(".select2-container")
-                    ? control.nextElementSibling
-                    : control.parentElement?.querySelector(".select2-container");
-            const select2Focusable = select2Container?.querySelector('[tabindex="0"], input');
-            if (select2Focusable && typeof select2Focusable.focus === "function") {
+            const select2Container = control.nextElementSibling?.matches(
+                ".select2-container",
+            )
+                ? control.nextElementSibling
+                : control.parentElement?.querySelector(".select2-container");
+            const select2Focusable = select2Container?.querySelector(
+                '[tabindex="0"], input',
+            );
+            if (
+                select2Focusable &&
+                typeof select2Focusable.focus === "function"
+            ) {
                 try {
                     select2Focusable.focus({ preventScroll: true });
                 } catch (_) {}
@@ -1620,7 +1652,7 @@ function initStepper(form) {
                 }
 
                 const steps = getSteps();
-                const currentStep = nextButton.closest('[data-form-step]');
+                const currentStep = nextButton.closest("[data-form-step]");
                 const currentIndex = steps.indexOf(currentStep);
                 if (!currentStep || currentIndex < 0) {
                     return;
@@ -1628,15 +1660,19 @@ function initStepper(form) {
                 const stepFields = validationFieldsFromStep(currentStep);
 
                 state.isValidatingStep = true;
-                nextButton.setAttribute('aria-busy', 'true');
+                nextButton.setAttribute("aria-busy", "true");
                 nextButton.dataset.buttonIsLoading = "true";
                 const nextSpinner = nextButton.querySelector(".btn-spinner");
-                const nextIcon = nextButton.querySelector("i:not(.btn-spinner)");
+                const nextIcon = nextButton.querySelector(
+                    "i:not(.btn-spinner)",
+                );
                 if (nextSpinner) nextSpinner.classList.remove("d-none");
                 if (nextIcon) nextIcon.classList.add("d-none");
 
                 try {
-                    const isValid = await validateFields(form, stepFields, { force: true });
+                    const isValid = await validateFields(form, stepFields, {
+                        force: true,
+                    });
                     if (isValid) {
                         moveTo(currentIndex + 1);
                     } else {
@@ -1665,8 +1701,11 @@ function initStepper(form) {
                     state.isValidatingStep = false;
                     nextButton.removeAttribute("aria-busy");
                     delete nextButton.dataset.buttonIsLoading;
-                    const nextSpinner = nextButton.querySelector(".btn-spinner");
-                    const nextIcon = nextButton.querySelector("i:not(.btn-spinner)");
+                    const nextSpinner =
+                        nextButton.querySelector(".btn-spinner");
+                    const nextIcon = nextButton.querySelector(
+                        "i:not(.btn-spinner)",
+                    );
                     if (nextSpinner) nextSpinner.classList.add("d-none");
                     if (nextIcon) nextIcon.classList.remove("d-none");
                     updateStepNextButton(form, currentStep);
@@ -2074,7 +2113,8 @@ function initForm(form) {
                     if (typeof state.moveTo === "function") {
                         state.moveTo(targetStepIndex);
                     } else if (state.stepper || stepperElement.bsStepper) {
-                        const stepper = state.stepper || stepperElement.bsStepper;
+                        const stepper =
+                            state.stepper || stepperElement.bsStepper;
                         stepper.to(targetStepIndex + 1);
                         form.dispatchEvent(
                             new CustomEvent("stepChanged", {
@@ -2132,7 +2172,9 @@ function getButtonLoadingText(button) {
     }
 
     const textEl = button.querySelector(".btn-text");
-    const rawText = (textEl ? textEl.textContent : button.textContent || "").trim();
+    const rawText = (
+        textEl ? textEl.textContent : button.textContent || ""
+    ).trim();
 
     if (!rawText || rawText === "حفظ") {
         return "جاري الحفظ...";
@@ -2183,7 +2225,9 @@ function setButtonLoading(button, customText) {
     const loadingText = customText || getButtonLoadingText(button);
 
     const spinner = button.querySelector(".btn-spinner");
-    const icon = button.querySelector(".btn-loading-icon, .btn-icon, i:not(.btn-spinner)");
+    const icon = button.querySelector(
+        ".btn-loading-icon, .btn-icon, i:not(.btn-spinner)",
+    );
     const textEl = button.querySelector(".btn-text");
 
     if (spinner && textEl) {
@@ -2224,7 +2268,9 @@ function resetButtonLoading(button) {
     }
 
     const spinner = button.querySelector(".btn-spinner");
-    const icon = button.querySelector(".btn-loading-icon, .btn-icon, i:not(.btn-spinner)");
+    const icon = button.querySelector(
+        ".btn-loading-icon, .btn-icon, i:not(.btn-spinner)",
+    );
     const textEl = button.querySelector(".btn-text");
 
     if (button.dataset.originalHtml) {
@@ -2307,7 +2353,8 @@ function boot() {
         if (!form || !(form instanceof HTMLFormElement)) return;
         if (form.dataset.formValidate !== undefined) return;
         if (event.defaultPrevented) return;
-        if (typeof form.checkValidity === "function" && !form.checkValidity()) return;
+        if (typeof form.checkValidity === "function" && !form.checkValidity())
+            return;
 
         const submitButton =
             event.submitter ||

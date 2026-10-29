@@ -9,7 +9,8 @@
 
     $isCentralDomain = in_array($currentHost, $centralDomains) || in_array('www.' . $currentHost, $centralDomains);
 
-    $loginAction = $isCentralDomain ? url('/' . tenant('id') . '/login') : url('/login');
+    $loginAction = $isCentralDomain ? url('/admin/login') : url('/login');
+    $tenantId = old('tenant_id', tenant('id'));
 @endphp
 
 @extends('tenant.layouts.layoutMaster')
@@ -39,6 +40,7 @@
         <form id="formAuthentication" action="{{ $loginAction }}" method="POST" novalidate data-form-validate
             data-validation-url="{{ tenant_route_name('form-validation') }}">
             @csrf
+            <input type="hidden" name="tenant_id" value="{{ $tenantId }}">
             <x-form.controls.input name="email" label="البريد الإلكتروني أو رقم الجوال" placeholder="أدخل البريد الإلكتروني أو رقم الجوال"
                 type="text" :value="old('email')" required autocomplete="username" col="col-12 mb-3"
                 icon="ti ti-mail" />

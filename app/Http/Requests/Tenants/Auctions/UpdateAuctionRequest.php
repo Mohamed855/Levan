@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Tenants\Auctions;
 
+use App\Enums\Tenants\Assignments\AssignmentCategory;
 use App\Enums\Tenants\Auctions\AuctionCategory;
 use App\Enums\Tenants\Auctions\AuctionType;
 use App\Http\Requests\Concerns\WizardFormRequest;
@@ -162,6 +163,16 @@ class UpdateAuctionRequest extends WizardFormRequest
 
                     $property = \App\Models\Tenants\Properties\Property::query()->find($value);
                     if (! $property) {
+                        return;
+                    }
+                    $categoryValue = $this->input('category');
+                    if (! $categoryValue) {
+                        $auctionParam = $this->route('auction');
+                        $categoryValue = is_object($auctionParam) ? $auctionParam->category : null;
+                    }
+                    $category = AssignmentCategory::tryFrom((string) $categoryValue);
+                    if ($category && ! $category->allowsPropertyType($property->type)) {
+                        $fail("العقار ({$property->name}) نوعه ({$property->type_label}) لا يتطابق مع تصنيف المزاد المختار ({$category->label()}).");
                         return;
                     }
                     $isSoldInAnotherAuction = \Illuminate\Support\Facades\DB::table('auction_properties')

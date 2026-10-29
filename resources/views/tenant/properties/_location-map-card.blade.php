@@ -1,24 +1,24 @@
 <div class="card assignment-properties-table-card h-100">
     <div class="card-body d-flex flex-column gap-3">
         <div>
-            <label class="form-label fw-medium mb-1">
-                صورة العقار <span class="text-danger">*</span>
-            </label>
-            <input type="file" id="property-image-upload" class="d-none" accept="image/png,image/jpeg,image/webp">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="form-label fw-medium mb-0">
+                    صورة العقار <span class="text-danger">*</span>
+                </label>
+                <span class="text-muted small">بحد أقصى 10MB</span>
+            </div>
+            <input type="file" id="property-image-upload" class="d-none" accept="image/png,image/jpeg,image/webp" data-max-size-mb="10">
         </div>
 
         {{-- لوحة الرسم التفاعلية --}}
         <div class="flex-grow-1 position-relative d-flex flex-column">
             {{-- مربع رسالة الانتظار عند عدم وجود صورة (قابل للنقر لاختيار صورة) --}}
             <div id="property-image-empty-placeholder"
-                class="border rounded-3 p-4 text-center text-muted bg-light d-flex flex-column align-items-center justify-content-center flex-grow-1"
-                role="button"
-                tabindex="0"
-                aria-label="اضغط لاختيار صورة العقار"
-                style="min-height: 320px;">
+                class="border rounded-3 p-4 text-center text-primary bg-light d-flex flex-column align-items-center justify-content-center flex-grow-1"
+                role="button" tabindex="0" aria-label="اضغط لاختيار صورة العقار" style="min-height: 320px;">
                 <i class="ti ti-photo-up fs-1 text-primary mb-2"></i>
                 <span class="fw-semibold">اضغط لاختيار صورة العقار</span>
-                <small class="text-muted mt-1">ارفع صورة جوية أو كروكي مساحي لتحديد العقار عليها</small>
+                <small class="mt-1">ارفع صورة جوية أو كروكي مساحي لتحديد العقار عليها (بحد أقصى 10MB)</small>
             </div>
 
             {{-- حاوية الرسم التفاعلية مع الكانفاس --}}

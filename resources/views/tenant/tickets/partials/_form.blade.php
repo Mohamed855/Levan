@@ -37,7 +37,7 @@
                         <x-form.controls.textarea name="description" id="description" label="وصف المشكلة" rows="5"
                             placeholder="اشرح تفاصيل المشكلة التي تواجهها..." required />
 
-                        <x-form.controls.file name="attachments" id="attachments" label="المرفقات (اختياري)" multiple
+                        <x-form.controls.file name="attachments" id="attachments" label="المرفقات" multiple
                             accept="image/*,application/pdf,.doc,.docx,.txt"
                             help="يمكنك رفع عدة صور أو ملفات (حد أقصى 5 ملفات، كل ملف حتى 10MB)" :max-size="10" />
                     </div>

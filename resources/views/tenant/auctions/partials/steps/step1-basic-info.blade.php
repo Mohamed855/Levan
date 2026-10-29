@@ -12,7 +12,7 @@
     @if ($isEdit)
         {{-- الإسناد: readonly لأنه غير قابل للتغيير بعد الإنشاء --}}
         <div class="col-md-6">
-            <label class="form-label">الإسناد المرتبط بالمزاد</label>
+            <label class="form-label">الإسناد المرتبط بالمزاد <span class="text-danger">*</span></label>
             <input type="text" class="form-control" readonly
                 value="{{ $auction->assignment?->name }} ({{ $auction->assignment?->assignment_number }})">
             <input type="hidden" name="assignment_id" id="assignment_id" value="{{ $auction->assignment_id }}">

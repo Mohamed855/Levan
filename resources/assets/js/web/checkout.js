@@ -214,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if ($city.length && !$city.hasClass("select2-hidden-accessible")) {
                 $city.select2({
                     placeholder:
-                        $city.data("placeholder") || "اختر المدينة (اختياري)",
+                        $city.data("placeholder") || "اختر المدينة",
                     allowClear: true,
                     width: "100%",
                     dir: "rtl",

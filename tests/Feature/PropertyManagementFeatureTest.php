@@ -244,6 +244,100 @@ class PropertyManagementFeatureTest extends TestCase
         $property->forceDelete();
     }
 
+    public function test_property_creation_rejects_uploaded_aerial_image_exceeding_10mb(): void
+    {
+        Storage::fake('tenant_public');
+
+        $payload = [
+            'name' => 'عقار بصورة كبيرة جدا',
+            'type' => PropertyType::COMMERCIAL_LAND->value,
+            'usage_classification' => PropertyUsageClassification::COMMERCIAL->value,
+            'area' => 500.00,
+            'is_active' => '1',
+            'short_description' => 'أرض تجارية',
+            'city' => 'الرياض',
+            'district' => 'الملقا',
+            'administrative_region' => 'منطقة الرياض',
+            'plan_number' => '888',
+            'parcel_number' => '12',
+            'aerial_image' => UploadedFile::fake()->create('huge_aerial.jpg', 11 * 1024, 'image/jpeg'),
+            'boundary_geojson' => [
+                'type' => 'Polygon',
+                'coordinates' => [
+                    [[10.5, 20.2], [30.5, 20.2], [30.5, 45.8], [10.5, 45.8], [10.5, 20.2]],
+                ],
+            ],
+            'boundaries' => [
+                ['direction' => 'north', 'border_type' => 'street', 'border_description' => 'شارع', 'length' => 20.0],
+            ],
+            'deed_number' => '329999991',
+            'deed_date' => now()->toDateString(),
+            'issuing_authority' => 'كتابة عدل الأولى',
+            'ownership_type' => PropertyOwnershipType::SOLE_OWNERSHIP->value,
+            'owners' => [
+                ['owner_name' => 'عبدالله أحمد', 'national_id_or_cr' => '1029384756'],
+            ],
+            'deed_document' => UploadedFile::fake()->create('deed.pdf', 500, 'application/pdf'),
+            'cadastral_plan' => UploadedFile::fake()->create('plan.pdf', 500, 'application/pdf'),
+            'coordinates_statement' => UploadedFile::fake()->create('coords.pdf', 500, 'application/pdf'),
+            'main_image' => UploadedFile::fake()->image('main.jpg', 800, 600),
+        ];
+
+        $response = $this->actingAs($this->owner, 'tenant')
+            ->post($this->tenantUrl('properties'), $payload);
+
+        $response->assertSessionHasErrors(['aerial_image']);
+        $this->assertDatabaseMissing('properties', ['deed_number' => '329999991']);
+    }
+
+    public function test_property_creation_rejects_base64_aerial_image_exceeding_10mb(): void
+    {
+        Storage::fake('tenant_public');
+
+        $largeBase64 = 'data:image/png;base64,' . base64_encode(str_repeat('A', 11 * 1024 * 1024));
+
+        $payload = [
+            'name' => 'عقار بصورة بيز64 كبيرة جدا',
+            'type' => PropertyType::COMMERCIAL_LAND->value,
+            'usage_classification' => PropertyUsageClassification::COMMERCIAL->value,
+            'area' => 500.00,
+            'is_active' => '1',
+            'short_description' => 'أرض تجارية',
+            'city' => 'الرياض',
+            'district' => 'الملقا',
+            'administrative_region' => 'منطقة الرياض',
+            'plan_number' => '888',
+            'parcel_number' => '13',
+            'aerial_image' => $largeBase64,
+            'boundary_geojson' => [
+                'type' => 'Polygon',
+                'coordinates' => [
+                    [[10.5, 20.2], [30.5, 20.2], [30.5, 45.8], [10.5, 45.8], [10.5, 20.2]],
+                ],
+            ],
+            'boundaries' => [
+                ['direction' => 'north', 'border_type' => 'street', 'border_description' => 'شارع', 'length' => 20.0],
+            ],
+            'deed_number' => '329999992',
+            'deed_date' => now()->toDateString(),
+            'issuing_authority' => 'كتابة عدل الأولى',
+            'ownership_type' => PropertyOwnershipType::SOLE_OWNERSHIP->value,
+            'owners' => [
+                ['owner_name' => 'عبدالله أحمد', 'national_id_or_cr' => '1029384756'],
+            ],
+            'deed_document' => UploadedFile::fake()->create('deed.pdf', 500, 'application/pdf'),
+            'cadastral_plan' => UploadedFile::fake()->create('plan.pdf', 500, 'application/pdf'),
+            'coordinates_statement' => UploadedFile::fake()->create('coords.pdf', 500, 'application/pdf'),
+            'main_image' => UploadedFile::fake()->image('main.jpg', 800, 600),
+        ];
+
+        $response = $this->actingAs($this->owner, 'tenant')
+            ->post($this->tenantUrl('properties'), $payload);
+
+        $response->assertSessionHasErrors(['aerial_image']);
+        $this->assertDatabaseMissing('properties', ['deed_number' => '329999992']);
+    }
+
     public function test_property_draft_retains_aerial_image_and_boundary_geojson(): void
     {
         $resourceKey = 'tenant.property-create-'.Str::uuid();

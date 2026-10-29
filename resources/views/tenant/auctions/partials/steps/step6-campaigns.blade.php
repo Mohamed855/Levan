@@ -13,7 +13,7 @@
             <header class="assignment-properties-table-card__header d-flex justify-content-between align-items-center p-3 border-bottom">
                 <div>
                     <h6 class="mb-0 fw-bold"><i class="ti ti-speakerphone me-1"></i>الحملات التسويقية للمزاد</h6>
-                    <small class="text-muted">توثيق الحملات والمؤشرات الإعلانية (كافة بياناتها اختيارية).</small>
+                    <small class="text-muted">توثيق الحملات والمؤشرات الإعلانية للتقرير التسويقي.</small>
                 </div>
                 <button type="button" class="btn btn-sm btn-primary" id="add-campaign-btn">
                     <i class="ti ti-plus me-1"></i>إضافة حملة

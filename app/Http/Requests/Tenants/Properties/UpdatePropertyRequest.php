@@ -67,10 +67,33 @@ class UpdatePropertyRequest extends WizardFormRequest
                     if ($value instanceof UploadedFile) {
                         if (! $value->isValid() || ! in_array($value->getMimeType(), ['image/jpeg', 'image/png', 'image/webp'])) {
                             $fail('يجب أن تكون صورة العقار المحددة صورة صالحة (JPG, PNG, WEBP).');
+
+                            return;
+                        }
+
+                        if ($value->getSize() > 10240 * 1024) {
+                            $fail('حجم صورة العقار المحددة يجب ألا يتجاوز 10 ميجابايت.');
+
+                            return;
                         }
                     } elseif (is_string($value)) {
                         if (! str_starts_with($value, 'data:image/') && ! str_starts_with($value, 'properties/')) {
                             $fail('صورة العقار المحددة غير صالحة.');
+
+                            return;
+                        }
+
+                        if (str_starts_with($value, 'data:image/')) {
+                            $commaPos = strpos($value, ',');
+                            if ($commaPos !== false) {
+                                $base64 = str_replace(["\r", "\n", ' '], '', substr($value, $commaPos + 1));
+                                $decodedLength = (int) floor((strlen(rtrim($base64, '=')) * 3) / 4);
+                                if ($decodedLength > 10240 * 1024) {
+                                    $fail('حجم صورة العقار المحددة يجب ألا يتجاوز 10 ميجابايت.');
+
+                                    return;
+                                }
+                            }
                         }
                     }
                 },
@@ -143,6 +166,16 @@ class UpdatePropertyRequest extends WizardFormRequest
             'deed_date.required' => 'تاريخ الصك مطلوب.',
             'issuing_authority.required' => 'جهة إصدار الصك مطلوبة.',
             'ownership_type.required' => 'نوع الملكية مطلوب.',
+            'main_image.image' => 'الصورة الرئيسية يجب أن تكون صورة صالحة.',
+            'main_image.max' => 'حجم الصورة الرئيسية يجب ألا يتجاوز 10 ميجابايت.',
+            'assignment_letter_image.image' => 'صورة الإسناد يجب أن تكون صورة صالحة.',
+            'assignment_letter_image.max' => 'حجم صورة الإسناد يجب ألا يتجاوز 10 ميجابايت.',
+            'property_images.*.max' => 'حجم كل صورة إضافية يجب ألا يتجاوز 10 ميجابايت.',
+            'additional_documents.*.max' => 'حجم كل مستند إضافي يجب ألا يتجاوز 10 ميجابايت.',
+            'deed_document.max' => 'حجم صك الملكية يجب ألا يتجاوز 10 ميجابايت.',
+            'cadastral_plan.max' => 'حجم مخطط العقار يجب ألا يتجاوز 10 ميجابايت.',
+            'coordinates_statement.max' => 'حجم كشف الإحداثيات يجب ألا يتجاوز 10 ميجابايت.',
+            'building_permit.max' => 'حجم رخصة البناء يجب ألا يتجاوز 10 ميجابايت.',
         ];
     }
 

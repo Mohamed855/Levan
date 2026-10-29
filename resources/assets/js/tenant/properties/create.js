@@ -683,11 +683,24 @@ document.addEventListener("DOMContentLoaded", () => {
         img.src = src;
     }
 
+    const MAX_PROPERTY_IMAGE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+    const MAX_PROPERTY_IMAGE_SIZE_MB = 10;
+
     function handleImageFile(file) {
         if (!file) return;
 
         if (!file.type.startsWith("image/")) {
             notifyUser("error", "يرجى اختيار ملف صورة صالح بصيغة PNG أو JPG أو WebP.");
+            if (imageUploadInput) imageUploadInput.value = "";
+            return;
+        }
+
+        if (file.size > MAX_PROPERTY_IMAGE_SIZE_BYTES) {
+            notifyUser(
+                "error",
+                `الملف "${file.name}" يتجاوز الحد الأقصى المسموح به (${MAX_PROPERTY_IMAGE_SIZE_MB}MB)`,
+            );
+            if (imageUploadInput) imageUploadInput.value = "";
             return;
         }
 
@@ -699,6 +712,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 "info",
                 "تم تحميل الصورة. انقر الآن على زوايا العقار لتحديد حدوده.",
             );
+        };
+        reader.onerror = () => {
+            notifyUser("error", "حدث خطأ أثناء قراءة ملف الصورة.");
+            if (imageUploadInput) imageUploadInput.value = "";
         };
         reader.readAsDataURL(file);
     }
@@ -742,6 +759,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const files = e.dataTransfer?.files;
             if (files && files.length > 0) {
+                if (files[0].size > MAX_PROPERTY_IMAGE_SIZE_BYTES) {
+                    notifyUser(
+                        "error",
+                        `الملف "${files[0].name}" يتجاوز الحد الأقصى المسموح به (${MAX_PROPERTY_IMAGE_SIZE_MB}MB)`,
+                    );
+                    if (imageUploadInput) imageUploadInput.value = "";
+                    return;
+                }
                 try {
                     imageUploadInput.files = files;
                 } catch (err) {

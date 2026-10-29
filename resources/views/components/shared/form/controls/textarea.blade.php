@@ -14,7 +14,8 @@
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
 
     if ($placeholder === null && $label) {
-        $cleanedLabel = trim(str_replace(['(اختياري)', '*', ':', '..'], '', $label));
+        $cleanedLabel = trim(preg_replace(['/\s*\(?\s*(اختياري|اختباري)\s*\)?\s*/u', '/\s*\*+\s*$/u'], ['', ''], (string) $label));
+        $cleanedLabel = trim(str_replace([':', '..'], '', $cleanedLabel));
         $placeholder = 'أدخل ' . $cleanedLabel . '...';
     }
 @endphp

@@ -8,6 +8,7 @@ use App\Actions\Tenants\Assignments\CreateAssignmentAction;
 use App\Actions\Tenants\Assignments\UpdateAssignmentAction;
 use App\DataTables\Tenants\Assignments\AssignmentPropertySelectionDataTable;
 use App\DataTables\Tenants\Assignments\AssignmentsDataTable;
+use App\Enums\Tenants\Assignments\AssignmentCategory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Assignments\SelectedAssignmentPropertiesRequest;
 use App\Http\Requests\Tenants\Assignments\StoreAssignmentRequest;
@@ -58,6 +59,8 @@ class AssignmentsController extends Controller
     {
         $generatedAssignmentNumber = $this->assignmentService->generateAssignmentNumber();
         $tenantImage = SettingsHelper::get('image');
+        $initialCategory = old('category', AssignmentCategory::LANDS->value);
+        $dataTable->forCategory($initialCategory);
 
         return $dataTable->render('tenant.assignments.create', [
             'generatedAssignmentNumber' => $generatedAssignmentNumber,
@@ -116,6 +119,7 @@ class AssignmentsController extends Controller
         $fallbackImage = $tenantImage ? tasset($tenantImage) : asset('static/brand/logos/logo.svg');
 
         $dataTable->forAssignment($assignment->id);
+        $dataTable->forCategory($assignment->category instanceof \BackedEnum ? $assignment->category->value : (string) $assignment->category);
 
         return $dataTable->render('tenant.assignments.edit', [
             'assignment' => $assignment->load(['properties', 'attachments', 'assignmentImage']),

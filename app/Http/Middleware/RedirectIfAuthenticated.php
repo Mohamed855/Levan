@@ -27,7 +27,7 @@ class RedirectIfAuthenticated
                         in_array('www.'.$currentHost, $centralDomains);
 
                     if ($isCentralDomain) {
-                        return redirect('/'.tenant('id').'/dashboard');
+                        return redirect('/admin/dashboard');
                     } else {
                         return redirect('/dashboard');
                     }

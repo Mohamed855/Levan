@@ -21,8 +21,24 @@ class AuthenticatedSessionController extends Controller
         $this->middleware('guest:tenant')->except('destroy');
     }
 
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
+        $currentHost = request()->getHost();
+        $centralDomains = array_map(function ($domain) {
+            return str_replace(['http://', 'https://', 'www.'], '', $domain);
+        }, config('tenancy.central_domains', []));
+
+        $isCentralDomain = in_array($currentHost, $centralDomains) || in_array('www.'.$currentHost, $centralDomains);
+
+        // If accessed on central domain via legacy /{tenant_id}/login, set context and redirect cleanly to /admin/login
+        if ($isCentralDomain && request()->route('tenant')) {
+            $tenantId = tenant('id') ?? (string) request()->route('tenant');
+            session()->put('tenant_login_context', $tenantId);
+            cookie()->queue(cookie('tenant_login_hint', $tenantId, 60 * 24 * 30));
+
+            return redirect('/admin/login');
+        }
+
         return view('tenant.auth.login');
     }
 
@@ -46,9 +62,14 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $tenantId = tenant('id');
+        $request->session()->put('auth_tenant_id', $tenantId);
+        $request->session()->put('tenant_login_context', $tenantId);
+        cookie()->queue(cookie('tenant_login_hint', $tenantId, 60 * 24 * 30));
+
         $authenticationState->recordLogin($user, $request->ip(), $request->session()->getId());
 
-        return redirect(RouteServiceProvider::home());
+        return redirect()->intended(RouteServiceProvider::home());
     }
 
     public function impersonate(Request $request, PersistAuthenticationStateAction $authenticationState): RedirectResponse
@@ -86,6 +107,7 @@ class AuthenticatedSessionController extends Controller
     public function destroy(TenantAuthenticatedRequest $request, PersistAuthenticationStateAction $authenticationState): RedirectResponse
     {
         $user = Auth::guard('tenant')->user();
+        $tenantId = tenant('id');
 
         if ($user) {
             $authenticationState->clearCurrentSession($user);
@@ -94,6 +116,11 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('tenant')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        if ($tenantId) {
+            $request->session()->put('tenant_login_context', $tenantId);
+            cookie()->queue(cookie('tenant_login_hint', $tenantId, 60 * 24 * 30));
+        }
 
         return $this->redirectAfterLogout($request);
     }
@@ -115,7 +142,7 @@ class AuthenticatedSessionController extends Controller
         $isCentralDomain = in_array($currentHost, $centralDomains);
 
         if ($isCentralDomain) {
-            return redirect('/'.tenant('id').'/login');
+            return redirect('/admin/login');
         }
 
         return redirect('/login');

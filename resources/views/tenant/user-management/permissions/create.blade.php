@@ -10,7 +10,6 @@
     <div class="row">
         <div class="col-12 mb-4">
             <div class="card">
-                <h5 class="card-header">إضافة صلاحية جديدة</h5>
                 <div class="card-body">
                     @if ($errors->any())
                         <div class="alert alert-danger">

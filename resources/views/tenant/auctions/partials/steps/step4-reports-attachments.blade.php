@@ -64,7 +64,7 @@
         label="صورة غلاف التقرير"
         :value="$isEdit && $auction->report_image ? tasset($auction->report_image) : null"
         accept="image/jpeg,image/png,image/webp"
-        help="اختيارية؛ عند عدم رفع صورة تُستخدم صورة المثال الأصلية. اتركها دون تغيير للاحتفاظ بالصورة المحفوظة."
+        help="عند عدم رفع صورة تُستخدم صورة المثال الأصلية. اتركها دون تغيير للاحتفاظ بالصورة المحفوظة."
         col="col-md-6"
     />
 
@@ -75,7 +75,7 @@
         label="صورة غلاف المزاد"
         :value="$isEdit && $auction->cover_image ? tasset($auction->cover_image) : null"
         accept="image/jpeg,image/png,image/webp"
-        help="اختيارية؛ خلفية للصفحة الأولى من المخرجات فقط. بدونها يظل الغلاف الافتراضي الحالي."
+        help="خلفية للصفحة الأولى من المخرجات فقط. بدونها يظل الغلاف الافتراضي الحالي."
         col="col-md-6"
     />
 

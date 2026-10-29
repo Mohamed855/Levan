@@ -173,7 +173,7 @@
                     name="yearly_renewal_price" id="yearly_renewal_price"
                     label="سعر العرض السنوي الترويجي (ر.س)"
                     :value="old('yearly_renewal_price', $target?->yearly_renewal_price)" col="col-md-6"
-                    help="عرض سنوي اختياري للباقات الشهرية والربع سنوية." />
+                    help="عرض سنوي للباقات الشهرية والربع سنوية." />
             </div>
 
             <x-form.wizard.actions>
