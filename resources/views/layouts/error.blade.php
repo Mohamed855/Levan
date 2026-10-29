@@ -5,10 +5,15 @@
     $hideLoader = true;
 
     if (!isset($homeUrl)) {
-        if (function_exists('tenant') && tenant()) {
-            $homeUrl = url('/');
-        } elseif (request()->is('superadmin/*') || request()->is('superadmin') || request()->is('admin/*') || request()->is('admin')) {
+        if (request()->is('superadmin/*') || request()->is('superadmin')) {
             $homeUrl = Route::has('admin.dashboard.index') ? route('admin.dashboard.index') : (Route::has('admin.dashboard') ? route('admin.dashboard') : url('/superadmin'));
+        } elseif ((function_exists('tenant') && tenant()) || request()->is('admin/*') || request()->is('admin')) {
+            $homeUrl = (function_exists('tenant') && tenant())
+                ? tenant_route_name('dashboard')
+                : (Route::has('tenant.dashboard') ? route('tenant.dashboard') : url('/admin/dashboard'));
+            if ($homeUrl === '#' || empty($homeUrl)) {
+                $homeUrl = url('/admin/dashboard');
+            }
         } elseif (Route::has('site.index')) {
             $homeUrl = route('site.index');
         } else {

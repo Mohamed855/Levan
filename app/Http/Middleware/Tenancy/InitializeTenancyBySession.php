@@ -18,18 +18,12 @@ class InitializeTenancyBySession
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // 1. Resolve tenant ID by priority
-        $tenantId = tenant('id');
-
-        if (! $tenantId && Auth::guard('tenant')->check()) {
-            $tenantId = session('auth_tenant_id');
-        }
-
-        if (! $tenantId) {
-            $tenantId = $request->input('tenant_id')
-                ?? session('tenant_login_context')
-                ?? $request->cookie('tenant_login_hint');
-        }
+        // 1. Resolve tenant ID by priority (without querying uninitialized tenant DB)
+        $tenantId = tenant('id')
+            ?? session('auth_tenant_id')
+            ?? $request->input('tenant_id')
+            ?? session('tenant_login_context')
+            ?? $request->cookie('tenant_login_hint');
 
         // If no tenant context found -> fail with 404
         if (! $tenantId) {
@@ -46,7 +40,12 @@ class InitializeTenancyBySession
             abort(404, 'المستأجر غير موجود');
         }
 
-        // 3. Security: Strict Tenant Binding for authenticated users
+        // 3. Initialize tenancy if not already initialized
+        if (! tenant() || tenant('id') !== $tenant->id) {
+            tenancy()->initialize($tenant);
+        }
+
+        // 4. Security: Strict Tenant Binding for authenticated users (after tenancy is initialized)
         if (Auth::guard('tenant')->check()) {
             $authTenantId = session('auth_tenant_id');
             if ($authTenantId && $authTenantId !== $tenant->id) {
@@ -56,11 +55,6 @@ class InitializeTenancyBySession
                 $request->session()->regenerateToken();
                 abort(404, 'المستأجر غير موجود');
             }
-        }
-
-        // 4. Initialize tenancy if not already initialized
-        if (! tenant() || tenant('id') !== $tenant->id) {
-            tenancy()->initialize($tenant);
         }
 
         // 5. Keep active tenant context in session and cookie

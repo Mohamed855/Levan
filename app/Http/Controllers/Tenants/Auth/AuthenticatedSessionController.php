@@ -93,6 +93,11 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('tenant')->login($user);
         $request->session()->regenerate();
 
+        $tenantId = tenant('id');
+        $request->session()->put('auth_tenant_id', $tenantId);
+        $request->session()->put('tenant_login_context', $tenantId);
+        cookie()->queue(cookie('tenant_login_hint', $tenantId, 60 * 24 * 30));
+
         $authenticationState->recordLogin($user, $request->ip(), $request->session()->getId());
 
         return redirect()->to(tenant_route_name('dashboard'));

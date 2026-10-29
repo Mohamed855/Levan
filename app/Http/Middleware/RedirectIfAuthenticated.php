@@ -16,21 +16,20 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                // ✅ إذا المستخدم مسجل دخول، وجّهه للصفحة الصحيحة
-                if (tenant()) {
-                    $currentHost = $request->getHost();
-                    $centralDomains = array_map(function ($domain) {
-                        return str_replace(['http://', 'https://', 'www.'], '', $domain);
-                    }, config('tenancy.central_domains', []));
+                if ($guard === 'admin') {
+                    return redirect(RouteServiceProvider::ADMIN);
+                }
 
-                    $isCentralDomain = in_array($currentHost, $centralDomains) ||
-                        in_array('www.'.$currentHost, $centralDomains);
+                $currentHost = $request->getHost();
+                $centralDomains = array_map(function ($domain) {
+                    return str_replace(['http://', 'https://', 'www.'], '', $domain);
+                }, config('tenancy.central_domains', []));
 
-                    if ($isCentralDomain) {
-                        return redirect('/admin/dashboard');
-                    } else {
-                        return redirect('/dashboard');
-                    }
+                $isCentralDomain = in_array($currentHost, $centralDomains, true) ||
+                    in_array('www.'.$currentHost, $centralDomains, true);
+
+                if (tenant() || $guard === 'tenant' || session()->has('auth_tenant_id')) {
+                    return $isCentralDomain ? redirect('/admin/dashboard') : redirect('/dashboard');
                 }
 
                 return redirect(RouteServiceProvider::ADMIN);

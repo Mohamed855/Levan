@@ -123,15 +123,15 @@ class TenantSubscriptionController extends Controller
             //
         } catch (PaymentVerificationException $e) {
             //
-            return redirect()->route('site.index')->with('error', $e->getMessage());
+            return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', $e->getMessage());
         } catch (SubscriptionCreationException $e) {
             //
-            return redirect()->route('site.index')->with('error', $e->getMessage());
+            return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             //
             report($e);
 
-            return redirect()->route('site.index')->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
+            return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
         }
     }
 
