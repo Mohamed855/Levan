@@ -112,12 +112,6 @@ class TenancyServiceProvider extends ServiceProvider
         Event::listen(TenancyInitialized::class, function (TenancyInitialized $event) {
             $tenantId = $event->tenancy->tenant->getTenantKey();
 
-            // ← تأكد أن الطلب الحالي فعلاً داخل سياق التيننت
-            if (! app()->runningInConsole()) {
-                Config::set('session.cookie', 'tenant_'.$tenantId.'_session');
-                Config::set('session.path', '/'.$tenantId);
-            }
-
             Config::set(
                 'filesystems.disks.tenant_public.root',
                 storage_path("app/tenants/{$tenantId}/public")
@@ -137,11 +131,6 @@ class TenancyServiceProvider extends ServiceProvider
         Event::listen(TenancyEnded::class, function () {
             Storage::forgetDisk('tenant_public');
             Storage::forgetDisk('tenant_private');
-
-            if (! app()->runningInConsole()) {
-                Config::set('session.cookie', config('session.cookie')); // ← من config الأصلي
-                Config::set('session.path', '/');
-            }
         });
     }
 

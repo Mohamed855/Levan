@@ -78,14 +78,18 @@ class Helpers
     // //////////////////////////////////////////////////////////
     /**
      * Check if current route is active
-     * Works with multitenancy path-based routing
+     * Works with multitenancy prefix routing (tenant.*, path.*, domain.*) and central routing
      *
      * @param  string|array  $route  Route name pattern
      * @return bool
      */
     public static function isActiveRoute($route)
     {
-        $currentRoute = Route::currentRouteName();
+        if (empty($route)) {
+            return false;
+        }
+
+        $currentRoute = Route::currentRouteName() ?? request()->route()?->getName();
 
         if (empty($currentRoute)) {
             return false;
@@ -102,28 +106,17 @@ class Helpers
             return false;
         }
 
-        // Remove 'path.' prefix from current route
-        $routeWithoutPrefix = Str::after($currentRoute, 'path.');
+        // Remove route prefixes (tenant., path., domain., central-domain-X.tenant., central-domain-X.path.)
+        $routeWithoutPrefix = preg_replace('/^(tenant|path|domain|central-domain-\d+\.tenant|central-domain-\d+\.path)\./', '', $currentRoute);
 
-        // Direct match without prefix
-        if ($routeWithoutPrefix === $route) {
+        // Direct match without prefix or exact match with current route
+        if ($routeWithoutPrefix === $route || $currentRoute === $route) {
             return true;
         }
 
-        // Direct match with prefix
-        if ($currentRoute === "path.{$route}") {
+        // Wildcard match (e.g., properties.*, archive.*)
+        if (Str::is($route, $routeWithoutPrefix) || Str::is($route, $currentRoute)) {
             return true;
-        }
-
-        // Wildcard match without prefix (e.g., bills.*)
-        if (Str::contains($route, '*')) {
-            if (Str::is($route, $routeWithoutPrefix)) {
-                return true;
-            }
-
-            if (Str::is("path.{$route}", $currentRoute)) {
-                return true;
-            }
         }
 
         return false;

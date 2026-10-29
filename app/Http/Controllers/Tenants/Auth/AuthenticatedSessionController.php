@@ -69,6 +69,11 @@ class AuthenticatedSessionController extends Controller
 
         $authenticationState->recordLogin($user, $request->ip(), $request->session()->getId());
 
+        $intended = $request->session()->get('url.intended');
+        if ($intended && (str_contains($intended, '/login') || str_ends_with(rtrim($intended, '/'), '/admin'))) {
+            $request->session()->forget('url.intended');
+        }
+
         return redirect()->intended(RouteServiceProvider::home());
     }
 

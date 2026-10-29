@@ -149,7 +149,8 @@ class TrialRegistrationFlowTest extends TestCase
             'password' => $data['billing_password'],
         ])->assertRedirect('/admin/dashboard');
         $this->assertAuthenticated('tenant');
-        $this->get('/admin/dashboard')->assertOk();
+        $dashboard = '/admin/dashboard';
+        $this->get($dashboard)->assertOk();
         $this->get('/admin/assignments')->assertOk();
         self::assertSame(1, User::count());
         $owner = User::firstOrFail();
@@ -158,14 +159,14 @@ class TrialRegistrationFlowTest extends TestCase
         $limits = app(SubscriptionLimitsResolver::class)->resolveForTenant($request->tenant_id);
         self::assertSame(1, $limits['included_users']);
         self::assertSame(1, $limits['properties_limit']);
-        $this->get(route('path.users.index', ['tenant' => $request->tenant_id]))->assertOk()->assertSee('btn btn-secondary btn-add disabled', false);
-        $this->get(route('path.subscriptions.index', ['tenant' => $request->tenant_id]))->assertOk()->assertSee('تجربة مجانية');
+        $this->get('/admin/users')->assertOk()->assertSee('btn btn-secondary btn-add disabled', false);
+        $this->get('/admin/subscriptions')->assertOk()->assertSee('تجربة مجانية');
         self::assertFalse(app(CentralSubscriptionContextGateway::class)->canAddUser(1));
         $this->withExceptionHandling();
-        $response = $this->post(route('path.users.store', ['tenant' => $request->tenant_id]), []);
+        $response = $this->post('/admin/users', []);
         self::assertTrue($response->isRedirect() || $response->status() === 403);
         self::assertSame(1, User::count());
-        $this->get(route('path.users.create', ['tenant' => $request->tenant_id]))->assertForbidden();
+        $this->get('/admin/users/create')->assertForbidden();
         foreach ([app(UserService::class), app(RegisterTenantUserAction::class)] as $creator) {
             try {
                 $creator instanceof RegisterTenantUserAction ? $creator->execute([]) : $creator->createUser([]);

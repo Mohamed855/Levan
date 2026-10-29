@@ -86,6 +86,15 @@ class AdminAuthenticationValidationFeatureTest extends TestCase
         ]);
 
         $response->assertRedirect('/admin/dashboard');
+
+        // Follow redirect to /admin/dashboard in the same session
+        $dashboardResponse = $this->followRedirects($response);
+        $dashboardResponse->assertOk();
+
+        // Ensure subsequent internal tenant requests maintain the authenticated session
+        $propertiesResponse = $this->get('/admin/properties');
+        $propertiesResponse->assertOk();
+
         $this->assertTrue(Auth::guard('tenant')->check());
         $this->assertSame('demo@levan.com', Auth::guard('tenant')->user()->email);
 
