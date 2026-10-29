@@ -9,7 +9,7 @@ use App\Http\Requests\Tenants\Tickets\RateTicketReplyRequest;
 use App\Http\Requests\Tenants\Tickets\SubmitTicketSurveyRequest;
 use App\Http\Requests\Tenants\Tickets\TicketReplyRequest;
 use App\Http\Requests\Tenants\Tickets\TicketRequest;
-use App\Services\shared\Integration\EtmamTicketService;
+use App\Services\Shared\Integration\EtmamTicketService;
 use Illuminate\Support\Facades\Log;
 
 class TicketController extends Controller

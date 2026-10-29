@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\Tenant;
+namespace App\Services\Shared\Tenant;
 
 use App\Models\Admin\Licenses\LicenseSeat;
 use App\Models\Admin\Subscription\Subscription;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\Session;
+namespace App\Services\Shared\Session;
 
 use App\Models\Admin\Plans\Plan;
 use Illuminate\Support\Facades\Log;

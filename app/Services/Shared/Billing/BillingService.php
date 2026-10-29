@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\Billing;
+namespace App\Services\Shared\Billing;
 
 use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Billing\BillType;

@@ -9,7 +9,7 @@ use App\Models\Admin\Tickets\Ticket;
 use App\Models\Admin\Tickets\TicketReply;
 use App\Models\Admin\Tickets\TicketSection;
 use App\Models\Tenants\UserMangment\User\User;
-use App\Services\shared\Integration\EtmamTicketService;
+use App\Services\Shared\Integration\EtmamTicketService;
 use App\Services\Shared\Notifications\DashboardNotificationService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;

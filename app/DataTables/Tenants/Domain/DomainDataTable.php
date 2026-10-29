@@ -4,7 +4,7 @@ namespace App\DataTables\Tenants\Domain;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Admin\Tenants\Domain;
-use App\Services\shared\NameCheap\GetDomainInfoService;
+use App\Services\Shared\NameCheap\GetDomainInfoService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 

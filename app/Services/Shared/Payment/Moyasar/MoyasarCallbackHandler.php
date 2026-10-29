@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services\shared\Payment\Moyasar;
+namespace App\Services\Shared\Payment\Moyasar;
 
 use App\Enums\Admin\Billing\BillStatus;
 use App\Exceptions\Payment\PaymentVerificationException;
 use App\Models\Admin\Bills\Bill;
-use App\Services\shared\Payment\Contracts\PaymentGatewayInterface;
+use App\Services\Shared\Payment\Contracts\PaymentGatewayInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 

@@ -3,9 +3,9 @@
 namespace App\Providers;
 
 use App\Models\Tenants\Assignments\Assignment;
-use App\Services\shared\Payment\Contracts\PaymentGatewayInterface;
-use App\Services\shared\Payment\Gateways\MoyasarGateway;
-use App\Services\shared\Tenant\TenantInitializer;
+use App\Services\Shared\Payment\Contracts\PaymentGatewayInterface;
+use App\Services\Shared\Payment\Gateways\MoyasarGateway;
+use App\Services\Shared\Tenant\TenantInitializer;
 use App\Support\Vite as AppVite;
 use Carbon\Carbon;
 use Database\Seeders\tenant\PermissionsRolesSeeder;

@@ -11,8 +11,8 @@ use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Bills\RejectBillRequest;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Settings\Settings;
-use App\Services\shared\Bills\BillService;
-use App\Services\shared\Subscription\SubscriptionService;
+use App\Services\Shared\Bills\BillService;
+use App\Services\Shared\Subscription\SubscriptionService;
 
 class AdminBillsController extends Controller
 {

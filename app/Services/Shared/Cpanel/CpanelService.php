@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\Cpanel;
+namespace App\Services\Shared\Cpanel;
 
 use App\Models\Admin\Cpanel\CpanelAccount;
 use App\Models\Admin\Tenants\Tenant;

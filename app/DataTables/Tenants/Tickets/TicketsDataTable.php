@@ -4,7 +4,7 @@ namespace App\DataTables\Tenants\Tickets;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Enums\Tenants\Tickets\TicketStatus;
-use App\Services\shared\Integration\EtmamTicketService;
+use App\Services\Shared\Integration\EtmamTicketService;
 use Carbon\Carbon;
 
 class TicketsDataTable extends AbstractDataTable

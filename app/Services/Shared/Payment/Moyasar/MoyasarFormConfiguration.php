@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\Payment\Moyasar;
+namespace App\Services\Shared\Payment\Moyasar;
 
 use App\Exceptions\Payment\PaymentInitiationException;
 

@@ -3,7 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Services\Admin\Microsoft\Mail\MicrosoftMailService;
-use App\Services\shared\NameCheap\CheckAccountInfoService;
+use App\Services\Shared\NameCheap\CheckAccountInfoService;
 use Closure;
 use Illuminate\Http\Request;
 

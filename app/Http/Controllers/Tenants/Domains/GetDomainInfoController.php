@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Tenants\Domains;
 
 use App\Http\Controllers\Controller;
-use App\Services\shared\NameCheap\GetDomainInfoService;
+use App\Services\Shared\NameCheap\GetDomainInfoService;
 
 class GetDomainInfoController extends Controller
 {

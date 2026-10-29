@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\Tenant;
+namespace App\Services\Shared\Tenant;
 
 use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Billing\BillType;
@@ -13,8 +13,8 @@ use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\Settings\Settings;
 use App\Models\Tenants\UserMangment\User\User;
-use App\Services\shared\Bills\BillService;
-use App\Services\shared\Subscription\SubscriptionManager;
+use App\Services\Shared\Bills\BillService;
+use App\Services\Shared\Subscription\SubscriptionManager;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;

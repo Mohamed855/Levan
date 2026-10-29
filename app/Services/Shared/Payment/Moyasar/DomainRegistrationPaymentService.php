@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\Payment\Moyasar;
+namespace App\Services\Shared\Payment\Moyasar;
 
 use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Billing\BillType;
@@ -12,8 +12,8 @@ use App\Models\Admin\ControlDomain\ControlDomain;
 use App\Models\Admin\Payments\DomainPaymentAttempt;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Domain;
-use App\Services\shared\NameCheap\CheckMultipleDomainService;
-use App\Services\shared\Payment\Contracts\PaymentGatewayInterface;
+use App\Services\Shared\NameCheap\CheckMultipleDomainService;
+use App\Services\Shared\Payment\Contracts\PaymentGatewayInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Stancl\Tenancy\Facades\Tenancy;

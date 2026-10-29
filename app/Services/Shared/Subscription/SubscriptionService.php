@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\Subscription;
+namespace App\Services\Shared\Subscription;
 
 use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Billing\PaymentMethod;
@@ -12,10 +12,10 @@ use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
-use App\Services\shared\Bills\BillService;
-use App\Services\shared\Coupons\CouponService;
-use App\Services\shared\Tenant\TenantCreator;
-use App\Services\shared\Tenant\TenantInitializer;
+use App\Services\Shared\Bills\BillService;
+use App\Services\Shared\Coupons\CouponService;
+use App\Services\Shared\Tenant\TenantCreator;
+use App\Services\Shared\Tenant\TenantInitializer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Stancl\Tenancy\Facades\Tenancy;

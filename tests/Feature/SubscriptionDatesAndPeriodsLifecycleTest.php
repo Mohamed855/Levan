@@ -15,7 +15,7 @@ use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Shared\Notifications\NotificationDeadlineScanner;
-use App\Services\shared\Subscription\SubscriptionManager;
+use App\Services\Shared\Subscription\SubscriptionManager;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\TenantAuctionReportTestCase;

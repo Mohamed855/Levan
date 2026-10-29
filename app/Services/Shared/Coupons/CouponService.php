@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\Coupons;
+namespace App\Services\Shared\Coupons;
 
 use App\Models\Admin\Coupons\Coupon;
 use Illuminate\Support\Facades\Log;

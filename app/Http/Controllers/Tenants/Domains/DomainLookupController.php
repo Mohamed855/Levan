@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Tenants\Domains;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Domains\DomainLookupRequest;
-use App\Services\shared\APILayer\apiLayerService;
+use App\Services\Shared\APILayer\apiLayerService;
 use App\Services\Tenants\Domains\DomainDnsLookupService;
 use App\Services\Tenants\Shared\CentralDomainGateway;
 use Illuminate\Http\JsonResponse;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\Subscription;
+namespace App\Services\Shared\Subscription;
 
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Models\Admin\Subscription\Subscription;

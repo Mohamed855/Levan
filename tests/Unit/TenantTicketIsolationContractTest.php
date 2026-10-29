@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\Services\shared\Integration\EtmamTicketService;
+use App\Services\Shared\Integration\EtmamTicketService;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 

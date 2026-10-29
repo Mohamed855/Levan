@@ -292,7 +292,7 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
             ],
         ]);
 
-        $this->mock(\App\Services\shared\Payment\Moyasar\MoyasarCallbackHandler::class, function ($mock) use ($bill) {
+        $this->mock(\App\Services\Shared\Payment\Moyasar\MoyasarCallbackHandler::class, function ($mock) use ($bill) {
             $mock->shouldReceive('verify')->once()->andReturn([
                 'bill' => $bill,
                 'payment' => ['id' => 'pay_test_123', 'status' => 'paid'],
@@ -307,7 +307,7 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
                 'message' => 'تم إنشاء الاشتراك بنجاح.',
             ]);
         $this->app->instance(\App\Services\Shared\Subscription\SubscriptionService::class, $subscriptionServiceMock);
-        $this->app->instance(\App\Services\shared\Subscription\SubscriptionService::class, $subscriptionServiceMock);
+        $this->app->instance(\App\Services\Shared\Subscription\SubscriptionService::class, $subscriptionServiceMock);
 
         $response = $this->get(route('site.plans.checkout.callback', ['bill' => $bill->bill_number, 'id' => 'pay_test_123']));
 

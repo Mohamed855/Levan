@@ -6,7 +6,7 @@ namespace App\DataTables\Admin\Clients;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Admin\Tenants\Tenant;
-use App\Services\shared\Subscription\SubscriptionManager;
+use App\Services\Shared\Subscription\SubscriptionManager;
 
 class ClientsDataTable extends AbstractDataTable
 {

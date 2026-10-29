@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services\shared\Domain;
+namespace App\Services\Shared\Domain;
 
 use App\Models\Admin\Tenants\Domain;
-use App\Services\shared\NameCheap\NameCheapService;
+use App\Services\Shared\NameCheap\NameCheapService;
 use Illuminate\Support\Facades\Log;
 
 class DomainService

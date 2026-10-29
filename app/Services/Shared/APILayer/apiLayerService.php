@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\APILayer;
+namespace App\Services\Shared\APILayer;
 
 class apiLayerService
 {

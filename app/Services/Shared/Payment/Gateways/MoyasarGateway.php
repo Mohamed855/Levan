@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\shared\Payment\Gateways;
+namespace App\Services\Shared\Payment\Gateways;
 
-use App\Services\shared\Payment\Contracts\PaymentGatewayInterface;
+use App\Services\Shared\Payment\Contracts\PaymentGatewayInterface;
 use Illuminate\Support\Facades\Http;
 
 class MoyasarGateway implements PaymentGatewayInterface

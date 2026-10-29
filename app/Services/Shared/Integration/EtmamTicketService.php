@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\Integration;
+namespace App\Services\Shared\Integration;
 
 use App\Models\Admin\Settings\Settings;
 use App\Models\Admin\Tickets\Ticket;

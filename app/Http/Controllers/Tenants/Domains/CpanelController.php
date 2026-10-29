@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Tenants\Domains;
 
 use App\Http\Controllers\Controller;
-use App\Services\shared\Cpanel\CpanelService;
+use App\Services\Shared\Cpanel\CpanelService;
 
 class CpanelController extends Controller
 {

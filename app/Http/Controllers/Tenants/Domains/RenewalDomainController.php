@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Tenants\Domains;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Domains\ShowDomainRenewalCheckoutRequest;
-use App\Services\shared\NameCheap\RenewalDomainService;
-use App\Services\shared\Payment\Moyasar\DomainRegistrationPaymentService;
+use App\Services\Shared\NameCheap\RenewalDomainService;
+use App\Services\Shared\Payment\Moyasar\DomainRegistrationPaymentService;
 
 class RenewalDomainController extends Controller
 {

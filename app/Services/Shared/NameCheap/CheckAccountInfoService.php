@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\NameCheap;
+namespace App\Services\Shared\NameCheap;
 
 use App\Services\Admin\Microsoft\Mail\MicrosoftMailService;
 use Illuminate\Support\Facades\Http;

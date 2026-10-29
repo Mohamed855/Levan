@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services\shared\Tenant;
+namespace App\Services\Shared\Tenant;
 
 use App\Models\Admin\Settings\Settings;
 use App\Models\Admin\Tenants\Tenant;
-use App\Services\shared\Cpanel\CpanelService;
+use App\Services\Shared\Cpanel\CpanelService;
 use Illuminate\Support\Facades\DB;
 
 class TenantCreator

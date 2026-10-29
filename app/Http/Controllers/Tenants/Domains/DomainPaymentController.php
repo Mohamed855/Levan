@@ -9,7 +9,7 @@ use App\Http\Requests\Tenants\Domains\DomainPaymentCallbackRequest;
 use App\Http\Requests\Tenants\Domains\StartDomainRegistrationPaymentRequest;
 use App\Http\Requests\Tenants\Domains\StartDomainRenewalPaymentRequest;
 use App\Http\Requests\Tenants\Domains\StartDomainTransferPaymentRequest;
-use App\Services\shared\Payment\Moyasar\DomainRegistrationPaymentService;
+use App\Services\Shared\Payment\Moyasar\DomainRegistrationPaymentService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;

@@ -8,7 +8,7 @@ use App\Http\Requests\Tenants\Domains\ClearAllDomainCacheRequest;
 use App\Http\Requests\Tenants\Domains\ClearDomainCacheRequest;
 use App\Http\Requests\Tenants\Domains\SuggestDomainAlternativesRequest;
 use App\Http\Requests\Tenants\Domains\SuggestDomainNamesRequest;
-use App\Services\shared\NameCheap\CheckMultipleDomainService;
+use App\Services\Shared\NameCheap\CheckMultipleDomainService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

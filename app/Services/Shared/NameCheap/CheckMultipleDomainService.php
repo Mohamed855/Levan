@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\NameCheap;
+namespace App\Services\Shared\NameCheap;
 
 use App\Models\Admin\ControlDomain\ControlDomain;
 use Illuminate\Support\Facades\Cache;

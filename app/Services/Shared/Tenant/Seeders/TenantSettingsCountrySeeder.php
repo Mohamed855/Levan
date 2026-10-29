@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\Tenant\Seeders;
+namespace App\Services\Shared\Tenant\Seeders;
 
 use App\Contracts\Shared\TenantSeeder;
 use Carbon\Carbon;

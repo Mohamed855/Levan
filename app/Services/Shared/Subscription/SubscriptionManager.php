@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\shared\Subscription;
+namespace App\Services\Shared\Subscription;
 
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
@@ -8,7 +8,7 @@ use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Models\Admin\Tenants\Tenant;
-use App\Services\shared\Subscription\SubscriptionPeriod\SubscriptionPeriodService;
+use App\Services\Shared\Subscription\SubscriptionPeriod\SubscriptionPeriodService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

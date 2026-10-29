@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Services\shared\Subscription;
+namespace App\Services\Shared\Subscription;
 
 use App\Enums\Admin\Plans\PlanLimitsMode;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;

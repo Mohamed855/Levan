@@ -3,7 +3,7 @@
 namespace App\Jobs\Domain;
 
 use App\Models\Admin\Cpanel\CpanelAccount;
-use App\Services\shared\NameCheap\NameCheapService;
+use App\Services\Shared\NameCheap\NameCheapService;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
