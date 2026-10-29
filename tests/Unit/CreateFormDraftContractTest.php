@@ -117,6 +117,13 @@ final class CreateFormDraftContractTest extends TestCase
             $root.'/resources/views/admin/plans/edit.blade.php',
             $root.'/resources/views/admin/coupons/create.blade.php',
             $root.'/resources/views/admin/coupons/edit.blade.php',
+            $root.'/resources/views/admin/settings/banks/create.blade.php',
+            $root.'/resources/views/admin/settings/banks/edit.blade.php',
+            $root.'/resources/views/admin/settings/domains/create.blade.php',
+            $root.'/resources/views/admin/settings/domains/edit.blade.php',
+            $root.'/resources/views/admin/faqs/create.blade.php',
+            $root.'/resources/views/admin/faqs/edit.blade.php',
+            $root.'/resources/views/tenant/tickets/create.blade.php',
             $root.'/resources/views/admin/subscriptions/create.blade.php',
         ];
 

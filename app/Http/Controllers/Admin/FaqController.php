@@ -29,7 +29,7 @@ final class FaqController extends Controller
 
     public function create(): View
     {
-        return view('admin.faqs.form', ['faq' => new Faq]);
+        return view('admin.faqs.create', ['faq' => new Faq]);
     }
 
     public function store(StoreFaqRequest $r): RedirectResponse
@@ -41,7 +41,7 @@ final class FaqController extends Controller
 
     public function edit(Faq $faq): View
     {
-        return view('admin.faqs.form', compact('faq'));
+        return view('admin.faqs.edit', compact('faq'));
     }
 
     public function update(UpdateFaqRequest $r, Faq $faq): RedirectResponse
@@ -51,9 +51,13 @@ final class FaqController extends Controller
         return redirect()->route('admin.faqs.index')->with('success', 'تم تحديث السؤال بنجاح.');
     }
 
-    public function destroy(AdminAuthenticatedRequest $request, Faq $faq): RedirectResponse
+    public function destroy(AdminAuthenticatedRequest $request, Faq $faq): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $this->faqService->delete($faq);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'تم حذف السؤال بنجاح.']);
+        }
 
         return redirect()->route('admin.faqs.index')->with('success', 'تم حذف السؤال بنجاح.');
     }

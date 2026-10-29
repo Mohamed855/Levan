@@ -55,12 +55,12 @@
                     @if (!empty($ticket->attachments) && count($ticket->attachments) > 0)
                         <div class="mt-3">
                             <h6 class="small text-muted mb-2"><i class="ti ti-paperclip me-1"></i> المرفقات:</h6>
-                            <div class="d-flex flex-wrap gap-2">
+                            <div class="d-flex flex-wrap gap-3">
                                 @foreach ($ticket->attachments as $file)
-                                    <a href="{{ Storage::url($file['url'] ?? $file) }}" target="_blank"
-                                        class="btn btn-sm btn-outline-primary">
-                                        <i class="ti ti-download me-1"></i> {{ $file['name'] ?? 'مرفق' }}
-                                    </a>
+                                    <x-ui.file-card
+                                        :name="$file['name'] ?? 'مرفق'"
+                                        :url="Storage::url($file['url'] ?? $file)"
+                                    />
                                 @endforeach
                             </div>
                         </div>
@@ -100,12 +100,14 @@
 
                                         @if (!empty($reply->attachments) && count($reply->attachments) > 0)
                                             <div class="mt-2 pt-2 border-top">
-                                                @foreach ($reply->attachments as $att)
-                                                    <a href="{{ Storage::url($att['url'] ?? $att) }}" target="_blank"
-                                                        class="badge bg-info text-decoration-none me-1">
-                                                        <i class="ti ti-paperclip me-1"></i> {{ $att['name'] ?? 'مرفق' }}
-                                                    </a>
-                                                @endforeach
+                                                <div class="d-flex flex-wrap gap-3">
+                                                    @foreach ($reply->attachments as $att)
+                                                        <x-ui.file-card
+                                                            :name="$att['name'] ?? 'مرفق'"
+                                                            :url="Storage::url($att['url'] ?? $att)"
+                                                        />
+                                                    @endforeach
+                                                </div>
                                             </div>
                                         @endif
 
@@ -303,13 +305,12 @@
                 </div>
                 <div class="card-body pt-3">
                     @if (count($allAttachments) > 0)
-                        <div class="assignment-file-list d-flex flex-column gap-2">
+                        <div class="d-flex flex-wrap gap-3">
                             @foreach ($allAttachments as $attachment)
                                 <x-ui.file-card
                                     :name="$attachment['name']"
                                     :url="$attachment['url']"
                                     :meta="$attachment['source']"
-                                    layout="list"
                                 />
                             @endforeach
                         </div>

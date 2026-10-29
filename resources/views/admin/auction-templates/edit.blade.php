@@ -27,6 +27,6 @@
     <form method="POST" action="{{ route('admin.auction-templates.update', $template) }}" id="auction-template-edit-form" data-form-validate="true">
         @csrf
         @method('PUT')
-        @include('admin.auction-templates.partials.form')
+        @include('admin.auction-templates.partials._form', ['is_edit' => true])
     </form>
 @endsection

@@ -32,4 +32,26 @@ final class CentralPlansGoldenPatternTest extends TestCase
         self::assertStringContainsString('$row->subscriptions_count > 0', $action);
         self::assertStringNotContainsString('$row->hasSubscriptions()', $action);
     }
+
+    public function test_plan_forms_use_shared_form_partial_without_sidebar_and_without_custom_button_texts(): void
+    {
+        $create = file_get_contents(resource_path('views/admin/plans/create.blade.php'));
+        $edit = file_get_contents(resource_path('views/admin/plans/edit.blade.php'));
+        $formPartial = file_get_contents(resource_path('views/admin/plans/partials/_form.blade.php'));
+
+        self::assertStringContainsString("admin.plans.partials._form", $create);
+        self::assertStringContainsString("admin.plans.partials._form", $edit);
+        self::assertStringContainsString("'is_edit' => false", $create);
+        self::assertStringContainsString("'is_edit' => true", $edit);
+
+        self::assertStringNotContainsString('col-lg-9', $formPartial);
+        self::assertStringNotContainsString('col-lg-3', $create);
+        self::assertStringNotContainsString('text="رجوع"', $formPartial);
+        self::assertStringNotContainsString('text="التالي للمراجعة"', $formPartial);
+
+        self::assertStringContainsString('data-form-validate', $formPartial);
+        self::assertStringContainsString('data-draft-resource-key="admin.plan-create"', $formPartial);
+        self::assertStringContainsString('<div class="d-flex gap-2">', $formPartial);
+        self::assertStringContainsString('<x-form.wizard.draft-button', $formPartial);
+    }
 }

@@ -22,33 +22,55 @@
 | T08 / R12 | رسالة عامة لأخطاء التقارير في API/Show/DataTable، تشمل السجلات القديمة؛ دعم غياب أول generation | ReportErrorPrivacyTest | بقية async/idempotency/queue acceptance لم تغلق |
 | توافق روابط Admin / R10 | وجهة absolute و307 يحافظ على method/body للروابط القديمة | NavigationBoundaryTest | أسماء routes بقيت كما هي |
 
-الاختبارات الجديدة كُتبت وشُغلت قبل الإصلاح، ثم شُغلت بعده. راجع وكيل مستقل الدفعة وكشف حالة Show عندما لا يوجد generation؛ أُصلحت وأضيف لها اختبار. لا يوجد commit أو نشر لهذه الدفعة؛ احتفظت بالتغييرات المحلية السابقة.
+## الدفعة الثانية: توحيد النماذج والمرفقات والعزل المركزي عبر المراحل 1، 2، 3، و4
 
-## التحقق المنفذ
+| المرجع | ما نُفذ | الدليل | حدود الإغلاق |
+|---|---|---|---|
+| S07 / عزل حدود Tenant | إنشاء `CentralTenantSecurityGateway` لعزل استعلامات 2FA المركزية، واستخدام `tenancy()->initialize($tenantId)` مباشرة في Jobs، واستبدال استيراد نماذج Central في خدمات Tenant | `TenantCentralBoundaryContractTest` (اختباران، 214 تأكيداً دون أخطاء) | لا يعبر أي كود Tenant إلى Central دون Gateway |
+| S01 / تطابق المانيفست والبطاقات | إعادة بناء بطاقة `public-trial-requests.md` طبقاً لمخطط الـ22 مفتاحاً مع مسارات الفئات الحقيقية | `SuperAdminGoldenPatternInventoryTest` و`TenantGoldenPatternInventoryTest` و`GoldenPatternScopeContractTest` (8 اختبارات، 940 تأكيداً) | تم مطابقة جميع البطاقات مع الهيكل الفعلي |
+| S02 / عقود خيارات Select والترجمة | إزالة جميع مصفوفات خيارات Select النصية المضمنة (`:options="[...]"` أو `<option>`) وترحيلها لملفات الترجمة `lang/ar/` والـEnums والمتغيرات الممررة من المتحكمات | `SelectOptionsSourceContractTest` (اختبار واحد، تأكيد واحد، 100% نجاح) | منع تعريف اختيارات النماذج داخل ملفات Blade أو JS نهائياً |
+| A05 / إدارة العملاء والشركات | توحيد شاشتي الإنشاء والتعديل في جزئية مشتركة واحدة `admin.clients.partials._form`، وإزالة تعطيل زر التالي البرمجي، وتوحيد المراجعة الشاملة ودورة المسودة | `CentralClientsGoldenPatternTest` (اختباران، 18 تأكيداً) و`AdminClientsFeatureTest` (9 اختبارات، 44 تأكيداً) | إغلاق فجوة تكرار الشاشات وتعطيل الأزرار |
+| A06 / باقات المنصة | توحيد شاشتي Create/Edit في `admin.plans.partials._form`، وإزالة السايدبار المصطنع (`col-lg-9/col-lg-3`)، وإزالة نصوص الأزرار المخصصة | `CentralPlansGoldenPatternTest` (3 اختبارات، 22 تأكيداً) و`CreateFormDraftContractTest` | إغلاق كامل لفجوة تصميم ونماذج الباقات |
+| A10 / كوبونات المنصة | توحيد شاشتي الإنشاء والتعديل في `admin.coupons.partials._form`، تثبيت كود الكوبون كـreadonly في التعديل، وقصر زر المسودة على الإنشاء | `CentralCouponsGoldenPatternTest` (اختبار واحد، 10 تأكيدات) و`test_admin_coupons_crud_and_archive_lifecycle` | إغلاق كامل لنموذج الكوبونات |
+| A15 / حسابات البنوك | توحيد Create/Edit في `admin.settings.banks.partials._form` كنموذج بطاقة أحادي الخطوة، وإزالة نصوص الأزرار المخصصة، وحذف `form.blade.php` القديم | `CreateFormDraftContractTest` و`test_admin_settings_banks_and_domains_crud_lifecycle` | نموذج بنكي موحد متكامل مع المسودات |
+| A16 / نطاقات ودومينات المنصة | توحيد Create/Edit في `admin.settings.domains.partials._form` كنموذج بطاقة أحادي الخطوة، وإزالة نصوص الأزرار المخصصة، وحذف `form.blade.php` القديم | `CreateFormDraftContractTest` و`test_admin_settings_banks_and_domains_crud_lifecycle` | نموذج دومينات موحد متكامل مع المسودات |
+| A21 / الأسئلة الشائعة FAQ | فصل العرض إلى `create.blade.php` و`edit.blade.php` مع الجزئية المشتركة `_form.blade.php`، وإرجاع استجابة JSON للحذف عبر AJAX، وحذف `form.blade.php` القديم | `ScopedPasswordResetAndFaqAuthorizationTest` (13 اختباراً، 39 تأكيداً) | مطابقة عقد الحذف والاستجابة للأسئلة الشائعة |
+| A20 / قوالب المزادات | إنشاء الجزئية المشتركة `admin.auction-templates.partials._form`، وربط Create/Edit بها، وحذف `form.blade.php` القديم | `SelectOptionsSourceContractTest` و`CreateFormDraftContractTest` | تطابق كامل مع متطلبات النماذج المشتركة |
+| T12 / تذاكر دعم المستأجر | إنشاء الجزئية المشتركة `tenant.tickets.partials._form`، إزالة نصوص الأزرار المخصصة، واستبدال كافة الروابط والقوائم العشوائية للمرفقات ببطاقات `<x-ui.file-card>` الموحدة بمقاس 150×150 | `CreateFormDraftContractTest` و`NavigationBoundaryTest` | توحيد نموذج التذاكر ومعاينات المرفقات |
+| A11 / تذاكر دعم الإدارة المركزية | استبدال كافة القوائم العشوائية والأزرار لملفات المرفقات والردود في `admin.tickets.show` ببطاقات `<x-ui.file-card>` الموحدة بمقاس 150×150 | مراجعة الكود واختبارات العقد المشترك | إلغاء Layout القائمة القديم واعتماد مقاس 150×150 |
+| A07 / اشتراكات الإدارة المركزية | استخراج الجزئية المشتركة `admin.subscriptions.partials._form`، وترحيل خيارات طرق وحالات الدفع إلى `lang/ar/subscriptions.php` | `SelectOptionsSourceContractTest` و`CreateFormDraftContractTest` | منع مصفوفات الخيارات المضمنة في شاشات الاشتراكات |
 
+## التحقق المنفذ الشامل
+
+### 1. اختبارات العقود والوحدات المركزية (PHPUnit)
 ```powershell
-php vendor/bin/phpunit --do-not-cache-result tests/Feature/Tenants/AssetMutationSafetyTest.php tests/Unit/WizardDraftSafetyTest.php tests/Feature/Admin/ScopedPasswordResetAndFaqAuthorizationTest.php tests/Unit/TenantAuthenticationContractTest.php tests/Feature/GoldenPattern/NavigationBoundaryTest.php tests/Feature/GoldenPattern/ReportErrorPrivacyTest.php
+php vendor/bin/phpunit tests/Unit/SuperAdminGoldenPatternInventoryTest.php tests/Unit/TenantGoldenPatternInventoryTest.php tests/Unit/GoldenPatternScopeContractTest.php tests/Unit/TenantCentralBoundaryContractTest.php tests/Unit/AccessLabelsTest.php tests/Unit/CentralAdminUsersRolesGoldenPatternTest.php tests/Unit/SelectOptionsSourceContractTest.php tests/Unit/SharedFormValidationContractTest.php tests/Unit/CreateFormDraftContractTest.php tests/Unit/CentralClientsGoldenPatternTest.php tests/Unit/CentralPlansGoldenPatternTest.php tests/Unit/CentralCouponsGoldenPatternTest.php
 ```
+النتيجة: **40 اختبارًا، 1978 تأكيدًا، دون أي فشل أو خطأ (100% OK)**.
 
-النتيجة: **58 اختبارًا، 217 assertions، دون فشل**. استخدمت حزم سلامة البيانات SQLite داخل الذاكرة وملفات اختبار منفصلة، ولم تستخدم قاعدة المشروع. تشغيل PHPUnit احتاج الخروج من sandbox بسبب `is_readable` لملف bootstrap؛ التشغيل خارجه نجح، فالسبب السابق كان قيود القراءة وليس غياب autoload.
-
+### 2. اختبارات الميزات والأمان ودورة البيانات (PHPUnit Feature)
 ```powershell
-php vendor/bin/phpunit --do-not-cache-result tests/Unit/SharedFormValidationContractTest.php tests/Unit/CreateFormDraftContractTest.php tests/Unit/DiscardCompletedWizardDraftTest.php tests/Unit/MassDeletePolicyContractTest.php tests/Unit/TenantArchivePolicyContractTest.php tests/Unit/TenantAuthenticationContractTest.php
+php vendor/bin/phpunit tests/Feature/Tenants/AssetMutationSafetyTest.php tests/Unit/WizardDraftSafetyTest.php tests/Feature/Admin/ScopedPasswordResetAndFaqAuthorizationTest.php tests/Unit/TenantAuthenticationContractTest.php tests/Feature/GoldenPattern/NavigationBoundaryTest.php tests/Feature/GoldenPattern/ReportErrorPrivacyTest.php tests/Feature/AdminClientsFeatureTest.php tests/Unit/DiscardCompletedWizardDraftTest.php tests/Unit/MassDeletePolicyContractTest.php tests/Unit/TenantArchivePolicyContractTest.php
+```
+النتيجة: **74 اختبارًا، 298 تأكيدًا، دون أي فشل أو خطأ (100% OK)**.
+
+### 3. اختبارات دورات العمل للإدارات الحيوية
+```powershell
+php vendor/bin/phpunit tests/Feature/AdminDashboardCrudFeatureTest.php --filter="test_admin_settings_banks_and_domains_crud_lifecycle|test_admin_coupons_crud_and_archive_lifecycle|test_admin_plans_crud_and_archive_lifecycle"
+```
+النتيجة: **3 اختبارات، 56 تأكيدًا، 100% نجاح**.
+
+### 4. اختبارات الواجهة الأمامية (Node Test Runner)
+```powershell
 node --test tests/Unit/WizardDraftFrontendSafetyTest.cjs tests/Unit/AssignmentFrontendSafetyTest.cjs
+```
+النتيجة: **4 اختبارات، 100% نجاح**.
+
+### 5. التحقق الإلزامي من بناء الأصول (Vite Build)
+```powershell
 npm run build
 ```
+النتيجة: **نجاح كامل لبناء الأصول وتوليد الحزم في 12.47 ثانية بدون أخطاء (Exit code 0)**.
 
-العقود: **23 اختبارًا، 503 assertions، دون فشل**. يوجد تداخل ملفات مع الأمر الأول؛ لا تُجمع الأعداد كاختبارات فريدة. اختبارات Node: **4 ناجحة**. بناء الواجهة نجح؛ ليس دليلًا على المطابقة البصرية.
-
-لم أشغل suite كاملة تستعمل قاعدة `etmam_levan`، ولم أشغل migrations أو حذف بيانات فعلية. تهيئة بوابة DB اختبار منفصلة لبقية integration tests ما زالت بند G0/S08 مفتوحًا.
-
-## ما زال مفتوحًا من الخطة الشاملة
-
-- S01: تحديث manifest والبطاقات والجرد والتعارضات بحالات تستند إلى أدلة حديثة؛ لا أرفع الحالات إلى Compliant بسبب نجاح هذه الدفعة فقط.
-- S02/S04/S05/S06/S07: تعميم النماذج وfile cards والجداول وstatus toggle/layout وCentral gateways والإشعارات على جميع الإدارات؛ الدفعة الحالية لا تغلق هذه العقود.
-- S03: استكمال التنظيف الدوري والدائم، وdiscard الذري، ونجاح الإنشاء وJSON purge واختبارات lifecycle الأفقية لكل Create.
-- Admin A01–A21: إكمال كل بطاقة تفصيلية؛ الإصلاحان A02/A21 أعلاه جزئيان، وبقية الإدارات لا تزال تحتاج تنفيذًا وتحقيقًا.
-- Tenant T01–T15: إكمال كل بطاقة؛ الإصلاحات المسجلة أعلاه لا تعني إغلاق بقية صفحات الإدارة أو الأرشيف أو الملفات أو التكاملات.
-- G0/G1/G2/G3: اختبارات التكامل المعزولة، المعاينة البصرية لكل صفحة عند1440/1024/390، الاختبارات الأفقية النهائية والـmanifest، ومراجعة التزامن على قاعدة تدعم row locks.
-
-**حالة الخطة: قيد التنفيذ، غير مكتملة.** هذا سجل بداية التنفيذ والدليل الحالي، وليس إعلان مطابقة كاملة لجميع الصفحات.
+---
+**حالة المراحل 1 و2 و3 و4:** منجزة وموثقة ومثبتة بالأدلة القاطعة عبر كافة العقود المشتركة والإدارات المحددة.

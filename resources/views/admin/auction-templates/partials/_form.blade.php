@@ -1,7 +1,8 @@
 @php
+    $is_edit = $is_edit ?? $template->exists;
+    $isEdit = $is_edit;
     $latest = $template->versions?->first();
     $schema = old('schema', $latest ? json_encode($latest->schema, JSON_UNESCAPED_UNICODE) : null);
-    $isEdit = $template->exists;
     $typeValue = $isEdit
         ? ($template->type instanceof \BackedEnum
             ? $template->type->value
@@ -112,8 +113,6 @@
             <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
                 <div>
                     <h5 class="mb-1">مصمم القالب</h5>
-                    {{-- <span class="badge bg-secondary" data-canvas-dims>794 × 1123 px (A4
-                        رأسي)</span> --}}
                     <small class="text-muted">ارسم المحتوى وحدد مواضع المتغيرات والصور على كل صفحة من القالب.</small>
                 </div>
                 <div class="d-flex align-items-center gap-2">

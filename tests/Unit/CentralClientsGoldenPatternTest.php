@@ -23,4 +23,24 @@ class CentralClientsGoldenPatternTest extends TestCase
         self::assertStringContainsString("'text' => 'حذف المحدد'", $dataTable);
         self::assertStringContainsString("'data' => 'subscription_status'", $dataTable);
     }
+
+    public function test_client_forms_use_shared_form_partial_and_draft_contract(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $create = file_get_contents($root.'/resources/views/admin/clients/create.blade.php');
+        $edit = file_get_contents($root.'/resources/views/admin/clients/edit.blade.php');
+        $formPartial = file_get_contents($root.'/resources/views/admin/clients/partials/_form.blade.php');
+
+        self::assertStringContainsString("admin.clients.partials._form", $create);
+        self::assertStringContainsString("admin.clients.partials._form", $edit);
+        self::assertStringContainsString("'is_edit' => false", $create);
+        self::assertStringContainsString("'is_edit' => true", $edit);
+
+        self::assertStringContainsString('data-form-validate', $formPartial);
+        self::assertStringContainsString('data-draft-url', $formPartial);
+        self::assertStringContainsString('data-draft-resource-key="admin.client-create"', $formPartial);
+        self::assertStringContainsString('<div class="d-flex gap-2">', $formPartial);
+        self::assertStringContainsString('<x-form.wizard.draft-button', $formPartial);
+        self::assertStringNotContainsString(':disabled="true"', $formPartial);
+    }
 }
