@@ -27,6 +27,11 @@ final class AuctionReportArtwork
 
     public function __construct(private readonly string $root = '') {}
 
+    public function defaultReportImage(): string
+    {
+        return $this->uri('asir/default-report-image.jpg', 'image/jpeg');
+    }
+
     /** @param array<string, string> $values
      * @param  array<string, list<list<string>>>  $tables
      * @param  array<string, list<array<string, mixed>>>  $images
@@ -45,6 +50,59 @@ final class AuctionReportArtwork
         $svg = $document->documentElement;
         $svg->setAttribute('data-report-page', (string) $pageNumber);
         $xpath = new DOMXPath($document);
+        $cover = $images['cover_image'][0] ?? [];
+        if ($design === 'haram' && $index === 0 && $this->isImage($cover['uri'] ?? null)) {
+            $backdrop = $xpath->query('//*[@data-backdrop="true"]')->item(0);
+            if ($backdrop !== null) {
+                $maskId = 'report_'.$pageNumber.'_cover_foreground';
+                $filter = $document->createElementNS(self::SVG, 'filter');
+                $filter->setAttribute('id', $maskId.'_key');
+                $filter->setAttribute('color-interpolation-filters', 'sRGB');
+                $luma = $document->createElementNS(self::SVG, 'feColorMatrix');
+                $luma->setAttribute('type', 'luminanceToAlpha');
+                $filter->appendChild($luma);
+                $transfer = $document->createElementNS(self::SVG, 'feComponentTransfer');
+                $alpha = $document->createElementNS(self::SVG, 'feFuncA');
+                foreach (['type' => 'gamma', 'amplitude' => 10, 'exponent' => 1, 'offset' => -2] as $key => $value) {
+                    $alpha->setAttribute($key, (string) $value);
+                }
+                $transfer->appendChild($alpha);
+                $filter->appendChild($transfer);
+                $mask = $document->createElementNS(self::SVG, 'mask');
+                $mask->setAttribute('id', $maskId);
+                $mask->setAttribute('maskUnits', 'userSpaceOnUse');
+                $mask->setAttribute('style', 'mask-type:alpha');
+                $key = $backdrop->cloneNode(true);
+                $key->removeAttribute('data-backdrop');
+                $key->setAttribute('filter', 'url(#'.$maskId.'_key)');
+                $mask->appendChild($key);
+                $defs = $svg->getElementsByTagName('defs')->item(0);
+                $defs->appendChild($filter);
+                $defs->appendChild($mask);
+                $panels = $document->createElementNS(self::SVG, 'g');
+                $panels->setAttribute('data-cover-layer', 'panels');
+                foreach ($page['cover_panels'] as [$left, $top, $right, $bottom]) {
+                    $rect = $document->createElementNS(self::SVG, 'rect');
+                    foreach (['x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top, 'fill' => '#322833', 'stroke' => '#4c4552', 'stroke-width' => .6, 'rx' => 2] as $key => $value) {
+                        $rect->setAttribute($key, (string) $value);
+                    }
+                    $panels->appendChild($rect);
+                }
+                $backdrop->parentNode->insertBefore($panels, $backdrop);
+                $backdrop->setAttribute('mask', 'url(#'.$maskId.')');
+                $backdrop->setAttribute('data-cover-foreground', 'true');
+                $image = $document->createElementNS(self::SVG, 'image');
+                $image->setAttributeNS(self::XLINK, 'xlink:href', $cover['uri']);
+                $image->setAttribute('data-report-cover', 'true');
+                $this->coverImage($document, $image, [0, 0, $page['width'], $page['height']], $cover, 'report_'.$pageNumber.'_cover');
+                $backdrop->parentNode->insertBefore($image, $panels);
+                $overlay = $document->createElementNS(self::SVG, 'rect');
+                foreach (['x' => 0, 'y' => 0, 'width' => $page['width'], 'height' => $page['height'], 'fill' => $page['cover_overlay_color'], 'opacity' => .5, 'data-cover-overlay' => 'true'] as $key => $value) {
+                    $overlay->setAttribute($key, (string) $value);
+                }
+                $backdrop->parentNode->insertBefore($overlay, $panels);
+            }
+        }
         $replacedFields = array_merge($page['hide_fields'] ?? [], ...array_values($page['groups']));
         foreach ($xpath->query('//*[@data-field]') as $node) {
             if (in_array($node->getAttribute('data-field'), $replacedFields, true)) {
@@ -141,13 +199,16 @@ final class AuctionReportArtwork
         foreach ($emptySections as $section => [$left, $top, $right, $bottom]) {
             if (isset($page['empty_evidence_boxes'][$section])) {
                 [$left, $top, $right, $bottom] = $page['empty_evidence_boxes'][$section];
+            }
+            $background = $page['empty_evidence_backgrounds'][$section] ?? (isset($page['empty_evidence_boxes'][$section]) ? '#ffffff' : null);
+            if ($background !== null) {
                 $rect = $document->createElementNS(self::SVG, 'rect');
-                foreach (['x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top, 'fill' => '#ffffff'] as $key => $value) {
+                foreach (['x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top, 'fill' => $background, 'data-report-empty-evidence-background' => $section] as $key => $value) {
                     $rect->setAttribute($key, (string) $value);
                 }
                 $svg->appendChild($rect);
             }
-            $this->text($document, $svg, ['x' => $left, 'y' => ($top + $bottom) / 2, 'width' => $right - $left, 'max_width' => $right - $left, 'size' => 9, 'sy' => 9, 'font' => 'NotoSansArabic-Regular', 'color' => $design === 'haram' || $section === 'brokers' ? '#214570' : '#ffffff', 'rtl' => true], 'لا توجد مرفقات مضافة', ['data-report-empty-evidence' => $section], true);
+            $this->text($document, $svg, ['x' => $left, 'y' => ($top + $bottom) / 2, 'width' => $right - $left, 'max_width' => $right - $left, 'size' => 9, 'sy' => 9, 'font' => 'NotoSansArabic-Regular', 'color' => $design === 'haram' || $background !== null ? '#214570' : '#ffffff', 'rtl' => true], 'لا توجد مرفقات مضافة', ['data-report-empty-evidence' => $section], true);
         }
 
         foreach ($page['empty_regions'] ?? [] as $box) {

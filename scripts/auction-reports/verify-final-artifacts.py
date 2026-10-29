@@ -6,6 +6,7 @@ import re
 import unicodedata
 from pathlib import Path
 
+import pdfplumber
 from pypdf import PdfReader
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -33,7 +34,12 @@ def inspect(path, kind):
             assert 0 <= left < right <= float(page.mediabox.width) + 0.5
             assert 0 <= bottom < top <= float(page.mediabox.height) + 0.5
             links.append(link)
-    return {"sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "pages": len(reader.pages), "unicode_errors": 0, "links": links}, text
+    # pypdf's bidi extraction reverses Arabic-Indic numeric runs. Check values
+    # independently by positioned glyphs, not by accepting a reversed number.
+    with pdfplumber.open(path) as positioned:
+        numeric_text = unicodedata.normalize("NFKC", "\n".join(page.extract_text() or "" for page in positioned.pages))
+    numeric_text = numeric_text.translate(str.maketrans("٠١٢٣٤٥٦٧٨٩", "0123456789"))
+    return {"sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "pages": len(reader.pages), "unicode_errors": 0, "links": links}, text, numeric_text
 
 
 results = {"queued": {}, "edge": {}, "functional_pass": False, "full_reference_acceptance": False}
@@ -50,29 +56,29 @@ for trigger in ["manual", "auto"]:
         assert identities[document["id"]] == identity, "Both documents must share a generation and snapshot"
         auction = "haram" if "الحرم" in document["name"] else "asir"
         path = Path(document["pdf"])
-        result, text = inspect(path, document["type"])
+        result, text, numeric_text = inspect(path, document["type"])
         assert result["sha256"] == document["sha256"], "Downloaded artifact changed since collection"
         expected = json.loads((ROOT / f"output/pdf/remediation-acceptance/{auction}-snapshot.json").read_text(encoding="utf-8"))
         for property_record in expected["properties"]:
             assert re.sub(r"\s+", "", property_record["number"]) in re.sub(r"\s+", "", text), (path, "missing property", property_record["id"])
         if document['type'] == 'report':
-            assert f'{MANIFEST["auctions"][auction]["sales_total"]:,.0f}' in text, (path, "missing sales total")
+            assert f'{MANIFEST["auctions"][auction]["sales_total"]:,.0f}' in numeric_text, (path, "missing sales total")
         for property_record in expected['properties']:
             if property_record.get('sale_price') is not None:
-                assert f'{property_record["sale_price"]:,.0f}' in text, (path, "missing sale price", property_record['id'])
+                assert f'{property_record["sale_price"]:,.0f}' in numeric_text, (path, "missing sale price", property_record['id'])
         verified.append({"auction": auction, "type": document["type"], "generation": document["generation"], **result})
     assert len(identities) == 2
     results["queued"][trigger] = verified
 
 for kind in ["outputs", "report"]:
     directory = ROOT / "output/pdf/edge-acceptance"
-    result, text = inspect(directory / f"{kind}.pdf", kind)
+    result, text, numeric_text = inspect(directory / f"{kind}.pdf", kind)
     html = (directory / f"{kind}.html").read_text(encoding="utf-8")
     assert result["pages"] == html.count("data-page-type=")
     for destination in ["https://example.com/first-video", "https://example.com/second-video"]:
         assert destination in result["links"], (kind, "missing per-campaign annotation", destination)
     for value in ["123", "456", "12.50", "1.25"]:
-        assert value in text, (kind, "missing campaign metric", value)
+        assert value in numeric_text, (kind, "missing campaign metric", value)
     geometry = json.loads((directory / f"{kind}.geometry.json").read_text(encoding="utf-8"))
     overflow = [region for page in geometry for region in page["regions"] if region["kind"] == "dynamic_text" and (region["overWidth"] or region["outsidePage"])]
     assert not overflow, (kind, "edge-case text overflow", overflow)

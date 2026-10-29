@@ -27,6 +27,9 @@ final class AuctionReportRenderer
         }
 
         $design = $type === 'outputs' ? 'haram' : 'asir';
+        if ($type === 'report' && empty($snapshot['auction']['report_image'])) {
+            $snapshot['auction']['report_image'] = $this->artwork->defaultReportImage();
+        }
         $snapshot = $this->media->prepare($snapshot);
         $pageData = $type === 'outputs' ? $this->haramData : $this->asirData;
         $pages = [];

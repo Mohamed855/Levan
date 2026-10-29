@@ -9,6 +9,14 @@ use PHPUnit\Framework\TestCase;
 
 final class AuctionReportFontsTest extends TestCase
 {
+    public function test_aptos_narrow_bold_uses_the_complete_matching_face(): void
+    {
+        $font = (new AuctionReportFonts(dirname(__DIR__, 3).'/resources/auction-reports'))->resolve('Aptos Narrow,Bold');
+        self::assertTrue($font['matched']);
+        self::assertSame('aptos-narrow-bold.ttf', basename($font['file']));
+        self::assertSame(700, $font['weight']);
+    }
+
     public function test_the_complete_original_family_is_selected_for_numbers_and_arabic_text(): void
     {
         $fonts = new AuctionReportFonts(dirname(__DIR__, 3).'/resources/auction-reports');

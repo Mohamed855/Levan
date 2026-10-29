@@ -960,8 +960,13 @@
     grid-template-columns: 1fr;
   }
 
+  .checkout-main-col {
+    order: 2;
+  }
+
   .checkout-summary-col {
     position: static;
+    order: 1;
   }
 }
 

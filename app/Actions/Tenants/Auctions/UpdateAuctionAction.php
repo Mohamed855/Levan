@@ -54,12 +54,8 @@ final class UpdateAuctionAction
             $files = is_array($coverOrAttachments) ? $coverOrAttachments : (is_array($dataOrCover) && $dataOrCover !== $data ? $dataOrCover : (is_array($attachments) ? $attachments : []));
         }
 
-        if (! $reportImage instanceof UploadedFile && blank($auction->report_image)) {
-            throw ValidationException::withMessages([
-                'report_image' => 'صورة التقرير مطلوبة للحفظ النهائي.',
-            ]);
-        }
-
+        // Only an actual replacement upload changes an existing image path.
+        unset($data['report_image'], $data['cover_image']);
         $storedPaths = [];
         $pathsToDelete = [];
 

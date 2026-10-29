@@ -9,6 +9,45 @@ use Tests\TestCase;
 
 final class AuctionReportRendererTest extends TestCase
 {
+    public function test_optional_outputs_cover_is_below_existing_first_page_content_only(): void
+    {
+        $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/haram.php';
+        $bitmap = imagecreatetruecolor(30, 20);
+        imagefill($bitmap, 0, 0, imagecolorallocate($bitmap, 160, 35, 70));
+        ob_start(); imagepng($bitmap); $uri = 'data:image/png;base64,'.base64_encode(ob_get_clean()); imagedestroy($bitmap);
+        $snapshot['auction']['cover_image'] = $uri;
+        $html = app(AuctionReportRenderer::class)->html($snapshot, 'outputs');
+        self::assertSame(1, substr_count($html, 'data-report-cover="true"'));
+        self::assertTrue(str_contains($html, $uri));
+        self::assertTrue(strpos($html, 'data-report-cover="true"') < strpos($html, 'data-report-field="name"'));
+        self::assertTrue(str_contains($html, 'data-cover-foreground="true"'));
+        self::assertTrue(str_contains($html, 'data-cover-layer="panels"'), 'Foreground must preserve complete panels, not rectangular cuts through them.');
+        $document = new \DOMDocument;
+        @$document->loadHTML($html);
+        $overlay = (new \DOMXPath($document))->query('//*[@data-cover-overlay="true"]')->item(0);
+        self::assertNotNull($overlay);
+        self::assertSame('0.5', $overlay->getAttribute('opacity'));
+        self::assertTrue(strpos($html, 'data-report-cover="true"') < strpos($html, 'data-cover-overlay="true"'));
+        self::assertTrue(strpos($html, 'data-cover-overlay="true"') < strpos($html, 'data-cover-layer="panels"'));
+        $snapshot['auction']['cover_image'] = null;
+        $default = app(AuctionReportRenderer::class)->html($snapshot, 'outputs');
+        self::assertFalse(str_contains($default, 'data-report-cover="true"'));
+        self::assertFalse(str_contains($default, 'data-cover-overlay="true"'));
+    }
+
+    public function test_missing_report_image_uses_original_landscape_without_borrowing_the_auction_cover(): void
+    {
+        $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/haram.php';
+        $snapshot['auction']['report_image'] = null;
+        $snapshot['auction']['cover_image'] = 'data:image/png;base64,AUCTION_ONLY';
+        $fallback = 'data:image/jpeg;base64,'.base64_encode(file_get_contents(dirname(__DIR__, 3).'/resources/auction-reports/asir/default-report-image.jpg'));
+        $html = app(AuctionReportRenderer::class)->html($snapshot, 'report');
+        self::assertTrue(str_contains($html, $fallback));
+        self::assertFalse(str_contains($html, 'AUCTION_ONLY'));
+        $snapshot['auction']['report_image'] = 'data:image/png;base64,RETAINED';
+        self::assertFalse(str_contains(app(AuctionReportRenderer::class)->html($snapshot, 'report'), $fallback));
+    }
+
     public function test_a_long_auction_name_fits_cards_without_cloning_non_narrative_pages(): void
     {
         $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';

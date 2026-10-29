@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 return [
     0 => [
+        'cover_overlay_color' => '#211727',
+        'cover_panels' => [
+            [496, 45, 552, 102],
+            [58.5, 542, 194.5, 569], [201, 542, 259.5, 569],
+            [268, 542, 401.5, 569], [411.5, 542, 545.5, 569],
+        ],
         'groups' => [
             'name' => ['f3'], 'subtitle' => ['f4'], 'date_range' => ['f5'],
             'property_count' => ['f6'], 'manager' => ['f7'], 'project' => ['f8'], 'footer' => ['f14'],

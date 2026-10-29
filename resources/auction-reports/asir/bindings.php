@@ -27,16 +27,16 @@ return [
     4 => ['groups' => ['planning_methodology' => ['f2', 'f3', 'f4', 'f5']]],
     5 => ['groups' => ['name_context' => ['f2'], 'brochure_methodology' => ['f7', 'f8', 'f9', 'f10']], 'layouts' => ['brochure_methodology' => ['max_width' => 473.159, 'wrap_width' => 450]]],
     6 => ['groups' => ['audience_methodology' => ['f8', 'f9', 'f10'], 'messages_methodology' => ['f11', 'f12', 'f13']], 'layouts' => ['messages_methodology' => ['max_width' => 440]]],
-    7 => ['hide_fills' => ['#4a6810'], 'groups' => ['board_2' => ['f6'], 'board_1' => ['f7'], 'board_4' => ['f8'], 'board_3' => ['f9'], 'board_6' => ['f10'], 'board_5' => ['f11']]],
-    8 => ['hide_fills' => ['#4a6810'], 'groups' => ['board_8' => ['f6'], 'board_7' => ['f7'], 'board_10' => ['f8'], 'board_9' => ['f9'], 'board_12' => ['f10'], 'board_11' => ['f11'], 'board_13' => ['f12']],
+    7 => ['hide_fills' => ['#4a6810'], 'groups' => ['board_context' => ['f4', 'f5'], 'board_2' => ['f6'], 'board_1' => ['f7'], 'board_4' => ['f8'], 'board_3' => ['f9'], 'board_6' => ['f10'], 'board_5' => ['f11']]],
+    8 => ['hide_fills' => ['#4a6810'], 'groups' => ['board_context' => ['f4', 'f5'], 'board_8' => ['f6'], 'board_7' => ['f7'], 'board_10' => ['f8'], 'board_9' => ['f9'], 'board_12' => ['f10'], 'board_11' => ['f11'], 'board_13' => ['f12']],
         'image_slots' => ['i8' => 0, 'i9' => 1, 'i2' => 2, 'i3' => 3, 'i4' => 4, 'i5' => 5, 'i6' => 5, 'i7' => 6]],
     9 => ['groups' => ['brochure_url' => ['f7'], 'brochure_context' => ['f4', 'f5', 'f6']], 'link_fields' => ['brochure' => 'brochure_url']],
-    10 => ['groups' => [
+    10 => ['empty_evidence_backgrounds' => ['platform' => '#ffffff'], 'groups' => [
         'platform_context' => ['f5', 'f6'], 'auction_type' => ['f7'], 'name' => ['f9', 'f10'],
         'duration' => ['f12'], 'property_count' => ['f13'], 'date_range' => ['f14'], 'end_time_short' => ['f15'],
         'status' => ['f16'], 'platform_url' => ['f17'],
     ], 'link_fields' => ['platform' => 'platform_url'], 'layouts' => ['auction_type' => ['max_width' => 80], 'property_count' => ['max_width' => 80], 'duration' => ['max_width' => 110], 'date_range' => ['max_width' => 200], 'end_time_short' => ['max_width' => 110], 'status' => ['box' => [250, 675, 500, 735], 'fit' => 'shrink', 'max_lines' => 2, 'min_font_size' => 18, 'center' => true]]],
-    11 => ['groups' => [
+    11 => ['empty_evidence_backgrounds' => ['video' => '#ffffff'], 'groups' => [
         'video_context' => ['f4'], 'youtube_views' => ['f5'], 'auction_type' => ['f7'], 'name' => ['f9'],
         'youtube_subscribers' => ['f14'], 'youtube_watch_hours' => ['f15'], 'youtube_views_2' => ['f16'],
         'chart_1' => ['f17'], 'chart_2' => ['f18'], 'chart_3' => ['f19'], 'video_url' => ['f20'],
@@ -44,7 +44,7 @@ return [
         'auction_type' => ['max_width' => 80], 'name' => ['box' => [404, 527, 524, 562], 'fit' => 'shrink', 'max_lines' => 2, 'min_font_size' => 8], 'youtube_views' => ['max_width' => 70],
         'youtube_subscribers' => ['max_width' => 60], 'youtube_watch_hours' => ['max_width' => 60], 'youtube_views_2' => ['max_width' => 60],
     ]],
-    12 => ['groups' => ['x_views' => ['f6'], 'x_posts' => ['f7']], 'link_fields' => ['x' => 'x_views'], 'layouts' => ['x_views' => ['max_width' => 70], 'x_posts' => ['max_width' => 40]]],
+    12 => ['groups' => ['x_context' => ['f5'], 'x_views' => ['f6'], 'x_posts' => ['f7']], 'link_fields' => ['x' => 'x_views'], 'layouts' => ['x_views' => ['max_width' => 70], 'x_posts' => ['max_width' => 40]]],
     13 => ['groups' => [
         'whatsapp_summary' => ['f5', 'f6'], 'whatsapp_views_summary' => ['f7', 'f8', 'f9'], 'whatsapp_date' => ['f10'],
         'whatsapp_messages_2' => ['f11'], 'whatsapp_views_2' => ['f13'], 'whatsapp_delivered' => ['f15'],
@@ -58,6 +58,7 @@ return [
         'whatsapp_pending' => ['max_width' => 60, 'center' => true], 'whatsapp_total' => ['max_width' => 60, 'center' => true],
     ]],
     14 => ['groups' => [
+        'social_context' => ['f5'],
         'campaign_1_views' => ['f7'], 'campaign_2_views' => ['f6'], 'campaign_3_views' => ['f10'], 'social_total' => ['f14'],
         'campaign_1_name' => ['f9'], 'campaign_2_name' => ['f8'], 'campaign_3_name' => ['f11'],
     ], 'layouts' => ['campaign_1_views' => ['max_width' => 100], 'campaign_2_views' => ['max_width' => 100], 'campaign_3_views' => ['max_width' => 100], 'social_total' => ['max_width' => 150]], 'link_fields' => ['snapchat' => 'campaign_1_name', 'tiktok' => 'campaign_2_name', 'x' => 'campaign_3_name'], 'image_slots' => ['i48' => 1, 'i14' => 0, 'i15' => 0, 'i32' => 2]],

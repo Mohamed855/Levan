@@ -93,6 +93,9 @@ final class HaramReportData
         }
 
         $content = ['index' => $index, 'values' => $values, 'tables' => $tables, 'images' => $payload];
+        if ($index === 0 && ! empty($auction['cover_image'])) {
+            $content['images']['cover_image'] = [['uri' => $auction['cover_image'], 'fit' => 'cover', 'kind' => 'photo']];
+        }
         if ($index === 2 && str_ends_with($page['page_type'], '-continuation') && (empty($tables['sold']) xor empty($tables['unsold']))) {
             return (new AuctionReportResultPage)->continuation($content, empty($tables['sold']) ? 'unsold' : 'sold');
         }

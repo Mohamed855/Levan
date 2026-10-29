@@ -239,9 +239,10 @@ document.addEventListener("DOMContentLoaded", () => {
         "#platform_name, #project_manager_name, #description, #expected_properties_count",
     ).on("input change", updateLivePreview);
 
+    const retainedReportImageReview = $("#review-report-image").text().trim() || "صورة المثال الأصلية";
     $(form).on("change", 'input[name="report_image"]', function () {
         $("#review-report-image").text(
-            this.files?.length ? "تم اختيار صورة" : "غير محددة",
+            this.files?.length ? "تم اختيار صورة" : retainedReportImageReview,
         );
     });
     $(form).on("change", 'input[name="cover_image"]', function () {

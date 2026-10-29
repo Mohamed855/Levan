@@ -52,12 +52,6 @@ final class CreateAuctionAction
             $creatorId = is_int($dataOrCreatorId) ? $dataOrCreatorId : null;
         }
 
-        if (! $reportImage instanceof UploadedFile) {
-            throw ValidationException::withMessages([
-                'report_image' => 'صورة التقرير مطلوبة للحفظ النهائي.',
-            ]);
-        }
-
         $storedPaths = [];
 
         try {
@@ -127,9 +121,11 @@ final class CreateAuctionAction
                     $data['cover_image'] = $coverPath;
                 }
 
-                $reportImagePath = $reportImage->store('auctions/report-images', 'tenant_public');
-                $storedPaths[] = $reportImagePath;
-                $data['report_image'] = $reportImagePath;
+                if ($reportImage instanceof UploadedFile) {
+                    $reportImagePath = $reportImage->store('auctions/report-images', 'tenant_public');
+                    $storedPaths[] = $reportImagePath;
+                    $data['report_image'] = $reportImagePath;
+                }
                 $data['marketing_data'] = $data['marketing'] ?? null;
                 $evidenceMetadata = (array) ($data['marketing_evidence_meta'] ?? []);
 

@@ -11,6 +11,21 @@ use PHPUnit\Framework\TestCase;
 
 final class AuctionReportArtworkTest extends TestCase
 {
+    public function test_empty_platform_and_video_frames_cover_source_placeholder_colors_with_a_neutral_notice(): void
+    {
+        $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
+        foreach ([10 => 'platform', 11 => 'video'] as $index => $section) {
+            $document = new DOMDocument;
+            $document->loadXML($artwork->render('asir', $index, [], [], [], $index + 1));
+            $xpath = new DOMXPath($document);
+            $background = $xpath->query('//*[@data-report-empty-evidence-background="'.$section.'"]')->item(0);
+            self::assertNotNull($background, $section.' retains a source-colored placeholder.');
+            self::assertSame('#ffffff', $background->getAttribute('fill'));
+            self::assertGreaterThan(100, (float) $background->getAttribute('width'));
+            self::assertSame(1, $xpath->query('//*[@data-report-empty-evidence="'.$section.'"]')->length);
+        }
+    }
+
     public function test_video_analytics_uses_the_full_statistics_frame_not_the_small_badge(): void
     {
         $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');

@@ -58,10 +58,10 @@
                     placeholder="اختر حالة الإتاحة" :options="$filterOptions['availability'] ?? []" />
                 <x-filter.select id="filter-discounts" filterKey="discounts" label="حالة الخصم"
                     placeholder="اختر حالة الخصم" :options="$filterOptions['discounts'] ?? []" />
-                <x-filter.select id="filter-domain" filterKey="domain_management_enabled" label="إدارة الدومينات"
+                {{-- <x-filter.select id="filter-domain" filterKey="domain_management_enabled" label="إدارة الدومينات"
                     placeholder="اختر حالة الدومين" :options="$filterOptions['domains'] ?? []" />
                 <x-filter.select id="filter-most-requested" filterKey="most_requested" label="الأكثر طلباً"
-                    placeholder="اختر الأكثر طلباً" :options="$filterOptions['most_requested'] ?? []" />
+                    placeholder="اختر الأكثر طلباً" :options="$filterOptions['most_requested'] ?? []" /> --}}
                 <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
                 <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
             </x-data-table.filters>

@@ -10,6 +10,20 @@ use PHPUnit\Framework\TestCase;
 
 final class AuctionReportChannelsTest extends TestCase
 {
+    public function test_evidence_section_captions_do_not_claim_that_every_property_was_marketed_without_proof(): void
+    {
+        $snapshot = ['auction' => ['name' => 'اختبار'], 'properties' => [], 'totals' => []];
+        $binder = new AsirReportData(new AuctionReportFormat);
+        $artwork = new \App\Services\Tenants\Auctions\Reports\AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
+        foreach ([['asir-board-installation-1', 7, 'board_context', ['f4', 'f5']], ['asir-board-installation-2', 8, 'board_context', ['f4', 'f5']], ['asir-x', 12, 'x_context', ['f5']], ['asir-social', 14, 'social_context', ['f5']]] as [$type, $index, $role, $fields]) {
+            $content = $binder->page($snapshot, ['page_type' => $type, 'payload' => []]);
+            self::assertArrayHasKey($role, $content['values']);
+            self::assertSame($fields, $artwork->page('asir', $index)['groups'][$role]);
+            self::assertStringNotContainsString('تم ', $content['values'][$role]);
+            self::assertStringNotContainsString('جميع', $content['values'][$role]);
+        }
+    }
+
     public function test_whatsapp_table_and_chart_share_the_aggregate_of_all_campaigns(): void
     {
         $snapshot = ['auction' => ['name' => 'اختبار'], 'properties' => [], 'totals' => [], 'marketing' => ['campaigns' => [

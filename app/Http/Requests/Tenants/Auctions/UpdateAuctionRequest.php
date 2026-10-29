@@ -179,7 +179,7 @@ class UpdateAuctionRequest extends WizardFormRequest
             'marketing.links.*.label' => ['required', 'string', 'max:255'],
             'marketing.links.*.url' => ['required', 'url', 'max:2048'],
             'cover_image' => ['nullable', 'image', 'max:10240'],
-            'report_image' => [Rule::requiredIf(fn (): bool => ! $this->hasRetainedReportImage()), 'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
+            'report_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             'attachments' => ['nullable', 'array'],
             'attachments.*' => ['file', 'max:10240', 'mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx'],
             'marketing_evidence' => ['nullable', 'array'],
@@ -214,7 +214,6 @@ class UpdateAuctionRequest extends WizardFormRequest
             'property_ids.*.distinct' => 'لا يمكن اختيار العقار نفسه أكثر من مرة.',
             'platform_url.url' => 'رابط المنصة يجب أن يكون رابطاً صالحاً.',
             'project_manager_name.required' => 'اسم مدير المشروع مطلوب.',
-            'report_image.required' => 'صورة التقرير مطلوبة للحفظ النهائي.',
             'report_image.image' => 'يجب أن تكون صورة التقرير ملف صورة صالحًا.',
         ];
     }
@@ -248,13 +247,6 @@ class UpdateAuctionRequest extends WizardFormRequest
     private function selectedPropertyKeys(): array
     {
         return array_map(static fn (mixed $id): string => (string) $id, (array) $this->input('property_ids', []));
-    }
-
-    private function hasRetainedReportImage(): bool
-    {
-        $auction = $this->route('auction');
-
-        return $auction instanceof Auction && filled($auction->report_image);
     }
 
     public function setResolvedAssignment(?Assignment $assignment): void

@@ -65,14 +65,14 @@ class PlanController extends Controller
                     ['value' => 'with_discount',    'label' => 'تحتوي على خصم'],
                     ['value' => 'without_discount', 'label' => 'بدون خصم'],
                 ],
-                'domains' => [
-                    ['value' => 'active',   'label' => 'مفعلة'],
-                    ['value' => 'inactive', 'label' => 'غير مفعلة'],
-                ],
-                'most_requested' => [
-                    ['value' => 'yes', 'label' => 'الأكثر طلباً (نعم)'],
-                    ['value' => 'no',  'label' => 'غير الأكثر طلباً (لا)'],
-                ],
+                // 'domains' => [
+                //     ['value' => 'active',   'label' => 'مفعلة'],
+                //     ['value' => 'inactive', 'label' => 'غير مفعلة'],
+                // ],
+                // 'most_requested' => [
+                //     ['value' => 'yes', 'label' => 'الأكثر طلباً (نعم)'],
+                //     ['value' => 'no',  'label' => 'غير الأكثر طلباً (لا)'],
+                // ],
             ];
 
             return $dataTable->render($this->page.'.index', [

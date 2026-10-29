@@ -1,0 +1,15 @@
+# Optional auction PDF covers and Aptos Narrow Bold
+
+Approved behavior: uploaded auction cover is a background under the existing first outputs page only; absent cover leaves existing outputs unchanged. Report image keeps its current cross-page behavior; absent image uses the original Asir example landscape. Both uploads optional. Install verified Aptos Narrow Bold, weight700. Preserve edits without re-upload, existing tenant isolation and concurrent changes; no shared database writes.
+
+1. RED: request/create/update without images, retained uploads, invalid MIME; font exact-face resolution; uploaded outputs cover first-page-only and preserved foreground; report fallback vs supplied image.
+2. GREEN: remove report-image required rules/action guards, retain nullable DB schema (already nullable); update shared upload/review hints. Ship the original example landscape as a local immutable asset, resolve it only when report image is absent, without borrowing user data. Add outputs cover media only to page0 and render below existing foreground. Original outputs background includes baked logos/cards: preserve their original native-coordinate fragments as an SVG foreground, leaving default rendering unchanged.
+3. Install inspected Aptos file, regenerate numeric metrics and asset hashes. Verify isolated report suite, invalid uploads, actual PDF/PNG with and without images, browser geometry and build if frontend JS/CSS changes. Final bounded independent review; no commits of unrelated work.
+
+User addition: a navy overlay at opacity0.5 above the uploaded outputs photograph and below all foreground/content; absent image keeps the original cover untouched. The original raster's dark background is removed via an SVG luminance alpha mask, not rectangular cutouts; original complete panel geometry is restored as SVG beneath the preserved foreground.
+
+Acceptance: no new pages, no sample auction data inserted, no uploaded cover in subsequent outputs pages, report background behavior unchanged for supplied images, fallback landscape local/offline, normal manual/auto pipeline shares the renderer.
+
+Verification: request/action/font/renderer regressions observed RED before fixes. SVG rectangular cropping prototype was rejected after PDF inspection; replaced with luminance-keyed original foreground plus complete native-coordinate panels, preserving logos without cut edges. Actual PDF/PNG with50% overlay inspected; missing images produce current outputs/original report example respectively. DB columns already nullable, so no migration or shared DB write needed. Aptos source metadata Bold700/1286glyphs inspected; original landscape hash f3d917...0c0fb4 verified before copying locally.
+
+Fresh-context final review found no Critical/Important issues. Deferred minor test extensions: explicit overlay-color assertion, gallery-fallback occurrence assertion, and a separate existing-cover retention assertion (logic retains both paths). No second review or unrelated refactoring. Existing work from the remediation plan remains untouched except directly overlapping code.

@@ -1,75 +1,60 @@
-# Auction report visual reference manifest
+# Auction report reference and verification contract
 
-## Acceptance sources
+Updated 29 October 2026. This contract supersedes the earlier masked/static-score acceptance.
 
-Reference directory is intentionally external to the repository. Local comparison tooling resolves it from `AUCTION_REPORT_REFERENCE_DIR`; it must never hard-code a user-profile path in production code.
+## Immutable originals
 
-| Document | Source file | SHA-256 | Size | Pages | Rendered MediaBox |
-| --- | --- | --- | ---: | ---: | --- |
-| Outputs / Haram | `haram-print.pdf` | `E3CE21E270035E308E9F47D919F7B003F415A185B0EB5128AF21025F50ACCE7F` | 7,609,083 bytes | 7 | 595.92 × 841.92 pt |
-| Final report / Asir | `asir-print.pdf` | `88624E3BB36950FB9ED6E759471FAE9E58096C39C5727B7E6E93B59BF73385D3` | 10,526,264 bytes | 21 | 594.96 × 841.92 pt |
+| Design | Original in Downloads/outputs/samples | SHA-256 | MediaBox (pt) |
+|---|---|---|---|
+| outputs | مخرجات مزاد جوار الحرم .pdf | 7c2d047ff0aaa4d6dcae7117996121d595291c5545deb8e299eab9c6f7bce797 | 595.5 × 842.2499787 |
+| report | تقرير مزاد واجهة عسير.pdf | 22d7d2e448f2c6ebac35933b40dac0ad97fa5e79654d32067eb1c7e2fc2f8b6b | 595.276 × 841.89 |
 
-Both references report `Skia/PDF m151` and PDF 1.4. They are printed package outputs, so the expected small Chromium rounding is documented separately from visual fidelity.
+Paths and hashes are recorded in `tests/Fixtures/AuctionReports/acceptance-manifest.json`. Original files are read-only inputs. The reconstructed `haram-print.pdf` / `asir-print.pdf` are historical analysis artifacts, not final acceptance references.
 
-## Reference package integrity
+The extracted HTML/JSON packages are analysis-only. Production must not include, parse or execute them. Compiled SVG geometry, bindings, fonts and local asset hashes live under `resources/auction-reports`; `refresh-asset-manifest.php` verifies their integrity.
 
-| File | SHA-256 |
-| --- | --- |
-| `haram.html` | `CBE05B0DAE76C5CCCDF162BF73FAB656B9D79A0773EB9AC4BEC5174E557E1FD5` |
-| `asir.html` | `D2C024B60CE31688D14710BC6E53B6DFB634B907A9FE34928D853928FC04D160` |
-| `haram-data.json` | `B5B35EBA47E77C67E7267940E03BB2A1A6638AFA06A3239A60EFA2CD10568FE6` |
-| `asir-data.json` | `4DD75B53FA68B97221FEF936E30FBBA059B2A92B435F387E6A2EEE3145E2039A` |
-| `IBMPlexSansArabic-OFL.txt` | `7E6B2818EDBD8F6A01AE80641CC8F16A51080D08FB4E532BE3A0B6F74ADB07DA` |
-| `NotoSansArabic-OFL.txt` | `07FC70BFEB985CC1A87A8587D0A0C80BAB11C86C9DC3FD95B6F0CB332F983E96` |
+## Runtime and data safety
 
-Integrity check: **PASS** on 26 October 2026.
+Production remains `DataBuilder → Paginator → Data binding → TextLayout → SVG → BrowserDocumentRenderer → tenant_private`.
 
-## Protected acceptance records
+Mutating acceptance tests require all four explicit settings:
 
-The acceptance tenant is `test` / database `etmam_levan_test`.
+- `DB_DATABASE=levan_report_ci_central`
+- empty `DB_URL`
+- `AUCTION_REPORT_TEST_TENANT_DATABASE=levan_report_ci_tenant`
+- `AUCTION_REPORT_TEST_TENANT_ID=auction_report_ci`
 
-| Auction ID | Auction name | Properties | Attachments | Existing report generations |
-| ---: | --- | ---: | ---: | ---: |
-| 5 | جوار الحرم | 11 | 11 | 1 |
-| 6 | واجهة عسير | 13 | 51 | 3 |
+The guard executes before application boot and rechecks effective database/tenant identity. No fresh/seed or migration is authorized against the user's shared databases. The metadata migration has been applied to CI only; deploying it to another tenant requires identifying that tenant explicitly.
 
-These records are read-only acceptance inputs. No `migrate:fresh`, `db:wipe`, destructive seeder, data replacement, attachment replacement, or destructive database command is allowed during report-fidelity work.
+Historical records 5/6 were accidentally removed and restored, with permission, as 20/21. These IDs are not a permanent runtime contract. The current acceptance source is the immutable private restoration backup; CI uses its own receipt-mapped IDs, not the original tenant.
 
-On 27 October the user confirmed that another operation had accidentally removed these records and explicitly authorized recreating them. The selected rows were recovered from `etmam_levan_test-20261026-125042.sql.gz` without executing the dump or replacing the current database. New IDs are **20 (Haram)** and **21 (Asir)**, with the same 24 properties and 62 attachment files; unrelated current records were retained. Restoration mappings and classification backups are in private backup storage.
+## Fonts and geometry
 
-The user separately authorized attachment classification/order changes. Classification uses exact file hashes during this development operation, never file-name inference in the production renderer. Haram's eleven old attachments are raster masks/ornaments, not the reference's evidence photographs; those images therefore use the platform-logo fallback. Asir contains fourteen installation photographs, requiring one continuation beyond the thirteen reference frames.
+Measurement and rendering resolve the same complete font face. Provided GE, Nizar, STV, TheSans Plain/Bold, LamaSans Bold, Arimo Regular/Bold, Montserrat, Myriad and IBM faces are installed alongside local Arial/Calibri/Symbol. The rejected variable-Noto/static-instance experiment is not used: legacy complete static Noto Regular/Bold passes Arabic search and Unicode checks with normal shaping.
 
-## Runtime boundary
+Only **Ruaq Arabic Medium** and **Aptos Narrow Bold** remain explicitly deferred. Aref Ruqaa and Aptos Regular are not equivalent replacements. Static glyph outlines from the original artwork remain unchanged.
 
-The production flow remains `AuctionReportDataBuilder → AuctionReportRenderer → BrowserDocumentRenderer → tenant_private`.
+Titles fit complete text within two lines, retaining the original size when it fits; an unreadable title fails explicitly. Only designated narratives continue. Numeric scalars never create pages. Table continuations pack measured rows, and single-section result continuations do not repeat an empty opposite table.
 
-The HTML and JSON package files are analysis-only artifacts. They must not be included, parsed, or executed by the production report renderer.
+Chromium MediaBox rounding must stay within 0.5pt, reported as a measured delta rather than zero. Image/background cover uses rectangular frame geometry and focal coordinates; screenshots/documents use contain. A new photograph is not cut using the old photograph's skyline alpha mask.
 
-## Compiled geometry and fonts
+## Acceptance sources and source gaps
 
-### Actual originals and test safety (28 October 2026)
+File-only rendering calls the real DataBuilder with preloaded relations and throws on every DB query. All 62 saved attachments exist, but existence is not proof of usable evidence:
 
-The immutable original PDF hashes and MediaBoxes are recorded in
-`tests/Fixtures/AuctionReports/acceptance-manifest.json`. These Canva/Illustrator
-originals supersede the reconstructed print PDFs for final acceptance; previous
-static-region scores are not dynamic content acceptance.
+- Haram: 11 design/ornament assets, not restored board photographs or broker contracts. Its saved report background is decorative, not a replacement site landscape.
+- Asir: 9 design assets, 2 platform, 2 video, 7 X, 1 WhatsApp, 3 social, 14 installation and 13 removal photographs.
+- Missing original brochures, broker contracts/names, contacts, introductions/results narratives and board dimensions/counts remain explicit source gaps. Saved property categories can also differ from the reference's free-form descriptions; do not change a general enum to fabricate a match.
+- Asir's complete landscape is a verified exact match to package asset 57f9524018b458c61391, SHA-256 `f3d9171a96a6b1635ceb6976da9a53824184bca7ddb45aa7dbed602a9d0c0fb4`. This override is limited to the file fixture and identity-guarded CI records.
 
-Auction report Feature tests now require the explicit isolated central database
-`levan_report_ci_central`, tenant database `levan_report_ci_tenant`, tenant ID
-`auction_report_ci`, and no DB_URL. `AuctionReportDatabaseGuard` runs before
-application boot and checks effective configuration again before database writes.
-Do not run this suite against the shared manual-test tenant or refresh/seed it.
+## Visual and functional verification
 
-`resources/auction-reports/{haram,asir}/pages.php` records the measured field coordinates, original font/size/vertical scale/color, semantic groups, table columns and row envelopes. The corresponding SVG files retain original static glyph outlines, ornaments, clipping paths and image transforms. `bindings.php` maps semantic values and local image slots; `manifest.php` records SHA-256 for every shipped design asset. Runtime consumes these local files only.
+All four combinations are required: both designs for each auction. Page counts derive from content, not a forced 7/21. The restored file fixtures currently produce Haram 7/20 and Asir 18/22.
 
-Asir's `image-frames.php` records 69 image definitions' visible rectangles in their original clipping-container coordinate spaces. Missing media and PDF pages are fitted within those rectangles so the source photograph's crop cannot cut off the replacement logo/document. Ordinary photographs retain their original crop behavior.
+`render-reference-comparison.ps1` renders all four, measures browser geometry, renders link proofs, checks PDF contracts, and creates **unmasked** 150-DPI comparisons against the immutable originals. Raster caches are keyed by PDF hash and DPI and accept numeric page filenames only. `render-detail-proof.py` produces selected 300-DPI numeric/table/cover/appendix pages.
 
-The complete Noto Sans Arabic and IBM Plex Sans Arabic font files and their OFL texts come from the provided package. Complete GE Contrast Bold and Nizar BBC Kurdish Bold were supplied by the user. Numeric-only STV/Arimo subsets retain all reference digits. Their advance widths are measured once in Chromium and packaged in `fonts/numeric-metrics.php`; no browser is called for text measurement during PHP pagination. Full Nizar is measured directly with FreeType. Arabic presentation forms are used only for measuring connected glyphs; actual PDF text remains Unicode.
+No similarity percentage grants acceptance. Full-page differences include changed data, source gaps and deferred fonts; they are not hidden. Strict whole-document ≤1pt placement/≤3RGB flat-color acceptance is **not claimed** until those regions are independently measured and unresolved source/font differences are closed.
 
-**Explicit scope decision, 27 October:** the user deferred matching the remaining secondary fonts and prioritized finalizing layout and manual/automatic extraction. Dynamic text whose original family is not packaged in full currently uses Noto; numeric STV/Arimo runs use their source subsets. This includes secondary TheSans, LamaSans, RuaqArabic, nonnumeric STV and the remaining Latin families. Original static glyph outlines remain unchanged. The static-region comparison must not be described as proof that every dynamic font is identical.
+`verify-final-artifacts.py` independently checks the eight downloaded manual/auto PDFs and two edge-case PDFs: revision/snapshot pairing, hashes, private-ready status, property values, sales amounts, geometry, Unicode and per-campaign link annotations. Because pypdf reverses some Arabic-Indic numeric runs during bidi extraction, numeric values are checked separately by positioned glyphs through pdfplumber; reversed numbers are not silently accepted.
 
-## Visual comparison contract
-
-Golden fixtures contain 7/21 pages with reference-length data. Both PDFs are rasterized using the same `pdftoppm` executable at 96 DPI. Masks are exported from source field envelopes, source table cells and clipped evidence frames. Image masks include one raster pixel for antialiasing. Dynamic data and replaceable pictures are excluded; the Asir watermark is verified using the original landscape, while the replaceable cover crop is masked. Gray diff pixels identify every excluded region; red identifies a mismatch outside it.
-
-Acceptance requires each page's static mismatch ratio to be at most 0.5% with an RGB channel tolerance of 12, mask coverage below 90%, exact page count and MediaBox within 0.02 pt, embedded fonts and extractable text. This measures static artwork fidelity; it is not a percentage claim about changed business values or photographs. The complete page contact sheets, masks, overlays, diffs and JSON results are generated under ignored `output/pdf/reference-comparison`.
+The current evidence and remaining acceptance limits are documented in `acceptance-results.md`. Full-reference acceptance remains separate from functional export acceptance.

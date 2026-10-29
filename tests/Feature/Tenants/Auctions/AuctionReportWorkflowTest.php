@@ -90,23 +90,35 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
         self::assertSame('تحديث لاختبار الاستخراج التلقائي', $updatedGeneration->snapshot['auction']['description']);
     }
 
-    public function test_final_create_requires_an_independent_report_image(): void
+    public function test_final_create_accepts_missing_optional_cover_images(): void
     {
         $assignment = $this->assignment('CREATE');
         $request = StoreAuctionRequest::create('/auctions', 'POST', $this->validPayload($assignment));
 
         $validator = Validator::make($request->all(), $request->rules());
 
-        self::assertTrue($validator->errors()->has('report_image'));
+        self::assertFalse($validator->errors()->has('report_image'));
+        self::assertFalse($validator->errors()->has('cover_image'));
     }
 
-    public function test_legacy_update_requires_report_image_but_a_retained_image_is_accepted(): void
+    public function test_create_and_update_actions_accept_no_images_and_keep_null_paths(): void
+    {
+        $assignment = $this->assignment('NO-IMAGES');
+        $auction = app(CreateAuctionAction::class)->execute($this->validPayload($assignment));
+        self::assertNull($auction->report_image);
+        self::assertNull($auction->cover_image);
+        $updated = app(UpdateAuctionAction::class)->execute($auction, ['description' => 'تعديل دون صور']);
+        self::assertNull($updated->report_image);
+        self::assertNull($updated->cover_image);
+    }
+
+    public function test_legacy_update_accepts_missing_or_retained_report_image(): void
     {
         $assignment = $this->assignment('UPDATE');
         $auction = $this->auction($assignment);
 
         $missingImageValidator = $this->updateValidator($auction, $this->validPayload($assignment));
-        self::assertTrue($missingImageValidator->errors()->has('report_image'));
+        self::assertFalse($missingImageValidator->errors()->has('report_image'));
 
         $auction->setAttribute('report_image', 'auctions/reports/existing.webp');
         $retainedImageValidator = $this->updateValidator($auction, $this->validPayload($assignment));
@@ -242,7 +254,7 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
         );
     }
 
-    public function test_http_create_stores_the_required_report_image(): void
+    public function test_http_create_stores_an_uploaded_report_image(): void
     {
         $this->withoutMiddleware([
             CheckSubscription::class,
@@ -267,6 +279,23 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
         $response->assertRedirect('http://test.localhost/auctions/'.$auction->id);
         self::assertNotNull($auction->report_image);
         Storage::disk('tenant_public')->assertExists($auction->report_image);
+    }
+
+    public function test_http_create_succeeds_without_either_optional_image_and_queues_both_reports(): void
+    {
+        $this->withoutMiddleware([CheckSubscription::class, EnsureUserHasActiveLicense::class]);
+        Storage::fake('tenant_public');
+        $owner = User::query()->where('email', 'demo@levan.com')->firstOrFail();
+        $assignment = $this->assignment('HTTP-NO-IMAGE');
+        $property = $this->property($assignment, 'HTTP-NO-IMAGE');
+        $payload = array_replace($this->validPayload($assignment), ['name' => 'مزاد بدون صور '.uniqid(), 'property_ids' => [$property->id]]);
+        $response = $this->actingAs($owner, 'tenant')->post('http://test.localhost/auctions', $payload);
+        $response->assertSessionHasNoErrors();
+        $auction = Auction::query()->where('name', $payload['name'])->sole();
+        $response->assertRedirect('http://test.localhost/auctions/'.$auction->id);
+        self::assertNull($auction->report_image);
+        self::assertNull($auction->cover_image);
+        self::assertSame('queued', $auction->latestReportGeneration()->sole()->status);
     }
 
     public function test_report_queue_failure_does_not_rollback_a_successful_auction_save(): void
@@ -336,7 +365,7 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
             ],
         ]);
 
-        $payload = $this->validPayload($assignment) + ['property_ids' => [$property->id]];
+        $payload = $this->validPayload($assignment) + ['property_ids' => [$property->id], 'report_image' => null, 'cover_image' => null];
         $retained = app(UpdateAuctionAction::class)->execute($auction, $payload, null, []);
         self::assertSame($oldReportPath, $retained->report_image);
         Storage::disk('tenant_public')->assertExists($oldReportPath);

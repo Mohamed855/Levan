@@ -56,7 +56,7 @@
                 <x-form.wizard.review-card title="النتائج والملفات" step="4" col="" class="h-100 assignment-review__card">
                     <dl class="row mb-0 small">
                         <dt class="col-5 text-muted">صورة التقرير</dt>
-                        <dd class="col-7 fw-semibold" id="review-report-image">{{ $isEdit ? ($auction->report_image ? 'محفوظة' : 'غير محددة (مطلوبة)') : 'غير محددة' }}</dd>
+                        <dd class="col-7 fw-semibold" id="review-report-image">{{ $isEdit && $auction->report_image ? 'محفوظة' : 'صورة المثال الأصلية' }}</dd>
                         <dt class="col-5 text-muted">صورة الغلاف</dt>
                         <dd class="col-7 fw-semibold" id="review-cover-image">{{ $isEdit ? ($auction->cover_image ? 'محفوظة' : 'غير محددة') : 'غير محددة' }}</dd>
                         <dt class="col-5 text-muted">المرفقات</dt>
