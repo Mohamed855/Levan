@@ -90,11 +90,7 @@
                     <input type="hidden" name="type" id="type" value="{{ $typeValue }}">
                 @else
                     <x-form.controls.select name="type" id="type" label="نوع القالب" :value="$typeValue"
-                        :options="[
-                            'brochure' => 'كتيب مزاد متعدد الصفحات (A4 رأسي)',
-                            'billboard' => 'لوحة إعلانية (16:9 عريض)',
-                            'social' => 'منشور تواصل اجتماعي (1:1 مربع)',
-                        ]" required col="col-12" />
+                        :enum="\App\Enums\Admin\AuctionTemplates\AuctionTemplateType::class" required col="col-12" />
                 @endif
 
                 <x-form.controls.textarea name="description" label="وصف القالب" :value="$template->description" col="col-12"

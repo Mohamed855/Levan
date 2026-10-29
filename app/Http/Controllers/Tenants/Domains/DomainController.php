@@ -83,6 +83,17 @@ class DomainController extends Controller
                 'totalDomains' => $statistics['total'],
                 'activeDomains' => $statistics['active'],
                 'inactiveDomains' => $statistics['inactive'],
+                'statusOptions' => ['1' => 'نشط', '0' => 'غير نشط'],
+                'typeOptions' => [
+                    'registered' => 'دومين محجوز',
+                    'transferred' => 'دومين منقول',
+                    'linked' => 'دومين مربوط',
+                ],
+                'transferStatusOptions' => [
+                    'pending' => 'قيد الانتظار',
+                    'completed' => 'مكتمل',
+                    'failed' => 'فشل النقل',
+                ],
             ]);
         } catch (Exception $e) {
             report($e);

@@ -23,6 +23,7 @@ class TenantTwoFactorSettingsController extends Controller
     public function __construct(
         protected CentralTenantSecurityGateway $securityGateway
     ) {}
+
     public function show(Request $request): View
     {
         $user = Auth::guard('tenant')->user();

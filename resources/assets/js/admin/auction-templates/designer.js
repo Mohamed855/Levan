@@ -7,6 +7,12 @@ import { clampRect, pointerDelta, resizeRect } from "./geometry.js";
 import { DESIGNER_FONTS, DEFAULT_FONT, normalizeFont } from "./fonts.js";
 import { activePage, createDesignState, replaceSchema } from "./state.js";
 
+const TEXT_ALIGNMENTS = [
+    ["right", "يمين"],
+    ["center", "وسط"],
+    ["left", "يسار"],
+];
+
 const BINDINGS_BY_TYPE = {
     brochure: [
         { key: "auction.name", label: "اسم المزاد", required: true },
@@ -328,9 +334,7 @@ function initTemplateDesigners() {
             <div class="col-6">
               <label class="form-label small">محاذاة النص</label>
               <select class="form-select form-select-sm" data-style="text_align">
-                <option value="right" ${style.text_align === "right" ? "selected" : ""}>يمين</option>
-                <option value="center" ${style.text_align === "center" ? "selected" : ""}>وسط</option>
-                <option value="left" ${style.text_align === "left" ? "selected" : ""}>يسار</option>
+                ${TEXT_ALIGNMENTS.map(([v, l]) => `<option value="${v}" ${style.text_align === v ? "selected" : ""}>${l}</option>`).join("")}
               </select>
             </div>
             <div class="col-6">

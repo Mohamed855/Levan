@@ -123,15 +123,11 @@
         <x-slot:filters>
             <x-data-table.filters table="#domain-table">
                 <x-filter.select id="filter-status" filterKey="status" label="حالة النطاق" placeholder="جميع الحالات"
-                    :options="['1' => 'نشط', '0' => 'غير نشط']" />
+                    :options="$statusOptions" />
                 <x-filter.select id="filter-type" filterKey="type" label="نوع النطاق" placeholder="جميع الأنواع"
-                    :options="[
-                        'registered' => 'دومين محجوز',
-                        'transferred' => 'دومين منقول',
-                        'linked' => 'دومين مربوط',
-                    ]" />
+                    :options="$typeOptions" />
                 <x-filter.select id="filter-transfer-status" filterKey="transfer_status" label="حالة النقل"
-                    placeholder="جميع حالات النقل" :options="['pending' => 'قيد الانتظار', 'completed' => 'مكتمل', 'failed' => 'فشل النقل']" />
+                    placeholder="جميع حالات النقل" :options="$transferStatusOptions" />
                 <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ التسجيل من" />
                 <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ التسجيل إلى" />
             </x-data-table.filters>
