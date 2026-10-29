@@ -39,7 +39,7 @@
                 <div class="card-body text-center">
                     <div class="mx-auto mb-3">
                         <img src="{{ $assignment->assignmentImage ? tasset($assignment->assignmentImage->file_path) : asset('assets/img/illustrations/page-pricing-enterprise.png') }}"
-                            alt="Logo" class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
+                            alt="Logo" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
                     </div>
                     <h5 class="mb-1">{{ $assignment->name }}</h5>
                     <span class="badge bg-primary mb-3">{{ $assignment->category_label }}</span>

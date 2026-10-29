@@ -71,7 +71,7 @@
                                         data-form-validate novalidate>
                                         @csrf
                                         <x-form.controls.input name="otp" label="رمز التحقق" inputmode="numeric"
-                                            placeholder="000000" maxlength="6" autocomplete="one-time-code"
+                                            placeholder="XXXXXX" maxlength="6" autocomplete="one-time-code"
                                             class="otp-input" required />
                                         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3"
                                             id="otp-timer-actions">
@@ -86,7 +86,8 @@
                                                     <i class="ti ti-rotate-clockwise"></i>
                                                     <span>إعادة إرسال الرمز</span>
                                                     <span class="text-xs text-muted"
-                                                        id="otp-remaining-attempts">({{ max(0, ($maxResends ?? 3) - ($resendCount ?? 0)) }} محاولة متبقية)</span>
+                                                        id="otp-remaining-attempts">({{ max(0, ($maxResends ?? 3) - ($resendCount ?? 0)) }}
+                                                        محاولة متبقية)</span>
                                                 </button>
                                             </div>
                                         </div>

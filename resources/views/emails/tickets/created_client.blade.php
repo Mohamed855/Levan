@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge info">🎫 تذكرة دعم فني جديدة</span>
+        <span class="status-badge info">تم استلام تذكرة الدعم الفني</span>
     </div>
 
     <h2 class="greeting">مرحباً {{ $customerName }}،</h2>
@@ -37,7 +37,7 @@
         </div>
     </div>
 
-    <div class="info-card" style="background-color: #ffffff; border-right: 4px solid #3b82f6;">
+    <div class="info-card" style="border-right: 4px solid #3b82f6;">
         <div class="info-card-title" style="color: #1d4ed8;">تفاصيل المشكلة / الطلب:</div>
         <div style="font-size: 14px; color: #334155; line-height: 1.8; white-space: pre-wrap;">{{ $ticket->message ?? $ticket->description }}</div>
     </div>

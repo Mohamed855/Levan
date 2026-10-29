@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge warning">🔑 استعادة الحساب</span>
+        <span class="status-badge warning">استعادة الحساب</span>
     </div>
 
     <h2 class="greeting">مرحباً {{ $userName ?? 'عزيزنا المستخدم' }}،</h2>
@@ -21,7 +21,7 @@
     </div>
 
     <div class="alert-box info">
-        ⏳ ينتهي هذا الرابط خلال <strong>{{ config('auth.passwords.users.expire', 60) }} دقيقة</strong>. إذا لم تتمكن من النقر على الزر، يمكنك نسخ الرابط التالي ولصقه في متصفحك:
+        ينتهي هذا الرابط خلال <strong>{{ config('auth.passwords.users.expire', 60) }} دقيقة</strong>. إذا لم تتمكن من النقر على الزر، يمكنك نسخ الرابط التالي ولصقه في متصفحك:
         <br />
         <a href="{{ $resetUrl }}" target="_blank" style="word-break: break-all; color: #2563eb; font-size: 12px; margin-top: 6px; display: inline-block;">{{ $resetUrl }}</a>
     </div>

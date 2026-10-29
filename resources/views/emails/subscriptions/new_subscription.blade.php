@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge success">✅ تم تفعيل الاشتراك بنجاح</span>
+        <span class="status-badge success">تم تفعيل الاشتراك بنجاح</span>
     </div>
 
     <h2 class="greeting">مرحباً {{ $customerName }}،</h2>
@@ -64,6 +64,6 @@
     </div>
 
     <div class="alert-box info">
-        📄 يمكنك دائماً مراجعة فواتيرك وتفاصيل دورة الفوترة الخاصة بك من خلال شاشة «إدارة الاشتراكات» داخل لوحة تحكم حسابك.
+        يمكنك دائماً مراجعة فواتيرك وتفاصيل دورة الفوترة الخاصة بك من خلال شاشة «إدارة الاشتراكات» داخل لوحة تحكم حسابك.
     </div>
 @endsection

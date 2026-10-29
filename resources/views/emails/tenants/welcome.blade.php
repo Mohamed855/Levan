@@ -5,11 +5,11 @@
 @section('content')
     <div style="text-align: center;">
         @if($creationSource === 'trial')
-            <span class="status-badge success">🎉 تم تفعيل الحساب التجريبي بنجاح</span>
+            <span class="status-badge success">تم تفعيل الحساب التجريبي بنجاح</span>
         @elseif($creationSource === 'superadmin')
-            <span class="status-badge primary">🏢 تم إنشاء مساحة عمل منشأتكم بنجاح</span>
+            <span class="status-badge primary">تم إنشاء مساحة عمل منشأتكم بنجاح</span>
         @else
-            <span class="status-badge success">✅ تم تفعيل الاشتراك وتجهيز مساحة العمل بنجاح</span>
+            <span class="status-badge success">تم تفعيل الاشتراك وتجهيز مساحة العمل بنجاح</span>
         @endif
     </div>
 
@@ -39,7 +39,7 @@
             <span class="info-label">كلمة المرور:</span>
             <span class="info-value">
                 @if(!empty($temporaryPassword))
-                    <span dir="ltr" style="font-family: monospace; font-size: 14px; background: #e2e8f0; padding: 2px 8px; border-radius: 4px; font-weight: 700;">{{ $temporaryPassword }}</span>
+                    <span dir="ltr" style="font-family: monospace; font-size: 14px; border: 1px solid #cbd5e1; padding: 2px 8px; border-radius: 4px; font-weight: 700;">{{ $temporaryPassword }}</span>
                 @elseif($creationSource === 'superadmin')
                     كلمة المرور المحددة لحسابكم من قِبل إدارة النظام
                 @else
@@ -68,7 +68,7 @@
     </div>
 
     <div class="alert-box info">
-        🚀 <strong>خطوتك الأولى:</strong> يمكنك الآن تسجيل الدخول باستخدام بريدك الإلكتروني الموضح أعلاه لإدارة العقارات والمزادات، تخصيص إعدادات المنشأة، وإضافة أعضاء فريق عملك. فريق الدعم الفني جاهز لمساعدتك في أي وقت.
+        <strong>خطوتك الأولى:</strong> يمكنك الآن تسجيل الدخول باستخدام بريدك الإلكتروني الموضح أعلاه لإدارة العقارات والمزادات، تخصيص إعدادات المنشأة، وإضافة أعضاء فريق عملك. فريق الدعم الفني جاهز لمساعدتك في أي وقت.
     </div>
 
     <p style="font-size: 13px; color: #64748b; text-align: center; margin-top: 24px;">

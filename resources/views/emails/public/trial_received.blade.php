@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge info">📋 طلب تجربة قيد المراجعة</span>
+        <span class="status-badge info">طلب تجربة قيد المراجعة</span>
     </div>
 
     <h2 class="greeting">مرحباً {{ $customerName }}،</h2>
@@ -36,7 +36,7 @@
     </div>
 
     <div class="alert-box info">
-        💡 <strong>ما هي الخطوة القادمة؟</strong> بمجرد اعتماد الطلب من قبل الإدارة، ستصلك رسالة عبر هذا البريد الإلكتروني تحتوي على رابط الدخول المباشر إلى المنصة وبيانات حسابك لتبدأ تجربتك فوراً.
+        <strong>ما هي الخطوة القادمة؟</strong> بمجرد اعتماد الطلب من قبل الإدارة، ستصلك رسالة عبر هذا البريد الإلكتروني تحتوي على رابط الدخول المباشر إلى المنصة وبيانات حسابك لتبدأ تجربتك فوراً.
     </div>
 
     <p style="font-size: 13px; color: #64748b; margin-top: 24px;">

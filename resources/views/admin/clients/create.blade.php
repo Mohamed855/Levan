@@ -87,9 +87,9 @@
                             <x-form.controls.input name="company_name" label="اسم العميل / الشركة"
                                 placeholder="مثال: شركة التطوير العقاري" maxlength="255" required col="col-md-6" />
                             <x-form.controls.input name="commercial_number" label="رقم السجل التجاري"
-                                placeholder="1010123456" maxlength="10" inputmode="numeric" pattern="[0-9]*"
+                                placeholder="1010xxxxxx" maxlength="10" inputmode="numeric" pattern="[0-9]*"
                                 data-digits-only required col="col-md-6" />
-                            <x-form.controls.input name="tax_number" label="الرقم الضريبي" placeholder="300000000000003"
+                            <x-form.controls.input name="tax_number" label="الرقم الضريبي" placeholder="3xxxxxxxxxxxxx3"
                                 maxlength="15" inputmode="numeric" pattern="[0-9]*" data-digits-only required
                                 col="col-md-6" />
                             <x-form.controls.select name="city_id" label="المدينة" :options="$cities"
@@ -144,12 +144,7 @@
                     </x-form.wizard.step>
 
                     <!-- 3. بيانات الاشتراك -->
-                    <x-form.wizard.step id="subscription-step" :fields="[
-                        'plan_id',
-                        'start_date',
-                        'end_date',
-                        'activate_immediately',
-                    ]">
+                    <x-form.wizard.step id="subscription-step" :fields="['plan_id', 'start_date', 'end_date', 'activate_immediately']">
                         <div class="row g-4">
                             <x-form.controls.select name="plan_id" label="الباقة" :options="$plans"
                                 placeholder="اختر الباقة" required col="col-md-6" />
@@ -158,7 +153,8 @@
                             <x-form.controls.input name="end_date" type="date" label="تاريخ النهاية"
                                 help="يُحسب تلقائياً حسب نوع الباقة، ويمكن تعديله عند الحاجة." required col="col-md-6" />
                             <x-form.controls.checkbox name="activate_immediately" label="تفعيل الاشتراك فوراً"
-                                :checked="true" col="col-md-6">تفعيل الاشتراك مباشرة ليتمكن العميل من الدخول للنظام فور التسجيل.</x-form.controls.checkbox>
+                                :checked="true" col="col-md-6">تفعيل الاشتراك مباشرة ليتمكن العميل من الدخول للنظام فور
+                                التسجيل.</x-form.controls.checkbox>
                         </div>
 
                         <x-form.wizard.actions>
@@ -224,7 +220,8 @@
                                                 <dd class="col-7 fw-semibold" id="review-end-date">-</dd>
                                                 <dt class="col-5 text-muted">حالة التفعيل</dt>
                                                 <dd class="col-7">
-                                                    <span id="review-activation-status" class="badge bg-success">نشط ومفعل</span>
+                                                    <span id="review-activation-status" class="badge bg-success">نشط
+                                                        ومفعل</span>
                                                 </dd>
                                             </dl>
                                         </x-form.wizard.review-card>

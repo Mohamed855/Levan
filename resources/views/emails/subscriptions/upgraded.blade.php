@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge success">⚡ ترقية ومستخدمين جدد</span>
+        <span class="status-badge success">ترقية سعة الاشتراك بنجاح</span>
     </div>
 
     <h2 class="greeting">مرحباً {{ $customerName }}،</h2>

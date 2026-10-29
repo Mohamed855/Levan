@@ -49,7 +49,6 @@ class Auction extends Model
         'end_date' => 'date',
         'is_active' => 'boolean',
         'expected_properties_count' => 'integer',
-        'status' => AuctionStatus::class,
         'marketing_data' => 'array',
     ];
 

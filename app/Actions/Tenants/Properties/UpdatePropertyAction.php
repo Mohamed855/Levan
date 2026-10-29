@@ -17,9 +17,10 @@ final class UpdatePropertyAction
     public function execute(Property $property, array $data): Property
     {
         $storedPaths = [];
+        $pathsToDelete = [];
 
         try {
-            return DB::transaction(function () use ($property, $data, &$storedPaths): Property {
+            $updated = DB::transaction(function () use ($property, $data, &$storedPaths, &$pathsToDelete): Property {
                 $boundaries = $data['boundaries'] ?? null;
                 $owners = $data['owners'] ?? null;
                 $units = $data['units'] ?? null;
@@ -56,6 +57,9 @@ final class UpdatePropertyAction
 
                 // If new main image uploaded
                 if ($mainImageFile instanceof UploadedFile) {
+                    if ($property->main_image) {
+                        $pathsToDelete[] = $property->main_image;
+                    }
                     $mainImagePath = $mainImageFile->store('properties/main_images', 'tenant_public');
                     $storedPaths[] = $mainImagePath;
                     $data['main_image'] = $mainImagePath;
@@ -75,6 +79,9 @@ final class UpdatePropertyAction
 
                 // If new aerial image uploaded or modified
                 if ($aerialImageInput instanceof UploadedFile) {
+                    if ($property->aerial_image) {
+                        $pathsToDelete[] = $property->aerial_image;
+                    }
                     $aerialImagePath = $aerialImageInput->store('properties/aerial_images', 'tenant_public');
                     $storedPaths[] = $aerialImagePath;
                     $data['aerial_image'] = $aerialImagePath;
@@ -90,6 +97,9 @@ final class UpdatePropertyAction
                         'category' => PropertyAttachmentCategory::AERIAL_PHOTO->value,
                     ]);
                 } elseif (is_string($aerialImageInput) && str_starts_with($aerialImageInput, 'data:image/')) {
+                    if ($property->aerial_image) {
+                        $pathsToDelete[] = $property->aerial_image;
+                    }
                     [$type, $imageData] = explode(';', $aerialImageInput);
                     [, $imageData] = explode(',', $imageData);
                     $decoded = base64_decode($imageData);
@@ -219,6 +229,12 @@ final class UpdatePropertyAction
 
                 return $property->load(['boundaries', 'owners', 'units', 'attachments']);
             });
+
+            if (! empty($pathsToDelete)) {
+                Storage::disk('tenant_public')->delete(array_values(array_unique($pathsToDelete)));
+            }
+
+            return $updated;
         } catch (Throwable $exception) {
             Storage::disk('tenant_public')->delete($storedPaths);
             throw $exception;

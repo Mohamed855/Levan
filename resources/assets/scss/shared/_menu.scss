@@ -193,7 +193,8 @@ $menu-sub-link-height: 3rem;
     }
 
     &.menu-toggle {
-        .badge {
+        .badge,
+        [data-sidebar-counter] {
             margin-inline-end: 1.85rem !important;
             margin-inline-start: auto !important;
             flex-shrink: 0 !important;
@@ -334,8 +335,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
         transition: background-color 0.1s ease, color 0.1s ease !important;
         transition-duration: 0.1s !important;
 
-        > div,
-        > div:not(.badge),
+        > div:not(.badge):not([data-sidebar-counter]),
         span,
         .menu-text {
             color: var(--primary-color, #1D4F44) !important;
@@ -350,6 +350,16 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
 
         &.menu-toggle::after {
             color: var(--primary-color, #1D4F44) !important;
+        }
+
+        .badge,
+        .badge.bg-light,
+        .badge.text-primary,
+        [data-sidebar-counter] {
+            background-color: var(--primary-color, #1D4F44) !important;
+            background: var(--primary-color, #1D4F44) !important;
+            color: #ffffff !important;
+            border-color: transparent !important;
         }
     }
 }
@@ -424,7 +434,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
                 transition-duration: 0.1s !important;
             }
 
-            > div,
+            > div:not(.badge):not([data-sidebar-counter]),
             span {
                 color: inherit !important;
                 font-weight: 600 !important;
@@ -461,7 +471,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
             box-shadow: none !important;
             transform: none !important;
 
-            > div,
+            > div:not(.badge):not([data-sidebar-counter]),
             span {
                 color: var(--primary-color, #1D4F44) !important;
                 font-weight: 600 !important;
@@ -471,6 +481,60 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
                 background-color: var(--primary-color, #1D4F44) !important;
                 transform: none !important; // Stays 6px, ZERO movement
             }
+
+            .badge,
+            .badge.bg-light,
+            .badge.text-primary,
+            [data-sidebar-counter] {
+                background-color: var(--primary-color, #1D4F44) !important;
+                background: var(--primary-color, #1D4F44) !important;
+                color: #ffffff !important;
+                border-color: transparent !important;
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 7. Sidebar Badges & Counters (Adaptive Contrast Inversion)
+// Default state (dark sidebar): Crisp white background with primary text
+// Hover & Active states: Inverted to primary background with crisp white text
+// -----------------------------------------------------------------------------
+.bg-menu-theme.menu-vertical {
+    .menu-link {
+        .badge,
+        .badge.bg-light,
+        .badge.text-primary,
+        [data-sidebar-counter] {
+            background-color: #ffffff !important;
+            background: #ffffff !important;
+            color: var(--primary-color, #1D4F44) !important;
+            border-color: transparent !important;
+            font-weight: 700 !important;
+            font-size: 0.75rem !important;
+            line-height: 1.1 !important;
+            padding: 0.25rem 0.5rem !important;
+            transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.2s ease !important;
+        }
+    }
+
+    .menu-inner > .menu-item.active > .menu-link,
+    .menu-inner > .menu-item.open > .menu-link,
+    .menu-inner > .menu-item:hover > .menu-link,
+    .menu-inner > .menu-item > .menu-link:hover,
+    .menu-inner > .menu-item > .menu-link.active,
+    .menu-sub > .menu-item.active > .menu-link,
+    .menu-sub > .menu-item:hover > .menu-link,
+    .menu-sub .menu-link.active,
+    .menu-sub .menu-link:hover {
+        .badge,
+        .badge.bg-light,
+        .badge.text-primary,
+        [data-sidebar-counter] {
+            background-color: var(--primary-color, #1D4F44) !important;
+            background: var(--primary-color, #1D4F44) !important;
+            color: #ffffff !important;
+            border-color: transparent !important;
         }
     }
 }

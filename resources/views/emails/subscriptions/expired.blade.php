@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge danger">⛔ انتهى الاشتراك</span>
+        <span class="status-badge danger">انتهى الاشتراك</span>
     </div>
 
     <h2 class="greeting">مرحباً {{ $customerName }}،</h2>
@@ -18,7 +18,7 @@
     </div>
 
     <div class="cta-button-wrapper">
-        <a href="{{ $renewUrl }}" target="_blank" class="cta-button" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);">
+        <a href="{{ $renewUrl }}" target="_blank" class="cta-button" style="background-color: #dc2626;">
             تجديد الاشتراك وتفعيل الحساب
         </a>
     </div>

@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge warning">⏳ تذكير بانتهاء الاشتراك</span>
+        <span class="status-badge warning">تذكير باقتراب انتهاء الاشتراك</span>
     </div>
 
     <h2 class="greeting">مرحباً {{ $customerName }}،</h2>
@@ -14,7 +14,7 @@
     </p>
 
     <div class="alert-box warning">
-        ⚠️ لتجنب انقطاع الخدمة أو توقف وصول فريق العمل إلى بيانات المزادات والعقارات، يُرجى تجديد الاشتراك قبل حلول تاريخ الانتهاء.
+        لتجنب انقطاع الخدمة أو توقف وصول فريق العمل إلى بيانات المزادات والعقارات، يُرجى تجديد الاشتراك قبل حلول تاريخ الانتهاء.
     </div>
 
     <div class="info-card">

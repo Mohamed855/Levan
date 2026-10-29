@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Tenants\Auctions;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Auctions\RetryAuctionReportsRequest;
 use App\Models\Tenants\Auctions\Auction;
 use App\Services\Tenants\Auctions\Reports\AuctionReportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -35,6 +37,7 @@ final class AuctionReportController extends Controller
 
         return response()->json([
             'status' => $generation->status,
+            'progress' => (int) ($generation->progress ?? 0),
             'generation_id' => $generation->id,
             'has_outputs' => filled($generation->outputs_path),
             'has_report' => filled($generation->report_path),
@@ -110,10 +113,8 @@ final class AuctionReportController extends Controller
     /**
      * إعادة محاولة / بدء توليد ملفات المزاد.
      */
-    public function retry(Auction $auction): JsonResponse
+    public function retry(RetryAuctionReportsRequest $request, Auction $auction): JsonResponse
     {
-        $this->authorize('update', $auction);
-
         $tenantId = (string) (tenant('id') ?: tenant()?->id);
 
         try {
@@ -122,12 +123,15 @@ final class AuctionReportController extends Controller
             return response()->json([
                 'success' => true,
                 'status' => $generation->status,
+                'progress' => (int) ($generation->progress ?? 0),
                 'message' => 'تمت جدولة إعادة تجهيز ملفات المزاد.',
             ], 202);
         } catch (\Throwable $e) {
+            Log::error('Auction report retry failed.', ['auction_id' => $auction->id, 'exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'تعذر تجهيز الملفات: ' . $e->getMessage(),
+                'message' => 'تعذر تجهيز ملفات المزاد. يُرجى المحاولة مرة أخرى.',
             ], 500);
         }
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Tenants\Assignments;
 
 use App\Enums\Tenants\Assignments\AssignmentCategory;
@@ -15,7 +17,8 @@ class UpdateAssignmentRequest extends WizardFormRequest
 
     public function rules(): array
     {
-        $assignmentId = $this->route('assignment')?->id ?? $this->route('assignment');
+        $assignmentParam = $this->route('assignment');
+        $assignmentId = is_object($assignmentParam) ? (int) $assignmentParam->id : (int) $assignmentParam;
 
         return [
             'assignment_number' => [
@@ -26,13 +29,28 @@ class UpdateAssignmentRequest extends WizardFormRequest
             ],
             'name' => ['required', 'string', 'min:3', 'max:255'],
             'issuing_entity' => ['required', 'string', 'max:255'],
-            'assignment_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:10240'],
             'city' => ['required', 'string', 'max:100'],
             'district' => ['nullable', 'string', 'max:255'],
             'category' => ['required', Rule::enum(AssignmentCategory::class)],
-            'start_date' => ['nullable', 'date'],
-            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'notes' => ['nullable', 'string', 'max:1000'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'notes' => ['required', 'string', 'max:1000'],
+            'property_ids' => ['nullable', 'array'],
+            'property_ids.*' => [
+                'integer',
+                'distinct',
+                Rule::exists('properties', 'id')->where(
+                    fn ($query) => $query->where(function ($q) use ($assignmentId) {
+                        $q->whereNull('assignment_id')->orWhere('assignment_id', $assignmentId);
+                    })->whereNull('deleted_at'),
+                ),
+            ],
+            'assignment_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:10240'],
+            'assignment_letter' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
+            'general_documents' => ['nullable', 'array'],
+            'general_documents.*' => ['nullable', 'file', 'max:10240'],
+            'additional_attachments' => ['nullable', 'array'],
+            'additional_attachments.*' => ['nullable', 'file', 'max:10240'],
         ];
     }
 
@@ -46,31 +64,20 @@ class UpdateAssignmentRequest extends WizardFormRequest
             'name.max' => 'اسم الإسناد يجب ألا يتجاوز 255 حرف.',
             'issuing_entity.required' => 'الجهة المسندة مطلوبة.',
             'issuing_entity.max' => 'اسم الجهة المسندة يجب ألا يتجاوز 255 حرف.',
+            'city.required' => 'المدينة مطلوبة.',
+            'category.required' => 'تصنيف الإسناد مطلوب.',
+            'start_date.required' => 'تاريخ البداية مطلوب.',
+            'start_date.date' => 'تاريخ البداية غير صالح.',
+            'end_date.required' => 'تاريخ النهاية مطلوب.',
+            'end_date.date' => 'تاريخ النهاية غير صالح.',
+            'end_date.after_or_equal' => 'تاريخ النهاية يجب أن يكون مساوياً أو بعد تاريخ البداية.',
+            'notes.required' => 'وصف الإسناد مطلوب.',
+            'notes.max' => 'الملاحظات يجب ألا تتجاوز 1000 حرف.',
             'assignment_image.image' => 'صورة الإسناد يجب أن تكون صورة صالحة.',
             'assignment_image.mimes' => 'صيغة صورة الإسناد غير مدعومة.',
             'assignment_image.max' => 'حجم صورة الإسناد يجب ألا يتجاوز 10 ميجابايت.',
-            'category.required' => 'تصنيف الإسناد مطلوب.',
-            'category.in' => 'التصنيف المختار غير صالح.',
-            'start_date.date' => 'تاريخ الإسناد غير صالح.',
-            'end_date.date' => 'تاريخ الانتهاء غير صالح.',
-            'end_date.after_or_equal' => 'تاريخ الانتهاء يجب أن يكون مساوياً أو بعد تاريخ البداية.',
-            'notes.max' => 'الملاحظات يجب ألا تتجاوز 1000 حرف.',
-        ];
-    }
-
-    public function attributes(): array
-    {
-        return [
-            'assignment_number' => 'رقم الإسناد',
-            'name' => 'اسم الإسناد',
-            'issuing_entity' => 'الجهة المسندة',
-            'assignment_image' => 'صورة الإسناد',
-            'city' => 'المدينة',
-            'district' => 'النطاق/الحي',
-            'category' => 'تصنيف الإسناد',
-            'start_date' => 'تاريخ الإسناد',
-            'end_date' => 'تاريخ الانتهاء',
-            'notes' => 'الملاحظات',
+            'assignment_letter.mimes' => 'خطاب الإسناد يجب أن يكون ملف PDF.',
+            'assignment_letter.max' => 'حجم خطاب الإسناد يجب ألا يتجاوز 10 ميجابايت.',
         ];
     }
 }

@@ -91,6 +91,7 @@ class GenerateAuctionReportsJob implements ShouldQueue
 
         $generation->update([
             'status' => 'processing',
+            'progress' => 10,
             'started_at' => now(),
         ]);
 
@@ -107,14 +108,17 @@ class GenerateAuctionReportsJob implements ShouldQueue
                 ->findOrFail($this->auctionId);
 
             $snapshot = $generation->snapshot ?? $dataBuilder->build($auction);
+            $generation->update(['progress' => 25]);
 
             $outputsHtml = $renderer->html($snapshot, 'outputs');
             $pdfRenderer->pdf($outputsHtml, $outputsTmp);
             unset($outputsHtml);
+            $generation->update(['progress' => 60]);
 
             $reportHtml = $renderer->html($snapshot, 'report');
             $pdfRenderer->pdf($reportHtml, $reportTmp);
             unset($reportHtml);
+            $generation->update(['progress' => 85]);
 
             $this->assertPdfWasWritten($outputsTmp);
             $this->assertPdfWasWritten($reportTmp);
@@ -139,6 +143,7 @@ class GenerateAuctionReportsJob implements ShouldQueue
 
             $generation->update([
                 'status' => 'ready',
+                'progress' => 100,
                 'snapshot' => $snapshot,
                 'outputs_path' => $outputsPath,
                 'report_path' => $reportPath,
@@ -149,6 +154,7 @@ class GenerateAuctionReportsJob implements ShouldQueue
             Storage::disk('tenant_private')->delete([$outputsPath, $reportPath]);
             $generation->update([
                 'status' => 'failed',
+                'progress' => 0,
                 'outputs_path' => null,
                 'report_path' => null,
                 'error_message' => $e->getMessage(),

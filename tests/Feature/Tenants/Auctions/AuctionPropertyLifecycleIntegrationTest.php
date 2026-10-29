@@ -37,3 +37,4 @@ class AuctionPropertyLifecycleIntegrationTest extends TestCase
         $this->assertFalse($result);
     }
 }
+

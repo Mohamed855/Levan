@@ -18,7 +18,7 @@
         <div style="font-size: 14.5px; color: #1e293b; line-height: 1.8; white-space: pre-wrap;">{{ $replyMessage }}</div>
     </div>
 
-    <div class="info-card" style="background-color: #f8fafc; opacity: 0.85;">
+    <div class="info-card" style="opacity: 0.9;">
         <div class="info-card-title" style="color: #64748b;">رسالتك السابقة:</div>
         <div style="font-size: 13px; color: #64748b; line-height: 1.7; white-space: pre-wrap;">{{ $originalMessage }}</div>
     </div>

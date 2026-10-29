@@ -61,6 +61,8 @@
                         <dd class="col-7 fw-semibold" id="review-cover-image">{{ $isEdit ? ($auction->cover_image ? 'محفوظة' : 'غير محددة') : 'غير محددة' }}</dd>
                         <dt class="col-5 text-muted">المرفقات</dt>
                         <dd class="col-7 fw-semibold" id="review-attachments-count">{{ $isEdit ? $auction->attachments->count() : 0 }} ملف</dd>
+                        <dt class="col-5 text-muted">صور اللوحات</dt>
+                        <dd class="col-7 fw-semibold" id="review-board-images-count">{{ $isEdit && $auction->attachments->whereIn('report_section', ['board_before', 'board_after'])->isNotEmpty() ? ($auction->attachments->whereIn('report_section', ['board_before', 'board_after'])->count() . ' صورة محفوظة') : '—' }}</dd>
                         <dt class="col-5 text-muted">الحملات والروابط</dt>
                         <dd class="col-7 fw-semibold" id="review-marketing-counts">—</dd>
                         <dt class="col-5 text-muted">مقدمة التقرير</dt>

@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge info">🏦 إيصال التحويل قيد التدقيق</span>
+        <span class="status-badge info">إيصال التحويل قيد التدقيق</span>
     </div>
 
     <h2 class="greeting">مرحباً {{ $customerName }}،</h2>
@@ -36,7 +36,7 @@
     </div>
 
     <div class="alert-box info">
-        ⏳ تستغرق عملية التحقق من الحوالات البنكية عادة من 1 إلى 24 ساعة عمل. ستصلك رسالة تأكيد فور اكتمال التفعيل.
+        تستغرق عملية التحقق من الحوالات البنكية عادة من 1 إلى 24 ساعة عمل. ستصلك رسالة تأكيد فور اكتمال التفعيل.
     </div>
 
     <p style="font-size: 13px; color: #64748b; margin-top: 24px;">

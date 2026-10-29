@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge success">✨ مرحباً بك معنا</span>
+        <span class="status-badge success">مرحباً بك معنا</span>
     </div>
 
     <h2 class="greeting">مرحباً {{ $userName }}،</h2>
@@ -26,7 +26,7 @@
         @if(!empty($temporaryPassword))
             <div class="info-row">
                 <span class="info-label">كلمة المرور المؤقتة:</span>
-                <span class="info-value" dir="ltr" style="background: #e2e8f0; padding: 2px 8px; border-radius: 4px; font-family: monospace;">{{ $temporaryPassword }}</span>
+                <span class="info-value" dir="ltr" style="border: 1px solid #cbd5e1; padding: 2px 8px; border-radius: 4px; font-family: monospace;">{{ $temporaryPassword }}</span>
             </div>
         @endif
         @if(!empty($roleName))
@@ -39,7 +39,7 @@
 
     @if(!empty($temporaryPassword))
         <div class="alert-box warning">
-            🔒 <strong>تنبيه أمان:</strong> يُرجى تغيير كلمة المرور المؤقتة فور تسجيل دخولك للمرة الأولى للحفاظ على أمان حسابك.
+            <strong>تنبيه أمان:</strong> يُرجى تغيير كلمة المرور المؤقتة فور تسجيل دخولك للمرة الأولى للحفاظ على أمان حسابك.
         </div>
     @endif
 

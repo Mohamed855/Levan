@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge success">🔄 تم تجديد الاشتراك</span>
+        <span class="status-badge success">تم تجديد الاشتراك بنجاح</span>
     </div>
 
     <h2 class="greeting">مرحباً {{ $customerName }}،</h2>

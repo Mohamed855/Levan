@@ -78,7 +78,7 @@ class PropertiesController extends Controller
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'حدث خطأ أثناء إضافة العقار: '.$e->getMessage());
+                ->with('error', 'حدث خطأ أثناء إضافة العقار. يُرجى المحاولة مرة أخرى.');
         }
     }
 
@@ -121,7 +121,7 @@ class PropertiesController extends Controller
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'حدث خطأ أثناء تحديث العقار: '.$e->getMessage());
+                ->with('error', 'حدث خطأ أثناء تحديث العقار. يُرجى المحاولة مرة أخرى.');
         }
     }
 

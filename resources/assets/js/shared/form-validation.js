@@ -305,7 +305,7 @@ function parseDependencies(control) {
 
 function passwordConfirmationDependencies(control) {
     const name = String(control.name || "");
-    const suffix = "_confirmation";
+    const suffix = '_confirmation';
 
     return name.endsWith(suffix) ? [name.slice(0, -suffix.length)] : [];
 }
@@ -1603,7 +1603,7 @@ function initStepper(form) {
                 }
 
                 const steps = getSteps();
-                const currentStep = nextButton.closest("[data-form-step]");
+                const currentStep = nextButton.closest('[data-form-step]');
                 const currentIndex = steps.indexOf(currentStep);
                 if (!currentStep || currentIndex < 0) {
                     return;
@@ -1611,7 +1611,7 @@ function initStepper(form) {
                 const stepFields = validationFieldsFromStep(currentStep);
 
                 state.isValidatingStep = true;
-                nextButton.setAttribute("aria-busy", "true");
+                nextButton.setAttribute('aria-busy', 'true');
                 nextButton.dataset.buttonIsLoading = "true";
                 const nextSpinner = nextButton.querySelector(".btn-spinner");
                 const nextIcon = nextButton.querySelector("i:not(.btn-spinner)");
@@ -1619,9 +1619,7 @@ function initStepper(form) {
                 if (nextIcon) nextIcon.classList.add("d-none");
 
                 try {
-                    const isValid = await validateFields(form, stepFields, {
-                        force: true,
-                    });
+                    const isValid = await validateFields(form, stepFields, { force: true });
                     if (isValid) {
                         moveTo(currentIndex + 1);
                     } else {

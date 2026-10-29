@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge success">✅ تم اعتماد الحوالة البنكية</span>
+        <span class="status-badge success">تم اعتماد الحوالة البنكية</span>
     </div>
 
     <h2 class="greeting">مرحباً {{ $customerName }}،</h2>

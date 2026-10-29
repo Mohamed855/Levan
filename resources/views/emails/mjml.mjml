@@ -199,7 +199,7 @@
                                 line-height: 1.5rem;
                             "
                         >
-                            <strong style="font-weight: 600">💡 نصيحة:</strong>
+                            <strong style="font-weight: 600"> نصيحة:</strong>
                             يمكنك إدارة اشتراكك بالكامل، متابعة الفواتير، وتعديل
                             عدد التراخيص في أي وقت من خلال لوحة التحكم.
                         </p>
@@ -273,7 +273,7 @@
                             style="display: block; margin-bottom: 10px"
                         >
                             <span style="color: #1e293b; font-weight: 600"
-                                >📍 العنوان:</span
+                                > العنوان:</span
                             >
                             <span
                                 style="
@@ -289,7 +289,7 @@
                             style="display: block; margin-bottom: 10px"
                         >
                             <span style="color: #1e293b; font-weight: 600"
-                                >📋 السجل التجاري:</span
+                                > السجل التجاري:</span
                             >
                             <span
                                 style="
@@ -305,7 +305,7 @@
                             style="display: block; margin-bottom: 10px"
                         >
                             <span style="color: #1e293b; font-weight: 600"
-                                >🔢 الرقم الضريبي:</span
+                                > الرقم الضريبي:</span
                             >
                             <span
                                 style="
@@ -321,7 +321,7 @@
                             style="display: block; margin-bottom: 10px"
                         >
                             <span style="color: #1e293b; font-weight: 600"
-                                >📞 رقم الهاتف:</span
+                                > رقم الهاتف:</span
                             >
                             <span style="display: block; margin-top: 0.25rem">
                                 <a
@@ -336,7 +336,7 @@
                         </div>
                         <div class="company-info-item" style="display: block">
                             <span style="color: #1e293b; font-weight: 600"
-                                >✉️ البريد الإلكتروني:</span
+                                > البريد الإلكتروني:</span
                             >
                             <span style="display: block; margin-top: 0.25rem">
                                 <a

@@ -56,6 +56,7 @@ final class AuctionReportGenerationTest extends TenantAuctionReportTestCase
 
         $generation->refresh();
         self::assertSame('ready', $generation->status);
+        self::assertSame(100, $generation->progress);
         Storage::disk('tenant_private')->assertExists([$generation->outputs_path, $generation->report_path]);
         Storage::disk('tenant_public')->assertMissing([$generation->outputs_path, $generation->report_path]);
     }

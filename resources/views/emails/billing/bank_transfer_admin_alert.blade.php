@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge warning">🏦 إيصال تحويل بنكي جديد</span>
+        <span class="status-badge warning">إيصال تحويل بنكي جديد</span>
     </div>
 
     <h2 class="greeting">تنبيه مالي: تم رفع إيصال تحويل بنكي جديد</h2>

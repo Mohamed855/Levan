@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge success">🎉 تم تفعيل الحساب بنجاح</span>
+        <span class="status-badge success">تم تفعيل الحساب بنجاح</span>
     </div>
 
     <h2 class="greeting">تهانينا {{ $customerName }}،</h2>
@@ -42,7 +42,7 @@
     </div>
 
     <div class="alert-box info">
-        🚀 <strong>نصيحة لبداية سريعة:</strong> يمكنك الآن استكشاف وحدات المزادات، إدارة العقارات، والعقود، وإضافة فريق عملك. فريق الدعم الفني جاهز لمساعدتك في أي استفسار خلال رحلتك التجريبية.
+        <strong>نصيحة لبداية سريعة:</strong> يمكنك الآن استكشاف وحدات المزادات، إدارة العقارات، والعقود، وإضافة فريق عملك. فريق الدعم الفني جاهز لمساعدتك في أي استفسار خلال رحلتك التجريبية.
     </div>
 
     <p style="font-size: 13px; color: #64748b; text-align: center; margin-top: 24px;">

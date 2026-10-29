@@ -50,31 +50,30 @@
         }
         .main-wrapper {
             width: 100%;
-            background-color: #f1f5f9;
-            padding: 30px 15px;
+            background-color: #f8fafc;
+            padding: 24px 12px;
         }
         .email-container {
-            max-width: 620px;
+            max-width: 600px;
             margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 16px;
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
             border: 1px solid #e2e8f0;
         }
         .email-header {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            padding: 36px 30px 30px 30px;
+            background-color: #0f172a;
+            padding: 28px 24px 24px 24px;
             text-align: center;
         }
         .email-header .logo {
-            margin: 0 auto 12px auto;
-            max-height: 48px;
+            margin: 0 auto 10px auto;
+            max-height: 42px;
             display: inline-block;
         }
         .email-header .platform-title {
             color: #f8fafc;
-            font-size: 19px;
+            font-size: 18px;
             font-weight: 700;
             margin: 0;
             letter-spacing: -0.2px;
@@ -86,50 +85,51 @@
             font-weight: 400;
         }
         .email-body {
-            padding: 36px 32px;
+            padding: 32px 28px;
             color: #334155;
-            font-size: 15px;
+            font-size: 14.5px;
         }
         .greeting {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
             color: #0f172a;
-            margin: 0 0 16px 0;
+            margin: 0 0 14px 0;
         }
         .lead-text {
-            font-size: 15px;
+            font-size: 14.5px;
             color: #475569;
-            margin: 0 0 24px 0;
+            margin: 0 0 20px 0;
             line-height: 1.7;
         }
         .status-badge {
             display: inline-block;
-            padding: 6px 14px;
-            border-radius: 50px;
+            padding: 4px 12px;
+            border-radius: 4px;
             font-size: 12px;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
+            background-color: transparent !important;
         }
-        .status-badge.success { background-color: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
-        .status-badge.warning { background-color: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
-        .status-badge.danger  { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
-        .status-badge.info    { background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-        .status-badge.primary { background-color: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
+        .status-badge.success { background-color: transparent !important; color: #047857; border: 1px solid #059669; }
+        .status-badge.warning { background-color: transparent !important; color: #b45309; border: 1px solid #d97706; }
+        .status-badge.danger  { background-color: transparent !important; color: #b91c1c; border: 1px solid #dc2626; }
+        .status-badge.info    { background-color: transparent !important; color: #1d4ed8; border: 1px solid #2563eb; }
+        .status-badge.primary { background-color: transparent !important; color: #334155; border: 1px solid #64748b; }
 
         .info-card {
-            background-color: #f8fafc;
+            background-color: transparent !important;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 20px 22px;
-            margin: 24px 0;
+            border-radius: 8px;
+            padding: 18px 20px;
+            margin: 20px 0;
         }
         .info-card-title {
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 700;
             color: #0f172a;
-            margin: 0 0 14px 0;
+            margin: 0 0 12px 0;
             border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
         .info-row {
             margin-bottom: 10px;
@@ -150,84 +150,85 @@
         }
 
         .highlight-box {
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            border: 1px solid #86efac;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 24px 0;
+            background-color: transparent !important;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 18px;
+            margin: 20px 0;
             text-align: center;
         }
         .otp-code {
             font-family: 'Courier New', Courier, monospace, Tahoma;
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
-            letter-spacing: 8px;
-            color: #15803d;
-            background-color: #ffffff;
+            letter-spacing: 6px;
+            color: #0f172a;
+            background-color: transparent !important;
             display: inline-block;
-            padding: 10px 24px;
-            border-radius: 10px;
-            border: 2px dashed #4ade80;
-            margin: 12px 0 6px 0;
+            padding: 8px 18px;
+            border-radius: 6px;
+            border: 1px solid #0f172a;
+            margin: 10px 0 6px 0;
         }
         .otp-expiry {
             font-size: 12px;
-            color: #166534;
+            color: #64748b;
             margin: 6px 0 0 0;
         }
 
         .cta-button-wrapper {
-            margin: 30px 0;
+            margin: 26px 0;
             text-align: center;
         }
         .cta-button {
             display: inline-block;
-            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            background-color: #0f172a;
             color: #ffffff !important;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
-            padding: 14px 34px;
-            border-radius: 10px;
+            padding: 12px 28px;
+            border-radius: 6px;
             text-decoration: none !important;
-            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
         }
         .cta-button:hover {
-            background: #3730a3;
+            background-color: #1e293b;
         }
 
         .alert-box {
-            padding: 14px 18px;
-            border-radius: 10px;
+            padding: 12px 16px;
+            border-radius: 6px;
             font-size: 13px;
             line-height: 1.6;
-            margin: 20px 0;
+            margin: 18px 0;
+            background-color: transparent !important;
+            border: 1px solid #e2e8f0;
         }
         .alert-box.info {
-            background-color: #eff6ff;
-            border-right: 4px solid #3b82f6;
-            color: #1e40af;
+            border: 1px solid #cbd5e1;
+            border-right: 3px solid #2563eb;
+            color: #1e293b;
         }
         .alert-box.warning {
-            background-color: #fffbeb;
-            border-right: 4px solid #f59e0b;
-            color: #92400e;
+            border: 1px solid #cbd5e1;
+            border-right: 3px solid #d97706;
+            color: #1e293b;
         }
         .alert-box.danger {
-            background-color: #fef2f2;
-            border-right: 4px solid #ef4444;
-            color: #991b1b;
+            border: 1px solid #cbd5e1;
+            border-right: 3px solid #dc2626;
+            color: #1e293b;
         }
 
         .divider {
             height: 1px;
             background-color: #e2e8f0;
-            margin: 28px 0;
+            margin: 24px 0;
         }
 
         .email-footer {
-            background-color: #f8fafc;
+            background-color: transparent !important;
             border-top: 1px solid #e2e8f0;
-            padding: 26px 30px;
+            padding: 22px 24px;
             text-align: center;
             font-size: 12px;
             color: #64748b;

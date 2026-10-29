@@ -21,6 +21,7 @@ final class AuctionReportService
             $generation = $auction->reportGenerations()->create([
                 'revision_token' => (string) Str::uuid(),
                 'status' => 'queued',
+                'progress' => 0,
                 'snapshot' => $this->dataBuilder->build($auction),
             ]);
 
@@ -50,11 +51,13 @@ final class AuctionReportService
             $generation = $auction->reportGenerations()->create([
                 'revision_token' => (string) Str::uuid(),
                 'status' => 'queued',
+                'progress' => 0,
                 'snapshot' => $this->dataBuilder->build($auction),
             ]);
         } else {
             $generation->update([
                 'status' => 'queued',
+                'progress' => 0,
                 'outputs_path' => null,
                 'report_path' => null,
                 'error_message' => null,

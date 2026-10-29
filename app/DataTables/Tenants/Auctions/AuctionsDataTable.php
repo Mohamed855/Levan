@@ -28,13 +28,15 @@ class AuctionsDataTable extends AbstractDataTable
     {
         return [
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
+            ['data' => 'image', 'name' => 'image', 'title' => 'الصورة', 'orderable' => false, 'searchable' => false, 'width' => '60px', 'className' => 'text-center'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم المزاد', 'width' => '200px'],
             ['data' => 'assignment', 'name' => 'assignment_id', 'title' => 'الإسناد', 'width' => '150px'],
             ['data' => 'start_date', 'name' => 'start_date', 'title' => 'تاريخ البداية', 'width' => '130px'],
             ['data' => 'end_date', 'name' => 'end_date', 'title' => 'تاريخ النهاية', 'width' => '130px'],
             ['data' => 'properties_count', 'name' => 'properties_count', 'title' => 'عدد العقارات', 'width' => '90px', 'className' => 'text-center'],
             ['data' => 'outputs', 'name' => 'outputs', 'title' => 'المخرجات', 'orderable' => false, 'searchable' => false, 'width' => '110px', 'className' => 'text-center'],
-            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'width' => '100px', 'className' => 'text-center'],
+            ['data' => 'auction_status', 'name' => 'status', 'title' => 'حالة المزاد', 'width' => '100px', 'className' => 'text-center'],
+            ['data' => 'is_active', 'name' => 'is_active', 'title' => 'الحالة', 'width' => '90px', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -44,6 +46,11 @@ class AuctionsDataTable extends AbstractDataTable
         $datatable
             ->addColumn('checkbox', function ($row) {
                 return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
+            })
+            ->addColumn('image', function ($row): string {
+                $image = $row->cover_image ? tasset($row->cover_image) : null;
+
+                return $this->renderTableImage($image, (string) $row->name);
             })
             ->editColumn('name', function ($row) {
                 $showUrl = tenant_route_name($this->route.'.show', $row->id);
@@ -75,7 +82,7 @@ class AuctionsDataTable extends AbstractDataTable
             ->editColumn('properties_count', function ($row) {
                 return '<span class="badge bg-info">'.(int) $row->properties_count.'</span>';
             })
-            ->editColumn('status', function ($row) {
+            ->addColumn('auction_status', function ($row) {
                 return '<span class="badge '.$row->status_badge_class.'">'.e($row->status_label).'</span>';
             })
             ->addColumn('outputs', function ($row) {
@@ -106,6 +113,20 @@ class AuctionsDataTable extends AbstractDataTable
 
                 return '<span class="text-muted">—</span>';
             })
+            ->editColumn('is_active', function ($row): string {
+                $canEdit = auth('tenant')->user()?->can('auctions.edit');
+                if ($canEdit) {
+                    $checked = $row->is_active ? 'checked' : '';
+                    $url = tenant_route_name('auctions.toggle-status', $row->id);
+
+                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="auction_status_'.$row->id.'" data-url="'.e($url).'" data-active-value="active" data-inactive-value="inactive" '.$checked.' aria-label="تبديل حالة المزاد"></div></div>';
+                }
+
+                $statusClass = $row->is_active ? 'bg-success' : 'bg-danger';
+                $statusText = $row->is_active ? 'نشط' : 'متوقف';
+
+                return '<span class="badge '.$statusClass.'">'.$statusText.'</span>';
+            })
             ->addColumn('actions', function ($row) {
                 return view('tenant.auctions.action', ['row' => $row, 'route' => $this->route])->render();
             });
@@ -113,7 +134,7 @@ class AuctionsDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'name', 'assignment', 'start_date', 'end_date', 'properties_count', 'status', 'outputs', 'actions'];
+        return ['checkbox', 'image', 'name', 'assignment', 'start_date', 'end_date', 'properties_count', 'auction_status', 'is_active', 'outputs', 'actions'];
     }
 
     protected function applyCustomFilters($query)

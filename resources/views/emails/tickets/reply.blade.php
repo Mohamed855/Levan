@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge info">💬 رد جديد على التذكرة</span>
+        <span class="status-badge info">رد جديد على التذكرة</span>
     </div>
 
     <h2 class="greeting">مرحباً {{ $recipientName }}،</h2>
@@ -13,7 +13,7 @@
         تمت إضافة رد جديد على التذكرة رقم <strong>#{{ $ticket->ticket_number }}</strong> ({{ $ticket->title }}) من قبل <strong>{{ $senderName }}</strong>:
     </p>
 
-    <div class="info-card" style="background-color: #ffffff; border-right: 4px solid #4f46e5;">
+    <div class="info-card" style="border-right: 4px solid #4f46e5;">
         <div class="info-card-title" style="color: #4338ca;">نص الرد الجديد:</div>
         <div style="font-size: 14.5px; color: #1e293b; line-height: 1.8; white-space: pre-wrap;">{{ $replyMessage }}</div>
     </div>

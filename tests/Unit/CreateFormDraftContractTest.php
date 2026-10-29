@@ -122,6 +122,12 @@ final class CreateFormDraftContractTest extends TestCase
 
         foreach ($wizardFiles as $file) {
             $content = file_get_contents($file);
+            if (preg_match("/@include\s*\(\s*['\"]([^'\"]+)['\"]/", $content, $matches)) {
+                $partialPath = $root.'/resources/views/'.str_replace('.', '/', $matches[1]).'.blade.php';
+                if (file_exists($partialPath)) {
+                    $content .= "\n".file_get_contents($partialPath);
+                }
+            }
             $this->assertMatchesRegularExpression(
                 '/<x-form\.wizard\.previous-button[^>]+:href="[^"]+\.index[^"]*"/',
                 $content,

@@ -7,8 +7,9 @@
     'hint' => null,
     'help' => null,
     'required' => false,
+    'multiple' => false,
     'col' => 'col-md-6',
-    'title' => 'انقر أو اسحب الصورة هنا',
+    'title' => null,
     'desc' => null,
     'maxSize' => 10,
     'compact' => false,
@@ -22,6 +23,7 @@
     :accept="$accept"
     :help="$help ?? $hint"
     :required="$required"
+    :multiple="$multiple"
     :col="$col"
     :title="$title"
     :desc="$desc"

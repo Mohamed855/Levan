@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge info">✉️ التحقق من البريد</span>
+        <span class="status-badge info">تأكيد البريد الإلكتروني</span>
     </div>
 
     <h2 class="greeting">مرحباً {{ $userName ?? 'عزيزنا العميل' }}،</h2>

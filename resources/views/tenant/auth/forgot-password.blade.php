@@ -37,7 +37,7 @@
                 data-form-validate data-validation-url="{{ tenant_route_name('form-validation') }}">
                 @csrf
 
-                <x-form.controls.input name="otp" label="رمز التحقق (OTP)" placeholder="000000" inputmode="numeric"
+                <x-form.controls.input name="otp" label="رمز التحقق (OTP)" placeholder="XXXXXX" inputmode="numeric"
                     maxlength="6" autocomplete="one-time-code" class="otp-input text-center fw-bold"
                     style="font-size: 24px; letter-spacing: 6px;" required col="col-12 mb-3" icon="ti ti-shield-check" />
 

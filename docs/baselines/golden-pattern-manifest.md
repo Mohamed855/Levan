@@ -163,16 +163,16 @@ FormRequests: StoreAssignmentRequest, UpdateAssignmentRequest, SelectedAssignmen
 Policy registration + abilities: App\Policies\Tenants\Assignments\AssignmentPolicy registered in AuthServiceProvider (viewAny, view, create, update, delete, restore, forceDelete)
 Actions / Services / Gateways: CreateAssignmentAction, UpdateAssignmentAction, RestoreAssignmentAction, ForceDeleteAssignmentAction, AssignmentService, CentralCityOptionsGateway
 Models / Enums / Events / Jobs: Assignment, AssignmentAttachment, AssignmentStatus, AssignmentCategory, AssignmentAttachmentCategory
-DataTable / index / filters / buttons: AssignmentsDataTable (5 lifecycle stat cards, no top banner, action collection with copy/excel/mass-delete, add button guarded by permissions, js-table-status-toggle)
-Create UI + draft resource key + restore/purge evidence: resources/views/tenant/assignments/create.blade.php + resources/assets/js/tenant/assignments/create.js (tenant.assignment-create draft key, full restore and automatic purge)
-Edit UI: resources/views/tenant/assignments/edit.blade.php
+DataTable / index / filters / buttons: AssignmentsDataTable (5 lifecycle stat cards, no top banner, action collection with copy/excel/mass-delete, add button guarded by permissions, js-table-status-toggle before actions)
+Create UI + draft resource key + restore/purge evidence: resources/views/tenant/assignments/create.blade.php + resources/views/tenant/assignments/partials/_form.blade.php (shared 4-step wizard, tenant.assignment-create draft key, full restore and automatic purge)
+Edit UI: resources/views/tenant/assignments/edit.blade.php + resources/views/tenant/assignments/partials/_form.blade.php (shared 4-step wizard with $is_edit=true parity)
 Review step: canonical split review (col-lg-9 review cards + col-lg-3 preview) with data-edit-step jumping
-Show UI + child tables + attachments: resources/views/tenant/assignments/show.blade.php (asymmetric two-column: left profile + attachments, right properties subtable)
+Show UI + child tables + attachments: resources/views/tenant/assignments/show.blade.php (asymmetric two-column: left 100x100 profile + attachments card layout only, right properties subtable)
 Archive controller / DataTable / views: AssignmentArchiveController, AssignmentArchiveDataTable, resources/views/tenant/archive/assignments/index.blade.php (pure table card, no headers/stats)
 Shared components and JavaScript contracts: table-status-toggle.js, form-validation.js, copyable-code-wrapper
 Files and storage lifecycle: tenant_public disk, atomic storage with rollback cleanup on exception, cascade deletion on forceDelete
-Tests: Tests\Feature\TenantAssetModulesFeatureTest
-Verification commands and passing evidence: php artisan test --filter="Auction|Assignment|Property" (22 passed, 114 assertions)
+Tests: Tests\Feature\TenantAssetModulesFeatureTest, Tests\Feature\Tenants\Assignments\AssignmentFormParityTest
+Verification commands and passing evidence: php artisan test tests/Feature/TenantAssetModulesFeatureTest.php tests/Feature/Tenants/Assignments/AssignmentFormParityTest.php (25 passed)
 Not applicable items: None
 Remaining gaps: None
 Status: Compliant
@@ -188,16 +188,16 @@ FormRequests: StorePropertyRequest, UpdatePropertyRequest, SearchPropertyLocatio
 Policy registration + abilities: App\Policies\Tenants\Properties\PropertyPolicy registered in AuthServiceProvider (viewAny, view, create, update, delete, restore, forceDelete)
 Actions / Services / Gateways: CreatePropertyAction, UpdatePropertyAction, RestorePropertyAction, ForceDeletePropertyAction, PropertyService, CentralCityOptionsGateway
 Models / Enums / Events / Jobs: Property, PropertyAttachment, PropertyBoundary, PropertyOwner, PropertyUnit, PropertyType, PropertyDataStatus, PropertyOwnershipType, PropertyUsageClassification
-DataTable / index / filters / buttons: PropertiesDataTable (5 lifecycle stat cards, no top banner, mass-delete toolbar, add button guarded by properties.create, js-table-status-toggle)
-Create UI + draft resource key + restore/purge evidence: resources/views/tenant/properties/create.blade.php + resources/assets/js/tenant/properties/create.js (tenant.property-create draft key, full restore and automatic purge)
-Edit UI: resources/views/tenant/properties/edit.blade.php
+DataTable / index / filters / buttons: PropertiesDataTable (5 lifecycle stat cards, no top banner, mass-delete toolbar, add button guarded by properties.create, js-table-status-toggle before actions)
+Create UI + draft resource key + restore/purge evidence: resources/views/tenant/properties/create.blade.php + resources/views/tenant/properties/partials/_form.blade.php (shared 5-step wizard, tenant.property-create draft key, full restore and automatic purge)
+Edit UI: resources/views/tenant/properties/edit.blade.php + resources/views/tenant/properties/partials/_form.blade.php (shared 5-step wizard with $is_edit=true parity)
 Review step: canonical split review (col-lg-9 review cards + col-lg-3 preview) with data-edit-step jumping
-Show UI + child tables + attachments: resources/views/tenant/properties/show.blade.php (asymmetric two-column: left profile + attachments, right child subtables)
+Show UI + child tables + attachments: resources/views/tenant/properties/show.blade.php (asymmetric two-column: left 100x100 profile + attachments card layout only, right child subtables)
 Archive controller / DataTable / views: PropertyArchiveController, PropertyArchiveDataTable, resources/views/tenant/archive/properties/index.blade.php (pure table card, no headers/stats)
 Shared components and JavaScript contracts: table-status-toggle.js, form-validation.js, copyable-code-wrapper, relation delete prevention guard
-Files and storage lifecycle: tenant_public disk, rollback cleanup on action exception, complete file cleanup on forceDelete
-Tests: Tests\Feature\PropertyManagementFeatureTest, Tests\Feature\TenantAssetModulesFeatureTest
-Verification commands and passing evidence: php artisan test --filter="Auction|Assignment|Property" (22 passed, 114 assertions)
+Files and storage lifecycle: tenant_public disk, safe post-transaction cleanup of old images, rollback cleanup on action exception, complete file cleanup on forceDelete
+Tests: Tests\Feature\PropertyManagementFeatureTest, Tests\Feature\TenantAssetModulesFeatureTest, Tests\Feature\Tenants\Properties\PropertyFormParityTest
+Verification commands and passing evidence: php artisan test tests/Feature/PropertyManagementFeatureTest.php tests/Feature/Tenants/Properties/PropertyFormParityTest.php (11 passed)
 Not applicable items: None
 Remaining gaps: None
 Status: Compliant
@@ -206,23 +206,23 @@ Status: Compliant
 ```text
 Administration: Tenant Auctions
 Boundary: tenant
-Scope / aggregate root: Auction (M:1 Assignment, M:M Properties via auction_properties pivot with sort_order, 1:M AuctionAttachments)
-Routes + middleware + guard: routes/tenant.php (prefix 'auctions', resource routes, toggle-status) + auth:tenant + authorizeResource + Spatie permissions
-Controller: App\Http\Controllers\Tenants\Auctions\AuctionsController
-FormRequests: StoreAuctionRequest, UpdateAuctionRequest, UpdateResourceStatusRequest
+Scope / aggregate root: Auction (M:1 Assignment, M:M Properties via auction_properties pivot with sort_order, 1:M AuctionAttachments, 1:M AuctionReportGenerations)
+Routes + middleware + guard: routes/tenant.php (prefix 'auctions', resource routes, toggle-status, reports/status, reports/download, reports/retry) + auth:tenant + authorizeResource + Spatie permissions
+Controller: App\Http\Controllers\Tenants\Auctions\AuctionsController, App\Http\Controllers\Tenants\Auctions\AuctionReportController
+FormRequests: StoreAuctionRequest, UpdateAuctionRequest, UpdateResourceStatusRequest, RetryAuctionReportsRequest
 Policy registration + abilities: App\Policies\Tenants\Auctions\AuctionPolicy registered in AuthServiceProvider (viewAny, view, create, update, delete, restore, forceDelete)
-Actions / Services / Gateways: CreateAuctionAction, UpdateAuctionAction, RestoreAuctionAction, ForceDeleteAuctionAction, AuctionService, CentralCityOptionsGateway
-Models / Enums / Events / Jobs: Auction, AuctionAttachment, AuctionType, AuctionCategory, AuctionStatus, BrochureTemplate, BillboardTemplate, SocialTemplate
-DataTable / index / filters / buttons: AuctionsDataTable (5 lifecycle stat cards, no top banner, action collection with copy/excel/mass-delete, add button guarded by auctions.create, js-table-status-toggle before actions)
-Create UI + draft resource key + restore/purge evidence: resources/views/tenant/auctions/create.blade.php + resources/assets/js/tenant/auctions/create.js (tenant.auction-create draft key, progressive restore and automatic purge)
-Edit UI: resources/views/tenant/auctions/edit.blade.php
+Actions / Services / Gateways: CreateAuctionAction, UpdateAuctionAction, RestoreAuctionAction, ForceDeleteAuctionAction, AuctionService, AuctionReportService, AuctionReportDataBuilder, CentralCityOptionsGateway
+Models / Enums / Events / Jobs: Auction, AuctionAttachment, AuctionType, AuctionCategory, AuctionStatus, AuctionReportGeneration, GenerateAuctionReportsJob (dead template columns and obsolete controller purged)
+DataTable / index / filters / buttons: AuctionsDataTable (5 lifecycle stat cards, no top banner, action collection with copy/excel/mass-delete, add button guarded by auctions.create, js-table-status-toggle before actions, 60px rounded thumbnail)
+Create UI + draft resource key + restore/purge evidence: resources/views/tenant/auctions/create.blade.php + resources/views/tenant/auctions/partials/_form.blade.php (shared 5-step wizard, tenant.auction-create draft key, progressive restore and automatic purge)
+Edit UI: resources/views/tenant/auctions/edit.blade.php + resources/views/tenant/auctions/partials/_form.blade.php (shared 5-step wizard with $is_edit=true parity, eliminated under_review crash)
 Review step: canonical split review (col-lg-9 review cards + col-lg-3 preview) with data-edit-step jumping
-Show UI + child tables + attachments: resources/views/tenant/auctions/show.blade.php (asymmetric two-column: left profile + attachments, right linked properties table with sort order)
+Show UI + child tables + attachments: resources/views/tenant/auctions/show.blade.php (asymmetric two-column: left 100x100 profile + attachments card layout only, report generation widget with real percentage and title 'برجاء الانتظار، جار تحضير تقارير المزاد', auto timeout 45s, manual retry timeout 68s with Toastr error, right linked properties table with sort order)
 Archive controller / DataTable / views: AuctionArchiveController, AuctionArchiveDataTable, resources/views/tenant/archive/auctions/index.blade.php (pure table card, no headers/stats)
-Shared components and JavaScript contracts: table-status-toggle.js, form-validation.js, dynamic assignment property loading endpoint
-Files and storage lifecycle: tenant_public disk, atomic cover & attachments storage, rollback cleanup on exception, complete file cleanup on forceDelete
-Tests: Tests\Feature\TenantAssetModulesFeatureTest
-Verification commands and passing evidence: php artisan test --filter="Auction|Assignment|Property" (22 passed, 114 assertions)
+Shared components and JavaScript contracts: table-status-toggle.js, form-validation.js, toastr-flash.js, dynamic assignment property loading endpoint
+Files and storage lifecycle: tenant_public disk for cover & attachments, private disk for generated reports/outputs, rollback cleanup on exception, complete file cleanup on forceDelete
+Tests: Tests\Feature\Tenants\Auctions\AuctionDatabaseCleanlinessTest, Tests\Feature\Tenants\Auctions\AuctionPropertyLifecycleIntegrationTest, Tests\Feature\Tenants\Auctions\AuctionFormAndDataTableParityTest, Tests\Feature\Tenants\Auctions\AuctionReportGenerationTest, Tests\Feature\Tenants\Auctions\AuctionReportStatusProgressTest, Tests\Unit\Auctions\AuctionReportDataTest, Tests\Feature\TenantAssetModulesFeatureTest
+Verification commands and passing evidence: php artisan test tests/Feature/Tenants/Auctions/AuctionDatabaseCleanlinessTest.php tests/Feature/Tenants/Auctions/AuctionPropertyLifecycleIntegrationTest.php tests/Feature/Tenants/Auctions/AuctionFormAndDataTableParityTest.php tests/Feature/Tenants/Auctions/AuctionReportStatusProgressTest.php (11 passed), isolated CI tests (7 passed)
 Not applicable items: None
 Remaining gaps: None
 Status: Compliant

@@ -130,7 +130,7 @@
         }
 
         .company-info {
-            background-color: #f8fafc;
+            background-color: transparent; border: 1px solid #e2e8f0;
             border-radius: 0.5rem;
             padding: 1rem;
             margin-top: 0.75rem;
@@ -331,10 +331,10 @@
                                                                 <div
                                                                     style="font-family:'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;font-size:15px;line-height:24px;text-align:right;color:#333333;">
                                                                     <div
-                                                                        style="background-color: #f1f5f9; border-right: 3px solid #1e293b; border-radius: 0.5rem; padding: 1.25rem; direction: rtl;">
+                                                                        style="background-color: transparent; border: 1px solid #e2e8f0; border-right: 3px solid #1e293b; border-radius: 0.5rem; padding: 1.25rem; direction: rtl;">
                                                                         <p
                                                                             style="margin: 0; color: #334155; line-height: 1.5rem;">
-                                                                            <strong style="font-weight: 600;">💡
+                                                                            <strong style="font-weight: 600;">
                                                                                 نصيحة:</strong> يمكنك إدارة اشتراكك
                                                                             بالكامل، متابعة الفواتير، وتعديل عدد
                                                                             المستخدمين في أي وقت من خلال لوحة التحكم.
@@ -420,28 +420,28 @@
                                                                         <div class="company-info-item"
                                                                             style="display: block; margin-bottom: 10px;">
                                                                             <span
-                                                                                style="color: #1e293b; font-weight: 600;">📍
+                                                                                style="color: #1e293b; font-weight: 600;">
                                                                                 العنوان:</span> <span
                                                                                 style="display: block; margin-top: 0.25rem; color: #475569;">{{ $office_address }}</span>
                                                                         </div>
                                                                         <div class="company-info-item"
                                                                             style="display: block; margin-bottom: 10px;">
                                                                             <span
-                                                                                style="color: #1e293b; font-weight: 600;">📋
+                                                                                style="color: #1e293b; font-weight: 600;">
                                                                                 السجل التجاري:</span> <span
                                                                                 style="display: block; margin-top: 0.25rem; color: #475569;">{{ $commercial_register }}</span>
                                                                         </div>
                                                                         <div class="company-info-item"
                                                                             style="display: block; margin-bottom: 10px;">
                                                                             <span
-                                                                                style="color: #1e293b; font-weight: 600;">🔢
+                                                                                style="color: #1e293b; font-weight: 600;">
                                                                                 الرقم الضريبي:</span> <span
                                                                                 style="display: block; margin-top: 0.25rem; color: #475569;">{{ $tax_number }}</span>
                                                                         </div>
                                                                         <div class="company-info-item"
                                                                             style="display: block; margin-bottom: 10px;">
                                                                             <span
-                                                                                style="color: #1e293b; font-weight: 600;">📞
+                                                                                style="color: #1e293b; font-weight: 600;">
                                                                                 رقم الهاتف:</span> <span
                                                                                 style="display: block; margin-top: 0.25rem;"><a
                                                                                     href="tel:{{ $phone_number }}"
@@ -449,7 +449,7 @@
                                                                         </div>
                                                                         <div class="company-info-item"
                                                                             style="display: block;"><span
-                                                                                style="color: #1e293b; font-weight: 600;">✉️
+                                                                                style="color: #1e293b; font-weight: 600;">
                                                                                 البريد الإلكتروني:</span> <span
                                                                                 style="display: block; margin-top: 0.25rem;"><a
                                                                                     href="mailto:{{ $email }}"

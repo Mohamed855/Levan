@@ -50,13 +50,18 @@ class AssignmentService
 
     public function updateAssignment(Assignment $assignment, array $data, ?UploadedFile $logo = null): Assignment
     {
+        $oldPathToDelete = null;
+        $oldDiskToDelete = null;
+
         if ($logo) {
+            $path = $logo->store('assignments/attachments', 'tenant_public');
             $currentImage = $assignment->assignmentImage;
             if ($currentImage) {
-                Storage::disk($currentImage->disk)->delete($currentImage->file_path);
+                $oldPathToDelete = $currentImage->file_path;
+                $oldDiskToDelete = $currentImage->disk;
                 $currentImage->delete();
             }
-            $path = $logo->store('assignments/attachments', 'tenant_public');
+
             $assignment->attachments()->create([
                 'disk' => 'tenant_public',
                 'file_path' => $path,
@@ -66,6 +71,10 @@ class AssignmentService
                 'file_size' => $logo->getSize(),
                 'category' => AssignmentAttachmentCategory::IMAGE->value,
             ]);
+
+            if ($oldPathToDelete && $oldDiskToDelete) {
+                Storage::disk($oldDiskToDelete)->delete($oldPathToDelete);
+            }
         }
 
         unset($data['assignment_image'], $data['status']);

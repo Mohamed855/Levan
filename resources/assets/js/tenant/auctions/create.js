@@ -197,15 +197,6 @@ document.addEventListener("DOMContentLoaded", () => {
         $("#review-expected-properties").text(
             $("#expected_properties_count").val() || "-",
         );
-        $("#review-brochure-template").text(
-            $("#brochure_template_id option:selected").text() || "-",
-        );
-        $("#review-billboard-template").text(
-            $("#billboard_template_id option:selected").text() || "-",
-        );
-        $("#review-social-template").text(
-            $("#social_template_id option:selected").text() || "-",
-        );
     }
 
     function syncTimeConstraints() {
@@ -364,11 +355,16 @@ document.addEventListener("DOMContentLoaded", () => {
                             const img = prop.main_image
                                 ? "/tenant-assets/" + encodeURI(prop.main_image)
                                 : propertyImageFallback;
+                            const isSelectable = prop.is_selectable !== false;
+                            const disabledAttr = isSelectable ? "" : "disabled";
+                            const statusBadge = prop.is_sold
+                                ? '<span class="badge bg-danger ms-1">تم البيع</span>'
+                                : (prop.is_in_active_auction ? '<span class="badge bg-warning ms-1">مدرج بمزاد نشط</span>' : '');
 
                             html += `
-                                <tr>
+                                <tr class="${isSelectable ? '' : 'table-light opacity-75'}">
                                     <td>
-                                        <input type="checkbox" name="property_ids[]" value="${escapeHtml(prop.id)}" class="form-check-input property-select-check" data-form-control
+                                        <input type="checkbox" name="property_ids[]" value="${escapeHtml(prop.id)}" class="form-check-input property-select-check" data-form-control ${disabledAttr}
                                             data-area="${parseFloat(prop.area) || 0}" data-val="${parseFloat(prop.estimated_value) || 0}" data-number="${escapeHtml(prop.property_number)}" data-name="${escapeHtml(prop.name)}" data-type="${escapeHtml(prop.type || "")}" data-city="${escapeHtml(prop.city || "")}" data-image="${escapeHtml(img)}">
                                     </td>
                                     <td><code>${escapeHtml(prop.property_number)}</code></td>
@@ -376,6 +372,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                         <div class="d-flex align-items-center">
                                             <img src="${escapeHtml(img)}" class="rounded me-2" style="width:28px;height:28px;object-fit:cover" alt="" onerror="this.onerror=null;this.src='${escapeHtml(propertyImageFallback)}';" />
                                             <span class="fw-medium">${escapeHtml(prop.name)}</span>
+                                            ${statusBadge}
                                         </div>
                                     </td>
                                     <td>${escapeHtml(prop.city || "")}${prop.district ? " - " + escapeHtml(prop.district) : ""}</td>

@@ -279,7 +279,7 @@ class UserController extends Controller
         } catch (\DomainException $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => 'لا يمكن تغيير حالة هذا المستخدم.',
             ], 422);
         } catch (\Exception $e) {
             return response()->json([

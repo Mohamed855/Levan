@@ -45,7 +45,7 @@
                 <div class="card-body text-center">
                     <div class="mx-auto mb-3">
                         <img src="{{ $property->main_image ? tasset($property->main_image) : asset('static/brand/logos/logo.svg') }}"
-                            alt="{{ $property->name }}" class="rounded"
+                            alt="{{ $property->name }}" class="rounded-circle"
                             style="width: 100px; height: 100px; object-fit: cover;">
                     </div>
                     <h5 class="mb-1">{{ $property->name }}</h5>

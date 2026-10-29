@@ -4,8 +4,8 @@
 @endphp
 <div class="row g-4">
     <div class="col-12"><h6 class="fw-bold mb-0"><i class="ti ti-photo me-1"></i>صور التقرير والمزاد</h6></div>
-    <x-form.controls.file name="report_image" label="صورة غلاف التقرير" :value="$isEdit && $auction->report_image ? tasset($auction->report_image) : null" accept="image/jpeg,image/png,image/webp" help="اختيارية؛ عند عدم رفع صورة تُستخدم صورة المثال الأصلية. اتركها دون تغيير للاحتفاظ بالصورة المحفوظة." col="col-md-6" />
-    <x-form.controls.file name="cover_image" label="صورة غلاف المزاد" :value="$isEdit && $auction->cover_image ? tasset($auction->cover_image) : null" accept="image/jpeg,image/png,image/webp" help="اختيارية؛ خلفية للصفحة الأولى من المخرجات فقط. بدونها يظل الغلاف الافتراضي الحالي." col="col-md-6" />
+    <x-form.controls.image-upload name="report_image" label="صورة غلاف التقرير" :value="$isEdit && $auction->report_image ? tasset($auction->report_image) : null" accept="image/jpeg,image/png,image/webp" help="اختيارية؛ عند عدم رفع صورة تُستخدم صورة المثال الأصلية. اتركها دون تغيير للاحتفاظ بالصورة المحفوظة." col="col-md-6" />
+    <x-form.controls.image-upload name="cover_image" label="صورة غلاف المزاد" :value="$isEdit && $auction->cover_image ? tasset($auction->cover_image) : null" accept="image/jpeg,image/png,image/webp" help="اختيارية؛ خلفية للصفحة الأولى من المخرجات فقط. بدونها يظل الغلاف الافتراضي الحالي." col="col-md-6" />
     <div class="col-12 border-top pt-3">
         <h6 class="fw-bold mb-3">نتائج عقارات المزاد واللوحات</h6>
         <div id="property-results-container">
@@ -59,10 +59,76 @@
         @endif
     </div>
     <div class="col-12 border-top pt-3">
-        <h6 class="fw-bold mb-3">صور اللوحات الإعلانية</h6>
+        <h6 class="fw-bold mb-3"><i class="ti ti-billboard me-1"></i>صور اللوحات الإعلانية</h6>
         <div class="row g-3">
-            <div class="col-md-6"><label class="form-label">صور اللوحات قبل المزاد</label><div id="board-before-container"><p class="text-muted small">اختر العقارات أولًا لإضافة صور لوحاتها.</p></div></div>
-            <div class="col-md-6"><label class="form-label">صور اللوحات بعد المزاد</label><div id="board-after-container"><p class="text-muted small">اختر العقارات أولًا لإضافة صور لوحاتها.</p></div></div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">صور اللوحات قبل المزاد (قبل الفك)</label>
+                <div id="board-before-container">
+                    @if ($isEdit)
+                        @foreach ($auction->properties as $prop)
+                            @php
+                                $existingBefore = $auction->attachments->where('report_section', 'board_before')->where('property_id', $prop->id);
+                            @endphp
+                            <div class="mb-3 p-3 border rounded" data-board-upload="before-{{ $prop->id }}">
+                                <label class="form-label small fw-semibold mb-2">{{ $prop->name }} — قبل الفك</label>
+                                @if ($existingBefore->isNotEmpty())
+                                    <div class="assignment-file-grid mb-2">
+                                        @foreach ($existingBefore as $att)
+                                            <x-ui.file-card :file="$att" />
+                                        @endforeach
+                                    </div>
+                                @endif
+                                <x-form.controls.image-upload
+                                    :name="'board_images_before['.$prop->id.'][]'"
+                                    :id="'board_images_before_'.$prop->id"
+                                    :label="null"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    multiple
+                                    compact
+                                    col="col-12"
+                                    title="اسحب أو اختر صور لوحات العقار"
+                                    desc="صيغ JPG · PNG · WebP — أقصى حجم 10 ميجابايت"
+                                />
+                            </div>
+                        @endforeach
+                    @endif
+                    <p class="text-muted small {{ $isEdit && $auction->properties->isNotEmpty() ? 'd-none' : '' }}" id="board-before-empty-msg">اختر العقارات أولًا لإضافة صور لوحاتها.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">صور اللوحات بعد المزاد (بعد الفك)</label>
+                <div id="board-after-container">
+                    @if ($isEdit)
+                        @foreach ($auction->properties as $prop)
+                            @php
+                                $existingAfter = $auction->attachments->where('report_section', 'board_after')->where('property_id', $prop->id);
+                            @endphp
+                            <div class="mb-3 p-3 border rounded" data-board-upload="after-{{ $prop->id }}">
+                                <label class="form-label small fw-semibold mb-2">{{ $prop->name }} — بعد الفك</label>
+                                @if ($existingAfter->isNotEmpty())
+                                    <div class="assignment-file-grid mb-2">
+                                        @foreach ($existingAfter as $att)
+                                            <x-ui.file-card :file="$att" />
+                                        @endforeach
+                                    </div>
+                                @endif
+                                <x-form.controls.image-upload
+                                    :name="'board_images_after['.$prop->id.'][]'"
+                                    :id="'board_images_after_'.$prop->id"
+                                    :label="null"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    multiple
+                                    compact
+                                    col="col-12"
+                                    title="اسحب أو اختر صور لوحات العقار"
+                                    desc="صيغ JPG · PNG · WebP — أقصى حجم 10 ميجابايت"
+                                />
+                            </div>
+                        @endforeach
+                    @endif
+                    <p class="text-muted small {{ $isEdit && $auction->properties->isNotEmpty() ? 'd-none' : '' }}" id="board-after-empty-msg">اختر العقارات أولًا لإضافة صور لوحاتها.</p>
+                </div>
+            </div>
         </div>
     </div>
     <div class="col-12 border-top pt-3">
@@ -81,3 +147,35 @@
 <template id="report-campaign-template">@include('tenant.auctions.partials.report-campaign-row', ['index' => '__INDEX__', 'campaign' => []])</template>
 <template id="report-link-template">@include('tenant.auctions.partials.report-link-row', ['index' => '__INDEX__', 'link' => []])</template>
 <template id="report-evidence-template">@include('tenant.auctions.partials.report-evidence-row', ['index' => '__INDEX__', 'prefix' => 'marketing_evidence_meta[__INDEX__]', 'meta' => []])</template>
+<template id="board-upload-before-template">
+    <div class="mb-3 p-3 border rounded" data-board-upload="before-__PROPERTY_ID__">
+        <label class="form-label small fw-semibold mb-2">__PROPERTY_NAME__ — قبل الفك</label>
+        <x-form.controls.image-upload
+            name="board_images_before[__PROPERTY_ID__][]"
+            id="board_images_before___PROPERTY_ID__"
+            :label="null"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            compact
+            col="col-12"
+            title="اسحب أو اختر صور لوحات العقار"
+            desc="صيغ JPG · PNG · WebP — أقصى حجم 10 ميجابايت"
+        />
+    </div>
+</template>
+<template id="board-upload-after-template">
+    <div class="mb-3 p-3 border rounded" data-board-upload="after-__PROPERTY_ID__">
+        <label class="form-label small fw-semibold mb-2">__PROPERTY_NAME__ — بعد الفك</label>
+        <x-form.controls.image-upload
+            name="board_images_after[__PROPERTY_ID__][]"
+            id="board_images_after___PROPERTY_ID__"
+            :label="null"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            compact
+            col="col-12"
+            title="اسحب أو اختر صور لوحات العقار"
+            desc="صيغ JPG · PNG · WebP — أقصى حجم 10 ميجابايت"
+        />
+    </div>
+</template>

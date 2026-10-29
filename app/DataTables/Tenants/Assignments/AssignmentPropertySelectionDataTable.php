@@ -10,6 +10,15 @@ use App\Helpers\Tenants\Settings\SettingsHelper;
 
 class AssignmentPropertySelectionDataTable extends AbstractDataTable
 {
+    protected ?int $assignmentId = null;
+
+    public function forAssignment(?int $assignmentId): self
+    {
+        $this->assignmentId = $assignmentId;
+
+        return $this;
+    }
+
     protected function getTableId(): string
     {
         return 'assignment-properties-table';
@@ -17,7 +26,15 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        return Property::query()->whereNull('assignment_id');
+        $query = Property::query();
+
+        if ($this->assignmentId) {
+            return $query->where(function ($q) {
+                $q->whereNull('assignment_id')->orWhere('assignment_id', $this->assignmentId);
+            });
+        }
+
+        return $query->whereNull('assignment_id');
     }
 
     protected function getColumns(): array

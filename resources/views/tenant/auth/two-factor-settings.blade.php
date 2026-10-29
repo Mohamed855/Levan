@@ -36,7 +36,8 @@
                             <div class="alert alert-warning d-flex align-items-start mb-4" role="alert">
                                 <i class="ti ti-alert-triangle ti-md me-2 mt-1"></i>
                                 <div>
-                                    <strong>تنبيه إلزامي:</strong> المصادقة الثنائية مفروضة بموجب سياسة النظام. يرجى إعدادها فوراً للمتابعة.
+                                    <strong>تنبيه إلزامي:</strong> المصادقة الثنائية مفروضة بموجب سياسة النظام. يرجى إعدادها
+                                    فوراً للمتابعة.
                                 </div>
                             </div>
                         @else
@@ -146,7 +147,7 @@
                                     data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                                     @csrf
                                     <x-form.controls.input name="code" id="twoFactorCode" label="كود التحقق"
-                                        type="text" placeholder="000000" required autocomplete="one-time-code"
+                                        type="text" placeholder="XXXXXX" required autocomplete="one-time-code"
                                         col="col-12 col-sm-7" maxlength="6" inputmode="numeric" />
                                     <div class="col-12 col-sm-5">
                                         <button type="submit" class="btn btn-success w-100">
@@ -170,7 +171,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const $ = window.jQuery;
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || "{{ csrf_token() }}";
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                "{{ csrf_token() }}";
             window.csrfToken = csrfToken;
 
             const routes = {
@@ -276,7 +278,8 @@
                                 markDisabled();
                             },
                             error: function(xhr) {
-                                const msg = xhr.responseJSON?.message || 'حدث خطأ أثناء إلغاء التفعيل';
+                                const msg = xhr.responseJSON?.message ||
+                                    'حدث خطأ أثناء إلغاء التفعيل';
                                 toastr.error(msg);
                             }
                         });

@@ -109,11 +109,17 @@ class AssignmentsController extends Controller
         ]);
     }
 
-    public function edit(Assignment $assignment): View
+    public function edit(Assignment $assignment, AssignmentPropertySelectionDataTable $dataTable)
     {
-        return view('tenant.assignments.edit', [
-            'assignment' => $assignment,
+        $tenantImage = SettingsHelper::get('image');
+        $fallbackImage = $tenantImage ? tasset($tenantImage) : asset('static/brand/logos/logo.svg');
+
+        $dataTable->forAssignment($assignment->id);
+
+        return $dataTable->render('tenant.assignments.edit', [
+            'assignment' => $assignment->load(['properties', 'attachments', 'assignmentImage']),
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'propertyImageFallback' => $fallbackImage,
         ]);
     }
 
@@ -126,12 +132,17 @@ class AssignmentsController extends Controller
             $action->execute(
                 $assignment,
                 $request->validated(),
-                $request->file('assignment_image')
+                $request->file('assignment_image'),
+                $request->file('assignment_letter'),
+                $request->file('general_documents', []),
+                $request->file('additional_attachments', []),
             );
 
             return redirect()->to(tenant_route_name('assignments.index'))
                 ->with('success', 'تم تحديث الإسناد بنجاح');
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Assignment update failed.', ['exception' => $e]);
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'حدث خطأ أثناء تحديث الإسناد');

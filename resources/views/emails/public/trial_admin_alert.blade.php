@@ -4,7 +4,7 @@
 
 @section('content')
     <div style="text-align: center;">
-        <span class="status-badge warning">🔔 إشعار إداري</span>
+        <span class="status-badge warning">إشعار إداري</span>
     </div>
 
     <h2 class="greeting">تنبيه: تم تقديم طلب تجربة مجانية جديد</h2>

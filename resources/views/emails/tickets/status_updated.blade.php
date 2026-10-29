@@ -5,7 +5,7 @@
 @section('content')
     <div style="text-align: center;">
         <span class="status-badge {{ $newStatus === 'resolved' || $newStatus === 'closed' ? 'success' : 'info' }}">
-            🔄 تحديث التذكرة
+            تحديث حالة التذكرة
         </span>
     </div>
 
@@ -38,7 +38,7 @@
 
     @if($newStatus === 'resolved' || $newStatus === 'resolved_pending_survey')
         <div class="alert-box info">
-            🌟 يسعدنا أن نكون قد ساعدناك في حل المشكلة. نرجو منك تقييم جودة الخدمة المقدمة من خلال الدخول إلى التذكرة لمساعدتنا على تحسين خدماتنا باستمرار.
+            يسعدنا أن نكون قد ساعدناك في حل المشكلة. نرجو منك تقييم جودة الخدمة المقدمة من خلال الدخول إلى التذكرة لمساعدتنا على تحسين خدماتنا باستمرار.
         </div>
     @endif
 

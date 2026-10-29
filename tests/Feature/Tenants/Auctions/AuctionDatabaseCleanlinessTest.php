@@ -12,11 +12,10 @@ use Tests\TestCase;
 
 class AuctionDatabaseCleanlinessTest extends TestCase
 {
-    public function test_auction_model_has_no_dead_template_columns_and_casts_status_to_enum(): void
+    public function test_auction_model_has_no_dead_template_columns(): void
     {
         $auction = new Auction();
         $fillable = $auction->getFillable();
-        $casts = $auction->getCasts();
 
         $this->assertNotContains('template_versions', $fillable);
         $this->assertNotContains('template_snapshot', $fillable);
@@ -24,8 +23,7 @@ class AuctionDatabaseCleanlinessTest extends TestCase
         $this->assertNotContains('brochure_template_id', $fillable);
         $this->assertNotContains('billboard_template_id', $fillable);
         $this->assertNotContains('social_template_id', $fillable);
-
-        $this->assertSame(AuctionStatus::class, $casts['status'] ?? null);
+        $this->assertContains('status', $fillable);
     }
 
     public function test_assignment_model_has_no_entity_logo_in_fillable(): void
