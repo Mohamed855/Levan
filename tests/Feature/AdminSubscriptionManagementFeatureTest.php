@@ -98,7 +98,7 @@ class AdminSubscriptionManagementFeatureTest extends TestCase
     {
         $this->createPendingSubscription();
 
-        $response = $this->get('http://localhost/admin/subscription-manage/pending');
+        $response = $this->get('http://localhost/superadmin/subscription-manage/pending');
 
         $response->assertStatus(200);
         $response->assertSee('طلبات الاشتراك الجديدة');
@@ -114,7 +114,7 @@ class AdminSubscriptionManagementFeatureTest extends TestCase
         $response = $this->withHeaders([
             'X-Requested-With' => 'XMLHttpRequest',
             'Accept' => 'application/json, text/javascript, */*',
-        ])->get('http://localhost/admin/subscription-manage/pending?draw=1&start=0&length=10');
+        ])->get('http://localhost/superadmin/subscription-manage/pending?draw=1&start=0&length=10');
 
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'application/json');
@@ -134,7 +134,7 @@ class AdminSubscriptionManagementFeatureTest extends TestCase
         $response = $this->withHeaders([
             'X-Requested-With' => 'XMLHttpRequest',
             'Accept' => 'application/json, text/javascript, */*',
-        ])->get('http://localhost/admin/subscription-manage/pending?draw=1&start=0&length=10&search[value]='.urlencode($sub->subscription_number));
+        ])->get('http://localhost/superadmin/subscription-manage/pending?draw=1&start=0&length=10&search[value]='.urlencode($sub->subscription_number));
 
         $response->assertStatus(200);
         $json = $response->json();
@@ -145,13 +145,13 @@ class AdminSubscriptionManagementFeatureTest extends TestCase
     {
         $subAccept = $this->createPendingSubscription();
 
-        $responseAccept = $this->postJson("http://localhost/admin/subscription-manage/{$subAccept->id}/accept");
+        $responseAccept = $this->postJson("http://localhost/superadmin/subscription-manage/{$subAccept->id}/accept");
         $responseAccept->assertOk()->assertJson(['success' => true]);
         $this->assertSame(SubscriptionStatus::ACTIVE, $subAccept->fresh()->status);
 
         $subReject = $this->createPendingSubscription();
 
-        $responseReject = $this->postJson("http://localhost/admin/subscription-manage/{$subReject->id}/reject", [
+        $responseReject = $this->postJson("http://localhost/superadmin/subscription-manage/{$subReject->id}/reject", [
             'reject_reason' => 'رفض تجريبي للاختبار',
         ]);
         $responseReject->assertOk()->assertJson(['success' => true]);
@@ -166,7 +166,7 @@ class AdminSubscriptionManagementFeatureTest extends TestCase
         $sub1 = $this->createPendingSubscription();
         $sub2 = $this->createPendingSubscription();
 
-        $responseAccept = $this->postJson("http://localhost/admin/subscription-manage/mass-accept", [
+        $responseAccept = $this->postJson("http://localhost/superadmin/subscription-manage/mass-accept", [
             'ids' => [$sub1->id, $sub2->id],
         ]);
         $responseAccept->assertOk()->assertJson(['success' => true]);
@@ -176,7 +176,7 @@ class AdminSubscriptionManagementFeatureTest extends TestCase
         $sub3 = $this->createPendingSubscription();
         $sub4 = $this->createPendingSubscription();
 
-        $responseReject = $this->postJson("http://localhost/admin/subscription-manage/mass-reject", [
+        $responseReject = $this->postJson("http://localhost/superadmin/subscription-manage/mass-reject", [
             'ids' => [$sub3->id, $sub4->id],
             'reject_reason' => 'رفض جماعي للاختبار',
         ]);

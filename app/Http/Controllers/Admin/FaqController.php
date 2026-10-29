@@ -6,7 +6,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
-use App\Http\Requests\Admin\FaqRequest;
+use App\Http\Requests\Admin\Faqs\StoreFaqRequest;
+use App\Http\Requests\Admin\Faqs\UpdateFaqRequest;
 use App\Models\Admin\Faq;
 use App\Services\Admin\Faqs\FaqService;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +19,7 @@ final class FaqController extends Controller
         private readonly FaqService $faqService
     ) {
         $this->authorizeResource(Faq::class, 'faq');
-        $this->middleware('can:faqs.view');
+        $this->middleware('can:faqs.view')->only('index');
     }
 
     public function index(): View
@@ -31,7 +32,7 @@ final class FaqController extends Controller
         return view('admin.faqs.form', ['faq' => new Faq]);
     }
 
-    public function store(FaqRequest $r): RedirectResponse
+    public function store(StoreFaqRequest $r): RedirectResponse
     {
         $this->faqService->create($r->validated() + ['is_active' => $r->boolean('is_active')]);
 
@@ -43,7 +44,7 @@ final class FaqController extends Controller
         return view('admin.faqs.form', compact('faq'));
     }
 
-    public function update(FaqRequest $r, Faq $faq): RedirectResponse
+    public function update(UpdateFaqRequest $r, Faq $faq): RedirectResponse
     {
         $this->faqService->update($faq, $r->validated() + ['is_active' => $r->boolean('is_active')]);
 

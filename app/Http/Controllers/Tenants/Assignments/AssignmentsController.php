@@ -22,6 +22,7 @@ use App\Helpers\Tenants\Settings\SettingsHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AssignmentsController extends Controller
@@ -50,6 +51,7 @@ class AssignmentsController extends Controller
             'suspendedAssignments' => $statistics['suspended'],
             'auctionedAssignments' => $statistics['auctioned'],
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'statusOptions' => ['active' => 'نشط', 'inactive' => 'متوقف'],
         ]);
     }
 
@@ -140,6 +142,8 @@ class AssignmentsController extends Controller
 
             return redirect()->to(tenant_route_name('assignments.index'))
                 ->with('success', 'تم تحديث الإسناد بنجاح');
+        } catch (ValidationException $exception) {
+            throw $exception;
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Assignment update failed.', ['exception' => $e]);
 

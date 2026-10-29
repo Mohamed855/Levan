@@ -80,7 +80,7 @@
                     </div> --}}
 
                     <div class="d-flex justify-content-end mt-4">
-                        <button type="submit" class="btn btn-primary">رفع الإيصال</button>
+                        <button type="submit" class="btn btn-primary"><i class="ti ti-upload me-1"></i>رفع الإيصال</button>
                     </div>
 
                     <div class="alert alert-warning d-flex align-items-center mt-2" role="alert">

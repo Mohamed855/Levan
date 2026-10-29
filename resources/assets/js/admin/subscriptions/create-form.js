@@ -679,7 +679,7 @@ document.addEventListener("DOMContentLoaded", function () {
             delete payload.password_confirmation;
 
             const csrfToken = form.querySelector("[name=_token]")?.value || "";
-            const response = await fetch("/admin/companies/draft", {
+            const response = await fetch("/superadmin/companies/draft", {
                 method: "POST",
                 headers: {
                     "X-CSRF-TOKEN": csrfToken,

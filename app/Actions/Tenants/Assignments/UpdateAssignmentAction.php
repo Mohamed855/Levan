@@ -11,6 +11,7 @@ use App\Services\Tenants\Assignments\AssignmentService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 final class UpdateAssignmentAction
@@ -29,21 +30,10 @@ final class UpdateAssignmentAction
 
         try {
             return DB::transaction(function () use ($assignment, $data, $image, $letter, $generalDocuments, $additionalAttachments, &$storedPaths): Assignment {
-                if (isset($data['property_ids'])) {
-                    $newPropertyIds = array_values(array_unique(array_map('intval', (array) $data['property_ids'])));
+                $assignment = Assignment::query()->whereKey($assignment->getKey())->lockForUpdate()->firstOrFail();
 
-                    // Detach properties no longer selected
-                    Property::query()
-                        ->where('assignment_id', $assignment->id)
-                        ->whereNotIn('id', $newPropertyIds)
-                        ->update(['assignment_id' => null]);
-
-                    // Attach newly selected properties
-                    if (! empty($newPropertyIds)) {
-                        Property::query()
-                            ->whereIn('id', $newPropertyIds)
-                            ->update(['assignment_id' => $assignment->id]);
-                    }
+                if (array_key_exists('property_ids', $data)) {
+                    $this->syncProperties($assignment, (array) $data['property_ids']);
                 }
 
                 if ($letter instanceof UploadedFile) {
@@ -110,5 +100,39 @@ final class UpdateAssignmentAction
             }
             throw $e;
         }
+    }
+
+    /** @param array<int, int|string> $propertyIds */
+    private function syncProperties(Assignment $assignment, array $propertyIds): void
+    {
+        $ids = array_values(array_unique(array_map('intval', $propertyIds)));
+        $properties = Property::withTrashed()
+            ->where(fn ($query) => $query->where('assignment_id', $assignment->id)->orWhereIn('id', $ids))
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get();
+        $selected = $properties->whereIn('id', $ids);
+
+        if ($selected->count() !== count($ids) || $selected->contains(
+            fn (Property $property): bool => $property->trashed()
+                || ($property->assignment_id !== null && (int) $property->assignment_id !== (int) $assignment->id),
+        )) {
+            throw ValidationException::withMessages(['property_ids' => 'أحد العقارات المختارة غير متاح للربط بهذا الإسناد.']);
+        }
+
+        $removedIds = $properties->filter(
+            fn (Property $property): bool => ! $property->trashed()
+                && (int) $property->assignment_id === (int) $assignment->id
+                && ! in_array((int) $property->id, $ids, true),
+        )->modelKeys();
+        $newIds = $selected->whereNull('assignment_id')->modelKeys();
+
+        // Preserve historical auctions too; soft deletion does not dissolve their property links.
+        if (DB::table('auction_properties')->whereIn('property_id', [...$removedIds, ...$newIds])->exists()) {
+            throw ValidationException::withMessages(['property_ids' => 'لا يمكن تغيير إسناد عقار مرتبط بمزاد قبل معالجة ارتباطه بالمزاد.']);
+        }
+
+        Property::query()->whereKey($removedIds)->where('assignment_id', $assignment->id)->update(['assignment_id' => null]);
+        Property::query()->whereKey($newIds)->whereNull('assignment_id')->update(['assignment_id' => $assignment->id]);
     }
 }

@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
         success: "#28a745",
         warning: "#ffc107",
         danger: "#dc3545",
-        secondary: "#6c757d",
+        secondary: "#BF874A",
         info: "#17a2b8",
     };
 

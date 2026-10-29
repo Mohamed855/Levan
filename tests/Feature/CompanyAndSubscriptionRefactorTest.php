@@ -62,7 +62,7 @@ class CompanyAndSubscriptionRefactorTest extends TestCase
     protected function adminUrl(string $path = ''): string
     {
         $path = ltrim($path, '/');
-        return $path ? 'http://localhost/admin/' . $path : 'http://localhost/admin';
+        return $path ? 'http://localhost/superadmin/' . $path : 'http://localhost/superadmin';
     }
 
     /**
@@ -488,7 +488,7 @@ class CompanyAndSubscriptionRefactorTest extends TestCase
     public function test_wizard_drafts_system_for_company_and_subscription(): void
     {
         // 1. Save company draft
-        $response = $this->postJson('/admin/wizard-drafts', [
+        $response = $this->postJson('/superadmin/wizard-drafts', [
             'resource_key'          => 'admin.company-create',
             'step'                  => '2',
             'company_name'          => 'مسودة شركة جديدة',
@@ -501,14 +501,14 @@ class CompanyAndSubscriptionRefactorTest extends TestCase
         $this->assertNotNull($draftId);
 
         // 2. Retrieve draft
-        $getRes = $this->getJson('/admin/wizard-drafts?resource_key=admin.company-create');
+        $getRes = $this->getJson('/superadmin/wizard-drafts?resource_key=admin.company-create');
         $getRes->assertStatus(200);
         $data = $getRes->json('data');
         $this->assertEquals('مسودة شركة جديدة', $data['company_name']);
         $this->assertArrayNotHasKey('password', $data);
 
         // 3. Save subscription draft
-        $subDraftRes = $this->postJson('/admin/wizard-drafts', [
+        $subDraftRes = $this->postJson('/superadmin/wizard-drafts', [
             'resource_key' => 'admin.subscription-create',
             'step'         => '1',
             'company_id'   => 'test',

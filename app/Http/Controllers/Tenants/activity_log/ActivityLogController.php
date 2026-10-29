@@ -261,7 +261,7 @@ class ActivityLogController extends Controller
     | جلب معرفات كل السجلات المطابقة للفلاتر الحالية (تحديد الكل)
     |--------------------------------------------------------------------------
     */
-    public function getAllIds(Request $request): JsonResponse
+    public function getAllIds(ActivityLogIndexRequest $request): JsonResponse
     {
         $query = Activity::query();
         $this->applyFilters($query, $request);

@@ -36,7 +36,7 @@
                             <x-form.controls.password name="new_password" label="كلمة المرور الجديدة" required autocomplete="new-password" col="col-12 mb-4" />
                             <x-form.controls.password name="new_password_confirmation" label="تأكيد كلمة المرور الجديدة" required autocomplete="new-password" col="col-12 mb-4" />
                             <div class="d-flex justify-content-end mt-4">
-                                <button type="submit" class="btn btn-primary">إعادة تعيين كلمة المرور</button>
+                                <button type="submit" class="btn btn-primary"><i class="ti ti-key me-1"></i>إعادة تعيين كلمة المرور</button>
                             </div>
                         </form>
                     </div>

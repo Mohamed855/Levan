@@ -149,6 +149,10 @@ div.dropdown-menu.dt-button-collection {
 :where(.bg-secondary, .btn-secondary, .badge.bg-secondary, .text-bg-secondary) {
     background-color: var(--secondary-color) !important;
     color: var(--primary-color) !important;
+
+    :where(i, svg, [class*="ti-"]) {
+        color: var(--primary-color) !important;
+    }
 }
 
 :where(a, button, .btn, .card, .dropdown-item, .list-group-item):hover {

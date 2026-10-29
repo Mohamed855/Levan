@@ -17,24 +17,28 @@ const VARIANT_CONFIGS = {
             "avatar avatar-xl mx-auto rounded-circle d-flex align-items-center justify-content-center bg-danger mb-3",
         iconClass: "ti ti-trash fs-2 text-white",
         btnClass: "btn btn-danger px-4",
+        btnIcon: "ti-trash",
     },
     warning: {
         wrapperClass:
             "avatar avatar-xl mx-auto rounded-circle d-flex align-items-center justify-content-center bg-warning mb-3",
-        iconClass: "ti ti-alert-triangle fs-2 text-warning",
+        iconClass: "ti ti-alert-triangle fs-2 text-white",
         btnClass: "btn btn-warning px-4 text-white",
+        btnIcon: "ti-alert-triangle",
     },
     primary: {
         wrapperClass:
             "avatar avatar-xl mx-auto rounded-circle d-flex align-items-center justify-content-center bg-primary mb-3",
-        iconClass: "ti ti-help fs-2 text-primary",
+        iconClass: "ti ti-help fs-2 text-white",
         btnClass: "btn btn-primary px-4",
+        btnIcon: "ti-check",
     },
     success: {
         wrapperClass:
             "avatar avatar-xl mx-auto rounded-circle d-flex align-items-center justify-content-center bg-success mb-3",
-        iconClass: "ti ti-check fs-2 text-success",
+        iconClass: "ti ti-check fs-2 text-white",
         btnClass: "btn btn-success px-4",
+        btnIcon: "ti-check",
     },
 };
 
@@ -103,24 +107,30 @@ window.confirmAction = function (options = {}) {
 
     if (headingEl) headingEl.textContent = title;
     if (messageEl) messageEl.textContent = text;
-    if (cancelBtn) cancelBtn.textContent = cancelText;
+    if (cancelBtn) {
+        cancelBtn.innerHTML = `<i class="ti ti-x me-1"></i>${cancelText}`;
+    }
 
     if (iconWrapper) iconWrapper.className = config.wrapperClass;
     if (iconEl) {
         if (icon) {
-            let iconClasses = icon.trim();
-            if (!iconClasses.includes("ti-") && !iconClasses.startsWith("ti")) {
-                iconClasses = `ti ti-${iconClasses}`;
-            } else if (!iconClasses.startsWith("ti")) {
-                iconClasses = `ti ${iconClasses}`;
+            let iconName = icon.trim();
+            let parts = iconName.split(/\s+/);
+            let tiIcon = parts.find((p) => p.startsWith("ti-"));
+            if (!tiIcon && !parts.some((p) => p === "ti")) {
+                tiIcon = `ti-${parts[0]}`;
+                parts = [tiIcon];
             }
-            if (!iconClasses.includes("fs-")) {
-                iconClasses += " fs-2";
+            if (!parts.includes("ti")) {
+                parts.unshift("ti");
             }
-            if (!iconClasses.includes("text-")) {
-                iconClasses += ` text-${variant}`;
+            if (!parts.some((p) => p.startsWith("fs-"))) {
+                parts.push("fs-2");
             }
-            iconEl.className = iconClasses;
+            if (!parts.some((p) => p.startsWith("text-"))) {
+                parts.push("text-white");
+            }
+            iconEl.className = parts.join(" ");
         } else {
             iconEl.className = config.iconClass;
         }
@@ -128,7 +138,14 @@ window.confirmAction = function (options = {}) {
 
     if (submitBtn) {
         submitBtn.className = confirmClass || config.btnClass;
-        submitBtn.textContent = confirmText;
+        const submitIcon =
+            options.confirmIcon ||
+            (variant === "danger"
+                ? "ti-trash"
+                : confirmText.includes("خروج")
+                  ? "ti-logout"
+                  : config.btnIcon || "ti-check");
+        submitBtn.innerHTML = `<i class="ti ${submitIcon} me-1"></i>${confirmText}`;
         submitBtn.disabled = false;
     }
 

@@ -234,10 +234,10 @@
                 </div>
 
                 <!-- أمثلة عملية -->
-                <div class="card mb-4 bg-info">
+                <div class="card mb-4 bg-info text-white">
                     <div class="card-body">
-                        <h5 class="card-title text-info">
-                            <i class="ti ti-bulb me-2"></i>
+                        <h5 class="card-title text-white">
+                            <i class="ti ti-bulb me-2 text-white"></i>
                             أمثلة عملية
                         </h5>
                         <div class="row mt-3">

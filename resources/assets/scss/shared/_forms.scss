@@ -381,8 +381,8 @@ input[type="file"].form-control,
     }
 
     &.is-invalid {
-        border-color: var(--bs-danger, #ea5455) !important;
-        background-color: rgba(234, 84, 85, 0.04);
+        border-color: var(--bs-danger, #ef4444) !important;
+        background-color: rgba(239, 68, 68, 0.04);
     }
 }
 
@@ -714,7 +714,7 @@ input[type="file"].form-control,
             transition: color 0.15s ease-in-out;
 
             &:hover {
-                color: var(--bs-danger, #ea5455) !important;
+                color: var(--bs-danger, #ef4444) !important;
             }
         }
     }
@@ -793,8 +793,8 @@ html[dir="ltr"] {
 
     .step.crossed .step-trigger {
         .bs-stepper-circle {
-            background-color: rgba(40, 199, 111, 0.15) !important;
-            color: #28c76f !important;
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            color: #10b981 !important;
         }
     }
 

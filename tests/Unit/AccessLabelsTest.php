@@ -82,7 +82,7 @@ class AccessLabelsTest extends TestCase
     public function test_permission_checkboxes_render_arabic_but_keep_english_submission_values(): void
     {
         $permission = (new Permission)->forceFill(['id' => 81, 'name' => 'trial_requests.approve', 'guard_name' => 'admin']);
-        $html = view('admin.roles.partials.form', ['role' => null, 'permissions' => collect(['public_requests_management' => collect([$permission])])])->render();
+        $html = view('admin.roles.partials._form', ['role' => null, 'permissions' => collect(['public_requests_management' => collect([$permission])]), 'is_edit' => false])->render();
         self::assertStringContainsString('إدارة طلبات التواصل والتجربة', $html);
         self::assertStringContainsString('الموافقة على طلب تجربة', $html);
         self::assertStringContainsString('value="trial_requests.approve"', $html);

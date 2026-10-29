@@ -149,7 +149,7 @@
                                             <div class="d-flex align-items-center">
                                                 <div
                                                     class="avatar bg-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
-                                                    <i class="ti ti-currency-riyal fs-4 text-primary"></i>
+                                                    <i class="ti ti-currency-riyal fs-4 text-white"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">السعر الأساسي للدورة</small>
@@ -167,7 +167,7 @@
                                             <div class="d-flex align-items-center">
                                                 <div
                                                     class="avatar bg-warning rounded p-2 me-3 d-flex align-items-center justify-content-center">
-                                                    <i class="ti ti-percentage fs-4 text-warning"></i>
+                                                    <i class="ti ti-percentage fs-4 text-white"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">نسبة الخصم</small>
@@ -184,7 +184,7 @@
                                             <div class="d-flex align-items-center">
                                                 <div
                                                     class="avatar bg-success rounded p-2 me-3 d-flex align-items-center justify-content-center">
-                                                    <i class="ti ti-tag fs-4 text-success"></i>
+                                                    <i class="ti ti-tag fs-4 text-white"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">السعر النهائي</small>
@@ -203,7 +203,7 @@
                                             <div class="d-flex align-items-center">
                                                 <div
                                                     class="avatar bg-info rounded p-2 me-3 d-flex align-items-center justify-content-center">
-                                                    <i class="ti ti-calendar-event fs-4 text-info"></i>
+                                                    <i class="ti ti-calendar-event fs-4 text-white"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">سعر العرض السنوي</small>
@@ -221,7 +221,7 @@
                                             <div class="d-flex align-items-center">
                                                 <div
                                                     class="avatar bg-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
-                                                    <i class="ti ti-users fs-4 text-primary"></i>
+                                                    <i class="ti ti-users fs-4 text-white"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">المستخدمين المشمولين</small>
@@ -239,7 +239,7 @@
                                             <div class="d-flex align-items-center">
                                                 <div
                                                     class="avatar bg-secondary rounded p-2 me-3 d-flex align-items-center justify-content-center">
-                                                    <i class="ti ti-user-plus fs-4 text-secondary"></i>
+                                                    <i class="ti ti-user-plus fs-4 text-white"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">ترخيص المستخدم الإضافي</small>
@@ -257,7 +257,7 @@
                                             <div class="d-flex align-items-center">
                                                 <div
                                                     class="avatar bg-info rounded p-2 me-3 d-flex align-items-center justify-content-center">
-                                                    <i class="ti ti-building fs-4 text-info"></i>
+                                                    <i class="ti ti-building fs-4 text-white"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">حد العقارات</small>
@@ -275,7 +275,7 @@
                                             <div class="d-flex align-items-center">
                                                 <div
                                                     class="avatar bg-warning rounded p-2 me-3 d-flex align-items-center justify-content-center">
-                                                    <i class="ti ti-server fs-4 text-warning"></i>
+                                                    <i class="ti ti-server fs-4 text-white"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">حصة التخزين</small>
@@ -293,7 +293,7 @@
                                             <div class="d-flex align-items-center">
                                                 <div
                                                     class="avatar bg-danger rounded p-2 me-3 d-flex align-items-center justify-content-center">
-                                                    <i class="ti ti-gavel fs-4 text-danger"></i>
+                                                    <i class="ti ti-gavel fs-4 text-white"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">حد المزادات النشطة</small>
@@ -311,7 +311,7 @@
                                             <div class="d-flex align-items-center">
                                                 <div
                                                     class="avatar bg-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
-                                                    <i class="ti ti-world fs-4 text-primary"></i>
+                                                    <i class="ti ti-world fs-4 text-white"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">إدارة الدومينات</small>
@@ -329,7 +329,7 @@
                                             <div class="d-flex align-items-center">
                                                 <div
                                                     class="avatar bg-secondary rounded p-2 me-3 d-flex align-items-center justify-content-center">
-                                                    <i class="ti ti-calendar fs-4 text-secondary"></i>
+                                                    <i class="ti ti-calendar fs-4 text-white"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">تاريخ بدء الإتاحة</small>
@@ -401,7 +401,7 @@
                                     <div class="card border shadow-none">
                                         <div class="card-body p-3 d-flex align-items-center">
                                             <div class="avatar bg-primary rounded p-2 me-3">
-                                                <i class="ti ti-receipt fs-4"></i>
+                                                <i class="ti ti-receipt fs-4 text-white"></i>
                                             </div>
                                             <div>
                                                 <small class="text-muted d-block">إجمالي الاشتراكات</small>
@@ -415,7 +415,7 @@
                                     <div class="card border shadow-none">
                                         <div class="card-body p-3 d-flex align-items-center">
                                             <div class="avatar bg-info rounded p-2 me-3">
-                                                <i class="ti ti-building fs-4"></i>
+                                                <i class="ti ti-building fs-4 text-white"></i>
                                             </div>
                                             <div>
                                                 <small class="text-muted d-block">الشركات الفريدة</small>
@@ -429,7 +429,7 @@
                                     <div class="card border shadow-none">
                                         <div class="card-body p-3 d-flex align-items-center">
                                             <div class="avatar bg-success rounded p-2 me-3">
-                                                <i class="ti ti-bolt fs-4"></i>
+                                                <i class="ti ti-bolt fs-4 text-white"></i>
                                             </div>
                                             <div>
                                                 <small class="text-muted d-block">الاشتراكات النشطة</small>
@@ -443,7 +443,7 @@
                                     <div class="card border shadow-none">
                                         <div class="card-body p-3 d-flex align-items-center">
                                             <div class="avatar bg-warning rounded p-2 me-3">
-                                                <i class="ti ti-cash fs-4"></i>
+                                                <i class="ti ti-cash fs-4 text-white"></i>
                                             </div>
                                             <div>
                                                 <small class="text-muted d-block">إجمالي الإيرادات التعاقدية</small>
@@ -549,7 +549,7 @@
                                 <div class="text-center py-5">
                                     <div
                                         class="avatar avatar-xl bg-secondary rounded p-3 mx-auto mb-3 d-flex align-items-center justify-content-center">
-                                        <i class="ti ti-building-off fs-1 text-secondary"></i>
+                                        <i class="ti ti-building-off fs-1 text-white"></i>
                                     </div>
                                     <h6 class="fw-bold mb-1">لا توجد شركات مشتركة</h6>
                                     <p class="text-muted mb-0">لم تسجل أي شركة اشتراكاً في هذه الباقة حتى الآن.</p>
@@ -571,7 +571,7 @@
             if (btn) btn.disabled = true;
 
             $.ajax({
-                url: `/admin/plans/${planId}/toggle-active`,
+                url: `/superadmin/plans/${planId}/toggle-active`,
                 type: 'PATCH',
                 headers: {
                     'X-CSRF-TOKEN': token

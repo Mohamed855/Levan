@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Tenants\Auctions;
 
-use App\Models\Admin\AuctionTemplates\AuctionTemplate;
 use App\Models\Tenants\Auctions\Auction;
 use App\Services\Shared\Pdf\PdfFormFiller;
 use App\Services\Shared\Pdf\PdfFormWidgetLocator;
@@ -175,7 +174,7 @@ final class AuctionOutputService
     private function generateFillablePdf(
         Auction $auction,
         string $type,
-        AuctionTemplate $template,
+        object $template,
         string $templatePath,
         string $outputPath,
     ): string {
@@ -227,7 +226,7 @@ final class AuctionOutputService
     private function generatePlacedImageTemplate(
         Auction $auction,
         string $type,
-        AuctionTemplate $template,
+        object $template,
         string $templatePath,
         string $outputPath,
     ): string {
@@ -283,7 +282,7 @@ final class AuctionOutputService
     }
 
     /** @return array<string, string> */
-    private function templateFieldData(Auction $auction, string $type, AuctionTemplate $template): array
+    private function templateFieldData(Auction $auction, string $type, object $template): array
     {
         $available = array_flip(array_filter($template->field_names ?? [], 'is_string'));
 
@@ -291,7 +290,7 @@ final class AuctionOutputService
     }
 
     /** @return array<string, string> */
-    private function imageFieldPaths(Auction $auction, AuctionTemplate $template): array
+    private function imageFieldPaths(Auction $auction, object $template): array
     {
         $auction->loadMissing('properties');
         $properties = $auction->properties->values();

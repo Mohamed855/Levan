@@ -85,7 +85,7 @@
             </div>
 
             <x-slot:footer>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إلغاء</button>
                 <button type="submit" class="btn btn-primary" id="submitSurveyBtn">
                     <i class="ti ti-send me-1"></i> إرسال التقييم
                 </button>
@@ -141,7 +141,7 @@
                 </div>
                 <div class="card-body pt-4">
                     <h6 class="fw-bold mb-2">{{ $ticket->title }}</h6>
-                    <div class="p-3 bg-secondary rounded mb-3 text-secondary"
+                    <div class="p-3 bg-secondary rounded mb-3"
                         style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;">{{ $ticket->description }}
                     </div>
 

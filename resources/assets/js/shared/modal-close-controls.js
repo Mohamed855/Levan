@@ -22,7 +22,7 @@ function ensureModalCloseControl(modal) {
     closeButton.type = 'button';
     closeButton.className = 'btn btn-secondary';
     closeButton.dataset.bsDismiss = 'modal';
-    closeButton.textContent = 'إغلاق';
+    closeButton.innerHTML = '<i class="ti ti-x me-1"></i>إغلاق';
     modalFooter.append(closeButton);
 }
 

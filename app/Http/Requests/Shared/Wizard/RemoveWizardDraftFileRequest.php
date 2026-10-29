@@ -4,15 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Shared\Wizard;
 
-use Illuminate\Foundation\Http\FormRequest;
-
-class RemoveWizardDraftFileRequest extends FormRequest
+class RemoveWizardDraftFileRequest extends AuthenticatedWizardDraftRequest
 {
-    public function authorize(): bool
-    {
-        return auth('admin')->check() || auth('tenant')->check();
-    }
-
     public function rules(): array
     {
         return [

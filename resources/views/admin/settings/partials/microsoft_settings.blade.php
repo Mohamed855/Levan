@@ -61,7 +61,7 @@
                     </div>
                 </div>
                 <div class="mt-2 d-flex justify-content-end">
-                    <button type="submit" class="btn btn-sm btn-primary me-3">حفظ التغييرات</button>
+                    <button type="submit" class="btn btn-sm btn-primary me-3"><i class="ti ti-check me-1"></i>حفظ التغييرات</button>
                 </div>
             </form>
         </div>

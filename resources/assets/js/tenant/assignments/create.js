@@ -1,7 +1,7 @@
 "use strict";
 
 document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("assignment-create-form");
+    const form = document.querySelector("#assignment-create-form, #assignment-edit-form");
     if (!form) return;
 
     const selectedProperties = new Map();
@@ -10,6 +10,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const propertyCount = document.getElementById("selected-properties-count");
     const propertyImageFallback =
         form.dataset.propertyImageFallback || "/static/brand/logos/logo.svg";
+
+    propertyCards.querySelectorAll("[data-property-card]").forEach((card) => {
+        const id = String(card.dataset.propertyCard);
+        const metadata = card.querySelector(".text-muted")?.textContent.split("·") || [];
+        selectedProperties.set(id, {
+            id,
+            name: card.querySelector(".fw-semibold")?.textContent.trim() || "",
+            number: card.querySelector("code")?.textContent.trim() || "",
+            type: metadata[1]?.trim() || "",
+            city: metadata[2]?.trim() || "",
+            image: card.querySelector("img")?.src || propertyImageFallback,
+        });
+    });
 
     function escapeHtml(value) {
         const element = document.createElement("div");
@@ -417,5 +430,6 @@ document.addEventListener("DOMContentLoaded", () => {
         buildReview();
     });
 
+    syncProperties();
     buildReview();
 });

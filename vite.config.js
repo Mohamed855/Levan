@@ -53,6 +53,9 @@ export default defineConfig({
         // PDFMake is loaded only by the DataTables PDF export path.
         chunkSizeWarningLimit: 2048,
         rollupOptions: {
+            external: [
+                /^\/static\/.*/,
+            ],
             output: {
                 manualChunks(id) {
                     if (id.includes("node_modules/pdfmake")) {

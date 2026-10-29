@@ -48,4 +48,9 @@ final class AuctionReportGeneration extends Model
     {
         return $this->status === 'failed';
     }
+
+    public function publicErrorMessage(): ?string
+    {
+        return $this->isFailed() ? 'تعذر تجهيز ملفات المزاد. يرجى المحاولة مرة أخرى.' : null;
+    }
 }

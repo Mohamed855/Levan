@@ -28,7 +28,8 @@ class RouteServiceProvider extends ServiceProvider
         return $isCentralDomain ? '/'.tenant('id').'/dashboard' : '/dashboard';
     }
 
-    public const ADMIN = '/admin';
+    public const ADMIN = '/superadmin';
+    public const SUPERADMIN = '/superadmin';
 
     public function boot(): void
     {
@@ -96,7 +97,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->domain($cleanDomain)
                 ->prefix('{tenant}')
                 ->name($index === 0 ? 'path.' : "central-domain-{$index}.path.")
-                ->where(['tenant' => '^(?!(?i)(admin|api)(?:\/|$))[a-zA-Z0-9_\-]+$'])
+                ->where(['tenant' => '^(?!(?i)(superadmin|admin|api)(?:\/|$))[a-zA-Z0-9_\-]+$'])
                 ->group(base_path('routes/tenant.php'));
         }
 

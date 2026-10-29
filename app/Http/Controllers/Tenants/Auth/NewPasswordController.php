@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenants\Auth;
 
+use App\Actions\Admin\Clients\ResetClientUserPasswordAction;
 use App\Actions\Tenants\Auth\ResetTenantPasswordAction;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Clients\ResetClientUserPasswordRequest;
 use App\Http\Requests\Tenants\Auth\ResetTenantPasswordRequest;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Auth\Events\PasswordReset;
@@ -88,19 +90,20 @@ class NewPasswordController extends Controller
             ->with('status', 'تم إعادة تعيين كلمة المرور بنجاح، يمكنك الآن تسجيل الدخول.');
     }
 
-    public function updatePassword(ResetTenantPasswordRequest $request, ResetTenantPasswordAction $resetPassword)
+    public function updatePassword(ResetClientUserPasswordRequest $request, ResetClientUserPasswordAction $resetPassword): RedirectResponse
     {
-        $user = $resetPassword->executeForTenant(
-            (string) $request->input('tenant_id'),
+        $reset = $resetPassword->execute(
+            $request->user('admin'),
+            $request->validated('tenant_id'),
             $request->validated('email'),
             $request->validated('password'),
         );
 
-        if ($user) {
-            return redirect()->to(tenant_route_name('login'))
+        if ($reset) {
+            return back()
                 ->with('success', 'تم تعديل كلمة المرور بنجاح يمكنك الاستفادة بخدماتنا');
         }
 
-        return back()->withErrors(['email' => 'المستخدم غير موجود.']);
+        throw ValidationException::withMessages(['email' => 'المستخدم غير موجود.']);
     }
 }

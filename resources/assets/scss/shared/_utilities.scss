@@ -1,9 +1,9 @@
 // =============================================================================
-// Utility Classes — Global helpers
-// Replaces:
-//   - style="display: none;" on delete forms across all pages (~36 occurrences)
-//   - .cursor-pointer repeated in inline <style> blocks
+// Utility Classes — Global helpers & Levan Contextual Utilities
 // =============================================================================
+
+@use 'sass:map';
+@use 'palette';
 
 // Visibility
 .d-hidden {
@@ -39,7 +39,7 @@
 
 // Gradient utilities
 .bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1d4f44 0%, #12332c 100%);
 }
 
 // Avatar sizing
@@ -49,4 +49,201 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+// =============================================================================
+// Contextual Color Utilities (Exact match to custom badge palette)
+// =============================================================================
+@each $name, $props in palette.$theme-palette {
+    $bg: map.get($props, bg);
+    $border: map.get($props, border);
+    $color: map.get($props, color);
+    $hover-bg: map.get($props, hover-bg);
+    $hover-border: map.get($props, hover-border);
+    $hover-color: map.get($props, hover-color);
+    $solid-bg: map.get($props, solid-bg);
+    $solid-color: map.get($props, solid-color);
+    $solid-hover-bg: map.get($props, solid-hover-bg);
+
+    // 1. Solid Background Utilities
+    .bg-#{$name}:not(.badge):not(.avatar-initial):not(.btn):not(.alert) {
+        background-color: $solid-bg !important;
+
+        @if $name == 'secondary' {
+            color: $solid-color !important;
+
+            i, svg, [class*="ti-"] {
+                color: $solid-color !important;
+            }
+        }
+    }
+
+    .text-bg-#{$name} {
+        background-color: $solid-bg !important;
+        color: $solid-color !important;
+
+        i {
+            color: inherit !important;
+        }
+    }
+
+    // 2. Soft / Tinted / Label Background Utilities
+    .bg-#{$name}-subtle:not(.badge):not(.btn):not(.avatar-initial),
+    .bg-subtle-#{$name}:not(.badge):not(.btn):not(.avatar-initial),
+    .bg-label-#{$name}:not(.badge):not(.btn):not(.avatar-initial),
+    .bg-soft-#{$name}:not(.badge):not(.btn):not(.avatar-initial) {
+        background-color: $bg !important;
+        color: $color !important;
+    }
+
+    // 3. Text Color Utilities & Links
+    .text-#{$name} {
+        color: $solid-bg !important;
+    }
+
+    .text-emphasis-#{$name} {
+        color: $color !important;
+    }
+
+    .link-#{$name} {
+        color: $solid-bg !important;
+
+        &:hover,
+        &:focus {
+            color: $solid-hover-bg !important;
+        }
+    }
+
+    // 4. Border Color Utilities
+    .border-#{$name} {
+        border-color: $solid-bg !important;
+    }
+
+    .border-subtle-#{$name},
+    .border-#{$name}-subtle,
+    .border-label-#{$name} {
+        border-color: $border !important;
+    }
+
+    // 5. Initial Avatars (Cards & User Badges)
+    // Soft / Tinted Avatars
+    .avatar-initial.bg-label-#{$name},
+    .avatar-initial.bg-soft-#{$name},
+    .avatar-initial.bg-#{$name}-subtle,
+    .avatar.bg-label-#{$name} .avatar-initial,
+    .avatar.bg-soft-#{$name} .avatar-initial,
+    .avatar.bg-#{$name}-subtle .avatar-initial {
+        background-color: $bg !important;
+        border: 1px solid $border !important;
+        color: $color !important;
+
+        i {
+            color: $color !important;
+        }
+    }
+
+    // Solid Avatars
+    .avatar-initial.bg-#{$name}:not(.bg-label-#{$name}):not(.bg-soft-#{$name}):not(.bg-#{$name}-subtle),
+    .avatar.bg-#{$name}:not(.bg-label-#{$name}):not(.bg-soft-#{$name}):not(.bg-#{$name}-subtle) .avatar-initial,
+    .avatar-initial.bg-solid-#{$name},
+    .avatar.bg-solid-#{$name} .avatar-initial,
+    .avatar.bg-#{$name}:not(.bg-label-#{$name}):not(.bg-soft-#{$name}) {
+        background-color: $solid-bg !important;
+        border-color: $solid-bg !important;
+        color: $solid-color !important;
+
+        i {
+            color: $solid-color !important;
+        }
+    }
+
+    // 6. Progress Bars & Spinners
+    .progress-bar.bg-#{$name} {
+        background-color: $solid-bg !important;
+    }
+
+    .spinner-border.text-#{$name} {
+        border-color: $solid-bg !important;
+        border-right-color: transparent !important;
+    }
+
+    .spinner-grow.text-#{$name} {
+        background-color: $solid-bg !important;
+    }
+
+    // 7. Table Contextual Variants
+    .table-#{$name},
+    .table > :not(caption) > .table-#{$name} > * {
+        --bs-table-color: #{$color};
+        --bs-table-bg: #{$bg};
+        --bs-table-border-color: #{$border};
+        --bs-table-striped-bg: #{$hover-bg};
+        --bs-table-striped-color: #{$color};
+        --bs-table-active-bg: #{$hover-bg};
+        --bs-table-active-color: #{$hover-color};
+        --bs-table-hover-bg: #{$hover-bg};
+        --bs-table-hover-color: #{$hover-color};
+        color: #{$color} !important;
+        border-color: #{$border} !important;
+        background-color: #{$bg} !important;
+    }
+
+    // 8. List Group Contextual Variants
+    .list-group-item-#{$name} {
+        color: #{$color} !important;
+        background-color: #{$bg} !important;
+        border-color: #{$border} !important;
+
+        &.list-group-item-action {
+            &:hover,
+            &:focus {
+                color: #{$hover-color} !important;
+                background-color: #{$hover-bg} !important;
+            }
+
+            &.active {
+                color: #{$solid-color} !important;
+                background-color: #{$solid-bg} !important;
+                border-color: #{$solid-bg} !important;
+            }
+        }
+    }
+
+    // 9. Card Contextual Variants
+    .card.border-#{$name} {
+        border-color: $solid-bg !important;
+    }
+
+    .card.border-#{$name}-subtle {
+        border-color: $border !important;
+    }
+
+    .card-header.bg-#{$name} {
+        background-color: $solid-bg !important;
+        color: $solid-color !important;
+    }
+
+    .card-header.bg-#{$name}-subtle,
+    .card-header.bg-label-#{$name} {
+        background-color: $bg !important;
+        color: $color !important;
+        border-bottom-color: $border !important;
+    }
+
+    // 10. Forms, Radios & Switches
+    .form-check-#{$name} .form-check-input:checked {
+        background-color: $solid-bg !important;
+        border-color: $solid-bg !important;
+    }
+
+    // 11. Focus Ring
+    .focus-ring-#{$name} {
+        --bs-focus-ring-color: #{rgba($solid-bg, 0.25)};
+    }
+
+    // 12. Status Dots & Indicators
+    .status-dot-#{$name},
+    .status-indicator-#{$name} {
+        background-color: $solid-bg !important;
+    }
 }

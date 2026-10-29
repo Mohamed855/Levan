@@ -10,6 +10,7 @@ use App\Http\Requests\Shared\Wizard\RemoveWizardDraftFileRequest;
 use App\Http\Requests\Shared\Wizard\StoreWizardDraftRequest;
 use App\Http\Requests\Shared\Wizard\ValidateWizardStepRequest;
 use App\Services\Shared\Wizard\WizardDraftService;
+use App\Services\Shared\Wizard\WizardDraftContext;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -36,7 +37,7 @@ class WizardDraftController extends Controller
             'data' => $draft?->draft_data ?? [],
             'draft_id' => $draft?->getKey(),
             'step' => $draft?->last_step,
-            'files' => $this->fileManifest($draft?->draft_files ?? [], $validated['resource_key']),
+            'files' => $this->fileManifest($draft?->draft_files ?? [], $validated['resource_key'], '', app(WizardDraftContext::class)->guard($request)),
         ]);
     }
 
@@ -89,10 +90,13 @@ class WizardDraftController extends Controller
         $file = Arr::get($draft->draft_files ?? [], $validated['file_key']);
         abort_unless(is_array($file) && ! empty($file['path']) && Storage::disk('local')->exists($file['path']), 404);
 
+        $mime = Storage::disk('local')->mimeType($file['path']) ?: 'application/octet-stream';
+        $inline = in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'], true);
         return Storage::disk('local')->response(
             $file['path'],
             $file['name'] ?? basename($file['path']),
-            ['Content-Type' => $file['mime'] ?? 'application/octet-stream']
+            ['Content-Type' => $mime, 'X-Content-Type-Options' => 'nosniff', 'Cache-Control' => 'no-store, private'],
+            $inline ? 'inline' : 'attachment',
         );
     }
 
@@ -238,7 +242,7 @@ class WizardDraftController extends Controller
         );
     }
 
-    private function fileManifest(array $files, string $resourceKey = '', string $prefix = ''): array
+    private function fileManifest(array $files, string $resourceKey = '', string $prefix = '', string $guard = 'tenant'): array
     {
         $names = [];
 
@@ -246,7 +250,7 @@ class WizardDraftController extends Controller
             $fullKey = $prefix === '' ? (string) $key : $prefix.'.'.$key;
 
             if (is_array($file) && ! array_key_exists('name', $file)) {
-                $names[$key] = $this->fileManifest($file, $resourceKey, $fullKey);
+                $names[$key] = $this->fileManifest($file, $resourceKey, $fullKey, $guard);
 
                 continue;
             }
@@ -260,7 +264,6 @@ class WizardDraftController extends Controller
                 ];
 
                 if ($resourceKey !== '') {
-                    $guard = auth('admin')->check() ? 'admin' : 'tenant';
                     if ($guard === 'admin') {
                         $routeName = 'admin.wizard-drafts.file.show';
                         if (RouteFacade::has($routeName)) {

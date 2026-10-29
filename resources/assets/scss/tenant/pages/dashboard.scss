@@ -64,7 +64,8 @@
         background-color: var(--bs-danger, #dc3545);
     }
     &.status-dot-secondary {
-        background-color: var(--bs-secondary, #6c757d);
+        background-color: var(--bs-secondary, #EADFCC);
+        border: 1px solid rgba(29, 79, 68, 0.2);
     }
     &.status-dot-info {
         background-color: var(--bs-info, #17a2b8);

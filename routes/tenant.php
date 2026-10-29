@@ -194,7 +194,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('get-domain-info')->get('getInfo/{domain}', [GetDomainInfoController::class, 'getDomainInfo']);
 
             Route::name('payment.renewal')->match(['post', 'get'], 'renewal/payment', [RenewalDomainController::class, 'renewalDomainBlade']);
-            Route::name('renewal')->post('renewal', [RenewalDomainController::class, 'renewalDomain']);
+            Route::name('renewal')->post('renewal', [DomainPaymentController::class, 'startRenewal']);
 
             Route::name('moyasar.renewal.callback')->get('renewal/payment/domain/callback', [DomainPaymentController::class, 'renewalCallback']);
             Route::name('moyasar.renewal')->post('renewal/payment/domain', [DomainPaymentController::class, 'startRenewal']);

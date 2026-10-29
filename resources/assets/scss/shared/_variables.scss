@@ -26,26 +26,67 @@ $brand-dark-green:  #12332C;
     // Bootstrap-compatible tokens
     --bs-primary: #{$primary-color};
     --bs-primary-rgb: 29, 79, 68;
-    --bs-secondary: #{$secondary-color};
+    --bs-secondary: #F7F3EC;
     --bs-secondary-rgb: 247, 243, 236;
     --bs-body-bg: #{$secondary-color};
     --bs-body-bg-rgb: 247, 243, 236;
     --bs-body-color: #{$brand-dark-green};
 
-    // Semantic state colors
-    --bs-success: #28c76f;
-    --bs-success-rgb: 40, 199, 111;
-    --bs-danger: #ea5455;
-    --bs-danger-rgb: 234, 84, 85;
-    --bs-warning: #BF874A;
-    --bs-warning-rgb: 191, 135, 74;
-    --bs-info: #00cfe8;
-    --bs-info-rgb: 0, 207, 232;
+    // Semantic state colors (Exact match to custom badge palette)
+    --bs-success: #10b981;
+    --bs-success-rgb: 16, 185, 129;
+    --bs-danger: #ef4444;
+    --bs-danger-rgb: 239, 68, 68;
+    --bs-warning: #f59e0b;
+    --bs-warning-rgb: 245, 158, 11;
+    --bs-info: #0284c7;
+    --bs-info-rgb: 2, 132, 199;
+    --bs-dark: #0f172a;
+    --bs-dark-rgb: 15, 23, 42;
+    --bs-light: #f8fafc;
+    --bs-light-rgb: 248, 250, 252;
+    --bs-gold: #bf874a;
+    --bs-gold-rgb: 191, 135, 74;
+    --bs-purple: #7c3aed;
+    --bs-purple-rgb: 124, 58, 237;
+
+    // Subtle Backgrounds (Exact match to soft badge tints)
+    --bs-primary-bg-subtle: rgba(29, 79, 68, 0.12);
+    --bs-secondary-bg-subtle: #F7F3EC;
+    --bs-success-bg-subtle: rgba(16, 185, 129, 0.14);
+    --bs-danger-bg-subtle: rgba(239, 68, 68, 0.13);
+    --bs-warning-bg-subtle: rgba(217, 119, 6, 0.14);
+    --bs-info-bg-subtle: rgba(2, 132, 199, 0.13);
+    --bs-dark-bg-subtle: rgba(30, 41, 59, 0.12);
+    --bs-light-bg-subtle: #f8fafc;
+
+    // Subtle Borders (Exact match to badge 1px borders)
+    --bs-primary-border-subtle: rgba(29, 79, 68, 0.28);
+    --bs-secondary-border-subtle: #EADFCC;
+    --bs-success-border-subtle: rgba(16, 185, 129, 0.32);
+    --bs-danger-border-subtle: rgba(239, 68, 68, 0.30);
+    --bs-warning-border-subtle: rgba(217, 119, 6, 0.32);
+    --bs-info-border-subtle: rgba(2, 132, 199, 0.30);
+    --bs-dark-border-subtle: rgba(30, 41, 59, 0.28);
+    --bs-light-border-subtle: #cbd5e1;
+
+    // High-Contrast Text Emphasis (Exact match to badge deep text)
+    --bs-primary-text-emphasis: #12332c;
+    --bs-secondary-text-emphasis: #1D4F44;
+    --bs-success-text-emphasis: #065f46;
+    --bs-danger-text-emphasis: #991b1b;
+    --bs-warning-text-emphasis: #854d0e;
+    --bs-info-text-emphasis: #0369a1;
+    --bs-dark-text-emphasis: #0f172a;
+    --bs-light-text-emphasis: #475569;
 
     // Focus rings
     --focus-ring-color: rgba(29, 79, 68, 0.2);
-    --focus-ring-danger: rgba(234, 84, 85, 0.25);
-    --focus-ring-success: rgba(40, 199, 111, 0.25);
+    --focus-ring-danger: rgba(239, 68, 68, 0.25);
+    --focus-ring-success: rgba(16, 185, 129, 0.25);
+    --focus-ring-warning: rgba(245, 158, 11, 0.25);
+    --focus-ring-info: rgba(2, 132, 199, 0.25);
+    --focus-ring-secondary: rgba(29, 79, 68, 0.25);
     --focus-ring-shadow: 0 0 0 0.2rem var(--focus-ring-color);
 
     // Border radii

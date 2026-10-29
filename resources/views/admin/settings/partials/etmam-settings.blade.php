@@ -67,7 +67,7 @@
 
                 <div class="mt-2 d-flex justify-content-end">
                     <button type="submit" class="btn btn-primary me-3">
-                        تحديث
+                        <i class="ti ti-check me-1"></i>تحديث
                     </button>
                 </div>
             </div>

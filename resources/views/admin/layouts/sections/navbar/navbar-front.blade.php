@@ -89,7 +89,7 @@
 
                 <li>
                     <a href="{{ route('site.trial') }}" class="btn btn-primary">
-                        جرب المنصة الان
+                        <i class="ti ti-rocket me-1"></i>جرب المنصة الان
                     </a>
                 </li>
 

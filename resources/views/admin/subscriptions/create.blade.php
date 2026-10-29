@@ -96,8 +96,8 @@
                             <div class="col-12" id="company-details-card" style="display: none;">
                                 <div class="card border border-primary bg-primary shadow-none mb-0">
                                     <div class="card-body">
-                                        <h6 class="card-title fw-bold text-primary mb-3">
-                                            <i class="ti ti-building me-1"></i> بيانات الشركة المحددة
+                                        <h6 class="card-title fw-bold text-white mb-3">
+                                            <i class="ti ti-building me-1 text-white"></i> بيانات الشركة المحددة
                                         </h6>
                                         <div class="row g-2">
                                             <div class="col-md-3">

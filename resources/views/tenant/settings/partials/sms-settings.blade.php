@@ -75,7 +75,7 @@
                     </div>
                 </div>
                 <div class="mt-2 d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary me-3">تحديث</button>
+                    <button type="submit" class="btn btn-primary me-3"><i class="ti ti-check me-1"></i>تحديث</button>
                 </div>
             </form>
         </div>

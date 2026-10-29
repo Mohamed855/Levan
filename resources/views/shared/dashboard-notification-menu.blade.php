@@ -31,7 +31,7 @@
             </ul>
         </li>
         <li class="border-top">
-            <div class="d-grid p-3"><a class="btn btn-primary btn-sm" href="{{ $noticeRoute('index') }}">عرض كل
+            <div class="d-grid p-3"><a class="btn btn-primary btn-sm" href="{{ $noticeRoute('index') }}"><i class="ti ti-bell me-1"></i>عرض كل
                     الإشعارات</a></div>
         </li>
     </ul>

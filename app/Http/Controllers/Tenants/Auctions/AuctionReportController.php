@@ -41,7 +41,7 @@ final class AuctionReportController extends Controller
             'generation_id' => $generation->id,
             'has_outputs' => filled($generation->outputs_path),
             'has_report' => filled($generation->report_path),
-            'error_message' => $generation->error_message,
+            'error_message' => $generation->publicErrorMessage(),
             'updated_at' => $generation->updated_at?->toIso8601String(),
         ]);
     }

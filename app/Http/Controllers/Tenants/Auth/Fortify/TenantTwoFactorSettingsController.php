@@ -6,8 +6,8 @@ use App\Actions\Auth\PersistAuthenticationStateAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\ConfirmTenantTwoFactorRequest;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
-use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\Settings\Settings;
+use App\Services\Tenants\Shared\CentralTenantSecurityGateway;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -17,10 +17,12 @@ use Laravel\Fortify\Actions\ConfirmTwoFactorAuthentication;
 use Laravel\Fortify\Actions\DisableTwoFactorAuthentication;
 use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
 use Laravel\Fortify\RecoveryCode;
-use Stancl\Tenancy\Facades\Tenancy;
 
 class TenantTwoFactorSettingsController extends Controller
 {
+    public function __construct(
+        protected CentralTenantSecurityGateway $securityGateway
+    ) {}
     public function show(Request $request): View
     {
         $user = Auth::guard('tenant')->user();
@@ -67,15 +69,7 @@ class TenantTwoFactorSettingsController extends Controller
 
     protected function isEnforced(): bool
     {
-        $tenantId = tenant('id');
-        $companyForced = false;
-
-        if ($tenantId) {
-            $companyForced = (bool) Tenancy::central(function () use ($tenantId) {
-                return Tenant::find($tenantId)?->companySettings?->two_factor_enabled ?? false;
-            });
-        }
-
+        $companyForced = $this->securityGateway->isTwoFactorRequired();
         $tenantSettingsForced = (bool) (Settings::first()?->force_two_factor_auth ?? false);
 
         return $companyForced || $tenantSettingsForced;

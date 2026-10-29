@@ -99,7 +99,7 @@
                                         </div>
                                     @else
                                         <button type="button" id="disable2faBtn" class="btn btn-danger btn-sm">
-                                            إلغاء التفعيل
+                                            <i class="ti ti-shield-x me-1"></i>إلغاء التفعيل
                                         </button>
                                     @endif
                                 </div>
@@ -151,7 +151,7 @@
                                         col="col-12 col-sm-7" maxlength="6" inputmode="numeric" />
                                     <div class="col-12 col-sm-5">
                                         <button type="submit" class="btn btn-success w-100">
-                                            تأكيد التفعيل
+                                            <i class="ti ti-check me-1"></i>تأكيد التفعيل
                                         </button>
                                     </div>
                                 </form>

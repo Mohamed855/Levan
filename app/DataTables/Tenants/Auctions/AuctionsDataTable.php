@@ -108,7 +108,7 @@ class AuctionsDataTable extends AbstractDataTable
                 }
 
                 if ($gen->isFailed()) {
-                    return '<span class="badge bg-danger" title="'.e($gen->error_message ?? 'فشل التوليد').'"><i class="ti ti-alert-triangle me-1"></i>فشل</span>';
+                    return '<span class="badge bg-danger" title="'.e($gen->publicErrorMessage()).'"><i class="ti ti-alert-triangle me-1"></i>فشل</span>';
                 }
 
                 return '<span class="text-muted">—</span>';

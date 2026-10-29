@@ -2,6 +2,9 @@
 // Cards — Common card layout patterns
 // =============================================================================
 
+@use 'sass:map';
+@use 'palette';
+
 .card {
     border: 1px solid rgba(29, 79, 68, 0.08);
     border-radius: 0.75rem;
@@ -77,29 +80,17 @@
     align-items: center;
     justify-content: center;
 
-    &.bg-primary {
-        background-color: rgba(29, 79, 68, 0.09) !important;
-        color: var(--primary-color, #1d4f44) !important;
-    }
+    @each $name, $props in palette.$theme-palette {
+        $bg: map.get($props, bg);
+        $border: map.get($props, border);
+        $color: map.get($props, color);
 
-    &.bg-success {
-        background-color: rgba(40, 199, 111, 0.12) !important;
-        color: #28c76f !important;
-    }
-
-    &.bg-info {
-        background-color: rgba(0, 207, 232, 0.12) !important;
-        color: #00cfe8 !important;
-    }
-
-    &.bg-warning {
-        background-color: rgba(191, 135, 74, 0.14) !important;
-        color: #bf874a !important;
-    }
-
-    &.bg-danger {
-        background-color: rgba(234, 84, 85, 0.12) !important;
-        color: #ea5455 !important;
+        &.bg-#{$name},
+        &.bg-label-#{$name} {
+            background-color: $bg !important;
+            border: 1px solid $border !important;
+            color: $color !important;
+        }
     }
 }
 

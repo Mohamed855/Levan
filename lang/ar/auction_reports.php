@@ -11,5 +11,7 @@ return [
     'impressions' => 'المشاهدات',
     'link_roles' => ['brochure' => 'الكتيب', 'video' => 'الفيديو', 'marketing_evidence' => 'أدلة التسويق', 'boards' => 'اللوحات', 'platform' => 'منصة المزاد', 'other' => 'أخرى'],
     'kinds' => ['document' => 'مستند', 'screenshot' => 'لقطة شاشة', 'photo' => 'صورة فوتوغرافية', 'artwork' => 'تصميم'],
+    'fits' => ['contain' => 'كامل دون قص', 'cover' => 'ملء الإطار مع القص'],
+    'property_result_statuses' => ['pending' => 'قيد الانتظار', 'sold' => 'مُباع', 'unsold' => 'لم يُباع'],
     'metrics' => ['reach' => 'الوصول', 'impressions' => 'مرات الظهور', 'engagements' => 'التفاعل', 'clicks' => 'النقرات', 'views' => 'مشاهدات الفيديو', 'posts' => 'المنشورات', 'subscribers' => 'المشتركون', 'messages' => 'الرسائل', 'delivered' => 'تم التسليم', 'failed' => 'فشل التسليم', 'pending' => 'قيد الإرسال', 'total' => 'الإجمالي', 'profile_views' => 'زيارات الملف', 'watch_hours' => 'ساعات المشاهدة', 'profile_change' => 'تغير زيارات الملف (%)', 'reach_change' => 'تغير الوصول (%)', 'views_change' => 'تغير المشاهدات (%)'],
 ];

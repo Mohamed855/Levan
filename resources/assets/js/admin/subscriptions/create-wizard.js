@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (card) card.style.display = "block";
         } else {
             // Fallback via AJAX
-            fetch(`/admin/subscriptions/companies/${companyId}/details`, {
+            fetch(`/superadmin/subscriptions/companies/${companyId}/details`, {
                 headers: { Accept: "application/json" },
             })
                 .then((res) => res.json())

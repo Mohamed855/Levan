@@ -483,8 +483,8 @@ function loadTaskComments(taskId) {
                             <div class="edit-comment-form">
                                 <textarea class="form-control mb-2" rows="4">${originalContent}</textarea>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-primary btn-sm save-edit-btn">حفظ</button>
-                                    <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn">إلغاء</button>
+                                    <button type="button" class="btn btn-primary btn-sm save-edit-btn"><i class="ti ti-check me-1"></i>حفظ</button>
+                                    <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn"><i class="ti ti-x me-1"></i>إلغاء</button>
                                 </div>
                             </div>
                         `;

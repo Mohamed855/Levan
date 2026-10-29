@@ -83,7 +83,7 @@
                                     <div class="flex-shrink-0">
                                         <div
                                             class="avatar avatar-xl bg-primary rounded p-2 d-flex align-items-center justify-content-center">
-                                            <i class="ti ti-building fs-1 text-primary"></i>
+                                            <i class="ti ti-building fs-1 text-white"></i>
                                         </div>
                                     </div>
                                     <div class="flex-grow-1">

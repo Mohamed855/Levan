@@ -48,7 +48,7 @@
                 </div>
                 <div class="card-body pt-4">
                     <h6 class="fw-bold mb-2">{{ $ticket->title }}</h6>
-                    <div class="p-3 bg-secondary rounded mb-3 text-secondary"
+                    <div class="p-3 bg-secondary rounded mb-3"
                         style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;">{{ $ticket->description }}
                     </div>
 

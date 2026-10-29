@@ -34,7 +34,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::name('password.reset')->get('reset-password/{token}', [NewPasswordController::class, 'create']);
 
-Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active', 'admin.2fa.force'])->group(function () {
+Route::prefix('superadmin')->name('admin.')->middleware(['auth:admin', 'admin.active', 'admin.2fa.force'])->group(function () {
     Route::prefix('dashboard-notifications')->name('dashboard-notifications.')->group(function () {
         $controller = DashboardNotificationController::class;
         Route::get('/', [$controller, 'feed'])->defaults('dashboard_scope', 'admin')->name('feed');
@@ -248,7 +248,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     Route::name('mass-delete')->post('/mass-delete', [AdminMassDeleteController::class, 'massDelete']);
 });
 
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('superadmin')->name('admin.')->group(function () {
     Route::middleware('guest:admin')->group(function () {
         Route::match(['post', 'put', 'patch'], 'form-validation', [WizardDraftController::class, 'validateStep'])
             ->defaults('shared_form_validation_actions', [
@@ -279,3 +279,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         });
     });
 });
+
+Route::redirect('admin', '/superadmin', 307);
+Route::redirect('admin/{any}', '/superadmin/{any}', 307)->where('any', '.*');

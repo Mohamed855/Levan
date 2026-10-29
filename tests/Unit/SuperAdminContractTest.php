@@ -102,7 +102,7 @@ class SuperAdminContractTest extends TestCase
         $this->assertStringContainsString('data-form-validate', $view);
         $this->assertStringContainsString("route('admin.form-validation')", $view);
         $this->assertStringContainsString('WizardDraftController::class, \'validateStep\'', $routes);
-        $this->assertStringContainsString("AdminAuthController::class . '@login'", $routes);
+        $this->assertTrue(str_contains($routes, "AdminAuthController::class.'@login'") || str_contains($routes, "AdminAuthController::class . '@login'"));
     }
 
     public function test_super_admin_form_requests_have_authorization_and_rules(): void

@@ -287,8 +287,8 @@
                                 placeholder="يرجى كتابة سبب رفض الفاتورة..." required></textarea>
                         </div>
                         <x-slot:footer>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                            <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إلغاء</button>
+                            <button type="submit" class="btn btn-danger"><i class="ti ti-ban me-1"></i>تأكيد الرفض</button>
                         </x-slot:footer>
                     </form>
                 </x-bootstrap.modal>

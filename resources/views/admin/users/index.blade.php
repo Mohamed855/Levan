@@ -71,8 +71,8 @@
         </form>
 
         <x-slot:footer>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-            <button type="submit" form="updateUserRoleForm" class="btn btn-primary">حفظ التغيير</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إلغاء</button>
+            <button type="submit" form="updateUserRoleForm" class="btn btn-primary"><i class="ti ti-check me-1"></i>حفظ التغيير</button>
         </x-slot:footer>
     </x-bootstrap.modal>
 @endsection

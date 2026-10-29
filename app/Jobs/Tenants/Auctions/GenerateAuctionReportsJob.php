@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Jobs\Tenants\Auctions;
 
 use App\Contracts\Auctions\BrowserDocumentRenderer;
-use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionReportGeneration;
 use App\Services\Tenants\Auctions\Reports\AuctionReportDataBuilder;
@@ -48,8 +47,7 @@ class GenerateAuctionReportsJob implements ShouldQueue
             if (tenancy()->initialized) {
                 tenancy()->end();
             }
-            $tenant = Tenant::findOrFail($this->tenantId);
-            tenancy()->initialize($tenant);
+            tenancy()->initialize($this->tenantId);
         }
 
         try {
@@ -185,11 +183,7 @@ class GenerateAuctionReportsJob implements ShouldQueue
                 if (tenancy()->initialized) {
                     tenancy()->end();
                 }
-                $tenant = Tenant::find($this->tenantId);
-                if (! $tenant) {
-                    return;
-                }
-                tenancy()->initialize($tenant);
+                tenancy()->initialize($this->tenantId);
             }
 
             AuctionReportGeneration::query()

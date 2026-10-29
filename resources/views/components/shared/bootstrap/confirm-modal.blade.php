@@ -23,8 +23,8 @@
             </div>
             <div class="modal-footer justify-content-center border-0 pt-3 pb-2 gap-2">
                 <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal"
-                    id="{{ $id }}CancelBtn">إلغاء</button>
-                <button type="button" class="btn btn-danger px-4" id="{{ $id }}SubmitBtn">تأكيد</button>
+                    id="{{ $id }}CancelBtn"><i class="ti ti-x me-1"></i>إلغاء</button>
+                <button type="button" class="btn btn-danger px-4" id="{{ $id }}SubmitBtn"><i class="ti ti-check me-1"></i>تأكيد</button>
             </div>
         </div>
     </div>

@@ -354,6 +354,32 @@ document.addEventListener("DOMContentLoaded", () => {
     let draggedPointIndex = null;
     let hoveredPointIndex = null;
     let annotatedDataUrl = "";
+    let drawFrameId = null;
+    let syncTimeout = null;
+
+    function requestDraw() {
+        if (drawFrameId !== null) return;
+        drawFrameId = window.requestAnimationFrame(() => {
+            drawFrameId = null;
+            drawCanvas();
+        });
+    }
+
+    function scheduleSyncAnnotatedImage(delay = 120) {
+        clearTimeout(syncTimeout);
+        syncTimeout = setTimeout(() => {
+            syncTimeout = null;
+            syncAnnotatedImage();
+        }, delay);
+    }
+
+    function flushSyncAnnotatedImage() {
+        if (syncTimeout !== null) {
+            clearTimeout(syncTimeout);
+            syncTimeout = null;
+            syncAnnotatedImage();
+        }
+    }
 
     function setImageActionVisibility(visible) {
         [btnDownload, btnClearBoundary, btnChangeImage].forEach((button) => {
@@ -519,10 +545,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!loadedImage) return;
 
         if (points.length >= 3) {
-            const naturalW =
-                loadedImage.naturalWidth || loadedImage.width || 1200;
-            const naturalH =
-                loadedImage.naturalHeight || loadedImage.height || 800;
+            const rawW = loadedImage.naturalWidth || loadedImage.width || 1200;
+            const rawH = loadedImage.naturalHeight || loadedImage.height || 800;
+            const maxExportDim = 1600;
+            const exportScale = Math.min(1, maxExportDim / Math.max(rawW, rawH));
+            const naturalW = Math.round(rawW * exportScale);
+            const naturalH = Math.round(rawH * exportScale);
+
             const offscreen = document.createElement("canvas");
             offscreen.width = naturalW;
             offscreen.height = naturalH;
@@ -594,6 +623,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             }
         } else {
+            annotatedDataUrl = "";
             if (btnDownload) btnDownload.disabled = true;
             if (boundaryGeoJsonInput) {
                 boundaryGeoJsonInput.value = "";
@@ -605,8 +635,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             }
         }
-
-        form.dispatchEvent(new Event("change", { bubbles: true }));
     }
 
     function loadImageSrc(src, existingGeoJson = null) {
@@ -740,37 +768,50 @@ document.addEventListener("DOMContentLoaded", () => {
             if (nearIndex >= 0) {
                 draggedPointIndex = nearIndex;
                 canvas.style.cursor = "grabbing";
+                requestDraw();
             } else {
                 points.push({ x: coords.x, y: coords.y });
-                drawCanvas();
-                syncAnnotatedImage();
+                requestDraw();
+                scheduleSyncAnnotatedImage();
+            }
+        });
+
+        canvas.addEventListener("mousemove", (e) => {
+            if (!loadedImage || draggedPointIndex !== null) return;
+            const coords = getCanvasCoords(e);
+            const nearIndex = findPointNear(coords.pixelX, coords.pixelY);
+            if (nearIndex !== hoveredPointIndex) {
+                hoveredPointIndex = nearIndex;
+                canvas.style.cursor = nearIndex >= 0 ? "grab" : "crosshair";
+                requestDraw();
+            }
+        });
+
+        canvas.addEventListener("mouseleave", () => {
+            if (hoveredPointIndex !== null && draggedPointIndex === null) {
+                hoveredPointIndex = null;
+                if (canvas) canvas.style.cursor = "crosshair";
+                requestDraw();
             }
         });
 
         window.addEventListener("mousemove", (e) => {
-            if (!canvas || !loadedImage) return;
+            if (!canvas || !loadedImage || draggedPointIndex === null) return;
 
-            if (draggedPointIndex !== null) {
-                const coords = getCanvasCoords(e);
-                points[draggedPointIndex] = {
-                    x: Math.max(0, Math.min(1, coords.x)),
-                    y: Math.max(0, Math.min(1, coords.y)),
-                };
-                drawCanvas();
-            } else {
-                const coords = getCanvasCoords(e);
-                const nearIndex = findPointNear(coords.pixelX, coords.pixelY);
-                hoveredPointIndex = nearIndex;
-                canvas.style.cursor = nearIndex >= 0 ? "grab" : "crosshair";
-                drawCanvas();
-            }
+            const coords = getCanvasCoords(e);
+            points[draggedPointIndex] = {
+                x: Math.max(0, Math.min(1, coords.x)),
+                y: Math.max(0, Math.min(1, coords.y)),
+            };
+            requestDraw();
         });
 
         window.addEventListener("mouseup", () => {
             if (draggedPointIndex !== null) {
                 draggedPointIndex = null;
                 if (canvas) canvas.style.cursor = "crosshair";
-                syncAnnotatedImage();
+                requestDraw();
+                scheduleSyncAnnotatedImage();
             }
         });
 
@@ -788,10 +829,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (nearIndex >= 0) {
                     draggedPointIndex = nearIndex;
+                    requestDraw();
                 } else {
                     points.push({ x: coords.x, y: coords.y });
-                    drawCanvas();
-                    syncAnnotatedImage();
+                    requestDraw();
+                    scheduleSyncAnnotatedImage();
                 }
             },
             { passive: false },
@@ -807,7 +849,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         x: Math.max(0, Math.min(1, coords.x)),
                         y: Math.max(0, Math.min(1, coords.y)),
                     };
-                    drawCanvas();
+                    requestDraw();
                 }
             },
             { passive: false },
@@ -816,16 +858,19 @@ document.addEventListener("DOMContentLoaded", () => {
         canvas.addEventListener("touchend", () => {
             if (draggedPointIndex !== null) {
                 draggedPointIndex = null;
-                syncAnnotatedImage();
+                requestDraw();
+                scheduleSyncAnnotatedImage();
             }
         });
     }
 
     if (btnClearBoundary) {
         btnClearBoundary.addEventListener("click", () => {
+            clearTimeout(syncTimeout);
+            syncTimeout = null;
             points = [];
             annotatedDataUrl = "";
-            drawCanvas();
+            requestDraw();
             syncAnnotatedImage();
             if (
                 aerialImageInput &&
@@ -845,6 +890,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (btnDownload) {
         btnDownload.addEventListener("click", () => {
+            flushSyncAnnotatedImage();
             if (!annotatedDataUrl) {
                 notifyUser(
                     "warning",
@@ -863,6 +909,10 @@ document.addEventListener("DOMContentLoaded", () => {
             notifyUser("success", "تم تحميل الصورة المحددة بنجاح إلى جهازك.");
         });
     }
+
+    form.addEventListener("submit", () => {
+        flushSyncAnnotatedImage();
+    });
 
     if (aerialImageInput && aerialImageInput.value) {
         loadImageSrc(

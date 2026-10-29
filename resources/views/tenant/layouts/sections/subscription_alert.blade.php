@@ -85,8 +85,8 @@
                         <div class="modal-body">
                             <div class="d-flex flex-column align-items-center gap-5">
                                 <div class="avatar avatar-xl">
-                                    <span class="avatar-initial rounded-circle text-danger"><i
-                                            class="ti ti-alert-triangle fs-2"></i></span>
+                                    <span class="avatar-initial rounded-circle bg-danger text-white"><i
+                                            class="ti ti-alert-triangle fs-2 text-white"></i></span>
                                 </div>
                                 <h4 class="modal-title fw-bold text-danger" id="subscriptionExpiringModalLabel">تحذير
                                     عاجل: اقتراب انتهاء الاشتراك</h4>
@@ -104,8 +104,7 @@
                                     <a href="{{ tenant_route_name('subscriptions.index') }}" class="btn btn-danger">
                                         <i class="ti ti-bolt me-1"></i> تجديد الاشتراك فوراً
                                     </a>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">تذكيرى
-                                        لاحقاً</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-clock me-1"></i>تذكيري لاحقاً</button>
                                 </div>
                             </div>
                         </div>

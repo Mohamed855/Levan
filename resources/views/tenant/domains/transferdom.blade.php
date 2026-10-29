@@ -90,7 +90,7 @@
 
                                     <div class="d-flex justify-content-between">
                                         <a class="btn btn-secondary"
-                                            href="{{ tenant_route_name('domains.transfer-domain') }}">رجوع</a>
+                                            href="{{ tenant_route_name('domains.transfer-domain') }}"><i class="ti ti-arrow-right me-1"></i>رجوع</a>
                                         <button class="btn btn-primary" type="submit">
                                             مراجعة الدفع
                                             <i class="ti ti-arrow-left ms-1"></i>
@@ -115,7 +115,7 @@
 
                                     <div class="d-flex justify-content-between">
                                         <a class="btn btn-secondary"
-                                            href="{{ tenant_route_name('domains.transfer-domain', ['step' => 2, 'domain' => $currentDomain]) }}">رجوع</a>
+                                            href="{{ tenant_route_name('domains.transfer-domain', ['step' => 2, 'domain' => $currentDomain]) }}"><i class="ti ti-arrow-right me-1"></i>رجوع</a>
                                         <button class="btn btn-primary" type="submit">
                                             المتابعة للدفع الآمن
                                             <i class="ti ti-arrow-left ms-1"></i>

@@ -180,7 +180,7 @@
                 </div>
             </div>
             <div class="modal-footer border-top">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إغلاق</button>
             </div>
         </div>
     </div>

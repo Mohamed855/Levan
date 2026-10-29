@@ -23,9 +23,9 @@
                 <!-- زر الحفظ -->
                 <div class="mt-2 d-flex justify-content-end">
                     <button type="button" class="btn btn-secondary me-3" data-bs-toggle="modal"
-                        data-bs-target="#previewModal">معاينة</button>
+                        data-bs-target="#previewModal"><i class="ti ti-eye me-1"></i>معاينة</button>
 
-                    <button type="submit" class="btn btn-primary me-3">تحديث </button>
+                    <button type="submit" class="btn btn-primary me-3"><i class="ti ti-check me-1"></i>تحديث</button>
                 </div>
             </form>
         </div>
@@ -47,6 +47,6 @@
             class="mb-3 w-100 h-auto" id="previewHorizontalFooter" />
     </div>
     <x-slot:footer>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إغلاق</button>
     </x-slot:footer>
 </x-bootstrap.modal>

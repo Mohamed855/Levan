@@ -665,7 +665,7 @@ async function discardDraft(form) {
         return;
     }
 
-    await fetch(
+    const response = await fetch(
         draftUrl +
             "?resource_key=" +
             encodeURIComponent(draftResourceKey(form)),
@@ -680,6 +680,9 @@ async function discardDraft(form) {
             },
         },
     );
+    if (!response.ok) {
+        throw new Error("Unable to discard the saved draft.");
+    }
 }
 
 function hasVisibleServerErrors(form) {
@@ -778,6 +781,7 @@ async function restoreDraft(form) {
         return;
     }
 
+    let resolved = false;
     form.inert = true;
     form.setAttribute("aria-busy", "true");
 
@@ -792,11 +796,12 @@ async function restoreDraft(form) {
             },
         );
         if (!response.ok) {
-            return;
+            throw new Error("Unable to load the saved draft.");
         }
 
         const draft = await response.json();
         if (!draft.draft_id) {
+            resolved = true;
             return;
         }
 
@@ -821,6 +826,7 @@ async function restoreDraft(form) {
 
         if (!shouldRestore) {
             await discardDraft(form);
+            resolved = true;
             return;
         }
 
@@ -870,13 +876,23 @@ async function restoreDraft(form) {
             }, 300);
         }
         window.toastr?.success?.("تمت استعادة المسودة بنجاح.");
+        resolved = true;
     } catch (_) {
         window.toastr?.error?.(
             "تعذر التعامل مع المسودة. أعد تحميل الصفحة للمحاولة مرة أخرى قبل إدخال بيانات جديدة.",
         );
+        const retry = document.createElement("button");
+        retry.type = "button";
+        retry.className = "btn btn-secondary mb-3";
+        retry.textContent = "إعادة محاولة استرجاع المسودة أو تجاهلها";
+        retry.addEventListener("click", () => {
+            retry.remove();
+            restoreDraft(form);
+        }, { once: true });
+        form.insertAdjacentElement("beforebegin", retry);
     } finally {
         form.removeAttribute("aria-busy");
-        form.inert = false;
+        form.inert = !resolved;
     }
 }
 
@@ -958,6 +974,7 @@ function initDrafts(form) {
             data.delete("_method");
             data.set("resource_key", draftResourceKey(form));
             data.set("step", String(currentStepNumber(form)));
+            data.set("target_path", getTargetPath(form));
 
             const response = await fetch(draftUrl, {
                 method: "POST",
