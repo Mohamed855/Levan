@@ -6,7 +6,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
-use App\Http\Requests\Admin\FaqRequest;
+use App\Http\Requests\Admin\Faqs\StoreFaqRequest;
+use App\Http\Requests\Admin\Faqs\UpdateFaqRequest;
 use App\Models\Admin\Faq;
 use App\Services\Admin\Faqs\FaqService;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +19,7 @@ final class FaqController extends Controller
         private readonly FaqService $faqService
     ) {
         $this->authorizeResource(Faq::class, 'faq');
-        $this->middleware('can:faqs.view');
+        $this->middleware('can:faqs.view')->only('index');
     }
 
     public function index(): View
@@ -28,10 +29,10 @@ final class FaqController extends Controller
 
     public function create(): View
     {
-        return view('admin.faqs.form', ['faq' => new Faq]);
+        return view('admin.faqs.create', ['faq' => new Faq]);
     }
 
-    public function store(FaqRequest $r): RedirectResponse
+    public function store(StoreFaqRequest $r): RedirectResponse
     {
         $this->faqService->create($r->validated() + ['is_active' => $r->boolean('is_active')]);
 
@@ -40,19 +41,23 @@ final class FaqController extends Controller
 
     public function edit(Faq $faq): View
     {
-        return view('admin.faqs.form', compact('faq'));
+        return view('admin.faqs.edit', compact('faq'));
     }
 
-    public function update(FaqRequest $r, Faq $faq): RedirectResponse
+    public function update(UpdateFaqRequest $r, Faq $faq): RedirectResponse
     {
         $this->faqService->update($faq, $r->validated() + ['is_active' => $r->boolean('is_active')]);
 
         return redirect()->route('admin.faqs.index')->with('success', 'تم تحديث السؤال بنجاح.');
     }
 
-    public function destroy(AdminAuthenticatedRequest $request, Faq $faq): RedirectResponse
+    public function destroy(AdminAuthenticatedRequest $request, Faq $faq): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $this->faqService->delete($faq);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'تم حذف السؤال بنجاح.']);
+        }
 
         return redirect()->route('admin.faqs.index')->with('success', 'تم حذف السؤال بنجاح.');
     }

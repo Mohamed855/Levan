@@ -1,6 +1,12 @@
 // =============================================================================
 // Buttons — Action button patterns used across all pages
 // =============================================================================
+// Overloads and standardizes all Bootstrap button variants to strictly match
+// the custom dual-tone badge color palette tokens.
+// =============================================================================
+
+@use 'sass:map';
+@use 'palette';
 
 // Button stability: avoid transform jumps on hover/active
 .btn {
@@ -83,27 +89,145 @@
 }
 
 // =============================================================================
-// Unified Brand Button Variants & Darken Hover States
+// Unified Contextual Button Variants (Exact match to custom badge palette)
 // =============================================================================
+@each $name, $props in palette.$theme-palette {
+    $bg: map.get($props, bg);
+    $border: map.get($props, border);
+    $color: map.get($props, color);
+    $hover-bg: map.get($props, hover-bg);
+    $hover-border: map.get($props, hover-border);
+    $hover-color: map.get($props, hover-color);
+    $solid-bg: map.get($props, solid-bg);
+    $solid-color: map.get($props, solid-color);
+    $solid-hover-bg: map.get($props, solid-hover-bg);
 
-.btn-primary {
-    background-color: var(--primary-color) !important;
-    border-color: var(--primary-color) !important;
-    color: #fff !important;
-    font-weight: 500;
+    // 1. Solid Button Variant
+    .btn-#{$name} {
+        background-color: $solid-bg !important;
+        border-color: #{if($name == 'secondary', map.get($props, border), $solid-bg)} !important;
+        color: $solid-color !important;
+        font-weight: 500;
 
-    &:hover,
-    &:focus,
-    &:active,
-    &.active,
-    &.show {
-        background-color: var(--primary-color-deep, #12332c) !important;
-        border-color: var(--primary-color-deep, #12332c) !important;
-        color: #fff !important;
+        i, svg, [class*="ti-"] {
+            color: inherit !important;
+        }
+
+        &:hover,
+        &:focus,
+        &:active,
+        &.active,
+        &.show {
+            background-color: $solid-hover-bg !important;
+            border-color: #{if($name == 'secondary', map.get($props, hover-border), $solid-hover-bg)} !important;
+            color: #{if($name == 'secondary', map.get($props, hover-color), $solid-color)} !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        &:focus-visible {
+            box-shadow: 0 0 0 0.2rem rgba($solid-bg, 0.25) !important;
+        }
+
+        &:disabled,
+        &.disabled {
+            background-color: $solid-bg !important;
+            border-color: #{if($name == 'secondary', map.get($props, border), $solid-bg)} !important;
+            color: $solid-color !important;
+            opacity: var(--disabled-opacity, 0.65) !important;
+            box-shadow: none !important;
+        }
+    }
+
+    // 2. Outline Button Variant
+    .btn-outline-#{$name} {
+        $outline-color: if($name == 'secondary', $solid-color, $solid-bg);
+        background-color: transparent !important;
+        border-color: $outline-color !important;
+        color: $outline-color !important;
+        font-weight: 500;
+
+        i, svg, [class*="ti-"] {
+            color: inherit !important;
+        }
+
+        &:hover,
+        &:focus,
+        &:active,
+        &.active,
+        &.show {
+            background-color: $solid-bg !important;
+            border-color: #{if($name == 'secondary', map.get($props, border), $solid-bg)} !important;
+            color: $solid-color !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+        }
+
+        &:focus-visible {
+            box-shadow: 0 0 0 0.2rem rgba($outline-color, 0.2) !important;
+        }
+
+        &:disabled,
+        &.disabled {
+            background-color: transparent !important;
+            border-color: $outline-color !important;
+            color: $outline-color !important;
+            opacity: var(--disabled-opacity, 0.65) !important;
+        }
+    }
+
+    // 3. Label / Soft Button Variant (Dual-Tone)
+    .btn-label-#{$name},
+    .btn.bg-label-#{$name},
+    .btn-icon.bg-label-#{$name} {
+        background-color: $bg !important;
+        border-color: transparent !important;
+        color: $color !important;
+        font-weight: 500;
+
+        &:hover,
+        &:focus,
+        &:active,
+        &.active,
+        &.show {
+            background-color: $hover-bg !important;
+            border-color: transparent !important;
+            color: $hover-color !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+        }
+
+        &:focus-visible {
+            box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.1) !important;
+        }
+
+        &:disabled,
+        &.disabled {
+            background-color: $bg !important;
+            border-color: transparent !important;
+            color: $color !important;
+            opacity: var(--disabled-opacity, 0.65) !important;
+        }
+    }
+
+    // 4. Ghost / Text Button Variant
+    .btn-text-#{$name},
+    .btn-icon.btn-text-#{$name} {
+        background-color: transparent !important;
+        border-color: transparent !important;
+        color: $color !important;
+
+        &:hover,
+        &:focus,
+        &:active,
+        &.active,
+        &.show {
+            background-color: $bg !important;
+            border-color: transparent !important;
+            color: $hover-color !important;
+        }
     }
 }
 
-.btn-secondary {
+// Brand Secondary Button Alias (Warm Beige button option if needed)
+.btn-brand-secondary {
     background-color: var(--secondary-color) !important;
     border-color: var(--secondary-color-dark, #eadfcc) !important;
     color: var(--primary-color) !important;
@@ -120,76 +244,6 @@
     }
 }
 
-.btn-outline-primary {
-    background-color: transparent !important;
-    border-color: var(--primary-color) !important;
-    color: var(--primary-color) !important;
-    font-weight: 500;
-
-    &:hover,
-    &:focus,
-    &:active,
-    &.active,
-    &.show {
-        background-color: rgba(29, 79, 68, 0.08) !important;
-        border-color: var(--primary-color-deep, #12332c) !important;
-        color: var(--primary-color-deep, #12332c) !important;
-    }
-}
-
-.btn-outline-secondary {
-    background-color: transparent !important;
-    border-color: var(--secondary-color-dark, #eadfcc) !important;
-    color: var(--primary-color) !important;
-    font-weight: 500;
-
-    &:hover,
-    &:focus,
-    &:active,
-    &.active,
-    &.show {
-        background-color: var(--secondary-color) !important;
-        border-color: var(--secondary-color-dark, #eadfcc) !important;
-        color: var(--primary-color-deep, #12332c) !important;
-    }
-}
-
-.btn-label-primary,
-.btn.bg-label-primary,
-.btn-icon.bg-label-primary {
-    background-color: rgba(29, 79, 68, 0.08) !important;
-    border-color: transparent !important;
-    color: var(--primary-color) !important;
-    font-weight: 500;
-
-    &:hover,
-    &:focus,
-    &:active,
-    &.active,
-    &.show {
-        background-color: rgba(29, 79, 68, 0.16) !important;
-        border-color: transparent !important;
-        color: var(--primary-color-deep, #12332c) !important;
-    }
-}
-
-.btn-label-secondary {
-    background-color: rgba(234, 223, 204, 0.5) !important;
-    border-color: transparent !important;
-    color: var(--primary-color) !important;
-    font-weight: 500;
-
-    &:hover,
-    &:focus,
-    &:active,
-    &.active,
-    &.show {
-        background-color: var(--secondary-color-dark, #eadfcc) !important;
-        border-color: transparent !important;
-        color: var(--primary-color-deep, #12332c) !important;
-    }
-}
-
 // Icon action buttons in tables & headers
 .btn-icon {
     display: inline-flex;
@@ -199,16 +253,6 @@
         background-color 0.15s ease,
         color 0.15s ease,
         border-color 0.15s ease;
-
-    &.btn-text-secondary:hover {
-        background-color: rgba(29, 79, 68, 0.08) !important;
-        color: var(--primary-color-deep, #12332c) !important;
-    }
-
-    &.btn-text-primary:hover {
-        background-color: rgba(29, 79, 68, 0.12) !important;
-        color: var(--primary-color-deep, #12332c) !important;
-    }
 }
 
 // Standard "add" button rendered by DataTables buttons plugin

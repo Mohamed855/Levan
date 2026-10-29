@@ -170,7 +170,7 @@
                     :value="$user->image ? tasset($user->image) : null" accept="image/*"
                     help="الصيغ المسموح بها: JPG, PNG, GIF. الحد الأقصى: 10MB" :max-size="10" col="col-12" />
                 <x-slot:footer>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إلغاء</button>
                     <button type="submit" class="btn btn-primary">
                         <i class="ti ti-device-floppy me-1"></i> حفظ التغييرات
                     </button>

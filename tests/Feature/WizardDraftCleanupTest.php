@@ -41,7 +41,7 @@ class WizardDraftCleanupTest extends TestCase
     public function test_a_draft_is_deleted_after_its_resource_is_created_successfully(): void
     {
         $this->createdEmail = 'wizard-draft-'.Str::lower(Str::random(12)).'@gmail.com';
-        $resourceKey = '/admin/users';
+        $resourceKey = '/superadmin/users';
 
         $draft = $this->postJson($this->adminUrl('wizard-drafts'), [
             'resource_key' => $resourceKey,
@@ -72,7 +72,7 @@ class WizardDraftCleanupTest extends TestCase
     public function test_a_draft_is_retained_when_resource_creation_fails(): void
     {
         $this->createdEmail = 'wizard-draft-'.Str::lower(Str::random(12)).'@gmail.com';
-        $resourceKey = '/admin/users';
+        $resourceKey = '/superadmin/users';
 
         $draft = $this->postJson($this->adminUrl('wizard-drafts'), [
             'resource_key' => $resourceKey,
@@ -104,7 +104,7 @@ class WizardDraftCleanupTest extends TestCase
 
     public function test_saving_the_same_draft_twice_updates_its_existing_record(): void
     {
-        $resourceKey = '/admin/draft-update-'.Str::uuid();
+        $resourceKey = '/superadmin/draft-update-'.Str::uuid();
 
         $firstDraft = $this->postJson($this->adminUrl('wizard-drafts'), [
             'resource_key' => $resourceKey,
@@ -135,7 +135,7 @@ class WizardDraftCleanupTest extends TestCase
 
     public function test_a_user_can_discard_a_saved_draft(): void
     {
-        $resourceKey = '/admin/draft-discard-'.Str::uuid();
+        $resourceKey = '/superadmin/draft-discard-'.Str::uuid();
         $draft = $this->postJson($this->adminUrl('wizard-drafts'), [
             'resource_key' => $resourceKey,
             'step' => 1,
@@ -152,7 +152,7 @@ class WizardDraftCleanupTest extends TestCase
     public function test_multiple_file_batches_are_accumulated_and_an_individual_file_can_be_removed(): void
     {
         Storage::fake('local');
-        $resourceKey = '/admin/draft-files-'.Str::uuid();
+        $resourceKey = '/superadmin/draft-files-'.Str::uuid();
 
         $this->post($this->adminUrl('wizard-drafts'), [
             'resource_key' => $resourceKey,
@@ -186,7 +186,7 @@ class WizardDraftCleanupTest extends TestCase
     public function test_draft_file_url_is_exposed_in_manifest_and_can_be_served_and_streamed(): void
     {
         Storage::fake('local');
-        $resourceKey = '/admin/draft-avatar-'.Str::uuid();
+        $resourceKey = '/superadmin/draft-avatar-'.Str::uuid();
 
         $this->post($this->adminUrl('wizard-drafts'), [
             'resource_key' => $resourceKey,
@@ -222,7 +222,7 @@ class WizardDraftCleanupTest extends TestCase
     {
         Storage::fake('local');
         $this->createdEmail = 'wizard-draft-storage-'.Str::lower(Str::random(12)).'@gmail.com';
-        $resourceKey = '/admin/users';
+        $resourceKey = '/superadmin/users';
 
         $draft = $this->postJson($this->adminUrl('wizard-drafts'), [
             'resource_key' => $resourceKey,
@@ -251,6 +251,6 @@ class WizardDraftCleanupTest extends TestCase
 
     private function adminUrl(string $path): string
     {
-        return 'http://localhost/admin/'.ltrim($path, '/');
+        return 'http://localhost/superadmin/'.ltrim($path, '/');
     }
 }

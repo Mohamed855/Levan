@@ -2,7 +2,7 @@
 @section('title', 'معاينة مخرج المزاد')
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <a class="btn btn-secondary" href="{{ tenant_route_name('auctions.show', $auction->id) }}">العودة لتفاصيل
+        <a class="btn btn-secondary" href="{{ tenant_route_name('auctions.show', $auction->id) }}"><i class="ti ti-arrow-right me-1"></i>العودة لتفاصيل
             المزاد</a>
         <span class="badge bg-primary fs-6 p-2">نوع المخرج: {{ $type }}</span>
     </div>

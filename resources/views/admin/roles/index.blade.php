@@ -63,10 +63,7 @@
                 <x-filter.select id="filter-role" filterKey="role" table="#roles-table" label="اسم الدور"
                     placeholder="اختر الدور" :options="$roleOptions ?? []" />
                 <x-filter.select id="filter-usage-status" filterKey="usage_status" table="#roles-table" label="حالة الاستخدام"
-                    placeholder="اختر حالة الاستخدام" :options="[
-                        'assigned' => 'أدوار مستخدمة (مرتبطة بمستخدمين)',
-                        'unassigned' => 'أدوار غير مستخدمة (جاهزة للإسناد)',
-                    ]" />
+                    placeholder="اختر حالة الاستخدام" :options="__('roles.usage_statuses', [], 'ar')" />
                 <x-filter.date id="filter-date-from" filterKey="date_from" table="#roles-table" label="تاريخ الإضافة من" />
                 <x-filter.date id="filter-date-to" filterKey="date_to" table="#roles-table" label="تاريخ الإضافة إلى" />
             </x-data-table.filters>

@@ -7,25 +7,5 @@
 @endsection
 
 @section('content')
-    <div class="row">
-        <div class="col-12">
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">إضافة امتداد دومين جديد</h5>
-                    <a href="{{ route('admin.settings.domains.index') }}" class="btn btn-outline-secondary btn-sm">
-                        <i class="ti ti-arrow-right me-1"></i>
-                        العودة للقائمة
-                    </a>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('admin.settings.domains.store') }}" method="POST" data-form-validate
-                        data-draft-url="{{ route('admin.wizard-drafts.store') }}"
-                        data-draft-resource-key="admin.domain-create">
-                        @csrf
-                        @include('admin.settings.domains.partials.form', ['domain' => null])
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    @include('admin.settings.domains.partials._form', ['is_edit' => false, 'domain' => null])
 @endsection

@@ -12,15 +12,16 @@ class WizardDraft extends Model
 {
     use HasUuids;
 
-    protected $connection = 'mysql';
-
     public function getConnectionName(): ?string
     {
+        if ($this->connection !== null) {
+            return $this->connection;
+        }
         if (function_exists('tenant') && tenant()) {
             return config('tenancy.database.connection') ?: 'tenant';
         }
 
-        return $this->connection ?? config('database.default', 'mysql');
+        return config('tenancy.database.central_connection') ?: config('database.default', 'mysql');
     }
 
     protected $fillable = [

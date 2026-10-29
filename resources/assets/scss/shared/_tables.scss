@@ -2,6 +2,9 @@
 // Tables — DataTable overrides, styling and tooltip positioning fix
 // =============================================================================
 
+@use 'sass:map';
+@use 'palette';
+
 .table,
 table.dataTable {
     border-collapse: separate !important;
@@ -605,6 +608,34 @@ table.dataTable {
 
         .select2-container .select2-selection--single .select2-selection__rendered {
             text-align: center !important;
+        }
+    }
+}
+
+// =============================================================================
+// Contextual Table Variants (Exact match to custom badge palette)
+// =============================================================================
+@each $name, $props in palette.$theme-palette {
+    $bg: map.get($props, bg);
+    $border: map.get($props, border);
+    $color: map.get($props, color);
+    $hover-bg: map.get($props, hover-bg);
+
+    .table-#{$name} {
+        --bs-table-bg: #{$bg};
+        --bs-table-border-color: #{$border};
+        --bs-table-color: #{$color};
+        --bs-table-striped-bg: #{$hover-bg};
+        --bs-table-hover-bg: #{$hover-bg};
+        background-color: $bg !important;
+        color: $color !important;
+        border-color: $border !important;
+
+        > th,
+        > td {
+            background-color: $bg !important;
+            color: $color !important;
+            border-color: $border !important;
         }
     }
 }

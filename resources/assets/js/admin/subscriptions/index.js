@@ -187,8 +187,8 @@ function openConfirmModal(action, ids, name = "") {
         );
         $iconContainer
             .addClass("bg-success")
-            .html('<i class="ti ti-check ti-lg"></i>');
-        $submitBtn.addClass("btn-success").text("تأكيد القبول");
+            .html('<i class="ti ti-check ti-lg text-white"></i>');
+        $submitBtn.addClass("btn-success").html('<i class="ti ti-check me-1"></i>تأكيد القبول');
     } else if (action === "reject") {
         $title.text("تأكيد رفض طلب الاشتراك");
         $heading.text("تأكيد رفض الاشتراك");
@@ -200,9 +200,9 @@ function openConfirmModal(action, ids, name = "") {
         );
         $iconContainer
             .addClass("bg-danger")
-            .html('<i class="ti ti-x ti-lg"></i>');
+            .html('<i class="ti ti-x ti-lg text-white"></i>');
         $rejectReasonContainer.removeClass("d-none");
-        $submitBtn.addClass("btn-danger").text("تأكيد الرفض");
+        $submitBtn.addClass("btn-danger").html('<i class="ti ti-ban me-1"></i>تأكيد الرفض');
     } else if (action === "mass-accept") {
         $title.text("تأكيد قبول الاشتراكات المحددة");
         $heading.text(`تأكيد قبول ${currentTargetIds.length} طلب اشتراك`);
@@ -211,8 +211,8 @@ function openConfirmModal(action, ids, name = "") {
         );
         $iconContainer
             .addClass("bg-success")
-            .html('<i class="ti ti-check ti-lg"></i>');
-        $submitBtn.addClass("btn-success").text("تأكيد القبول");
+            .html('<i class="ti ti-check ti-lg text-white"></i>');
+        $submitBtn.addClass("btn-success").html('<i class="ti ti-check me-1"></i>تأكيد القبول');
     } else if (action === "mass-reject") {
         $title.text("تأكيد رفض الاشتراكات المحددة");
         $heading.text(`تأكيد رفض ${currentTargetIds.length} طلب اشتراك`);
@@ -221,9 +221,9 @@ function openConfirmModal(action, ids, name = "") {
         );
         $iconContainer
             .addClass("bg-danger")
-            .html('<i class="ti ti-x ti-lg"></i>');
+            .html('<i class="ti ti-x ti-lg text-white"></i>');
         $rejectReasonContainer.removeClass("d-none");
-        $submitBtn.addClass("btn-danger").text("تأكيد الرفض");
+        $submitBtn.addClass("btn-danger").html('<i class="ti ti-ban me-1"></i>تأكيد الرفض');
     }
 
     const modalElement = $modal.get(0);

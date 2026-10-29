@@ -32,7 +32,17 @@
                 <div class="modal-header {{ $headerClass }}">
                     <h5 id="{{ $titleId }}" class="modal-title d-flex align-items-center">
                         @if ($icon)
-                            <i class="ti {{ $icon }} me-2 text-primary"></i>
+                            @php
+                                $modalIcon = trim($icon);
+                                if (!str_contains($modalIcon, 'ti-') && !str_starts_with($modalIcon, 'ti')) {
+                                    $modalIcon = 'ti ti-' . $modalIcon;
+                                } elseif (str_starts_with($modalIcon, 'ti-')) {
+                                    $modalIcon = 'ti ' . $modalIcon;
+                                } elseif (!str_starts_with($modalIcon, 'ti ') && !str_starts_with($modalIcon, 'ti-')) {
+                                    $modalIcon = 'ti ' . $modalIcon;
+                                }
+                            @endphp
+                            <i class="{{ $modalIcon }} me-2 text-primary"></i>
                         @endif
                         <span>{{ $title }}</span>
                     </h5>

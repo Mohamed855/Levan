@@ -20,8 +20,8 @@
                     placeholder="مثال: properties.view" required />
             </div>
             <x-slot:footer>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                <button type="submit" class="btn btn-primary">إضافة الصلاحية</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إلغاء</button>
+                <button type="submit" class="btn btn-primary"><i class="ti ti-plus me-1"></i>إضافة الصلاحية</button>
             </x-slot:footer>
         </form>
     </x-bootstrap.modal>
@@ -38,8 +38,8 @@
                 <input type="text" id="editModalPermissionName" name="name" class="form-control" required />
             </div>
             <x-slot:footer>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                <button type="submit" class="btn btn-primary">تحديث الصلاحية</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إلغاء</button>
+                <button type="submit" class="btn btn-primary"><i class="ti ti-check me-1"></i>تحديث الصلاحية</button>
             </x-slot:footer>
         </form>
     </x-bootstrap.modal>

@@ -8,8 +8,10 @@ use App\Enums\Tenants\Properties\PropertyAttachmentCategory;
 use App\Models\Tenants\Properties\Property;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use RuntimeException;
 use Throwable;
 
 final class UpdatePropertyAction
@@ -58,10 +60,9 @@ final class UpdatePropertyAction
                 // If new main image uploaded
                 if ($mainImageFile instanceof UploadedFile) {
                     if ($property->main_image) {
-                        $pathsToDelete[] = $property->main_image;
+                        $pathsToDelete['tenant_public'][] = $property->main_image;
                     }
-                    $mainImagePath = $mainImageFile->store('properties/main_images', 'tenant_public');
-                    $storedPaths[] = $mainImagePath;
+                    $mainImagePath = $this->storeUpload($mainImageFile, 'properties/main_images', $storedPaths);
                     $data['main_image'] = $mainImagePath;
 
                     // Also create/update main image attachment
@@ -80,10 +81,9 @@ final class UpdatePropertyAction
                 // If new aerial image uploaded or modified
                 if ($aerialImageInput instanceof UploadedFile) {
                     if ($property->aerial_image) {
-                        $pathsToDelete[] = $property->aerial_image;
+                        $pathsToDelete['tenant_public'][] = $property->aerial_image;
                     }
-                    $aerialImagePath = $aerialImageInput->store('properties/aerial_images', 'tenant_public');
-                    $storedPaths[] = $aerialImagePath;
+                    $aerialImagePath = $this->storeUpload($aerialImageInput, 'properties/aerial_images', $storedPaths);
                     $data['aerial_image'] = $aerialImagePath;
 
                     $property->attachments()->where('category', PropertyAttachmentCategory::AERIAL_PHOTO->value)->delete();
@@ -98,14 +98,16 @@ final class UpdatePropertyAction
                     ]);
                 } elseif (is_string($aerialImageInput) && str_starts_with($aerialImageInput, 'data:image/')) {
                     if ($property->aerial_image) {
-                        $pathsToDelete[] = $property->aerial_image;
+                        $pathsToDelete['tenant_public'][] = $property->aerial_image;
                     }
                     [$type, $imageData] = explode(';', $aerialImageInput);
                     [, $imageData] = explode(',', $imageData);
                     $decoded = base64_decode($imageData);
                     $extension = str_contains($type, 'png') ? 'png' : (str_contains($type, 'webp') ? 'webp' : 'jpg');
                     $aerialImagePath = 'properties/aerial_images/'.Str::uuid().'.'.$extension;
-                    Storage::disk('tenant_public')->put($aerialImagePath, $decoded);
+                    if (! Storage::disk('tenant_public')->put($aerialImagePath, $decoded)) {
+                        throw new RuntimeException('Unable to store the replacement aerial image.');
+                    }
                     $storedPaths[] = $aerialImagePath;
                     $data['aerial_image'] = $aerialImagePath;
 
@@ -198,7 +200,7 @@ final class UpdatePropertyAction
                             $oldAttachments = $property->attachments()->where('category', $category)->get();
                             foreach ($oldAttachments as $old) {
                                 if ($old->file_path) {
-                                    Storage::disk($old->disk ?: 'tenant_public')->delete($old->file_path);
+                                    $pathsToDelete[$old->disk ?: 'tenant_public'][] = $old->file_path;
                                 }
                                 $old->delete();
                             }
@@ -212,8 +214,7 @@ final class UpdatePropertyAction
                             default => 'properties/documents',
                         };
 
-                        $path = $upload->store($folder, 'tenant_public');
-                        $storedPaths[] = $path;
+                        $path = $this->storeUpload($upload, $folder, $storedPaths);
 
                         $property->attachments()->create([
                             'disk' => 'tenant_public',
@@ -230,14 +231,42 @@ final class UpdatePropertyAction
                 return $property->load(['boundaries', 'owners', 'units', 'attachments']);
             });
 
-            if (! empty($pathsToDelete)) {
-                Storage::disk('tenant_public')->delete(array_values(array_unique($pathsToDelete)));
-            }
-
-            return $updated;
         } catch (Throwable $exception) {
             Storage::disk('tenant_public')->delete($storedPaths);
             throw $exception;
+        }
+
+        // A cleanup failure cannot roll back a committed replacement or delete its new bytes.
+        DB::afterCommit(fn () => $this->deleteReplacedFiles($pathsToDelete, (int) $property->getKey()));
+
+        return $updated;
+    }
+
+    /** @param array<int, string> $storedPaths */
+    private function storeUpload(UploadedFile $upload, string $directory, array &$storedPaths): string
+    {
+        $path = $upload->store($directory, 'tenant_public');
+
+        if (! is_string($path) || $path === '') {
+            throw new RuntimeException('Unable to store the replacement property document.');
+        }
+
+        $storedPaths[] = $path;
+
+        return $path;
+    }
+
+    /** @param array<string, array<int, string>> $filesByDisk */
+    private function deleteReplacedFiles(array $filesByDisk, int $propertyId): void
+    {
+        foreach ($filesByDisk as $disk => $paths) {
+            try {
+                if (! Storage::disk($disk)->delete(array_values(array_unique($paths)))) {
+                    Log::warning('Property replacement cleanup did not complete.', ['property_id' => $propertyId, 'disk' => $disk]);
+                }
+            } catch (Throwable $exception) {
+                Log::warning('Property replacement cleanup failed.', ['property_id' => $propertyId, 'disk' => $disk, 'exception' => $exception]);
+            }
         }
     }
 

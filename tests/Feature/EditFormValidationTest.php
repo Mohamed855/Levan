@@ -104,7 +104,7 @@ class EditFormValidationTest extends TestCase
 
         $response = $this->actingAs($admin, 'admin')
             ->postJson(route('admin.wizard-drafts.validate-step'), [
-                'target_path' => "/admin/users/{$admin->id}",
+                'target_path' => "/superadmin/users/{$admin->id}",
                 'target_method' => 'PUT',
                 '_method' => 'PUT',
                 'fields' => ['name'],

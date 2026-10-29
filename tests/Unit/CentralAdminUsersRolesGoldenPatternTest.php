@@ -52,7 +52,7 @@ final class CentralAdminUsersRolesGoldenPatternTest extends TestCase
 
     public function test_role_forms_use_shared_validation_controls_and_the_create_draft_contract(): void
     {
-        $formPartial = file_get_contents(resource_path('views/admin/roles/partials/form.blade.php'));
+        $formPartial = file_get_contents(resource_path('views/admin/roles/partials/_form.blade.php'));
         $create = file_get_contents(resource_path('views/admin/roles/create.blade.php')).$formPartial;
         $edit = file_get_contents(resource_path('views/admin/roles/edit.blade.php')).$formPartial;
 

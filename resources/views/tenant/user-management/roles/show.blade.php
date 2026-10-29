@@ -41,7 +41,7 @@
                 <div class="card-body text-center">
                     <div class="mx-auto mb-3 d-flex align-items-center justify-content-center bg-primary rounded"
                         style="width: 100px; height: 100px;">
-                        <i class="ti ti-shield-check text-primary" style="font-size: 3rem;"></i>
+                        <i class="ti ti-shield-check text-white" style="font-size: 3rem;"></i>
                     </div>
                     <h5 class="mb-1">{{ \App\Support\AccessLabels::role($role->name) }}</h5>
                     <span class="badge bg-primary mb-3">حارس النظام:

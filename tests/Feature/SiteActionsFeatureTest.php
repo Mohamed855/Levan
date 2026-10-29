@@ -295,7 +295,7 @@ final class SiteActionsFeatureTest extends TestCase
         $res->assertDontSee('grid-loader', false);
 
         // 2. Admin 404
-        $adminRes = $this->get('/admin/non-existent-admin-page-404');
+        $adminRes = $this->get('/superadmin/non-existent-admin-page-404');
         $adminRes->assertStatus(404);
         $adminRes->assertDontSee('page-loading', false);
         $adminRes->assertDontSee('grid-loader', false);

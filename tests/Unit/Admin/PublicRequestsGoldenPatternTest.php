@@ -32,9 +32,9 @@ final class PublicRequestsGoldenPatternTest extends TestCase
         foreach ([$contactIndex, $trialIndex] as $indexView) {
             self::assertStringContainsString('<x-ui.stat-card', $indexView);
             self::assertStringContainsString('<x-data-table.filters', $indexView);
-            self::assertStringContainsString('type="date"', $indexView);
-            self::assertStringContainsString('data-filter-key="date_from"', $indexView);
-            self::assertStringContainsString('data-filter-key="date_to"', $indexView);
+            self::assertTrue(str_contains($indexView, '<x-filter.date') || str_contains($indexView, 'type="date"'));
+            self::assertTrue(str_contains($indexView, 'filterKey="date_from"') || str_contains($indexView, 'data-filter-key="date_from"'));
+            self::assertTrue(str_contains($indexView, 'filterKey="date_to"') || str_contains($indexView, 'data-filter-key="date_to"'));
             self::assertStringContainsString('$dataTable->table', $indexView);
         }
 
@@ -56,7 +56,7 @@ final class PublicRequestsGoldenPatternTest extends TestCase
         foreach ($views as $view) {
             $contents = file_get_contents($view);
 
-            self::assertStringContainsString('type="date"', $contents, $view);
+            self::assertTrue(str_contains($contents, '<x-filter.date') || str_contains($contents, 'type="date"'), $view);
             self::assertStringNotContainsString('x-filter.select id="filter-start-date"', $contents, $view);
             self::assertStringNotContainsString('x-filter.select id="filter-end-date"', $contents, $view);
         }

@@ -7,8 +7,8 @@
     if (!isset($homeUrl)) {
         if (function_exists('tenant') && tenant()) {
             $homeUrl = url('/');
-        } elseif (request()->is('admin/*') || request()->is('admin')) {
-            $homeUrl = Route::has('admin.dashboard.index') ? route('admin.dashboard.index') : url('/admin');
+        } elseif (request()->is('superadmin/*') || request()->is('superadmin') || request()->is('admin/*') || request()->is('admin')) {
+            $homeUrl = Route::has('admin.dashboard.index') ? route('admin.dashboard.index') : (Route::has('admin.dashboard') ? route('admin.dashboard') : url('/superadmin'));
         } elseif (Route::has('site.index')) {
             $homeUrl = route('site.index');
         } else {

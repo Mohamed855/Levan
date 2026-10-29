@@ -153,15 +153,15 @@ document.addEventListener("DOMContentLoaded", () => {
         );
         setReviewValue(
             "review-admin-name",
-            form.querySelector('[name="name"]')?.value,
+            form.querySelector('[name="name"]')?.value || form.querySelector('[name="primary_contact_name"]')?.value,
         );
         setReviewValue(
             "review-admin-phone",
-            form.querySelector('[name="phone"]')?.value,
+            form.querySelector('[name="phone"]')?.value || form.querySelector('[name="primary_contact_phone"]')?.value,
         );
         setReviewValue(
             "review-admin-email",
-            form.querySelector('[name="email"]')?.value,
+            form.querySelector('[name="email"]')?.value || form.querySelector('[name="primary_contact_email"]')?.value,
         );
         setReviewValue("review-plan-name", selectedPlan?.name);
         setReviewValue("review-start-date", startDate?.value);

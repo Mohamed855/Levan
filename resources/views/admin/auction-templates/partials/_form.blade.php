@@ -1,7 +1,8 @@
 @php
+    $is_edit = $is_edit ?? $template->exists;
+    $isEdit = $is_edit;
     $latest = $template->versions?->first();
     $schema = old('schema', $latest ? json_encode($latest->schema, JSON_UNESCAPED_UNICODE) : null);
-    $isEdit = $template->exists;
     $typeValue = $isEdit
         ? ($template->type instanceof \BackedEnum
             ? $template->type->value
@@ -90,11 +91,7 @@
                     <input type="hidden" name="type" id="type" value="{{ $typeValue }}">
                 @else
                     <x-form.controls.select name="type" id="type" label="نوع القالب" :value="$typeValue"
-                        :options="[
-                            'brochure' => 'كتيب مزاد متعدد الصفحات (A4 رأسي)',
-                            'billboard' => 'لوحة إعلانية (16:9 عريض)',
-                            'social' => 'منشور تواصل اجتماعي (1:1 مربع)',
-                        ]" required col="col-12" />
+                        :enum="\App\Enums\Admin\AuctionTemplates\AuctionTemplateType::class" required col="col-12" />
                 @endif
 
                 <x-form.controls.textarea name="description" label="وصف القالب" :value="$template->description" col="col-12"
@@ -116,8 +113,6 @@
             <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
                 <div>
                     <h5 class="mb-1">مصمم القالب</h5>
-                    {{-- <span class="badge bg-secondary" data-canvas-dims>794 × 1123 px (A4
-                        رأسي)</span> --}}
                     <small class="text-muted">ارسم المحتوى وحدد مواضع المتغيرات والصور على كل صفحة من القالب.</small>
                 </div>
                 <div class="d-flex align-items-center gap-2">
@@ -180,7 +175,7 @@
                 </div>
             </div>
             <div class="modal-footer border-top">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إغلاق</button>
             </div>
         </div>
     </div>

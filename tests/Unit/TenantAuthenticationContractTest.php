@@ -13,6 +13,7 @@ use App\Http\Controllers\Tenants\Auth\NewPasswordController;
 use App\Http\Controllers\Tenants\Auth\PasswordController;
 use App\Http\Controllers\Tenants\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Tenants\Auth\RegisteredUserController;
+use App\Http\Requests\Admin\Clients\ResetClientUserPasswordRequest;
 use App\Http\Requests\Tenants\Auth\ConfirmTenantPasswordRequest;
 use App\Http\Requests\Tenants\Auth\ConfirmTenantTwoFactorRequest;
 use App\Http\Requests\Tenants\Auth\ResendPasswordResetOtpRequest;
@@ -34,7 +35,7 @@ class TenantAuthenticationContractTest extends TestCase
             [PasswordResetLinkController::class, 'verifyOtp', VerifyPasswordResetOtpRequest::class],
             [PasswordResetLinkController::class, 'resendOtp', ResendPasswordResetOtpRequest::class],
             [NewPasswordController::class, 'store', ResetTenantPasswordRequest::class],
-            [NewPasswordController::class, 'updatePassword', ResetTenantPasswordRequest::class],
+            [NewPasswordController::class, 'updatePassword', ResetClientUserPasswordRequest::class],
             [PasswordController::class, 'update', UpdateTenantPasswordRequest::class],
             [ConfirmablePasswordController::class, 'store', ConfirmTenantPasswordRequest::class],
             [TenantTwoFactorChallengeController::class, 'store', TenantTwoFactorChallengeRequest::class],

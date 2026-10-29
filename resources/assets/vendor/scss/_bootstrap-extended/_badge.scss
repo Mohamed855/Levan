@@ -52,15 +52,15 @@
         max-height: 8px !important;
         padding: 0 !important;
         border-radius: 50% !important;
-        background-color: #ea5455 !important;
-        background: #ea5455 !important;
+        background-color: #ef4444 !important;
+        background: #ef4444 !important;
         border: 1.5px solid var(--bs-card-bg, #fff) !important;
-        box-shadow: 0 1px 3px rgba(234, 84, 85, 0.4);
+        box-shadow: 0 1px 3px rgba(239, 68, 68, 0.4);
     }
 
     &:not(.badge-dot):not(:empty) {
-        background-color: #ea5455 !important;
-        background: #ea5455 !important;
+        background-color: #ef4444 !important;
+        background: #ef4444 !important;
         color: #fff !important;
         padding: 0.15rem 0.35rem;
         font-size: 0.75rem;

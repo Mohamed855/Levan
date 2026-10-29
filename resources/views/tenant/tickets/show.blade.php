@@ -85,7 +85,7 @@
             </div>
 
             <x-slot:footer>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إلغاء</button>
                 <button type="submit" class="btn btn-primary" id="submitSurveyBtn">
                     <i class="ti ti-send me-1"></i> إرسال التقييم
                 </button>
@@ -141,14 +141,14 @@
                 </div>
                 <div class="card-body pt-4">
                     <h6 class="fw-bold mb-2">{{ $ticket->title }}</h6>
-                    <div class="p-3 bg-secondary rounded mb-3 text-secondary"
+                    <div class="p-3 bg-secondary rounded mb-3"
                         style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;">{{ $ticket->description }}
                     </div>
 
                     @if (!empty($ticket->attachments) && count($ticket->attachments) > 0)
                         <div class="mt-3">
                             <h6 class="small text-muted mb-2"><i class="ti ti-paperclip me-1"></i> المرفقات:</h6>
-                            <div class="d-flex flex-wrap gap-2">
+                            <div class="d-flex flex-wrap gap-3">
                                 @foreach ($ticket->attachments as $file)
                                     @php
                                         $fileUrl = is_array($file) ? $file['url'] ?? '' : $file;
@@ -157,9 +157,10 @@
                                             ? $fileUrl
                                             : Storage::url($fileUrl);
                                     @endphp
-                                    <a href="{{ $fullUrl }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                        <i class="ti ti-download me-1"></i> {{ $fileName }}
-                                    </a>
+                                    <x-ui.file-card
+                                        :name="$fileName"
+                                        :url="$fullUrl"
+                                    />
                                 @endforeach
                             </div>
                         </div>
@@ -220,19 +221,21 @@
                                         {{-- المرفقات --}}
                                         @if (!empty($replyAttachments) && count($replyAttachments) > 0)
                                             <div class="mt-2 pt-2 border-top">
-                                                @foreach ($replyAttachments as $att)
-                                                    @php
-                                                        $attUrl = is_array($att) ? $att['url'] ?? '' : $att;
-                                                        $attName = is_array($att) ? $att['name'] ?? 'مرفق' : 'مرفق';
-                                                        $fullAttUrl = Str::startsWith($attUrl, 'http')
-                                                            ? $attUrl
-                                                            : Storage::url($attUrl);
-                                                    @endphp
-                                                    <a href="{{ $fullAttUrl }}" target="_blank"
-                                                        class="badge bg-info text-decoration-none me-1">
-                                                        <i class="ti ti-paperclip me-1"></i> {{ $attName }}
-                                                    </a>
-                                                @endforeach
+                                                <div class="d-flex flex-wrap gap-3">
+                                                    @foreach ($replyAttachments as $att)
+                                                        @php
+                                                            $attUrl = is_array($att) ? $att['url'] ?? '' : $att;
+                                                            $attName = is_array($att) ? $att['name'] ?? 'مرفق' : 'مرفق';
+                                                            $fullAttUrl = Str::startsWith($attUrl, 'http')
+                                                                ? $attUrl
+                                                                : Storage::url($attUrl);
+                                                        @endphp
+                                                        <x-ui.file-card
+                                                            :name="$attName"
+                                                            :url="$fullAttUrl"
+                                                        />
+                                                    @endforeach
+                                                </div>
                                             </div>
                                         @endif
 
@@ -474,13 +477,12 @@
                 </div>
                 <div class="card-body pt-3">
                     @if (count($allAttachments) > 0)
-                        <div class="assignment-file-list d-flex flex-column gap-2">
+                        <div class="d-flex flex-wrap gap-3">
                             @foreach ($allAttachments as $attachment)
                                 <x-ui.file-card
                                     :name="$attachment['name']"
                                     :url="$attachment['url']"
                                     :meta="$attachment['source']"
-                                    layout="list"
                                 />
                             @endforeach
                         </div>

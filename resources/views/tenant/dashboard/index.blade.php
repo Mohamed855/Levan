@@ -162,7 +162,7 @@
                         <div class="col-4">
                             <a href="{{ tenant_route_name('subscriptions.index') }}" class="quick-action-box">
                                 <div class="avatar avatar-md mb-2">
-                                    <span class="avatar-initial rounded bg-secondary text-dark">
+                                    <span class="avatar-initial rounded bg-secondary text-primary">
                                         <i class="ti ti-award fs-4"></i>
                                     </span>
                                 </div>
@@ -188,7 +188,7 @@
                 <x-slot:headerAction>
                     @can('activity_log.view')
                         <a href="{{ tenant_route_name('activity-logs.index') }}" class="btn btn-sm btn-primary">
-                            عرض الكل
+                            <i class="ti ti-list me-1"></i>عرض الكل
                         </a>
                     @endcan
                 </x-slot:headerAction>
@@ -268,7 +268,7 @@
                 <x-slot:headerAction>
                     @can('auctions.view')
                         <a href="{{ tenant_route_name('auctions.index') }}" class="btn btn-sm btn-primary">
-                            عرض الكل
+                            <i class="ti ti-list me-1"></i>عرض الكل
                         </a>
                     @endcan
                 </x-slot:headerAction>

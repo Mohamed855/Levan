@@ -72,7 +72,7 @@
                                     <div class="flex-shrink-0">
                                         <div
                                             class="avatar avatar-xl bg-primary rounded p-2 d-flex align-items-center justify-content-center">
-                                            <i class="ti ti-discount-2 fs-1 text-primary"></i>
+                                            <i class="ti ti-discount-2 fs-1 text-white"></i>
                                         </div>
                                     </div>
                                     <div class="flex-grow-1">
@@ -365,7 +365,7 @@
                                         <div class="card-body d-flex align-items-center py-3">
                                             <div
                                                 class="avatar avatar-md me-3 bg-secondary rounded-circle d-flex align-items-center justify-content-center">
-                                                <i class="ti ti-user-off fs-4"></i>
+                                                <i class="ti ti-user-off fs-4 text-primary"></i>
                                             </div>
                                             <div>
                                                 <h6 class="mb-1 fw-bold text-muted">غير مسند لمستخدم إداري</h6>
@@ -407,7 +407,7 @@
                                         <div class="card border h-100">
                                             <div class="card-body d-flex align-items-center">
                                                 <div class="avatar bg-primary rounded p-2 me-3">
-                                                    <i class="ti ti-building fs-4"></i>
+                                                    <i class="ti ti-building fs-4 text-white"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">إجمالي العملاء</small>
@@ -420,7 +420,7 @@
                                         <div class="card border h-100">
                                             <div class="card-body d-flex align-items-center">
                                                 <div class="avatar bg-info rounded p-2 me-3">
-                                                    <i class="ti ti-file-invoice fs-4"></i>
+                                                    <i class="ti ti-file-invoice fs-4 text-white"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">إجمالي الفواتير</small>
@@ -433,7 +433,7 @@
                                         <div class="card border h-100">
                                             <div class="card-body d-flex align-items-center">
                                                 <div class="avatar bg-success rounded p-2 me-3">
-                                                    <i class="ti ti-currency-riyal fs-4"></i>
+                                                    <i class="ti ti-currency-riyal fs-4 text-white"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">إجمالي قيمة الفواتير</small>
@@ -452,7 +452,7 @@
                                             <div class="d-flex align-items-center gap-2">
                                                 <div
                                                     class="avatar avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center">
-                                                    <i class="ti ti-building fs-5"></i>
+                                                    <i class="ti ti-building fs-5 text-white"></i>
                                                 </div>
                                                 <div>
                                                     <h6 class="mb-0 fw-bold">
@@ -627,7 +627,7 @@
             if (btn) btn.disabled = true;
 
             $.ajax({
-                url: `/admin/coupons/${couponId}/toggle-status`,
+                url: `/superadmin/coupons/${couponId}/toggle-status`,
                 type: 'PATCH',
                 headers: {
                     'X-CSRF-TOKEN': token

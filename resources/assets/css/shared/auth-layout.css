@@ -185,7 +185,7 @@ body:has(.tenant-login-container) {
 .tenant-login-form-side [data-form-field].is-invalid .input-group-merge,
 .auth-form-side [data-form-field].has-error .input-group-merge,
 .tenant-login-form-side [data-form-field].has-error .input-group-merge {
-    border: 1px solid #ea5455 !important;
+    border: 1px solid var(--bs-danger, #ef4444) !important;
     box-shadow: none !important;
 }
 

@@ -121,7 +121,7 @@ class ClientController extends Controller
         try {
             $client = $this->clientService->createCompany($request->validated());
 
-            $redirectRoute = request()->is('admin/companies*') ? 'admin.companies.index' : 'admin.clients.index';
+            $redirectRoute = (request()->is('superadmin/companies*') || request()->is('admin/companies*') || request()->routeIs('admin.companies.*')) ? 'admin.companies.index' : 'admin.clients.index';
 
             return redirect()->route($redirectRoute)
                 ->with('success', "تم إنشاء العميل {$client->company_name} بنجاح.");
@@ -160,7 +160,7 @@ class ClientController extends Controller
         try {
             $this->clientService->updateCompany($client, $request->validated());
 
-            $redirectRoute = request()->is('admin/companies*') ? 'admin.companies.index' : 'admin.clients.index';
+            $redirectRoute = (request()->is('superadmin/companies*') || request()->is('admin/companies*') || request()->routeIs('admin.companies.*')) ? 'admin.companies.index' : 'admin.clients.index';
 
             return redirect()->route($redirectRoute)
                 ->with('success', "تم تحديث بيانات العميل {$client->company_name} بنجاح.");
@@ -185,7 +185,7 @@ class ClientController extends Controller
                 ]);
             }
 
-            $redirectRoute = request()->is('admin/companies*') ? 'admin.companies.index' : 'admin.clients.index';
+            $redirectRoute = (request()->is('superadmin/companies*') || request()->is('admin/companies*') || request()->routeIs('admin.companies.*')) ? 'admin.companies.index' : 'admin.clients.index';
 
             return redirect()->route($redirectRoute)
                 ->with('success', 'تم حذف العميل بنجاح ونقله إلى الأرشيف.');

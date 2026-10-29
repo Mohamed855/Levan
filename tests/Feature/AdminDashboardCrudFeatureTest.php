@@ -48,7 +48,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
     {
         $path = ltrim($path, '/');
 
-        return $path ? 'http://localhost/admin/'.$path : 'http://localhost/admin';
+        return $path ? 'http://localhost/superadmin/'.$path : 'http://localhost/superadmin';
     }
 
     /**
@@ -57,7 +57,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
     public function test_all_super_admin_routes_target_existing_controller_methods(): void
     {
         $routes = collect(Route::getRoutes()->getRoutes())
-            ->filter(fn ($route) => str_starts_with($route->uri(), 'admin'));
+            ->filter(fn ($route) => str_starts_with($route->uri(), 'superadmin'));
 
         $this->assertNotEmpty($routes, 'No Super Admin routes are registered.');
 
@@ -92,7 +92,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $client = Tenant::query()->firstOrFail();
 
         $this->postJson($this->adminUrl('wizard-drafts/validate-step'), [
-            'target_path' => '/admin/clients',
+            'target_path' => '/superadmin/clients',
             'fields' => ['company_name'],
             'company_name' => $client->company_name,
         ])->assertUnprocessable()
@@ -102,7 +102,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
     public function test_client_wizard_validates_end_date_is_required_in_subscription_step(): void
     {
         $this->postJson($this->adminUrl('wizard-drafts/validate-step'), [
-            'target_path' => '/admin/clients',
+            'target_path' => '/superadmin/clients',
             'fields' => ['end_date', 'start_date'],
             'start_date' => now()->toDateString(),
             'end_date' => '',
@@ -113,7 +113,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
     public function test_client_wizard_validates_end_date_must_be_after_or_equal_to_start_date(): void
     {
         $this->postJson($this->adminUrl('wizard-drafts/validate-step'), [
-            'target_path' => '/admin/clients',
+            'target_path' => '/superadmin/clients',
             'fields' => ['end_date', 'start_date'],
             'start_date' => now()->toDateString(),
             'end_date' => now()->subDay()->toDateString(),
@@ -743,13 +743,13 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $stepUrl = $this->adminUrl('wizard-drafts/validate-step');
 
         $this->postJson($stepUrl, [
-            'target_path' => '/admin/companies',
+            'target_path' => '/superadmin/companies',
             'fields' => ['company_name'],
         ])->assertUnprocessable()
             ->assertJsonValidationErrors(['company_name']);
 
         $this->postJson($stepUrl, [
-            'target_path' => '/admin/companies',
+            'target_path' => '/superadmin/companies',
             'fields' => ['company_name', 'commercial_number', 'tax_number', 'city_id', 'address'],
             'company_name' => 'شركة اختبار خطوات '.rand(1000, 9999),
             'commercial_number' => (string) rand(1000000000, 9999999999),
@@ -761,7 +761,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
 
         $testPlan = Plan::query()->firstOrFail();
         $this->postJson($stepUrl, [
-            'target_path' => "/admin/plans/{$testPlan->id}",
+            'target_path' => "/superadmin/plans/{$testPlan->id}",
             'target_method' => 'PUT',
             '_method' => 'PUT',
             'fields' => ['name_ar', 'price'],
@@ -770,7 +770,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         ])->assertOk()->assertJson(['success' => true]);
 
         $this->putJson($stepUrl, [
-            'target_path' => "/admin/plans/{$testPlan->id}",
+            'target_path' => "/superadmin/plans/{$testPlan->id}",
             'target_method' => 'PUT',
             'fields' => ['name_ar', 'price'],
             'name_ar' => $testPlan->name_ar,

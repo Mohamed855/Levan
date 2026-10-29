@@ -113,15 +113,16 @@
                 $initialProgress = $gen ? (int) ($gen->progress ?? 0) : 0;
             @endphp
             <div class="card mb-4 shadow-sm border-primary" id="auction-reports-card">
-                <div class="card-header bg-primary py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="card-title mb-0 text-white fw-bold">
+                <div class="card-header text-primary py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="card-title mb-0 fw-bold">
                         <i class="ti ti-file-analytics me-1"></i>ملفات وتقارير المزاد
                     </h6>
                     <div id="reports-header-badge">
                         @if ($isReady)
                             <span class="badge bg-success">جاهز للتحميل</span>
                         @elseif($isProcessing)
-                            <span class="badge bg-warning"><i class="ti ti-loader ti-spin me-1"></i>قيد الإعداد</span>
+                            <span class="badge bg-info"><i class="ti ti-loader ti-spin me-1"></i>قيد
+                                الإعداد</span>
                         @elseif($isFailed)
                             <span class="badge bg-danger">فشل الإعداد</span>
                         @else
@@ -131,19 +132,22 @@
                 </div>
                 <div class="card-body pt-3">
                     {{-- تنبيه الفشل --}}
-                    <div id="reports-error-alert" class="alert alert-danger p-2 small mb-3 {{ $isFailed ? '' : 'd-none' }}">
+                    <div id="reports-error-alert"
+                        class="alert alert-danger p-2 small mb-3 {{ $isFailed ? '' : 'd-none' }}">
                         <i class="ti ti-alert-circle me-1"></i>
-                        <span id="reports-error-text">{{ $gen->error_message ?? 'تعذر تجهيز الملفات تلقائياً.' }}</span>
+                        @include('tenant.auctions.partials.report-error', ['generation' => $gen])
                     </div>
 
                     {{-- تنبيه انتهاء مهلة الإعداد التلقائي --}}
                     <div id="reports-timeout-alert" class="alert alert-warning p-2 small mb-3 d-none">
                         <i class="ti ti-clock-exclamation me-1"></i>
-                        <span id="reports-timeout-text">انتهت المهلة المحددة لتحضير التقارير تلقائياً. يمكنك الضغط على زر توليد الملفات للمحاولة مرة أخرى.</span>
+                        <span id="reports-timeout-text">انتهت المهلة المحددة لتحضير التقارير تلقائياً. يمكنك الضغط على زر
+                            توليد الملفات للمحاولة مرة أخرى.</span>
                     </div>
 
                     {{-- واجهة التحميل الأكبر وعرض النسبة المئوية الحقيقية --}}
-                    <div id="reports-loading-box" class="p-3 mb-3 border rounded bg-lighter text-center {{ $isProcessing ? '' : 'd-none' }}">
+                    <div id="reports-loading-box"
+                        class="p-3 mb-3 border rounded text-center {{ $isProcessing ? '' : 'd-none' }}">
                         <div class="mb-2">
                             <div class="spinner-border text-primary" role="status" style="width: 2.8rem; height: 2.8rem;">
                                 <span class="visually-hidden">Loading...</span>
@@ -152,8 +156,10 @@
                         <h6 class="fw-bold mb-2 text-primary fs-6" id="reports-loading-title">
                             برجاء الانتظار، جار تحضير تقارير المزاد
                         </h6>
-                        <div class="progress mb-2" style="height: 14px;" role="progressbar" aria-valuenow="{{ $initialProgress }}" aria-valuemin="0" aria-valuemax="100">
-                            <div id="reports-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                        <div class="progress mb-2" style="height: 14px;" role="progressbar"
+                            aria-valuenow="{{ $initialProgress }}" aria-valuemin="0" aria-valuemax="100">
+                            <div id="reports-progress-bar"
+                                class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
                                 style="width: {{ max(6, $initialProgress) }}%;"></div>
                         </div>
                         <div class="d-flex justify-content-between text-muted small px-1">
@@ -180,7 +186,8 @@
                         </a>
 
                         @can('auctions.edit')
-                            <button type="button" id="btn-retry-reports" class="btn btn-outline-primary mt-2 {{ $isProcessing ? 'd-none' : '' }}">
+                            <button type="button" id="btn-retry-reports"
+                                class="btn btn-outline-primary mt-2 {{ $isProcessing ? 'd-none' : '' }}">
                                 <i class="ti ti-refresh me-1"></i>
                                 <span id="btn-retry-text">
                                     {{ $isReady ? 'إعادة توليد الملفات' : ($isFailed ? 'إعادة محاولة الإعداد' : 'بدء تجهيز ملفات المزاد') }}
@@ -303,9 +310,9 @@
                         pollInterval = null;
 
                         // إظهار الخطأ في Toastr وإيقاف الإنشاء التلقائي
-                        const errorMsg = isManualRetry
-                            ? 'انتهت المهلة المحددة للتوليد اليدوي لتقارير المزاد. يمكنك المحاولة مجدداً.'
-                            : 'انتهت المهلة المحددة لتحضير التقارير تلقائياً. يمكنك الضغط على زر توليد الملفات للمحاولة مرة أخرى.';
+                        const errorMsg = isManualRetry ?
+                            'انتهت المهلة المحددة للتوليد اليدوي لتقارير المزاد. يمكنك المحاولة مجدداً.' :
+                            'انتهت المهلة المحددة لتحضير التقارير تلقائياً. يمكنك الضغط على زر توليد الملفات للمحاولة مرة أخرى.';
 
                         if (window.toastr) {
                             toastr.error(errorMsg);
@@ -325,61 +332,64 @@
                             }
                         }
                         if (headerBadge) {
-                            headerBadge.innerHTML = '<span class="badge bg-warning">انتهت المهلة</span>';
+                            headerBadge.innerHTML =
+                                '<span class="badge bg-danger text-white">انتهت المهلة</span>';
                         }
 
                         return;
                     }
 
                     fetch(statusUrl, {
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.status === 'processing' || data.status === 'queued') {
-                            if (data.progress !== undefined && data.progress !== null) {
-                                updateProgressUI(data.progress);
+                            headers: {
+                                'Accept': 'application/json'
                             }
-                        } else if (data.status === 'ready') {
-                            clearInterval(pollInterval);
-                            pollInterval = null;
-                            updateProgressUI(100);
-
-                            if (window.toastr) {
-                                toastr.success('تم تحضير وتجهيز تقارير المزاد بنجاح!');
-                            }
-                            setTimeout(() => location.reload(), 900);
-                        } else if (data.status === 'failed') {
-                            clearInterval(pollInterval);
-                            pollInterval = null;
-
-                            if (window.toastr) {
-                                toastr.error(data.error_message || 'فشل إعداد ملفات المزاد.');
-                            }
-                            if (loadingBox) {
-                                loadingBox.classList.add('d-none');
-                            }
-                            if (errorAlert) {
-                                if (errorText) {
-                                    errorText.textContent = data.error_message || 'تعذر تجهيز الملفات تلقائياً.';
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === 'processing' || data.status === 'queued') {
+                                if (data.progress !== undefined && data.progress !== null) {
+                                    updateProgressUI(data.progress);
                                 }
-                                errorAlert.classList.remove('d-none');
-                            }
-                            if (retryBtn) {
-                                retryBtn.classList.remove('d-none');
-                                retryBtn.disabled = false;
-                                if (retryText) {
-                                    retryText.textContent = 'إعادة محاولة الإعداد';
+                            } else if (data.status === 'ready') {
+                                clearInterval(pollInterval);
+                                pollInterval = null;
+                                updateProgressUI(100);
+
+                                if (window.toastr) {
+                                    toastr.success('تم تحضير وتجهيز تقارير المزاد بنجاح!');
+                                }
+                                setTimeout(() => location.reload(), 900);
+                            } else if (data.status === 'failed') {
+                                clearInterval(pollInterval);
+                                pollInterval = null;
+
+                                if (window.toastr) {
+                                    toastr.error(data.error_message || 'فشل إعداد ملفات المزاد.');
+                                }
+                                if (loadingBox) {
+                                    loadingBox.classList.add('d-none');
+                                }
+                                if (errorAlert) {
+                                    if (errorText) {
+                                        errorText.textContent = data.error_message ||
+                                            'تعذر تجهيز الملفات تلقائياً.';
+                                    }
+                                    errorAlert.classList.remove('d-none');
+                                }
+                                if (retryBtn) {
+                                    retryBtn.classList.remove('d-none');
+                                    retryBtn.disabled = false;
+                                    if (retryText) {
+                                        retryText.textContent = 'إعادة محاولة الإعداد';
+                                    }
+                                }
+                                if (headerBadge) {
+                                    headerBadge.innerHTML =
+                                        '<span class="badge bg-danger">فشل الإعداد</span>';
                                 }
                             }
-                            if (headerBadge) {
-                                headerBadge.innerHTML = '<span class="badge bg-danger">فشل الإعداد</span>';
-                            }
-                        }
-                    })
-                    .catch(() => {});
+                        })
+                        .catch(() => {});
                 }, 2000);
             }
 
@@ -387,58 +397,60 @@
                 retryBtn.addEventListener('click', function() {
                     retryBtn.disabled = true;
                     if (retryText) {
-                        retryText.innerHTML = '<i class="ti ti-loader ti-spin me-1"></i> جارٍ بدء التوليد...';
+                        retryText.innerHTML =
+                            '<i class="ti ti-loader ti-spin me-1"></i> جارٍ بدء التوليد...';
                     }
 
                     fetch(retryUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                if (window.toastr) {
+                                    toastr.info(data.message || 'تم بدء تجهيز ملفات المزاد.');
+                                }
+
+                                if (timeoutAlert) {
+                                    timeoutAlert.classList.add('d-none');
+                                }
+                                if (errorAlert) {
+                                    errorAlert.classList.add('d-none');
+                                }
+                                if (loadingBox) {
+                                    loadingBox.classList.remove('d-none');
+                                }
+                                if (headerBadge) {
+                                    headerBadge.innerHTML =
+                                        '<span class="badge bg-info"><i class="ti ti-loader ti-spin me-1"></i>قيد الإعداد</span>';
+                                }
+
+                                updateProgressUI(data.progress || 5);
+                                retryBtn.classList.add('d-none');
+
+                                // تشغيل المتابعة بمهلة اليدوي الأطول بنسبة 50%
+                                startPolling(MANUAL_TIMEOUT_MS, true);
+                            } else {
+                                if (window.toastr) {
+                                    toastr.error(data.message || 'حدث خطأ أثناء بدء التوليد.');
+                                }
+                                retryBtn.disabled = false;
+                                if (retryText) {
+                                    retryText.textContent = 'إعادة المحاولة';
+                                }
+                            }
+                        })
+                        .catch(() => {
                             if (window.toastr) {
-                                toastr.info(data.message || 'تم بدء تجهيز ملفات المزاد.');
-                            }
-
-                            if (timeoutAlert) {
-                                timeoutAlert.classList.add('d-none');
-                            }
-                            if (errorAlert) {
-                                errorAlert.classList.add('d-none');
-                            }
-                            if (loadingBox) {
-                                loadingBox.classList.remove('d-none');
-                            }
-                            if (headerBadge) {
-                                headerBadge.innerHTML = '<span class="badge bg-warning"><i class="ti ti-loader ti-spin me-1"></i>قيد الإعداد</span>';
-                            }
-
-                            updateProgressUI(data.progress || 5);
-                            retryBtn.classList.add('d-none');
-
-                            // تشغيل المتابعة بمهلة اليدوي الأطول بنسبة 50%
-                            startPolling(MANUAL_TIMEOUT_MS, true);
-                        } else {
-                            if (window.toastr) {
-                                toastr.error(data.message || 'حدث خطأ أثناء بدء التوليد.');
+                                toastr.error('حدث خطأ في الاتصال بالخادم.');
                             }
                             retryBtn.disabled = false;
-                            if (retryText) {
-                                retryText.textContent = 'إعادة المحاولة';
-                            }
-                        }
-                    })
-                    .catch(() => {
-                        if (window.toastr) {
-                            toastr.error('حدث خطأ في الاتصال بالخادم.');
-                        }
-                        retryBtn.disabled = false;
-                    });
+                        });
                 });
             }
 

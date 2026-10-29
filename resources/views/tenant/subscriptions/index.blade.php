@@ -229,7 +229,7 @@
                             <div class="d-flex flex-column">
                                 <small class="small mb-1">حد العقارات</small>
                                 <h6 class="mb-0">
-                                    {{ !empty($subscription_formatted['unlimited_properties']) ? 'غير محدود' : ($subscription_formatted['properties_limit'] ?? 'غير محدد') }}
+                                    {{ !empty($subscription_formatted['unlimited_properties']) ? 'غير محدود' : $subscription_formatted['properties_limit'] ?? 'غير محدد' }}
                                 </h6>
                             </div>
                         </div>
@@ -247,7 +247,7 @@
                             <div class="d-flex flex-column">
                                 <small class="small mb-1">المزادات النشطة</small>
                                 <h6 class="mb-0">
-                                    {{ !empty($subscription_formatted['unlimited_auctions']) ? 'غير محدود' : ($subscription_formatted['active_auctions_limit'] ?? 'غير محدد') }}
+                                    {{ !empty($subscription_formatted['unlimited_auctions']) ? 'غير محدود' : $subscription_formatted['active_auctions_limit'] ?? 'غير محدد' }}
                                 </h6>
                             </div>
                         </div>
@@ -258,12 +258,13 @@
                     <div class="text-end">
                         @can('subscriptions.renew')
                             @if ($subscription_formatted['status_value'] !== 'trial')
-                            <a href="{{ tenant_route_name('subscriptions.renew.checkout') }}" class="btn btn-primary ">
-                                تجديد الاشتراك
-                                <i class="ti ti-refresh mx-2"></i>
-                            </a>
+                                <a href="{{ tenant_route_name('subscriptions.renew.checkout') }}" class="btn btn-primary ">
+                                    تجديد الاشتراك
+                                    <i class="ti ti-refresh mx-2"></i>
+                                </a>
                             @else
-                                <span class="text-muted">تجربة مجانية بدون باقة — مستخدم واحد فقط. للتعاقد على باقة مدفوعة بعد التجربة، تواصل مع الإدارة.</span>
+                                <span class="text-muted">تجربة مجانية بدون باقة — مستخدم واحد فقط. للتعاقد على باقة مدفوعة بعد
+                                    التجربة، تواصل مع الإدارة.</span>
                             @endif
                         @endcan
 
@@ -289,7 +290,8 @@
                         <div class="alert alert-danger d-flex align-items-center mb-4">
                             <i class="ti ti-alert-circle ti-lg me-3"></i>
                             <div class="small">
-                                <p class="mb-0">لا يمكنك شراء مستخدمين إضافيين حالياً. يرجى تجديد الاشتراك أو دفع الفواتير
+                                <p class="mb-0">لا يمكنك شراء مستخدمين إضافيين حالياً. يرجى تجديد الاشتراك أو دفع
+                                    الفواتير
                                     المتأخرة للاستفادة
                                     من جميع المميزات.</p>
                             </div>
@@ -356,7 +358,7 @@
                             @can('subscriptions.add_licenses')
                                 <div class="mt-5 text-end">
                                     <button type="submit" class="btn btn-primary disabled">
-                                        تحديث الاشتراك
+                                        <i class="ti ti-refresh me-1"></i>تحديث الاشتراك
                                     </button>
                                 </div>
                             @endcan

@@ -1,7 +1,13 @@
 // =============================================================================
-// Alerts — Fixed position alerts & notification wrappers
-// Replaces .fixed-alert defined in both commonMaster inline <style> blocks
+// Alerts — Fixed position alerts & Levan Design System Alert Variants
 // =============================================================================
+// Overloads all standard Bootstrap and theme alerts with the custom dual-tone
+// badge color palette: soft pleasantly-tinted background, 1px crisp border,
+// and rich deep text for flawless legibility and WCAG AA/AAA compliance.
+// =============================================================================
+
+@use 'sass:map';
+@use 'palette';
 
 .fixed-alert {
     position: fixed;
@@ -14,7 +20,7 @@
     box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
 }
 
-// Unified Alert component styling
+// Unified Alert component base styling
 .alert {
     border-radius: var(--radius-sm, 0.375rem);
     padding: 0.875rem 1.125rem;
@@ -22,6 +28,8 @@
     display: flex;
     align-items: flex-start;
     gap: 0.625rem;
+    border-width: 1px;
+    border-style: solid;
 
     .alert-icon,
     > i {
@@ -35,3 +43,94 @@
     }
 }
 
+// -----------------------------------------------------------------------------
+// Unified Contextual Alert Variants (Exact match to custom badge palette)
+// -----------------------------------------------------------------------------
+@each $name, $props in palette.$theme-palette {
+    $bg: map.get($props, bg);
+    $border: map.get($props, border);
+    $color: map.get($props, color);
+    $hover-bg: map.get($props, hover-bg);
+    $hover-border: map.get($props, hover-border);
+    $hover-color: map.get($props, hover-color);
+    $solid-bg: map.get($props, solid-bg);
+    $solid-color: map.get($props, solid-color);
+
+    // 1. Soft / Dual-Tone Alert (Default Bootstrap Alert)
+    .alert-#{$name}:not([class*="alert-solid-"]):not([class*="alert-outline-"]) {
+        background-color: $bg !important;
+        border-color: $border !important;
+        color: $color !important;
+
+        .alert-icon,
+        > i,
+        [class*="ti-"],
+        [class*="bx-"],
+        [class*="fa-"] {
+            color: $color !important;
+            background-color: transparent !important;
+        }
+
+        .alert-link {
+            color: $hover-color !important;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        hr {
+            border-top-color: $border !important;
+            opacity: 1;
+        }
+    }
+
+    // 2. Outline Alert Variant
+    .alert-outline-#{$name} {
+        background-color: transparent !important;
+        border-color: $border !important;
+        color: $color !important;
+
+        .alert-icon,
+        > i,
+        [class*="ti-"],
+        [class*="bx-"],
+        [class*="fa-"] {
+            color: $color !important;
+            background-color: $bg !important;
+        }
+
+        .alert-link {
+            color: $hover-color !important;
+            font-weight: 600;
+        }
+
+        hr {
+            border-top-color: $border !important;
+        }
+    }
+
+    // 3. Solid Alert Variant
+    .alert-solid-#{$name} {
+        background-color: $solid-bg !important;
+        border-color: $solid-bg !important;
+        color: $solid-color !important;
+
+        .alert-icon,
+        > i,
+        [class*="ti-"],
+        [class*="bx-"],
+        [class*="fa-"] {
+            color: $solid-bg !important;
+            background-color: $solid-color !important;
+        }
+
+        .alert-link {
+            color: $solid-color !important;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        hr {
+            border-top-color: rgba($solid-color, 0.3) !important;
+        }
+    }
+}

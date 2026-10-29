@@ -59,3 +59,43 @@
         color: var(--primary-color-deep, #12332C) !important;
     }
 }
+
+// Harmonize SweetAlert2 icon colors with custom badge palette
+.swal2-icon {
+    &.swal2-success {
+        border-color: #10b981 !important;
+        color: #10b981 !important;
+
+        .swal2-success-ring {
+            border-color: rgba(16, 185, 129, 0.3) !important;
+        }
+
+        [class^='swal2-success-line'] {
+            background-color: #10b981 !important;
+        }
+    }
+
+    &.swal2-error {
+        border-color: #ef4444 !important;
+        color: #ef4444 !important;
+
+        [class^='swal2-x-mark-line'] {
+            background-color: #ef4444 !important;
+        }
+    }
+
+    &.swal2-warning {
+        border-color: #f59e0b !important;
+        color: #f59e0b !important;
+    }
+
+    &.swal2-info {
+        border-color: #0284c7 !important;
+        color: #0284c7 !important;
+    }
+
+    &.swal2-question {
+        border-color: #1d4f44 !important;
+        color: #1d4f44 !important;
+    }
+}

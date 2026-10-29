@@ -13,10 +13,10 @@ class DiscardCompletedWizardDraftTest extends TestCase
 {
     public function test_a_successful_store_redirect_discards_its_wizard_draft(): void
     {
-        $request = Request::create('/admin/companies', 'POST');
+        $request = Request::create('/superadmin/companies', 'POST');
         $request->attributes->set('wizard_draft_id', 'draft-id');
 
-        $response = new RedirectResponse('/admin/companies');
+        $response = new RedirectResponse('/superadmin/companies');
         $response->setSession($this->app['session']->driver());
         $response->getSession()->flash('success', 'Created successfully.');
 
@@ -25,10 +25,10 @@ class DiscardCompletedWizardDraftTest extends TestCase
 
     public function test_an_unsuccessful_store_redirect_keeps_its_wizard_draft(): void
     {
-        $request = Request::create('/admin/companies', 'POST');
+        $request = Request::create('/superadmin/companies', 'POST');
         $request->attributes->set('wizard_draft_id', 'draft-id');
 
-        $response = new RedirectResponse('/admin/companies/create');
+        $response = new RedirectResponse('/superadmin/companies/create');
         $response->setSession($this->app['session']->driver());
         $response->getSession()->flash('error', 'Could not create the company.');
 

@@ -17,7 +17,7 @@
         @csrf
         <input type="hidden" name="_wizard_draft_id" data-wizard-draft-id>
         <input type="hidden" name="_wizard_resource_key" value="admin.auction-templates.create">
-        @include('admin.auction-templates.partials.form')
+        @include('admin.auction-templates.partials._form', ['is_edit' => false])
     </form>
 @endsection
 

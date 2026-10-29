@@ -84,29 +84,29 @@
     }
 
     &__doc-wrap.type-pdf {
-        background: linear-gradient(135deg, rgba(234, 84, 85, 0.08), rgba(234, 84, 85, 0.16));
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.16));
         .assignment-file-card__icon-circle,
         .app-file-card__icon-circle {
-            background: rgba(234, 84, 85, 0.18);
-            color: #ea5455;
+            background: rgba(239, 68, 68, 0.18);
+            color: #ef4444;
         }
     }
 
     &__doc-wrap.type-word {
-        background: linear-gradient(135deg, rgba(30, 144, 255, 0.08), rgba(30, 144, 255, 0.16));
+        background: linear-gradient(135deg, rgba(2, 132, 199, 0.08), rgba(2, 132, 199, 0.16));
         .assignment-file-card__icon-circle,
         .app-file-card__icon-circle {
-            background: rgba(30, 144, 255, 0.18);
-            color: #1e90ff;
+            background: rgba(2, 132, 199, 0.18);
+            color: #0284c7;
         }
     }
 
     &__doc-wrap.type-excel {
-        background: linear-gradient(135deg, rgba(40, 199, 111, 0.08), rgba(40, 199, 111, 0.16));
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.16));
         .assignment-file-card__icon-circle,
         .app-file-card__icon-circle {
-            background: rgba(40, 199, 111, 0.18);
-            color: #28c76f;
+            background: rgba(16, 185, 129, 0.18);
+            color: #10b981;
         }
     }
 

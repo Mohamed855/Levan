@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Models\Shared\WizardDraft;
+use App\Services\Shared\Wizard\WizardDraftContext;
 use Closure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,8 +21,9 @@ class DiscardCompletedWizardDraft
             return $response;
         }
 
-        $guard = auth('admin')->check() ? 'admin' : 'tenant';
-        $userId = auth($guard)->id();
+        $context = app(WizardDraftContext::class);
+        $guard = $context->guard($request);
+        $userId = $request->user($guard)?->getAuthIdentifier();
 
         if ($userId) {
             $draftId = $request->input('_wizard_draft_id') ?: $request->attributes->get('wizard_draft_id');
@@ -29,7 +31,7 @@ class DiscardCompletedWizardDraft
             $tenantId = $request->attributes->get('wizard_tenant_id') ?? (tenant()?->getKey() ?? '');
 
             if ($draftId || $resourceKey) {
-                $query = WizardDraft::query()
+                $query = WizardDraft::on($context->connection($request))
                     ->where('guard', $guard)
                     ->where('user_id', $userId)
                     ->where('tenant_id', $tenantId);
