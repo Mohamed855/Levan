@@ -185,44 +185,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const $select = $(selector);
         if (!$select.length) return;
 
-        // 1. Direct match by option value
-        if ($select.find(`option[value="${targetVal}"]`).length > 0) {
-            $select.val(targetVal).trigger("change").trigger("change.select2");
-            return;
-        }
-
-        // 2. Case-insensitive or trimmed match by option value
+        const target = String(targetVal).trim();
         let found = null;
         $select.find("option").each(function () {
-            const val = $(this).val();
-            if (val && val.toString().trim().toLowerCase() === targetVal.toString().trim().toLowerCase()) {
-                found = val;
+            const value = String($(this).val() || "");
+            const label = $(this).text().trim();
+            if (value && (value.trim().toLowerCase() === target.toLowerCase() || label === target)) {
+                found = value;
                 return false;
             }
         });
 
-        // 3. Match by option text
-        if (!found) {
-            $select.find("option").each(function () {
-                const text = $(this).text().trim();
-                if (text && text === targetVal.toString().trim()) {
-                    found = $(this).val();
-                    return false;
-                }
-            });
-        }
-
-        // 4. Substring / contains match
-        if (!found) {
-            $select.find("option").each(function () {
-                const val = $(this).val();
-                const text = $(this).text().trim();
-                const sTarget = targetVal.toString().trim();
-                if (val && (val.includes(sTarget) || sTarget.includes(val) || text.includes(sTarget) || sTarget.includes(text))) {
-                    found = val;
-                    return false;
-                }
-            });
+        if (found === null && selector === "#city") {
+            $select.append(new Option(target, target));
+            found = target;
         }
 
         if (found !== null) {
@@ -231,11 +207,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Dynamic Assignment Handling & Properties Loading
+    let assignmentRequestVersion = 0;
+
     function loadAssignmentProperties(
         assignmentId,
         preselectedIds = [],
         isInitialLoad = false,
     ) {
+        const requestVersion = ++assignmentRequestVersion;
         if (!assignmentId) {
             $("#selected-assignment-card").addClass("d-none");
             $("#properties-container").html(
@@ -263,6 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 Accept: "application/json",
             },
             success: function (res) {
+                if (requestVersion !== assignmentRequestVersion) return;
                 if (res.success && res.assignment) {
                     $("#asg-summary-num").text(
                         res.assignment.assignment_number || "-",
@@ -282,10 +262,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     $("#asg-summary-dates").text(asgDatesText);
                     $("#selected-assignment-card").removeClass("d-none");
 
-                    const isEditForm = form.id === "auction-edit-form";
+                    const preserveValues = form.id === "auction-edit-form" || isInitialLoad;
 
                     // Step 1: Link main city, category, times, etc.
-                    if (!isEditForm) {
+                    if (!preserveValues) {
                         // In create mode: unconditionally link city and category
                         if (res.assignment.city) {
                             syncSelectValue("#city", res.assignment.city);
@@ -303,9 +283,6 @@ document.addEventListener("DOMContentLoaded", () => {
                             .trigger("input")
                             .trigger("change");
 
-                        if (!$("#type").val()) {
-                            syncSelectValue("#type", "electronic");
-                        }
                     } else {
                         // In edit mode: only fill if empty
                         if (!$("#city").val() && res.assignment.city) {
@@ -328,8 +305,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
                     }
 
+                    if (!$("#type").val()) {
+                        syncSelectValue("#type", "electronic");
+                    }
+
                     // Auto-fill supervising entity
-                    if (!isEditForm || !$("#supervising_entity").val()) {
+                    if (!preserveValues || !$("#supervising_entity").val()) {
                         if (res.assignment.issuing_entity) {
                             $("#supervising_entity")
                                 .val(res.assignment.issuing_entity)
@@ -339,9 +320,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
 
                     // Auto-fill dates and constrain min/max based on assignment
+                    $("#start_date, #end_date").removeAttr("min").removeAttr("max");
+                    if (!preserveValues) {
+                        $("#start_date").val(res.assignment.start_date || "");
+                        $("#end_date").val(res.assignment.end_date || "");
+                    }
                     if (res.assignment.start_date) {
                         const startDateInput = $("#start_date");
-                        if (!isEditForm || !startDateInput.val()) {
+                        if (!preserveValues || !startDateInput.val()) {
                             startDateInput.val(res.assignment.start_date);
                         }
                         startDateInput.attr("min", res.assignment.start_date);
@@ -352,7 +338,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                     if (res.assignment.end_date) {
                         const endDateInput = $("#end_date");
-                        if (!isEditForm || !endDateInput.val()) {
+                        if (!preserveValues || !endDateInput.val()) {
                             endDateInput.val(res.assignment.end_date);
                         }
                         endDateInput.attr("max", res.assignment.end_date);
@@ -367,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         ? res.properties.length
                         : 0;
                     if (
-                        (!isEditForm || !$("#expected_properties_count").val()) &&
+                        (!preserveValues || !$("#expected_properties_count").val()) &&
                         propCount > 0
                     ) {
                         $("#expected_properties_count")
@@ -456,6 +442,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             },
             error: function () {
+                if (requestVersion !== assignmentRequestVersion) return;
                 $("#properties-container").html(
                     '<tr><td colspan="9" class="text-center py-4 text-danger">حدث خطأ أثناء تحميل عقارات الإسناد.</td></tr>',
                 );
@@ -464,6 +451,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     $("#assignment_id").on("change", function () {
+        if (form.inert) return;
         loadAssignmentProperties($(this).val());
     });
 
@@ -488,6 +476,7 @@ document.addEventListener("DOMContentLoaded", () => {
             loadAssignmentProperties(
                 detailData.assignment_id,
                 restoredPropertyIds,
+                true,
             );
         }
 

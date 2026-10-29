@@ -51,7 +51,15 @@ final class TenantBindingOrderTest extends TestCase
                 $table->boolean('is_active')->default(true);
                 $table->softDeletes();
             });
-            DB::connection($name)->table('assignments')->insert(['id' => 5, 'name' => $name, 'issuing_entity' => 'Tenant authority', 'category' => 'lands']);
+            DB::connection($name)->table('assignments')->insert([
+                'id' => 5,
+                'name' => $name,
+                'issuing_entity' => 'Tenant authority',
+                'city' => 'الجبيل',
+                'category' => 'lands',
+                'start_date' => '2026-11-01',
+                'end_date' => '2026-11-30',
+            ]);
         }
         Schema::connection('binding_tenant')->create('properties', function (Blueprint $table): void {
             $table->id();
@@ -69,7 +77,7 @@ final class TenantBindingOrderTest extends TestCase
         Schema::connection('binding_tenant')->create('auctions', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
-            $table->string('status');
+            $table->boolean('is_active')->default(true);
             $table->softDeletes();
         });
         DB::connection('binding_tenant')->table('properties')->insert(['id' => 12, 'assignment_id' => 5, 'name' => 'Tenant property', 'type' => 'residential_land', 'status' => 'available']);
@@ -94,5 +102,25 @@ final class TenantBindingOrderTest extends TestCase
         $this->assertSame('binding_tenant', $data['assignment']['name']);
         $this->assertSame(12, $data['properties'][0]['id']);
         $this->assertSame('Tenant property', $data['properties'][0]['name']);
+        $this->assertSame('الجبيل', $data['assignment']['city']);
+        $this->assertSame('lands', $data['assignment']['category']);
+        $this->assertSame('2026-11-01', $data['assignment']['start_date']);
+        $this->assertSame('2026-11-30', $data['assignment']['end_date']);
+        $this->assertTrue($data['properties'][0]['is_selectable']);
+
+        DB::connection('binding_tenant')->table('auctions')->insert(['id' => 21, 'name' => 'Active auction', 'is_active' => true]);
+        DB::connection('binding_tenant')->table('auction_properties')->insert(['property_id' => 12, 'auction_id' => 21]);
+        $active = app(AssignmentsController::class)->getProperties($route->parameter('assignment'))->getData(true);
+        $this->assertFalse($active['properties'][0]['is_selectable']);
+        $this->assertTrue($active['properties'][0]['is_in_active_auction']);
+
+        DB::connection('binding_tenant')->table('auctions')->where('id', 21)->update(['is_active' => false]);
+        $inactive = app(AssignmentsController::class)->getProperties($route->parameter('assignment'))->getData(true);
+        $this->assertTrue($inactive['properties'][0]['is_selectable']);
+
+        DB::connection('binding_tenant')->table('auction_properties')->where('property_id', 12)->update(['result_status' => 'sold']);
+        $sold = app(AssignmentsController::class)->getProperties($route->parameter('assignment'))->getData(true);
+        $this->assertFalse($sold['properties'][0]['is_selectable']);
+        $this->assertTrue($sold['properties'][0]['is_sold']);
     }
 }

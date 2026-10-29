@@ -37,8 +37,8 @@
             {{ $slot }}
         @else
             <div class="table-responsive">
-                <table class="table table-hover table-striped table-bordered align-middle mb-0" id="{{ $tableId }}">
-                    <thead class="table-light">
+                <table class="table table-hover align-middle mb-0" id="{{ $tableId }}">
+                    <thead>
                         <tr>
                             <th style="width: 2.5rem;" class="text-center">
                                 <input type="checkbox" id="select-all-properties" class="form-check-input" aria-label="تحديد الكل">

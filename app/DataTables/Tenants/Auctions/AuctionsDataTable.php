@@ -100,7 +100,7 @@ class AuctionsDataTable extends AbstractDataTable
                 }
 
                 if ($gen->isProcessing() || $gen->status === 'queued') {
-                    return '<span class="badge bg-warning"><i class="ti ti-loader ti-spin me-1"></i>قيد الإعداد</span>';
+                    return '<span class="badge bg-info"><i class="ti ti-loader ti-spin me-1"></i>قيد الإعداد</span>';
                 }
 
                 if ($gen->isFailed()) {

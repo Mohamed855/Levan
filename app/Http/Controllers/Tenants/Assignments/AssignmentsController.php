@@ -236,7 +236,7 @@ class AssignmentsController extends Controller
                 $activeAuction = DB::table('auction_properties')
                     ->join('auctions', 'auctions.id', '=', 'auction_properties.auction_id')
                     ->where('auction_properties.property_id', $prop->id)
-                    ->whereIn('auctions.status', ['active', 'in_preparation', 'pending_approval'])
+                    ->where('auctions.is_active', true)
                     ->whereNull('auctions.deleted_at')
                     ->select('auctions.id', 'auctions.name')
                     ->first();
