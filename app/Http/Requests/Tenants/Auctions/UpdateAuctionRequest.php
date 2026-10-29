@@ -154,6 +154,37 @@ class UpdateAuctionRequest extends WizardFormRequest
                         ->where('assignment_id', $this->input('assignment_id'))
                         ->whereNull('deleted_at'),
                 ),
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    if (! $value) {
+                        return;
+                    }
+                    $auctionParam = $this->route('auction');
+                    $currentAuctionId = is_object($auctionParam) ? (int) $auctionParam->id : (int) $auctionParam;
+
+                    $property = \App\Models\Tenants\Properties\Property::query()->find($value);
+                    if (! $property) {
+                        return;
+                    }
+                    $isSoldInAnotherAuction = \Illuminate\Support\Facades\DB::table('auction_properties')
+                        ->where('property_id', $value)
+                        ->where('result_status', 'sold')
+                        ->where('auction_id', '!=', $currentAuctionId)
+                        ->exists();
+                    if ($isSoldInAnotherAuction) {
+                        $fail("العقار ({$property->name}) تم بيعه بالفعل في مزاد سابق ولا يمكن إدراجه في هذا المزاد.");
+                        return;
+                    }
+                    $isInAnotherActiveAuction = \Illuminate\Support\Facades\DB::table('auction_properties')
+                        ->join('auctions', 'auctions.id', '=', 'auction_properties.auction_id')
+                        ->where('auction_properties.property_id', $value)
+                        ->where('auctions.id', '!=', $currentAuctionId)
+                        ->whereIn('auctions.status', ['active', 'in_preparation', 'pending_approval'])
+                        ->whereNull('auctions.deleted_at')
+                        ->exists();
+                    if ($isInAnotherActiveAuction) {
+                        $fail("العقار ({$property->name}) مدرج حالياً في مزاد نشط أو قيد الإعداد.");
+                    }
+                },
             ],
 
             // Step 4: Results, marketing and files

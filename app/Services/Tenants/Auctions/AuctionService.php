@@ -48,7 +48,6 @@ class AuctionService
         $newStatus = $isActive ?? ! $auction->is_active;
         $auction->update([
             'is_active' => $newStatus,
-            'status' => $newStatus ? 'active' : 'suspended',
         ]);
 
         return $newStatus;

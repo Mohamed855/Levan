@@ -13,6 +13,7 @@ final class AuctionReportGeneration extends Model
         'auction_id',
         'revision_token',
         'status',
+        'progress',
         'snapshot',
         'outputs_path',
         'report_path',
@@ -22,6 +23,7 @@ final class AuctionReportGeneration extends Model
     ];
 
     protected $casts = [
+        'progress' => 'integer',
         'snapshot' => 'array',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',

@@ -149,6 +149,36 @@ class StoreAuctionRequest extends WizardFormRequest
                         ->where('assignment_id', $this->input('assignment_id'))
                         ->whereNull('deleted_at'),
                 ),
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    if (! $value) {
+                        return;
+                    }
+                    $property = \App\Models\Tenants\Properties\Property::query()->find($value);
+                    if (! $property) {
+                        return;
+                    }
+                    if ($property->status === 'sold') {
+                        $fail("العقار ({$property->name}) تم بيعه بالفعل في مزاد سابق ولا يمكن إدراجه في مزاد جديد.");
+                        return;
+                    }
+                    $isSoldInPivot = \Illuminate\Support\Facades\DB::table('auction_properties')
+                        ->where('property_id', $value)
+                        ->where('result_status', 'sold')
+                        ->exists();
+                    if ($isSoldInPivot) {
+                        $fail("العقار ({$property->name}) مسجل كمباع في مزاد سابق.");
+                        return;
+                    }
+                    $isInActiveAuction = \Illuminate\Support\Facades\DB::table('auction_properties')
+                        ->join('auctions', 'auctions.id', '=', 'auction_properties.auction_id')
+                        ->where('auction_properties.property_id', $value)
+                        ->whereIn('auctions.status', ['active', 'in_preparation', 'pending_approval'])
+                        ->whereNull('auctions.deleted_at')
+                        ->exists();
+                    if ($isInActiveAuction) {
+                        $fail("العقار ({$property->name}) مدرج حالياً في مزاد نشط أو قيد الإعداد.");
+                    }
+                },
             ],
 
             // Step 4: Results, marketing and files

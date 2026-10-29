@@ -193,8 +193,29 @@ class AssignmentsController extends Controller
     public function getProperties(Assignment $assignment): JsonResponse
     {
         $properties = $assignment->properties()
-            ->select(['id', 'property_number', 'name', 'type', 'city', 'district', 'area', 'deed_number', 'estimated_value', 'data_status', 'main_image'])
-            ->get();
+            ->select(['id', 'property_number', 'name', 'type', 'city', 'district', 'area', 'deed_number', 'estimated_value', 'data_status', 'status', 'main_image'])
+            ->get()
+            ->map(function ($prop) {
+                $isSold = $prop->status === 'sold' || \Illuminate\Support\Facades\DB::table('auction_properties')
+                    ->where('property_id', $prop->id)
+                    ->where('result_status', 'sold')
+                    ->exists();
+
+                $activeAuction = \Illuminate\Support\Facades\DB::table('auction_properties')
+                    ->join('auctions', 'auctions.id', '=', 'auction_properties.auction_id')
+                    ->where('auction_properties.property_id', $prop->id)
+                    ->whereIn('auctions.status', ['active', 'in_preparation', 'pending_approval'])
+                    ->whereNull('auctions.deleted_at')
+                    ->select('auctions.id', 'auctions.name')
+                    ->first();
+
+                $prop->is_sold = $isSold;
+                $prop->is_in_active_auction = (bool) $activeAuction;
+                $prop->active_auction_name = $activeAuction?->name;
+                $prop->is_selectable = ! $isSold && ! $activeAuction;
+
+                return $prop;
+            });
 
         return response()->json([
             'success' => true,

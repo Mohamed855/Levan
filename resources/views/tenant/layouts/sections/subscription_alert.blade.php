@@ -20,7 +20,7 @@
                 $currentPeriod = $subscription->currentPeriod;
                 if ($currentPeriod) {
                     $daysRemaining = app(
-                        \App\Services\shared\Subscription\SubscriptionManager::class,
+                        \App\Services\Shared\Subscription\SubscriptionManager::class,
                     )->calculateDaysRemaining($currentPeriod);
                 }
             }

@@ -16,21 +16,21 @@ use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\PublicRequests\TrialRequest;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\UserMangment\User\User;
-use App\Services\Admin\Companies\CompanyService;
-use App\Services\Shared\Cpanel\CpanelService;
 use App\Services\Shared\Mail\SystemMailService;
 use App\Services\Shared\Subscription\SubscriptionManager;
 use App\Services\Shared\Subscription\SubscriptionService;
 use App\Services\Shared\Tenant\TenantCreator;
 use App\Services\Shared\Tenant\TenantInitializer;
-use Database\Seeders\tenant\PermissionsRolesSeeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class TenantWelcomeMailFeatureTest extends TestCase
 {
+    private array $cleanupTenantIds = [];
+    private array $cleanupBillIds = [];
+    private array $cleanupTrialIds = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -48,7 +48,39 @@ class TenantWelcomeMailFeatureTest extends TestCase
             tenancy()->end();
         }
 
+        if (! empty($this->cleanupBillIds)) {
+            Bill::whereIn('id', $this->cleanupBillIds)->delete();
+        }
+
+        if (! empty($this->cleanupTrialIds)) {
+            TrialRequest::whereIn('id', $this->cleanupTrialIds)->delete();
+        }
+
+        if (! empty($this->cleanupTenantIds)) {
+            Tenant::withTrashed()->whereIn('id', $this->cleanupTenantIds)->forceDelete();
+        }
+
         parent::tearDown();
+    }
+
+    private function createPersistedTenant(string $email, string $companyName, string $contactName): Tenant
+    {
+        $id = 'test_tw_' . rand(10000, 99999);
+        $tenant = Tenant::create([
+            'id'                   => $id,
+            'folderName'           => $id,
+            'db_database'          => 'test_db_' . $id,
+            'db_username'          => 'test_user',
+            'db_password'          => 'test_pass',
+            'company_name'         => $companyName,
+            'commercial_number'    => (string) rand(1000000000, 9999999999),
+            'primary_contact_name' => $contactName,
+            'primary_contact_email'=> $email,
+        ]);
+
+        $this->cleanupTenantIds[] = $tenant->id;
+
+        return $tenant;
     }
 
     /**
@@ -56,15 +88,7 @@ class TenantWelcomeMailFeatureTest extends TestCase
      */
     public function test_send_tenant_welcome_dispatches_mailable_with_correct_payload(): void
     {
-        $tenantId = 'test_tenant_welcome_' . Str::lower(Str::random(6));
-        $tenant = new Tenant([
-            'id'                   => $tenantId,
-            'folderName'           => $tenantId,
-            'company_name'         => 'شركة تجربة الإيميل الترحيبي',
-            'primary_contact_name' => 'محمد عبدالله',
-            'primary_contact_email'=> 'admin@test-company.com',
-        ]);
-        $tenant->exists = true;
+        $tenant = $this->createPersistedTenant('admin@test-company.com', 'شركة تجربة الإيميل الترحيبي', 'محمد عبدالله');
 
         $sent = SystemMailService::sendTenantWelcome(
             tenant: $tenant,
@@ -88,16 +112,7 @@ class TenantWelcomeMailFeatureTest extends TestCase
      */
     public function test_tenant_welcome_mail_view_renders_login_link_and_login_email(): void
     {
-        $tenantId = 'test_render_' . Str::lower(Str::random(6));
-        $tenant = new Tenant([
-            'id'                   => $tenantId,
-            'folderName'           => $tenantId,
-            'company_name'         => 'مؤسسة الفهد للمزادات',
-            'primary_contact_name' => 'فهد الأحمد',
-            'primary_contact_email'=> 'fahad@alfahed.sa',
-        ]);
-        $tenant->exists = true;
-
+        $tenant = $this->createPersistedTenant('fahad@alfahed.sa', 'مؤسسة الفهد للمزادات', 'فهد الأحمد');
         $loginUrl = $tenant->getLoginUrl();
 
         // Case A: Subscription (Paid)
@@ -143,7 +158,8 @@ class TenantWelcomeMailFeatureTest extends TestCase
 
         self::assertStringContainsString('fahad@alfahed.sa', $trialHtml);
         self::assertStringContainsString($loginUrl, $trialHtml);
-        self::assertStringContainsString('7 أيام مجاناً', $trialHtml);
+        self::assertStringContainsString('فترة تجريبية مجانية', $trialHtml);
+        self::assertStringContainsString('7 أيام', $trialHtml);
         self::assertStringContainsString('2026-11-05', $trialHtml);
         self::assertStringContainsString('الحساب التجريبي', $trialHtml);
     }
@@ -153,14 +169,7 @@ class TenantWelcomeMailFeatureTest extends TestCase
      */
     public function test_normal_subscription_flow_sends_tenant_welcome_mail(): void
     {
-        $tenant = new Tenant([
-            'id'                   => 'tenant_paid_' . Str::lower(Str::random(6)),
-            'folderName'           => 'tenant_paid',
-            'company_name'         => 'شركة الدفع العادي',
-            'primary_contact_name' => 'سالم الحربي',
-            'primary_contact_email'=> 'salem@payment.test',
-        ]);
-        $tenant->exists = true;
+        $tenant = $this->createPersistedTenant('salem@payment.test', 'شركة الدفع العادي', 'سالم الحربي');
 
         $user = new User([
             'id'         => 1,
@@ -173,7 +182,7 @@ class TenantWelcomeMailFeatureTest extends TestCase
         $mockCreator->shouldReceive('createTenantEnvironment')->once()->andReturn([$tenant, $user]);
 
         $plan = Plan::first() ?? Plan::create([
-            'name'                        => 'باقة الاختبار',
+            'name'                        => 'باقة الاختبار ' . rand(100, 999),
             'slug'                        => 'plan-test-' . uniqid(),
             'price'                       => 200,
             'price_after_discount'        => 200,
@@ -213,6 +222,7 @@ class TenantWelcomeMailFeatureTest extends TestCase
                 'billing_name'  => 'سالم الحربي',
             ],
         ]);
+        $this->cleanupBillIds[] = $bill->id;
 
         $subscriptionService->completeOnlineSubscription($bill, ['payment_id' => 'pay_123']);
 
@@ -222,8 +232,6 @@ class TenantWelcomeMailFeatureTest extends TestCase
                 && $mail->loginUrl === $tenant->getLoginUrl()
                 && $mail->creationSource === 'subscription';
         });
-
-        $bill->delete();
     }
 
     /**
@@ -231,14 +239,7 @@ class TenantWelcomeMailFeatureTest extends TestCase
      */
     public function test_superadmin_creation_flow_sends_tenant_welcome_mail(): void
     {
-        $tenant = new Tenant([
-            'id'                   => 'tenant_superadmin_' . Str::lower(Str::random(6)),
-            'folderName'           => 'tenant_superadmin',
-            'company_name'         => 'شركة المشرف العام',
-            'primary_contact_name' => 'خالد السعيد',
-            'primary_contact_email'=> 'admin@superadmin-company.test',
-        ]);
-        $tenant->exists = true;
+        $tenant = $this->createPersistedTenant('admin@superadmin-company.test', 'شركة المشرف العام', 'خالد السعيد');
 
         $user = new User([
             'id'         => 1,
@@ -251,7 +252,7 @@ class TenantWelcomeMailFeatureTest extends TestCase
         $mockCreator->shouldReceive('createTenantEnvironment')->once()->andReturn([$tenant, $user]);
 
         $plan = Plan::first() ?? Plan::create([
-            'name'                        => 'باقة المشرف',
+            'name'                        => 'باقة المشرف ' . rand(100, 999),
             'slug'                        => 'plan-admin-' . uniqid(),
             'price'                       => 300,
             'price_after_discount'        => 300,
@@ -282,7 +283,7 @@ class TenantWelcomeMailFeatureTest extends TestCase
             'bill_number'    => 'BILL-' . strtoupper(Str::random(8)),
             'amount'         => 300,
             'original_amount'=> 300,
-            'payment_method' => PaymentMethod::ADMIN,
+            'payment_method' => PaymentMethod::BANK_TRANSFER,
             'type'           => BillType::NEW_SUBSCRIPTION,
             'status'         => BillStatus::UNPAID,
             'metadata'       => [
@@ -291,6 +292,7 @@ class TenantWelcomeMailFeatureTest extends TestCase
                 'billing_name'  => 'خالد السعيد',
             ],
         ]);
+        $this->cleanupBillIds[] = $bill->id;
 
         $subscriptionService->completeAdminSubscription($bill, [
             'activate_immediately' => 1,
@@ -304,8 +306,6 @@ class TenantWelcomeMailFeatureTest extends TestCase
                 && $mail->creationSource === 'superadmin'
                 && $mail->temporaryPassword === 'AdminPass123!';
         });
-
-        $bill->delete();
     }
 
     /**
@@ -313,8 +313,14 @@ class TenantWelcomeMailFeatureTest extends TestCase
      */
     public function test_trial_request_approval_flow_sends_tenant_welcome_mail(): void
     {
-        $city = City::firstOrFail();
-        $admin = AdminUser::firstOrFail();
+        $city = City::first() ?? City::create(['name' => 'الرياض', 'is_active' => true]);
+        $admin = AdminUser::first() ?? AdminUser::create([
+            'name'     => 'Super Admin',
+            'email'    => 'superadmin@gmail.com',
+            'password' => bcrypt('password'),
+            'phone'    => '0500000001',
+            'status'   => \App\Enums\Admin\Users\AdminUserStatus::ACTIVE,
+        ]);
 
         $trialEmail = 'trial-' . Str::lower(Str::random(8)) . '@example.test';
         $trialRequest = TrialRequest::create([
@@ -331,15 +337,10 @@ class TenantWelcomeMailFeatureTest extends TestCase
             'status'                => 'pending',
             'provisioning_status'   => 'ready',
         ]);
+        $this->cleanupTrialIds[] = $trialRequest->id;
 
-        $tenant = new Tenant([
-            'id'                   => 'tenant_trial_' . Str::lower(Str::random(6)),
-            'folderName'           => 'tenant_trial',
-            'company_name'         => $trialRequest->company_name,
-            'primary_contact_name' => $trialRequest->customer_name,
-            'primary_contact_email'=> $trialRequest->customer_email,
-        ]);
-        $tenant->exists = true;
+        $tenant = $this->createPersistedTenant($trialRequest->customer_email, $trialRequest->company_name . ' المنشأة', $trialRequest->customer_name);
+        $trialRequest->update(['tenant_id' => $tenant->id]);
 
         $user = new User([
             'id'         => 1,
@@ -349,16 +350,9 @@ class TenantWelcomeMailFeatureTest extends TestCase
         ]);
 
         $mockCreator = \Mockery::mock(TenantCreator::class);
-        $mockCreator->shouldReceive('createTenantEnvironment')
-            ->once()
-            ->andReturnUsing(function ($meta, $cb) use ($tenant, $user, $trialRequest) {
-                if ($cb) {
-                    $cb($tenant);
-                }
-                return [$tenant, $user];
-            });
 
         $mockInitializer = \Mockery::mock(TenantInitializer::class);
+        $mockInitializer->shouldReceive('setupTenantEnvironment')->once()->andReturn($user);
         $mockInitializer->shouldReceive('createCoreSeat')->once();
 
         $action = new ApproveTrialRequestAction(
@@ -376,7 +370,5 @@ class TenantWelcomeMailFeatureTest extends TestCase
                 && $mail->creationSource === 'trial'
                 && $mail->trialDays === 7;
         });
-
-        $trialRequest->delete();
     }
 }

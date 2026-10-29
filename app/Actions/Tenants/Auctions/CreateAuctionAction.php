@@ -162,6 +162,17 @@ final class CreateAuctionAction
 
                 $auction->properties()->sync($pivotData);
 
+                foreach ($pivotData as $pId => $pData) {
+                    $resultStatus = $pData['result_status'] ?? 'pending';
+                    if ($resultStatus === 'sold') {
+                        \App\Models\Tenants\Properties\Property::query()->where('id', $pId)->update(['status' => 'sold']);
+                    } elseif ($resultStatus === 'unsold') {
+                        \App\Models\Tenants\Properties\Property::query()->where('id', $pId)->update(['status' => 'available']);
+                    } else {
+                        \App\Models\Tenants\Properties\Property::query()->where('id', $pId)->where('status', '!=', 'sold')->update(['status' => 'assigned_to_auction']);
+                    }
+                }
+
                 foreach ($attachments as $file) {
                     if ($file instanceof UploadedFile) {
                         $path = $file->store('auctions/attachments', 'tenant_public');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Tenants\Auctions;
 
+use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User;
@@ -38,12 +39,6 @@ class Auction extends Model
         'cover_image',
         'report_image',
         'marketing_data',
-        'template_versions',
-        'template_snapshot',
-        'template_bindings',
-        'brochure_template_id',
-        'billboard_template_id',
-        'social_template_id',
         'status',
         'is_active',
         'created_by',
@@ -54,12 +49,7 @@ class Auction extends Model
         'end_date' => 'date',
         'is_active' => 'boolean',
         'expected_properties_count' => 'integer',
-        'template_versions' => 'array',
-        'template_snapshot' => 'array',
-        'template_bindings' => 'array',
-        'brochure_template_id' => 'integer',
-        'billboard_template_id' => 'integer',
-        'social_template_id' => 'integer',
+        'status' => AuctionStatus::class,
         'marketing_data' => 'array',
     ];
 
@@ -132,7 +122,9 @@ class Auction extends Model
 
     public function getStatusLabelAttribute(): string
     {
-        return match ($this->status) {
+        $status = $this->status instanceof AuctionStatus ? $this->status->value : (string) ($this->status ?? '');
+
+        return match ($status) {
             'in_preparation' => 'قيد الإعداد',
             'pending_approval' => 'بانتظار الاعتماد',
             'active' => 'نشط',
@@ -144,7 +136,9 @@ class Auction extends Model
 
     public function getStatusBadgeClassAttribute(): string
     {
-        return match ($this->status) {
+        $status = $this->status instanceof AuctionStatus ? $this->status->value : (string) ($this->status ?? '');
+
+        return match ($status) {
             'in_preparation' => 'bg-warning',
             'pending_approval' => 'bg-info',
             'active' => 'bg-success',

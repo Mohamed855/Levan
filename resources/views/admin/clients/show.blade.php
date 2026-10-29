@@ -224,7 +224,7 @@
                                                     $sub->currentPeriod ??
                                                     $sub->periods->sortByDesc('period_end')->first();
                                                 $days = app(
-                                                    \App\Services\shared\Subscription\SubscriptionManager::class,
+                                                    \App\Services\Shared\Subscription\SubscriptionManager::class,
                                                 )->calculateDaysRemaining($period);
                                                 $isActive =
                                                     $sub->status ===

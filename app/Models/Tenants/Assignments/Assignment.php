@@ -24,7 +24,6 @@ class Assignment extends Model
         'assignment_number',
         'name',
         'issuing_entity',
-        'entity_logo',
         'city',
         'district',
         'category',

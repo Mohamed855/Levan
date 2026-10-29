@@ -193,6 +193,21 @@ final class UpdateAuctionAction
                 $auction->update($data);
                 $auction->properties()->sync($syncData);
 
+                if ($removedPropertyIds !== []) {
+                    \App\Models\Tenants\Properties\Property::query()->whereIn('id', $removedPropertyIds)->where('status', 'assigned_to_auction')->update(['status' => 'available']);
+                }
+
+                foreach ($syncData as $pId => $pData) {
+                    $resultStatus = $pData['result_status'] ?? 'pending';
+                    if ($resultStatus === 'sold') {
+                        \App\Models\Tenants\Properties\Property::query()->where('id', $pId)->update(['status' => 'sold']);
+                    } elseif ($resultStatus === 'unsold') {
+                        \App\Models\Tenants\Properties\Property::query()->where('id', $pId)->update(['status' => 'available']);
+                    } else {
+                        \App\Models\Tenants\Properties\Property::query()->where('id', $pId)->where('status', '!=', 'sold')->update(['status' => 'assigned_to_auction']);
+                    }
+                }
+
                 foreach ($files as $file) {
                     if ($file instanceof UploadedFile) {
                         $path = $file->store('auctions/attachments', 'tenant_public');
