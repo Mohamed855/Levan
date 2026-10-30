@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\Tenants\Auth\AuthenticatedSessionController;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class RouteServiceProvider extends ServiceProvider
 
         $isCentralDomain = in_array($host, $centralDomains, true) || in_array('www.'.$host, $centralDomains, true);
 
-        return $isCentralDomain ? '/admin/dashboard' : '/dashboard';
+        return $isCentralDomain ? '/'.tenant('id').'/dashboard' : '/dashboard';
     }
 
     public const ADMIN = '/superadmin';
@@ -88,7 +89,7 @@ class RouteServiceProvider extends ServiceProvider
         foreach ($this->centralDomains() as $index => $domain) {
             $cleanDomain = str_replace(['http://', 'https://'], '', $domain);
 
-            // Clean Tenant Routes under /admin (Session-based Tenancy)
+            // Shared tenant login; dashboard and management routes remain tenant-scoped.
             Route::middleware([
                 'web',
                 'tenant.session',
@@ -98,13 +99,16 @@ class RouteServiceProvider extends ServiceProvider
                 ->domain($cleanDomain)
                 ->prefix('admin')
                 ->name($index === 0 ? 'tenant.' : "central-domain-{$index}.tenant.")
-                ->group(base_path('routes/tenant.php'));
+                ->group(function () {
+                    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
+                    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+                });
 
-            // Legacy Inbound Routes under /{tenant}/*
+            // Tenant administration under /{tenant}/*.
             Route::middleware([
                 'web',
                 'tenant.path',
-                'tenant.legacy.transfer',
+                'tenant.session',
                 'tenant.redirect',
                 'tenant.maintenance',
             ])

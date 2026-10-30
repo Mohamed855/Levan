@@ -1,5 +1,6 @@
 @php
     $route = 'admin.clients';
+    $dashboardUrl = route('path.dashboard', ['tenant' => $row->id]);
 @endphp
 
 <div class="d-flex justify-content-center gap-2">
@@ -14,6 +15,10 @@
             <i class="ti ti-edit"></i>
         </a>
     @endcanany
+
+    <a href="{{ $dashboardUrl }}" class="btn btn-icon btn-primary bg-primary" title="لوحة تحكم العميل" target="_blank">
+        <i class="ti ti-dashboard"></i>
+    </a>
 
     @canany(['clients.delete', 'companies.delete'])
         <button type="button" class="btn btn-icon btn-primary bg-primary js-delete-btn" title="حذف"

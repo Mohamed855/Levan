@@ -13,7 +13,6 @@ use App\Http\Middleware\Tenancy\CheckSubscription;
 use App\Http\Middleware\Tenancy\EnsureTenantTwoFactorIsEnforced;
 use App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense;
 use App\Http\Middleware\Tenancy\InitializeTenancyBySession;
-use App\Http\Middleware\Tenancy\LegacyTenantPathTransfer;
 use App\Http\Middleware\Tenancy\TenantDomainRedirect;
 use App\Http\Middleware\Tenancy\TenantMaintenance;
 use App\Http\Middleware\Tenancy\VerifyTenantToken;
@@ -53,16 +52,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->group('admin', [
             'web',
         ]);
-        $middleware->appendToGroup('web', \App\Http\Middleware\PreventCrossPanelLogin::class);
 
         // Middleware aliases
         $middleware->priority([
             \Illuminate\Cookie\Middleware\EncryptCookies::class,
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \App\Http\Middleware\PreventCrossPanelLogin::class,
-            \App\Http\Middleware\Tenancy\InitializeTenancyBySession::class,
             \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class,
+            \App\Http\Middleware\Tenancy\InitializeTenancyBySession::class,
             \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
             \App\Http\Middleware\Authenticate::class,
             \App\Http\Middleware\RedirectIfAuthenticated::class,
@@ -81,7 +78,6 @@ return Application::configure(basePath: dirname(__DIR__))
 
             // Tenant Middleware
             'tenant.session' => InitializeTenancyBySession::class,
-            'tenant.legacy.transfer' => LegacyTenantPathTransfer::class,
             'tenant.path' => InitializeTenancyByPath::class,
             'tenant.domain' => InitializeTenancyByDomain::class,
             'tenant.subscription' => CheckSubscription::class,

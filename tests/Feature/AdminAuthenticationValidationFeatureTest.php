@@ -77,7 +77,7 @@ class AdminAuthenticationValidationFeatureTest extends TestCase
         ])->assertNotFound();
     }
 
-    public function test_successful_login_via_admin_login_with_hidden_tenant_id_redirects_to_clean_dashboard(): void
+    public function test_successful_login_via_admin_login_redirects_to_tenant_path_dashboard(): void
     {
         $response = $this->post('/admin/login', [
             'tenant_id' => 'test',
@@ -85,14 +85,14 @@ class AdminAuthenticationValidationFeatureTest extends TestCase
             'password' => '123456789',
         ]);
 
-        $response->assertRedirect('/admin/dashboard');
+        $response->assertRedirect('/test/dashboard');
 
-        // Follow redirect to /admin/dashboard in the same session
+        // Follow the tenant-scoped dashboard redirect in the same session.
         $dashboardResponse = $this->followRedirects($response);
         $dashboardResponse->assertOk();
 
         // Ensure subsequent internal tenant requests maintain the authenticated session
-        $propertiesResponse = $this->get('/admin/properties');
+        $propertiesResponse = $this->get('/test/properties');
         $propertiesResponse->assertOk();
 
         $this->assertTrue(Auth::guard('tenant')->check());
@@ -105,17 +105,17 @@ class AdminAuthenticationValidationFeatureTest extends TestCase
     {
         $response = $this->get('/test/dashboard');
         $response->assertRedirect('/admin/login');
-        $this->assertSame(url('/admin/dashboard'), session('url.intended'));
+        $this->assertSame(url('/test/dashboard'), session('url.intended'));
     }
 
-    public function test_authenticated_tenant_user_visiting_legacy_dashboard_redirects_to_clean_dashboard(): void
+    public function test_authenticated_tenant_user_can_open_path_dashboard_directly(): void
     {
         $tenant = Tenant::findOrFail('test');
         tenancy()->initialize($tenant);
         $user = User::where('email', 'demo@levan.com')->firstOrFail();
 
         $response = $this->actingAs($user, 'tenant')->get('/test/dashboard');
-        $response->assertRedirect('/admin/dashboard');
+        $response->assertOk();
 
         tenancy()->end();
     }
@@ -126,7 +126,7 @@ class AdminAuthenticationValidationFeatureTest extends TestCase
         tenancy()->initialize($tenant);
         $user = User::where('email', 'demo@levan.com')->firstOrFail();
 
-        $response = $this->actingAs($user, 'tenant')->post('/admin/logout');
+        $response = $this->actingAs($user, 'tenant')->post('/test/logout');
         $response->assertRedirect('/admin/login');
 
         // Accessing /admin/login now should render with the preserved tenant context

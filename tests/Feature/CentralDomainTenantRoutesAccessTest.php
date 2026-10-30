@@ -30,7 +30,7 @@ class CentralDomainTenantRoutesAccessTest extends TestCase
     public function test_tenant_route_with_valid_prefix_on_central_domain_works(): void
     {
         $response = $this->get('http://localhost/test/login');
-        $response->assertStatus(200);
+        $response->assertRedirect('/admin/login');
     }
 
     /**

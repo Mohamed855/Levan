@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Admin\Tenants\Tenant;
+use App\Models\Tenants\UserMangment\User\User;
 use Tests\TestCase;
 
 class TenantAuthenticationValidationFeatureTest extends TestCase
@@ -52,5 +53,48 @@ class TenantAuthenticationValidationFeatureTest extends TestCase
             'fields' => ['name'],
             'name' => 'أي مستخدم',
         ])->assertNotFound();
+    }
+
+    public function test_shared_login_uses_tenant_scoped_validation_endpoint(): void
+    {
+        $this->get('/admin/login')->assertOk()
+            ->assertSee('data-validation-url="'.url('/test/form-validation').'"', false);
+
+        $this->postJson('/test/form-validation', [
+            'target_path' => '/admin/login',
+            'target_method' => 'POST',
+            'fields' => ['email', 'password'],
+            'email' => '',
+            'password' => '',
+        ])->assertUnprocessable()->assertJsonStructure(['errors' => ['email', 'password']]);
+    }
+
+    public function test_two_factor_login_returns_to_tenant_path_and_binds_the_session(): void
+    {
+        $user = User::where('email', 'demo@levan.com')->firstOrFail();
+        $connection = $user->getConnection();
+        $connection->beginTransaction();
+
+        try {
+            $user->forceFill([
+                'two_factor_secret' => encrypt('test-secret'),
+                'two_factor_confirmed_at' => now(),
+                'two_factor_recovery_codes' => encrypt(json_encode(['test-recovery-code'])),
+            ])->save();
+
+            $this->post('/admin/login', [
+                'tenant_id' => 'test',
+                'email' => 'demo@levan.com',
+                'password' => '123456789',
+            ])->assertRedirect(url('/test/two-factor-challenge'));
+
+            $this->post('/test/two-factor-challenge', [
+                'recovery_code' => 'test-recovery-code',
+            ])->assertRedirect('/test/dashboard')->assertSessionHas('auth_tenant_id', 'test');
+
+            $this->assertAuthenticatedAs($user, 'tenant');
+        } finally {
+            $connection->rollBack();
+        }
     }
 }

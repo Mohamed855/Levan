@@ -22,10 +22,10 @@ final class TenantAccessRemovalTest extends TestCase
         }
     }
 
-    public function test_client_actions_do_not_offer_a_tenant_dashboard_shortcut(): void
+    public function test_client_actions_offer_the_tenant_dashboard_shortcut(): void
     {
         $html = view('admin.clients.action', ['row' => (object) ['id' => 'tenant-a']])->render();
-        $this->assertStringNotContainsString('/tenant-a/dashboard', $html);
+        $this->assertStringContainsString('/tenant-a/dashboard', $html);
         $this->assertStringContainsString('/superadmin/clients/tenant-a', $html);
     }
 
@@ -40,7 +40,7 @@ final class TenantAccessRemovalTest extends TestCase
         $this->assertStringContainsString('/tenant-a/login', $tenant->getLoginUrl());
     }
 
-    public function test_admin_tables_show_tenant_identifiers_without_login_links(): void
+    public function test_admin_tables_link_tenant_identifiers_to_their_dashboard(): void
     {
         $tenant = new Tenant();
         $tenant->id = 'tenant-a';
@@ -68,7 +68,8 @@ final class TenantAccessRemovalTest extends TestCase
             (new ReflectionMethod($class, 'addCustomColumns'))->invoke(app($class), $columns);
             $html = ($columns->renderers['tenant_id'])($row);
             $this->assertStringContainsString('tenant-a', $html);
-            $this->assertStringNotContainsString('<a', $html, $class);
+            $this->assertStringContainsString('<a', $html, $class);
+            $this->assertStringContainsString('/tenant-a/dashboard', $html, $class);
         }
     }
 }

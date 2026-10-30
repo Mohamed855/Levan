@@ -28,9 +28,9 @@ class AuthenticatedSessionController extends Controller
 
         $isCentralDomain = in_array($currentHost, $centralDomains) || in_array('www.'.$currentHost, $centralDomains);
 
-        // If accessed on central domain via legacy /{tenant_id}/login, set context and redirect cleanly to /admin/login
-        if ($isCentralDomain && request()->route('tenant')) {
-            $tenantId = tenant('id') ?? (string) request()->route('tenant');
+        // Tenant-specific entry links resolve context before opening the shared login.
+        if ($isCentralDomain && request()->routeIs('path.login', 'central-domain-*.path.login')) {
+            $tenantId = tenant('id');
             session()->put('tenant_login_context', $tenantId);
             cookie()->queue(cookie('tenant_login_hint', $tenantId, 60 * 24 * 30));
 

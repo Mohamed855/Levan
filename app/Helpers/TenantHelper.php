@@ -50,9 +50,9 @@ if (! function_exists('tenant_route_name')) {
         $currentHost = request()->getHost();
 
         // Get central domains
-        $centralDomains = array_map(function ($domain) {
+        $centralDomains = array_values(array_map(function ($domain) {
             return str_replace(['http://', 'https://', 'www.'], '', trim($domain));
-        }, config('tenancy.central_domains', []));
+        }, config('tenancy.central_domains', [])));
 
         // Check if current host is central domain
         $isCentralDomain = in_array($currentHost, $centralDomains) ||
@@ -61,23 +61,16 @@ if (! function_exists('tenant_route_name')) {
         if ($isCentralDomain) {
             $cleanHost = str_replace('www.', '', $currentHost);
             $domainIndex = array_search($cleanHost, $centralDomains, true);
-            $prefix = ($domainIndex === false || $domainIndex === 0) ? 'tenant.' : "central-domain-{$domainIndex}.tenant.";
+            $routeScope = $name === 'login' ? 'tenant' : 'path';
+            $prefix = ($domainIndex === false || $domainIndex === 0) ? $routeScope.'.' : "central-domain-{$domainIndex}.{$routeScope}.";
             $routeName = $prefix.$name;
 
-            if (Route::has($routeName)) {
-                return route($routeName, $parameters, $absolute);
-            }
-
-            // Fallback to legacy path prefix
-            $legacyPrefix = ($domainIndex === false || $domainIndex === 0) ? 'path.' : "central-domain-{$domainIndex}.path.";
-            $legacyRouteName = $legacyPrefix.$name;
-
-            if (! isset($parameters['tenant']) && tenant()) {
+            if ($name !== 'login' && ! isset($parameters['tenant'])) {
                 $parameters = array_merge(['tenant' => tenant('id')], $parameters);
             }
 
-            if (Route::has($legacyRouteName)) {
-                return route($legacyRouteName, $parameters, $absolute);
+            if (Route::has($routeName)) {
+                return route($routeName, $parameters, $absolute);
             }
         } else {
             // Domain-based

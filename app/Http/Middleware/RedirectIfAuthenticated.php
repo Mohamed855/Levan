@@ -29,7 +29,7 @@ class RedirectIfAuthenticated
                     in_array('www.'.$currentHost, $centralDomains, true);
 
                 if (tenant() || $guard === 'tenant' || session()->has('auth_tenant_id')) {
-                    return $isCentralDomain ? redirect('/admin/dashboard') : redirect('/dashboard');
+                    return $isCentralDomain ? redirect('/'.tenant('id').'/dashboard') : redirect('/dashboard');
                 }
 
                 return redirect(RouteServiceProvider::ADMIN);

@@ -147,11 +147,11 @@ class TrialRegistrationFlowTest extends TestCase
             'tenant_id' => $request->tenant_id,
             'email' => $data['billing_email'],
             'password' => $data['billing_password'],
-        ])->assertRedirect('/admin/dashboard');
+        ])->assertRedirect('/'.$request->tenant_id.'/dashboard');
         $this->assertAuthenticated('tenant');
-        $dashboard = '/admin/dashboard';
+        $dashboard = '/'.$request->tenant_id.'/dashboard';
         $this->get($dashboard)->assertOk();
-        $this->get('/admin/assignments')->assertOk();
+        $this->get('/'.$request->tenant_id.'/assignments')->assertOk();
         self::assertSame(1, User::count());
         $owner = User::firstOrFail();
         self::assertTrue($owner->hasRole('Admin'));
@@ -159,14 +159,14 @@ class TrialRegistrationFlowTest extends TestCase
         $limits = app(SubscriptionLimitsResolver::class)->resolveForTenant($request->tenant_id);
         self::assertSame(1, $limits['included_users']);
         self::assertSame(1, $limits['properties_limit']);
-        $this->get('/admin/users')->assertOk()->assertSee('btn btn-secondary btn-add disabled', false);
-        $this->get('/admin/subscriptions')->assertOk()->assertSee('تجربة مجانية');
+        $this->get('/'.$request->tenant_id.'/users')->assertOk()->assertSee('btn btn-secondary btn-add disabled', false);
+        $this->get('/'.$request->tenant_id.'/subscriptions')->assertOk()->assertSee('تجربة مجانية');
         self::assertFalse(app(CentralSubscriptionContextGateway::class)->canAddUser(1));
         $this->withExceptionHandling();
-        $response = $this->post('/admin/users', []);
+        $response = $this->post('/'.$request->tenant_id.'/users', []);
         self::assertTrue($response->isRedirect() || $response->status() === 403);
         self::assertSame(1, User::count());
-        $this->get('/admin/users/create')->assertForbidden();
+        $this->get('/'.$request->tenant_id.'/users/create')->assertForbidden();
         foreach ([app(UserService::class), app(RegisterTenantUserAction::class)] as $creator) {
             try {
                 $creator instanceof RegisterTenantUserAction ? $creator->execute([]) : $creator->createUser([]);

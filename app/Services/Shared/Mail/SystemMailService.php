@@ -159,7 +159,8 @@ class SystemMailService
                 temporaryPassword: $temporaryPassword,
                 trialDays: $trialDays,
                 trialEndDate: $trialEndDate
-            )
+            ),
+            forceSync: true
         );
     }
 

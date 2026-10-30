@@ -73,7 +73,12 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 if (! $row->tenant_id) {
                     return '-';
                 }
-                return e($row->tenant_id);
+                $dashboardUrl = route('path.dashboard', ['tenant' => $row->tenant_id]);
+
+                return '<a href="'.e($dashboardUrl).'" class="text-dark d-inline-block fw-semibold" title="رابط لوحة التحكم" target="_blank">'
+                    .'<i class="ti ti-external-link me-1 text-primary"></i>'
+                    .e($row->tenant_id)
+                    .'</a>';
             })
 
             ->editColumn('plan_id', function ($row) {

@@ -20,15 +20,16 @@ use Tests\TestCase;
 
 final class NavigationBoundaryTest extends TestCase
 {
-    public function test_legacy_admin_redirect_is_absolute_and_preserves_the_request_method(): void
+    public function test_shared_admin_prefix_does_not_resolve_tenant_management_routes(): void
     {
         foreach (['GET', 'POST', 'PUT', 'DELETE'] as $method) {
             $request = Request::create('http://localhost/admin/users/12/edit', $method);
-            $route = Route::getRoutes()->match($request);
-            $request->setRouteResolver(fn () => $route);
-            $response = (new \Illuminate\Routing\RedirectController())($request, app('url'));
-            $this->assertSame(307, $response->getStatusCode());
-            $this->assertSame('/superadmin/users/12/edit', $response->headers->get('Location'));
+            try {
+                Route::getRoutes()->match($request);
+                $this->fail('Tenant management routes must include the tenant identifier.');
+            } catch (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+                $this->addToAssertionCount(1);
+            }
         }
     }
 

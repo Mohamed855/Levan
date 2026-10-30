@@ -56,6 +56,8 @@
                             <dd class="col-12 text-danger">{{ $trialRequest->provisioning_error }}</dd>
                         @endif
                         @if ($trialRequest->status->value === 'approved' && $trialRequest->tenant)
+                            <dd class="col-12"><a class="btn btn-success" target="_blank" rel="noopener"
+                                    href="{{ route('path.login', ['tenant' => $trialRequest->tenant_id]) }}"><i class="ti ti-external-link me-1"></i>فتح رابط دخول العميل</a></dd>
                             <dt class="col-sm-5 text-muted">بداية التجربة</dt>
                             <dd class="col-sm-7">{{ $trialRequest->subscription?->starts_at?->format('Y-m-d H:i') }}</dd>
                             <dt class="col-sm-5 text-muted">نهاية التجربة</dt>

@@ -91,7 +91,12 @@ class SubscriptionDataTable extends AbstractDataTable
             ->addColumn('company_name', fn (Subscription $row) => $row->tenant?->company_name ?: '-')
             ->addColumn('tax_number', fn (Subscription $row) => $row->tenant?->tax_number ?: '-')
             ->editColumn('tenant_id', function (Subscription $row) {
-                return e($row->tenant_id);
+                $dashboardUrl = route('path.dashboard', ['tenant' => $row->tenant_id]);
+
+                return '<a href="'.e($dashboardUrl).'" class="text-dark d-inline-block fw-semibold" title="فتح لوحة التحكم" target="_blank">'
+                    .'<i class="ti ti-external-link me-1 text-primary"></i>'
+                    .e($row->tenant_id)
+                    .'</a>';
             })
             ->editColumn('plan_id', fn (Subscription $row) => $row->plan?->name ?: '-')
             ->addColumn('plan_limits', function (Subscription $row) {

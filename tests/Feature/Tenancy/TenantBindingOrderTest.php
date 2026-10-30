@@ -22,7 +22,7 @@ final class TenantBindingOrderTest extends TestCase
     public function test_all_tenant_entry_modes_initialize_before_model_binding(): void
     {
         foreach ([
-            'tenant.assignments.properties' => InitializeTenancyBySession::class,
+            'tenant.login' => InitializeTenancyBySession::class,
             'path.assignments.properties' => InitializeTenancyByPath::class,
             'domain.assignments.properties' => InitializeTenancyByDomain::class,
         ] as $name => $initializer) {
@@ -89,8 +89,8 @@ final class TenantBindingOrderTest extends TestCase
                 return $next($request);
             }
         });
-        $request = Request::create('http://localhost/admin/assignments/5/properties');
-        $route = Route::getRoutes()->getByName('tenant.assignments.properties');
+        $request = Request::create('http://localhost/test/assignments/5/properties');
+        $route = Route::getRoutes()->getByName('path.assignments.properties');
         $route->bind($request);
         $request->setRouteResolver(fn () => $route);
         $middleware = array_values(array_filter(app('router')->gatherRouteMiddleware($route), fn ($class) => in_array($class, [InitializeTenancyBySession::class, SubstituteBindings::class], true)));

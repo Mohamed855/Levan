@@ -34,6 +34,8 @@ class TenantTwoFactorChallengeController extends Controller
 
         $request->session()->regenerate();
 
+        $request->session()->put('auth_tenant_id', tenant('id'));
+
         $authenticationState->recordLogin($user, $request->ip(), $request->session()->getId());
 
         return redirect(RouteServiceProvider::home());

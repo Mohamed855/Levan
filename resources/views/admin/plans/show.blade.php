@@ -518,6 +518,26 @@
                                                                 <i class="ti ti-eye"></i>
                                                             </a>
 
+                                                            {{-- رابط لوحة تحكم الشركة الخارجي --}}
+                                                            @php
+                                                                $domain =
+                                                                    $subscription->tenant?->domain ??
+                                                                    ($subscription->tenant?->domains?->first()
+                                                                        ?->domain ??
+                                                                        null);
+                                                                $tenantUrl = $domain
+                                                                    ? (str_starts_with($domain, 'http')
+                                                                        ? $domain
+                                                                        : 'https://' . $domain)
+                                                                    : null;
+                                                            @endphp
+                                                            @if ($tenantUrl)
+                                                                <a href="{{ $tenantUrl }}"
+                                                                    class="btn btn-icon btn-secondary btn-sm"
+                                                                    title="لوحة تحكم الشركة (رابط مباشر)" target="_blank">
+                                                                    <i class="ti ti-external-link"></i>
+                                                                </a>
+                                                            @endif
                                                         </div>
                                                     </td>
                                                 </tr>

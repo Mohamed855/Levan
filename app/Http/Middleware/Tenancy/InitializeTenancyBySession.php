@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 class InitializeTenancyBySession
 {
     /**
-     * Handle an incoming request for tenant administration on central domains.
+     * Handle shared login and tenant-scoped administration on central domains.
      * Identifies the tenant via session, authenticated user context, POST payload, or encrypted cookie.
      */
     public function handle(Request $request, Closure $next): Response
@@ -45,16 +45,23 @@ class InitializeTenancyBySession
             tenancy()->initialize($tenant);
         }
 
-        // 4. Security: Strict Tenant Binding for authenticated users (after tenancy is initialized)
-        if (Auth::guard('tenant')->check()) {
-            $authTenantId = session('auth_tenant_id');
+        // 4. Enforce tenant binding before resolving a user ID in the tenant database.
+        $guard = Auth::guard('tenant');
+        if ($request->session()->has($guard->getName()) || $guard->hasUser()) {
+            $authTenantId = session('auth_tenant_id') ?? session('tenant_login_context');
             if ($authTenantId && $authTenantId !== $tenant->id) {
                 // Identity confusion detected: user logged into a different tenant!
-                Auth::guard('tenant')->logout();
+                $guard->forgetUser();
+                $request->cookies->remove($guard->getRecallerName());
+                cookie()->queue(cookie()->forget($guard->getRecallerName()));
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
                 abort(404, 'المستأجر غير موجود');
             }
+        }
+
+        if ($guard->check()) {
+            $request->session()->put('auth_tenant_id', $tenant->id);
         }
 
         // 5. Keep active tenant context in session and cookie
