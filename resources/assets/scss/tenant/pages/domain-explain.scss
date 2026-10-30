@@ -409,7 +409,7 @@
     }
 
     .btn:hover {
-        box-shadow: var(--shadow-md);
+        box-shadow: none !important;
         color: var(--primary-color);
     }
 

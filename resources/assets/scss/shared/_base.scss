@@ -155,6 +155,31 @@ div.dropdown-menu.dt-button-collection {
     }
 }
 
+button,
+.btn,
+a.btn,
+label.btn,
+[type="button"],
+[type="submit"],
+[type="reset"] {
+    &,
+    &:hover,
+    &:focus,
+    &:focus-visible,
+    &:focus-within,
+    &:active,
+    &.active,
+    &.show {
+        box-shadow: none !important;
+        -webkit-box-shadow: none !important;
+        text-shadow: none !important;
+        filter: none !important;
+        --bs-btn-box-shadow: none !important;
+        --bs-btn-focus-box-shadow: none !important;
+        --bs-btn-active-shadow: none !important;
+    }
+}
+
 :where(a, button, .btn, .card, .dropdown-item, .list-group-item):hover {
     box-shadow: none !important;
     transform: none !important;

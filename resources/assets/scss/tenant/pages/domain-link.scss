@@ -337,7 +337,7 @@ body {
 }
 .copy-btn-small:hover {
     background: var(--primary-light);
-    box-shadow: 0 2px 0.5rem rgba(55, 60, 82, 0.2);
+    box-shadow: none !important;
 }
 
 .confirmation-card {
@@ -415,7 +415,7 @@ body {
 }
 
 .btn-primary-custom:hover:not(:disabled) {
-    box-shadow: 0 5px 1rem rgba(55, 60, 82, 0.25);
+    box-shadow: none !important;
 }
 
 .btn-primary-custom:disabled {

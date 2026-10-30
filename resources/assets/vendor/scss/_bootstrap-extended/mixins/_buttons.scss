@@ -61,7 +61,7 @@
             ):not([class*="btn-text-"]):not(.btn-icon):not(:disabled):not(
                 .disabled
             ) {
-            box-shadow: 0 0.125rem 0.375rem 0 rgba($background, 0.3);
+            box-shadow: none !important;
         }
         &:hover {
             color: $hover-color !important;
@@ -230,7 +230,7 @@
         color: $label-color !important;
         border-color: $border !important;
         background: $label-background !important;
-        @include box-shadow($btn-box-shadow);
+        box-shadow: none !important;
 
         &:hover {
             border-color: $border !important;

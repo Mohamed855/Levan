@@ -1,5 +1,5 @@
 @php
-    $isEdit = $is_edit ?? (isset($role) && $role->exists);
+    $isEdit = $is_edit ?? isset($role) && $role->exists;
     $steps = [
         [
             'id' => 'role-info',
@@ -15,15 +15,10 @@
 
             <form id="role-wizard-form"
                 action="{{ $isEdit ? tenant_route_name('roles.update', $role->id) : tenant_route_name('roles.store') }}"
-                method="POST"
-                autocomplete="off"
-                data-form-validate
+                method="POST" autocomplete="off" data-form-validate
                 data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
-                @if (!$isEdit)
-                    data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
-                    data-draft-resource-key="tenant.role-create"
-                @endif
-            >
+                @if (!$isEdit) data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
+                    data-draft-resource-key="tenant.role-create" @endif>
                 @csrf
                 @if ($isEdit)
                     @method('PUT')
@@ -31,21 +26,21 @@
 
                 <x-form.wizard.step id="role-info" :fields="['name']">
                     <div class="row g-4 mb-4">
-                        <x-form.controls.input name="name" label="اسم الدور"
-                            :value="old('name', isset($role) ? \App\Support\AccessLabels::role($role->name) : '')"
-                            placeholder="مثال: ContentManager" required col="col-12" />
+                        <x-form.controls.input name="name" label="اسم الدور" :value="old('name', isset($role) ? \App\Support\AccessLabels::role($role->name) : '')"
+                            placeholder="مثال: مدير التسويق" required col="col-12" />
                     </div>
 
                     <div class="card border mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center py-3 bg-light">
+                        <div class="card-header d-flex justify-content-between align-items-center py-3">
                             <label for="permissions" class="form-label fw-bold mb-0">
                                 <i class="ti ti-shield-lock me-1 text-primary"></i> الصلاحيات المتاحة
                             </label>
                             <!-- تحديد الكل العام -->
                             <div class="form-check d-flex align-items-center gap-2 mb-0">
-                                <input type="checkbox" name="select_all" value="1" class="form-check-input" id="select-all"
-                                    data-validation-skip>
-                                <label class="form-check-label fw-semibold cursor-pointer" for="select-all">تحديد الكل</label>
+                                <input type="checkbox" name="select_all" value="1" class="form-check-input"
+                                    id="select-all" data-validation-skip>
+                                <label class="form-check-label cursor-pointer" for="select-all">تحديد
+                                    الكل</label>
                             </div>
                         </div>
 
@@ -57,29 +52,35 @@
                                             <div class="accordion" id="accordion-{{ $loop->index }}">
                                                 <div class="accordion-item border shadow-none">
                                                     <h2 class="accordion-header" id="heading-{{ $loop->index }}">
-                                                        <button type="button" class="accordion-button collapsed py-3" data-bs-toggle="collapse"
-                                                            data-bs-target="#collapse-{{ $loop->index }}" aria-expanded="false"
+                                                        <button type="button" class="accordion-button collapsed py-3"
+                                                            data-bs-toggle="collapse"
+                                                            data-bs-target="#collapse-{{ $loop->index }}"
+                                                            aria-expanded="false"
                                                             aria-controls="collapse-{{ $loop->index }}">
                                                             <i class="ti ti-folder me-2 text-primary"></i>
                                                             {{ \App\Support\AccessLabels::section($section) }}
                                                         </button>
                                                     </h2>
-                                                    <div id="collapse-{{ $loop->index }}" class="accordion-collapse collapse"
+                                                    <div id="collapse-{{ $loop->index }}"
+                                                        class="accordion-collapse collapse"
                                                         aria-labelledby="heading-{{ $loop->index }}"
                                                         data-bs-parent="#accordion-{{ $loop->index }}">
                                                         <div class="accordion-body">
                                                             <!-- تحديد الكل داخل القسم -->
-                                                            <div class="form-check mb-2 pb-2 border-bottom">
-                                                                <input type="checkbox" class="form-check-input section-select-all"
+                                                            <div class="form-check my-2 pb-3 border-bottom">
+                                                                <input type="checkbox"
+                                                                    class="form-check-input section-select-all"
                                                                     id="section-select-all-{{ $loop->index }}"
                                                                     data-section-index="{{ $loop->index }}">
-                                                                <label class="form-check-label fw-semibold cursor-pointer" for="section-select-all-{{ $loop->index }}">
+                                                                <label class="form-check-label cursor-pointer"
+                                                                    for="section-select-all-{{ $loop->index }}">
                                                                     تحديد الكل داخل القسم
                                                                 </label>
                                                             </div>
 
                                                             <!-- الصلاحيات -->
-                                                            <div style="max-height: 280px; overflow-y: auto;">
+                                                            <div class="pt-2"
+                                                                style="max-height: 280px; overflow-y: auto;">
                                                                 @foreach ($perms as $permission)
                                                                     @if ($permission)
                                                                         <div class="form-check mb-2">
@@ -89,7 +90,8 @@
                                                                                 id="permission-{{ $permission->id }}"
                                                                                 data-section="{{ $loop->parent->index }}"
                                                                                 {{ $isEdit && $role->hasPermissionTo($permission->name) ? 'checked' : '' }}>
-                                                                            <label class="form-check-label cursor-pointer"
+                                                                            <label
+                                                                                class="form-check-label cursor-pointer"
                                                                                 for="permission-{{ $permission->id }}">
                                                                                 {{ \App\Support\AccessLabels::permission($permission->name) }}
                                                                             </label>

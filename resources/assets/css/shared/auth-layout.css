@@ -373,13 +373,13 @@ body:has(.tenant-login-container) {
     gap: 0.5rem;
     cursor: pointer;
     transition: all 0.25s ease;
-    box-shadow: 0 0.25rem 0.75rem rgba(29, 79, 68, 0.18);
+    box-shadow: none !important;
 }
 
 .btn-auth-primary:hover,
 .btn-tenant-login:hover {
     background-color: #12332C;
-    box-shadow: 0 6px 18px rgba(29, 79, 68, 0.28);
+    box-shadow: none !important;
     color: #ffffff !important;
 }
 

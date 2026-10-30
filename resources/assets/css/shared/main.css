@@ -171,3 +171,63 @@ input[type="number"]::-webkit-inner-spin-button {
     margin: 0 !important;
 }
 
+/* =============================================================================
+   Universal Button Shadow Contract - Strictly No Shadow Ever
+   Applies to all button elements, classes, and pseudostates system-wide
+   ============================================================================= */
+button,
+.btn,
+.btn-icon,
+.btn-link,
+.btn-close,
+.btn-add,
+.btn-export,
+.btn-auth-primary,
+.btn-tenant-login,
+[type="button"],
+[type="reset"],
+[type="submit"],
+a.btn,
+label.btn,
+.btn:hover,
+.btn:focus,
+.btn:focus-visible,
+.btn:focus-within,
+.btn:active,
+.btn.active,
+.btn.show,
+.btn:disabled,
+.btn.disabled,
+button:hover,
+button:focus,
+button:focus-visible,
+button:focus-within,
+button:active,
+[type="button"]:hover,
+[type="button"]:focus,
+[type="button"]:focus-visible,
+[type="button"]:active,
+[type="submit"]:hover,
+[type="submit"]:focus,
+[type="submit"]:focus-visible,
+[type="submit"]:active,
+.btn[class*="btn-"],
+.btn[class*="btn-"]:hover,
+.btn[class*="btn-"]:focus,
+.btn[class*="btn-"]:focus-visible,
+.btn[class*="btn-"]:active,
+.btn[class*="btn-"].active,
+.btn[class*="btn-"].show,
+.btn[class*="bg-"],
+.btn[class*="bg-"]:hover,
+.btn[class*="bg-"]:focus,
+.btn[class*="bg-"]:active {
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+    --bs-btn-box-shadow: none !important;
+    --bs-btn-focus-box-shadow: none !important;
+    --bs-btn-active-shadow: none !important;
+}
+

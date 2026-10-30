@@ -2,16 +2,25 @@
 // *******************************************************************************
 
 .btn {
+    --levan-btn-height: 2.375rem;
+    --bs-btn-font-weight: 500;
+
     cursor: pointer;
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
+    height: var(--levan-btn-height) !important;
+    min-height: var(--levan-btn-height) !important;
+    font-family: inherit;
+    font-weight: var(--bs-btn-font-weight);
     transform: none;
+    box-shadow: none !important;
 
     &:hover,
     &:focus,
     &:active {
         transform: none;
+        box-shadow: none !important;
     }
 
     &[class*="btn-outline-"] {
@@ -168,6 +177,24 @@ label.btn {
         border-color: transparent;
         box-shadow: none;
     }
+}
+
+// Keep explicit Bootstrap sizes proportional to their existing typography and padding.
+.btn.btn-xs,
+.btn.btn-sm,
+.btn.btn-lg,
+.btn.btn-xl,
+.btn-group-sm > .btn,
+.btn-group-lg > .btn {
+    --levan-btn-height: calc(
+        var(--bs-btn-font-size) * var(--bs-btn-line-height) +
+        var(--bs-btn-padding-y) * 2 + var(--bs-btn-border-width) * 2
+    );
+}
+
+.btn.btn-icon {
+    width: var(--levan-btn-height);
+    min-width: var(--levan-btn-height);
 }
 
 // Link buttons

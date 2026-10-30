@@ -224,7 +224,7 @@
   font-size: var(--site-font-base);
   font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 10px 30px rgba(29, 79, 68, 0.32);
+  box-shadow: none !important;
   border: 1px solid rgba(var(--site-gold-rgb), 0.25);
   transition: all var(--site-transition-fast);
 
@@ -244,7 +244,7 @@
   &:hover {
     background-color: var(--site-primary-deep);
     color: #FFFFFF !important;
-    box-shadow: 0 14px 2.5rem rgba(18, 51, 44, 0.35);
+    box-shadow: none !important;
     border-color: var(--site-primary-deep);
   }
 }

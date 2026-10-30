@@ -139,9 +139,9 @@
     font-size: var(--site-font-base);
     font-weight: 700;
     text-decoration: none;
-    box-shadow: 0 0.5rem 1.5rem rgba(29, 79, 68, 0.28);
+    box-shadow: none !important;
     border: 1px solid rgba(var(--site-gold-rgb), 0.25);
-    transition: background-color var(--site-transition-fast), color var(--site-transition-fast), box-shadow var(--site-transition-fast), border-color var(--site-transition-fast);
+    transition: background-color var(--site-transition-fast), color var(--site-transition-fast), border-color var(--site-transition-fast);
 
     i {
       font-size: 1.2rem;
@@ -151,7 +151,7 @@
     &:hover {
       background-color: var(--site-primary-deep);
       color: #FFFFFF !important;
-      box-shadow: 0 0.75rem 2rem rgba(18, 51, 44, 0.35);
+      box-shadow: none !important;
       border-color: var(--site-primary-deep);
     }
   }

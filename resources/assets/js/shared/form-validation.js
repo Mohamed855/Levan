@@ -832,7 +832,7 @@ async function restoreDraft(form) {
                 title: "مسودة محفوظة",
                 text: "توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟",
                 variant: "primary",
-                confirmButtonText: "تأكيد استعادة المسودة",
+                confirmButtonText: "تأكيد الاستعادة",
                 cancelButtonText: "تجاهل",
                 confirmButtonClass: "btn btn-primary",
                 icon: "ti ti-file-text text-primary",

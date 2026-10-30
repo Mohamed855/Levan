@@ -13,14 +13,20 @@
     transition:
         color 0.15s ease-in-out,
         background-color 0.15s ease-in-out,
-        border-color 0.15s ease-in-out,
-        box-shadow 0.15s ease-in-out;
+        border-color 0.15s ease-in-out;
     transform: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
 
     &:hover,
     &:focus,
-    &:active {
+    &:focus-visible,
+    &:active,
+    &.active,
+    &.show {
         transform: none !important;
+        box-shadow: none !important;
+        -webkit-box-shadow: none !important;
     }
 
     > * {
@@ -41,6 +47,17 @@
         height: auto !important;
         display: inline-block !important;
         line-height: 0.9 !important;
+    }
+}
+
+// Table cell typography must not make button labels lighter than other buttons.
+.table .btn,
+table.dataTable .btn {
+    font-weight: 500 !important;
+
+    .btn-text,
+    > span:not(.spinner-border):not([class*="icon"]) {
+        font-weight: inherit !important;
     }
 }
 
@@ -121,11 +138,12 @@
             background-color: $solid-hover-bg !important;
             border-color: #{if($name == 'secondary', map.get($props, hover-border), $solid-hover-bg)} !important;
             color: #{if($name == 'secondary', map.get($props, hover-color), $solid-color)} !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+            box-shadow: none !important;
         }
 
         &:focus-visible {
-            box-shadow: 0 0 0 0.2rem rgba($solid-bg, 0.25) !important;
+            box-shadow: none !important;
+            outline: none;
         }
 
         &:disabled,
@@ -158,11 +176,12 @@
             background-color: $solid-bg !important;
             border-color: #{if($name == 'secondary', map.get($props, border), $solid-bg)} !important;
             color: $solid-color !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+            box-shadow: none !important;
         }
 
         &:focus-visible {
-            box-shadow: 0 0 0 0.2rem rgba($outline-color, 0.2) !important;
+            box-shadow: none !important;
+            outline: none;
         }
 
         &:disabled,
@@ -171,6 +190,7 @@
             border-color: $outline-color !important;
             color: $outline-color !important;
             opacity: var(--disabled-opacity, 0.65) !important;
+            box-shadow: none !important;
         }
     }
 
@@ -191,11 +211,12 @@
             background-color: $hover-bg !important;
             border-color: transparent !important;
             color: $hover-color !important;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+            box-shadow: none !important;
         }
 
         &:focus-visible {
-            box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.1) !important;
+            box-shadow: none !important;
+            outline: none;
         }
 
         &:disabled,
@@ -204,6 +225,7 @@
             border-color: transparent !important;
             color: $color !important;
             opacity: var(--disabled-opacity, 0.65) !important;
+            box-shadow: none !important;
         }
     }
 
@@ -291,5 +313,42 @@
         width: 3rem;
         height: 3rem;
         border-width: 0.25rem;
+    }
+}
+
+// =============================================================================
+// Universal Zero-Shadow Contract for All Buttons
+// Strictly no box-shadow, text-shadow, or filter shadows in any state
+// =============================================================================
+button,
+.btn,
+.btn-icon,
+.btn-link,
+.btn-close,
+.btn-add,
+.btn-export,
+.btn-brand-secondary,
+[type="button"],
+[type="reset"],
+[type="submit"],
+a.btn,
+label.btn {
+    &,
+    &:hover,
+    &:focus,
+    &:focus-visible,
+    &:focus-within,
+    &:active,
+    &.active,
+    &.show,
+    &:disabled,
+    &.disabled {
+        box-shadow: none !important;
+        -webkit-box-shadow: none !important;
+        text-shadow: none !important;
+        filter: none !important;
+        --bs-btn-box-shadow: none !important;
+        --bs-btn-focus-box-shadow: none !important;
+        --bs-btn-active-shadow: none !important;
     }
 }

@@ -252,12 +252,12 @@
     gap: 0.5rem;
     cursor: pointer;
     transition: all 0.25s ease;
-    box-shadow: 0 0.25rem 0.75rem rgba(55, 38, 50, 0.18);
+    box-shadow: none !important;
 }
 
 .btn-tenant-login:hover {
     background-color: #261922;
-    box-shadow: 0 6px 18px rgba(55, 38, 50, 0.28);
+    box-shadow: none !important;
     color: #ffffff !important;
 }
 

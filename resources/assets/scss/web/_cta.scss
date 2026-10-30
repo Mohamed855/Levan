@@ -68,7 +68,7 @@
     padding: 1rem 2.75rem;
     border-radius: var(--site-radius-pill);
     text-decoration: none;
-    box-shadow: 0 14px 2.5rem rgba(0, 0, 0, 0.22);
+    box-shadow: none !important;
     transition: all var(--site-transition-fast);
 
     i {
@@ -80,7 +80,7 @@
     &:hover {
       background: var(--site-sand-deep);
       color: var(--site-primary-deep) !important;
-      box-shadow: 0 14px 2.5rem rgba(0, 0, 0, 0.28);
+      box-shadow: none !important;
     }
   }
 }

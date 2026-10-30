@@ -34,18 +34,18 @@
     background-color: #28a745 !important;
     border-color: #28a745 !important;
     color: white !important;
-    box-shadow: 0 0.25rem 0.75rem rgba(40, 167, 69, 0.4);
+    box-shadow: none !important;
 }
 
 .choice-buttons .btn-check:checked + .btn-outline-danger {
     background-color: #dc3545 !important;
     border-color: #dc3545 !important;
     color: white !important;
-    box-shadow: 0 0.25rem 0.75rem rgba(220, 53, 69, 0.4);
+    box-shadow: none !important;
 }
 
 .choice-buttons .btn:hover {
-    box-shadow: 0 2px 0.5rem rgba(0, 0, 0, 0.15);
+    box-shadow: none !important;
 }
 
 /* نجوم الاستبيان داخل المودال */

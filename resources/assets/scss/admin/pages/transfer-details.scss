@@ -307,7 +307,7 @@
 
     .btn-approve:hover {
         opacity: 0.9;
-        box-shadow: 0 6px 1.25rem rgba(76, 193, 187, 0.4);
+        box-shadow: none !important;
     }
 
     .btn-reject {
@@ -328,7 +328,7 @@
 
     .btn-reject:hover {
         background: #1a1d2e !important;
-        box-shadow: 0 6px 1.25rem rgba(47, 51, 73, 0.4);
+        box-shadow: none !important;
     }
 
     .timeline-section {

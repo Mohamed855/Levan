@@ -463,7 +463,7 @@ document.addEventListener("DOMContentLoaded", () => {
         appendPolygonPath(context, width, height);
         context.closePath();
         context.fillStyle = "rgba(0, 0, 0, 0.5)";
-        context.fill("evenodd");
+        context.fill('evenodd');
         context.restore();
     }
 

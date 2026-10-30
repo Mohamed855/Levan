@@ -77,7 +77,7 @@
 
 .btn-check-domain:hover {
     background: #3d4152;
-    box-shadow: 0 5px 1.25rem rgba(40, 44, 62, 0.3);
+    box-shadow: none !important;
 }
 
 .btn-check-domain:disabled {
@@ -99,7 +99,7 @@
 
 .btn-transfer:hover {
     background: #218838;
-    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+    box-shadow: none !important;
 }
 
 .alert-custom {

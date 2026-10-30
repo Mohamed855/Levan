@@ -256,7 +256,7 @@ async function shouldRestoreDraft() {
             text: "توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟",
             variant: "primary",
             icon: "ti-file-pencil",
-            confirmButtonText: "تأكيد استعادة المسودة",
+            confirmButtonText: "تأكيد الاستعادة",
             confirmClass: "btn btn-primary px-4",
             cancelText: "تجاهل",
         });
