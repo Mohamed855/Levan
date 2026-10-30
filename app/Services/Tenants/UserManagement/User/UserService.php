@@ -4,7 +4,6 @@ namespace App\Services\Tenants\UserManagement\User;
 
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Shared\CentralTrialAccessGateway;
-use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -180,114 +179,6 @@ class UserService
             'inactive' => User::accessible()->where('status', 'inactive')->count(),
             'archived' => User::onlyTrashed()->accessible()->count(),
         ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get User Sessions Data
-    |--------------------------------------------------------------------------
-    | جلب بيانات جلسات التحصيل للموظف من بداية الشهر حتى اليوم
-    */
-    public function getUserSessionsData(int $userId): array
-    {
-        return [
-            'days' => [],
-            'statistics' => [
-                'attendance_days' => 0,
-                'total_work_hours' => '0:00',
-                'total_work_minutes' => 0,
-                'avg_work_hours' => '0:00',
-                'total_follows' => 0,
-                'avg_follows' => 0,
-            ],
-        ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Build Day Timeline
-    |--------------------------------------------------------------------------
-    | بناء الخط الزمني لليوم (فترات العمل والانقطاع)
-    */
-    private function buildDayTimeline($session, $date): array
-    {
-        $timeline = [];
-
-        if ($session->workPeriods->isEmpty()) {
-            return [
-                'periods' => [],
-                'work_range' => ['start' => '08:00', 'end' => '16:00'],
-            ];
-        }
-
-        // الحصول على أول دخول وآخر خروج
-        $firstEntry = $session->workPeriods->min('entry_time');
-        $lastExit = $session->workPeriods->whereNotNull('exit_time')->max('exit_time');
-
-        // إذا كان لا يزال نشطاً، استخدم الوقت الحالي
-        if (! $lastExit || $session->is_active) {
-            $lastExit = now();
-        }
-
-        $workStart = Carbon::parse($firstEntry)->startOfHour();
-        $workEnd = Carbon::parse($lastExit)->addHour()->startOfHour();
-        $totalMinutes = $workStart->diffInMinutes($workEnd);
-
-        if ($totalMinutes <= 0) {
-            $totalMinutes = 480;
-        }
-
-        $periods = [];
-        foreach ($session->workPeriods as $period) {
-            $entryTime = Carbon::parse($period->entry_time);
-            $exitTime = $period->exit_time ? Carbon::parse($period->exit_time) : now();
-
-            // حساب النسبة المئوية من بداية العمل
-            $startPercent = max(0, $entryTime->diffInMinutes($workStart) / $totalMinutes * 100);
-            $endPercent = min(100, $exitTime->diffInMinutes($workStart) / $totalMinutes * 100);
-            $width = $endPercent - $startPercent;
-
-            if ($width > 0) {
-                $duration = $entryTime->diffInMinutes($exitTime);
-                $durationFormatted = sprintf('%d دقيقة', $duration);
-                if ($duration >= 60) {
-                    $hours = floor($duration / 60);
-                    $mins = $duration % 60;
-                    $durationFormatted = sprintf('%d:%02d ساعة', $hours, $mins);
-                }
-
-                $periods[] = [
-                    'start_percent' => round($startPercent, 2),
-                    'width' => round($width, 2),
-                    'start_time' => $entryTime->format('H:i'),
-                    'end_time' => $period->exit_time ? $exitTime->format('H:i') : 'الآن',
-                    'duration' => $durationFormatted,
-                    'is_active' => ! $period->exit_time,
-                ];
-            }
-        }
-
-        return [
-            'periods' => $periods,
-            'work_range' => [
-                'start' => $workStart->format('H:i'),
-                'end' => $workEnd->format('H:i'),
-            ],
-        ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Format Minutes to Time
-    |--------------------------------------------------------------------------
-    | تحويل الدقائق إلى صيغة HH:MM
-    */
-    private function formatMinutesToTime(int $minutes): string
-    {
-        $hours = floor($minutes / 60);
-        $mins = $minutes % 60;
-
-        return sprintf('%02d:%02d', $hours, $mins);
     }
 
     /*

@@ -53,6 +53,7 @@ final class UpdatePropertyAction
                     $data['property_images'],
                     $data['main_image'],
                     $data['aerial_image'],
+                    $data['raw_aerial_image'],
                     $data['_wizard_draft_id'],
                     $data['_wizard_resource_key']
                 );

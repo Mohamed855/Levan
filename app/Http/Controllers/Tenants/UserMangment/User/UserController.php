@@ -177,9 +177,7 @@ class UserController extends Controller
             ->take(5)
             ->get();
 
-        $sessionsData = $this->userService->getUserSessionsData($user->id);
-
-        return view('tenant.user-management.users.show', compact('user', 'recentActivities', 'sessionsData'));
+        return view('tenant.user-management.users.show', compact('user', 'recentActivities'));
     }
 
     /*
@@ -195,9 +193,8 @@ class UserController extends Controller
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
-        $sessionsData = $this->userService->getUserSessionsData($user->id);
 
-        return view('tenant.user-management.users.show', compact('user', 'recentActivities', 'sessionsData'));
+        return view('tenant.user-management.users.show', compact('user', 'recentActivities'));
     }
 
     /*
@@ -325,10 +322,14 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     | Update the user profile image.
     */
-    public function updateImage(UpdateUserProfileImageRequest $request, User $user): JsonResponse
+    public function updateImage(UpdateUserProfileImageRequest $request, User $user): JsonResponse|RedirectResponse
     {
         try {
             $this->userService->updateUserImage($user, $request->file('profile_image'));
+
+            if (! $request->expectsJson()) {
+                return redirect()->back()->with('success', 'تم تحديث الصورة بنجاح');
+            }
 
             return response()->json([
                 'success' => true,
@@ -336,6 +337,10 @@ class UserController extends Controller
                 'image_url' => tasset($user->fresh()->image),
             ]);
         } catch (\Exception $e) {
+            if (! $request->expectsJson()) {
+                return redirect()->back()->with('error', 'حدث خطأ أثناء تحديث الصورة');
+            }
+
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ أثناء تحديث الصورة: '.$e->getMessage(),

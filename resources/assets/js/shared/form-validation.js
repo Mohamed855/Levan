@@ -34,13 +34,20 @@ function normalizeFieldName(name) {
 }
 
 function fieldMatches(fieldName, requestedName) {
-    const normField = normalizeFieldName(fieldName);
-    const normReq = normalizeFieldName(requestedName);
-    return (
-        normField === normReq ||
-        normReq.startsWith(normField + ".") ||
-        normField.startsWith(normReq + ".")
-    );
+    if (!fieldName || !requestedName) return false;
+    const names = String(fieldName)
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    return names.some((n) => {
+        const normField = normalizeFieldName(n);
+        const normReq = normalizeFieldName(requestedName);
+        return (
+            normField === normReq ||
+            normReq.startsWith(normField + ".") ||
+            normField.startsWith(normReq + ".")
+        );
+    });
 }
 
 function findFieldWrappers(form, fieldName) {
@@ -1676,21 +1683,6 @@ function initStepper(form) {
                     if (isValid) {
                         moveTo(currentIndex + 1);
                     } else {
-                        const boundaryInput = currentStep.querySelector(
-                            'input[name="boundary_geojson"]',
-                        );
-                        const boundaryError =
-                            boundaryInput && !boundaryInput.value
-                                ? "برجاء تحديد حدود العقار علي صورة العقار."
-                                : null;
-                        if (boundaryError) {
-                            setFieldError(
-                                form,
-                                "boundary_geojson",
-                                boundaryError,
-                            );
-                        }
-
                         if (window.toastr?.error) {
                             window.toastr.error(VALIDATION_ERROR_TOAST_MESSAGE);
                         }

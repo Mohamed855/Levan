@@ -7,7 +7,8 @@
                 </label>
                 <span class="text-muted small">بحد أقصى 10MB</span>
             </div>
-            <input type="file" id="property-image-upload" class="d-none" accept="image/png,image/jpeg,image/webp" data-max-size-mb="10">
+            <input type="file" id="property-image-upload" class="d-none" accept="image/png,image/jpeg,image/webp"
+                data-max-size-mb="10">
         </div>
 
         {{-- لوحة الرسم التفاعلية --}}
@@ -59,13 +60,11 @@
         </div>
 
         {{-- حقول تخزين البيانات المخفية المرتبطة بالفورم ونظام المسودات --}}
-        <div data-form-field data-field-name="aerial_image">
+        <div data-form-field data-field-name="boundary_geojson,aerial_image">
             <input type="hidden" name="aerial_image" id="property-aerial-image" data-form-control
                 value="{{ old('aerial_image', isset($property) && $property->aerial_image ? (str_starts_with($property->aerial_image, 'data:image/') || str_starts_with($property->aerial_image, 'http') ? $property->aerial_image : tasset($property->aerial_image)) : '') }}">
-            <div data-form-error class="invalid-feedback d-block text-danger mt-1" style="display: none;" hidden></div>
-        </div>
-
-        <div data-form-field data-field-name="boundary_geojson">
+            <input type="hidden" name="raw_aerial_image" id="property-raw-aerial-image" data-form-control
+                value="{{ old('raw_aerial_image', '') }}">
             <input type="hidden" name="boundary_geojson" id="property-boundary-geojson" data-form-control
                 value="{{ old('boundary_geojson', isset($property) && $property->boundary_geojson ? (is_array($property->boundary_geojson) ? json_encode($property->boundary_geojson) : $property->boundary_geojson) : '') }}">
             <div data-form-error class="invalid-feedback d-block text-danger mt-1" style="display: none;" hidden></div>

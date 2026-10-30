@@ -100,6 +100,7 @@ class StorePropertyRequest extends WizardFormRequest
                     }
                 },
             ],
+            'raw_aerial_image' => ['nullable', 'string'],
             'boundary_geojson' => ['required', 'array'],
             'boundary_geojson.type' => ['required', 'in:Polygon'],
             'boundary_geojson.coordinates' => ['required', 'array', 'size:1'],

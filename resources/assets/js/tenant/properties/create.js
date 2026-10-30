@@ -313,16 +313,19 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
         if (window.jQuery?.fn?.select2) {
-            window.jQuery(unitsList).find("select.select2").each(function () {
-                const $select = window.jQuery(this);
-                $select.select2({
-                    placeholder: $select.data("placeholder") || "اختر",
-                    allowClear: true,
-                    width: "100%",
-                    dir: "rtl",
-                    minimumResultsForSearch: Infinity,
+            window
+                .jQuery(unitsList)
+                .find("select.select2")
+                .each(function () {
+                    const $select = window.jQuery(this);
+                    $select.select2({
+                        placeholder: $select.data("placeholder") || "اختر",
+                        allowClear: true,
+                        width: "100%",
+                        dir: "rtl",
+                        minimumResultsForSearch: Infinity,
+                    });
                 });
-            });
         }
         form.dispatchEvent(new CustomEvent("stepChanged"));
     }
@@ -345,11 +348,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnChangeImage = document.getElementById("btn-change-image");
     const btnClearBoundary = document.getElementById("btn-clear-boundary");
     const aerialImageInput = document.getElementById("property-aerial-image");
+    const rawAerialImageInput = document.getElementById(
+        "property-raw-aerial-image",
+    );
     const boundaryGeoJsonInput = document.getElementById(
         "property-boundary-geojson",
     );
 
     let loadedImage = null;
+    let rawImageDataUrl =
+        rawAerialImageInput?.value || aerialImageInput?.value || "";
     let points = []; // Array of normalized { x: 0..1, y: 0..1 }
     let draggedPointIndex = null;
     let hoveredPointIndex = null;
@@ -455,7 +463,7 @@ document.addEventListener("DOMContentLoaded", () => {
         appendPolygonPath(context, width, height);
         context.closePath();
         context.fillStyle = "rgba(0, 0, 0, 0.5)";
-        context.fill('evenodd');
+        context.fill("evenodd");
         context.restore();
     }
 
@@ -548,7 +556,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const rawW = loadedImage.naturalWidth || loadedImage.width || 1200;
             const rawH = loadedImage.naturalHeight || loadedImage.height || 800;
             const maxExportDim = 1600;
-            const exportScale = Math.min(1, maxExportDim / Math.max(rawW, rawH));
+            const exportScale = Math.min(
+                1,
+                maxExportDim / Math.max(rawW, rawH),
+            );
             const naturalW = Math.round(rawW * exportScale);
             const naturalH = Math.round(rawH * exportScale);
 
@@ -599,6 +610,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     new Event("change", { bubbles: true }),
                 );
             }
+            if (rawAerialImageInput && rawImageDataUrl) {
+                rawAerialImageInput.value = rawImageDataUrl;
+            }
 
             if (btnDownload) {
                 btnDownload.disabled = false;
@@ -633,6 +647,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 boundaryGeoJsonInput.dispatchEvent(
                     new Event("change", { bubbles: true }),
                 );
+            }
+            const fallbackSrc =
+                rawImageDataUrl || (loadedImage?.src ? loadedImage.src : "");
+            if (fallbackSrc && aerialImageInput) {
+                aerialImageInput.value = fallbackSrc;
+                aerialImageInput.dispatchEvent(
+                    new Event("input", { bubbles: true }),
+                );
+                aerialImageInput.dispatchEvent(
+                    new Event("change", { bubbles: true }),
+                );
+            }
+            if (fallbackSrc && rawAerialImageInput) {
+                rawAerialImageInput.value = fallbackSrc;
             }
         }
     }
@@ -690,7 +718,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!file) return;
 
         if (!file.type.startsWith("image/")) {
-            notifyUser("error", "يرجى اختيار ملف صورة صالح بصيغة PNG أو JPG أو WebP.");
+            notifyUser(
+                "error",
+                "يرجى اختيار ملف صورة صالح بصيغة PNG أو JPG أو WebP.",
+            );
             if (imageUploadInput) imageUploadInput.value = "";
             return;
         }
@@ -706,8 +737,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const reader = new FileReader();
         reader.onload = (event) => {
+            const dataUrl = event.target.result;
+            rawImageDataUrl = dataUrl;
+            if (rawAerialImageInput) {
+                rawAerialImageInput.value = dataUrl;
+                rawAerialImageInput.dispatchEvent(
+                    new Event("input", { bubbles: true }),
+                );
+                rawAerialImageInput.dispatchEvent(
+                    new Event("change", { bubbles: true }),
+                );
+            }
+            if (aerialImageInput) {
+                aerialImageInput.value = dataUrl;
+                aerialImageInput.dispatchEvent(
+                    new Event("input", { bubbles: true }),
+                );
+                aerialImageInput.dispatchEvent(
+                    new Event("change", { bubbles: true }),
+                );
+            }
             points = [];
-            loadImageSrc(event.target.result);
+            loadImageSrc(dataUrl);
             notifyUser(
                 "info",
                 "تم تحميل الصورة. انقر الآن على زوايا العقار لتحديد حدوده.",
@@ -897,14 +948,10 @@ document.addEventListener("DOMContentLoaded", () => {
             annotatedDataUrl = "";
             requestDraw();
             syncAnnotatedImage();
-            if (
-                aerialImageInput &&
-                loadedImage?.src &&
-                !loadedImage.src.startsWith("data:image/")
-            ) {
-                aerialImageInput.value = loadedImage.src;
-            } else if (aerialImageInput) {
-                aerialImageInput.value = "";
+            const fallbackSrc =
+                rawImageDataUrl || (loadedImage?.src ? loadedImage.src : "");
+            if (fallbackSrc && aerialImageInput) {
+                aerialImageInput.value = fallbackSrc;
             }
             notifyUser(
                 "info",
@@ -939,11 +986,11 @@ document.addEventListener("DOMContentLoaded", () => {
         flushSyncAnnotatedImage();
     });
 
-    if (aerialImageInput && aerialImageInput.value) {
-        loadImageSrc(
-            aerialImageInput.value,
-            boundaryGeoJsonInput?.value || null,
-        );
+    const initialAerialSrc =
+        rawAerialImageInput?.value || aerialImageInput?.value;
+    if (initialAerialSrc) {
+        rawImageDataUrl = initialAerialSrc;
+        loadImageSrc(initialAerialSrc, boundaryGeoJsonInput?.value || null);
     }
 
     // =========================================================================
@@ -1168,7 +1215,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Review Documents (Categorized sections matching standard architecture)
         const reviewLegal = document.getElementById("review-legal-documents");
-        const reviewLegalCount = document.getElementById("review-legal-documents-count");
+        const reviewLegalCount = document.getElementById(
+            "review-legal-documents-count",
+        );
         if (reviewLegal) {
             const legalItems = [];
             const legalFields = [
@@ -1183,7 +1232,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 const input = form.elements.namedItem(id);
                 const file = input?.files?.[0];
                 if (file) {
-                    legalItems.push({ name: file.name, file, metaLabel: label });
+                    legalItems.push({
+                        name: file.name,
+                        file,
+                        metaLabel: label,
+                    });
                 } else {
                     const wrapper =
                         input?.closest("[data-file-upload-wrapper]") ||
@@ -1204,23 +1257,34 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
-            if (reviewLegalCount) reviewLegalCount.textContent = String(legalItems.length);
+            if (reviewLegalCount)
+                reviewLegalCount.textContent = String(legalItems.length);
             if (!legalItems.length) {
                 reviewLegal.innerHTML =
                     '<p class="text-muted mb-0" data-empty>لم يتم إرفاق مستندات رسمية بعد.</p>';
             } else {
-                reviewLegal.innerHTML = legalItems.map(renderFileCardHtml).join("");
+                reviewLegal.innerHTML = legalItems
+                    .map(renderFileCardHtml)
+                    .join("");
             }
         }
 
-        const reviewGallery = document.getElementById("review-gallery-documents");
-        const reviewGalleryCount = document.getElementById("review-gallery-documents-count");
+        const reviewGallery = document.getElementById(
+            "review-gallery-documents",
+        );
+        const reviewGalleryCount = document.getElementById(
+            "review-gallery-documents-count",
+        );
         if (reviewGallery) {
             const galleryItems = [];
             const mainImgInput = form.elements.namedItem("main_image");
             const mainFile = mainImgInput?.files?.[0];
             if (mainFile) {
-                galleryItems.push({ name: mainFile.name, file: mainFile, metaLabel: "الصورة الرئيسية" });
+                galleryItems.push({
+                    name: mainFile.name,
+                    file: mainFile,
+                    metaLabel: "الصورة الرئيسية",
+                });
             } else {
                 const wrapper =
                     mainImgInput?.closest("[data-file-upload-wrapper]") ||
@@ -1240,7 +1304,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            const propImagesInput = form.elements.namedItem("property_images[]");
+            const propImagesInput =
+                form.elements.namedItem("property_images[]");
             if (propImagesInput?.files?.length) {
                 Array.from(propImagesInput.files).forEach((file) => {
                     galleryItems.push({
@@ -1250,28 +1315,50 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 });
             } else {
-                const wrapper = propImagesInput?.closest("[data-file-upload-wrapper]");
-                wrapper?.querySelectorAll("[data-existing-file-card]").forEach((card) => {
-                    const name = card.querySelector(".file-item-name")?.textContent?.trim();
-                    const url = card.querySelector("img.file-item-preview")?.src;
-                    if (name) galleryItems.push({ name, url: url || null, metaLabel: "معرض الصور" });
-                });
+                const wrapper = propImagesInput?.closest(
+                    "[data-file-upload-wrapper]",
+                );
+                wrapper
+                    ?.querySelectorAll("[data-existing-file-card]")
+                    .forEach((card) => {
+                        const name = card
+                            .querySelector(".file-item-name")
+                            ?.textContent?.trim();
+                        const url = card.querySelector(
+                            "img.file-item-preview",
+                        )?.src;
+                        if (name)
+                            galleryItems.push({
+                                name,
+                                url: url || null,
+                                metaLabel: "معرض الصور",
+                            });
+                    });
             }
 
-            if (reviewGalleryCount) reviewGalleryCount.textContent = String(galleryItems.length);
+            if (reviewGalleryCount)
+                reviewGalleryCount.textContent = String(galleryItems.length);
             if (!galleryItems.length) {
                 reviewGallery.innerHTML =
                     '<p class="text-muted mb-0" data-empty>لم يتم إرفاق صور بعد.</p>';
             } else {
-                reviewGallery.innerHTML = galleryItems.map(renderFileCardHtml).join("");
+                reviewGallery.innerHTML = galleryItems
+                    .map(renderFileCardHtml)
+                    .join("");
             }
         }
 
-        const reviewAddDocs = document.getElementById("review-additional-documents");
-        const reviewAddCount = document.getElementById("review-additional-documents-count");
+        const reviewAddDocs = document.getElementById(
+            "review-additional-documents",
+        );
+        const reviewAddCount = document.getElementById(
+            "review-additional-documents-count",
+        );
         if (reviewAddDocs) {
             const addItems = [];
-            const addDocsInput = form.elements.namedItem("additional_documents[]");
+            const addDocsInput = form.elements.namedItem(
+                "additional_documents[]",
+            );
             if (addDocsInput?.files?.length) {
                 Array.from(addDocsInput.files).forEach((file) => {
                     addItems.push({
@@ -1281,12 +1368,25 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 });
             } else {
-                const wrapper = addDocsInput?.closest("[data-file-upload-wrapper]");
-                wrapper?.querySelectorAll("[data-existing-file-card]").forEach((card) => {
-                    const name = card.querySelector(".file-item-name")?.textContent?.trim();
-                    const url = card.querySelector("img.file-item-preview")?.src;
-                    if (name) addItems.push({ name, url: url || null, metaLabel: "مستند إضافي" });
-                });
+                const wrapper = addDocsInput?.closest(
+                    "[data-file-upload-wrapper]",
+                );
+                wrapper
+                    ?.querySelectorAll("[data-existing-file-card]")
+                    .forEach((card) => {
+                        const name = card
+                            .querySelector(".file-item-name")
+                            ?.textContent?.trim();
+                        const url = card.querySelector(
+                            "img.file-item-preview",
+                        )?.src;
+                        if (name)
+                            addItems.push({
+                                name,
+                                url: url || null,
+                                metaLabel: "مستند إضافي",
+                            });
+                    });
             }
 
             const draftChips = Array.from(
@@ -1301,12 +1401,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
-            if (reviewAddCount) reviewAddCount.textContent = String(addItems.length);
+            if (reviewAddCount)
+                reviewAddCount.textContent = String(addItems.length);
             if (!addItems.length) {
                 reviewAddDocs.innerHTML =
                     '<p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات إضافية بعد.</p>';
             } else {
-                reviewAddDocs.innerHTML = addItems.map(renderFileCardHtml).join("");
+                reviewAddDocs.innerHTML = addItems
+                    .map(renderFileCardHtml)
+                    .join("");
             }
         }
 
@@ -1414,10 +1517,22 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Restore aerial image and boundary points
-        if (data.aerial_image) {
-            aerialImageInput.value = data.aerial_image;
-            boundaryGeoJsonInput.value = data.boundary_geojson || "";
-            loadImageSrc(data.aerial_image, data.boundary_geojson || null);
+        const restoredImage = data.raw_aerial_image || data.aerial_image;
+        if (restoredImage) {
+            rawImageDataUrl = data.raw_aerial_image || data.aerial_image;
+            if (rawAerialImageInput)
+                rawAerialImageInput.value =
+                    data.raw_aerial_image || restoredImage;
+            if (aerialImageInput)
+                aerialImageInput.value = data.aerial_image || restoredImage;
+            if (boundaryGeoJsonInput) {
+                boundaryGeoJsonInput.value = data.boundary_geojson
+                    ? typeof data.boundary_geojson === "string"
+                        ? data.boundary_geojson
+                        : JSON.stringify(data.boundary_geojson)
+                    : "";
+            }
+            loadImageSrc(restoredImage, data.boundary_geojson || null);
         } else if (data.boundary_geojson && aerialImageInput?.value) {
             loadImageSrc(aerialImageInput.value, data.boundary_geojson);
         }

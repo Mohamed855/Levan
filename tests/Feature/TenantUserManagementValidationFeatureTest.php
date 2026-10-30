@@ -109,6 +109,22 @@ class TenantUserManagementValidationFeatureTest extends TestCase
         ])->assertUnauthorized();
     }
 
+    public function test_user_details_and_profile_show_activity_without_legacy_collection_sessions(): void
+    {
+        $this->actingAs($this->owner, 'tenant');
+
+        foreach (["users/{$this->owner->id}", 'users/profile'] as $path) {
+            $this->get($this->tenantUrl($path))
+                ->assertOk()
+                ->assertSee($this->owner->name)
+                ->assertSee('آخر النشاطات')
+                ->assertDontSee('جلسات التحصيل')
+                ->assertDontSee('sessions-timeline-container', false)
+                ->assertDontSee('window.sessionsData', false)
+                ->assertDontSee('user-sessions', false);
+        }
+    }
+
     public function test_cannot_create_user_when_package_user_limit_is_reached(): void
     {
         $originalPlanUsers = null;
