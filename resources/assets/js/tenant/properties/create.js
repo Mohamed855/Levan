@@ -153,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ${
             index > 0
                 ? `
-          <button type="button" class="btn btn-icon btn-sm btn-danger btn-remove-owner" aria-label="حذف المالك">
+          <button type="button" class="btn btn-icon btn-sm btn-label-danger btn-remove-owner" aria-label="حذف المالك">
             <i class="ti ti-trash"></i>
           </button>`
                 : ""
@@ -269,7 +269,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </select>
       </td>
       <td class="text-center align-middle">
-        <button type="button" class="btn btn-icon btn-sm btn-danger btn-remove-unit" aria-label="حذف الوحدة">
+        <button type="button" class="btn btn-icon btn-sm btn-label-danger btn-remove-unit" aria-label="حذف الوحدة">
           <i class="ti ti-trash"></i>
         </button>
       </td>
@@ -463,7 +463,7 @@ document.addEventListener("DOMContentLoaded", () => {
         appendPolygonPath(context, width, height);
         context.closePath();
         context.fillStyle = "rgba(0, 0, 0, 0.5)";
-        context.fill('evenodd');
+        context.fill("evenodd");
         context.restore();
     }
 

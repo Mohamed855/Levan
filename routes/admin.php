@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\Dashboard\DashboardController;
 use App\Http\Controllers\Admin\DeleteBulk\AdminMassDeleteController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\Plans\PlanController;
+use App\Http\Controllers\Admin\Profile\ProfileController;
 use App\Http\Controllers\Admin\PublicRequests\ContactRequestController;
 use App\Http\Controllers\Admin\PublicRequests\TrialRequestController;
 use App\Http\Controllers\Admin\Settings\Bank\SettingsBankController;
@@ -58,6 +59,11 @@ Route::prefix('superadmin')->name('admin.')->middleware(['auth:admin', 'admin.ac
     Route::name('password.store')->post('reset-password', [NewPasswordController::class, 'updatePassword']);
 
     Route::get('/', [DashboardController::class, 'dashboard'])->name('dashboard');
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'show'])->name('show');
+        Route::get('edit', [ProfileController::class, 'edit'])->name('edit');
+        Route::put('/', [ProfileController::class, 'update'])->name('update');
+    });
     Route::get('dashboard/platform-activity', [DashboardController::class, 'platformActivity'])->name('dashboard.platform-activity');
 
     Route::prefix('settings')->name('settings.')->group(function () {

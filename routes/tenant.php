@@ -37,6 +37,7 @@ use App\Http\Controllers\Tenants\Domains\RenewalDomainController;
 use App\Http\Controllers\Tenants\License\LicenseController;
 use App\Http\Controllers\Tenants\Notification\NotificationController;
 use App\Http\Controllers\Tenants\Properties\PropertiesController;
+use App\Http\Controllers\Tenants\Profile\ProfileController;
 use App\Http\Controllers\Tenants\Settings\ApiTokenSettingsController;
 use App\Http\Controllers\Tenants\Settings\SettingsController;
 use App\Http\Controllers\Tenants\Subscriptions\NewSubscriptionController;
@@ -53,6 +54,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'show'])->name('show');
+        Route::get('edit', [ProfileController::class, 'edit'])->name('edit');
+        Route::put('/', [ProfileController::class, 'update'])->name('update');
+    });
     Route::prefix('dashboard-notifications')->name('dashboard-notifications.')->group(function () {
         $controller = DashboardNotificationController::class;
         Route::get('/', [$controller, 'feed'])->defaults('dashboard_scope', 'tenant')->name('feed');
@@ -72,6 +78,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             ->defaults('shared_form_validation_actions', [
                 UserController::class.'@store',
                 UserController::class.'@update',
+                ProfileController::class.'@update',
                 UserController::class.'@updateImage',
                 UserController::class.'@updateBackgroundImage',
                 UserController::class.'@updatePassword',
@@ -282,7 +289,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('users')->name('users.')->group(function () {
-            Route::name('profile')->get('profile', [UserController::class, 'showProfile']);
+            Route::name('profile')->get('profile', [ProfileController::class, 'show']);
             Route::name('update-image')->post('{user}/image', [UserController::class, 'updateImage'])->defaults('shared_form_validation', true);
             Route::name('update-background')->post('{user}/background', [UserController::class, 'updateBackgroundImage'])->defaults('shared_form_validation', true);
             Route::name('toggle-status')->patch('{user}/toggle-status', [UserController::class, 'toggleStatus']);

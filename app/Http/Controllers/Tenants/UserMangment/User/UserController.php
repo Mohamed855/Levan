@@ -186,23 +186,6 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     | Remove the specified user from storage.
     */
-    public function showProfile(): View
-    {
-        $user = Auth::user();
-        $recentActivities = Activity::where('causer_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
-
-        return view('tenant.user-management.users.show', compact('user', 'recentActivities'));
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Delete User
-    |--------------------------------------------------------------------------
-    | Remove the specified user from storage.
-    */
     public function destroy(TenantAuthenticatedRequest $request, User $user): JsonResponse|RedirectResponse
     {
         if ((int) $user->id === 1) {

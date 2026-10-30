@@ -1,4 +1,5 @@
 @php
+    $is_profile = $is_profile ?? false;
     $steps = [
         ['id' => 'user-info-validation', 'title' => 'بيانات المستخدم'],
     ];
@@ -10,7 +11,7 @@
             <x-ui.validation-errors />
 
             <form id="wizard-validation-form"
-                action="{{ $is_edit ? tenant_route_name('users.update', $user) : tenant_route_name('users.store') }}"
+                action="{{ $is_profile ? tenant_route_name('profile.update') : ($is_edit ? tenant_route_name('users.update', $user) : tenant_route_name('users.store')) }}"
                 method="POST"
                 enctype="multipart/form-data"
                 autocomplete="off"
@@ -26,11 +27,13 @@
                     @method('PUT')
                 @endif
 
-                <x-form.wizard.step id="user-info-validation" :fields="['name', 'email', 'phone', 'role_id', 'password', 'password_confirmation', 'image']">
+                <x-form.wizard.step id="user-info-validation" :fields="$is_profile
+                    ? ['name', 'email', 'phone', 'image']
+                    : ['name', 'email', 'phone', 'role_id', 'password', 'password_confirmation', 'image']">
                     @include('tenant.user-management.users.partials.steps.user-info', ['user' => $user])
 
                     <x-form.wizard.actions>
-                        <x-form.wizard.previous-button :href="tenant_route_name('users.index')" />
+                        <x-form.wizard.previous-button :href="$is_profile ? tenant_route_name('profile.show') : tenant_route_name('users.index')" />
                         <div class="d-flex gap-2">
                             @if (!$is_edit)
                                 <x-form.wizard.draft-button step="1" />

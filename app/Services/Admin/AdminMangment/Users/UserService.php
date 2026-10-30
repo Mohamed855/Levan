@@ -4,13 +4,30 @@ namespace App\Services\Admin\AdminMangment\Users;
 
 use App\Enums\Admin\Users\AdminUserStatus;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Models\Admin\Coupons\Coupon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Activitylog\Models\Activity;
 
 class UserService
 {
+    public function getProfileData(AdminUser $user): array
+    {
+        $user->loadMissing('roles');
+
+        return [
+            'user' => $user,
+            'role' => $user->roles->first(),
+            'recentActivities' => Activity::query()
+                ->where('causer_type', $user->getMorphClass())
+                ->where('causer_id', $user->getKey())
+                ->latest()->take(5)->get(),
+            'coupons' => Coupon::query()->where('admin_user_id', $user->getKey())->latest()->get(),
+        ];
+    }
+
     public function create(array $data): AdminUser
     {
         $rawPassword = $data['password'] ?? null;

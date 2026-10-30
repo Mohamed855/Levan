@@ -243,7 +243,7 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li>
-                    <a class="dropdown-item mt-0" href="#">
+                    <a class="dropdown-item mt-0" href="{{ route('admin.profile.show') }}">
                         <div class="d-flex align-items-center">
                             <div class="avatar avatar-online me-2">
                                 <img src="{{ $adminUser?->profile_photo_url ?? asset('static/brand/logos/logo.svg') }}"
@@ -258,21 +258,15 @@
                         </div>
                     </a>
                 </li>
-                {{-- <li>
+                <li>
                     <div class="dropdown-divider my-1 mx-n2"></div>
                 </li>
                 <li>
-                    <a class="dropdown-item" href="{{ route('admin.users.profile') }}">
-                            <i class="ti ti-user me-3 ti-md"></i>
-                            <span class="align-middle">الملف الشخصي</span>
-                            </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="{{ route('admin.users.password.change') }}">
-                            <i class="ti ti-settings me-3 ti-md"></i>
-                            <span class="align-middle">تغيير كلمة المرور</span>
-                        </a>
-                    </li> --}}
+                    <a class="dropdown-item" href="{{ route('admin.profile.show') }}">
+                        <i class="ti ti-user me-3 ti-md"></i>
+                        <span class="align-middle">الملف الشخصي</span>
+                    </a>
+                </li>
 
                 <li>
                     <a class="dropdown-item" href="{{ route('admin.users.password.change') }}">

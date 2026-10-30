@@ -14,6 +14,6 @@
     @include('shared.users.partials._password-form', [
         'action' => route('admin.users.password.update'),
         'validationUrl' => route('admin.wizard-drafts.validate-step'),
-        'backUrl' => route('admin.dashboard'),
+        'backUrl' => route('admin.profile.show'),
     ])
 @endsection

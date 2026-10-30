@@ -8,10 +8,24 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
 
 class UserService
 {
+    public function getProfileData(User $user): array
+    {
+        $user->loadMissing('roles');
+
+        return [
+            'user' => $user,
+            'recentActivities' => Activity::query()
+                ->where('causer_type', $user->getMorphClass())
+                ->where('causer_id', $user->getKey())
+                ->latest()->take(5)->get(),
+        ];
+    }
+
     /*
     |--------------------------------------------------------------------------
     | User Creation

@@ -239,7 +239,7 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li>
-                    <a class="dropdown-item mt-0" href="{{ tenant_route_name('users.profile') }}">
+                    <a class="dropdown-item mt-0" href="{{ tenant_route_name('profile.show') }}">
                         <div class="d-flex align-items-center">
                             <div class="avatar avatar-online me-2">
                                 <img src="{{ tasset(Auth::user()->image) }}" alt="{{ Auth::user()->name }}"
@@ -256,7 +256,7 @@
                     <div class="dropdown-divider my-1 mx-n2"></div>
                 </li>
                 <li>
-                    <a class="dropdown-item" href="{{ tenant_route_name('users.profile') }}">
+                    <a class="dropdown-item" href="{{ tenant_route_name('profile.show') }}">
                         <i class="ti ti-user me-3 ti-md"></i>
                         <span class="align-middle">الملف الشخصي</span>
                     </a>
