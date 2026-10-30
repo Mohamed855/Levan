@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AdminMangment\Users\AdminUserStoreRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\AdminUserUpdateRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\BulkDeleteAdminUsersRequest;
+use App\Http\Requests\Admin\AdminMangment\Users\ChangeCurrentAdminPasswordRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserEmailUniqueRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserNameUniqueRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserPhoneUniqueRequest;
@@ -16,7 +17,10 @@ use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Coupons\Coupon;
 use App\Services\Admin\AdminMangment\Users\UserService;
 use App\Support\AccessLabels;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
 
@@ -190,6 +194,25 @@ class AdminUserController extends Controller
                 'message' => 'حدث خطأ أثناء تبديل الحالة.',
             ], 500);
         }
+    }
+
+    public function showChangePasswordForm(): View
+    {
+        return view($this->page.'.reset');
+    }
+
+    public function updatePassword(ChangeCurrentAdminPasswordRequest $request): RedirectResponse
+    {
+        $password = $request->validated('new_password');
+        $this->userService->updatePassword($request->user('admin'), $password);
+
+        Auth::guard('admin')->logoutOtherDevices($password);
+        Auth::guard('admin')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('admin.login')
+            ->with('success', 'تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول باستخدام كلمة المرور الجديدة.');
     }
 
     public function showProfile($id)

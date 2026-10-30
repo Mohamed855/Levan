@@ -74,6 +74,11 @@ class UserService
         });
     }
 
+    public function updatePassword(AdminUser $user, string $password): void
+    {
+        DB::transaction(fn () => $user->update(['password' => Hash::make($password)]));
+    }
+
     public function deleteUser(AdminUser $user): bool
     {
         return DB::transaction(function () use ($user) {

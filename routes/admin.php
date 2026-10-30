@@ -133,6 +133,8 @@ Route::prefix('superadmin')->name('admin.')->middleware(['auth:admin', 'admin.ac
 
     // Users
     Route::prefix('users')->name('users.')->group(function () {
+        Route::get('password/change', [AdminUserController::class, 'showChangePasswordForm'])->name('password.change');
+        Route::post('password/change', [AdminUserController::class, 'updatePassword'])->name('password.update')->defaults('shared_form_validation', true);
         Route::post('bulk-delete', [AdminUserController::class, 'bulkDelete'])->name('bulk-delete');
         Route::patch('{user}/toggle-status', [AdminUserController::class, 'toggleStatus'])->name('toggle-status');
         Route::get('profile/{id}', [AdminUserController::class, 'showProfile'])->name('profile');

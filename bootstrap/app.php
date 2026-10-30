@@ -96,6 +96,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->dontFlash(['new_password', 'new_password_confirmation']);
+
         $errorView = static fn ($request, int $status): string => "errors.{$status}";
 
         // Tenant identification failure -> 404

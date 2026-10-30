@@ -15,6 +15,11 @@ class RedirectIfAuthenticated
         $guards = empty($guards) ? [null] : $guards;
 
         foreach ($guards as $guard) {
+            if ($guard === 'admin') {
+                // Central guest routes must not resolve a persisted tenant session in downstream middleware.
+                Auth::shouldUse('admin');
+            }
+
             if (Auth::guard($guard)->check()) {
                 if ($guard === 'admin') {
                     return redirect(RouteServiceProvider::ADMIN);

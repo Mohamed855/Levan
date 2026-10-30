@@ -274,6 +274,13 @@
                         </a>
                     </li> --}}
 
+                <li>
+                    <a class="dropdown-item" href="{{ route('admin.users.password.change') }}">
+                        <i class="ti ti-key me-3 ti-md"></i>
+                        <span class="align-middle">تغيير كلمة المرور</span>
+                    </a>
+                </li>
+
 
                 <li>
                     <div class="dropdown-divider my-1 mx-n2"></div>
