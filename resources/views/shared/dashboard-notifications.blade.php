@@ -8,8 +8,8 @@
 @endphp
 
 @section('content')
-    <div class="card" data-feed-url="{{ $noticeRoute('feed') }}"
-        data-read-url="{{ $noticeRoute('read', ['notification' => '__ID__']) }}"
+    <div class="card" data-notification-page data-notification-filter="{{ $currentFilter }}"
+        data-feed-url="{{ $noticeRoute('feed') }}" data-read-url="{{ $noticeRoute('read', ['notification' => '__ID__']) }}"
         data-delete-url="{{ $noticeRoute('destroy', ['notification' => '__ID__']) }}"
         data-read-all-url="{{ $noticeRoute('read-all') }}">
         <div class="card-header border-bottom py-3">
@@ -17,13 +17,12 @@
                 <h5 class="mb-0 fw-bold">كل الإشعارات</h5>
 
                 <div class="d-flex flex-wrap align-items-center gap-3">
-                    <div class="btn-group btn-group-sm" role="group" aria-label="فلاتر الإشعارات">
+                    <div class="btn-group" role="group" aria-label="فلاتر الإشعارات">
                         <a href="{{ $noticeRoute('index', ['filter' => 'all']) }}"
                             class="btn d-inline-flex align-items-center gap-1 {{ ($currentFilter ?? 'all') === 'all' ? 'btn-primary' : 'btn-outline-primary' }}">
                             <i class="ti ti-bell"></i>
                             <span>الكل</span>
-                            <span
-                                class="badge rounded-pill {{ ($currentFilter ?? 'all') === 'all' ? 'bg-white text-primary' : 'bg-label-primary' }}">
+                            <span class="notification-filter__count" data-filter-all-count aria-live="polite">
                                 {{ $totalCount ?? 0 }}
                             </span>
                         </a>
@@ -31,20 +30,15 @@
                             class="btn d-inline-flex align-items-center gap-1 {{ ($currentFilter ?? 'all') === 'unread' ? 'btn-primary' : 'btn-outline-primary' }}">
                             <i class="ti ti-mail"></i>
                             <span>غير المقروءة</span>
-                            @if (($unreadCount ?? 0) > 0)
-                                <span
-                                    class="badge rounded-pill {{ ($currentFilter ?? 'all') === 'unread' ? 'bg-white text-primary' : 'bg-label-primary' }}"
-                                    data-filter-unread-count>
-                                    {{ $unreadCount }}
-                                </span>
-                            @endif
+                            <span class="notification-filter__count" data-filter-unread-count aria-live="polite">
+                                {{ $unreadCount ?? 0 }}
+                            </span>
                         </a>
                         <a href="{{ $noticeRoute('index', ['filter' => 'read']) }}"
                             class="btn d-inline-flex align-items-center gap-1 {{ ($currentFilter ?? 'all') === 'read' ? 'btn-primary' : 'btn-outline-primary' }}">
                             <i class="ti ti-mail-opened"></i>
                             <span>المقروءة</span>
-                            <span
-                                class="badge rounded-pill {{ ($currentFilter ?? 'all') === 'read' ? 'bg-white text-primary' : 'bg-label-primary' }}">
+                            <span class="notification-filter__count" data-filter-read-count aria-live="polite">
                                 {{ $readCount ?? 0 }}
                             </span>
                         </a>
@@ -103,7 +97,7 @@
             @empty
                 <div class="text-center py-5">
                     <div class="mb-3">
-                        <span class="avatar-initial rounded-circle bg-label-secondary p-3 d-inline-flex">
+                        <span class="avatar-initial rounded-circle bg-label-primary p-3 d-inline-flex">
                             <i class="ti ti-bell-off fs-2"></i>
                         </span>
                     </div>
@@ -116,25 +110,4 @@
             <div class="card-footer border-top py-3">{{ $notifications->links() }}</div>
         @endif
     </div>
-@endsection
-
-@section('page-script')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const markAllBtn = document.getElementById('btn-mark-all-read');
-            if (markAllBtn) {
-                markAllBtn.addEventListener('click', function() {
-                    this.disabled = true;
-                    if (window.toastr) {
-                        window.toastr.success('تم تحديد جميع الإشعارات كمقروءة');
-                    }
-                    const badge = document.querySelector('[data-filter-unread-count]');
-                    if (badge) {
-                        badge.textContent = '0';
-                        badge.classList.add('d-none');
-                    }
-                });
-            }
-        });
-    </script>
 @endsection

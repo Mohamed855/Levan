@@ -21,7 +21,7 @@
                     <div id="{{ $id }}CustomInputError" class="text-danger small mt-1 d-none"></div>
                 </div>
             </div>
-            <div class="modal-footer justify-content-end border-0 pt-3 pb-2">
+            <div class="modal-footer justify-content-center border-0 pt-3 pb-2">
                 <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal"
                     id="{{ $id }}CancelBtn">
                     <i class="ti ti-x me-1"></i>

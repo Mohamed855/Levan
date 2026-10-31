@@ -27,10 +27,13 @@ class DashboardNotificationController extends Controller
         ]);
 
         $sidebarCounts = $scope === 'admin' ? $this->getAdminSidebarCounts() : [];
+        $unreadCount = $user->unreadNotifications()->count();
+        $totalCount = $user->notifications()->count();
 
         return response()->json([
             'items' => $items,
-            'count' => $user->unreadNotifications()->count(),
+            'count' => $unreadCount,
+            'counts' => ['all' => $totalCount, 'unread' => $unreadCount, 'read' => $totalCount - $unreadCount],
             'sidebar_counts' => $sidebarCounts,
             'broadcast' => [
                 'channel' => $notices->channel($scope, $scope === 'tenant' ? (string) tenant('id') : null, (int) $user->id),

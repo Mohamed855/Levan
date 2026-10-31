@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!root && !document.querySelector('[data-notification-id]')) return;
 
     const list = root?.querySelector('[data-notification-items]');
+    const page = document.querySelector('[data-notification-page]');
     const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
     const headers = { Accept: 'application/json', 'X-CSRF-TOKEN': csrf, 'X-Requested-With': 'XMLHttpRequest' };
     let echo;
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let connected = false;
     let initialized = false;
     let stopped = false;
+    let unreadCount = null;
     const seen = new Set();
     const color = (type) => ['success', 'warning', 'danger', 'primary', 'secondary', 'info'].includes(type) ? type : 'info';
 
@@ -65,10 +67,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const render = (items, count) => {
+        unreadCount = count;
         const countBadge = document.querySelector('[data-notification-count]');
         if (countBadge) countBadge.textContent = `${count} جديد`;
         const dot = document.querySelector('[data-notification-dot]');
         if (dot) dot.classList.toggle('d-none', count === 0);
+        document.querySelectorAll('[data-notification-read-all]').forEach((button) => {
+            if (button.getAttribute('aria-busy') !== 'true') button.disabled = count === 0;
+        });
 
         if (!list) return;
         list.replaceChildren();
@@ -160,6 +166,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if ([401, 403, 419].includes(response.status)) { stopped = true; echo?.disconnect(); return; }
             if (!response.ok) return;
             const data = await response.json();
+            if (data.counts) {
+                Object.entries(data.counts).forEach(([filter, count]) => {
+                    if (!['all', 'unread', 'read'].includes(filter)) return;
+                    document.querySelectorAll(`[data-filter-${filter}-count]`).forEach((badge) => {
+                        badge.textContent = String(count);
+                    });
+                });
+            }
             render(data.items || [], Number(data.count || 0));
             if (data.sidebar_counts) {
                 updateSidebarCounters(data.sidebar_counts);
@@ -180,6 +194,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const refreshFilteredPage = () => {
+        if (page && page.dataset.notificationFilter !== 'all') window.location.reload();
+    };
+
     document.addEventListener('click', async (event) => {
         const remove = event.target.closest('[data-dashboard-notification-delete]');
         const all = event.target.closest('[data-notification-read-all]');
@@ -196,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     await mutate(deleteUrl, 'DELETE');
                     remove.closest('[data-notification-id]')?.remove();
+                    refreshFilteredPage();
                 } catch {
                     window.toastr?.error('تعذر حذف الإشعار. يرجى المحاولة مرة أخرى.');
                 }
@@ -206,16 +225,24 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. Mark all notifications as read
         if (all) {
             event.preventDefault();
+            if (all.getAttribute('aria-busy') === 'true') return;
             const readAllUrl = getEndpoint('readAllUrl');
             if (readAllUrl) {
+                all.disabled = true;
+                all.setAttribute('aria-busy', 'true');
                 try {
                     await mutate(readAllUrl);
                     document.querySelectorAll('[data-notification-id]').forEach((row) => {
                         row.classList.add('marked-as-read');
                         row.classList.remove('bg-label-primary');
                     });
+                    window.toastr?.success('تم تحديد جميع الإشعارات كمقروءة');
+                    refreshFilteredPage();
                 } catch {
                     window.toastr?.error('تعذر تحديث الإشعارات. يرجى المحاولة مرة أخرى.');
+                } finally {
+                    all.removeAttribute('aria-busy');
+                    all.disabled = unreadCount === 0;
                 }
             }
             return;
@@ -228,26 +255,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const rawUrl = row?.dataset.targetUrl || readLink?.getAttribute('href') || row?.querySelector('a[data-dashboard-notification-read]')?.getAttribute('href') || row?.querySelector('a')?.getAttribute('href');
             const target = safeUrl(rawUrl);
 
-            // Mark visually as read immediately
-            if (row) {
-                row.classList.add('marked-as-read');
-                row.classList.remove('bg-label-primary');
-            }
-
-            // Send mark-as-read in background with keepalive so page transition doesn't abort it
             const readUrl = getEndpoint('readUrl', noticeId);
-            if (readUrl) {
-                fetch(readUrl, {
-                    method: 'POST',
-                    headers,
-                    credentials: 'same-origin',
-                    keepalive: true,
-                }).catch(() => {});
-            }
 
             // If a valid URL is linked, navigate immediately
             if (target) {
-                if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1) {
+                const opensNewTab = event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1;
+                if (readUrl) {
+                    fetch(readUrl, {
+                        method: 'POST', headers, credentials: 'same-origin', keepalive: true,
+                    }).then(async (response) => {
+                        if (!response.ok) return;
+                        row?.classList.add('marked-as-read');
+                        row?.classList.remove('bg-label-primary');
+                        await refresh();
+                        if (opensNewTab) refreshFilteredPage();
+                    }).catch(() => {});
+                }
+                if (opensNewTab) {
                     if (event.target.tagName.toLowerCase() !== 'a') {
                         event.preventDefault();
                         window.open(target, '_blank');
@@ -259,11 +283,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // No URL to navigate to, so refresh counts if on same page
-            if (readUrl && root?.dataset?.feedUrl) {
+            event.preventDefault();
+            if (readUrl) {
                 try {
-                    await refresh();
-                } catch {}
+                    await mutate(readUrl);
+                    row?.classList.add('marked-as-read');
+                    row?.classList.remove('bg-label-primary');
+                    refreshFilteredPage();
+                } catch {
+                    window.toastr?.error('تعذر تحديث الإشعار. يرجى المحاولة مرة أخرى.');
+                }
             }
         }
     });
