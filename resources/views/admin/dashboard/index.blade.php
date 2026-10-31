@@ -27,7 +27,7 @@
 
 @section('content')
     <div class="row g-4 mb-4">
-        <x-ui.stat-card title="طلبات الاشتراك الجديدة" :value="number_format($kpis['new_subscription_requests'])" subtitle="طلبات قيد المراجعة" icon="ti-user-plus"
+        <x-ui.stat-card title="تقارب على الانتهاء" :value="number_format($kpis['expiring_subscriptions'] ?? 0)" subtitle="تنتهي خلال 30 يوماً" icon="ti-alert-triangle"
             color="primary" />
 
         <x-ui.stat-card title="العملاء المشتركين" :value="number_format($kpis['subscribed_companies'])" subtitle="شركات لديها اشتراك نشط" icon="ti-building"
@@ -265,12 +265,12 @@
             </x-admin.dashboard-panel>
         </div>
 
-        {{-- أحدث طلبات الإشتراك --}}
+        {{-- أحدث الاشتراكات --}}
         <div class="col-lg-6">
-            <x-admin.dashboard-panel class="h-100" title="أحدث طلبات الإشتراك" icon="ti-list" body-class="p-0">
+            <x-admin.dashboard-panel class="h-100" title="أحدث الاشتراكات" icon="ti-list" body-class="p-0">
                 <x-slot:headerAction>
                     @can('subscriptions.view')
-                        <a href="{{ route('admin.subscriptionManage.pending') }}" class="btn btn-sm btn-primary">
+                        <a href="{{ route('admin.subscriptions.index') }}" class="btn btn-sm btn-primary">
                             <i class="ti ti-list me-1"></i>عرض الكل
                         </a>
                     @endcan
@@ -282,7 +282,7 @@
                             <tr>
                                 <th>اسم الشركة</th>
                                 <th>الباقة</th>
-                                <th>تاريخ الطلب</th>
+                                <th>تاريخ البدء</th>
                                 <th>المبلغ</th>
                                 <th>الحالة</th>
                                 <th class="text-center">الإجراء</th>
@@ -302,17 +302,17 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <small class="text-muted">{{ $request->created_at?->format('Y-m-d') }}</small>
+                                        <small class="text-muted">{{ $request->starts_at?->format('Y-m-d') ?? $request->created_at?->format('Y-m-d') }}</small>
                                     </td>
                                     <td>
                                         <span class="fw-bold">{{ number_format($request->price, 2) }} ر.س</span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-warning">قيد المراجعة</span>
+                                        <span class="badge bg-{{ $request->status->color() }}">{{ $request->status->label() }}</span>
                                     </td>
                                     <td class="text-center">
-                                        <a href="{{ route('admin.subscriptionManage.pending') }}"
-                                            class="btn btn-sm btn-icon btn-primary" title="عرض في الطلبات">
+                                        <a href="{{ route('admin.subscriptions.index') }}"
+                                            class="btn btn-sm btn-icon btn-primary" title="عرض في الاشتراكات">
                                             <i class="ti ti-arrow-left"></i>
                                         </a>
                                     </td>
@@ -321,7 +321,7 @@
                                 <tr>
                                     <td colspan="6" class="text-center py-5 text-muted">
                                         <i class="ti ti-inbox fs-2 d-block mb-2"></i>
-                                        لا توجد طلبات اشتراك معلقة حالياً
+                                        لا توجد اشتراكات مسجلة حالياً
                                     </td>
                                 </tr>
                             @endforelse

@@ -44,8 +44,8 @@ class DashboardService
     private function getKPIs(): array
     {
         return [
-            // 1. طلبات الاشتراك الجديدة (pending)
-            'new_subscription_requests' => Subscription::where('status', SubscriptionStatus::PENDING)->count(),
+            // 1. اشتراكات تقارب على الانتهاء
+            'expiring_subscriptions' => app(\App\Services\Admin\SubscriptionManagement\SubscriptionManagementService::class)->getExpiringSoonCount(),
 
             // 2. العملاء المشتركين (tenants لديهم اشتراك active)
             'subscribed_companies' => Tenant::whereNull('deleted_at')
@@ -271,12 +271,11 @@ class DashboardService
     }
 
     // ==========================================
-    // Latest Subscription Requests (10 records)
+    // Latest Subscriptions (10 records)
     // ==========================================
     public function getRecentSubscriptionRequests(int $limit = 10)
     {
         return Subscription::with(['tenant', 'plan'])
-            ->where('status', SubscriptionStatus::PENDING)
             ->latest()
             ->limit($limit)
             ->get();

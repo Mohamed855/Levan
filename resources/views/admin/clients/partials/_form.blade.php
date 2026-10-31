@@ -188,7 +188,7 @@
                                 <i class="ti ti-info-circle fs-4"></i>
                                 <span>تعديل الباقة والاشتراكات يتم عبر إدارة الاشتراكات المخصصة للحفاظ على القيود المالية.</span>
                             </div>
-                            <a href="{{ route('admin.subscription-management.index') }}" class="btn btn-sm btn-primary">
+                            <a href="{{ route('admin.subscriptions.index') }}" class="btn btn-sm btn-primary">
                                 <i class="ti ti-calendar-stats me-1"></i>إدارة الاشتراكات
                             </a>
                         </div>

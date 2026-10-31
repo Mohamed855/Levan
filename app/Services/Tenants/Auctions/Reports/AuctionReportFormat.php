@@ -25,16 +25,20 @@ final class AuctionReportFormat
         12 => 'ديسمبر',
     ];
 
-    public function number(int|float|null $value, int $precision = 0): string
+    public function number(int|float|string|null $value, int $precision = 0): string
     {
-        if ($value === null) {
+        if ($value === null || $value === '' || $value === '-') {
             return '-';
         }
 
-        return number_format($value, $precision, '.', ',');
+        if (is_numeric($value)) {
+            return number_format((float) $value, $precision, '.', ',');
+        }
+
+        return (string) $value;
     }
 
-    public function currency(int|float|null $value): string
+    public function currency(int|float|string|null $value): string
     {
         return $this->number($value, 2);
     }

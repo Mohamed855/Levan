@@ -45,7 +45,8 @@ final class HaramReportData
             $slots[$channel] = AuctionReportChannels::campaign($campaigns, $channel);
         }
         foreach ($slots as $channel => $campaign) {
-            $values[$channel.'_impressions'] = $this->format->number($campaign['impressions'] ?? null);
+            $impressions = $campaign['impressions'] ?? null;
+            $values[$channel.'_impressions'] = $this->format->number(is_numeric($impressions) ? (float) $impressions : null);
             $platform = mb_strtolower(trim((string) ($campaign['platform'] ?? '')));
             $values[$channel.'_label'] = $platform === '' || in_array($platform, $channels[$channel], true)
                 ? 'منصة '.$channels[$channel][1]

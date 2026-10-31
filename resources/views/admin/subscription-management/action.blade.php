@@ -1,32 +1,15 @@
-@php
-    $isPendingRow = ($isPending ?? false) || ($row->status->value ?? $row->status) === 'pending';
-    $companyName = $row->tenant->company_name ?? $row->tenant_id ?? '';
-@endphp
-
-<div class="d-flex justify-content-center gap-2">
-    @if ($isPendingRow)
-        @can('subscriptions.pending.approve')
-        <button type="button"
-                class="btn btn-icon btn-success js-subscription-action"
-                title="قبول الاشتراك"
-                data-bs-toggle="tooltip"
-                data-action="accept"
-                data-subscription-id="{{ $row->id }}"
-                data-company-name="{{ $companyName }}">
-            <i class="ti ti-check" style="pointer-events: none;"></i>
+{{-- Actions for subscription management --}}
+@can('subscriptions.delete')
+    <div class="d-flex justify-content-center gap-2">
+        <button type="button" class="btn btn-icon btn-primary bg-primary js-delete-subscription-btn" title="حذف نهائي للاشتراك"
+            data-id="{{ $row->id }}" data-number="{{ $row->subscription_number }}">
+            <i class="ti ti-trash"></i>
         </button>
-        @endcan
 
-        @can('subscriptions.pending.reject')
-        <button type="button"
-                class="btn btn-icon btn-danger js-subscription-action"
-                title="رفض الاشتراك"
-                data-bs-toggle="tooltip"
-                data-action="reject"
-                data-subscription-id="{{ $row->id }}"
-                data-company-name="{{ $companyName }}">
-            <i class="ti ti-x" style="pointer-events: none;"></i>
-        </button>
-        @endcan
-    @endif
-</div>
+        <form id="delete-subscription-form-{{ $row->id }}" action="{{ route('admin.subscriptions.destroy', $row->id) }}"
+            method="POST" style="display: none;">
+            @csrf
+            @method('DELETE')
+        </form>
+    </div>
+@endcan
