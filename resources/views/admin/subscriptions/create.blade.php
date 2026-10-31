@@ -47,18 +47,6 @@
 @section('content')
     <div class="row">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h4 class="mb-1 fw-bold">إضافة اشتراك جديد</h4>
-                    <p class="text-muted mb-0">إنشاء اشتراك جديد لشركة انتهى اشتراكها السابق</p>
-                </div>
-                <div>
-                    <a href="{{ route('admin.subscriptions.index') }}" class="btn btn-secondary">
-                        <i class="ti ti-arrow-right me-1"></i> العودة لقائمة الاشتراكات
-                    </a>
-                </div>
-            </div>
-
             @include('admin.subscriptions.partials._form', ['is_edit' => false])
         </div>
     </div>

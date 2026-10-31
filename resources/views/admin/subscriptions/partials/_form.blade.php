@@ -28,18 +28,11 @@
         <x-form.wizard.stepper id="subscription-wizard" :steps="$steps">
             <x-ui.validation-errors />
 
-            <form id="subscription-wizard-form"
-                action="{{ $is_edit ? '#' : route('admin.subscriptions.store') }}"
-                method="POST"
-                enctype="multipart/form-data"
-                autocomplete="off"
-                data-form-validate
+            <form id="subscription-wizard-form" action="{{ $is_edit ? '#' : route('admin.subscriptions.store') }}"
+                method="POST" enctype="multipart/form-data" autocomplete="off" data-form-validate
                 data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
-                @if (!$is_edit)
-                    data-draft-url="{{ route('admin.wizard-drafts.store') }}"
-                    data-draft-resource-key="admin.subscription-create"
-                @endif
-            >
+                @if (!$is_edit) data-draft-url="{{ route('admin.wizard-drafts.store') }}"
+                    data-draft-resource-key="admin.subscription-create" @endif>
                 @csrf
                 @if ($is_edit)
                     @method('PUT')
@@ -62,30 +55,30 @@
 
                         <!-- بطاقة بيانات الشركة المحددة (للقراءة فقط) -->
                         <div class="col-12" id="company-details-card" style="display: none;">
-                            <div class="card border border-primary bg-primary shadow-none mb-0">
+                            <div class="card border border-primary bg-label-primary shadow-none mb-0">
                                 <div class="card-body">
-                                    <h6 class="card-title fw-bold text-white mb-3">
-                                        <i class="ti ti-building me-1 text-white"></i> بيانات الشركة المحددة
+                                    <h6 class="card-title fw-bold mb-3">
+                                        <i class="ti ti-building me-1"></i> بيانات الشركة المحددة
                                     </h6>
-                                    <div class="row g-3 text-white">
+                                    <div class="row g-3">
                                         <div class="col-sm-6 col-md-3">
-                                            <small class="d-block text-white">الاسم التجاري</small>
-                                            <span class="fw-bold fs-6" id="cd-name">-</span>
+                                            <small class="d-block pb-3">الاسم التجاري</small>
+                                            <span class="fw-bold text-primary fs-6" id="cd-name">-</span>
                                         </div>
                                         <div class="col-sm-6 col-md-3">
-                                            <small class="d-block text-white">السجل التجاري</small>
-                                            <span class="fw-semibold" id="cd-commercial">-</span>
+                                            <small class="d-block pb-3">السجل التجاري</small>
+                                            <span class="fw-bold text-primary fs-6" id="cd-commercial">-</span>
                                         </div>
                                         <div class="col-sm-6 col-md-3">
-                                            <small class="d-block text-white">الرقم الضريبي</small>
-                                            <span class="fw-semibold" id="cd-tax">-</span>
+                                            <small class="d-block pb-3">الرقم الضريبي</small>
+                                            <span class="fw-bold text-primary fs-6" id="cd-tax">-</span>
                                         </div>
                                         <div class="col-sm-6 col-md-3">
-                                            <small class="d-block text-white">المدينة</small>
-                                            <span class="fw-semibold" id="cd-city">-</span>
+                                            <small class="d-block pb-3">المدينة</small>
+                                            <span class="fw-bold text-primary fs-6" id="cd-city">-</span>
                                         </div>
                                         <div class="col-12 border-top border-white pt-2 mt-2">
-                                            <small class="d-block text-white">حالة الاشتراك الحالي</small>
+                                            <small class="d-block pb-3">حالة الاشتراك الحالي</small>
                                             <span class="badge bg-danger mt-1" id="cd-last-sub">منتهي الصلاحية</span>
                                         </div>
                                     </div>
@@ -95,33 +88,33 @@
 
                         <!-- بطاقة ملخص الباقة المحددة (للقراءة فقط) -->
                         <div class="col-12" id="plan-details-card" style="display: none;">
-                            <div class="card border border-success bg-success shadow-none mb-0">
+                            <div class="card border border-success bg-label-success shadow-none mb-0">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h6 class="card-title fw-bold text-white mb-0">
-                                            <i class="ti ti-package me-1 text-white"></i> تفاصيل الباقة المحددة
+                                        <h6 class="card-title fw-bold mb-0">
+                                            <i class="ti ti-package me-1"></i> تفاصيل الباقة المحددة
                                         </h6>
-                                        <span class="badge bg-white text-success fw-bold fs-6" id="pd-price">-</span>
+                                        <span class="badge bg-label-primary fw-bold fs-6" id="pd-price">-</span>
                                     </div>
-                                    <div class="row g-3 text-white">
+                                    <div class="row g-3">
                                         <div class="col-sm-6 col-md-3">
-                                            <small class="d-block text-white">أقصى عدد مستخدمين</small>
+                                            <small class="d-block pb-3">أقصى عدد مستخدمين</small>
                                             <span class="fw-bold" id="pd-users">-</span>
                                         </div>
                                         <div class="col-sm-6 col-md-3">
-                                            <small class="d-block text-white">أقصى عدد عقارات</small>
+                                            <small class="d-block pb-3">أقصى عدد عقارات</small>
                                             <span class="fw-bold" id="pd-props">-</span>
                                         </div>
                                         <div class="col-sm-6 col-md-3">
-                                            <small class="d-block text-white">المساحة التخزينية</small>
+                                            <small class="d-block pb-3">المساحة التخزينية</small>
                                             <span class="fw-bold" id="pd-storage">-</span>
                                         </div>
                                         <div class="col-sm-6 col-md-3">
-                                            <small class="d-block text-white">أقصى عدد مزادات نشطة</small>
+                                            <small class="d-block pb-3">أقصى عدد مزادات نشطة</small>
                                             <span class="fw-bold" id="pd-auctions">-</span>
                                         </div>
                                         <div class="col-12 border-top border-white pt-2 mt-2" id="pd-features-wrapper">
-                                            <small class="d-block text-white mb-1">المميزات الإضافية</small>
+                                            <small class="d-block pb-3 mb-1">المميزات الإضافية</small>
                                             <div class="d-flex flex-wrap gap-1" id="pd-features"></div>
                                         </div>
                                     </div>
@@ -165,17 +158,19 @@
                             label="تاريخ بداية الاشتراك" :value="date('Y-m-d')" required col="col-md-4" />
 
                         <!-- تاريخ النهاية (محسوب تلقائياً) -->
-                        <x-form.controls.input type="date" name="end_date" id="end_date" label="تاريخ نهاية الاشتراك"
-                            :value="date('Y-m-d', strtotime('+1 year'))" required readonly col="col-md-4"
+                        <x-form.controls.input type="date" name="end_date" id="end_date"
+                            label="تاريخ نهاية الاشتراك" :value="date('Y-m-d', strtotime('+1 year'))" required readonly col="col-md-4"
                             help="يتم حسابه تلقائياً بناءً على المدة والبداية" />
 
                         <!-- كوبون الخصم -->
                         <div class="col-md-6">
                             <label class="form-label" for="coupon_code">كود كوبون الخصم</label>
                             <div class="input-group input-group-merge">
-                                <input type="text" name="coupon_code" id="coupon_code" class="form-control text-uppercase"
-                                    placeholder="أدخل كود الكوبون إن وجد" style="text-transform: uppercase;">
-                                <button class="input-group-text cursor-pointer" type="button" id="btn-validate-coupon" title="فحص الكوبون">
+                                <input type="text" name="coupon_code" id="coupon_code"
+                                    class="form-control text-uppercase" placeholder="أدخل كود الكوبون إن وجد"
+                                    style="text-transform: uppercase;">
+                                <button class="input-group-text cursor-pointer" type="button"
+                                    id="btn-validate-coupon" title="فحص الكوبون">
                                     <i class="ti ti-ticket me-1"></i> فحص الكوبون
                                 </button>
                             </div>
@@ -183,12 +178,12 @@
                         </div>
 
                         <!-- طريقة الدفع -->
-                        <x-form.controls.select name="payment_method" id="payment_method" label="طريقة الدفع" required
-                            :options="$paymentMethods" value="bank_transfer" col="col-md-6" />
+                        <x-form.controls.select name="payment_method" id="payment_method" label="طريقة الدفع"
+                            required :options="$paymentMethods" value="bank_transfer" col="col-md-6" />
 
                         <!-- حالة الدفع -->
-                        <x-form.controls.select name="payment_status" id="payment_status" label="حالة الدفع الآن" required
-                            :options="$paymentStatuses" value="completed" col="col-md-6"
+                        <x-form.controls.select name="payment_status" id="payment_status" label="حالة الدفع الآن"
+                            required :options="$paymentStatuses" value="completed" col="col-md-6"
                             help="في حالة 'مكتمل' سيتم تفعيل الاشتراك وإنشاء الفاتورة فوراً." />
 
                         <!-- رقم المرجع / الحوالة -->
@@ -197,8 +192,8 @@
                             help="مهم لتوثيق التحويلات البنكية ومطابقة الحسابات" />
 
                         <!-- إيصال الدفع -->
-                        <x-form.controls.file name="payment_proof" id="payment_proof" label="إيصال الدفع / الحوالة (مستند)"
-                            accept="image/*,application/pdf" col="col-12"
+                        <x-form.controls.file name="payment_proof" id="payment_proof"
+                            label="إيصال الدفع / الحوالة (مستند)" accept="image/*,application/pdf" col="col-12"
                             help="الامتدادات المسموحة: PDF, PNG, JPG, JPEG (الحد الأقصى 5 ميجابايت)" />
 
                         <!-- ملاحظات إدارية -->
@@ -227,7 +222,8 @@
                                         </div>
                                         <div class="col-sm-6 col-md-3">
                                             <span class="text-muted d-block small">المبلغ الإجمالي شامل الضريبة:</span>
-                                            <span class="fw-bold fs-5 text-primary" id="calc-final-total">0.00 ر.س</span>
+                                            <span class="fw-bold fs-5 text-primary" id="calc-final-total">0.00
+                                                ر.س</span>
                                         </div>
                                     </div>
                                 </div>
@@ -264,8 +260,8 @@
                             <div class="row g-3">
                                 <!-- ملخص الشركة -->
                                 <div class="col-lg-6">
-                                    <x-form.wizard.review-card title="بيانات الشركة المستفيدة" step="1" col=""
-                                        class="h-100 assignment-review__card">
+                                    <x-form.wizard.review-card title="بيانات الشركة المستفيدة" step="1"
+                                        col="" class="h-100 assignment-review__card">
                                         <dl class="row mb-0 small">
                                             <dt class="col-5 text-muted">اسم الشركة</dt>
                                             <dd class="col-7 fw-semibold" id="sub_review-company-name">-</dd>
@@ -283,11 +279,12 @@
 
                                 <!-- ملخص الباقة والحدود -->
                                 <div class="col-lg-6">
-                                    <x-form.wizard.review-card title="تفاصيل الباقة والحدود" step="1" col=""
-                                        class="h-100 assignment-review__card">
+                                    <x-form.wizard.review-card title="تفاصيل الباقة والحدود" step="1"
+                                        col="" class="h-100 assignment-review__card">
                                         <dl class="row mb-0 small">
                                             <dt class="col-5 text-muted">الباقة</dt>
-                                            <dd class="col-7 fw-semibold text-primary" id="sub_review-plan-name">-</dd>
+                                            <dd class="col-7 fw-semibold text-primary" id="sub_review-plan-name">-
+                                            </dd>
                                             <dt class="col-5 text-muted">عدد المستخدمين</dt>
                                             <dd class="col-7 fw-semibold" id="sub_review-plan-users">-</dd>
                                             <dt class="col-5 text-muted">حد العقارات</dt>
@@ -304,8 +301,8 @@
 
                                 <!-- مدة الاشتراك والمالية -->
                                 <div class="col-lg-6">
-                                    <x-form.wizard.review-card title="مدة الاشتراك والمالية" step="2" col=""
-                                        class="h-100 assignment-review__card">
+                                    <x-form.wizard.review-card title="مدة الاشتراك والمالية" step="2"
+                                        col="" class="h-100 assignment-review__card">
                                         <dl class="row mb-0 small">
                                             <dt class="col-5 text-muted">تاريخ البداية</dt>
                                             <dd class="col-7 fw-semibold" id="sub_review-start-date">-</dd>
@@ -315,14 +312,17 @@
                                             <dd class="col-7 fw-semibold" id="sub_review-payment-method">-</dd>
                                             <dt class="col-5 text-muted">حالة الدفع</dt>
                                             <dd class="col-7">
-                                                <span id="sub_review-payment-status" class="badge bg-secondary">-</span>
+                                                <span id="sub_review-payment-status"
+                                                    class="badge bg-secondary">-</span>
                                             </dd>
                                             <dt class="col-5 text-muted">حالة التفعيل المتوقعة</dt>
                                             <dd class="col-7">
-                                                <span id="sub_review-activation-status" class="badge bg-success">مفعل فوراً</span>
+                                                <span id="sub_review-activation-status" class="badge bg-success">مفعل
+                                                    فوراً</span>
                                             </dd>
                                             <dt class="col-5 text-muted">المبلغ الإجمالي النهائي</dt>
-                                            <dd class="col-7 fw-bold text-primary fs-5" id="sub_review-final-total">0.00 ر.س</dd>
+                                            <dd class="col-7 fw-bold text-primary fs-5" id="sub_review-final-total">
+                                                0.00 ر.س</dd>
                                         </dl>
                                     </x-form.wizard.review-card>
                                 </div>

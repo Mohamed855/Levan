@@ -42,26 +42,36 @@ document.addEventListener("DOMContentLoaded", function () {
             setElemText("cd-name", comp.company_name || "-");
             setElemText("cd-commercial", comp.commercial_number || "-");
             setElemText("cd-tax", comp.tax_number || "-");
-            setElemText("cd-city", comp.city ? comp.city.name : comp.city_name || "-");
+            setElemText(
+                "cd-city",
+                comp.city ? comp.city.name : comp.city_name || "-",
+            );
 
             // Backward compatibility IDs
             setElemText("company-commercial", comp.commercial_number || "-");
             setElemText("company-tax", comp.tax_number || "-");
-            setElemText("company-city", comp.city ? comp.city.name : comp.city_name || "-");
+            setElemText(
+                "company-city",
+                comp.city ? comp.city.name : comp.city_name || "-",
+            );
             setElemText("company-address", comp.address || "-");
 
             const lastSub = comp.last_subscription || comp.lastSubscription;
             const lastSubEl = document.getElementById("cd-last-sub");
-            const lastSubText = document.getElementById("company-last-sub-text");
+            const lastSubText = document.getElementById(
+                "company-last-sub-text",
+            );
             if (lastSub) {
                 const planName = lastSub.plan ? lastSub.plan.name || "-" : "-";
                 const statusLabel = lastSub.status || "منتهي";
-                const endsAt = lastSub.ends_at ? String(lastSub.ends_at).substring(0, 10) : "-";
+                const endsAt = lastSub.ends_at
+                    ? String(lastSub.ends_at).substring(0, 10)
+                    : "-";
                 const htmlContent = `<span class="badge bg-danger me-1">${statusLabel}</span> باقة: ${planName} (انتهى بتاريخ: ${endsAt})`;
                 if (lastSubEl) lastSubEl.innerHTML = htmlContent;
                 if (lastSubText) lastSubText.innerHTML = htmlContent;
             } else {
-                const emptyContent = '<span class="text-muted">لا يوجد اشتراك سابق</span>';
+                const emptyContent = "<span>لا يوجد اشتراك سابق</span>";
                 if (lastSubEl) lastSubEl.innerHTML = emptyContent;
                 if (lastSubText) lastSubText.innerHTML = emptyContent;
             }
@@ -79,19 +89,24 @@ document.addEventListener("DOMContentLoaded", function () {
                     setElemText("cd-tax", data.tax_number || "-");
                     setElemText("cd-city", data.city_name || "-");
 
-                    setElemText("company-commercial", data.commercial_number || "-");
+                    setElemText(
+                        "company-commercial",
+                        data.commercial_number || "-",
+                    );
                     setElemText("company-tax", data.tax_number || "-");
                     setElemText("company-city", data.city_name || "-");
                     setElemText("company-address", data.address || "-");
 
                     const lastSubEl = document.getElementById("cd-last-sub");
-                    const lastSubText = document.getElementById("company-last-sub-text");
+                    const lastSubText = document.getElementById(
+                        "company-last-sub-text",
+                    );
                     if (data.last_subscription) {
                         const htmlContent = `<span class="badge bg-danger me-1">${data.last_subscription.status}</span> باقة: ${data.last_subscription.plan} (انتهى بتاريخ: ${data.last_subscription.ends_at})`;
                         if (lastSubEl) lastSubEl.innerHTML = htmlContent;
                         if (lastSubText) lastSubText.innerHTML = htmlContent;
                     } else {
-                        const emptyContent = '<span class="text-muted">لا يوجد اشتراك سابق</span>';
+                        const emptyContent = "<span>لا يوجد اشتراك سابق</span>";
                         if (lastSubEl) lastSubEl.innerHTML = emptyContent;
                         if (lastSubText) lastSubText.innerHTML = emptyContent;
                     }
@@ -134,27 +149,66 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const priceStr = formatNumber(parseFloat(plan.price_after_discount || plan.price || 0)) + " ر.س";
+        const priceStr =
+            formatNumber(
+                parseFloat(plan.price_after_discount || plan.price || 0),
+            ) + " ر.س";
         setElemText("pd-price", priceStr);
         setElemText("pd-users", (plan.included_users || 1) + " مستخدمين");
-        setElemText("pd-props", plan.properties_limit !== null ? plan.properties_limit : "غير محدود (∞)");
-        setElemText("pd-storage", plan.storage_quota_gb !== null ? plan.storage_quota_gb + " GB" : "غير محدود (∞)");
-        setElemText("pd-auctions", plan.active_auctions_limit !== null ? plan.active_auctions_limit : "غير محدود (∞)");
+        setElemText(
+            "pd-props",
+            plan.properties_limit !== null
+                ? plan.properties_limit
+                : "غير محدود (∞)",
+        );
+        setElemText(
+            "pd-storage",
+            plan.storage_quota_gb !== null
+                ? plan.storage_quota_gb + " GB"
+                : "غير محدود (∞)",
+        );
+        setElemText(
+            "pd-auctions",
+            plan.active_auctions_limit !== null
+                ? plan.active_auctions_limit
+                : "غير محدود (∞)",
+        );
 
         // Backward compatibility IDs
         setElemValue("sub_plan_users_display", plan.included_users || 1);
-        setElemValue("sub_plan_properties_display", plan.properties_limit !== null ? plan.properties_limit : "غير محدود (∞)");
-        setElemValue("sub_plan_storage_display", plan.storage_quota_gb !== null ? plan.storage_quota_gb + " GB" : "غير محدود (∞)");
-        setElemValue("sub_plan_auctions_display", plan.active_auctions_limit !== null ? plan.active_auctions_limit : "غير محدود (∞)");
+        setElemValue(
+            "sub_plan_properties_display",
+            plan.properties_limit !== null
+                ? plan.properties_limit
+                : "غير محدود (∞)",
+        );
+        setElemValue(
+            "sub_plan_storage_display",
+            plan.storage_quota_gb !== null
+                ? plan.storage_quota_gb + " GB"
+                : "غير محدود (∞)",
+        );
+        setElemValue(
+            "sub_plan_auctions_display",
+            plan.active_auctions_limit !== null
+                ? plan.active_auctions_limit
+                : "غير محدود (∞)",
+        );
 
-        const featContainer = document.getElementById("pd-features") || document.getElementById("sub_plan_features_display");
+        const featContainer =
+            document.getElementById("pd-features") ||
+            document.getElementById("sub_plan_features_display");
         if (featContainer) {
             if (Array.isArray(plan.features) && plan.features.length > 0) {
                 featContainer.innerHTML = plan.features
-                    .map((f) => `<span class="badge bg-white text-success border me-1">${f}</span>`)
+                    .map(
+                        (f) =>
+                            `<span class="badge bg-white text-success border me-1">${f}</span>`,
+                    )
                     .join(" ");
             } else {
-                featContainer.innerHTML = '<span class="text-white-50 small">لا توجد مميزات إضافية مسجلة</span>';
+                featContainer.innerHTML =
+                    '<span class="small">لا توجد مميزات إضافية مسجلة</span>';
             }
         }
 
@@ -186,8 +240,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const planId = planSelect?.value;
         const plan = plansData.find((p) => String(p.id) === String(planId));
 
-        const startDateInput = document.getElementById("start_date") || document.getElementById("sub_start_date");
-        const endDateInput = document.getElementById("end_date") || document.getElementById("sub_end_date");
+        const startDateInput =
+            document.getElementById("start_date") ||
+            document.getElementById("sub_start_date");
+        const endDateInput =
+            document.getElementById("end_date") ||
+            document.getElementById("sub_end_date");
         const monthsInput = document.getElementById("period_months");
 
         const months = parseInt(monthsInput?.value || "12", 10) || 12;
@@ -208,7 +266,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Financial breakdown calculation
         if (plan) {
-            const unitPrice = parseFloat(plan.price_after_discount || plan.price || 0);
+            const unitPrice = parseFloat(
+                plan.price_after_discount || plan.price || 0,
+            );
             let calculatedBase = unitPrice;
             if (plan.subscription_billing_cycle === "monthly") {
                 calculatedBase = unitPrice * months;
@@ -216,20 +276,28 @@ document.addEventListener("DOMContentLoaded", function () {
                 calculatedBase = (unitPrice / 12) * months;
             }
 
-            const discountVal = 0.00;
+            const discountVal = 0.0;
             const subtotal = Math.max(0, calculatedBase - discountVal);
             const vat = subtotal * 0.15;
             const finalTotal = subtotal + vat;
 
-            setElemText("calc-plan-price", formatNumber(calculatedBase) + " ر.س");
+            setElemText(
+                "calc-plan-price",
+                formatNumber(calculatedBase) + " ر.س",
+            );
             setElemText("calc-discount", formatNumber(discountVal) + " ر.س");
             setElemText("calc-tax", formatNumber(vat) + " ر.س");
             setElemText("calc-final-total", formatNumber(finalTotal) + " ر.س");
-            setElemText("sub_review-final-total", formatNumber(finalTotal) + " ر.س");
+            setElemText(
+                "sub_review-final-total",
+                formatNumber(finalTotal) + " ر.س",
+            );
         }
     }
 
-    const startDateInput = document.getElementById("start_date") || document.getElementById("sub_start_date");
+    const startDateInput =
+        document.getElementById("start_date") ||
+        document.getElementById("sub_start_date");
     if (startDateInput) {
         startDateInput.addEventListener("change", function () {
             recalculateDatesAndPricing();
@@ -256,17 +324,33 @@ document.addEventListener("DOMContentLoaded", function () {
                 ? compSelect.options[compSelect.selectedIndex].text
                 : "-";
 
-        setElemText("sub_review-company-name", comp ? comp.company_name : compText);
-        setElemText("sub_review-commercial-number", comp ? comp.commercial_number || "-" : "-");
-        setElemText("sub_review-tax-number", comp ? comp.tax_number || "-" : "-");
-        setElemText("sub_review-city", comp ? comp.city?.name || comp.city_name || "-" : "-");
+        setElemText(
+            "sub_review-company-name",
+            comp ? comp.company_name : compText,
+        );
+        setElemText(
+            "sub_review-commercial-number",
+            comp ? comp.commercial_number || "-" : "-",
+        );
+        setElemText(
+            "sub_review-tax-number",
+            comp ? comp.tax_number || "-" : "-",
+        );
+        setElemText(
+            "sub_review-city",
+            comp ? comp.city?.name || comp.city_name || "-" : "-",
+        );
 
-        const lastSub = comp ? comp.last_subscription || comp.lastSubscription : null;
+        const lastSub = comp
+            ? comp.last_subscription || comp.lastSubscription
+            : null;
         const rLastSub = document.getElementById("sub_review-last-sub");
         if (rLastSub) {
             if (lastSub) {
                 const planTitle = lastSub.plan?.name || "-";
-                const endsAt = lastSub.ends_at ? String(lastSub.ends_at).substring(0, 10) : "-";
+                const endsAt = lastSub.ends_at
+                    ? String(lastSub.ends_at).substring(0, 10)
+                    : "-";
                 rLastSub.textContent = `${planTitle} (انتهى: ${endsAt})`;
             } else {
                 rLastSub.textContent = "لا يوجد اشتراك سابق";
@@ -278,14 +362,42 @@ document.addEventListener("DOMContentLoaded", function () {
         const plan = plansData.find((p) => String(p.id) === String(planId));
 
         setElemText("sub_review-plan-name", plan ? plan.name : "-");
-        setElemText("sub_review-plan-users", (plan ? plan.included_users || 1 : "-") + " مستخدمين");
-        setElemText("sub_review-plan-props", plan ? (plan.properties_limit !== null ? plan.properties_limit : "غير محدود (∞)") : "-");
-        setElemText("sub_review-plan-storage", plan ? (plan.storage_quota_gb !== null ? plan.storage_quota_gb + " GB" : "غير محدود (∞)") : "-");
-        setElemText("sub_review-plan-auctions", plan ? (plan.active_auctions_limit !== null ? plan.active_auctions_limit : "غير محدود (∞)") : "-");
+        setElemText(
+            "sub_review-plan-users",
+            (plan ? plan.included_users || 1 : "-") + " مستخدمين",
+        );
+        setElemText(
+            "sub_review-plan-props",
+            plan
+                ? plan.properties_limit !== null
+                    ? plan.properties_limit
+                    : "غير محدود (∞)"
+                : "-",
+        );
+        setElemText(
+            "sub_review-plan-storage",
+            plan
+                ? plan.storage_quota_gb !== null
+                    ? plan.storage_quota_gb + " GB"
+                    : "غير محدود (∞)"
+                : "-",
+        );
+        setElemText(
+            "sub_review-plan-auctions",
+            plan
+                ? plan.active_auctions_limit !== null
+                    ? plan.active_auctions_limit
+                    : "غير محدود (∞)"
+                : "-",
+        );
 
         const featRev = document.getElementById("sub_review-plan-features");
         if (featRev) {
-            if (plan && Array.isArray(plan.features) && plan.features.length > 0) {
+            if (
+                plan &&
+                Array.isArray(plan.features) &&
+                plan.features.length > 0
+            ) {
                 featRev.innerHTML = plan.features
                     .map((f) => `<span class="badge bg-info me-1">${f}</span>`)
                     .join(" ");
@@ -295,17 +407,33 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // Dates & Payments
-        const sDateVal = document.getElementById("start_date")?.value || document.getElementById("sub_start_date")?.value || "-";
-        const eDateVal = document.getElementById("end_date")?.value || document.getElementById("sub_end_date")?.value || "-";
+        const sDateVal =
+            document.getElementById("start_date")?.value ||
+            document.getElementById("sub_start_date")?.value ||
+            "-";
+        const eDateVal =
+            document.getElementById("end_date")?.value ||
+            document.getElementById("sub_end_date")?.value ||
+            "-";
         setElemText("sub_review-start-date", sDateVal);
         setElemText("sub_review-end-date", eDateVal);
 
-        const methodSelect = document.getElementById("payment_method") || document.getElementById("sub_payment-method-select");
-        const methodText = methodSelect && methodSelect.selectedIndex >= 0 ? methodSelect.options[methodSelect.selectedIndex].text : "-";
+        const methodSelect =
+            document.getElementById("payment_method") ||
+            document.getElementById("sub_payment-method-select");
+        const methodText =
+            methodSelect && methodSelect.selectedIndex >= 0
+                ? methodSelect.options[methodSelect.selectedIndex].text
+                : "-";
         setElemText("sub_review-payment-method", methodText);
 
-        const statusSelect = document.getElementById("payment_status") || document.getElementById("sub_payment-status");
-        const statusText = statusSelect && statusSelect.selectedIndex >= 0 ? statusSelect.options[statusSelect.selectedIndex].text : "مكتمل";
+        const statusSelect =
+            document.getElementById("payment_status") ||
+            document.getElementById("sub_payment-status");
+        const statusText =
+            statusSelect && statusSelect.selectedIndex >= 0
+                ? statusSelect.options[statusSelect.selectedIndex].text
+                : "مكتمل";
         const rPay = document.getElementById("sub_review-payment-status");
         if (rPay) {
             rPay.textContent = statusText;

@@ -17,7 +17,8 @@
                     onclick="navigator.clipboard.writeText('AUC-{{ str_pad((string) $auction->id, 5, '0', STR_PAD_LEFT) }}'); toastr.success('تم نسخ رقم المزاد');">
                     AUC-{{ str_pad((string) $auction->id, 5, '0', STR_PAD_LEFT) }}
                 </code>
-                <span class="badge {{ $auction->is_active ? 'bg-success' : 'bg-danger' }}">{{ $auction->is_active ? 'نشط' : 'متوقف' }}</span>
+                <span
+                    class="badge {{ $auction->is_active ? 'bg-success' : 'bg-danger' }}">{{ $auction->is_active ? 'نشط' : 'متوقف' }}</span>
                 <span class="badge bg-info">{{ $auction->type_label }}</span>
                 @if ($auction->city)
                     <span class="badge bg-secondary"><i class="ti ti-map-pin me-1"></i>{{ $auction->city }}</span>
@@ -25,14 +26,14 @@
             </div>
         </div>
         <div class="d-flex gap-2">
+            <a href="{{ tenant_route_name('auctions.index') }}" class="btn btn-secondary">
+                <i class="ti ti-arrow-right me-1"></i> العودة
+            </a>
             @can('auctions.edit')
                 <a href="{{ tenant_route_name('auctions.edit', $auction->id) }}" class="btn btn-primary">
                     <i class="ti ti-edit me-1"></i> تعديل المزاد
                 </a>
             @endcan
-            <a href="{{ tenant_route_name('auctions.index') }}" class="btn btn-secondary">
-                <i class="ti ti-arrow-right me-1"></i> العودة
-            </a>
         </div>
     </div>
 
