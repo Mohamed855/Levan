@@ -2,6 +2,7 @@
     'name' => 'password',
     'label' => 'كلمة المرور',
     'id' => null,
+    'value' => null,
     'placeholder' => null,
     'required' => false,
     'help' => null,
@@ -22,7 +23,7 @@
         'input-group input-group-merge',
         'is-invalid' => $errors->has($name),
     ])>
-        <input id="{{ $fieldId }}" name="{{ $name }}" type="password" autocomplete="{{ $autocomplete }}"
+        <input id="{{ $fieldId }}" name="{{ $name }}" type="password" value="{{ old($name, $value) }}" autocomplete="{{ $autocomplete }}"
             @if ($placeholder) placeholder="{{ $placeholder }}" @endif @required($required)
             data-form-control aria-describedby="{{ $errorId }}"
             aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"

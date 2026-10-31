@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Tenants\activity_log;
 
 use App\Exports\Tenants\ActivityLog\ActivityLogsExport;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\ActivityLog\ActivityLogIndexRequest;
 use App\Http\Requests\Tenants\ActivityLog\DownloadActivityLogExportRequest;
 use App\Http\Requests\Tenants\ActivityLog\ExportActivityLogsRequest;
-use App\Http\Requests\Tenants\ActivityLog\ActivityLogIndexRequest;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Traits\ActivityLogPresenterTrait;
 use Carbon\Carbon;
@@ -252,7 +252,7 @@ class ActivityLogController extends Controller
         $showUrl = tenant_route_name('activity-logs.show', $activity->id);
 
         return '<a href="'.$showUrl.'" title="عرض التفاصيل" class="btn btn-icon btn-primary">
-                <i class="ti ti-logs"></i>
+                <i class="ti ti-eye"></i>
             </a>';
     }
 

@@ -6,11 +6,7 @@ use App\DataTables\Admin\Clients\ClientsDataTable;
 use App\DataTables\Admin\SubscriptionMangment\subscriptionMangmentDataTable;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\SubscriptionManagement\AcceptSubscriptionRequest;
 use App\Http\Requests\Admin\SubscriptionManagement\FinalizeCompanySubscriptionRequest;
-use App\Http\Requests\Admin\SubscriptionManagement\MassAcceptSubscriptionsRequest;
-use App\Http\Requests\Admin\SubscriptionManagement\MassRejectSubscriptionsRequest;
-use App\Http\Requests\Admin\SubscriptionManagement\RejectSubscriptionRequest;
 use App\Http\Requests\Admin\SubscriptionManagement\UpdateCompanySubscriptionRequest;
 use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
@@ -85,32 +81,34 @@ class SubscriptionManagementController extends Controller
         }
     }
 
-    public function pending(subscriptionMangmentDataTable $dataTable)
-    {
-        try {
-            $statistics = $this->subscriptionManagementService->getSubscriptionStatistics();
-
-            return $dataTable->render(self::VIEW_PATH.'.index', [
-                'pageTitle' => 'طلبات الاشتراك الجديدة',
-                'isExpiringPage' => false,
-                'isPendingPage' => true,
-                'totalSubscriptions' => $statistics['total'],
-                'activeSubscriptions' => $statistics['active'],
-                'expiredSubscriptions' => $statistics['expired'],
-                'pendingSubscriptions' => $statistics['pending'],
-                'expiringSubscriptions' => $statistics['expiring_soon'],
-            ]);
-        } catch (\Exception $e) {
-            report($e);
-
-            return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
-        }
-    }
-
     public function expiring(subscriptionMangmentDataTable $dataTable)
     {
         try {
             $statistics = $this->subscriptionManagementService->getSubscriptionStatistics();
+            $plans = Plan::select('id', 'name')->active()->get();
+            $cities = City::select('id', 'name')->get();
+
+            $filterOptions = [
+                'statuses' => [
+                    ['value' => 'active', 'label' => 'نشط'],
+                    ['value' => 'suspended', 'label' => 'موقوف'],
+                    ['value' => 'expired', 'label' => 'منتهي'],
+                    ['value' => 'trial', 'label' => 'تجريبي'],
+                    ['value' => 'cancelled', 'label' => 'ملغي'],
+                ],
+                'plans' => $plans->map(fn ($plan): array => [
+                    'value' => $plan->id,
+                    'label' => $plan->name,
+                ]),
+                'cities' => $cities->map(fn ($city): array => [
+                    'value' => $city->id,
+                    'label' => $city->name,
+                ]),
+                'expiring' => [
+                    ['value' => '7', 'label' => 'تنتهي خلال 7 أيام'],
+                    ['value' => '30', 'label' => 'تنتهي خلال 30 يوماً'],
+                ],
+            ];
 
             return $dataTable->render(self::VIEW_PATH.'.index', [
                 'pageTitle' => 'اشتراكات تقارب على الانتهاء',
@@ -118,8 +116,10 @@ class SubscriptionManagementController extends Controller
                 'totalSubscriptions' => $statistics['total'],
                 'activeSubscriptions' => $statistics['active'],
                 'expiredSubscriptions' => $statistics['expired'],
-                'pendingSubscriptions' => $statistics['pending'],
                 'expiringSubscriptions' => $statistics['expiring_soon'],
+                'plans' => $plans,
+                'cities' => $cities,
+                'filterOptions' => $filterOptions,
             ]);
         } catch (\Exception $e) {
             report($e);
@@ -132,6 +132,30 @@ class SubscriptionManagementController extends Controller
     {
         try {
             $statistics = $this->subscriptionManagementService->getSubscriptionStatistics();
+            $plans = Plan::select('id', 'name')->active()->get();
+            $cities = City::select('id', 'name')->get();
+
+            $filterOptions = [
+                'statuses' => [
+                    ['value' => 'active', 'label' => 'نشط'],
+                    ['value' => 'suspended', 'label' => 'موقوف'],
+                    ['value' => 'expired', 'label' => 'منتهي'],
+                    ['value' => 'trial', 'label' => 'تجريبي'],
+                    ['value' => 'cancelled', 'label' => 'ملغي'],
+                ],
+                'plans' => $plans->map(fn ($plan): array => [
+                    'value' => $plan->id,
+                    'label' => $plan->name,
+                ]),
+                'cities' => $cities->map(fn ($city): array => [
+                    'value' => $city->id,
+                    'label' => $city->name,
+                ]),
+                'expiring' => [
+                    ['value' => '7', 'label' => 'تنتهي خلال 7 أيام'],
+                    ['value' => '30', 'label' => 'تنتهي خلال 30 يوماً'],
+                ],
+            ];
 
             return $dataTable->render(self::VIEW_PATH.'.index', [
                 'pageTitle' => 'الاشتراكات المنتهية',
@@ -139,8 +163,10 @@ class SubscriptionManagementController extends Controller
                 'totalSubscriptions' => $statistics['total'],
                 'activeSubscriptions' => $statistics['active'],
                 'expiredSubscriptions' => $statistics['expired'],
-                'pendingSubscriptions' => $statistics['pending'],
                 'expiringSubscriptions' => $statistics['expiring_soon'],
+                'plans' => $plans,
+                'cities' => $cities,
+                'filterOptions' => $filterOptions,
             ]);
         } catch (\Exception $e) {
             report($e);
@@ -220,104 +246,6 @@ class SubscriptionManagementController extends Controller
                 ->back()
                 ->withInput()
                 ->with('error', 'حدث خطأ أثناء تحديث الاشتراك: '.$e->getMessage());
-        }
-    }
-
-    public function accept(AcceptSubscriptionRequest $request, Subscription $subscription)
-    {
-        try {
-            $this->subscriptionManagementService->accept($subscription, $request->user('admin')?->getKey());
-
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'تم قبول طلب الاشتراك بنجاح',
-                ]);
-            }
-
-            return redirect()->back()->with('success', 'تم قبول طلب الاشتراك بنجاح');
-        } catch (\Exception $e) {
-            report($e);
-
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'حدث خطأ أثناء قبول طلب الاشتراك: '.$e->getMessage(),
-                ], 500);
-            }
-
-            return redirect()->back()->with('error', 'حدث خطأ أثناء قبول طلب الاشتراك');
-        }
-    }
-
-    public function reject(RejectSubscriptionRequest $request, Subscription $subscription)
-    {
-        $validated = $request->validated();
-
-        try {
-            $this->subscriptionManagementService->reject($subscription, $validated['reject_reason'] ?? null);
-
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'تم رفض طلب الاشتراك بنجاح',
-                ]);
-            }
-
-            return redirect()->back()->with('success', 'تم رفض طلب الاشتراك بنجاح');
-        } catch (\Exception $e) {
-            report($e);
-
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'حدث خطأ أثناء رفض طلب الاشتراك: '.$e->getMessage(),
-                ], 500);
-            }
-
-            return redirect()->back()->with('error', 'حدث خطأ أثناء رفض طلب الاشتراك');
-        }
-    }
-
-    public function massAccept(MassAcceptSubscriptionsRequest $request)
-    {
-        $validated = $request->validated();
-
-        try {
-            $this->subscriptionManagementService->massAccept($validated['ids'], $request->user('admin')?->getKey());
-
-            return response()->json([
-                'success' => true,
-                'message' => 'تم قبول طلبات الاشتراك المحددة بنجاح',
-            ]);
-        } catch (\Exception $e) {
-            report($e);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء قبول الاشتراكات المحددة: '.$e->getMessage(),
-            ], 500);
-        }
-    }
-
-    public function massReject(MassRejectSubscriptionsRequest $request)
-    {
-        $validated = $request->validated();
-
-        try {
-            $this->subscriptionManagementService->massReject($validated['ids'], $validated['reject_reason'] ?? null);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'تم رفض طلبات الاشتراك المحددة بنجاح',
-            ]);
-        } catch (\Exception $e) {
-            report($e);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء رفض الاشتراكات المحددة: '.$e->getMessage(),
-            ], 500);
         }
     }
 

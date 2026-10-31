@@ -62,8 +62,8 @@
                                 help="سيتم تحويل الكود إلى أحرف كبيرة تلقائيًا"
                                 :value="$generatedCode ?? ''" required col="col-md-6"
                                 :input-group="true" style="text-transform: uppercase;">
-                                <button type="button" class="btn btn-secondary btn-generate-code" id="btn-generate-code">
-                                    <i class="ti ti-wand"></i> توليد
+                                <button type="button" class="input-group-text cursor-pointer btn-generate-code" id="btn-generate-code" title="توليد كود تلقائي">
+                                    <i class="ti ti-wand me-1"></i> توليد
                                 </button>
                             </x-form.controls.input>
                         @endif

@@ -39,7 +39,10 @@
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help"
     :col="$col" :wrapper-id="$wrapperId" :wrapper-style="$wrapperStyle">
     @if ($inputGroup)
-        <div class="input-group">
+        <div @class([
+            'input-group input-group-merge',
+            'is-invalid' => $errors->has($name),
+        ])>
             <input id="{{ $fieldId }}" name="{{ $name }}" type="{{ $type }}" value="{{ old($name, $value) }}"
                 @if ($placeholder) placeholder="{{ $placeholder }}" @endif data-form-control
                 aria-describedby="{{ $errorId }}" aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"

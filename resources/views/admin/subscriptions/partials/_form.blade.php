@@ -5,6 +5,22 @@
         ['id' => 'step-payment-details', 'title' => 'تفاصيل الاشتراك والدفع'],
         ['id' => 'step-subscription-review', 'title' => 'مراجعة واعتماد'],
     ];
+
+    $paymentMethods = is_array(__('subscriptions.payment_methods'))
+        ? __('subscriptions.payment_methods')
+        : [
+            ['value' => 'bank_transfer', 'label' => 'تحويل بنكي'],
+            ['value' => 'cash', 'label' => 'نقدي / إيداع مباشر'],
+            ['value' => 'card', 'label' => 'بطاقة ائتمان / مدى'],
+            ['value' => 'system_free', 'label' => 'إهداء / ترويجي (مجاني)'],
+        ];
+
+    $paymentStatuses = is_array(__('subscriptions.payment_statuses'))
+        ? __('subscriptions.payment_statuses')
+        : [
+            ['value' => 'completed', 'label' => 'مكتمل (تم استلام المبلغ وتأكيده)'],
+            ['value' => 'pending', 'label' => 'قيد الانتظار (سيتم التحقق لاحقاً)'],
+        ];
 @endphp
 
 <div class="row">
@@ -156,10 +172,10 @@
                         <!-- كوبون الخصم -->
                         <div class="col-md-6">
                             <label class="form-label" for="coupon_code">كود كوبون الخصم</label>
-                            <div class="input-group">
+                            <div class="input-group input-group-merge">
                                 <input type="text" name="coupon_code" id="coupon_code" class="form-control text-uppercase"
                                     placeholder="أدخل كود الكوبون إن وجد" style="text-transform: uppercase;">
-                                <button class="btn btn-outline-primary" type="button" id="btn-validate-coupon">
+                                <button class="input-group-text cursor-pointer" type="button" id="btn-validate-coupon" title="فحص الكوبون">
                                     <i class="ti ti-ticket me-1"></i> فحص الكوبون
                                 </button>
                             </div>
@@ -168,11 +184,11 @@
 
                         <!-- طريقة الدفع -->
                         <x-form.controls.select name="payment_method" id="payment_method" label="طريقة الدفع" required
-                            :options="__('subscriptions.payment_methods')" value="bank_transfer" col="col-md-6" />
+                            :options="$paymentMethods" value="bank_transfer" col="col-md-6" />
 
                         <!-- حالة الدفع -->
                         <x-form.controls.select name="payment_status" id="payment_status" label="حالة الدفع الآن" required
-                            :options="__('subscriptions.payment_statuses')" value="completed" col="col-md-6"
+                            :options="$paymentStatuses" value="completed" col="col-md-6"
                             help="في حالة 'مكتمل' سيتم تفعيل الاشتراك وإنشاء الفاتورة فوراً." />
 
                         <!-- رقم المرجع / الحوالة -->

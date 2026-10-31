@@ -118,19 +118,13 @@
                         \App\Services\Admin\SubscriptionManagement\SubscriptionManagementService::class,
                     )->getExpiringSoonCount();
                 });
-                $pendingCount = cache()->remember('admin:pending_subscriptions_count', 60, function () {
-                    return \App\Models\Admin\Subscription\Subscription::where(
-                        'status',
-                        \App\Enums\Admin\Subscriptions\SubscriptionStatus::PENDING,
-                    )->count();
-                });
                 $expiredCount = cache()->remember('admin:expired_subscriptions_count', 60, function () {
                     return \App\Models\Admin\Subscription\Subscription::where(
                         'status',
                         \App\Enums\Admin\Subscriptions\SubscriptionStatus::EXPIRED,
                     )->count();
                 });
-                $totalBadgeCount = $expiringCount + $pendingCount + $expiredCount;
+                $totalBadgeCount = $expiringCount + $expiredCount;
             @endphp
             <li class="menu-item @if (Route::is('admin.subscriptions.*') || Route::is('admin.subscriptionManage.*')) active open @endif">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -143,15 +137,6 @@
                     <li class="menu-item @if (Route::is('admin.subscriptions.*')) active @endif">
                         <a href="{{ route('admin.subscriptions.index') }}" class="menu-link">
                             <div>جميع الإشتراكات</div>
-                            <div class="badge bg-light text-primary rounded-pill ms-auto @if ($pendingCount <= 0) d-none @endif"
-                                data-sidebar-counter="subscriptions_all">{{ $pendingCount }}</div>
-                        </a>
-                    </li>
-                    <li class="menu-item @if (Route::is('admin.subscriptionManage.pending')) active @endif">
-                        <a href="{{ route('admin.subscriptionManage.pending') }}" class="menu-link">
-                            <div>الطلبات</div>
-                            <div class="badge bg-light text-primary rounded-pill ms-auto @if ($pendingCount <= 0) d-none @endif"
-                                data-sidebar-counter="subscriptions_pending">{{ $pendingCount }}</div>
                         </a>
                     </li>
                     <li class="menu-item @if (Route::is('admin.subscriptionManage.expiring')) active @endif">

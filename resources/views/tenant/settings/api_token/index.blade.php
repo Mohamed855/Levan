@@ -31,10 +31,10 @@
                         </div>
                         <div class="mb-4">
                             <label class="form-label">التوكن الجديد</label>
-                            <div class="input-group">
+                            <div class="input-group input-group-merge">
                                 <input type="text" id="apiTokenField" class="form-control"
                                     value="{{ session('new_api_token') }}" readonly>
-                                <button type="button" class="btn btn-secondary" id="copyApiTokenBtn">
+                                <button type="button" class="input-group-text cursor-pointer" id="copyApiTokenBtn" title="نسخ التوكن">
                                     <i class="ti ti-copy"></i>
                                 </button>
                             </div>

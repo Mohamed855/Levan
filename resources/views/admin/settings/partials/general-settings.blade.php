@@ -6,11 +6,10 @@
             @method('PUT')
             <input type="hidden" name="active_tab" id="" value="#generalSettings">
             <div class="card-body pb-0">
-                <x-form.controls.file name="image" label="شعار الموقع / الشعار العام"
-                    :value="$settings->image ? asset('storage/' . $settings->image) : null"
+                <x-form.controls.file name="image" label="شعار الموقع / الشعار العام" :value="$settings->image ? asset('storage/' . $settings->image) : null"
                     accept="image/png, image/jpeg, image/webp"
-                    help="الملفات المسموح بها: JPG, PNG أو WebP. الأبعاد الموصى بها: 150px × 150px"
-                    :max-size="10" col="col-md-6" />
+                    help="الملفات المسموح بها: JPG, PNG أو WebP. الأبعاد الموصى بها: 150px × 150px" :max-size="10"
+                    col="col-12" />
             </div>
 
             <div class="card-body pt-4">
@@ -26,7 +25,8 @@
                     </div>
                     <!-- وضع الصيانة -->
                     <div class="mb-4 col-md-6">
-                        <label for="logoText" class="form-label">النص بجانب الشعار <span class="text-danger">*</span></label>
+                        <label for="logoText" class="form-label">النص بجانب الشعار <span
+                                class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="logoText" name="logo_text" required
                             value="{{ old('logo_text', $settings->logo_text ?? '') }}"
                             placeholder="أدخل النص بجانب الشعار" maxlength="14" />
@@ -68,7 +68,8 @@
 
                     <div class="mb-4 col-md-6">
                         <label for="phone_number" class="form-label">رقم الهاتف</label>
-                        <input class="form-control" type="text" id="phone_number" name="phone_number" data-phone-format="international"
+                        <input class="form-control" type="text" id="phone_number" name="phone_number"
+                            data-phone-format="international"
                             value="{{ old('phone_number', $settings->phone_number ?? '') }}"
                             placeholder="أدخل رقم الهاتف" />
                         @error('phone_number')
@@ -85,13 +86,26 @@
                         @enderror
                     </div>
                     @foreach (['facebook_url' => 'رابط Facebook', 'x_url' => 'رابط X', 'linkedin_url' => 'رابط LinkedIn'] as $field => $label)
-                        <div class="mb-4 col-md-6"><label for="{{ $field }}" class="form-label">{{ $label }}</label><input class="form-control" type="url" id="{{ $field }}" name="{{ $field }}" value="{{ old($field, $settings->{$field} ?? '') }}" />@error($field)<div class="text-danger small">{{ $message }}</div>@enderror</div>
+                        <div class="mb-4 col-md-6"><label for="{{ $field }}"
+                                class="form-label">{{ $label }}</label><input class="form-control"
+                                type="url" id="{{ $field }}" name="{{ $field }}"
+                                value="{{ old($field, $settings->{$field} ?? '') }}" />
+                            @error($field)
+                                <div class="text-danger small">{{ $message }}</div>
+                            @enderror
+                        </div>
                     @endforeach
                     <div class="mb-4 col-md-6">
                         <label for="google_maps_embed_url" class="form-label">رابط Google Maps Embed</label>
-                        <input class="form-control" type="text" id="google_maps_embed_url" name="google_maps_embed_url" value="{{ old('google_maps_embed_url', $settings->google_maps_embed_url ?? '') }}" placeholder="https://www.google.com/maps/embed?pb=..." />
-                        <div class="form-text">يمكنك إدخال رابط التضمين مباشرة أو كود iframe بالكامل من خرائط جوجل.</div>
-                        @error('google_maps_embed_url')<div class="text-danger small">{{ $message }}</div>@enderror
+                        <input class="form-control" type="text" id="google_maps_embed_url"
+                            name="google_maps_embed_url"
+                            value="{{ old('google_maps_embed_url', $settings->google_maps_embed_url ?? '') }}"
+                            placeholder="https://www.google.com/maps/embed?pb=..." />
+                        <div class="form-text">يمكنك إدخال رابط التضمين مباشرة أو كود iframe بالكامل من خرائط جوجل.
+                        </div>
+                        @error('google_maps_embed_url')
+                            <div class="text-danger small">{{ $message }}</div>
+                        @enderror
                     </div>
                     {{--
                     <div class="mb-4 col-md-6">
@@ -114,7 +128,8 @@
 
                 </div>
                 <div class="mt-2 d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary me-3"><i class="ti ti-check me-1"></i>تحديث</button>
+                    <button type="submit" class="btn btn-primary me-3"><i
+                            class="ti ti-check me-1"></i>تحديث</button>
                 </div>
             </div>
         </form>

@@ -16,6 +16,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }).format(number);
     }
 
+    function setElemText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    }
+
+    function setElemValue(id, val) {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+    }
+
     // Company selection handler
     function updateCompanyCard(companyId) {
         const card = document.getElementById("company-details-card");
@@ -27,58 +37,63 @@ document.addEventListener("DOMContentLoaded", function () {
         const comp = companiesData.find(
             (c) => String(c.id) === String(companyId),
         );
+
         if (comp) {
-            document.getElementById("company-commercial").textContent =
-                comp.commercial_number || "-";
-            document.getElementById("company-tax").textContent =
-                comp.tax_number || "-";
-            document.getElementById("company-city").textContent = comp.city
-                ? comp.city.name
-                : comp.city_name || "-";
-            document.getElementById("company-address").textContent =
-                comp.address || "-";
+            setElemText("cd-name", comp.company_name || "-");
+            setElemText("cd-commercial", comp.commercial_number || "-");
+            setElemText("cd-tax", comp.tax_number || "-");
+            setElemText("cd-city", comp.city ? comp.city.name : comp.city_name || "-");
+
+            // Backward compatibility IDs
+            setElemText("company-commercial", comp.commercial_number || "-");
+            setElemText("company-tax", comp.tax_number || "-");
+            setElemText("company-city", comp.city ? comp.city.name : comp.city_name || "-");
+            setElemText("company-address", comp.address || "-");
 
             const lastSub = comp.last_subscription || comp.lastSubscription;
-            const lastSubText = document.getElementById(
-                "company-last-sub-text",
-            );
+            const lastSubEl = document.getElementById("cd-last-sub");
+            const lastSubText = document.getElementById("company-last-sub-text");
             if (lastSub) {
                 const planName = lastSub.plan ? lastSub.plan.name || "-" : "-";
                 const statusLabel = lastSub.status || "منتهي";
-                const endsAt = lastSub.ends_at
-                    ? String(lastSub.ends_at).substring(0, 10)
-                    : "-";
-                lastSubText.innerHTML = `<span class="badge bg-danger me-1">${statusLabel}</span> باقة: ${planName} (انتهى بتاريخ: ${endsAt})`;
+                const endsAt = lastSub.ends_at ? String(lastSub.ends_at).substring(0, 10) : "-";
+                const htmlContent = `<span class="badge bg-danger me-1">${statusLabel}</span> باقة: ${planName} (انتهى بتاريخ: ${endsAt})`;
+                if (lastSubEl) lastSubEl.innerHTML = htmlContent;
+                if (lastSubText) lastSubText.innerHTML = htmlContent;
             } else {
-                lastSubText.innerHTML =
-                    '<span class="text-muted">لا يوجد اشتراك سابق</span>';
+                const emptyContent = '<span class="text-muted">لا يوجد اشتراك سابق</span>';
+                if (lastSubEl) lastSubEl.innerHTML = emptyContent;
+                if (lastSubText) lastSubText.innerHTML = emptyContent;
             }
 
             if (card) card.style.display = "block";
         } else {
             // Fallback via AJAX
-            fetch(`/superadmin/subscriptions/companies/${companyId}/details`, {
+            fetch(`/admin/subscriptions/companies/${companyId}/details`, {
                 headers: { Accept: "application/json" },
             })
                 .then((res) => res.json())
                 .then((data) => {
-                    document.getElementById("company-commercial").textContent =
-                        data.commercial_number || "-";
-                    document.getElementById("company-tax").textContent =
-                        data.tax_number || "-";
-                    document.getElementById("company-city").textContent =
-                        data.city_name || "-";
-                    document.getElementById("company-address").textContent =
-                        data.address || "-";
+                    setElemText("cd-name", data.company_name || "-");
+                    setElemText("cd-commercial", data.commercial_number || "-");
+                    setElemText("cd-tax", data.tax_number || "-");
+                    setElemText("cd-city", data.city_name || "-");
 
-                    const lastSubText = document.getElementById(
-                        "company-last-sub-text",
-                    );
+                    setElemText("company-commercial", data.commercial_number || "-");
+                    setElemText("company-tax", data.tax_number || "-");
+                    setElemText("company-city", data.city_name || "-");
+                    setElemText("company-address", data.address || "-");
+
+                    const lastSubEl = document.getElementById("cd-last-sub");
+                    const lastSubText = document.getElementById("company-last-sub-text");
                     if (data.last_subscription) {
-                        lastSubText.innerHTML = `<span class="badge bg-danger me-1">${data.last_subscription.status}</span> باقة: ${data.last_subscription.plan} (انتهى بتاريخ: ${data.last_subscription.ends_at})`;
+                        const htmlContent = `<span class="badge bg-danger me-1">${data.last_subscription.status}</span> باقة: ${data.last_subscription.plan} (انتهى بتاريخ: ${data.last_subscription.ends_at})`;
+                        if (lastSubEl) lastSubEl.innerHTML = htmlContent;
+                        if (lastSubText) lastSubText.innerHTML = htmlContent;
                     } else {
-                        lastSubText.innerHTML =
-                            '<span class="text-muted">لا يوجد اشتراك سابق</span>';
+                        const emptyContent = '<span class="text-muted">لا يوجد اشتراك سابق</span>';
+                        if (lastSubEl) lastSubEl.innerHTML = emptyContent;
+                        if (lastSubText) lastSubText.innerHTML = emptyContent;
                     }
                     if (card) card.style.display = "block";
                 })
@@ -93,10 +108,12 @@ document.addEventListener("DOMContentLoaded", function () {
         if (window.jQuery) {
             $(companySelect).on("change", function () {
                 updateCompanyCard(this.value);
+                updateReviewSummary();
             });
         } else {
             companySelect.addEventListener("change", function () {
                 updateCompanyCard(this.value);
+                updateReviewSummary();
             });
         }
         if (companySelect.value) {
@@ -106,67 +123,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Plan selection handler
     function updatePlanDetails(planId) {
+        const card = document.getElementById("plan-details-card");
         const plan = plansData.find((p) => String(p.id) === String(planId));
         if (!plan) {
-            document.getElementById("sub_plan_users_display").value = "-";
-            document.getElementById("sub_plan_properties_display").value = "-";
-            document.getElementById("sub_plan_storage_display").value = "-";
-            document.getElementById("sub_plan_auctions_display").value = "-";
-            document.getElementById("sub_plan_features_display").innerHTML =
-                '<span class="text-muted">اختر الباقة لعرض مميزاتها</span>';
+            if (card) card.style.display = "none";
+            setElemValue("sub_plan_users_display", "-");
+            setElemValue("sub_plan_properties_display", "-");
+            setElemValue("sub_plan_storage_display", "-");
+            setElemValue("sub_plan_auctions_display", "-");
             return;
         }
 
-        document.getElementById("sub_plan_users_display").value =
-            plan.included_users || 1;
-        document.getElementById("sub_plan_properties_display").value =
-            plan.properties_limit !== null
-                ? plan.properties_limit
-                : "غير محدود (∞)";
-        document.getElementById("sub_plan_storage_display").value =
-            plan.storage_quota_gb !== null
-                ? plan.storage_quota_gb + " GB"
-                : "غير محدود (∞)";
-        document.getElementById("sub_plan_auctions_display").value =
-            plan.active_auctions_limit !== null
-                ? plan.active_auctions_limit
-                : "غير محدود (∞)";
+        const priceStr = formatNumber(parseFloat(plan.price_after_discount || plan.price || 0)) + " ر.س";
+        setElemText("pd-price", priceStr);
+        setElemText("pd-users", (plan.included_users || 1) + " مستخدمين");
+        setElemText("pd-props", plan.properties_limit !== null ? plan.properties_limit : "غير محدود (∞)");
+        setElemText("pd-storage", plan.storage_quota_gb !== null ? plan.storage_quota_gb + " GB" : "غير محدود (∞)");
+        setElemText("pd-auctions", plan.active_auctions_limit !== null ? plan.active_auctions_limit : "غير محدود (∞)");
 
-        const featContainer = document.getElementById(
-            "sub_plan_features_display",
-        );
-        if (Array.isArray(plan.features) && plan.features.length > 0) {
-            featContainer.innerHTML = plan.features
-                .map((f) => `<span class="badge bg-info">${f}</span>`)
-                .join(" ");
-        } else {
-            featContainer.innerHTML =
-                '<span class="text-muted">لا توجد مميزات إضافية مسجلة</span>';
-        }
+        // Backward compatibility IDs
+        setElemValue("sub_plan_users_display", plan.included_users || 1);
+        setElemValue("sub_plan_properties_display", plan.properties_limit !== null ? plan.properties_limit : "غير محدود (∞)");
+        setElemValue("sub_plan_storage_display", plan.storage_quota_gb !== null ? plan.storage_quota_gb + " GB" : "غير محدود (∞)");
+        setElemValue("sub_plan_auctions_display", plan.active_auctions_limit !== null ? plan.active_auctions_limit : "غير محدود (∞)");
 
-        // Auto calculate end date based on plan duration
-        const startDateVal = document.getElementById("sub_start_date")?.value;
-        if (startDateVal) {
-            const start = new Date(startDateVal);
-            if (!isNaN(start.getTime())) {
-                const end = new Date(start);
-                if (plan.code === "trial_7_days") {
-                    end.setDate(end.getDate() + 7);
-                } else if (
-                    plan.subscription_duration_type === "limited" &&
-                    plan.subscription_billing_cycle === "monthly"
-                ) {
-                    end.setMonth(end.getMonth() + 1);
-                } else {
-                    end.setFullYear(end.getFullYear() + 1);
-                }
-                const formattedEnd = end.toISOString().split("T")[0];
-                const endDateInput = document.getElementById("sub_end_date");
-                if (endDateInput) {
-                    endDateInput.value = formattedEnd;
-                }
+        const featContainer = document.getElementById("pd-features") || document.getElementById("sub_plan_features_display");
+        if (featContainer) {
+            if (Array.isArray(plan.features) && plan.features.length > 0) {
+                featContainer.innerHTML = plan.features
+                    .map((f) => `<span class="badge bg-white text-success border me-1">${f}</span>`)
+                    .join(" ");
+            } else {
+                featContainer.innerHTML = '<span class="text-white-50 small">لا توجد مميزات إضافية مسجلة</span>';
             }
         }
+
+        if (card) card.style.display = "block";
+
+        recalculateDatesAndPricing();
     }
 
     const planSelect = document.getElementById("plan_id");
@@ -174,10 +168,12 @@ document.addEventListener("DOMContentLoaded", function () {
         if (window.jQuery) {
             $(planSelect).on("change", function () {
                 updatePlanDetails(this.value);
+                updateReviewSummary();
             });
         } else {
             planSelect.addEventListener("change", function () {
                 updatePlanDetails(this.value);
+                updateReviewSummary();
             });
         }
         if (planSelect.value) {
@@ -185,93 +181,71 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    const startDateInput = document.getElementById("sub_start_date");
-    if (startDateInput) {
-        startDateInput.addEventListener("change", function () {
-            if (planSelect && planSelect.value) {
-                updatePlanDetails(planSelect.value);
-            }
-        });
-    }
+    // Auto-calculate end date & pricing based on start_date, period_months & selected plan
+    function recalculateDatesAndPricing() {
+        const planId = planSelect?.value;
+        const plan = plansData.find((p) => String(p.id) === String(planId));
 
-    // Payment status change handlers
-    const paymentStatus = document.getElementById("sub_payment-status");
-    const paymentMethodWrapper = document.getElementById(
-        "sub_payment-method-wrapper",
-    );
-    const receiptUploadWrapper = document.getElementById(
-        "sub_receipt-upload-wrapper",
-    );
-    const trialDateWrapper = document.getElementById("sub_trial-date-wrapper");
-    const paymentMethodSelect = document.getElementById(
-        "sub_payment-method-select",
-    );
+        const startDateInput = document.getElementById("start_date") || document.getElementById("sub_start_date");
+        const endDateInput = document.getElementById("end_date") || document.getElementById("sub_end_date");
+        const monthsInput = document.getElementById("period_months");
 
-    function handlePaymentStatusChange(status) {
-        if (status === "paid") {
-            if (paymentMethodWrapper)
-                paymentMethodWrapper.style.display = "block";
-            if (trialDateWrapper) trialDateWrapper.style.display = "none";
-            if (
-                paymentMethodSelect &&
-                paymentMethodSelect.value === "bank_transfer"
-            ) {
-                if (receiptUploadWrapper)
-                    receiptUploadWrapper.style.display = "block";
-            } else {
-                if (receiptUploadWrapper)
-                    receiptUploadWrapper.style.display = "none";
+        const months = parseInt(monthsInput?.value || "12", 10) || 12;
+
+        if (startDateInput && startDateInput.value && endDateInput) {
+            const start = new Date(startDateInput.value);
+            if (!isNaN(start.getTime())) {
+                const end = new Date(start);
+                if (plan && plan.code === "trial_7_days") {
+                    end.setDate(end.getDate() + 7);
+                } else {
+                    end.setMonth(end.getMonth() + months);
+                }
+                const formattedEnd = end.toISOString().split("T")[0];
+                endDateInput.value = formattedEnd;
             }
-        } else if (status === "trial") {
-            if (paymentMethodWrapper)
-                paymentMethodWrapper.style.display = "none";
-            if (receiptUploadWrapper)
-                receiptUploadWrapper.style.display = "none";
-            if (trialDateWrapper) trialDateWrapper.style.display = "block";
-        } else {
-            if (paymentMethodWrapper)
-                paymentMethodWrapper.style.display = "none";
-            if (receiptUploadWrapper)
-                receiptUploadWrapper.style.display = "none";
-            if (trialDateWrapper) trialDateWrapper.style.display = "none";
+        }
+
+        // Financial breakdown calculation
+        if (plan) {
+            const unitPrice = parseFloat(plan.price_after_discount || plan.price || 0);
+            let calculatedBase = unitPrice;
+            if (plan.subscription_billing_cycle === "monthly") {
+                calculatedBase = unitPrice * months;
+            } else if (months !== 12 && months > 0) {
+                calculatedBase = (unitPrice / 12) * months;
+            }
+
+            const discountVal = 0.00;
+            const subtotal = Math.max(0, calculatedBase - discountVal);
+            const vat = subtotal * 0.15;
+            const finalTotal = subtotal + vat;
+
+            setElemText("calc-plan-price", formatNumber(calculatedBase) + " ر.س");
+            setElemText("calc-discount", formatNumber(discountVal) + " ر.س");
+            setElemText("calc-tax", formatNumber(vat) + " ر.س");
+            setElemText("calc-final-total", formatNumber(finalTotal) + " ر.س");
+            setElemText("sub_review-final-total", formatNumber(finalTotal) + " ر.س");
         }
     }
 
-    if (paymentStatus) {
-        paymentStatus.addEventListener("change", function () {
-            handlePaymentStatusChange(this.value);
-        });
-        handlePaymentStatusChange(paymentStatus.value);
-    }
-
-    if (paymentMethodSelect) {
-        paymentMethodSelect.addEventListener("change", function () {
-            if (
-                this.value === "bank_transfer" &&
-                paymentStatus?.value === "paid"
-            ) {
-                if (receiptUploadWrapper)
-                    receiptUploadWrapper.style.display = "block";
-            } else {
-                if (receiptUploadWrapper)
-                    receiptUploadWrapper.style.display = "none";
-            }
+    const startDateInput = document.getElementById("start_date") || document.getElementById("sub_start_date");
+    if (startDateInput) {
+        startDateInput.addEventListener("change", function () {
+            recalculateDatesAndPricing();
+            updateReviewSummary();
         });
     }
 
-    // Discount toggle
-    const discountType = document.getElementById("sub_discount-type");
-    const discountWrapper = document.getElementById("sub_discount-wrapper");
-    if (discountType && discountWrapper) {
-        discountType.addEventListener("change", function () {
-            discountWrapper.style.display =
-                this.value === "yes" ? "block" : "none";
+    const monthsInput = document.getElementById("period_months");
+    if (monthsInput) {
+        monthsInput.addEventListener("input", function () {
+            recalculateDatesAndPricing();
+            updateReviewSummary();
         });
-        discountWrapper.style.display =
-            discountType.value === "yes" ? "block" : "none";
     }
 
-    // Review Summary Screen Update (Step 3)
+    // Step 3 Review screen dynamic synchronization
     function updateReviewSummary() {
         // Step 1: Company
         const compId = document.getElementById("company_id")?.value;
@@ -282,30 +256,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 ? compSelect.options[compSelect.selectedIndex].text
                 : "-";
 
-        const rCompName = document.getElementById("sub_review-company-name");
-        if (rCompName)
-            rCompName.textContent = comp ? comp.company_name : compText;
+        setElemText("sub_review-company-name", comp ? comp.company_name : compText);
+        setElemText("sub_review-commercial-number", comp ? comp.commercial_number || "-" : "-");
+        setElemText("sub_review-tax-number", comp ? comp.tax_number || "-" : "-");
+        setElemText("sub_review-city", comp ? comp.city?.name || comp.city_name || "-" : "-");
 
-        const rComm = document.getElementById("sub_review-commercial-number");
-        if (rComm)
-            rComm.textContent = comp ? comp.commercial_number || "-" : "-";
-
-        const rTax = document.getElementById("sub_review-tax-number");
-        if (rTax) rTax.textContent = comp ? comp.tax_number || "-" : "-";
-
-        const rCity = document.getElementById("sub_review-city");
-        if (rCity) rCity.textContent = comp ? comp.city?.name || "-" : "-";
-
-        const lastSub = comp
-            ? comp.last_subscription || comp.lastSubscription
-            : null;
+        const lastSub = comp ? comp.last_subscription || comp.lastSubscription : null;
         const rLastSub = document.getElementById("sub_review-last-sub");
         if (rLastSub) {
             if (lastSub) {
                 const planTitle = lastSub.plan?.name || "-";
-                const endsAt = lastSub.ends_at
-                    ? String(lastSub.ends_at).substring(0, 10)
-                    : "-";
+                const endsAt = lastSub.ends_at ? String(lastSub.ends_at).substring(0, 10) : "-";
                 rLastSub.textContent = `${planTitle} (انتهى: ${endsAt})`;
             } else {
                 rLastSub.textContent = "لا يوجد اشتراك سابق";
@@ -316,47 +277,17 @@ document.addEventListener("DOMContentLoaded", function () {
         const planId = document.getElementById("plan_id")?.value;
         const plan = plansData.find((p) => String(p.id) === String(planId));
 
-        const rPlanName = document.getElementById("sub_review-plan-name");
-        if (rPlanName) rPlanName.textContent = plan ? plan.name : "-";
-
-        const rUsers = document.getElementById("sub_review-plan-users");
-        if (rUsers)
-            rUsers.textContent =
-                (plan ? plan.included_users || 1 : "-") + " مستخدم";
-
-        const rProps = document.getElementById("sub_review-plan-props");
-        if (rProps)
-            rProps.textContent = plan
-                ? plan.properties_limit !== null
-                    ? plan.properties_limit
-                    : "غير محدود (∞)"
-                : "-";
-
-        const rStorage = document.getElementById("sub_review-plan-storage");
-        if (rStorage)
-            rStorage.textContent = plan
-                ? plan.storage_quota_gb !== null
-                    ? plan.storage_quota_gb + " GB"
-                    : "غير محدود (∞)"
-                : "-";
-
-        const rAuctions = document.getElementById("sub_review-plan-auctions");
-        if (rAuctions)
-            rAuctions.textContent = plan
-                ? plan.active_auctions_limit !== null
-                    ? plan.active_auctions_limit
-                    : "غير محدود (∞)"
-                : "-";
+        setElemText("sub_review-plan-name", plan ? plan.name : "-");
+        setElemText("sub_review-plan-users", (plan ? plan.included_users || 1 : "-") + " مستخدمين");
+        setElemText("sub_review-plan-props", plan ? (plan.properties_limit !== null ? plan.properties_limit : "غير محدود (∞)") : "-");
+        setElemText("sub_review-plan-storage", plan ? (plan.storage_quota_gb !== null ? plan.storage_quota_gb + " GB" : "غير محدود (∞)") : "-");
+        setElemText("sub_review-plan-auctions", plan ? (plan.active_auctions_limit !== null ? plan.active_auctions_limit : "غير محدود (∞)") : "-");
 
         const featRev = document.getElementById("sub_review-plan-features");
         if (featRev) {
-            if (
-                plan &&
-                Array.isArray(plan.features) &&
-                plan.features.length > 0
-            ) {
+            if (plan && Array.isArray(plan.features) && plan.features.length > 0) {
                 featRev.innerHTML = plan.features
-                    .map((f) => `<span class="badge bg-info">${f}</span>`)
+                    .map((f) => `<span class="badge bg-info me-1">${f}</span>`)
                     .join(" ");
             } else {
                 featRev.textContent = "-";
@@ -364,70 +295,32 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // Dates & Payments
-        const rStartDate = document.getElementById("sub_review-start-date");
-        if (rStartDate)
-            rStartDate.textContent =
-                document.getElementById("sub_start_date")?.value || "-";
+        const sDateVal = document.getElementById("start_date")?.value || document.getElementById("sub_start_date")?.value || "-";
+        const eDateVal = document.getElementById("end_date")?.value || document.getElementById("sub_end_date")?.value || "-";
+        setElemText("sub_review-start-date", sDateVal);
+        setElemText("sub_review-end-date", eDateVal);
 
-        const rEndDate = document.getElementById("sub_review-end-date");
-        if (rEndDate)
-            rEndDate.textContent =
-                document.getElementById("sub_end_date")?.value || "-";
+        const methodSelect = document.getElementById("payment_method") || document.getElementById("sub_payment-method-select");
+        const methodText = methodSelect && methodSelect.selectedIndex >= 0 ? methodSelect.options[methodSelect.selectedIndex].text : "-";
+        setElemText("sub_review-payment-method", methodText);
 
-        const isImmediate = document.getElementById(
-            "sub_activate_immediately",
-        )?.checked;
-        const rAct = document.getElementById("sub_review-activation-status");
-        if (rAct) {
-            rAct.className = isImmediate
-                ? "badge bg-success"
-                : "badge bg-warning";
-            rAct.textContent = isImmediate ? "مفعل فوراً" : "قيد المراجعة";
-        }
-
-        const payType =
-            document.getElementById("sub_payment-status")?.value || "";
+        const statusSelect = document.getElementById("payment_status") || document.getElementById("sub_payment-status");
+        const statusText = statusSelect && statusSelect.selectedIndex >= 0 ? statusSelect.options[statusSelect.selectedIndex].text : "مكتمل";
         const rPay = document.getElementById("sub_review-payment-status");
         if (rPay) {
-            const payMap = {
-                paid: ["تم الدفع", "bg-success"],
-                unpaid: ["لم يتم الدفع", "bg-danger"],
-                trial: ["فترة تجربة", "bg-info"],
-            };
-            const item = payMap[payType] || ["-", "bg-secondary"];
-            rPay.className = "badge " + item[1];
-            rPay.textContent = item[0];
+            rPay.textContent = statusText;
+            rPay.className = "badge bg-success";
         }
 
-        const rMethod = document.getElementById("sub_review-payment-method");
-        if (rMethod) {
-            rMethod.textContent =
-                payType === "paid" &&
-                paymentMethodSelect &&
-                paymentMethodSelect.selectedIndex >= 0
-                    ? paymentMethodSelect.options[
-                          paymentMethodSelect.selectedIndex
-                      ].text
-                    : "-";
+        const rAct = document.getElementById("sub_review-activation-status");
+        if (rAct) {
+            rAct.className = "badge bg-success";
+            rAct.textContent = "مفعل فوراً";
         }
-
-        // Calculate price
-        const basePrice = plan
-            ? parseFloat(plan.price_after_discount || plan.price || 0)
-            : 0;
-        const discountVal =
-            discountType?.value === "yes"
-                ? parseFloat(
-                      document.getElementById("sub_discount_value")?.value || 0,
-                  )
-                : 0;
-        const finalPrice =
-            payType === "trial" ? 0 : Math.max(0, basePrice - discountVal);
-        const rTotal = document.getElementById("sub_review-final-total");
-        if (rTotal) rTotal.textContent = formatNumber(finalPrice) + " ر.س";
     }
 
     form.addEventListener("stepChanged", function () {
+        recalculateDatesAndPricing();
         updateReviewSummary();
     });
 
@@ -439,16 +332,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (data.plan_id) {
             updatePlanDetails(data.plan_id);
         }
-        if (data.payment_type) {
-            handlePaymentStatusChange(data.payment_type);
-        }
-        if (data.has_discount && discountWrapper) {
-            discountWrapper.style.display =
-                data.has_discount === "yes" ? "block" : "none";
-        }
+        recalculateDatesAndPricing();
         updateReviewSummary();
     });
 
-    // Initial review sync
+    // Initial sync
+    recalculateDatesAndPricing();
     updateReviewSummary();
 });

@@ -21,11 +21,7 @@
 @section('page-script')
     <script>
         window.routes = Object.assign({}, window.routes || {}, {
-            massDelete: "{{ route('admin.mass-delete', [], false) }}",
-            acceptSubscription: "{{ route('admin.subscriptionManage.accept', ':id', false) }}",
-            rejectSubscription: "{{ route('admin.subscriptionManage.reject', ':id', false) }}",
-            massAccept: "{{ route('admin.subscriptionManage.mass-accept', [], false) }}",
-            massReject: "{{ route('admin.subscriptionManage.mass-reject', [], false) }}"
+            massDelete: "{{ route('admin.mass-delete', [], false) }}"
         });
     </script>
     @vite(['resources/assets/js/admin/subscriptions/index.js'])
@@ -37,31 +33,32 @@
     <x-data-table.page table-id="subscriptions-table">
         <x-slot:stats>
             <x-ui.stat-card title="إجمالي الاشتراكات" :value="$totalSubscriptions ?? 0" subtitle="جميع اشتراكات الشركات" icon="ti-packages"
-                color="primary" col="col-sm-6 col-xl" />
+                color="primary" col="col-sm-6 col-xl-3" />
 
             <x-ui.stat-card title="الاشتراكات النشطة" :value="$activeSubscriptions ?? 0" subtitle="اشتراكات سارية حالياً" icon="ti-circle-check"
-                color="success" col="col-sm-6 col-xl" />
-
-            <x-ui.stat-card title="طلبات جديدة معلقة" :value="$pendingSubscriptions ?? 0" subtitle="بانتظار الموافقة" icon="ti-clock-pause"
-                color="warning" col="col-sm-6 col-xl" />
+                color="success" col="col-sm-6 col-xl-3" />
 
             <x-ui.stat-card title="تقارب على الانتهاء" :value="$expiringSubscriptions ?? 0" subtitle="خلال 30 يوماً" icon="ti-alert-triangle"
-                color="info" col="col-sm-6 col-xl" />
+                color="info" col="col-sm-6 col-xl-3" />
 
             <x-ui.stat-card title="الاشتراكات المنتهية" :value="$expiredSubscriptions ?? 0" subtitle="انتهت صلاحيتها" icon="ti-clock-x"
-                color="danger" col="col-sm-6 col-xl" />
+                color="danger" col="col-sm-6 col-xl-3" />
         </x-slot:stats>
 
-        @if (!($isPendingPage ?? false) && !($isExpiringPage ?? false) && !($isExpiredPage ?? false))
-            <x-slot:filters>
-                <x-data-table.filters table="#subscriptions-table">
-                    <x-filter.select id="filter-status" filterKey="status" label="حالة الشركات"
-                        placeholder="اختر حالة الشركة" :enum="\App\Enums\Admin\Subscriptions\SubscriptionStatus::class" />
-                    <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
-                    <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
-                </x-data-table.filters>
-            </x-slot:filters>
-        @endif
+        <x-slot:filters>
+            <x-data-table.filters table="#subscriptions-table">
+                <x-filter.select id="filter-sub-status" filterKey="status" label="حالة الاشتراك"
+                    placeholder="اختر حالة الاشتراك" :options="$filterOptions['statuses'] ?? []" />
+                <x-filter.select id="filter-plan" filterKey="plan_id" label="الباقة" placeholder="اختر الباقة"
+                    :options="$filterOptions['plans'] ?? []" />
+                <x-filter.select id="filter-city" filterKey="city_id" label="مدينة الشركة" placeholder="اختر المدينة"
+                    :options="$filterOptions['cities'] ?? []" />
+                <x-filter.select id="filter-expiring" filterKey="expiring_in" label="قرب الانتهاء"
+                    placeholder="قرب الانتهاء" :options="$filterOptions['expiring'] ?? []" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
+            </x-data-table.filters>
+        </x-slot:filters>
 
         <x-slot:table>
             {!! $dataTable->table(
@@ -70,7 +67,4 @@
             ) !!}
         </x-slot:table>
     </x-data-table.page>
-
-    {{-- Confirmation Modal for Accept/Reject --}}
-    @include('admin.subscription-management.partials.confirm_modal')
 @endsection

@@ -116,11 +116,6 @@ class DashboardNotificationController extends Controller
     private function getAdminSidebarCounts(): array
     {
         try {
-            $pendingSubscriptions = \App\Models\Admin\Subscription\Subscription::where(
-                'status',
-                \App\Enums\Admin\Subscriptions\SubscriptionStatus::PENDING
-            )->count();
-
             $expiringSubscriptions = app(\App\Services\Admin\SubscriptionManagement\SubscriptionManagementService::class)
                 ->getExpiringSoonCount();
 
@@ -129,7 +124,7 @@ class DashboardNotificationController extends Controller
                 \App\Enums\Admin\Subscriptions\SubscriptionStatus::EXPIRED
             )->count();
 
-            $totalSubscriptions = $pendingSubscriptions + $expiringSubscriptions + $expiredSubscriptions;
+            $totalSubscriptions = $expiringSubscriptions + $expiredSubscriptions;
 
             $pendingContactRequests = \App\Models\Admin\PublicRequests\ContactRequest::where(
                 'status',
@@ -143,7 +138,6 @@ class DashboardNotificationController extends Controller
 
             $openTickets = \App\Models\Admin\Tickets\Ticket::whereIn('status', ['open', 'reopened'])->count();
 
-            cache()->put('admin:pending_subscriptions_count', $pendingSubscriptions, 60);
             cache()->put('admin:expiring_subscriptions_count', $expiringSubscriptions, 60);
             cache()->put('admin:expired_subscriptions_count', $expiredSubscriptions, 60);
             cache()->put('admin:pending_contact_requests_count', $pendingContactRequests, 60);
@@ -152,8 +146,8 @@ class DashboardNotificationController extends Controller
 
             return [
                 'subscriptions_total' => $totalSubscriptions,
-                'subscriptions_all' => $pendingSubscriptions,
-                'subscriptions_pending' => $pendingSubscriptions,
+                'subscriptions_all' => 0,
+                'subscriptions_pending' => 0,
                 'subscriptions_expiring' => $expiringSubscriptions,
                 'subscriptions_expired' => $expiredSubscriptions,
                 'contact_requests_pending' => $pendingContactRequests,

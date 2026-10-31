@@ -1,30 +1,8 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', function () {
-  const form = document.querySelector('form[data-form-validate]');
+  const form = document.getElementById('coupon-wizard-form');
   if (!form) return;
-
-  // ==================== SELECT2 INITIALIZATION ====================
-  if (window.jQuery) {
-    const $ = window.jQuery;
-    $(form).find('.select2').each(function () {
-      const $this = $(this);
-      if ($this.hasClass('select2-hidden-accessible')) return;
-
-      $this.wrap('<div class="position-relative"></div>');
-      $this.select2({
-        placeholder: $this.data('placeholder') || 'اختر خيارًا',
-        dropdownParent: $this.parent(),
-        allowClear: true,
-        width: '100%',
-        language: 'ar',
-        dir: 'rtl'
-      }).on('change', function () {
-        this.dispatchEvent(new Event('change', { bubbles: true }));
-        this.dispatchEvent(new Event('input', { bubbles: true }));
-      });
-    });
-  }
 
   // ==================== COUPON CODE GENERATOR ====================
   window.generateCouponCode = function () {

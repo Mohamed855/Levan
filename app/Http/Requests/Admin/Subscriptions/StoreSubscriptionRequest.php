@@ -7,7 +7,6 @@ namespace App\Http\Requests\Admin\Subscriptions;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Models\Admin\Tenants\Tenant;
-use Illuminate\Validation\Rule;
 
 class StoreSubscriptionRequest extends WizardFormRequest
 {
@@ -33,15 +32,15 @@ class StoreSubscriptionRequest extends WizardFormRequest
             'plan_id' => ['required', 'exists:plans,id'],
             'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'payment_type' => ['required', 'in:paid,unpaid,trial'],
-            'payment_method' => ['nullable', 'required_if:payment_type,paid', 'in:bank_transfer,online,cash'],
-            'receipt_upload' => [
-                'nullable',
-                Rule::requiredIf(fn () => $this->input('payment_type') === 'paid' && $this->input('payment_method') === 'bank_transfer'),
-                'file',
-                'mimes:jpeg,jpg,png,pdf',
-                'max:10240',
-            ],
+            'period_months' => ['nullable', 'integer', 'min:1', 'max:120'],
+            'coupon_code' => ['nullable', 'string', 'max:50'],
+            'payment_method' => ['required', 'string', 'in:bank_transfer,cash,card,system_free,online'],
+            'payment_status' => ['nullable', 'string', 'in:completed,pending,trial,paid,unpaid'],
+            'payment_type' => ['nullable', 'string', 'in:paid,unpaid,trial'],
+            'transaction_id' => ['nullable', 'string', 'max:255'],
+            'payment_proof' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:10240'],
+            'receipt_upload' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:10240'],
+            'admin_notes' => ['nullable', 'string', 'max:1000'],
             'has_discount' => ['nullable', 'in:yes,no'],
             'discount_value' => ['nullable', 'numeric', 'min:0'],
             'trial_end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
@@ -55,10 +54,12 @@ class StoreSubscriptionRequest extends WizardFormRequest
             'company_id.required' => 'يرجى اختيار الشركة',
             'company_id.exists' => 'الشركة المحددة غير موجودة',
             'plan_id.required' => 'يرجى اختيار الباقة',
+            'plan_id.exists' => 'الباقة المحددة غير صالحة',
             'start_date.required' => 'يرجى تحديد تاريخ البداية',
-            'payment_type.required' => 'يرجى تحديد حالة الدفع',
-            'payment_method.required_if' => 'يرجى اختيار وسيلة الدفع',
-            'receipt_upload.required' => 'يرجى رفع إيصال التحويل البنكي',
+            'end_date.after_or_equal' => 'تاريخ نهاية الاشتراك يجب أن يكون بعد أو مساوياً لتاريخ البداية',
+            'payment_method.required' => 'يرجى اختيار وسيلة الدفع',
+            'payment_proof.mimes' => 'ملف إيصال الدفع يجب أن يكون صورة أو PDF',
+            'payment_proof.max' => 'حجم ملف الإيصال يجب ألا يتجاوز 10 ميجابايت',
             'receipt_upload.mimes' => 'ملف الإيصال يجب أن يكون صورة أو PDF',
             'receipt_upload.max' => 'حجم ملف الإيصال يجب ألا يتجاوز 10 ميجابايت',
         ];

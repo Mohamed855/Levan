@@ -3,23 +3,6 @@
     $hideFooter = true;
     $hidePreloader = true;
     $hideLoader = true;
-
-    if (!isset($homeUrl)) {
-        if (request()->is('superadmin/*') || request()->is('superadmin')) {
-            $homeUrl = Route::has('admin.dashboard.index') ? route('admin.dashboard.index') : (Route::has('admin.dashboard') ? route('admin.dashboard') : url('/superadmin'));
-        } elseif ((function_exists('tenant') && tenant()) || request()->is('admin/*') || request()->is('admin')) {
-            $homeUrl = (function_exists('tenant') && tenant())
-                ? tenant_route_name('dashboard')
-                : (Route::has('tenant.dashboard') ? route('tenant.dashboard') : url('/admin/dashboard'));
-            if ($homeUrl === '#' || empty($homeUrl)) {
-                $homeUrl = url('/admin/dashboard');
-            }
-        } elseif (Route::has('site.index')) {
-            $homeUrl = route('site.index');
-        } else {
-            $homeUrl = url('/');
-        }
-    }
 @endphp
 
 @extends('layouts.web')
@@ -29,8 +12,7 @@
         <div class="container site-error-container">
             <article class="site-error-card">
                 <div class="site-error-brand">
-                    <a href="{{ $homeUrl }}"
-                        aria-label="{{ __('الرئيسية') }}">
+                    <a href="{{ url('/') }}" aria-label="{{ __('الرئيسية') }}">
                         <img src="{{ asset('static/brand/logos/lot/trans-profile.png') }}" alt="Levan">
                     </a>
                 </div>
@@ -49,8 +31,7 @@
                 <p class="site-error-desc">@yield('message', __('نعتذر، تعذر إتمام طلبك في الوقت الحالي.'))</p>
 
                 <div class="site-error-actions">
-                    <a href="{{ $homeUrl }}"
-                        class="site-error-btn">
+                    <a href="{{ url('/') }}" class="site-error-btn">
                         <i class="ti ti-home"></i>
                         <span>{{ __('العودة للرئيسية') }}</span>
                     </a>

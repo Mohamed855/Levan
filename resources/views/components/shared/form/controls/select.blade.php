@@ -19,6 +19,8 @@
 @php
     if ($enum) {
         $options = \App\Support\SelectOptions::fromEnum($enum);
+    } elseif (! is_iterable($options)) {
+        $options = [];
     }
 @endphp
 

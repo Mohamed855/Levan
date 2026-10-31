@@ -82,20 +82,9 @@ Route::prefix('superadmin')->name('admin.')->middleware(['auth:admin', 'admin.ac
     });
 
     Route::prefix('subscription-manage')->name('subscriptionManage.')->group(function () {
-        Route::middleware('can:subscriptions.pending.view')->group(function () {
-            Route::get('pending', [SubscriptionManagementController::class, 'pending'])->name('pending');
+        Route::middleware('can:subscriptions.view')->group(function () {
             Route::get('expiring', [SubscriptionManagementController::class, 'expiring'])->name('expiring');
             Route::get('expired', [SubscriptionManagementController::class, 'expired'])->name('expired');
-        });
-
-        Route::middleware('can:subscriptions.pending.approve')->group(function () {
-            Route::post('{subscription}/accept', [SubscriptionManagementController::class, 'accept'])->name('accept');
-            Route::post('mass-accept', [SubscriptionManagementController::class, 'massAccept'])->name('mass-accept');
-        });
-
-        Route::middleware('can:subscriptions.pending.reject')->group(function () {
-            Route::post('{subscription}/reject', [SubscriptionManagementController::class, 'reject'])->name('reject');
-            Route::post('mass-reject', [SubscriptionManagementController::class, 'massReject'])->name('mass-reject');
         });
     });
 

@@ -89,27 +89,18 @@ class AdminSubscriptionService
                     ? Carbon::parse($data['trial_end_date'])
                     : $this->calculatePeriodEndForPlan($startDate, $plan, $billingCycle));
 
-            $paymentType = $data['payment_type'] ?? 'unpaid';
+            $paymentType = $data['payment_type'] ?? $data['payment_status'] ?? 'paid';
+            $isTrial = $paymentType === 'trial' || $plan->isTrial();
 
-            if ($activateImmediately) {
-                $subStatus = SubscriptionStatus::ACTIVE;
-                $periodStatus = SubscriptionPeriodStatus::ACTIVE;
-            } elseif ($paymentType === 'paid') {
-                $subStatus = SubscriptionStatus::ACTIVE;
-                $periodStatus = SubscriptionPeriodStatus::ACTIVE;
-            } elseif ($paymentType === 'trial') {
-                $subStatus = SubscriptionStatus::TRIAL;
-                $periodStatus = SubscriptionPeriodStatus::ACTIVE;
-            } else {
-                $subStatus = SubscriptionStatus::PENDING;
-                $periodStatus = SubscriptionPeriodStatus::PENDING_PAYMENT;
-            }
+            // Subscriptions are created active immediately (no requests / pending status)
+            $subStatus = $isTrial ? SubscriptionStatus::TRIAL : SubscriptionStatus::ACTIVE;
+            $periodStatus = SubscriptionPeriodStatus::ACTIVE;
 
             $basePrice = ($billingCycle === 'yearly' && $plan->annual_offer_enabled)
                 ? (float) $plan->calculateAnnualOfferPrice()
                 : (float) $plan->price_after_discount;
             $discount = (($data['has_discount'] ?? 'no') === 'yes') ? (float) ($data['discount_value'] ?? 0) : 0;
-            $amount = ($paymentType === 'trial' || $plan->isTrial()) ? 0.00 : max(0.00, $basePrice - $discount);
+            $amount = ($isTrial) ? 0.00 : max(0.00, $basePrice - $discount);
 
             $subscription = Subscription::create([
                 'tenant_id' => $company->id,
@@ -123,16 +114,27 @@ class AdminSubscriptionService
                 'ends_at' => $endDate,
                 'next_payment_date' => $endDate,
                 'auto_renew' => false,
+                'notes' => $data['admin_notes'] ?? null,
                 'trial_end_date' => ! empty($data['trial_end_date']) ? $data['trial_end_date'] : ($plan->isTrial() ? $endDate->toDateString() : null),
             ]);
+
+            // Handle payment proof / receipt file if uploaded
+            if (isset($data['payment_proof']) && $data['payment_proof'] instanceof \Illuminate\Http\UploadedFile) {
+                $receiptPath = $data['payment_proof']->store('receipts', 'public');
+                $subscription->update(['transfer_bank_attachment' => $receiptPath]);
+            } elseif (isset($data['receipt_upload']) && $data['receipt_upload'] instanceof \Illuminate\Http\UploadedFile) {
+                $receiptPath = $data['receipt_upload']->store('receipts', 'public');
+                $subscription->update(['transfer_bank_attachment' => $receiptPath]);
+            }
 
             // Create subscription period with full snapshots
             $this->subscriptionPeriodService->createNewPeriod($subscription, $startDate, $endDate, $periodStatus, true, $plan);
 
             // Handle bill
             $paymentMethod = null;
-            if ($paymentType === 'paid' && ! empty($data['payment_method'])) {
-                $paymentMethod = PaymentMethod::tryFrom($data['payment_method']);
+            $rawMethod = $data['payment_method'] ?? null;
+            if (! empty($rawMethod)) {
+                $paymentMethod = PaymentMethod::tryFrom($rawMethod);
             }
 
             $bill = $this->billService->createPendingBill(
@@ -143,7 +145,7 @@ class AdminSubscriptionService
                 couponData: [
                     'discount_amount' => $discount,
                     'coupon_id' => null,
-                    'coupon_code' => null,
+                    'coupon_code' => $data['coupon_code'] ?? null,
                     'coupon_value' => null,
                     'coupon_type' => null,
                 ],
@@ -158,8 +160,8 @@ class AdminSubscriptionService
                 $bill->update([
                     'tenant_id' => $company->id,
                     'subscription_id' => $subscription->id,
-                    'status' => ($activateImmediately || $paymentType === 'paid') ? BillStatus::PAID : BillStatus::UNPAID,
-                    'paid_at' => ($activateImmediately || $paymentType === 'paid') ? now() : null,
+                    'status' => BillStatus::PAID,
+                    'paid_at' => now(),
                 ]);
             }
 

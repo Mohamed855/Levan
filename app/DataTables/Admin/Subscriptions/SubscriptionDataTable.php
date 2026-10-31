@@ -53,6 +53,14 @@ class SubscriptionDataTable extends AbstractDataTable
             $query->whereDate('ends_at', '<=', request('end_to'));
         }
 
+        // Filter: creation date
+        if (request()->filled('created_from')) {
+            $query->whereDate('created_at', '>=', request('created_from'));
+        }
+        if (request()->filled('created_to')) {
+            $query->whereDate('created_at', '<=', request('created_to'));
+        }
+
         // Filter: expiring soon (7 or 30 days)
         if (request()->filled('expiring_in')) {
             $days = (int) request('expiring_in');

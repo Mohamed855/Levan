@@ -28,30 +28,25 @@
                     </div>
 
                     <!-- API Token -->
-                    <div class="mb-4 col-md-6">
-                        <label for="etmam_api_token" class="form-label">API Key</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="etmam_api_token" name="etmam_api_token"
-                                value="{{ old('etmam_api_token', $settings->etmam_api_token) }}"
-                                placeholder="ادخل المفتاح المقدم من اتمام">
-
-                        </div>
-                    </div>
+                    <x-form.controls.input
+                        name="etmam_api_token"
+                        id="etmam_api_token"
+                        label="API Key"
+                        :value="$settings->etmam_api_token"
+                        placeholder="ادخل المفتاح المقدم من اتمام"
+                        col="col-md-6 mb-4"
+                    />
 
                     <!-- HMAC Secret -->
-                    <div class="mb-4 col-md-6">
-                        <label for="etmam_hmac_secret" class="form-label">API Secret</label>
-                        <div class="input-group">
-                            <input type="password" class="form-control" id="etmam_hmac_secret" name="etmam_hmac_secret"
-                                value="{{ old('etmam_hmac_secret', $settings->etmam_hmac_secret) }}"
-                                autocomplete="new-password"
-                                placeholder="ادخل المفتاح السري  المقدم من اتمام">
-                            <button class="btn btn-secondary" type="button"
-                                onclick="toggleVisibility('etmam_hmac_secret', this)">
-                                <i class="ti ti-eye"></i>
-                            </button>
-                        </div>
-                    </div>
+                    <x-form.controls.password
+                        name="etmam_hmac_secret"
+                        id="etmam_hmac_secret"
+                        label="API Secret"
+                        :value="$settings->etmam_hmac_secret"
+                        autocomplete="new-password"
+                        placeholder="ادخل المفتاح السري المقدم من اتمام"
+                        col="col-md-6 mb-4"
+                    />
 
                     <div class="mb-4 col-md-6">
                         <label for="etmam_enabled" class="form-label">حالة التكامل</label>
@@ -75,17 +70,4 @@
     </div>
 </div>
 
-<script>
-    // زر إظهار/إخفاء كلمة السر
-    function toggleVisibility(id, btn) {
-        const input = document.getElementById(id);
-        const icon = btn.querySelector('i');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.replace('ti-eye', 'ti-eye-off');
-        } else {
-            input.type = 'password';
-            icon.classList.replace('ti-eye-off', 'ti-eye');
-        }
-    }
-</script>
+
