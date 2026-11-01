@@ -394,108 +394,112 @@
                 }, 2000);
             }
 
-            if (retryBtn) {
-                retryBtn.addEventListener('click', function() {
+            function startReportGeneration() {
+                if (retryBtn) {
                     retryBtn.disabled = true;
-                    if (retryIcon) {
-                        retryIcon.className = 'ti ti-loader ti-spin me-1';
-                    }
-                    if (retryText) {
-                        retryText.textContent = 'جارٍ بدء التوليد...';
-                    }
-
-                    if (timeoutAlert) {
-                        timeoutAlert.classList.add('d-none');
-                    }
-                    if (errorAlert) {
-                        errorAlert.classList.add('d-none');
-                    }
-                    if (loadingBox) {
-                        loadingBox.classList.remove('d-none');
-                    }
-                    if (headerBadge) {
-                        headerBadge.innerHTML =
-                            '<span class="badge bg-info"><i class="ti ti-loader ti-spin me-1"></i>قيد الإعداد</span>';
-                    }
-                    updateProgressUI(10);
                     retryBtn.classList.add('d-none');
+                }
+                if (retryIcon) {
+                    retryIcon.className = 'ti ti-loader ti-spin me-1';
+                }
+                if (retryText) {
+                    retryText.textContent = 'جارٍ بدء التوليد...';
+                }
 
-                    // تقدم تدريجي متحرك أثناء انتظار الاستجابة
-                    let simulatedProgress = 10;
-                    const progressTimer = setInterval(() => {
-                        if (simulatedProgress < 85) {
-                            simulatedProgress += 5;
-                            updateProgressUI(simulatedProgress);
+                if (timeoutAlert) {
+                    timeoutAlert.classList.add('d-none');
+                }
+                if (errorAlert) {
+                    errorAlert.classList.add('d-none');
+                }
+                if (loadingBox) {
+                    loadingBox.classList.remove('d-none');
+                }
+                if (headerBadge) {
+                    headerBadge.innerHTML =
+                        '<span class="badge bg-info"><i class="ti ti-loader ti-spin me-1"></i>قيد الإعداد</span>';
+                }
+                updateProgressUI(10);
+
+                // تقدم تدريجي متحرك أثناء انتظار الاستجابة
+                let simulatedProgress = 10;
+                const progressTimer = setInterval(() => {
+                    if (simulatedProgress < 85) {
+                        simulatedProgress += 5;
+                        updateProgressUI(simulatedProgress);
+                    }
+                }, 400);
+
+                fetch(retryUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
                         }
-                    }, 400);
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        clearInterval(progressTimer);
 
-                    fetch(retryUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken,
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            clearInterval(progressTimer);
-
-                            if (data.success) {
-                                if (data.status === 'ready') {
-                                    if (headerBadge) {
-                                        headerBadge.innerHTML =
-                                            '<span class="badge bg-success">جاهز للتحميل</span>';
-                                    }
-                                    updateProgressUI(100);
-                                    if (window.toastr) {
-                                        toastr.success(data.message ||
-                                            'تم تحضير وتجهيز تقارير المزاد بنجاح!');
-                                    }
-                                    setTimeout(() => location.reload(), 700);
-                                    return;
+                        if (data.success) {
+                            if (data.status === 'ready') {
+                                if (headerBadge) {
+                                    headerBadge.innerHTML =
+                                        '<span class="badge bg-success">جاهز للتحميل</span>';
                                 }
-
+                                updateProgressUI(100);
                                 if (window.toastr) {
-                                    toastr.info(data.message || 'تم بدء تجهيز ملفات المزاد.');
+                                    toastr.success(data.message ||
+                                        'تم تحضير وتجهيز تقارير المزاد بنجاح!');
                                 }
-
-                                updateProgressUI(data.progress || 25);
-
-                                // تشغيل المتابعة بمهلة اليدوي الأطول بنسبة 50%
-                                startPolling(MANUAL_TIMEOUT_MS, true);
-                            } else {
-                                if (loadingBox) {
-                                    loadingBox.classList.add('d-none');
-                                }
-                                if (window.toastr) {
-                                    toastr.error(data.message || 'حدث خطأ أثناء بدء التوليد.');
-                                }
-                                if (errorAlert) {
-                                    if (errorText) {
-                                        errorText.textContent = data.message || 'تعذر تجهيز الملفات.';
-                                    }
-                                    errorAlert.classList.remove('d-none');
-                                }
-                                resetRetryButton('إعادة المحاولة');
+                                setTimeout(() => location.reload(), 700);
+                                return;
                             }
-                        })
-                        .catch(() => {
-                            clearInterval(progressTimer);
+
+                            if (window.toastr) {
+                                toastr.info(data.message || 'تم بدء تجهيز ملفات المزاد.');
+                            }
+
+                            updateProgressUI(data.progress || 25);
+
+                            // تشغيل المتابعة بمهلة اليدوي الأطول بنسبة 50%
+                            startPolling(MANUAL_TIMEOUT_MS, true);
+                        } else {
                             if (loadingBox) {
                                 loadingBox.classList.add('d-none');
                             }
                             if (window.toastr) {
-                                toastr.error('حدث خطأ في الاتصال بالخادم.');
+                                toastr.error(data.message || 'حدث خطأ أثناء بدء التوليد.');
+                            }
+                            if (errorAlert) {
+                                if (errorText) {
+                                    errorText.textContent = data.message || 'تعذر تجهيز الملفات.';
+                                }
+                                errorAlert.classList.remove('d-none');
                             }
                             resetRetryButton('إعادة المحاولة');
-                        });
-                });
+                        }
+                    })
+                    .catch(() => {
+                        clearInterval(progressTimer);
+                        if (loadingBox) {
+                            loadingBox.classList.add('d-none');
+                        }
+                        if (window.toastr) {
+                            toastr.error('حدث خطأ في الاتصال بالخادم.');
+                        }
+                        resetRetryButton('إعادة المحاولة');
+                    });
             }
 
-            // إذا كان المزاد قيد الإعداد عند فتح الصفحة، نبدأ الـ polling التلقائي بمهلة AUTO_TIMEOUT_MS
+            if (retryBtn) {
+                retryBtn.addEventListener('click', startReportGeneration);
+            }
+
+            // إذا كان المزاد قيد الانتظار أو الإعداد، نبدأ التوليد التلقائي فور فتح الصفحة ليشاهد المستخدم شريط التقدم مباشرة
             @if ($auction->latestReportGeneration && in_array($auction->latestReportGeneration->status, ['queued', 'processing']))
-                startPolling(AUTO_TIMEOUT_MS, false);
+                startReportGeneration();
             @endif
         });
     </script>

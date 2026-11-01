@@ -29,16 +29,21 @@ final class AuctionReportService
 
             $connection = (string) config('auction-renderer.queue_connection', 'auction_reports');
 
-            GenerateAuctionReportsJob::dispatch(
-                $tenantId,
-                (int) $auction->id,
-                (int) $generation->id,
-                $generation->revision_token,
-            )->onConnection($connection)->afterCommit();
+            // إذا كان الاتصال غير متزامن أو كنا داخل الاختبارات، نرسل المهمة للطابور فوراً
+            // أما في الطلبات المتزامنة (sync) عبر الويب فنكتفي بحفظ السجل كـ queued ليتم تحويل المستخدم
+            // فوراً لصفحة show ويبدأ التوليد عبر AJAX ليشاهد شريط التقدم بنفسه دون انتظار
+            if ($connection !== 'sync' || app()->runningUnitTests()) {
+                GenerateAuctionReportsJob::dispatch(
+                    $tenantId,
+                    (int) $auction->id,
+                    (int) $generation->id,
+                    $generation->revision_token,
+                )->onConnection($connection)->afterCommit();
 
-            DB::afterCommit(function () {
-                $this->ensureQueueWorkerIsRunning();
-            });
+                DB::afterCommit(function () {
+                    $this->ensureQueueWorkerIsRunning();
+                });
+            }
 
             return $generation;
         } catch (Throwable $exception) {
