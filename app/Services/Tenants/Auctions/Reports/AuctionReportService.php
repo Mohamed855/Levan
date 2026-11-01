@@ -126,7 +126,28 @@ final class AuctionReportService
             }
 
             // على خوادم لينكس والويب، PHP_BINARY داخل PHP-FPM يشير لمسار php-fpm وليس مفسر السطر CLI
-            $php = env('PHP_CLI_BINARY') ?: (str_contains(PHP_BINARY, 'fpm') ? 'php' : PHP_BINARY);
+            $php = env('PHP_CLI_BINARY');
+            if (! $php) {
+                $fpmReplacement = str_replace(['sbin/php-fpm', 'sbin/fpm'], ['bin/php', 'bin/php'], PHP_BINARY);
+                if (@file_exists($fpmReplacement) && @is_executable($fpmReplacement)) {
+                    $php = $fpmReplacement;
+                } else {
+                    foreach ([
+                        '/usr/local/bin/ea-php82',
+                        '/opt/cpanel/ea-php82/root/usr/bin/php',
+                        '/usr/local/bin/ea-php83',
+                        '/opt/cpanel/ea-php83/root/usr/bin/php',
+                        '/usr/bin/php8.2',
+                        '/usr/bin/php82',
+                    ] as $candidate) {
+                        if (@file_exists($candidate) && @is_executable($candidate)) {
+                            $php = $candidate;
+                            break;
+                        }
+                    }
+                }
+            }
+            $php = $php ?: (str_contains(PHP_BINARY, 'fpm') ? 'php' : PHP_BINARY);
             $cmd = sprintf(
                 '"%s" "%s" queue:work %s --queue=%s --stop-when-empty --tries=3 > /dev/null 2>&1 &',
                 $php,

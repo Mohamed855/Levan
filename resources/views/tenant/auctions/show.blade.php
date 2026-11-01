@@ -151,9 +151,11 @@
                         class="p-3 mb-3 border rounded bg-light-subtle {{ $isProcessing ? '' : 'd-none' }}">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="fw-semibold small text-primary" id="reports-loading-title">
-                                <i class="ti ti-loader ti-spin me-1"></i>{{ $gen?->status === 'queued' ? 'في قائمة الانتظار لبدء تحضير التقارير...' : 'جارٍ تحضير وتجهيز تقارير المزاد...' }}
+                                <i
+                                    class="ti ti-loader ti-spin me-1"></i>{{ $gen?->status === 'queued' ? 'جار إعداد تقارير المزاد ، برجاء الانتظار...' : 'جارٍ تحضير وتجهيز تقارير المزاد...' }}
                             </span>
-                            <span class="fw-bold text-primary small" id="reports-progress-percent">{{ $initialProgress }}%</span>
+                            <span class="fw-bold text-primary small"
+                                id="reports-progress-percent">{{ $initialProgress }}%</span>
                         </div>
                         <div class="progress" style="height: 10px;" role="progressbar"
                             aria-valuenow="{{ $initialProgress }}" aria-valuemin="0" aria-valuemax="100">
@@ -355,9 +357,9 @@
                             if (data.status === 'processing' || data.status === 'queued') {
                                 const loadingTitle = document.getElementById('reports-loading-title');
                                 if (loadingTitle) {
-                                    loadingTitle.innerHTML = data.status === 'queued'
-                                        ? '<i class="ti ti-loader ti-spin me-1"></i>في قائمة الانتظار لبدء تحضير التقارير...'
-                                        : '<i class="ti ti-loader ti-spin me-1"></i>جارٍ تحضير وتجهيز تقارير المزاد...';
+                                    loadingTitle.innerHTML = data.status === 'queued' ?
+                                        '<i class="ti ti-loader ti-spin me-1"></i>جار إعداد تقارير المزاد ، برجاء الانتظار...' :
+                                        '<i class="ti ti-loader ti-spin me-1"></i>جارٍ تحضير وتجهيز تقارير المزاد...';
                                 }
                                 if (data.progress !== undefined && data.progress !== null) {
                                     updateProgressUI(data.progress);
@@ -454,7 +456,8 @@
                                     }
                                     updateProgressUI(100);
                                     if (window.toastr) {
-                                        toastr.success(data.message || 'تم تحضير وتجهيز تقارير المزاد بنجاح!');
+                                        toastr.success(data.message ||
+                                            'تم تحضير وتجهيز تقارير المزاد بنجاح!');
                                     }
                                     setTimeout(() => location.reload(), 700);
                                     return;
