@@ -151,8 +151,7 @@
                         class="p-3 mb-3 border rounded bg-light-subtle {{ $isProcessing ? '' : 'd-none' }}">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="fw-semibold small text-primary" id="reports-loading-title">
-                                <i
-                                    class="ti ti-loader ti-spin me-1"></i>{{ $gen?->status === 'queued' ? 'جار إعداد تقارير المزاد ، برجاء الانتظار...' : 'جارٍ تحضير وتجهيز تقارير المزاد...' }}
+                                <i class="ti ti-loader ti-spin me-1"></i>جارٍ تحضير وتجهيز تقارير المزاد...
                             </span>
                             <span class="fw-bold text-primary small"
                                 id="reports-progress-percent">{{ $initialProgress }}%</span>
@@ -268,9 +267,9 @@
             const retryUrl = @json(tenant_route_name('auctions.reports.retry', $auction->id));
             const csrfToken = '{{ csrf_token() }}';
 
-            // مهلة التوليد: التلقائي 120 ثانية (تتيح للـ Cron Job التقاط المهمة والانتهاء)، واليدوي 150 ثانية
-            const AUTO_TIMEOUT_MS = 120000;
-            const MANUAL_TIMEOUT_MS = 150000;
+            // مهلة التوليد: التلقائي 45 ثانية، واليدوي 68 ثانية (أكبر بـ 50%)
+            const AUTO_TIMEOUT_MS = 45000;
+            const MANUAL_TIMEOUT_MS = 68000;
 
             const loadingBox = document.getElementById('reports-loading-box');
             const progressBar = document.getElementById('reports-progress-bar');
@@ -355,12 +354,6 @@
                         .then(res => res.json())
                         .then(data => {
                             if (data.status === 'processing' || data.status === 'queued') {
-                                const loadingTitle = document.getElementById('reports-loading-title');
-                                if (loadingTitle) {
-                                    loadingTitle.innerHTML = data.status === 'queued' ?
-                                        '<i class="ti ti-loader ti-spin me-1"></i>جار إعداد تقارير المزاد ، برجاء الانتظار...' :
-                                        '<i class="ti ti-loader ti-spin me-1"></i>جارٍ تحضير وتجهيز تقارير المزاد...';
-                                }
                                 if (data.progress !== undefined && data.progress !== null) {
                                     updateProgressUI(data.progress);
                                 }
