@@ -85,6 +85,13 @@ final class BrowsershotDocumentRenderer implements BrowserDocumentRenderer
             }
         }
 
+        $nodeModulePath = config('auction-renderer.node_module_path');
+        if ($nodeModulePath && @file_exists($nodeModulePath)) {
+            $browser->setNodeModulePath($nodeModulePath);
+        } elseif ($nodeBinary && @file_exists(dirname($nodeBinary, 2).'/lib/node_modules')) {
+            $browser->setNodeModulePath(dirname($nodeBinary, 2).'/lib/node_modules');
+        }
+
         $npmBinary = config('auction-renderer.npm_binary');
         if ($npmBinary && @file_exists($npmBinary)) {
             $browser->setNpmBinary($npmBinary);

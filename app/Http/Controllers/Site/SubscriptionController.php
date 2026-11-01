@@ -16,12 +16,14 @@ use App\Models\Admin\Bank\Bank;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
+use App\Models\Admin\Tenants\Tenant;
 use App\Services\Shared\Bills\BillService;
 use App\Services\Shared\Coupons\CouponService;
 use App\Services\Shared\Payment\Moyasar\MoyasarCallbackHandler;
 use App\Services\Shared\Payment\Moyasar\MoyasarFormConfiguration;
 use App\Services\Shared\Registration\RegistrationOtpService;
 use App\Services\Shared\Subscription\SubscriptionService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -259,17 +261,14 @@ class SubscriptionController extends Controller
             $outcome = $this->subscriptionService->completeOnlineSubscription($result['bill'], $result['payment']);
             $request->session()->forget(['checkout_verification', 'checkout_coupon_code']);
 
-            return redirect()->to(url('/'.$outcome['tenant_id'].'/login'))
-                ->with('success', 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول');
-            //
+            return $this->redirectToTenantLogin($outcome['tenant_id']);
         } catch (PaymentVerificationException $e) {
             $bill = $this->findCheckoutBill($request->string('bill')->toString());
 
             if ($bill?->status === BillStatus::PAID && $bill->tenant_id) {
                 $request->session()->forget(['checkout_verification', 'checkout_coupon_code']);
 
-                return redirect()->to(url('/'.$bill->tenant_id.'/login'))
-                    ->with('success', 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول');
+                return $this->redirectToTenantLogin($bill->tenant_id);
             }
 
             if ($bill) {
@@ -279,18 +278,15 @@ class SubscriptionController extends Controller
 
             return redirect()->route('site.index')->with('error', $e->getMessage());
         } catch (SubscriptionCreationException $e) {
-            //
             return redirect()->route('site.index')->with('error', $e->getMessage());
         } catch (\Throwable $e) {
-            //
             report($e);
 
             $bill = $this->findCheckoutBill($request->string('bill')->toString());
             if ($bill?->status === BillStatus::PAID && $bill->tenant_id) {
                 $request->session()->forget(['checkout_verification', 'checkout_coupon_code']);
 
-                return redirect()->to(url('/'.$bill->tenant_id.'/login'))
-                    ->with('success', 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول');
+                return $this->redirectToTenantLogin($bill->tenant_id);
             }
 
             if ($bill) {
@@ -300,6 +296,23 @@ class SubscriptionController extends Controller
 
             return redirect()->route('site.index')->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
         }
+    }
+
+    private function redirectToTenantLogin(string $tenantId): RedirectResponse
+    {
+        request()->session()->put('tenant_login_context', $tenantId);
+        cookie()->queue(cookie('tenant_login_hint', $tenantId, 60 * 24 * 30));
+
+        $tenant = Tenant::find($tenantId);
+        if ($tenant && $tenant->access_type === 'domain' && $tenant->custom_domain_active && $domain = $tenant->domains()->first()) {
+            $scheme = request()->getScheme() ?: (app()->environment('local') ? 'http' : 'https');
+
+            return redirect()->away("{$scheme}://{$domain->domain}/login")
+                ->with('success', 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول');
+        }
+
+        return redirect()->to(url('/admin/login'))
+            ->with('success', 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول');
     }
 
     public function retryCheckout(string $billNumber)

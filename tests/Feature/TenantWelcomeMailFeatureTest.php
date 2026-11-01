@@ -296,11 +296,11 @@ class TenantWelcomeMailFeatureTest extends TestCase
         });
 
         $callback = route('site.plans.checkout.callback', ['bill' => $bill->bill_number, 'id' => 'pay_welcome_test']);
-        $this->get($callback)->assertRedirect(url('/'.$tenant->id.'/login'))->assertSessionHas('success');
+        $this->get($callback)->assertRedirect(url('/admin/login'))->assertSessionHas('success');
         self::assertSame(BillStatus::PAID, $bill->fresh()->status);
         $this->assertWelcomeDelivered($transport, 'salem@payment.test', $tenant);
 
-        $this->get($callback)->assertRedirect(url('/'.$tenant->id.'/login'));
+        $this->get($callback)->assertRedirect(url('/admin/login'));
         $this->assertWelcomeDelivered($transport, 'salem@payment.test', $tenant);
     }
 

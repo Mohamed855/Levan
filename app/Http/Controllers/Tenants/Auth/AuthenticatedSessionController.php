@@ -29,10 +29,13 @@ class AuthenticatedSessionController extends Controller
         $isCentralDomain = in_array($currentHost, $centralDomains) || in_array('www.'.$currentHost, $centralDomains);
 
         // Tenant-specific entry links resolve context before opening the shared login.
-        if ($isCentralDomain && request()->routeIs('path.login', 'central-domain-*.path.login')) {
-            $tenantId = tenant('id');
-            session()->put('tenant_login_context', $tenantId);
-            cookie()->queue(cookie('tenant_login_hint', $tenantId, 60 * 24 * 30));
+        if ($isCentralDomain && request()->routeIs('path.login', '*.path.login', 'central-domain-*.path.login')) {
+            $tenantId = tenant('id') ?? request()->route('tenant');
+            if ($tenantId) {
+                session()->put('tenant_login_context', $tenantId);
+                cookie()->queue(cookie('tenant_login_hint', $tenantId, 60 * 24 * 30));
+            }
+            session()->reflash();
 
             return redirect('/admin/login');
         }
