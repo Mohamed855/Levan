@@ -43,11 +43,59 @@ final class BrowsershotDocumentRenderer implements BrowserDocumentRenderer
     private function browser(string $html): Browsershot
     {
         $browser = Browsershot::html($html);
-        foreach (['node_binary' => 'setNodeBinary', 'npm_binary' => 'setNpmBinary', 'chrome_path' => 'setChromePath'] as $key => $method) {
-            if ($value = config('auction-renderer.'.$key)) {
-                $browser->{$method}($value);
+
+        if (config('auction-renderer.no_sandbox', true)) {
+            $browser->noSandbox();
+        }
+
+        $browser->addChromiumArguments([
+            'disable-setuid-sandbox',
+            'disable-dev-shm-usage',
+            'disable-gpu',
+        ]);
+
+        $chromePath = config('auction-renderer.chrome_path');
+        if ($chromePath && @file_exists($chromePath)) {
+            $browser->setChromePath($chromePath);
+        } elseif (PHP_OS_FAMILY !== 'Windows') {
+            foreach ([
+                '/usr/bin/chromium-browser',
+                '/usr/bin/chromium',
+                '/usr/bin/google-chrome-stable',
+                '/usr/bin/google-chrome',
+                '/snap/bin/chromium',
+            ] as $candidate) {
+                if (@file_exists($candidate) && @is_executable($candidate)) {
+                    $browser->setChromePath($candidate);
+                    break;
+                }
             }
         }
+
+        $nodeBinary = config('auction-renderer.node_binary');
+        if ($nodeBinary && @file_exists($nodeBinary)) {
+            $browser->setNodeBinary($nodeBinary);
+        } elseif (PHP_OS_FAMILY !== 'Windows') {
+            foreach (['/usr/bin/node', '/usr/local/bin/node', '/usr/bin/nodejs'] as $candidate) {
+                if (@file_exists($candidate) && @is_executable($candidate)) {
+                    $browser->setNodeBinary($candidate);
+                    break;
+                }
+            }
+        }
+
+        $npmBinary = config('auction-renderer.npm_binary');
+        if ($npmBinary && @file_exists($npmBinary)) {
+            $browser->setNpmBinary($npmBinary);
+        } elseif (PHP_OS_FAMILY !== 'Windows') {
+            foreach (['/usr/bin/npm', '/usr/local/bin/npm'] as $candidate) {
+                if (@file_exists($candidate) && @is_executable($candidate)) {
+                    $browser->setNpmBinary($candidate);
+                    break;
+                }
+            }
+        }
+
         $browser->timeout(max(180, (int) config('auction-renderer.timeout', 180)))
             ->waitUntilNetworkIdle();
 

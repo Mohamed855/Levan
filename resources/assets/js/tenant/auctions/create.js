@@ -702,7 +702,8 @@ document.addEventListener("DOMContentLoaded", () => {
         )?.value;
         $("#review-whatsapp-date").text(whatsappDate || "-");
 
-        // Step 5: Results & Boards
+        /*
+        // Step 5: Results & Boards (معطل مؤقتاً)
         const soldCount = form.querySelectorAll(
             'select[name$="[status]"] option[value="sold"]:checked, select[name*="[status]"] option[value="sold"]:checked',
         ).length;
@@ -739,7 +740,7 @@ document.addEventListener("DOMContentLoaded", () => {
             $("#review-board-after-count").text(`${afterBoardFiles} صور جديدة`);
         }
 
-        // Step 6: Marketing Campaigns
+        // Step 6: Marketing Campaigns (معطل مؤقتاً)
         const campaignRows = form.querySelectorAll(".campaign-row");
         $("#review-campaigns-count").text(`${campaignRows.length} حملة`);
 
@@ -763,6 +764,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (evidenceCount > 0) {
             $("#review-evidence-count").text(`${evidenceCount} ملف جديد`);
         }
+        */
     }
 
     function syncTimeConstraints() {

@@ -199,14 +199,17 @@
                 </div>
             </div>
 
-            @if ($auction->attachments->isNotEmpty())
+            @php
+                $auctionDocs = $auction->attachments->where('category', 'auction_doc');
+            @endphp
+            @if ($auctionDocs->isNotEmpty())
                 <div class="card mb-4">
                     <div class="card-header pb-2">
                         <h6 class="card-title mb-0">وثائق ومرفقات المزاد</h6>
                     </div>
                     <div class="card-body">
                         <div class="assignment-file-list d-flex flex-wrap gap-2">
-                            @foreach ($auction->attachments as $attachment)
+                            @foreach ($auctionDocs as $attachment)
                                 <x-ui.file-card :file="$attachment" layout="card" />
                             @endforeach
                         </div>
@@ -413,6 +416,19 @@
                         .then(res => res.json())
                         .then(data => {
                             if (data.success) {
+                                if (data.status === 'ready') {
+                                    if (headerBadge) {
+                                        headerBadge.innerHTML =
+                                            '<span class="badge bg-success">جاهز للتحميل</span>';
+                                    }
+                                    updateProgressUI(100);
+                                    if (window.toastr) {
+                                        toastr.success(data.message || 'تم تحضير وتجهيز تقارير المزاد بنجاح!');
+                                    }
+                                    setTimeout(() => location.reload(), 700);
+                                    return;
+                                }
+
                                 if (window.toastr) {
                                     toastr.info(data.message || 'تم بدء تجهيز ملفات المزاد.');
                                 }
@@ -439,6 +455,12 @@
                             } else {
                                 if (window.toastr) {
                                     toastr.error(data.message || 'حدث خطأ أثناء بدء التوليد.');
+                                }
+                                if (errorAlert) {
+                                    if (errorText) {
+                                        errorText.textContent = data.message || 'تعذر تجهيز الملفات.';
+                                    }
+                                    errorAlert.classList.remove('d-none');
                                 }
                                 retryBtn.disabled = false;
                                 if (retryText) {

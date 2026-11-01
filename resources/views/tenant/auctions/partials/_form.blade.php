@@ -6,8 +6,8 @@
         ['id' => 'step-assignment', 'title' => 'المنصة والمشروع'],
         ['id' => 'step-properties', 'title' => 'العقارات المرتبطة'],
         ['id' => 'step-reports-attachments', 'title' => 'التقارير والمرفقات'],
-        ['id' => 'step-results-boards', 'title' => 'النتائج واللوحات'],
-        ['id' => 'step-campaigns', 'title' => 'الحملات التسويقية'],
+        // ['id' => 'step-results-boards', 'title' => 'النتائج واللوحات'],
+        // ['id' => 'step-campaigns', 'title' => 'الحملات التسويقية'],
         ['id' => 'step-review', 'title' => 'المراجعة والإرسال'],
     ];
 @endphp
@@ -115,7 +115,8 @@
             </x-form.wizard.actions>
         </x-form.wizard.step>
 
-        {{-- الخطوة 5: النتائج واللوحات --}}
+        {{-- الخطوة 5: النتائج واللوحات (معطلة مؤقتاً) --}}
+        {{--
         <x-form.wizard.step id="step-results-boards" :fields="['property_results', 'board_images_before', 'board_images_after']">
             @include('tenant.auctions.partials.steps.step5-results-boards', ['auction' => $auction])
 
@@ -129,8 +130,10 @@
                 </div>
             </x-form.wizard.actions>
         </x-form.wizard.step>
+        --}}
 
-        {{-- الخطوة 6: الحملات التسويقية --}}
+        {{-- الخطوة 6: الحملات التسويقية (معطلة مؤقتاً) --}}
+        {{--
         <x-form.wizard.step id="step-campaigns" :fields="['marketing.campaigns', 'marketing.links', 'marketing_evidence']">
             @include('tenant.auctions.partials.steps.step6-campaigns', ['auction' => $auction])
 
@@ -144,8 +147,9 @@
                 </div>
             </x-form.wizard.actions>
         </x-form.wizard.step>
+        --}}
 
-        {{-- الخطوة 7: المراجعة والإرسال --}}
+        {{-- الخطوة 5: المراجعة والإرسال --}}
         <x-form.wizard.step id="step-review" :fields="[]">
             @include('tenant.auctions.partials.steps.step7-review', ['auction' => $auction])
 

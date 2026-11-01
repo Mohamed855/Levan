@@ -159,7 +159,17 @@ class GenerateAuctionReportsJob implements ShouldQueue
                 'completed_at' => now(),
             ]);
 
-            throw $e; // أعد الرمي لكي يُعاد تشغيل الـ Job بعد backoff
+            \Illuminate\Support\Facades\Log::error('GenerateAuctionReportsJob failed: ' . $e->getMessage(), [
+                'tenant_id' => $this->tenantId,
+                'auction_id' => $this->auctionId,
+                'generation_id' => $this->generationId,
+                'exception' => $e,
+            ]);
+
+            $isSync = $this->connection === 'sync' || config('auction-renderer.queue_connection') === 'sync';
+            if (! $isSync) {
+                throw $e; // أعد الرمي لكي يُعاد تشغيل الـ Job بعد backoff في الـ Queue
+            }
         } finally {
             @unlink($outputsTmp);
             @unlink($reportTmp);

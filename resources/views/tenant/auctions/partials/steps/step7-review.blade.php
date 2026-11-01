@@ -7,7 +7,7 @@
     <div class="col-12 d-flex flex-column gap-4">
         <div class="alert alert-warning mb-0 d-flex align-items-center gap-2" role="alert">
             <i class="ti ti-alert-triangle fs-3" aria-hidden="true"></i>
-            <span>برجاء مراجعة بيانات المزاد والإسناد والعقارات والنتائج والحملات قبل الاعتماد النهائي.</span>
+            <span>برجاء مراجعة بيانات المزاد والإسناد والعقارات والتقارير قبل الاعتماد النهائي.</span>
         </div>
 
         <div class="row g-3">
@@ -120,7 +120,8 @@
                 </x-form.wizard.review-card>
             </div>
 
-            {{-- 5. النتائج واللوحات --}}
+            {{-- 5. النتائج واللوحات (معطلة مؤقتاً) --}}
+            {{--
             <div class="col-lg-6">
                 <x-form.wizard.review-card title="النتائج واللوحات" step="5" col="" class="h-100 assignment-review__card">
                     <dl class="row mb-0 small">
@@ -141,8 +142,10 @@
                     </dl>
                 </x-form.wizard.review-card>
             </div>
+            --}}
 
-            {{-- 6. الحملات التسويقية --}}
+            {{-- 6. الحملات التسويقية (معطلة مؤقتاً) --}}
+            {{--
             <div class="col-lg-6">
                 <x-form.wizard.review-card title="الحملات التسويقية" step="6" col="" class="h-100 assignment-review__card">
                     <dl class="row mb-0 small">
@@ -162,6 +165,7 @@
                     </dl>
                 </x-form.wizard.review-card>
             </div>
+            --}}
         </div>
     </div>
 </div>

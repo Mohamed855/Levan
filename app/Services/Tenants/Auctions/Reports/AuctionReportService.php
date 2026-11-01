@@ -107,10 +107,10 @@ final class AuctionReportService
         }
 
         $queue = 'auction-reports';
-        $php = PHP_BINARY;
         $artisan = base_path('artisan');
 
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $php = PHP_BINARY;
             $cmd = sprintf(
                 'start "" /B "%s" "%s" queue:work %s --queue=%s --stop-when-empty --tries=3',
                 $php,
@@ -120,6 +120,13 @@ final class AuctionReportService
             );
             pclose(popen('cmd /c ' . $cmd, 'r'));
         } else {
+            if (! function_exists('exec')) {
+                Log::warning('AuctionReportService: exec() is disabled in php.ini; cannot spawn background queue worker.');
+                return;
+            }
+
+            // على خوادم لينكس والويب، PHP_BINARY داخل PHP-FPM يشير لمسار php-fpm وليس مفسر السطر CLI
+            $php = env('PHP_CLI_BINARY') ?: (str_contains(PHP_BINARY, 'fpm') ? 'php' : PHP_BINARY);
             $cmd = sprintf(
                 '"%s" "%s" queue:work %s --queue=%s --stop-when-empty --tries=3 > /dev/null 2>&1 &',
                 $php,

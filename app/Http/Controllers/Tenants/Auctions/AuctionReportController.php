@@ -124,12 +124,25 @@ final class AuctionReportController extends Controller
         try {
             $generation = $this->reportService->retryLatest($auction, $tenantId);
 
+            $isReady = $generation->isReady();
+            $isFailed = $generation->isFailed();
+
+            if ($isFailed) {
+                return response()->json([
+                    'success' => false,
+                    'status' => 'failed',
+                    'message' => $generation->error_message ?: 'تعذر تجهيز ملفات المزاد.',
+                ], 422);
+            }
+
             return response()->json([
                 'success' => true,
                 'status' => $generation->status,
-                'progress' => (int) ($generation->progress ?? 0),
-                'message' => 'تمت جدولة إعادة تجهيز ملفات المزاد.',
-            ], 202);
+                'progress' => (int) ($generation->progress ?? ($isReady ? 100 : 0)),
+                'message' => $isReady
+                    ? 'تم تجهيز ملفات المزاد بنجاح.'
+                    : 'تمت جدولة إعادة تجهيز ملفات المزاد.',
+            ], $isReady ? 200 : 202);
         } catch (\Throwable $e) {
             Log::error('Auction report retry failed.', ['auction_id' => $auction->id, 'exception' => $e]);
 
