@@ -189,7 +189,7 @@
                         @can('auctions.edit')
                             <button type="button" id="btn-retry-reports"
                                 class="btn btn-outline-primary mt-2 {{ $isProcessing ? 'd-none' : '' }}">
-                                <i class="ti ti-refresh me-1"></i>
+                                <i id="btn-retry-icon" class="ti ti-refresh me-1"></i>
                                 <span id="btn-retry-text">
                                     {{ $isReady ? 'إعادة توليد الملفات' : ($isFailed ? 'إعادة محاولة الإعداد' : 'بدء تجهيز ملفات المزاد') }}
                                 </span>
@@ -284,7 +284,21 @@
             const errorText = document.getElementById('reports-error-text');
             const headerBadge = document.getElementById('reports-header-badge');
             const retryBtn = document.getElementById('btn-retry-reports');
+            const retryIcon = document.getElementById('btn-retry-icon');
             const retryText = document.getElementById('btn-retry-text');
+
+            function resetRetryButton(text = 'إعادة المحاولة') {
+                if (retryBtn) {
+                    retryBtn.disabled = false;
+                    retryBtn.classList.remove('d-none');
+                }
+                if (retryIcon) {
+                    retryIcon.className = 'ti ti-refresh me-1';
+                }
+                if (retryText) {
+                    retryText.textContent = text;
+                }
+            }
 
             let pollInterval = null;
 
@@ -328,13 +342,7 @@
                         if (timeoutAlert) {
                             timeoutAlert.classList.remove('d-none');
                         }
-                        if (retryBtn) {
-                            retryBtn.classList.remove('d-none');
-                            retryBtn.disabled = false;
-                            if (retryText) {
-                                retryText.textContent = 'توليد ملفات المزاد الآن';
-                            }
-                        }
+                        resetRetryButton('توليد ملفات المزاد الآن');
                         if (headerBadge) {
                             headerBadge.innerHTML =
                                 '<span class="badge bg-danger text-white">انتهت المهلة</span>';
@@ -380,13 +388,7 @@
                                     }
                                     errorAlert.classList.remove('d-none');
                                 }
-                                if (retryBtn) {
-                                    retryBtn.classList.remove('d-none');
-                                    retryBtn.disabled = false;
-                                    if (retryText) {
-                                        retryText.textContent = 'إعادة محاولة الإعداد';
-                                    }
-                                }
+                                resetRetryButton('إعادة محاولة الإعداد');
                                 if (headerBadge) {
                                     headerBadge.innerHTML =
                                         '<span class="badge bg-danger">فشل الإعداد</span>';
@@ -400,9 +402,11 @@
             if (retryBtn) {
                 retryBtn.addEventListener('click', function() {
                     retryBtn.disabled = true;
+                    if (retryIcon) {
+                        retryIcon.className = 'ti ti-loader ti-spin me-1';
+                    }
                     if (retryText) {
-                        retryText.innerHTML =
-                            '<i class="ti ti-loader ti-spin me-1"></i> جارٍ بدء التوليد...';
+                        retryText.textContent = 'جارٍ بدء التوليد...';
                     }
 
                     fetch(retryUrl, {
@@ -462,17 +466,14 @@
                                     }
                                     errorAlert.classList.remove('d-none');
                                 }
-                                retryBtn.disabled = false;
-                                if (retryText) {
-                                    retryText.textContent = 'إعادة المحاولة';
-                                }
+                                resetRetryButton('إعادة المحاولة');
                             }
                         })
                         .catch(() => {
                             if (window.toastr) {
                                 toastr.error('حدث خطأ في الاتصال بالخادم.');
                             }
-                            retryBtn.disabled = false;
+                            resetRetryButton('إعادة المحاولة');
                         });
                 });
             }
