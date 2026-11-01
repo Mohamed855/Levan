@@ -75,6 +75,7 @@ final class BrowsershotDocumentRenderer implements BrowserDocumentRenderer
         $nodeBinary = config('auction-renderer.node_binary');
         if ($nodeBinary && @file_exists($nodeBinary)) {
             $browser->setNodeBinary($nodeBinary);
+            $browser->setIncludePath(dirname($nodeBinary).':'.(getenv('PATH') ?: '/usr/local/bin:/usr/bin:/bin'));
         } elseif (PHP_OS_FAMILY !== 'Windows') {
             foreach (['/usr/bin/node', '/usr/local/bin/node', '/usr/bin/nodejs'] as $candidate) {
                 if (@file_exists($candidate) && @is_executable($candidate)) {
