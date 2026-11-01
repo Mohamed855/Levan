@@ -52,6 +52,15 @@ final class BrowsershotDocumentRenderer implements BrowserDocumentRenderer
             'disable-setuid-sandbox',
             'disable-dev-shm-usage',
             'disable-gpu',
+            'no-zygote',
+            'single-process',
+            'renderer-process-limit=1',
+            'disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
+            'disable-background-networking',
+            'disable-default-apps',
+            'disable-extensions',
+            'disable-sync',
+            'no-first-run',
         ]);
 
         $chromePath = config('auction-renderer.chrome_path');
