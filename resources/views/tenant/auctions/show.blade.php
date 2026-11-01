@@ -146,26 +146,20 @@
                             توليد الملفات للمحاولة مرة أخرى.</span>
                     </div>
 
-                    {{-- واجهة التحميل الأكبر وعرض النسبة المئوية الحقيقية --}}
+                    {{-- شريط تقدم التوليد وعرض النسبة المئوية --}}
                     <div id="reports-loading-box"
-                        class="p-3 mb-3 border rounded text-center {{ $isProcessing ? '' : 'd-none' }}">
-                        <div class="mb-2">
-                            <div class="spinner-border text-primary" role="status" style="width: 2.8rem; height: 2.8rem;">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
+                        class="p-3 mb-3 border rounded bg-light-subtle {{ $isProcessing ? '' : 'd-none' }}">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-semibold small text-primary" id="reports-loading-title">
+                                <i class="ti ti-loader ti-spin me-1"></i>جارٍ تحضير وتجهيز تقارير المزاد...
+                            </span>
+                            <span class="fw-bold text-primary small" id="reports-progress-percent">{{ $initialProgress }}%</span>
                         </div>
-                        <h6 class="fw-bold mb-2 text-primary fs-6" id="reports-loading-title">
-                            برجاء الانتظار، جار تحضير تقارير المزاد
-                        </h6>
-                        <div class="progress mb-2" style="height: 14px;" role="progressbar"
+                        <div class="progress" style="height: 10px;" role="progressbar"
                             aria-valuenow="{{ $initialProgress }}" aria-valuemin="0" aria-valuemax="100">
                             <div id="reports-progress-bar"
                                 class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
                                 style="width: {{ max(6, $initialProgress) }}%;"></div>
-                        </div>
-                        <div class="d-flex justify-content-between text-muted small px-1">
-                            <span>نسبة الإنجاز:</span>
-                            <span class="fw-bold text-primary" id="reports-progress-percent">{{ $initialProgress }}%</span>
                         </div>
                     </div>
 
@@ -409,6 +403,31 @@
                         retryText.textContent = 'جارٍ بدء التوليد...';
                     }
 
+                    if (timeoutAlert) {
+                        timeoutAlert.classList.add('d-none');
+                    }
+                    if (errorAlert) {
+                        errorAlert.classList.add('d-none');
+                    }
+                    if (loadingBox) {
+                        loadingBox.classList.remove('d-none');
+                    }
+                    if (headerBadge) {
+                        headerBadge.innerHTML =
+                            '<span class="badge bg-info"><i class="ti ti-loader ti-spin me-1"></i>قيد الإعداد</span>';
+                    }
+                    updateProgressUI(10);
+                    retryBtn.classList.add('d-none');
+
+                    // تقدم تدريجي متحرك أثناء انتظار الاستجابة
+                    let simulatedProgress = 10;
+                    const progressTimer = setInterval(() => {
+                        if (simulatedProgress < 85) {
+                            simulatedProgress += 5;
+                            updateProgressUI(simulatedProgress);
+                        }
+                    }, 400);
+
                     fetch(retryUrl, {
                             method: 'POST',
                             headers: {
@@ -419,6 +438,8 @@
                         })
                         .then(res => res.json())
                         .then(data => {
+                            clearInterval(progressTimer);
+
                             if (data.success) {
                                 if (data.status === 'ready') {
                                     if (headerBadge) {
@@ -437,26 +458,14 @@
                                     toastr.info(data.message || 'تم بدء تجهيز ملفات المزاد.');
                                 }
 
-                                if (timeoutAlert) {
-                                    timeoutAlert.classList.add('d-none');
-                                }
-                                if (errorAlert) {
-                                    errorAlert.classList.add('d-none');
-                                }
-                                if (loadingBox) {
-                                    loadingBox.classList.remove('d-none');
-                                }
-                                if (headerBadge) {
-                                    headerBadge.innerHTML =
-                                        '<span class="badge bg-info"><i class="ti ti-loader ti-spin me-1"></i>قيد الإعداد</span>';
-                                }
-
-                                updateProgressUI(data.progress || 5);
-                                retryBtn.classList.add('d-none');
+                                updateProgressUI(data.progress || 25);
 
                                 // تشغيل المتابعة بمهلة اليدوي الأطول بنسبة 50%
                                 startPolling(MANUAL_TIMEOUT_MS, true);
                             } else {
+                                if (loadingBox) {
+                                    loadingBox.classList.add('d-none');
+                                }
                                 if (window.toastr) {
                                     toastr.error(data.message || 'حدث خطأ أثناء بدء التوليد.');
                                 }
@@ -470,6 +479,10 @@
                             }
                         })
                         .catch(() => {
+                            clearInterval(progressTimer);
+                            if (loadingBox) {
+                                loadingBox.classList.add('d-none');
+                            }
                             if (window.toastr) {
                                 toastr.error('حدث خطأ في الاتصال بالخادم.');
                             }
