@@ -35,6 +35,10 @@ final class AuctionReportController extends Controller
             return response()->json(['status' => 'none']);
         }
 
+        if ($generation->status === 'queued') {
+            $this->reportService->ensureQueueWorkerIsRunning();
+        }
+
         return response()->json([
             'status' => $generation->status,
             'progress' => (int) ($generation->progress ?? 0),

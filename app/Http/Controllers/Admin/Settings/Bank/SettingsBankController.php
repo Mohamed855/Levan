@@ -29,12 +29,18 @@ final class SettingsBankController extends Controller
 
     public function index(BankDataTable $dataTable): mixed
     {
+        $statistics = [
+            'total' => Bank::count(),
+            'active' => Bank::where('is_active', true)->count(),
+            'inactive' => Bank::where('is_active', false)->count(),
+        ];
+
         $filterOptions = ['statuses' => [
             ['value' => 'active', 'label' => 'نشط'],
             ['value' => 'inactive', 'label' => 'غير نشط'],
         ]];
 
-        return $dataTable->render($this->page.'.index', compact('filterOptions'));
+        return $dataTable->render($this->page.'.index', compact('statistics', 'filterOptions'));
     }
 
     public function create(): View

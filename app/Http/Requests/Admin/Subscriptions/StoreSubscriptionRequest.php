@@ -7,6 +7,7 @@ namespace App\Http\Requests\Admin\Subscriptions;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Models\Admin\Tenants\Tenant;
+use Illuminate\Validation\Rule;
 
 class StoreSubscriptionRequest extends WizardFormRequest
 {
@@ -38,8 +39,20 @@ class StoreSubscriptionRequest extends WizardFormRequest
             'payment_status' => ['nullable', 'string', 'in:completed,pending,trial,paid,unpaid'],
             'payment_type' => ['nullable', 'string', 'in:paid,unpaid,trial'],
             'transaction_id' => ['nullable', 'string', 'max:255'],
-            'payment_proof' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:10240'],
-            'receipt_upload' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:10240'],
+            'payment_proof' => [
+                'nullable',
+                Rule::requiredIf(fn () => in_array($this->input('payment_type') ?? $this->input('payment_status'), ['paid', 'completed']) && $this->input('payment_method') === 'bank_transfer' && ! $this->hasFile('receipt_upload')),
+                'file',
+                'mimes:jpeg,jpg,png,pdf',
+                'max:10240',
+            ],
+            'receipt_upload' => [
+                'nullable',
+                Rule::requiredIf(fn () => in_array($this->input('payment_type') ?? $this->input('payment_status'), ['paid', 'completed']) && $this->input('payment_method') === 'bank_transfer' && ! $this->hasFile('payment_proof')),
+                'file',
+                'mimes:jpeg,jpg,png,pdf',
+                'max:10240',
+            ],
             'admin_notes' => ['nullable', 'string', 'max:1000'],
             'has_discount' => ['nullable', 'in:yes,no'],
             'discount_value' => ['nullable', 'numeric', 'min:0'],
@@ -58,8 +71,10 @@ class StoreSubscriptionRequest extends WizardFormRequest
             'start_date.required' => 'يرجى تحديد تاريخ البداية',
             'end_date.after_or_equal' => 'تاريخ نهاية الاشتراك يجب أن يكون بعد أو مساوياً لتاريخ البداية',
             'payment_method.required' => 'يرجى اختيار وسيلة الدفع',
+            'payment_proof.required' => 'يرجى رفع إيصال التحويل البنكي',
             'payment_proof.mimes' => 'ملف إيصال الدفع يجب أن يكون صورة أو PDF',
             'payment_proof.max' => 'حجم ملف الإيصال يجب ألا يتجاوز 10 ميجابايت',
+            'receipt_upload.required' => 'يرجى رفع إيصال التحويل البنكي',
             'receipt_upload.mimes' => 'ملف الإيصال يجب أن يكون صورة أو PDF',
             'receipt_upload.max' => 'حجم ملف الإيصال يجب ألا يتجاوز 10 ميجابايت',
         ];

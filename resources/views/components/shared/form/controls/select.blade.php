@@ -25,12 +25,14 @@
 @endphp
 
 @php
+    $errorsBag = $errors ?? view()->shared('errors') ?? new \Illuminate\Support\ViewErrorBag;
     $fieldId = $id ?: str_replace(['[', ']'], '-', $name);
     $fieldName = $multiple && ! str_ends_with($name, '[]') ? $name . '[]' : $name;
     $selectedValue = old($name, $value);
     $selectedValues = collect(is_array($selectedValue) ? $selectedValue : [$selectedValue])
         ->map(static fn ($item) => (string) $item);
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
+    $hasError = $errorsBag->has($name);
 @endphp
 
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help" :col="$col" :wrapper-id="$wrapperId">
@@ -41,8 +43,8 @@
         data-form-control
         data-placeholder="{{ $placeholder }}"
         aria-describedby="{{ $errorId }}"
-        aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"
-        {{ $attributes->class(['form-select', 'select2' => $select2, 'is-invalid' => $errors->has($name)]) }}
+        aria-invalid="{{ $hasError ? 'true' : 'false' }}"
+        {{ $attributes->class(['form-select', 'select2' => $select2, 'is-invalid' => $hasError]) }}
     >
         @if (! $multiple && empty($slot->toHtml()))
             <option value=""></option>

@@ -39,10 +39,7 @@ class Subscription extends Model
         'next_payment_date',
         'cancellation_reason',
         'cancelled_at',
-        'metadata',
-        'notes',
         'transfer_bank_attachment',
-
         'trial_end_date',
     ];
 

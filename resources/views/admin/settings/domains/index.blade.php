@@ -36,6 +36,15 @@
     <x-ui.validation-errors />
 
     <x-data-table.page table-id="domain-setting-table">
+        <x-slot:stats>
+            <x-ui.stat-card col="col-sm-6 col-xl-4" title="إجمالي الامتدادات" :value="number_format($statistics['total'])" subtitle="كل امتدادات الدومين"
+                icon="ti-world" color="primary" />
+            <x-ui.stat-card col="col-sm-6 col-xl-4" title="الامتدادات النشطة" :value="number_format($statistics['active'])" subtitle="امتدادات مفعلة"
+                icon="ti-circle-check" color="success" />
+            <x-ui.stat-card col="col-sm-6 col-xl-4" title="الامتدادات المعطلة" :value="number_format($statistics['inactive'])" subtitle="امتدادات معطلة"
+                icon="ti-circle-x" color="danger" />
+        </x-slot:stats>
+
         <x-slot:filters>
             <x-data-table.filters table="#domain-setting-table">
                 <x-filter.select id="filter-status" filterKey="status" label="الحالة" placeholder="اختر الحالة"

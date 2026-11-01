@@ -1,4 +1,5 @@
 @php
+    view()->share('errors', $errors ?? view()->shared('errors') ?? new \Illuminate\Support\ViewErrorBag);
     $is_edit = $is_edit ?? false;
     $steps = [
         ['id' => 'step-company-plan', 'title' => 'الشركة والباقة'],
@@ -10,6 +11,7 @@
         ? __('subscriptions.payment_methods')
         : [
             ['value' => 'bank_transfer', 'label' => 'تحويل بنكي'],
+            ['value' => 'online', 'label' => 'الدفع الإلكتروني'],
             ['value' => 'cash', 'label' => 'نقدي / إيداع مباشر'],
             ['value' => 'card', 'label' => 'بطاقة ائتمان / مدى'],
             ['value' => 'system_free', 'label' => 'إهداء / ترويجي (مجاني)'],
@@ -144,9 +146,12 @@
                     'coupon_code',
                     'payment_method',
                     'payment_status',
+                    'payment_type',
                     'transaction_id',
+                    'receipt_upload',
                     'payment_proof',
                 ]">
+                    <input type="hidden" name="payment_type" id="payment_type" value="paid">
                     <div class="row g-4">
                         <!-- مدة الاشتراك بالشهور -->
                         <x-form.controls.input type="number" name="period_months" id="period_months"
@@ -192,9 +197,9 @@
                             help="مهم لتوثيق التحويلات البنكية ومطابقة الحسابات" />
 
                         <!-- إيصال الدفع -->
-                        <x-form.controls.file name="payment_proof" id="payment_proof"
+                        <x-form.controls.file name="receipt_upload" id="receipt_upload"
                             label="إيصال الدفع / الحوالة (مستند)" accept="image/*,application/pdf" col="col-12"
-                            help="الامتدادات المسموحة: PDF, PNG, JPG, JPEG (الحد الأقصى 5 ميجابايت)" />
+                            help="الامتدادات المسموحة: PDF, PNG, JPG, JPEG (الحد الأقصى 10 ميجابايت)" />
 
                         <!-- ملاحظات إدارية -->
                         <x-form.controls.textarea name="admin_notes" id="admin_notes" label="ملاحظات إدارية داخلية"

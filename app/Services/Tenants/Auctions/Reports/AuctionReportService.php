@@ -7,6 +7,8 @@ namespace App\Services\Tenants\Auctions\Reports;
 use App\Jobs\Tenants\Auctions\GenerateAuctionReportsJob;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionReportGeneration;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
@@ -25,12 +27,18 @@ final class AuctionReportService
                 'snapshot' => $this->dataBuilder->build($auction),
             ]);
 
+            $connection = (string) config('auction-renderer.queue_connection', 'auction_reports');
+
             GenerateAuctionReportsJob::dispatch(
                 $tenantId,
                 (int) $auction->id,
                 (int) $generation->id,
                 $generation->revision_token,
-            )->onConnection(config('auction-renderer.queue_connection', 'database'))->afterCommit();
+            )->onConnection($connection)->afterCommit();
+
+            DB::afterCommit(function () {
+                $this->ensureQueueWorkerIsRunning();
+            });
 
             return $generation;
         } catch (Throwable $exception) {
@@ -66,13 +74,60 @@ final class AuctionReportService
             ]);
         }
 
+        $connection = (string) config('auction-renderer.queue_connection', 'auction_reports');
+
         GenerateAuctionReportsJob::dispatch(
             $tenantId,
             (int) $auction->id,
             (int) $generation->id,
             $generation->revision_token,
-        )->onConnection(config('auction-renderer.queue_connection', 'database'))->afterCommit();
+        )->onConnection($connection)->afterCommit();
+
+        DB::afterCommit(function () {
+            $this->ensureQueueWorkerIsRunning();
+        });
 
         return $generation->fresh();
+    }
+
+    /**
+     * تشغيل عامل المعالجة في الخلفية تلقائياً إذا كانت الطوابير تستخدم قاعدة البيانات،
+     * لضمان تنفيذ تقارير المزاد دون الحاجة لتشغيل أمر queue:work يدوياً.
+     */
+    public function ensureQueueWorkerIsRunning(): void
+    {
+        $connection = (string) config('auction-renderer.queue_connection', 'auction_reports');
+        if ($connection === 'sync') {
+            return;
+        }
+
+        // تفادي تكرار إطلاق عدة عمال متزامنين في نافذة 3 ثوانٍ
+        if (! Cache::add('auction_reports_worker_spawn_lock', 1, 3)) {
+            return;
+        }
+
+        $queue = 'auction-reports';
+        $php = PHP_BINARY;
+        $artisan = base_path('artisan');
+
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $cmd = sprintf(
+                'start "" /B "%s" "%s" queue:work %s --queue=%s --stop-when-empty --tries=3',
+                $php,
+                $artisan,
+                escapeshellarg($connection),
+                escapeshellarg($queue)
+            );
+            pclose(popen('cmd /c ' . $cmd, 'r'));
+        } else {
+            $cmd = sprintf(
+                '"%s" "%s" queue:work %s --queue=%s --stop-when-empty --tries=3 > /dev/null 2>&1 &',
+                $php,
+                $artisan,
+                escapeshellarg($connection),
+                escapeshellarg($queue)
+            );
+            exec($cmd);
+        }
     }
 }

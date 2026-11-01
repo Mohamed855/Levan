@@ -3,6 +3,7 @@
 return [
     'payment_methods' => [
         ['value' => 'bank_transfer', 'label' => 'Bank Transfer'],
+        ['value' => 'online', 'label' => 'Online Payment'],
         ['value' => 'cash', 'label' => 'Cash / Direct Deposit'],
         ['value' => 'card', 'label' => 'Credit Card / Mada'],
         ['value' => 'system_free', 'label' => 'Promotional / Free Gift'],

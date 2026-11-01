@@ -36,6 +36,15 @@
     <x-ui.validation-errors />
 
     <x-data-table.page table-id="banks-table">
+        <x-slot:stats>
+            <x-ui.stat-card col="col-sm-6 col-xl-4" title="إجمالي البنوك" :value="number_format($statistics['total'])" subtitle="كل البنوك المسجلة"
+                icon="ti-building-bank" color="primary" />
+            <x-ui.stat-card col="col-sm-6 col-xl-4" title="البنوك النشطة" :value="number_format($statistics['active'])" subtitle="بنوك مفعلة"
+                icon="ti-circle-check" color="success" />
+            <x-ui.stat-card col="col-sm-6 col-xl-4" title="البنوك المعطلة" :value="number_format($statistics['inactive'])" subtitle="بنوك معطلة"
+                icon="ti-circle-x" color="danger" />
+        </x-slot:stats>
+
         <x-slot:filters>
             <x-data-table.filters table="#banks-table">
                 <x-filter.select id="filter-status" filterKey="status" label="الحالة" placeholder="اختر الحالة"

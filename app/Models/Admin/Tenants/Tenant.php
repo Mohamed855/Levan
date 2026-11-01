@@ -10,6 +10,7 @@ use App\Models\Tenants\Settings\TransferDomain;
 use App\Models\Tenants\Ticket\Ticket;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
@@ -113,6 +114,18 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 
             if (in_array($tenantId, $reservedIdentifiers, true) || in_array($folderName, $reservedIdentifiers, true)) {
                 throw new \InvalidArgumentException("لا يمكن استخدام المعرف 'admin' كـ tenant لأنه محجوز للنظام.");
+            }
+        });
+
+        static::saved(function ($tenant) {
+            if ($tenant->id) {
+                Cache::forget("tenant_connection_{$tenant->id}");
+            }
+        });
+
+        static::deleted(function ($tenant) {
+            if ($tenant->id) {
+                Cache::forget("tenant_connection_{$tenant->id}");
             }
         });
     }

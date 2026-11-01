@@ -15,6 +15,7 @@ use App\Models\Tenants\UserMangment\User\User;
 use Database\Seeders\tenant\TenantDatabaseSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -43,10 +44,10 @@ class TestTenantSeeder extends Seeder
         $tenant = Tenant::updateOrCreate(
             ['id' => 'test'],
             [
-                'db_database' => env('TEST_TENANT_DATABASE', 'levan_test'),
+                'db_database' => env('TEST_TENANT_DATABASE', 'etmam_levan_test'),
                 'db_username' => env('DB_USERNAME', 'root'),
                 'db_password' => env('DB_PASSWORD', ''),
-                'db_host' => env('DB_HOST', 'localhost'),
+                'db_host' => env('DB_HOST', '127.0.0.1'),
                 'db_port' => env('DB_PORT', '3306'),
                 'folderName' => 'test',
                 'company_name' => 'تجربة',
@@ -60,6 +61,8 @@ class TestTenantSeeder extends Seeder
                 'data' => [],
             ]
         );
+
+        Cache::forget("tenant_connection_{$tenant->id}");
 
         // 3. Create Domain mapping
         Domain::updateOrCreate(

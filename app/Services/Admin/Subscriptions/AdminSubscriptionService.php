@@ -114,7 +114,6 @@ class AdminSubscriptionService
                 'ends_at' => $endDate,
                 'next_payment_date' => $endDate,
                 'auto_renew' => false,
-                'notes' => $data['admin_notes'] ?? null,
                 'trial_end_date' => ! empty($data['trial_end_date']) ? $data['trial_end_date'] : ($plan->isTrial() ? $endDate->toDateString() : null),
             ]);
 

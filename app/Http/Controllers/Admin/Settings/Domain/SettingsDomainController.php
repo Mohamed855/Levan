@@ -27,12 +27,18 @@ final class SettingsDomainController extends Controller
 
     public function index(SettingDomainDataTable $dataTable): mixed
     {
+        $statistics = [
+            'total' => ControlDomain::count(),
+            'active' => ControlDomain::where('is_active', true)->count(),
+            'inactive' => ControlDomain::where('is_active', false)->count(),
+        ];
+
         $filterOptions = ['statuses' => [
             ['value' => 'active', 'label' => 'نشط'],
             ['value' => 'inactive', 'label' => 'غير نشط'],
         ]];
 
-        return $dataTable->render($this->page.'.index', compact('filterOptions'));
+        return $dataTable->render($this->page.'.index', compact('statistics', 'filterOptions'));
     }
 
     public function create(): View

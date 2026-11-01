@@ -1,61 +1,61 @@
 @extends('admin.layouts.layoutMaster')
+
 @section('title', 'الأسئلة الشائعة')
 
+@section('vendor-style')
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+@endsection
+
+@section('vendor-script')
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
+    {!! $dataTable->scripts() !!}
+@endsection
+
+@section('toastr')
+    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
+@endsection
+
+@section('page-style')
+    @vite(['resources/assets/css/shared/dataTable.css'])
+@endsection
+
+@section('page-script')
+    @vite(['resources/assets/js/admin/shared-status-toggle.js'])
+    <script>
+        window.routes = {
+            massDelete: "{{ route('admin.mass-delete') }}"
+        };
+
+        window.handleMassDelete = function() {
+            window.executeMassDelete('Faq', window.routes.massDelete, 'يرجى تحديد سؤال واحد على الأقل');
+        };
+    </script>
+@endsection
+
 @section('content')
-<div class="container-xxl flex-grow-1 container-p-y">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">الأسئلة الشائعة</h5>
-            @can('faqs.create')
-                <a class="btn btn-primary" href="{{ route('admin.faqs.create') }}">
-                    <i class="ti ti-plus me-1"></i> إضافة سؤال
-                </a>
-            @endcan
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>السؤال</th>
-                        <th>الحالة</th>
-                        <th>الإجراءات</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($faqs as $faq)
-                        <tr>
-                            <td>{{ $faq->question }}</td>
-                            <td>
-                                @if ($faq->is_active)
-                                    <span class="badge bg-success">مفعل</span>
-                                @else
-                                    <span class="badge bg-danger">معطل</span>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="d-flex align-items-center gap-1">
-                                    @can('faqs.edit')
-                                        <a href="{{ route('admin.faqs.edit', $faq) }}" class="btn btn-sm btn-icon btn-primary" title="تعديل">
-                                            <i class="ti ti-edit"></i>
-                                        </a>
-                                    @endcan
-                                    @can('faqs.delete')
-                                        <x-actions.delete :id="$faq->id" :url="route('admin.faqs.destroy', $faq)" permission="faqs.delete" />
-                                    @endcan
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="3" class="text-center">لا توجد أسئلة</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="card-body">
-            {{ $faqs->links() }}
-        </div>
-    </div>
-</div>
+    <x-ui.validation-errors />
+
+    <x-data-table.page table-id="faqs-table">
+        <x-slot:stats>
+            <x-ui.stat-card col="col-sm-6 col-xl-4" title="إجمالي الأسئلة" :value="number_format($statistics['total'])" subtitle="كل الأسئلة الشائعة"
+                icon="ti-help-circle" color="primary" />
+            <x-ui.stat-card col="col-sm-6 col-xl-4" title="الأسئلة النشطة" :value="number_format($statistics['active'])" subtitle="أسئلة مفعلة"
+                icon="ti-circle-check" color="success" />
+            <x-ui.stat-card col="col-sm-6 col-xl-4" title="الأسئلة المعطلة" :value="number_format($statistics['inactive'])" subtitle="أسئلة معطلة"
+                icon="ti-circle-x" color="danger" />
+        </x-slot:stats>
+
+        <x-slot:filters>
+            <x-data-table.filters table="#faqs-table">
+                <x-filter.select id="filter-status" filterKey="status" label="الحالة" placeholder="اختر الحالة"
+                    :options="$filterOptions['statuses'] ?? []" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
+            </x-data-table.filters>
+        </x-slot:filters>
+
+        <x-slot:table>
+            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'faqs-table'], false) !!}
+        </x-slot:table>
+    </x-data-table.page>
 @endsection

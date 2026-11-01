@@ -21,14 +21,26 @@ class DatabaseTenancyBootstrapper implements TenancyBootstrapper
 
         $cacheKey = "tenant_connection_{$tenant->getTenantKey()}";
 
-        $connectionConfig = Cache::remember($cacheKey, 3600, function () use ($tenant) {
-            return [
+        $connectionConfig = Cache::get($cacheKey);
+
+        if (! is_array($connectionConfig) || empty($connectionConfig['host']) || empty($connectionConfig['database'])) {
+            if (empty($tenant->db_host) || empty($tenant->db_database)) {
+                $fresh = $tenant->fresh();
+                if ($fresh) {
+                    $tenant = $fresh;
+                }
+            }
+
+            $host = $tenant->db_host ?: config('database.connections.mysql.host', '127.0.0.1');
+            $database = $tenant->db_database;
+
+            $connectionConfig = [
                 'driver' => 'mysql',
-                'host' => $tenant->db_host,
-                'port' => $tenant->db_port ?? '3306',
-                'database' => $tenant->db_database,
-                'username' => $tenant->db_username,
-                'password' => $tenant->db_password,
+                'host' => $host,
+                'port' => $tenant->db_port ?? config('database.connections.mysql.port', '3306'),
+                'database' => $database,
+                'username' => $tenant->db_username ?? config('database.connections.mysql.username', 'root'),
+                'password' => $tenant->db_password ?? config('database.connections.mysql.password', ''),
                 'charset' => 'utf8mb4',
                 'collation' => 'utf8mb4_unicode_ci',
                 'prefix' => '',
@@ -41,7 +53,11 @@ class DatabaseTenancyBootstrapper implements TenancyBootstrapper
                     \PDO::ATTR_STRINGIFY_FETCHES => false,
                 ],
             ];
-        });
+
+            if (! empty($connectionConfig['host']) && ! empty($connectionConfig['database'])) {
+                Cache::put($cacheKey, $connectionConfig, 3600);
+            }
+        }
 
         // دائماً أزل الاتصال القديم قبل التبديل لأي tenant
         DB::purge('tenant');

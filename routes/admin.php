@@ -86,6 +86,16 @@ Route::prefix('superadmin')->name('admin.')->middleware(['auth:admin', 'admin.ac
             Route::get('expiring', [SubscriptionManagementController::class, 'expiring'])->name('expiring');
             Route::get('expired', [SubscriptionManagementController::class, 'expired'])->name('expired');
         });
+
+        Route::middleware('can:subscriptions.pending.approve')->group(function () {
+            Route::post('{subscription}/accept', [SubscriptionManagementController::class, 'accept'])->name('accept');
+            Route::post('mass-accept', [SubscriptionManagementController::class, 'massAccept'])->name('mass-accept');
+        });
+
+        Route::middleware('can:subscriptions.pending.reject')->group(function () {
+            Route::post('{subscription}/reject', [SubscriptionManagementController::class, 'reject'])->name('reject');
+            Route::post('mass-reject', [SubscriptionManagementController::class, 'massReject'])->name('mass-reject');
+        });
     });
 
     // ادارة العملاء (Clients)
@@ -175,7 +185,10 @@ Route::prefix('superadmin')->name('admin.')->middleware(['auth:admin', 'admin.ac
         Route::get('{auction_template}/fields', [AuctionTemplateController::class, 'showFields'])->name('fields');
         Route::resource('/', AuctionTemplateController::class)->parameters(['' => 'auction_template']);
     });
-    Route::resource('faqs', FaqController::class)->except('show');
+    Route::prefix('faqs')->name('faqs.')->group(function () {
+        Route::patch('{faq}/toggle-status', [FaqController::class, 'toggleStatus'])->name('toggle-status');
+        Route::resource('/', FaqController::class)->except('show')->parameters(['' => 'faq']);
+    });
 
     Route::prefix('bills')->name('bills.')->group(function () {
         Route::get('/{bill}/print', [AdminBillsController::class, 'print'])->name('print');

@@ -3,6 +3,7 @@
 return [
     'payment_methods' => [
         ['value' => 'bank_transfer', 'label' => 'تحويل بنكي'],
+        ['value' => 'online', 'label' => 'الدفع الإلكتروني (أونلاين)'],
         ['value' => 'cash', 'label' => 'نقدي / إيداع مباشر'],
         ['value' => 'card', 'label' => 'بطاقة ائتمان / مدى'],
         ['value' => 'system_free', 'label' => 'إهداء / ترويجي (مجاني)'],

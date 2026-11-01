@@ -10,9 +10,10 @@
 ])
 
 @php
+    $errorsBag = $errors ?? view()->shared('errors') ?? new \Illuminate\Support\ViewErrorBag;
     $fieldId = $id ?: str_replace(['[', ']'], '-', $name);
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
-    $hasError = $errors->has($name);
+    $hasError = $errorsBag->has($name);
     $isRequired = filter_var($required, FILTER_VALIDATE_BOOLEAN) || $required === true || $required === 1 || $required === '1';
     $cleanLabel = $label !== null ? trim(preg_replace(['/\s*\(?\s*(اختياري|اختباري)\s*\)?\s*/u', '/\s*\*+\s*$/u'], ['', ''], (string) $label)) : null;
 @endphp
@@ -31,6 +32,6 @@
     @endif
 
     <div id="{{ $errorId }}" class="invalid-feedback d-block" data-form-error role="alert" @if (! $hasError) hidden @endif>
-        {{ $errors->first($name) }}
+        {{ $errorsBag->first($name) }}
     </div>
 </div>

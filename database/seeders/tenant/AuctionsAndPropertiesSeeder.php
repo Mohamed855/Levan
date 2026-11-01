@@ -33,7 +33,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'start_date'        => Carbon::now()->subMonths(2)->format('Y-m-d'),
                 'end_date'          => Carbon::now()->addMonths(6)->format('Y-m-d'),
                 'notes'             => 'إسناد رسمي برقم قرار قضائي صادر من محكمة الأحوال الشخصية بالرياض.',
-                'status'            => 'active',
                 'is_active'         => true,
             ],
             [
@@ -45,7 +44,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'start_date'        => Carbon::now()->subMonth()->format('Y-m-d'),
                 'end_date'          => Carbon::now()->addMonths(4)->format('Y-m-d'),
                 'notes'             => 'تصفية محفظة عقارية تجارية وسكنية بمدينة جدة.',
-                'status'            => 'active',
                 'is_active'         => true,
             ],
             [
@@ -57,7 +55,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'start_date'        => Carbon::now()->subDays(20)->format('Y-m-d'),
                 'end_date'          => Carbon::now()->addMonths(8)->format('Y-m-d'),
                 'notes'             => 'مجموعة أراضي ومستودعات في المدن الصناعية.',
-                'status'            => 'under_review',
                 'is_active'         => true,
             ],
             [
@@ -69,7 +66,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'start_date'        => Carbon::now()->subDays(10)->format('Y-m-d'),
                 'end_date'          => Carbon::now()->addMonths(3)->format('Y-m-d'),
                 'notes'             => 'فلل سكنية فاخرة في أحياء شمال الرياض.',
-                'status'            => 'active',
                 'is_active'         => true,
             ],
             [
@@ -81,7 +77,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'start_date'        => Carbon::now()->subMonths(3)->format('Y-m-d'),
                 'end_date'          => Carbon::now()->subDays(5)->format('Y-m-d'),
                 'notes'             => 'عقارات فندقية وسكنية بالمنطقة المركزية.',
-                'status'            => 'suspended',
                 'is_active'         => false,
             ],
             [
@@ -93,7 +88,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'start_date'        => Carbon::now()->subMonths(4)->format('Y-m-d'),
                 'end_date'          => Carbon::now()->subMonths(2)->format('Y-m-d'),
                 'notes'             => 'تم أرشفة الإسناد لاختبار سلة المحذوفات.',
-                'status'            => 'suspended',
                 'is_active'         => false,
             ],
         ];

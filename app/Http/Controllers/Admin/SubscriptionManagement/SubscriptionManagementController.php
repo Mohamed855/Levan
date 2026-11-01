@@ -6,7 +6,11 @@ use App\DataTables\Admin\Clients\ClientsDataTable;
 use App\DataTables\Admin\SubscriptionMangment\subscriptionMangmentDataTable;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\SubscriptionManagement\AcceptSubscriptionRequest;
 use App\Http\Requests\Admin\SubscriptionManagement\FinalizeCompanySubscriptionRequest;
+use App\Http\Requests\Admin\SubscriptionManagement\MassAcceptSubscriptionsRequest;
+use App\Http\Requests\Admin\SubscriptionManagement\MassRejectSubscriptionsRequest;
+use App\Http\Requests\Admin\SubscriptionManagement\RejectSubscriptionRequest;
 use App\Http\Requests\Admin\SubscriptionManagement\UpdateCompanySubscriptionRequest;
 use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
@@ -246,6 +250,104 @@ class SubscriptionManagementController extends Controller
                 ->back()
                 ->withInput()
                 ->with('error', 'حدث خطأ أثناء تحديث الاشتراك: '.$e->getMessage());
+        }
+    }
+
+    public function accept(AcceptSubscriptionRequest $request, Subscription $subscription)
+    {
+        try {
+            $this->subscriptionManagementService->accept($subscription, $request->user('admin')?->getKey());
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم قبول طلب الاشتراك وتفعيله بنجاح',
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'تم قبول طلب الاشتراك وتفعيله بنجاح');
+        } catch (\Exception $e) {
+            report($e);
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ أثناء قبول طلب الاشتراك: '.$e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'حدث خطأ أثناء قبول طلب الاشتراك');
+        }
+    }
+
+    public function reject(RejectSubscriptionRequest $request, Subscription $subscription)
+    {
+        $validated = $request->validated();
+
+        try {
+            $this->subscriptionManagementService->reject($subscription, $validated['reject_reason'] ?? null);
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم رفض طلب الاشتراك بنجاح',
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'تم رفض طلب الاشتراك بنجاح');
+        } catch (\Exception $e) {
+            report($e);
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ أثناء رفض طلب الاشتراك: '.$e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'حدث خطأ أثناء رفض طلب الاشتراك');
+        }
+    }
+
+    public function massAccept(MassAcceptSubscriptionsRequest $request)
+    {
+        $validated = $request->validated();
+
+        try {
+            $this->subscriptionManagementService->massAccept($validated['ids'], $request->user('admin')?->getKey());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم قبول طلبات الاشتراك المحددة بنجاح',
+            ]);
+        } catch (\Exception $e) {
+            report($e);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء قبول الاشتراكات المحددة: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function massReject(MassRejectSubscriptionsRequest $request)
+    {
+        $validated = $request->validated();
+
+        try {
+            $this->subscriptionManagementService->massReject($validated['ids'], $validated['reject_reason'] ?? null);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم رفض طلبات الاشتراك المحددة بنجاح',
+            ]);
+        } catch (\Exception $e) {
+            report($e);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء رفض الاشتراكات المحددة: '.$e->getMessage(),
+            ], 500);
         }
     }
 
