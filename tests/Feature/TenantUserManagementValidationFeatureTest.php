@@ -20,7 +20,7 @@ class TenantUserManagementValidationFeatureTest extends TestCase
 
         $this->tenant = Tenant::findOrFail('test');
         tenancy()->initialize($this->tenant);
-        $this->owner = User::where('email', 'demo@levan.com')->firstOrFail();
+        $this->owner = User::where('email', 'demo@lot.com')->firstOrFail();
     }
 
     protected function tearDown(): void
@@ -59,7 +59,7 @@ class TenantUserManagementValidationFeatureTest extends TestCase
     {
         $limitedUser = User::create([
             'name' => 'مستخدم محدود',
-            'email' => 'limited-' . random_int(1000, 9999) . '@levan.test',
+            'email' => 'limited-' . random_int(1000, 9999) . '@lot.test',
             'password' => bcrypt('Password123!'),
             'status' => 'active',
         ]);
@@ -151,7 +151,7 @@ class TenantUserManagementValidationFeatureTest extends TestCase
             $this->actingAs($this->owner, 'tenant')
                 ->post($this->tenantUrl('users'), [
                     'name' => 'مستخدم جديد',
-                    'email' => 'newuser999@levan.test',
+                    'email' => 'newuser999@lot.test',
                     'phone' => '0512345678',
                     'password' => 'Password123!',
                     'password_confirmation' => 'Password123!',

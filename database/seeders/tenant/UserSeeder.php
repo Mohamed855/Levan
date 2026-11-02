@@ -12,7 +12,7 @@ class UserSeeder extends Seeder
     {
         // 1. Admin User
         $admin = User::updateOrCreate(
-            ['email' => 'demo@levan.com'],
+            ['email' => 'demo@lot.com'],
             [
                 'name'              => 'مدير النظام',
                 'email_verified_at' => now(),
@@ -29,19 +29,19 @@ class UserSeeder extends Seeder
         $agents = [
             [
                 'name'       => 'أحمد السعيد',
-                'email'      => 'ahmed@levan.com',
+                'email'      => 'ahmed@lot.com',
                 'phone'      => '0500000002',
                 'global_uid' => '00000000-0000-0000-0000-000000000002',
             ],
             [
                 'name'       => 'سارة الشمري',
-                'email'      => 'sara@levan.com',
+                'email'      => 'sara@lot.com',
                 'phone'      => '0500000003',
                 'global_uid' => '00000000-0000-0000-0000-000000000003',
             ],
             [
                 'name'       => 'خالد القحطاني',
-                'email'      => 'khalid@levan.com',
+                'email'      => 'khalid@lot.com',
                 'phone'      => '0500000004',
                 'global_uid' => '00000000-0000-0000-0000-000000000004',
             ],

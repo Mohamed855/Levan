@@ -66,13 +66,13 @@ class AdminAuthenticationValidationFeatureTest extends TestCase
     public function test_post_admin_login_without_or_invalid_tenant_id_returns_404(): void
     {
         $this->post('/admin/login', [
-            'email' => 'demo@levan.com',
+            'email' => 'demo@lot.com',
             'password' => 'password',
         ])->assertNotFound();
 
         $this->post('/admin/login', [
             'tenant_id' => 'non_existent_tenant_99',
-            'email' => 'demo@levan.com',
+            'email' => 'demo@lot.com',
             'password' => 'password',
         ])->assertNotFound();
     }
@@ -81,7 +81,7 @@ class AdminAuthenticationValidationFeatureTest extends TestCase
     {
         $response = $this->post('/admin/login', [
             'tenant_id' => 'test',
-            'email' => 'demo@levan.com',
+            'email' => 'demo@lot.com',
             'password' => '123456789',
         ]);
 
@@ -96,7 +96,7 @@ class AdminAuthenticationValidationFeatureTest extends TestCase
         $propertiesResponse->assertOk();
 
         $this->assertTrue(Auth::guard('tenant')->check());
-        $this->assertSame('demo@levan.com', Auth::guard('tenant')->user()->email);
+        $this->assertSame('demo@lot.com', Auth::guard('tenant')->user()->email);
 
         Auth::guard('tenant')->logout();
     }
@@ -112,7 +112,7 @@ class AdminAuthenticationValidationFeatureTest extends TestCase
     {
         $tenant = Tenant::findOrFail('test');
         tenancy()->initialize($tenant);
-        $user = User::where('email', 'demo@levan.com')->firstOrFail();
+        $user = User::where('email', 'demo@lot.com')->firstOrFail();
 
         $response = $this->actingAs($user, 'tenant')->get('/test/dashboard');
         $response->assertOk();
@@ -124,7 +124,7 @@ class AdminAuthenticationValidationFeatureTest extends TestCase
     {
         $tenant = Tenant::findOrFail('test');
         tenancy()->initialize($tenant);
-        $user = User::where('email', 'demo@levan.com')->firstOrFail();
+        $user = User::where('email', 'demo@lot.com')->firstOrFail();
 
         $response = $this->actingAs($user, 'tenant')->post('/test/logout');
         $response->assertRedirect('/admin/login');

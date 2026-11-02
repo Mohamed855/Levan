@@ -109,6 +109,7 @@ class SubscriptionController extends Controller
 
         $checkout = $request->validated();
         $checkout['billing_password_hash'] = Hash::make($checkout['billing_password']);
+        $checkout['plain_password'] = $checkout['billing_password'];
         unset($checkout['billing_password'], $checkout['billing_password_confirmation'], $checkout['is_editing']);
         $checkout['plan_id'] = $plan->getKey();
         $checkout['expires_at'] = now()->addMinutes(2)->timestamp;
@@ -184,7 +185,7 @@ class SubscriptionController extends Controller
         abort_unless($this->isPublicPlan($plan), 404);
         $checkout = request()->session()->get('checkout_verification', []);
 
-        $safeInput = collect($checkout)->except(['plan_id', 'expires_at', 'otp_hash', 'verified_at', 'billing_password', 'billing_password_hash', 'billing_password_confirmation', 'resend_count', 'session_expires_at', 'is_editing'])->all();
+        $safeInput = collect($checkout)->except(['plan_id', 'expires_at', 'otp_hash', 'verified_at', 'billing_password', 'plain_password', 'billing_password_hash', 'billing_password_confirmation', 'resend_count', 'session_expires_at', 'is_editing'])->all();
         // إزالة تأكيد OTP حتى يعود لخطوة تعديل البيانات مع الحفاظ على البيانات في الجلسة عند عمل Reload
         unset($checkout['verified_at'], $checkout['otp_hash'], $checkout['resend_count']);
         $checkout['is_editing'] = true;
@@ -347,6 +348,7 @@ class SubscriptionController extends Controller
                 'billing_name' => $request->billing_name,
                 'billing_email' => $request->billing_email,
                 'billing_phone' => $request->billing_phone,
+                'plain_password' => $request->plain_password ?? null,
                 'billing_password_hash' => $request->billing_password_hash ?? Hash::make((string) $request->billing_password),
 
                 'billing_company_name' => $request->billing_company_name,

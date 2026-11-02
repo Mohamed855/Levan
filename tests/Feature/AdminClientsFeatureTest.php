@@ -31,7 +31,7 @@ class AdminClientsFeatureTest extends TestCase
         $this->admin = AdminUser::where('email', 'superadmin@gmail.com')->first();
         if (! $this->admin) {
             $this->admin = AdminUser::firstOrCreate(
-                ['email' => 'admin_client_test@levan.com'],
+                ['email' => 'admin_client_test@lot.com'],
                 [
                     'name' => 'Client Admin Test',
                     'password' => bcrypt('password'),

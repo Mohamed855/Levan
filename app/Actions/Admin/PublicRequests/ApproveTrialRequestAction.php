@@ -66,6 +66,7 @@ final class ApproveTrialRequestAction
             $subscription = $this->subscriptions->createTrialSubscription($tenant);
             $this->initializer->createCoreSeat($tenant, $subscription, $user);
             $tenant->update(['primary_user_global_uid' => $user->global_uid]);
+            $plainPassword = $request->plain_password;
             DB::connection('mysql')->transaction(function () use ($request, $subscription, $admin): void {
                 $start = now();
                 $end = $start->copy()->addDays((int) config('trial.days', 7));
@@ -75,6 +76,7 @@ final class ApproveTrialRequestAction
                     'status' => TrialRequestStatus::APPROVED, 'subscription_id' => $subscription->id,
                     'processed_at' => now(), 'processed_by' => $admin->getKey(),
                     'provisioning_status' => 'ready', 'provisioning_error' => null, 'password_hash' => null,
+                    'plain_password' => null,
                 ]);
             });
             cache()->forget("tenant:{$tenant->id}:subscription");
@@ -84,7 +86,8 @@ final class ApproveTrialRequestAction
                 loginEmail: $request->customer_email,
                 source: 'trial',
                 trialDays: (int) config('trial.days', 7),
-                trialEndDate: isset($end) ? $end->toDateString() : null
+                trialEndDate: isset($end) ? $end->toDateString() : null,
+                temporaryPassword: $plainPassword
             );
         } catch (Throwable $exception) {
             $request->update(['provisioning_status' => 'failed', 'provisioning_error' => 'تعذر إكمال إنشاء الحساب. يرجى إعادة المحاولة أو مراجعة سجل الأخطاء.']);

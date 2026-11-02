@@ -32,21 +32,21 @@ abstract class BaseMailable extends Mailable implements ShouldQueue
             }
         }
 
-        $appUrl = rtrim((string) config('app.url', 'https://levan.sa'), '/');
+        $appUrl = rtrim((string) config('app.url', 'https://lot.sa'), '/');
         $logoUrl = $this->officeSettings?->image 
             ? url('storage/' . $this->officeSettings->image) 
             : url('static/brand/logos/lot/trans-profile-white.png');
 
         return [
-            'brandName'          => 'لوت Levan',
+            'brandName'          => 'لوت LOT',
             'brandTagline'       => 'منصة إدارة المزادات والممتلكات العقارية الذكية',
             'brandLogo'          => $logoUrl,
-            'officeName'         => $this->officeSettings?->office_name ?? config('app.name', 'لوت Levan'),
+            'officeName'         => $this->officeSettings?->office_name ?? config('app.name', 'لوت LOT'),
             'officeAddress'      => $this->officeSettings?->office_address ?? '',
             'commercialRegister' => $this->officeSettings?->commercial_register ?? '',
             'taxNumber'          => $this->officeSettings?->tax_number ?? '',
             'officePhone'        => $this->officeSettings?->phone_number ?? '',
-            'officeEmail'        => $this->officeSettings?->email ?? config('mail.from.address', 'info@levan.sa'),
+            'officeEmail'        => $this->officeSettings?->email ?? config('mail.from.address', 'info@lot.sa'),
             'appUrl'             => $appUrl,
         ];
     }

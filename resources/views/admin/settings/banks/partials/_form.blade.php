@@ -41,7 +41,7 @@
                         <!-- اسم الحساب -->
                         <x-form.controls.input name="account_name" id="account_name" label="اسم الحساب"
                             :value="old('account_name', $is_edit ? $bank->account_name : '')"
-                            placeholder="مثال: شركة ليفان للمزادات" required col="col-md-6" />
+                            placeholder="مثال: شركة لوت للمزادات" required col="col-md-6" />
 
                         <!-- رقم الآيبان -->
                         <x-form.controls.input name="iban" id="iban" label="رقم الآيبان (IBAN)"

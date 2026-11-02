@@ -331,15 +331,18 @@ $firstSegment = $segments ? reset($segments) : null;
 $fileExtension = pathinfo($path, PATHINFO_EXTENSION);
 $assetExtensions = ['js', 'css', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'woff', 'woff2', 'ttf', 'eot', 'ico', 'webp'];
 
-// ✅ مسار ليفان
-$levanPublicPath = '/home/levan/public_html/releases/v1.0.0-beta/public';
+// ✅ مسار لوت / Lot
+$lotPublicPath = env('LOT_PUBLIC_PATH', '/home/lot/public_html/releases/v1.0.0-beta/public');
+if (!file_exists($lotPublicPath) && file_exists('/home/levan/public_html/releases/v1.0.0-beta/public')) {
+    $lotPublicPath = '/home/levan/public_html/releases/v1.0.0-beta/public';
+}
 
 // ===============================
 // ✅ Assets Routing
 // ===============================
-if (in_array(strtolower($fileExtension), $assetExtensions) || preg_match('#^/levan/(build|storage)/#i', $path)) {
-    $assetPath = preg_replace('#^/levan#i', '', $path);
-    $fullAssetPath = $levanPublicPath . $assetPath;
+if (in_array(strtolower($fileExtension), $assetExtensions) || preg_match('#^/(lot|levan)/(build|storage)/#i', $path)) {
+    $assetPath = preg_replace('#^/(lot|levan)#i', '', $path);
+    $fullAssetPath = $lotPublicPath . $assetPath;
 
     if (file_exists($fullAssetPath)) {
         $mimeTypes = [
@@ -360,29 +363,30 @@ if (in_array(strtolower($fileExtension), $assetExtensions) || preg_match('#^/lev
 }
 
 // ===============================
-// ✅ Levan Routing
+// ✅ Lot Routing
 // ===============================
-if ($firstSegment === 'levan') {
+if ($firstSegment === 'lot' || $firstSegment === 'levan') {
 
     // 🎯 حقن الهيدر قبل ما تشغل Laravel
+    $_SERVER['HTTP_LOT'] = 'true';
     $_SERVER['HTTP_LEVAN'] = 'true';
      putenv('CACHE_DRIVER=array');
     putenv('LOG_CHANNEL=errorlog');
 
     $_ENV['CACHE_DRIVER'] = 'array';
     $_ENV['LOG_CHANNEL'] = 'errorlog';
-    $levanIndexPath = $levanPublicPath . '/index.php';
+    $lotIndexPath = $lotPublicPath . '/index.php';
 
-    if (!file_exists($levanIndexPath)) {
+    if (!file_exists($lotIndexPath)) {
         http_response_code(500);
-        echo "❌ ملف Levan غير موجود";
+        echo "❌ ملف Lot غير موجود";
         exit;
     }
 
     // ✅ ضبط الـ URI
     $originalUri = $_SERVER['REQUEST_URI'];
-    if (!str_starts_with($originalUri, '/levan')) {
-        $originalUri = '/levan' . $originalUri;
+    if (!str_starts_with($originalUri, '/'.$firstSegment)) {
+        $originalUri = '/'.$firstSegment . $originalUri;
     }
 
     $queryString = $_SERVER['QUERY_STRING'] ?? '';
@@ -391,12 +395,12 @@ if ($firstSegment === 'levan') {
     }
 
     $_SERVER['REQUEST_URI'] = $originalUri;
-    $_SERVER['SCRIPT_NAME'] = '/levan/index.php';
-    $_SERVER['PHP_SELF'] = '/levan/index.php';
+    $_SERVER['SCRIPT_NAME'] = '/'.$firstSegment.'/index.php';
+    $_SERVER['PHP_SELF'] = '/'.$firstSegment.'/index.php';
 
     // ✅ تشغيل Laravel
-    chdir(dirname($levanIndexPath));
-    require_once $levanIndexPath;
+    chdir(dirname($lotIndexPath));
+    require_once $lotIndexPath;
     exit;
 }
 
@@ -410,7 +414,7 @@ if (file_exists($htmlFile)) {
 }
 
 echo "<h2>Welcome to main site</h2>";
-echo "<p><a href='/levan'>Go to Levan</a></p>";
+echo "<p><a href='/lot'>Go to Lot</a></p>";
 PHP;
 
         // ✅ المسار داخل cPanel
@@ -495,9 +499,9 @@ PHP;
 
     public function checkLimits()
     {
-        $host = 'server.levan.com';  // بدون https:// ولا البورت
+        $host = env('WHM_HOST', 'server.lot.sa');  // بدون https:// ولا البورت
         $port = '2087';
-        $username = env('WHM_USER', 'levan');     // حط في .env
+        $username = env('WHM_USER', 'lot');     // حط في .env
         $token = env('WHM_TOKEN');            // أفضل تستخدم Token مش باسورد
 
         // لو بتستخدم باسورد بدل Token (مش موصى به للأمان)

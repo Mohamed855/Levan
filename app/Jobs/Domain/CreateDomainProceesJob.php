@@ -44,7 +44,7 @@ class CreateDomainProceesJob implements ShouldQueue
 
     protected $cpanelPassword;
 
-    public function __construct($domainName, $plan = 'default_levan', $tenantId = null)
+    public function __construct($domainName, $plan = 'default_lot', $tenantId = null)
     {
         $this->domainName = $domainName;
         $this->plan = $plan;
@@ -66,8 +66,8 @@ class CreateDomainProceesJob implements ShouldQueue
             'tenant_id' => $this->tenantId,
         ]);
 
-        $ns1 = 'ns1.levan.com';
-        $ns2 = 'ns2.levan.com';
+        $ns1 = config('services.domains.name_servers.0', 'ns1.lot.sa');
+        $ns2 = config('services.domains.name_servers.1', 'ns2.lot.sa');
 
         try {
             [$sld, $tld] = explode('.', $this->domainName);

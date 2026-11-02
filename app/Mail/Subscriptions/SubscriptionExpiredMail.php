@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -21,7 +21,7 @@ final class SubscriptionExpiredMail extends BaseMailable
             $renewUrl = url($renewUrl);
         }
 
-        return $this->subject('إشعار: انتهت فترة اشتراكك في منصة لوت Levan')
+        return $this->subject('إشعار: انتهت فترة اشتراكك في منصة لوت LOT')
             ->viewWithOffice('emails.subscriptions.expired', [
                 'customerName' => $tenant?->company_name ?? 'عزيزنا العميل',
                 'renewUrl'     => $renewUrl,

@@ -28,7 +28,7 @@ class AdminSubscriptionManagementFeatureTest extends TestCase
         $this->admin = AdminUser::where('email', 'superadmin@gmail.com')->first();
         if (! $this->admin) {
             $this->admin = AdminUser::firstOrCreate(
-                ['email' => 'admin_sub_test@levan.com'],
+                ['email' => 'admin_sub_test@lot.com'],
                 [
                     'name' => 'Sub Admin Test',
                     'password' => bcrypt('password'),

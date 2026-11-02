@@ -55,11 +55,17 @@ class PropertiesController extends Controller
     {
         $assignments = Assignment::where('is_active', true)->select(['id', 'name', 'assignment_number'])->get();
         $generatedPropertyNumber = $this->propertyService->generatePropertyNumber();
+        $city = old('city');
+        $districtOptions = $city ? $this->cityOptionsGateway->districtsByCityName($city) : [];
+        if (old('district') && ! isset($districtOptions[old('district')])) {
+            $districtOptions[old('district')] = old('district');
+        }
 
         return view('tenant.properties.create', [
             'assignments' => $assignments,
             'generatedPropertyNumber' => $generatedPropertyNumber,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'districtOptions' => $districtOptions,
         ]);
     }
 
@@ -99,10 +105,18 @@ class PropertiesController extends Controller
             ->select(['id', 'name', 'assignment_number'])
             ->get();
 
+        $city = old('city', $property->city);
+        $districtOptions = $city ? $this->cityOptionsGateway->districtsByCityName($city) : [];
+        $currentDistrict = old('district', $property->district);
+        if ($currentDistrict && ! isset($districtOptions[$currentDistrict])) {
+            $districtOptions[$currentDistrict] = $currentDistrict;
+        }
+
         return view('tenant.properties.edit', [
             'property' => $property,
             'assignments' => $assignments,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'districtOptions' => $districtOptions,
         ]);
     }
 

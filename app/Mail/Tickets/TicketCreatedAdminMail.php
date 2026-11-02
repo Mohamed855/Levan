@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -17,7 +17,7 @@ final class TicketCreatedAdminMail extends BaseMailable
     {
         $companyName = $this->ticket->tenant?->company_name ?? (string) $this->ticket->tenant_id;
 
-        return $this->subject("تذكرة جديدة #{$this->ticket->ticket_number} من ({$companyName}) — لوت Levan")
+        return $this->subject("تذكرة جديدة #{$this->ticket->ticket_number} من ({$companyName}) — لوت LOT")
             ->viewWithOffice('emails.tickets.created_admin', [
                 'ticket'      => $this->ticket,
                 'companyName' => $companyName,

@@ -1,20 +1,32 @@
 .package-card {
-    --package-card-accent: var(--primary-color, #1D4F44);
+    --package-card-accent: var(--bs-primary, #1D4F44);
     background-color: #fff;
     border: 1px solid #e8e1e4;
-    border-block-start: 3px solid var(--package-card-accent);
+    border-block-start: 4px solid var(--package-card-accent);
     border-radius: .75rem;
-    color: var(--primary-color, #1D4F44);
+    color: #2b2b2b;
     display: flex;
     flex-direction: column;
     min-height: 100%;
     overflow: hidden;
+    position: relative;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
 
-    &[data-plan-color='blue'] { --package-card-accent: #00a8c0; }
-    &[data-plan-color='green'] { --package-card-accent: #218c5b; }
-    &[data-plan-color='orange'] { --package-card-accent: #d97706; }
-    &[data-plan-color='red'] { --package-card-accent: #c2414b; }
-    &[data-plan-color='gray'] { --package-card-accent: #64748b; }
+    &:hover {
+        border-color: var(--package-card-accent);
+        box-shadow: 0 10px 24px -4px rgba(0, 0, 0, .1);
+        transform: translateY(-3px);
+    }
+
+    &[data-plan-color='primary']   { --package-card-accent: var(--bs-primary, #1D4F44); }
+    &[data-plan-color='secondary'] { --package-card-accent: var(--brand-gold, #BF874A); }
+    &[data-plan-color='blue']      { --package-card-accent: var(--bs-info, #0284c7); }
+    &[data-plan-color='green']     { --package-card-accent: var(--bs-success, #10b981); }
+    &[data-plan-color='orange']    { --package-card-accent: var(--bs-warning, #f59e0b); }
+    &[data-plan-color='red']       { --package-card-accent: var(--bs-danger, #ef4444); }
+    &[data-plan-color='gray']      { --package-card-accent: var(--bs-secondary, #6c757d); }
+    &[data-plan-color='dark']      { --package-card-accent: var(--bs-dark, #0f172a); }
+    &[data-plan-color='purple']    { --package-card-accent: var(--bs-primary, #1D4F44); }
 
     &__header {
         padding: 1.5rem 1.5rem 1rem;
@@ -22,16 +34,23 @@
     }
 
     &__eyebrow {
+        background-color: rgba(29, 79, 68, .08);
+        background-color: color-mix(in srgb, var(--package-card-accent) 12%, transparent);
+        border: 1px solid rgba(29, 79, 68, .2);
+        border: 1px solid color-mix(in srgb, var(--package-card-accent) 24%, transparent);
+        border-radius: 2rem;
         color: var(--package-card-accent);
+        display: inline-block;
         font-size: .75rem;
         font-weight: 700;
+        padding: .2rem .75rem;
     }
 
     &__title {
-        color: var(--primary-color, #1D4F44);
+        color: #12332C;
         font-size: 1.35rem;
         font-weight: 800;
-        margin: .45rem 0;
+        margin: .55rem 0 .35rem;
     }
 
     &__description {
@@ -48,11 +67,14 @@
     }
 
     &__discount {
+        background-color: rgba(33, 140, 91, .08);
+        border-radius: 1rem;
         color: #218c5b;
         display: inline-block;
         font-size: .75rem;
         font-weight: 700;
         margin-bottom: .35rem;
+        padding: .15rem .5rem;
     }
 
     &__price-line {
@@ -63,7 +85,7 @@
     }
 
     &__price-value {
-        color: var(--primary-color, #1D4F44);
+        color: var(--package-card-accent);
         font-size: 2.25rem;
         font-weight: 800;
         line-height: 1;
@@ -106,7 +128,7 @@
 
         i { color: var(--package-card-accent); font-size: .95rem; }
         span { color: #8d8388; font-size: .7rem; }
-        strong { color: var(--primary-color, #1D4F44); font-size: .75rem; grid-column: 2; }
+        strong { color: #12332C; font-size: .75rem; grid-column: 2; }
     }
 
     &__features {
@@ -122,7 +144,8 @@
     &__empty-feature { color: #9d9498; }
 
     &__action {
-        background-color: var(--primary-color, #1D4F44);
+        background-color: var(--package-card-accent);
+        border: 1px solid var(--package-card-accent);
         border-radius: .5rem;
         color: #fff;
         display: flex;
@@ -134,11 +157,14 @@
         margin-top: auto;
         padding: .75rem 1rem;
         text-decoration: none;
+        transition: filter .2s ease, box-shadow .2s ease;
 
         &:hover,
         &:focus-visible {
-            background-color: #12332C;
+            background-color: var(--package-card-accent);
+            box-shadow: 0 4px 14px color-mix(in srgb, var(--package-card-accent) 35%, transparent);
             color: #fff;
+            filter: brightness(0.92);
         }
 
         &:focus-visible { outline: 2px solid var(--package-card-accent); outline-offset: 2px; }

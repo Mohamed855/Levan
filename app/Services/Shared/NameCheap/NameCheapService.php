@@ -33,10 +33,10 @@ class NameCheapService
 
     
 
-    public function registerDomainAndSetupHosting2($domainName, $plan = 'levan_default')
+    public function registerDomainAndSetupHosting2($domainName, $plan = 'default_lot')
     {
-        $ns1 = 'ns1.levan.com';
-        $ns2 = 'ns2.levan.com';
+        $ns1 = config('services.domains.name_servers.0', 'ns1.lot.sa');
+        $ns2 = config('services.domains.name_servers.1', 'ns2.lot.sa');
 
         try {
             [$sld, $tld] = explode('.', $domainName, 2);
@@ -155,10 +155,11 @@ class NameCheapService
             $unique = substr(md5($domainName . microtime()), 0, 6);
             $whmUser = strtolower($prefix . $unique);
             $whmPass = Str::random(16) . '@1Aa';
-            $whmEmail = 'admin@levan.com';
+            $whmEmail = config('mail.from.address', 'admin@lot.sa');
             $whmIp = $this->serverIp;
+            $whmAuth = 'whm ' . env('WHM_USER', 'lot') . ':' . $this->whmToken;
             $whmResponse = Http::withHeaders([
-                'Authorization' => 'whm levan:' . $this->whmToken,
+                'Authorization' => $whmAuth,
             ])->timeout(60)->get($this->whmUrl . '/createacct', [
                 'api.version' => 1,
                 'username' => $whmUser,
@@ -184,7 +185,7 @@ class NameCheapService
             $dnsRecords = [];
 
             $dnsResponse1 = Http::withHeaders([
-                'Authorization' => 'whm levan:' . $this->whmToken,
+                'Authorization' => $whmAuth,
             ])->timeout(30)->get($this->whmUrl . '/addzonerecord', [
                 'domain' => $domainName,
                 'name' => $domainName . '.',
@@ -197,7 +198,7 @@ class NameCheapService
             sleep(2);
 
             $dnsResponse2 = Http::withHeaders([
-                'Authorization' => 'whm levan:' . $this->whmToken,
+                'Authorization' => $whmAuth,
             ])->timeout(30)->get($this->whmUrl . '/addzonerecord', [
                 'domain' => $domainName,
                 'name' => 'www.' . $domainName . '.',
@@ -254,7 +255,7 @@ class NameCheapService
         }
     }
 
-    public function setupdnsForDomain($domainName, $dns1, $dns2, $plan = 'levan_default')
+    public function setupdnsForDomain($domainName, $dns1, $dns2, $plan = 'default_lot')
     {
         try {
             if (empty($domainName) || empty($dns1) || empty($dns2)) {
@@ -268,10 +269,11 @@ class NameCheapService
             $unique = substr(md5($domainName . microtime()), 0, 6);
             $whmUser = strtolower($prefix . $unique);
             $whmPass = Str::random(16) . '@1Aa';
-            $whmEmail = 'admin@levan.com';
+            $whmEmail = config('mail.from.address', 'admin@lot.sa');
+            $whmAuth = 'whm ' . env('WHM_USER', 'lot') . ':' . $this->whmToken;
 
             $whmResponse = Http::withHeaders([
-                'Authorization' => 'whm levan:' . $this->whmToken,
+                'Authorization' => $whmAuth,
             ])->timeout(60)->get($this->whmUrl . '/createacct', [
                 'api.version' => 1,
                 'username' => $whmUser,
@@ -296,7 +298,7 @@ class NameCheapService
 
             foreach ([$dns1, $dns2] as $ns) {
                 $nsResponse = Http::withHeaders([
-                    'Authorization' => 'whm levan:' . $this->whmToken,
+                    'Authorization' => $whmAuth,
                 ])->timeout(30)->get($this->whmUrl . '/addzonerecord', [
                     'domain' => $domainName,
                     'name' => $domainName . '.',
@@ -307,7 +309,7 @@ class NameCheapService
             }
 
             $aResponse1 = Http::withHeaders([
-                'Authorization' => 'whm levan:' . $this->whmToken,
+                'Authorization' => $whmAuth,
             ])->timeout(30)->get($this->whmUrl . '/addzonerecord', [
                 'domain' => $domainName,
                 'name' => $domainName . '.',
@@ -319,7 +321,7 @@ class NameCheapService
             sleep(1);
 
             $aResponse2 = Http::withHeaders([
-                'Authorization' => 'whm levan:' . $this->whmToken,
+                'Authorization' => $whmAuth,
             ])->timeout(30)->get($this->whmUrl . '/addzonerecord', [
                 'domain' => $domainName,
                 'name' => 'www.' . $domainName . '.',
@@ -407,15 +409,17 @@ class NameCheapService
         // $newDomain = $domain;
 
         try {
-            $endpoint = 'https://server.levan.com:2087/json-api/modifyacct';
+            $whmHost  = env('WHM_HOST', 'server.lot.sa');
+            $endpoint = "https://{$whmHost}:2087/json-api/modifyacct";
             $params   = [
                 'api.version' => 1,
                 'user'        => $user->cpanel_username,
                 'domain'      => $domain,
             ];
 
+            $whmAuth = 'whm ' . env('WHM_USER', 'lot') . ':' . env('WHM_TOKEN', '8EPSQ67GW3XWGGRBYN51EP105R6C31P5');
             $response = Http::withHeaders([
-                'Authorization' => "whm levan:8EPSQ67GW3XWGGRBYN51EP105R6C31P5",
+                'Authorization' => $whmAuth,
             ])
                 ->withoutVerifying()
                 ->get($endpoint, $params);

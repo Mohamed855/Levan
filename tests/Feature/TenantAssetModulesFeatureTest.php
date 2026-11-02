@@ -29,7 +29,7 @@ class TenantAssetModulesFeatureTest extends TestCase
 
         $this->tenant = Tenant::findOrFail('test');
         tenancy()->initialize($this->tenant);
-        $this->owner = User::where('email', 'demo@levan.com')->firstOrFail();
+        $this->owner = User::where('email', 'demo@lot.com')->firstOrFail();
     }
 
     protected function tearDown(): void
@@ -453,7 +453,7 @@ class TenantAssetModulesFeatureTest extends TestCase
         [$assignment] = $this->assignments();
         $limitedUser = User::create([
             'name' => 'مستخدم اختبار محدود',
-            'email' => 'limited-'.uniqid().'@levan.test',
+            'email' => 'limited-'.uniqid().'@lot.test',
             'password' => bcrypt('Password123!'),
             'status' => 'active',
         ]);

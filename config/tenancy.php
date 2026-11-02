@@ -24,7 +24,7 @@ return [
 
     // ممنوع التعديل عليها
     'central_domains' => (function () {
-        $rawDomain = env('APP_CENTRAL_DOMAIN', 'levan.com');
+        $rawDomain = env('APP_CENTRAL_DOMAIN', 'lot.sa');
         $clean = parse_url($rawDomain, PHP_URL_HOST)
             ?: preg_replace('#^https?://#', '', rtrim(explode(':', $rawDomain)[0], '/'));
 

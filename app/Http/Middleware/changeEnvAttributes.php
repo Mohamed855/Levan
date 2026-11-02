@@ -15,7 +15,7 @@ class changeEnvAttributes
      */
     public function handle($request, Closure $next)
     {
-        if ($request->hasHeader('levan')) {
+        if ($request->hasHeader('lot') || $request->hasHeader('levan')) {
             config([
                 'logging.default' => 'errorlog',
             ]);

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -15,7 +15,7 @@ final class TrialRequestReceivedMail extends BaseMailable
 
     public function build(): static
     {
-        return $this->subject('تم استلام طلب التجربة المجانية بنجاح — لوت Levan')
+        return $this->subject('تم استلام طلب التجربة المجانية بنجاح — لوت LOT')
             ->viewWithOffice('emails.public.trial_received', [
                 'customerName' => $this->customerName,
                 'companyName'  => $this->companyName,

@@ -1,8 +1,15 @@
 "use strict";
 
+import { initCityDistrictSelector } from "../../shared/city-district-selector.js";
+
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("property-create-form");
     if (!form) return;
+
+    initCityDistrictSelector({
+        citySelector: "#property-city",
+        districtSelector: "#property-district",
+    });
 
     function escapeHtml(value) {
         const element = document.createElement("div");
@@ -1154,7 +1161,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const hasImage = Boolean(aerialImageInput?.value || loadedImage);
             const locationFields = [
                 ["المدينة", getSelectedText("city")],
-                ["الحي", getVal("district")],
+                ["الحي", getSelectedText("district") !== "-" ? getSelectedText("district") : getVal("district")],
                 ["المنطقة الإدارية", getVal("administrative_region")],
                 ["رقم المخطط", getVal("plan_number")],
                 ["رقم القطعة", getVal("parcel_number")],

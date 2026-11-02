@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Services\Admin\Microsoft\Mail;
 
@@ -31,7 +31,7 @@ class MailService
                 'operation_type' => " الاشتراك في نظام لوت في    {$subscription->plan->name}  ",
                 'plan_name' => $subscription->plan->name,
                 'next_payment_date' => $subscription->next_payment_date,
-                'url' => 'https://levan.com/'.$subscription->tenant_id.'/login',
+                'url' => 'https://lot.sa/'.$subscription->tenant_id.'/login',
             ]
         )->render();
 
@@ -55,7 +55,7 @@ class MailService
                 'operation_type' => " تجديد الاشتراك في نظام لوت في    {$subscription->plan->name}  ",
                 'plan_name' => $subscription->plan->name,
                 'next_payment_date' => $subscription->next_payment_date,
-                'url' => 'https://levan.com/'.$subscription->tenant_id.'/login',
+                'url' => 'https://lot.sa/'.$subscription->tenant_id.'/login',
             ]
         )->render();
 
@@ -79,7 +79,7 @@ class MailService
                 'operation_type' => "  شراء تراخيص إضافية للاشتراك رقم {$subscription->subscription_number}  ",
                 'plan_name' => $subscription->plan->name,
                 'total_users' => $subscription->total_users,
-                'url' => 'https://levan.com/'.$subscription->tenant_id.'/login',
+                'url' => 'https://lot.sa/'.$subscription->tenant_id.'/login',
             ]
         )->render();
 
@@ -103,7 +103,7 @@ class MailService
                 'operation_type' => '  إضافة عميل جديد في نظام لوت  ',
                 // 'plan_name'             => $subscription['plan']['name'],
                 // 'total_users'           => $subscription['total_users'],
-                'url' => 'https://levan.com',
+                'url' => 'https://lot.sa',
             ]
         )->render();
 
@@ -126,7 +126,7 @@ class MailService
                 'office_name' => $this->office_name,
                 'customer_name' => $name,
                 'request_date' => now()->toDateString(),
-                'url' => 'https://levan.com/',
+                'url' => 'https://lot.sa/',
             ]
         )->render();
 
@@ -148,7 +148,7 @@ class MailService
                 'office_name' => $this->office_name,
                 'customer_name' => $name,
                 'request_date' => now()->toDateString(),
-                'url' => 'https://levan.com/',
+                'url' => 'https://lot.sa/',
             ]
         )->render();
 

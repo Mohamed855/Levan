@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="und" dir="auto" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
     xmlns:o="urn:schemas-microsoft-com:office:office">
 
@@ -196,7 +196,7 @@
                                                     <tbody>
                                                         <tr>
                                                             <td style="width:110px;"><img alt="شعار"
-                                                                    src="https://levan.com/global/levan.png"
+                                                                    src="{{ asset('static/brand/logos/lot/trans-profile.png') }}"
                                                                     style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;"
                                                                     width="110" height="auto"></td>
                                                         </tr>

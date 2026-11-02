@@ -141,7 +141,7 @@ class AdminUser extends Authenticatable
     }
 
     /**
-     * Send the password reset notification using Levan branded email.
+     * Send the password reset notification using Lot branded email.
      */
     public function sendPasswordResetNotification($token): void
     {

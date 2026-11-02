@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -24,7 +24,7 @@ final class RenewSubscriptionMail extends BaseMailable
             $loginUrl = url($loginUrl);
         }
 
-        return $this->subject("تم تجديد اشتراكك في باقة {$plan?->name} بنجاح — لوت Levan")
+        return $this->subject("تم تجديد اشتراكك في باقة {$plan?->name} بنجاح — لوت LOT")
             ->viewWithOffice('emails.subscriptions.renewed', [
                 'customerName'       => $tenant?->company_name ?? 'عزيزنا العميل',
                 'planName'           => $plan?->name ?? 'الباقة',

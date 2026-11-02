@@ -45,4 +45,21 @@ final class PublicPlanVisibilityFeatureTest extends TestCase
 
         $this->assertSame(7, (int) $startDate->diffInDays($endDate));
     }
+
+    public function test_package_cards_render_with_custom_color_from_database(): void
+    {
+        $plan = Plan::query()->where('code', '!=', 'trial_7_days')->first();
+        if ($plan) {
+            $originalColor = $plan->color;
+            try {
+                $plan->update(['color' => \App\Enums\Admin\Plans\PlanColor::BLUE]);
+
+                $response = $this->get(route('site.index'))->assertOk();
+                $response->assertSee('data-plan-color="blue"', false);
+                $response->assertSee('--package-card-accent: #0284c7;', false);
+            } finally {
+                $plan->update(['color' => $originalColor]);
+            }
+        }
+    }
 }

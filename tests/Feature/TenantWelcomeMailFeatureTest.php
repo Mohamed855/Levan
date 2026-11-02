@@ -179,15 +179,18 @@ class TenantWelcomeMailFeatureTest extends TestCase
             tenant: $tenant,
             loginUrl: $loginUrl,
             loginEmail: 'fahad@alfahed.sa',
-            creationSource: 'subscription'
+            creationSource: 'subscription',
+            password: 'MyPassword123!'
         );
         $subHtml = $subMail->render();
 
         self::assertStringContainsString('fahad@alfahed.sa', $subHtml);
         self::assertStringContainsString($loginUrl, $subHtml);
+        self::assertStringContainsString('MyPassword123!', $subHtml);
         self::assertStringContainsString('مؤسسة الفهد للمزادات', $subHtml);
-        self::assertStringContainsString('لوت Levan', $subHtml);
+        self::assertStringContainsString('لوت LOT', $subHtml);
         self::assertStringContainsString('الدخول إلى لوحة التحكم الخاصة بك', $subHtml);
+        self::assertStringContainsString('الاحتفاظ برابط تسجيل الدخول', $subHtml);
 
         // Case B: SuperAdmin
         $adminMail = new TenantWelcomeMail(
@@ -280,6 +283,7 @@ class TenantWelcomeMailFeatureTest extends TestCase
                 'plan_id'       => $plan->id,
                 'billing_email' => 'salem@payment.test',
                 'billing_name'  => 'سالم الحربي',
+                'plain_password' => 'SalemSecretPass123!',
                 'checkout_source' => 'site_checkout',
             ],
         ]);
@@ -299,6 +303,8 @@ class TenantWelcomeMailFeatureTest extends TestCase
         $this->get($callback)->assertRedirect(url('/admin/login'))->assertSessionHas('success');
         self::assertSame(BillStatus::PAID, $bill->fresh()->status);
         $this->assertWelcomeDelivered($transport, 'salem@payment.test', $tenant);
+        self::assertStringContainsString('SalemSecretPass123!', $transport->messages()->sole()->getOriginalMessage()->getHtmlBody());
+        self::assertStringContainsString('الاحتفاظ برابط تسجيل الدخول', $transport->messages()->sole()->getOriginalMessage()->getHtmlBody());
 
         $this->get($callback)->assertRedirect(url('/admin/login'));
         $this->assertWelcomeDelivered($transport, 'salem@payment.test', $tenant);
@@ -402,6 +408,7 @@ class TenantWelcomeMailFeatureTest extends TestCase
             'city_id'               => $city->id,
             'address'               => 'جدة، حي الشاطئ',
             'password_hash'         => bcrypt('Password123!'),
+            'plain_password'        => 'Password123!',
             'email_verified_at'     => now(),
             'status'                => 'pending',
             'provisioning_status'   => 'ready',
@@ -437,5 +444,7 @@ class TenantWelcomeMailFeatureTest extends TestCase
         self::assertSame('approved', $trialRequest->fresh()->status->value);
         $this->assertWelcomeDelivered($transport, $trialEmail, $tenant);
         self::assertStringContainsString('7 أيام', $transport->messages()->sole()->getOriginalMessage()->getHtmlBody());
+        self::assertStringContainsString('Password123!', $transport->messages()->sole()->getOriginalMessage()->getHtmlBody());
+        self::assertStringContainsString('الاحتفاظ برابط تسجيل الدخول', $transport->messages()->sole()->getOriginalMessage()->getHtmlBody());
     }
 }

@@ -267,10 +267,12 @@ class SubscriptionService
             SendSubscriptionMailJob::dispatch($metadata['billing_email'], $subscription, 'new')->onQueue('email');
 
             // إرسال البريد الترحيبي للـ Tenant
+            $plainPassword = $metadata['plain_password'] ?? ($metadata['billing_password'] ?? null);
             \App\Services\Shared\Mail\SystemMailService::sendTenantWelcome(
-                $tenant,
-                $metadata['billing_email'] ?? $tenant->primary_contact_email,
-                'subscription'
+                tenant: $tenant,
+                loginEmail: $metadata['billing_email'] ?? $tenant->primary_contact_email,
+                source: 'subscription',
+                temporaryPassword: $plainPassword
             );
 
             return [
@@ -327,10 +329,10 @@ class SubscriptionService
 
         // إرسال البريد الترحيبي للـ Tenant
         \App\Services\Shared\Mail\SystemMailService::sendTenantWelcome(
-            $tenant,
-            $bill->metadata['billing_email'] ?? $tenant->primary_contact_email,
-            'superadmin',
-            temporaryPassword: $data['password'] ?? null
+            tenant: $tenant,
+            loginEmail: $bill->metadata['billing_email'] ?? $tenant->primary_contact_email,
+            source: 'superadmin',
+            temporaryPassword: $data['password'] ?? ($bill->metadata['plain_password'] ?? ($bill->metadata['billing_password'] ?? null))
         );
 
         return ['tenant_id' => $tenant->id, 'message' => 'تم إنشاء الاشتراك بنجاح.'];

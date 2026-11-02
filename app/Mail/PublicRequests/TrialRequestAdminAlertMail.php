@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -15,7 +15,7 @@ final class TrialRequestAdminAlertMail extends BaseMailable
 
     public function build(): static
     {
-        return $this->subject("طلب تجربة مجانية جديد من: {$this->trialRequest->customer_name} — لوت Levan")
+        return $this->subject("طلب تجربة مجانية جديد من: {$this->trialRequest->customer_name} — لوت LOT")
             ->viewWithOffice('emails.public.trial_admin_alert', [
                 'trialRequest' => $this->trialRequest,
             ]);

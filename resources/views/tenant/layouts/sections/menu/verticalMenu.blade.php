@@ -95,12 +95,10 @@
             @endcan
         @endcanany
 
-        {{-- الدعم الفني والنظام --}}
-        <li class="menu-header small">
-            <span class="menu-header-text">النظام والدعم</span>
-        </li>
-
         @can('tickets.view')
+            <li class="menu-header small">
+                <span class="menu-header-text">التذاكر والدعم</span>
+            </li>
             @php
                 $openTicketsCount = cache()->remember(
                     'tenant:' . tenant('id') . ':open_tickets_count',

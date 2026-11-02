@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -27,7 +27,7 @@ final class SubscriptionExpiringMail extends BaseMailable
             ?? $this->subscription->currentPeriod?->period_end?->format('Y-m-d') 
             ?? date('Y-m-d');
 
-        return $this->subject("تنبيه: اشتراكك ينتهي خلال {$this->daysRemaining} أيام — لوت Levan")
+        return $this->subject("تنبيه: اشتراكك ينتهي خلال {$this->daysRemaining} أيام — لوت LOT")
             ->viewWithOffice('emails.subscriptions.expiring_soon', [
                 'customerName'  => $tenant?->company_name ?? 'عزيزنا العميل',
                 'planName'      => $plan?->name ?? 'الباقة الحالية',

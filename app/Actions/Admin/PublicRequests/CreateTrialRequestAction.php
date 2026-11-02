@@ -27,7 +27,7 @@ final class CreateTrialRequestAction
                 'customer_phone' => $data['billing_phone'], 'company_name' => $data['billing_company_name'],
                 'commercial_number' => $data['billing_commercial_number'], 'tax_number' => $data['billing_tax_number'],
                 'city_id' => $data['billing_city_id'], 'address' => $data['billing_address'],
-                'password_hash' => $data['billing_password_hash'], 'email_verified_at' => $data['email_verified_at'],
+                'password_hash' => $data['billing_password_hash'], 'plain_password' => $data['plain_password'] ?? null, 'email_verified_at' => $data['email_verified_at'],
                 'submission_token' => $data['submission_token'], 'status' => 'pending',
             ];
             $legacy = TrialRequest::where('customer_email', $data['billing_email'])->where('status', 'pending')->whereNull('email_verified_at')->lockForUpdate()->first();

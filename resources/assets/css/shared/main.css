@@ -69,7 +69,7 @@ body {
 }
 
 /* =============================================================================
-   Scrollbar Contract - Strictly Left Aligned in RTL Mode with Levan Primary Color
+   Scrollbar Contract - Strictly Left Aligned in RTL Mode with Lot Primary Color
    ============================================================================= */
 :root,
 :root[dir="rtl"],
@@ -85,7 +85,7 @@ body[dir="rtl"] {
     direction: rtl !important;
 }
 
-/* Universal Custom Scrollbar - Levan Primary Palette */
+/* Universal Custom Scrollbar - Lot Primary Palette */
 * {
     scrollbar-color: #1D4F44 #F7F3EC !important;
     scrollbar-width: thin !important;

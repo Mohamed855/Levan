@@ -13,7 +13,7 @@
             <article class="site-error-card">
                 <div class="site-error-brand">
                     <a href="{{ url('/') }}" aria-label="{{ __('الرئيسية') }}">
-                        <img src="{{ asset('static/brand/logos/lot/trans-profile.png') }}" alt="Levan">
+                        <img src="{{ asset('static/brand/logos/lot/trans-profile.png') }}" alt="LOT">
                     </a>
                 </div>
 

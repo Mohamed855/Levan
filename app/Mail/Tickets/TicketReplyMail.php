@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -37,7 +37,7 @@ final class TicketReplyMail extends BaseMailable
 
         $statusLabel = TicketStatus::tryFrom($this->ticket->status)?->label() ?? $this->ticket->status;
 
-        return $this->subject("رد جديد على التذكرة #{$this->ticket->ticket_number} ({$this->ticket->title}) — لوت Levan")
+        return $this->subject("رد جديد على التذكرة #{$this->ticket->ticket_number} ({$this->ticket->title}) — لوت LOT")
             ->viewWithOffice('emails.tickets.reply', [
                 'ticket'             => $this->ticket,
                 'recipientName'      => $this->recipientName,

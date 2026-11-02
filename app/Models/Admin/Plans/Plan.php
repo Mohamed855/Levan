@@ -158,6 +158,19 @@ class Plan extends Model
     |                               Accessors & Helpers
     |============================================================================
     */
+    public function getColorHexAttribute(): string
+    {
+        if ($this->color instanceof PlanColor) {
+            return $this->color->hex();
+        }
+
+        if (is_string($this->color) && str_starts_with($this->color, '#')) {
+            return $this->color;
+        }
+
+        return PlanColor::tryFrom((string) $this->color)?->hex() ?? '#7367f0';
+    }
+
     public function getPriceAfterDiscountAttribute(): float
     {
         $discount = (float) ($this->discount_percentage ?? 0);

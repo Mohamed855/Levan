@@ -71,7 +71,7 @@ class TenantAuthenticationValidationFeatureTest extends TestCase
 
     public function test_two_factor_login_returns_to_tenant_path_and_binds_the_session(): void
     {
-        $user = User::where('email', 'demo@levan.com')->firstOrFail();
+        $user = User::where('email', 'demo@lot.com')->firstOrFail();
         $connection = $user->getConnection();
         $connection->beginTransaction();
 
@@ -84,7 +84,7 @@ class TenantAuthenticationValidationFeatureTest extends TestCase
 
             $this->post('/admin/login', [
                 'tenant_id' => 'test',
-                'email' => 'demo@levan.com',
+                'email' => 'demo@lot.com',
                 'password' => '123456789',
             ])->assertRedirect(url('/test/two-factor-challenge'));
 

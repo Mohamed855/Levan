@@ -32,7 +32,7 @@ class AdminVisualReviewTest extends TestCase
         $this->admin = AdminUser::where('email', 'superadmin@gmail.com')->first();
         if (! $this->admin) {
             $this->admin = AdminUser::firstOrCreate(
-                ['email' => 'admin_visual_test@levan.com'],
+                ['email' => 'admin_visual_test@lot.com'],
                 [
                     'name' => 'Visual Test Admin',
                     'password' => bcrypt('password'),
@@ -75,7 +75,7 @@ class AdminVisualReviewTest extends TestCase
     public function test_admin_user_show_renders_gradient_when_no_cover_image(): void
     {
         $user = AdminUser::firstOrCreate(
-            ['email' => 'user_show_test@levan.com'],
+            ['email' => 'user_show_test@lot.com'],
             [
                 'name' => 'User Show Test',
                 'password' => bcrypt('password'),

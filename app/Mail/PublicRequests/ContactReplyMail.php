@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -16,7 +16,7 @@ final class ContactReplyMail extends BaseMailable
 
     public function build(): static
     {
-        return $this->subject('رد على استفسارك — لوت Levan')
+        return $this->subject('رد على استفسارك — لوت LOT')
             ->viewWithOffice('emails.public.contact_reply', [
                 'customerName'    => $this->customerName,
                 'originalMessage' => $this->originalMessage,

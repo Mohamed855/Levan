@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -24,7 +24,7 @@ final class BankTransferPendingMail extends BaseMailable
 
         $operationType = $this->bill->type?->label() ?? 'اشتراك';
 
-        return $this->subject("تم استلام إيصال التحويل البنكي للفاتورة #{$this->bill->bill_number} — لوت Levan")
+        return $this->subject("تم استلام إيصال التحويل البنكي للفاتورة #{$this->bill->bill_number} — لوت LOT")
             ->viewWithOffice('emails.billing.bank_transfer_pending', [
                 'customerName'  => $name,
                 'billNumber'    => $this->bill->bill_number,

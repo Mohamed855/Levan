@@ -21,7 +21,7 @@ class TenantCrudFeatureTest extends TestCase
         $this->tenant = Tenant::find('test');
         tenancy()->initialize($this->tenant);
 
-        $this->user = User::where('email', 'demo@levan.com')->first();
+        $this->user = User::where('email', 'demo@lot.com')->first();
         $this->actingAs($this->user, 'tenant');
     }
 
@@ -108,7 +108,7 @@ class TenantCrudFeatureTest extends TestCase
 
         // 3. Store
         $uniqueId = rand(1000, 9999);
-        $email = "testuser{$uniqueId}@levan.com";
+        $email = "testuser{$uniqueId}@lot.com";
         $userName = 'مستخدم اختباري ' . chr(rand(97, 122)) . chr(rand(97, 122));
         $storeResponse = $this->post($this->tenantUrl('users'), [
             'name'                  => $userName,

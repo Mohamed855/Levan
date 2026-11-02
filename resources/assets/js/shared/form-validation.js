@@ -1763,6 +1763,7 @@ function initSelect2Controls(form, retryCount = 0) {
                     $select.attr("placeholder") ||
                     "اختر",
                 allowClear: !$select.prop("required"),
+                tags: Boolean($select.data("tags")),
                 width: "100%",
                 dir: "rtl",
                 minimumResultsForSearch:

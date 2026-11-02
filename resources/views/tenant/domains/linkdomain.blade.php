@@ -55,7 +55,7 @@
                 <div class="alert-box alert-info mt-3">
                     <i class="ti ti-info-circle" style="font-size: 1rem;"></i>
                     <div>
-                        <strong>مثال:</strong> levan.com للدومين الرئيسي، أو app.levan.com للدومين الفرعي
+                        <strong>مثال:</strong> lot.sa للدومين الرئيسي، أو app.lot.sa للدومين الفرعي
                     </div>
                 </div>
             </div>
@@ -328,7 +328,7 @@
             }
 
             function generateDNSRecordsForSubdomain() {
-                const serverDomain = '{{ env('SERVER_DOMAIN', 'levan.com') }}';
+                const serverDomain = '{{ env('SERVER_DOMAIN', 'lot.sa') }}';
                 const parts = currentDomain.split('.');
                 const host = parts.length > 2 ? parts[0] : '@';
 
@@ -380,7 +380,7 @@
             }
 
             function generateNSRecordsForMainDomain() {
-                const requiredNs = @json(config('dns.required_ns', ['ns1.levan.com', 'ns2.levan.com']));
+                const requiredNs = @json(config('dns.required_ns', ['ns1.lot.sa', 'ns2.lot.sa']));
 
                 let recordsHtml = '';
 

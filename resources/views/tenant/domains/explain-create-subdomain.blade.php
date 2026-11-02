@@ -394,7 +394,7 @@
                                     placeholder="مثال: blog أو store أو app"
                                     help="استخدم حروف إنجليزية صغيرة وأرقام وشرطة (-) فقط" required col="col-md-6"
                                     :input-group="true">
-                                    <span class="input-group-text">.levan.com</span>
+                                    <span class="input-group-text">.{{ env('APP_CENTRAL_DOMAIN', 'lot.sa') }}</span>
                                 </x-form.controls.input>
                                 <div class="col-md-6 mb-3">
                                     <button type="submit" class="btn btn-primary">

@@ -62,7 +62,7 @@ class TenantCreator
     {
         do {
             $random = random_int(10000, 99999);
-            $randomId = 'etmam_levan_'.$random;
+            $randomId = 'etmam_lot_'.$random;
         } while (Tenant::whereKey($randomId)->exists());
 
         return [$randomId, 'u'.$random];

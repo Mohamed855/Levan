@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -20,7 +20,7 @@ final class BankTransferAdminAlertMail extends BaseMailable
             ?? $this->bill->metadata['billing_name'] 
             ?? 'عميل';
 
-        return $this->subject("إشعار تحويل بنكي جديد للفاتورة #{$this->bill->bill_number} ({$customerName}) — لوت Levan")
+        return $this->subject("إشعار تحويل بنكي جديد للفاتورة #{$this->bill->bill_number} ({$customerName}) — لوت LOT")
             ->viewWithOffice('emails.billing.bank_transfer_admin_alert', [
                 'bill'         => $this->bill,
                 'customerName' => $customerName,

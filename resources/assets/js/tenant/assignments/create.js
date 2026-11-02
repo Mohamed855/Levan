@@ -1,8 +1,15 @@
 "use strict";
 
+import { initCityDistrictSelector } from "../../shared/city-district-selector.js";
+
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.querySelector("#assignment-create-form, #assignment-edit-form");
     if (!form) return;
+
+    initCityDistrictSelector({
+        citySelector: "#assignment-city",
+        districtSelector: "#assignment-district",
+    });
 
     const selectedProperties = new Map();
     const propertyInputs = document.getElementById("selected-property-inputs");
@@ -405,7 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ["تصنيف الإسناد", selectedText("category")],
             ["الجهة المسندة", value("issuing_entity")],
             ["المدينة", selectedText("city")],
-            ["النطاق/الحي", value("district")],
+            ["النطاق/الحي", selectedText("district") !== "-" ? selectedText("district") : value("district")],
             ["تاريخ البداية", value("start_date")],
             ["تاريخ النهاية", value("end_date")],
             ["وصف الإسناد", value("notes")],

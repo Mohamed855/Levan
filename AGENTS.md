@@ -1,4 +1,4 @@
-# Project Guidelines & Conventions - Levan
+# Project Guidelines & Conventions - Lot (لوت)
 
 ## Tech Stack
 
@@ -204,4 +204,4 @@
     -   Viewport scrollbar must be strictly aligned to the **left** in RTL via `:root[dir="rtl"], html[dir="rtl"] { direction: rtl !important; }`.
     -   Submenu items (`.menu-sub .menu-item`) must maintain a uniform height of `48px`, seamless concave scoops, and a vertical gap (`margin: 0.35rem 0 !important;`) preventing active/hover pill collision.
 -   **Brand Identity & Color Architecture**:
-    -   System brand is Levan («لوتLevan»).
+    -   System brand is Lot («لوت LOT»).

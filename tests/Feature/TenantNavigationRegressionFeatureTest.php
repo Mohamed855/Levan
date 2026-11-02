@@ -18,7 +18,7 @@ class TenantNavigationRegressionFeatureTest extends TestCase
         // 1. Authenticate via tenant admin login
         $loginResponse = $this->post('/admin/login', [
             'tenant_id' => 'test',
-            'email' => 'demo@levan.com',
+            'email' => 'demo@lot.com',
             'password' => '123456789',
         ]);
 
@@ -87,7 +87,7 @@ class TenantNavigationRegressionFeatureTest extends TestCase
         $this->assertSame(url('/test/properties?search=example'), session('url.intended'));
 
         $this->post('/admin/login', [
-            'email' => 'demo@levan.com',
+            'email' => 'demo@lot.com',
             'password' => '123456789',
         ])->assertRedirect(url('/test/properties?search=example'));
     }
@@ -95,7 +95,7 @@ class TenantNavigationRegressionFeatureTest extends TestCase
     public function test_path_dashboard_rejects_a_session_authenticated_for_another_tenant(): void
     {
         tenancy()->initialize(Tenant::findOrFail('test'));
-        $user = User::where('email', 'demo@levan.com')->firstOrFail();
+        $user = User::where('email', 'demo@lot.com')->firstOrFail();
         $connection = $user->getConnection();
         $connection->beginTransaction();
 
@@ -133,7 +133,7 @@ class TenantNavigationRegressionFeatureTest extends TestCase
     public function test_remembered_login_binds_the_restored_session_to_its_tenant(): void
     {
         tenancy()->initialize(Tenant::findOrFail('test'));
-        $user = User::where('email', 'demo@levan.com')->firstOrFail();
+        $user = User::where('email', 'demo@lot.com')->firstOrFail();
         $connection = $user->getConnection();
         $connection->beginTransaction();
 

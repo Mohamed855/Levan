@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('code', 50)->nullable()->unique();
             $table->string('plan_type', 50)->default('basic');
-            $table->string('color', 30)->default('purple');
+            $table->string('color', 30)->default('primary');
             $table->timestamp('available_from')->nullable();
             $table->text('admin_notes')->nullable();
             $table->string('limits_mode', 20)->default('limited');

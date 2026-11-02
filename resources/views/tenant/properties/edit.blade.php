@@ -21,6 +21,7 @@
 @section('page-script')
     <script>
         window.routes = window.routes || {};
+        window.routes.districts = "{{ tenant_route_name('locations.districts') }}";
         window.propertyUnitStatuses = @json(array_map(fn($case) => ['value' => $case->value, 'label' => $case->label()],
                 \App\Enums\Tenants\Properties\PropertyUnitStatus::cases()));
         window.propertyUnitTypes = @json(array_map(fn($case) => ['value' => $case->value, 'label' => $case->label()],
@@ -38,5 +39,6 @@
         'generatedPropertyNumber' => $property->property_number,
         'assignments' => $assignments,
         'cityOptions' => $cityOptions,
+        'districtOptions' => $districtOptions ?? [],
     ])
 @endsection

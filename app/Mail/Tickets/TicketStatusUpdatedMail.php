@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -30,7 +30,7 @@ final class TicketStatusUpdatedMail extends BaseMailable
         $newStatusLabel = TicketStatus::tryFrom($this->newStatus)?->label() ?? $this->newStatus;
         $name = $this->customerName ?? $this->ticket->tenant?->company_name ?? 'عزيزنا العميل';
 
-        return $this->subject("تحديث حالة التذكرة #{$this->ticket->ticket_number} إلى ({$newStatusLabel}) — لوت Levan")
+        return $this->subject("تحديث حالة التذكرة #{$this->ticket->ticket_number} إلى ({$newStatusLabel}) — لوت LOT")
             ->viewWithOffice('emails.tickets.status_updated', [
                 'ticket'         => $this->ticket,
                 'customerName'   => $name,

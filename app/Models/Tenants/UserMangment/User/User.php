@@ -271,7 +271,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Send the email verification notification using Levan branded email.
+     * Send the email verification notification using Lot branded email.
      */
     public function sendEmailVerificationNotification(): void
     {

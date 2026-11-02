@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -15,7 +15,7 @@ final class VerifyEmailMail extends BaseMailable
 
     public function build(): static
     {
-        return $this->subject('تأكيد بريدك الإلكتروني — لوت Levan')
+        return $this->subject('تأكيد بريدك الإلكتروني — لوت LOT')
             ->viewWithOffice('emails.auth.verify_email', [
                 'verifyUrl' => $this->verifyUrl,
                 'userName'  => $this->userName,

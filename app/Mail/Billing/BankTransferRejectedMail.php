@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -31,7 +31,7 @@ final class BankTransferRejectedMail extends BaseMailable
             }
         }
 
-        return $this->subject("تنبيه بخصوص التحويل البنكي للفاتورة #{$this->bill->bill_number} — لوت Levan")
+        return $this->subject("تنبيه بخصوص التحويل البنكي للفاتورة #{$this->bill->bill_number} — لوت LOT")
             ->viewWithOffice('emails.billing.bank_transfer_rejected', [
                 'bill'         => $this->bill,
                 'customerName' => $customerName,

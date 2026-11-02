@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -16,7 +16,7 @@ final class ContactRequestReceivedMail extends BaseMailable
 
     public function build(): static
     {
-        return $this->subject('تم استلام رسالتك بنجاح — لوت Levan')
+        return $this->subject('تم استلام رسالتك بنجاح — لوت LOT')
             ->viewWithOffice('emails.public.contact_received', [
                 'customerName'   => $this->customerName,
                 'subject'        => $this->subjectText,

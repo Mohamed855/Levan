@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -27,7 +27,7 @@ final class TicketCreatedClientMail extends BaseMailable
 
         $name = $this->customerName ?? $this->ticket->tenant?->company_name ?? 'عزيزنا العميل';
 
-        return $this->subject("تم فتح تذكرة دعم فني جديدة #{$this->ticket->ticket_number} — لوت Levan")
+        return $this->subject("تم فتح تذكرة دعم فني جديدة #{$this->ticket->ticket_number} — لوت LOT")
             ->viewWithOffice('emails.tickets.created_client', [
                 'ticket'       => $this->ticket,
                 'customerName' => $name,

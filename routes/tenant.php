@@ -35,6 +35,7 @@ use App\Http\Controllers\Tenants\Domains\DomainPaymentController;
 use App\Http\Controllers\Tenants\Domains\GetDomainInfoController;
 use App\Http\Controllers\Tenants\Domains\RenewalDomainController;
 use App\Http\Controllers\Tenants\License\LicenseController;
+use App\Http\Controllers\Tenants\Locations\LocationController;
 use App\Http\Controllers\Tenants\Notification\NotificationController;
 use App\Http\Controllers\Tenants\Properties\PropertiesController;
 use App\Http\Controllers\Tenants\Profile\ProfileController;
@@ -350,6 +351,15 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         });
         Route::resource('auctions', AuctionsController::class)
             ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Locations (المدن والأحياء)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('locations')->name('locations.')->group(function () {
+            Route::get('districts', [LocationController::class, 'districts'])->name('districts');
+        });
 
         /*
         |--------------------------------------------------------------------------

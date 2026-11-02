@@ -50,7 +50,7 @@ class DashboardNotificationService
         if (! config('dashboard-notifications.enabled', true)) {
             return;
         }
-        $id = (string) Uuid::uuid5(Uuid::NAMESPACE_URL, "levan:$scope:$tenantId:$userId:$key");
+        $id = (string) Uuid::uuid5(Uuid::NAMESPACE_URL, "lot:$scope:$tenantId:$userId:$key");
         $delivery = NotificationDelivery::firstOrCreate(['id' => $id], [
             'scope' => $scope, 'tenant_id' => $tenantId, 'user_id' => $userId, 'payload' => $payload,
         ]);

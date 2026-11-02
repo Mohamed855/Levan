@@ -1,4 +1,4 @@
-<mjml>
+﻿<mjml>
     <mj-head>
         <mj-title>{{ $preview_text }}</mj-title>
         <mj-preview>{{ $preview_text }}</mj-preview>
@@ -48,7 +48,7 @@
         >
             <mj-column>
                 <mj-image
-                    src="https://levan.com/global/levan.png"
+                    src="https://lot.sa/static/brand/logos/lot/trans-profile.png"
                     alt="شعار"
                     width="110px"
                     padding="0 0 1.25rem 0"

@@ -32,7 +32,7 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
         Storage::fake('tenant_public');
         Storage::fake('local');
         Bus::fake([GenerateAuctionReportsJob::class]);
-        $owner = User::query()->where('email', 'demo@levan.com')->firstOrFail();
+        $owner = User::query()->where('email', 'demo@lot.com')->firstOrFail();
         $assignment = $this->assignment('DRAFT');
         $property = $this->property($assignment, 'DRAFT');
         $this->actingAs($owner, 'tenant');
@@ -262,7 +262,7 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
         ]);
         Storage::fake('tenant_public');
 
-        $owner = User::query()->where('email', 'demo@levan.com')->firstOrFail();
+        $owner = User::query()->where('email', 'demo@lot.com')->firstOrFail();
         $assignment = $this->assignment('HTTP');
         $property = $this->property($assignment, 'HTTP');
         $payload = array_replace($this->validPayload($assignment), [
@@ -285,7 +285,7 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
     {
         $this->withoutMiddleware([CheckSubscription::class, EnsureUserHasActiveLicense::class]);
         Storage::fake('tenant_public');
-        $owner = User::query()->where('email', 'demo@levan.com')->firstOrFail();
+        $owner = User::query()->where('email', 'demo@lot.com')->firstOrFail();
         $assignment = $this->assignment('HTTP-NO-IMAGE');
         $property = $this->property($assignment, 'HTTP-NO-IMAGE');
         $payload = array_replace($this->validPayload($assignment), ['name' => 'مزاد بدون صور '.uniqid(), 'property_ids' => [$property->id]]);
@@ -326,14 +326,14 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
         ]);
         $assignment = $this->assignment('RETRY-AUTH');
         $auction = $this->auction($assignment);
-        $owner = User::query()->where('email', 'demo@levan.com')->firstOrFail();
+        $owner = User::query()->where('email', 'demo@lot.com')->firstOrFail();
         $permission = Permission::query()->firstOrCreate([
             'name' => 'auctions.view',
             'guard_name' => 'tenant',
         ]);
         $viewer = User::query()->create([
             'name' => 'مشاهد تقارير المزاد',
-            'email' => 'report-viewer-'.uniqid().'@levan.test',
+            'email' => 'report-viewer-'.uniqid().'@lot.test',
             'password' => bcrypt('Password123!'),
             'status' => 'active',
         ]);

@@ -64,7 +64,7 @@ abstract class TenantAuctionReportTestCase extends TestCase
         tenancy()->initialize($this->tenant);
         DB::connection('tenant')->beginTransaction();
 
-        $owner = User::query()->firstOrCreate(['email' => 'demo@levan.com'], [
+        $owner = User::query()->firstOrCreate(['email' => 'demo@lot.com'], [
             'name' => 'Report CI owner', 'password' => bcrypt('Report-CI-only-123!'), 'status' => 'active',
         ]);
         foreach (['auctions.view', 'auctions.create', 'auctions.edit', 'auctions.delete'] as $name) {

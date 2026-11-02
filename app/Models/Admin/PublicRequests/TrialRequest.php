@@ -26,11 +26,11 @@ class TrialRequest extends Model
         'processed_at',
         'processed_by',
         'company_name', 'commercial_number', 'tax_number', 'city_id', 'address',
-        'password_hash', 'email_verified_at', 'submission_token', 'tenant_id', 'subscription_id',
+        'password_hash', 'plain_password', 'email_verified_at', 'submission_token', 'tenant_id', 'subscription_id',
         'provisioning_status', 'provisioning_error', 'provisioning_started_at',
     ];
 
-    protected $hidden = ['password_hash'];
+    protected $hidden = ['password_hash', 'plain_password'];
 
     public function tenant()
     {

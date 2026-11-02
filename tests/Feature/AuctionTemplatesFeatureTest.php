@@ -39,7 +39,7 @@ class AuctionTemplatesFeatureTest extends TestCase
         Storage::fake('central_public');
 
         $this->admin = AdminUser::firstOrCreate(
-            ['email' => 'admin_test@levan.com'],
+            ['email' => 'admin_test@lot.com'],
             [
                 'name' => 'Admin Test',
                 'password' => bcrypt('password'),

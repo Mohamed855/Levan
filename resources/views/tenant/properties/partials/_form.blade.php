@@ -119,12 +119,15 @@
                 <div class="card assignment-properties-table-card h-100">
                     <div class="card-body">
                         <div class="row g-4">
-                            <x-form.controls.select name="city" label="المدينة" required col="col-md-6"
+                            <x-form.controls.select name="city" id="property-city" label="المدينة" required col="col-md-6"
                                 :value="$is_edit ? $property->city : old('city')"
                                 :options="$cityOptions" />
-                            <x-form.controls.input name="district" label="الحي / النطاق"
+                            <x-form.controls.select name="district" id="property-district" label="الحي / النطاق"
                                 :value="$is_edit ? $property->district : old('district')"
-                                placeholder="مثال: حي العارض" required col="col-md-6" />
+                                :options="$districtOptions ?? []"
+                                placeholder="اختر الحي أو اكتب حياً جديداً"
+                                data-tags="true"
+                                required col="col-md-6" />
                             <x-form.controls.input name="administrative_region" label="المنطقة الإدارية"
                                 :value="$is_edit ? $property->administrative_region : old('administrative_region')"
                                 placeholder="مثال: منطقة الرياض" required col="col-md-6" />

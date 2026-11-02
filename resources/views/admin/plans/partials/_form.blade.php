@@ -11,7 +11,7 @@
     ];
 
     $currentType = old('plan_type', $target?->plan_type?->value ?? ($target?->plan_type ?? ''));
-    $currentColor = old('color', $target?->color?->value ?? ($target?->color ?? 'purple'));
+    $currentColor = old('color', $target?->color?->value ?? ($target?->color ?? 'primary'));
     $currentCycle = old(
         'subscription_billing_cycle',
         $target?->subscription_billing_cycle?->value ?? ($target?->subscription_billing_cycle ?? 'monthly'),
@@ -80,7 +80,7 @@
                 <x-form.controls.select name="color" id="color" label="لون الباقة المميز" required
                     :value="$currentColor" col="col-md-6" :options="array_map(
                         fn($color) => ['value' => $color->value, 'label' => $color->label()],
-                        \App\Enums\Admin\Plans\PlanColor::cases(),
+                        \App\Enums\Admin\Plans\PlanColor::selectableCases(),
                     )" />
 
                 <x-form.controls.textarea name="description" id="description" label="وصف الباقة" rows="3"

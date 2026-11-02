@@ -75,13 +75,16 @@
                     :value="$is_edit ? $assignment->issuing_entity : old('issuing_entity')"
                     placeholder="أدخل الجهة المسندة (مثال: محكمة التنفيذ)" required col="col-md-6" />
 
-                <x-form.controls.select name="city" label="المدينة" required col="col-md-6"
+                <x-form.controls.select name="city" id="assignment-city" label="المدينة" required col="col-md-6"
                     :value="$is_edit ? $assignment->city : old('city')"
                     :options="$cityOptions" />
 
-                <x-form.controls.input name="district" label="النطاق/الحي"
+                <x-form.controls.select name="district" id="assignment-district" label="النطاق/الحي"
                     :value="$is_edit ? $assignment->district : old('district')"
-                    placeholder="أدخل النطاق أو الحي" col="col-md-6" />
+                    :options="$districtOptions ?? []"
+                    placeholder="اختر النطاق أو الحي أو اكتب حياً جديداً"
+                    data-tags="true"
+                    col="col-md-6" />
 
                 <x-form.controls.input name="start_date" type="date" label="تاريخ البداية"
                     :value="$is_edit ? $assignment->start_date?->format('Y-m-d') : old('start_date')"

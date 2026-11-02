@@ -84,9 +84,10 @@ class TenantService
         SendSubscriptionMailJob::dispatch($data['email'], $subscription, 'new')->onQueue('email');
 
         \App\Services\Shared\Mail\SystemMailService::sendTenantWelcome(
-            $tenant,
-            $data['email'] ?? $tenant->primary_contact_email,
-            'subscription'
+            tenant: $tenant,
+            loginEmail: $data['email'] ?? $tenant->primary_contact_email,
+            source: 'subscription',
+            temporaryPassword: $data['password'] ?? ($metadata['billing_password'] ?? null)
         );
 
         return $tenant;

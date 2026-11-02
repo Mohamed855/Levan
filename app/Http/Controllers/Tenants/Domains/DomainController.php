@@ -62,7 +62,7 @@ class DomainController extends Controller
         $this->cpanelService = $cpanelService;
         $this->domain_service = $domain_service;
         // $this->domainName = $domainName;
-        $this->plan = 'levan_default';
+        $this->plan = env('WHM_DEFAULT_PLAN', 'lot_default');
         $this->tenantId = $tenantId ?? tenant('id');
 
         $this->apiUser = config('services.namecheap.user');
@@ -156,12 +156,12 @@ class DomainController extends Controller
 
         // إنشاء الحساب
         $response = Http::withHeaders([
-            'Authorization' => 'whm levan:'.$this->whmToken,
+            'Authorization' => 'whm ' . env('WHM_USER', 'lot') . ':' . $this->whmToken,
         ])->timeout(60)->get($this->whmUrl.'/createacct', [
             'username' => $cpanelUsername,
             'domain' => $this->domainName,
             'password' => $password,
-            'plan' => 'default_levan',
+            'plan' => env('WHM_DEFAULT_PLAN', 'default_lot'),
             'contactemail' => 'islamay124@gmail.com',
             'featurelist' => 'default',
             'quota' => 0, // Unlimited
@@ -891,12 +891,12 @@ class DomainController extends Controller
         $whmPass = Str::random(16).'@1Aa';
 
         $whmResponse = Http::withHeaders([
-            'Authorization' => 'whm levan:'.$this->whmToken,
+            'Authorization' => 'whm ' . env('WHM_USER', 'lot') . ':' . $this->whmToken,
         ])->timeout(60)->get(rtrim($this->whmUrl, '/').'/json-api/createacct', [
             'username' => $whmUser,
             'domain' => $domainName,
             'password' => $whmPass,
-            'plan' => 'default_levan',
+            'plan' => env('WHM_DEFAULT_PLAN', 'default_lot'),
             'contactemail' => 'islamay124@gmail.com',
             'featurelist' => 'default',
             'quota' => 0,

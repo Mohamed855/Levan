@@ -44,7 +44,7 @@ final class CrossPanelLoginTest extends TestCase
 
         $this->post('http://localhost/admin/login', [
             'tenant_id' => 'test',
-            'email' => 'demo@levan.com',
+            'email' => 'demo@lot.com',
             'password' => '123456789',
         ])->assertRedirect('/test/dashboard');
 

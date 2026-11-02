@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -15,7 +15,7 @@ final class PasswordResetMail extends BaseMailable
 
     public function build(): static
     {
-        return $this->subject('إعادة تعيين كلمة المرور — لوت Levan')
+        return $this->subject('إعادة تعيين كلمة المرور — لوت LOT')
             ->viewWithOffice('emails.auth.password_reset', [
                 'resetUrl' => $this->resetUrl,
                 'userName' => $this->userName,

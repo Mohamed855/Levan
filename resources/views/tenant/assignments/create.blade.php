@@ -20,6 +20,10 @@
 @endsection
 
 @section('page-script')
+    <script>
+        window.routes = window.routes || {};
+        window.routes.districts = "{{ tenant_route_name('locations.districts') }}";
+    </script>
     @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenant/assignments/create.js'])
 @endsection
 
@@ -29,6 +33,7 @@
         'assignment' => null,
         'dataTable' => $dataTable,
         'cityOptions' => $cityOptions,
+        'districtOptions' => $districtOptions ?? [],
         'generatedAssignmentNumber' => $generatedAssignmentNumber,
         'propertyImageFallback' => $propertyImageFallback,
     ])

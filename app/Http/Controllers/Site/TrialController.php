@@ -52,6 +52,7 @@ class TrialController extends Controller
     {
         $data = $request->validated();
         $data['billing_password_hash'] = Hash::make($data['billing_password']);
+        $data['plain_password'] = $data['billing_password'];
         unset($data['billing_password'], $data['billing_password_confirmation'], $data['is_editing']);
         $data['otp_hash'] = $otp->issue($data['billing_email']);
         $data['expires_at'] = now()->addMinutes(2)->timestamp;

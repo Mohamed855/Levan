@@ -89,7 +89,7 @@
                             <div id="domain2" class="accordion-collapse collapse" data-bs-parent="#accordionDomains">
                                 <div class="accordion-body">
                                     لنقل دومين موجود، اذهب إلى قسم "نقل دومين" وأدخل اسم الدومين. ستحتاج إلى تغيير Name
-                                    Servers في لوحة تحكم الدومين الحالي إلى ns1.levan.com و ns2.levan.com. قد تستغرق العملية
+                                    Servers في لوحة تحكم الدومين الحالي إلى ns1.lot.sa و ns2.lot.sa. قد تستغرق العملية
                                     من 24 إلى 48 ساعة.
                                 </div>
                             </div>

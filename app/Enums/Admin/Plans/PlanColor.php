@@ -6,46 +6,55 @@ namespace App\Enums\Admin\Plans;
 
 enum PlanColor: string
 {
-    case PURPLE = 'purple';
+    case PRIMARY = 'primary';
+    case SECONDARY = 'secondary';
     case BLUE = 'blue';
     case GREEN = 'green';
     case ORANGE = 'orange';
     case RED = 'red';
     case GRAY = 'gray';
+    case DARK = 'dark';
+    case PURPLE = 'purple'; // Backward-compatibility alias
 
     public function label(): string
     {
         return match ($this) {
-            self::PURPLE => 'بنفسجي',
+            self::PRIMARY, self::PURPLE => 'اللون الأساسي',
+            self::SECONDARY => 'اللون الثانوي',
             self::BLUE => 'أزرق',
             self::GREEN => 'أخضر',
             self::ORANGE => 'برتقالي',
             self::RED => 'أحمر',
             self::GRAY => 'رمادي',
+            self::DARK => 'داكن',
         };
     }
 
     public function hex(): string
     {
         return match ($this) {
-            self::PURPLE => '#7367f0',
-            self::BLUE => '#00cfe8',
-            self::GREEN => '#28c76f',
-            self::ORANGE => '#ff9f43',
-            self::RED => '#ea5455',
-            self::GRAY => '#82868b',
+            self::PRIMARY, self::PURPLE => '#1D4F44',
+            self::SECONDARY => '#BF874A',
+            self::BLUE => '#0284c7',
+            self::GREEN => '#10b981',
+            self::ORANGE => '#f59e0b',
+            self::RED => '#ef4444',
+            self::GRAY => '#6c757d',
+            self::DARK => '#0f172a',
         };
     }
 
     public function badgeClass(): string
     {
         return match ($this) {
-            self::PURPLE => 'bg-primary',
+            self::PRIMARY, self::PURPLE => 'bg-primary',
+            self::SECONDARY => 'bg-gold',
             self::BLUE => 'bg-info',
             self::GREEN => 'bg-success',
             self::ORANGE => 'bg-warning',
             self::RED => 'bg-danger',
             self::GRAY => 'bg-secondary',
+            self::DARK => 'bg-dark',
         };
     }
 
@@ -58,8 +67,22 @@ enum PlanColor: string
                 'hex' => $t->hex(),
                 'badgeClass' => $t->badgeClass(),
             ],
-            self::cases()
+            self::selectableCases()
         );
+    }
+
+    public static function selectableCases(): array
+    {
+        return [
+            self::PRIMARY,
+            self::SECONDARY,
+            self::BLUE,
+            self::GREEN,
+            self::ORANGE,
+            self::RED,
+            self::GRAY,
+            self::DARK,
+        ];
     }
 
     public static function values(): array

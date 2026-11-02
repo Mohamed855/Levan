@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -15,7 +15,7 @@ final class OtpMail extends BaseMailable
 
     public function build(): static
     {
-        return $this->subject("رمز التحقق ({$this->otp}) — لوت Levan")
+        return $this->subject("رمز التحقق ({$this->otp}) — لوت LOT")
             ->viewWithOffice('emails.auth.otp', [
                 'otp'     => $this->otp,
                 'purpose' => $this->purpose,

@@ -94,7 +94,7 @@ class SystemMailService
             // Ignore settings fetch error
         }
 
-        return (string) config('mail.from.address', 'info@levan.sa');
+        return (string) config('mail.from.address', 'info@lot.sa');
     }
 
     /*
@@ -138,7 +138,8 @@ class SystemMailService
         string $source = 'subscription',
         ?int $trialDays = null,
         ?string $trialEndDate = null,
-        ?string $temporaryPassword = null
+        ?string $temporaryPassword = null,
+        ?string $password = null
     ): bool {
         $loginEmail = $loginEmail ?: $tenant->primary_contact_email;
         if (empty($loginEmail)) {
@@ -148,6 +149,7 @@ class SystemMailService
         }
 
         $loginUrl = $tenant->getLoginUrl();
+        $plainPassword = $password ?? $temporaryPassword;
 
         return self::sendSafely(
             $loginEmail,
@@ -156,9 +158,10 @@ class SystemMailService
                 loginUrl: $loginUrl,
                 loginEmail: $loginEmail,
                 creationSource: $source,
-                temporaryPassword: $temporaryPassword,
+                temporaryPassword: $plainPassword,
                 trialDays: $trialDays,
-                trialEndDate: $trialEndDate
+                trialEndDate: $trialEndDate,
+                password: $plainPassword
             ),
             forceSync: true
         );

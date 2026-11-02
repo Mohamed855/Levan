@@ -24,7 +24,7 @@ return new class extends Migration
             $table->text('cpanel_token')->nullable(); // ✅ API token
 
             // ✅ معلومات إضافية
-            $table->string('plan')->default('default_levan');
+            $table->string('plan')->default('default_lot');
             $table->string('server_ip')->nullable();
             $table->string('contact_email')->nullable();
 

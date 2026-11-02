@@ -17,6 +17,7 @@ final class TenantWelcomeMail extends BaseMailable
         public readonly ?string $temporaryPassword = null,
         public readonly ?int $trialDays = null,
         public readonly ?string $trialEndDate = null,
+        public readonly ?string $password = null,
     ) {
         $this->onQueue('email');
     }
@@ -24,10 +25,12 @@ final class TenantWelcomeMail extends BaseMailable
     public function build(): static
     {
         $subject = match ($this->creationSource) {
-            'trial' => 'مرحباً بك في لوت Levan — تم تفعيل حسابك التجريبي وبيانات الدخول',
-            'superadmin' => 'مرحباً بك في لوت Levan — تم إنشاء مساحة العمل وبيانات الدخول الخاصة بمنشأتك',
-            default => 'مرحباً بك في لوت Levan — تم تفعيل مساحة العمل وبيانات الدخول الخاصة بمنشأتك',
+            'trial' => 'مرحباً بك في لوت LOT — تم تفعيل حسابك التجريبي وبيانات الدخول',
+            'superadmin' => 'مرحباً بك في لوت LOT — تم إنشاء مساحة العمل وبيانات الدخول الخاصة بمنشأتك',
+            default => 'مرحباً بك في لوت LOT — تم تفعيل مساحة العمل وبيانات الدخول الخاصة بمنشأتك',
         };
+
+        $plainPassword = $this->password ?? $this->temporaryPassword;
 
         return $this->subject($subject)
             ->viewWithOffice('emails.tenants.welcome', [
@@ -37,7 +40,8 @@ final class TenantWelcomeMail extends BaseMailable
                 'loginEmail'        => $this->loginEmail,
                 'loginUrl'          => $this->loginUrl,
                 'creationSource'    => $this->creationSource,
-                'temporaryPassword' => $this->temporaryPassword,
+                'temporaryPassword' => $plainPassword,
+                'password'          => $plainPassword,
                 'trialDays'         => $this->trialDays,
                 'trialEndDate'      => $this->trialEndDate,
             ]);

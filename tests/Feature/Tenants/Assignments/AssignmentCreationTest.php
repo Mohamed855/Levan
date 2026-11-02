@@ -25,7 +25,7 @@ class AssignmentCreationTest extends TestCase
 
         $this->tenant = Tenant::findOrFail('test');
         tenancy()->initialize($this->tenant);
-        $this->user = User::where('email', 'demo@levan.com')->firstOrFail();
+        $this->user = User::where('email', 'demo@lot.com')->firstOrFail();
     }
 
     protected function tearDown(): void

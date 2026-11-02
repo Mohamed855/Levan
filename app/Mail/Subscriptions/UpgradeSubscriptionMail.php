@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -23,7 +23,7 @@ final class UpgradeSubscriptionMail extends BaseMailable
             $loginUrl = url($loginUrl);
         }
 
-        return $this->subject('تمت ترقية اشتراكك وشراء تراخيص جديدة — لوت Levan')
+        return $this->subject('تمت ترقية اشتراكك وشراء تراخيص جديدة — لوت LOT')
             ->viewWithOffice('emails.subscriptions.upgraded', [
                 'customerName'     => $tenant?->company_name ?? 'عزيزنا العميل',
                 'planName'         => $plan?->name ?? 'الباقة',

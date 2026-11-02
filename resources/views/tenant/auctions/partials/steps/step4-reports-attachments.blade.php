@@ -18,7 +18,7 @@
 
     {{-- 4. حساب التواصل الاجتماعي --}}
     <x-form.controls.input name="marketing[contacts][social]" id="marketing_contacts_social"
-        label="حساب التواصل الاجتماعي" placeholder="مثال: @levan_sa" :value="$marketing['contacts']['social'] ?? null" col="col-md-6" />
+        label="حساب التواصل الاجتماعي" placeholder="مثال: @lot_sa" :value="$marketing['contacts']['social'] ?? null" col="col-md-6" />
 
     {{-- 5. تاريخ حملة الواتساب --}}
     <x-form.controls.input name="marketing[whatsapp_date]" id="marketing_whatsapp_date" label="تاريخ حملة الواتساب"

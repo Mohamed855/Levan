@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -19,7 +19,7 @@ final class UserWelcomeMail extends BaseMailable
 
     public function build(): static
     {
-        return $this->subject('بيانات حسابك الجديد — لوت Levan')
+        return $this->subject('بيانات حسابك الجديد — لوت LOT')
             ->viewWithOffice('emails.auth.user_welcome', [
                 'userName'          => $this->userName,
                 'email'             => $this->email,

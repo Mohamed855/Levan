@@ -69,8 +69,8 @@ return [
 
     'domains' => [
         'server_ip' => env('SERVER_IP', '135.181.215.105'),
-        'name_servers' => ['ns1.levan.com', 'ns2.levan.com'],
-        'server_domain' => env('SERVER_DOMAIN', 'levan.com'),
+        'name_servers' => ['ns1.lot.sa', 'ns2.lot.sa'],
+        'server_domain' => env('SERVER_DOMAIN', 'lot.sa'),
     ],
 
     'ticket_api' => [

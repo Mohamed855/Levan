@@ -21,7 +21,7 @@ class TenantProfileUploadFeatureTest extends TestCase
 
         $this->tenant = Tenant::findOrFail('test');
         tenancy()->initialize($this->tenant);
-        $this->owner = User::where('email', 'demo@levan.com')->firstOrFail();
+        $this->owner = User::where('email', 'demo@lot.com')->firstOrFail();
     }
 
     protected function tearDown(): void
@@ -37,7 +37,7 @@ class TenantProfileUploadFeatureTest extends TestCase
     {
         $otherUser = User::create([
             'name' => 'مستخدم صلاحيات محدود',
-            'email' => 'noedit' . random_int(1000, 9999) . '@levan.test',
+            'email' => 'noedit' . random_int(1000, 9999) . '@lot.test',
             'password' => bcrypt('Password123!'),
             'status' => 'active',
         ]);

@@ -37,7 +37,7 @@ final class AuctionReportIsolationTest extends TenantAuctionReportTestCase
             'revision_token' => 'download-'.uniqid(), 'status' => 'ready', 'snapshot' => [],
             'outputs_path' => 'auction-reports/download/outputs.pdf', 'report_path' => 'auction-reports/download/report.pdf',
         ]);
-        $owner = User::query()->where('email', 'demo@levan.com')->firstOrFail();
+        $owner = User::query()->where('email', 'demo@lot.com')->firstOrFail();
         self::assertTrue($auction->fresh()->latestReportGeneration->isReady());
         foreach (['outputs' => 'مخرجات', 'report' => 'تقرير'] as $type => $label) {
             Storage::disk('tenant_private')->put('auction-reports/download/'.$type.'.pdf', '%PDF-'.$type);
@@ -48,7 +48,7 @@ final class AuctionReportIsolationTest extends TenantAuctionReportTestCase
             Storage::disk('tenant_public')->assertMissing('auction-reports/download/'.$type.'.pdf');
         }
         $viewer = User::query()->create([
-            'name' => 'دون صلاحية تقارير', 'email' => 'no-report-'.uniqid().'@levan.test',
+            'name' => 'دون صلاحية تقارير', 'email' => 'no-report-'.uniqid().'@lot.test',
             'password' => bcrypt('Password123!'), 'status' => 'active',
         ]);
         $this->actingAs($viewer, 'tenant')->get('http://test.localhost/auctions/'.$auction->id.'/reports/download/outputs')->assertForbidden();

@@ -27,12 +27,15 @@ function initPlanFormUI() {
         );
     };
     const planColors = {
+        primary: "#1D4F44",
+        secondary: "#BF874A",
+        blue: "#0284c7",
+        green: "#10b981",
+        orange: "#f59e0b",
+        red: "#ef4444",
+        gray: "#6c757d",
+        dark: "#0f172a",
         purple: "#1D4F44",
-        blue: "#00a8c0",
-        green: "#218c5b",
-        orange: "#d97706",
-        red: "#c2414b",
-        gray: "#64748b",
     };
     const formatPlanColor = (option) => {
         if (!option.id || !planColors[option.id]) return option.text;
@@ -401,11 +404,15 @@ function initPlanFormUI() {
             });
         const limitValue = (id, suffix) =>
             isUnlimited ? "غير محدود" : `${getValue(id, "—")} ${suffix}`;
-        const selectedColor = getValue("color", "purple");
+        const selectedColor = getValue("color", "primary");
 
         cards.forEach((card) => {
+            const hex =
+                planColors[selectedColor] ||
+                (selectedColor.startsWith("#") ? selectedColor : "#1D4F44");
             card.dataset.planColor = selectedColor;
             card.setAttribute("data-plan-color", selectedColor);
+            card.style.setProperty("--package-card-accent", hex);
 
             setText(card, "name", getValue("name", "اسم الباقة"));
             setText(card, "type", getSelectLabel("plan_type", "باقة مخصصة"));
@@ -428,7 +435,11 @@ function initPlanFormUI() {
             setText(card, "users", limitValue("included_users", "مستخدم"));
             setText(card, "properties", limitValue("properties_limit", "عقار"));
             setText(card, "storage", limitValue("storage_quota_gb", "GB"));
-            setText(card, "auctions", limitValue("active_auctions_limit", "مزاد"));
+            setText(
+                card,
+                "auctions",
+                limitValue("active_auctions_limit", "مزاد"),
+            );
 
             card.querySelectorAll(
                 '[data-plan-field="discount"], [data-plan-field="original-price"]',

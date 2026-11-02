@@ -1,6 +1,6 @@
 @extends('admin.layouts.layoutMaster')
 
-@section('title', 'لوحة القيادة الرئيسية - Levan')
+@section('title', 'لوحة القيادة الرئيسية - LOT')
 
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/select2/select2.scss'])

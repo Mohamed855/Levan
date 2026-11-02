@@ -25,7 +25,7 @@ class TenantDashboardPostRefactorCasesTest extends TestCase
         $this->tenant = Tenant::find('test');
         tenancy()->initialize($this->tenant);
 
-        $this->user = User::where('email', 'demo@levan.com')->first();
+        $this->user = User::where('email', 'demo@lot.com')->first();
         $this->actingAs($this->user, 'tenant');
     }
 

@@ -44,7 +44,7 @@ class TestTenantSeeder extends Seeder
         $tenant = Tenant::updateOrCreate(
             ['id' => 'test'],
             [
-                'db_database' => env('TEST_TENANT_DATABASE', 'etmam_levan_test'),
+                'db_database' => env('TEST_TENANT_DATABASE', 'etmam_lot_test'),
                 'db_username' => env('DB_USERNAME', 'root'),
                 'db_password' => env('DB_PASSWORD', ''),
                 'db_host' => env('DB_HOST', '127.0.0.1'),
@@ -84,7 +84,7 @@ class TestTenantSeeder extends Seeder
             return;
         }
 
-        $tenantDbName = $tenant->db_database ?? env('TEST_TENANT_DATABASE', 'etmam_levan_test');
+        $tenantDbName = $tenant->db_database ?? env('TEST_TENANT_DATABASE', 'etmam_lot_test');
         DB::statement("CREATE DATABASE IF NOT EXISTS `{$tenantDbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 
         Artisan::call('tenants:migrate-fresh', [
@@ -133,10 +133,10 @@ class TestTenantSeeder extends Seeder
 
         // 7. Assign License Seats to Tenant Users
         $seatMap = [
-            'demo@levan.com' => '11111111-1111-1111-1111-000000000001',
-            'ahmed@levan.com' => '11111111-1111-1111-1111-000000000002',
-            'sara@levan.com' => '11111111-1111-1111-1111-000000000003',
-            'khalid@levan.com' => '11111111-1111-1111-1111-000000000004',
+            'demo@lot.com' => '11111111-1111-1111-1111-000000000001',
+            'ahmed@lot.com' => '11111111-1111-1111-1111-000000000002',
+            'sara@lot.com' => '11111111-1111-1111-1111-000000000003',
+            'khalid@lot.com' => '11111111-1111-1111-1111-000000000004',
         ];
 
         tenancy()->initialize($tenant);
@@ -154,7 +154,7 @@ class TestTenantSeeder extends Seeder
                         'assigned_user_uid' => $user->global_uid,
                         'status' => 'assigned',
                         'assigned_at' => now(),
-                        'is_core' => $user->email === 'demo@levan.com',
+                        'is_core' => $user->email === 'demo@lot.com',
                     ]
                 );
             }

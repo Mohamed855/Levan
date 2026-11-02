@@ -565,7 +565,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl('settings/domains'))->assertStatus(200);
         $this->get($this->adminUrl('settings/domains/create'))->assertStatus(200);
 
-        $ext = '.levan'.rand(10, 99);
+        $ext = '.lot'.rand(10, 99);
         $storeDomainResponse = $this->post($this->adminUrl('settings/domains'), [
             'domain_extension' => $ext,
             'price' => 150.00,
@@ -1041,7 +1041,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl('coupons/create'))->assertStatus(200);
 
         // 3. Store
-        $code = 'LEVAN'.rand(1000, 9999);
+        $code = 'LOT'.rand(1000, 9999);
         $storeResponse = $this->post($this->adminUrl('coupons'), [
             'name' => 'خصم الافتتاح',
             'code' => $code,

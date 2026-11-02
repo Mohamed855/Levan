@@ -6,26 +6,42 @@
 ])
 
 @php
-    $planColor = old('color', $plan?->color?->value ?? 'purple');
+    $rawColor = old('color', $plan?->color instanceof \BackedEnum ? $plan->color->value : ($plan?->color ?? 'primary'));
+    $planColorEnum = $rawColor instanceof \App\Enums\Admin\Plans\PlanColor
+        ? $rawColor
+        : \App\Enums\Admin\Plans\PlanColor::tryFrom((string) $rawColor);
+
+    $planColorValue = $planColorEnum?->value ?? (is_string($rawColor) ? $rawColor : 'primary');
+    $planColorHex = $plan?->color_hex ?? ($planColorEnum?->hex() ?? (is_string($rawColor) && str_starts_with($rawColor, '#') ? $rawColor : '#1D4F44'));
+
     $planName = old('name', $plan?->name ?? 'اسم الباقة');
-    $planTypeValue = old('plan_type', $plan?->plan_type?->value ?? '');
+    $planTypeValue = old('plan_type', $plan?->plan_type?->value ?? ($plan?->plan_type ?? ''));
     $planType = \App\Enums\Admin\Plans\PlanType::tryFrom($planTypeValue)?->label() ?? 'باقة مخصصة';
     $description = old('description', $plan?->description ?? 'أضف وصفاً واضحاً يشرح قيمة الباقة لعملائك.');
     $price = (float) old('price', $plan?->price ?? 0);
     $discount = (float) old('discount_percentage', $plan?->discount_percentage ?? 0);
     $finalPrice = max(0, $price - ($price * $discount / 100));
-    $billingCycleValue = old('subscription_billing_cycle', $plan?->subscription_billing_cycle?->value ?? '');
+    $billingCycleValue = old('subscription_billing_cycle', $plan?->subscription_billing_cycle?->value ?? ($plan?->subscription_billing_cycle ?? ''));
     $billingCycle = \App\Enums\Admin\Subscriptions\SubscriptionBillingCycle::tryFrom($billingCycleValue)?->label() ?? 'شهري';
-    $limitsMode = old('limits_mode', $plan?->limits_mode?->value ?? 'limited');
+    $limitsMode = old('limits_mode', $plan?->limits_mode?->value ?? ($plan?->limits_mode ?? 'limited'));
     $isUnlimited = $limitsMode === 'unlimited' || $plan?->isUnlimited();
     $features = array_values(array_filter(old('features', $plan?->features ?? []), static fn ($feature) => filled($feature)));
     $includedUsers = old('included_users', $plan?->included_users);
     $propertiesLimit = old('properties_limit', $plan?->properties_limit);
     $storageQuota = old('storage_quota_gb', $plan?->storage_quota_gb);
     $activeAuctionsLimit = old('active_auctions_limit', $plan?->active_auctions_limit);
+
+    $styleAttr = "--package-card-accent: {$planColorHex};";
+    if ($existingStyle = $attributes->get('style')) {
+        $styleAttr = rtrim($existingStyle, '; ') . '; ' . $styleAttr;
+    }
 @endphp
 
-<article {{ $attributes->class(['package-card'])->merge(['data-package-card' => $preview ? '' : null, 'data-plan-color' => $planColor]) }}>
+<article {{ $attributes->except('style')->class(['package-card'])->merge([
+    'data-package-card' => $preview ? '' : null,
+    'data-plan-color' => $planColorValue,
+    'style' => $styleAttr,
+]) }}>
     <header class="package-card__header">
         <span class="package-card__eyebrow" data-plan-field="type">{{ $planType }}</span>
         <h3 class="package-card__title" data-plan-field="name">{{ $planName }}</h3>

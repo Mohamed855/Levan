@@ -43,7 +43,7 @@ final class WizardDraftSafetyTest extends TestCase
     {
         parent::setUp();
         $this->app = new Application(dirname(__DIR__, 2));
-        $this->directory = sys_get_temp_dir().'/levan-draft-test-'.bin2hex(random_bytes(8));
+        $this->directory = sys_get_temp_dir().'/lot-draft-test-'.bin2hex(random_bytes(8));
         $this->app->instance('config', new Repository([
             'filesystems' => ['default' => 'local', 'disks' => ['local' => ['driver' => 'local', 'root' => $this->directory, 'throw' => true]]],
             'tenancy' => ['database' => ['connection' => 'tenant']],

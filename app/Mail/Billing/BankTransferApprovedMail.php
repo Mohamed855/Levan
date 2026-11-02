@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -26,7 +26,7 @@ final class BankTransferApprovedMail extends BaseMailable
             $loginUrl = url($loginUrl);
         }
 
-        return $this->subject("تم اعتماد الحوالة البنكية وتفعيل الفاتورة #{$this->bill->bill_number} — لوت Levan")
+        return $this->subject("تم اعتماد الحوالة البنكية وتفعيل الفاتورة #{$this->bill->bill_number} — لوت LOT")
             ->viewWithOffice('emails.billing.bank_transfer_approved', [
                 'bill'         => $this->bill,
                 'customerName' => $customerName,

@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="x-apple-disable-message-reformatting" />
-    <title>@yield('title', config('app.name', 'Levan'))</title>
+    <title>@yield('title', config('app.name', 'LOT'))</title>
     <!--[if mso]>
     <style type="text/css">
         body, table, td, p, a, h1, h2, h3, h4, span { font-family: Tahoma, Arial, sans-serif !important; }
@@ -287,10 +287,10 @@
                     <div class="email-container">
                         <!-- Header -->
                         <div class="email-header">
-                            <a href="{{ config('app.url', 'https://levan.sa') }}" target="_blank" style="display: inline-block;">
-                                <img src="{{ $brandLogo ?? url('static/brand/logos/lot/trans-profile-white.png') }}" alt="{{ $brandName ?? 'لوت Levan' }}" class="logo" />
+                            <a href="{{ config('app.url', 'https://lot.sa') }}" target="_blank" style="display: inline-block;">
+                                <img src="{{ $brandLogo ?? url('static/brand/logos/lot/trans-profile-white.png') }}" alt="{{ $brandName ?? 'لوت LOT' }}" class="logo" />
                             </a>
-                            <h1 class="platform-title">{{ $brandName ?? 'منصة لوت Levan' }}</h1>
+                            <h1 class="platform-title">{{ $brandName ?? 'منصة لوت LOT' }}</h1>
                             <p class="platform-subtitle">{{ $brandTagline ?? 'منصة إدارة المزادات والممتلكات العقارية الذكية' }}</p>
                         </div>
 
@@ -302,7 +302,7 @@
                         <!-- Footer -->
                         <div class="email-footer">
                             <div class="footer-office-info">
-                                <strong>{{ $officeName ?? ($brandName ?? 'لوت Levan') }}</strong>
+                                <strong>{{ $officeName ?? ($brandName ?? 'لوت LOT') }}</strong>
                                 @if(!empty($officeAddress))
                                     <br /><span>{{ $officeAddress }}</span>
                                 @endif
@@ -321,12 +321,12 @@
                                 @endif
                             </div>
                             <div class="footer-note">
-                                تم إرسال هذه الرسالة تلقائياً من نظام {{ $brandName ?? 'لوت Levan' }}.
+                                تم إرسال هذه الرسالة تلقائياً من نظام {{ $brandName ?? 'لوت LOT' }}.
                                 @if(empty($allowDirectReply))
                                     يرجى عدم الرد المباشر على هذا البريد الإلكتروني.
                                 @endif
                                 <br />
-                                جميع الحقوق محفوظة © {{ date('Y') }} {{ $brandName ?? 'لوت Levan' }}
+                                جميع الحقوق محفوظة © {{ date('Y') }} {{ $brandName ?? 'لوت LOT' }}
                             </div>
                         </div>
                     </div>

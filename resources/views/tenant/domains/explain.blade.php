@@ -168,9 +168,9 @@
                         <tr>
                             <td><strong>Name Server 1</strong></td>
                             <td>
-                                <code>ns1.levan.com</code>
+                                <code>ns1.lot.sa</code>
                                 <button type="button" class="btn btn-sm btn-outline-primary me-2"
-                                    onclick="copyToClipboard('ns1.levan.com')">
+                                    onclick="copyToClipboard('ns1.lot.sa')">
                                     <i class="ti ti-copy"></i> نسخ
                                 </button>
                             </td>
@@ -178,9 +178,9 @@
                         <tr>
                             <td><strong>Name Server 2</strong></td>
                             <td>
-                                <code>ns2.levan.com</code>
+                                <code>ns2.lot.sa</code>
                                 <button type="button" class="btn btn-sm btn-outline-primary me-2"
-                                    onclick="copyToClipboard('ns2.levan.com')">
+                                    onclick="copyToClipboard('ns2.lot.sa')">
                                     <i class="ti ti-copy"></i> نسخ
                                 </button>
                             </td>
@@ -189,12 +189,12 @@
                 </table>
 
                 {{-- <div class="code-box">
-                <button type="button" class="copy-btn" onclick="copyToClipboard('ns1.levan.com\nns2.levan.com')">
+                <button type="button" class="copy-btn" onclick="copyToClipboard('ns1.lot.sa\nns2.lot.sa')">
                     <i class="ti ti-copy"></i> نسخ الكل
                 </button>
                 <div style="margin-top: 25px;">
-                    <code>Nameserver 1: ns1.levan.com</code><br>
-                    <code>Nameserver 2: ns2.levan.com</code>
+                    <code>Nameserver 1: ns1.lot.sa</code><br>
+                    <code>Nameserver 2: ns2.lot.sa</code>
                 </div>
             </div> --}}
             </div>
