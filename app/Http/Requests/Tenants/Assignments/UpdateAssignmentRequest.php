@@ -6,6 +6,7 @@ namespace App\Http\Requests\Tenants\Assignments;
 
 use App\Enums\Tenants\Assignments\AssignmentCategory;
 use App\Http\Requests\Concerns\WizardFormRequest;
+use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\Properties\Property;
 use Illuminate\Validation\Rule;
 
@@ -14,6 +15,31 @@ class UpdateAssignmentRequest extends WizardFormRequest
     public function authorize(): bool
     {
         return $this->user('tenant')?->can('assignments.edit') ?? false;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        parent::prepareForValidation();
+
+        if ($this->filled('issuing_entity_id')) {
+            $name = IssuingEntity::whereKey($this->input('issuing_entity_id'))->value('name');
+            if ($name) {
+                $this->merge(['issuing_entity' => $name]);
+            }
+        } elseif ($this->filled('issuing_entity')) {
+            $trimmed = trim((string) $this->input('issuing_entity'));
+            if ($trimmed !== '') {
+                $id = IssuingEntity::where('name', $trimmed)->value('id');
+                if (! $id) {
+                    $id = IssuingEntity::create([
+                        'name' => $trimmed,
+                        'is_active' => true,
+                        'created_by' => $this->user('tenant')?->getAuthIdentifier(),
+                    ])->id;
+                }
+                $this->merge(['issuing_entity_id' => $id, 'issuing_entity' => $trimmed]);
+            }
+        }
     }
 
     public function rules(): array
@@ -29,7 +55,8 @@ class UpdateAssignmentRequest extends WizardFormRequest
                 Rule::unique('assignments', 'assignment_number')->ignore($assignmentId),
             ],
             'name' => ['required', 'string', 'min:3', 'max:255'],
-            'issuing_entity' => ['required', 'string', 'max:255'],
+            'issuing_entity_id' => ['required_without:issuing_entity', 'nullable', 'integer', 'exists:issuing_entities,id'],
+            'issuing_entity' => ['required_without:issuing_entity_id', 'nullable', 'string', 'max:255'],
             'city' => ['required', 'string', 'max:100'],
             'district' => ['nullable', 'string', 'max:255'],
             'category' => ['required', Rule::enum(AssignmentCategory::class)],
@@ -37,8 +64,9 @@ class UpdateAssignmentRequest extends WizardFormRequest
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'notes' => ['required', 'string', 'max:1000'],
             'property_ids' => [
-                'nullable',
+                'required',
                 'array',
+                'min:1',
                 function ($attribute, $value, $fail): void {
                     if (empty($value)) {
                         return;
@@ -98,6 +126,9 @@ class UpdateAssignmentRequest extends WizardFormRequest
             'assignment_number.max' => 'رقم الإسناد يجب ألا يتجاوز 100 حرف.',
             'name.required' => 'اسم الإسناد مطلوب.',
             'name.max' => 'اسم الإسناد يجب ألا يتجاوز 255 حرف.',
+            'issuing_entity_id.required_without' => 'الجهة المسندة مطلوبة.',
+            'issuing_entity_id.exists' => 'الجهة المسندة المختارة غير صالحة.',
+            'issuing_entity.required_without' => 'الجهة المسندة مطلوبة.',
             'issuing_entity.required' => 'الجهة المسندة مطلوبة.',
             'issuing_entity.max' => 'اسم الجهة المسندة يجب ألا يتجاوز 255 حرف.',
             'city.required' => 'المدينة مطلوبة.',
@@ -109,6 +140,8 @@ class UpdateAssignmentRequest extends WizardFormRequest
             'end_date.after_or_equal' => 'تاريخ النهاية يجب أن يكون مساوياً أو بعد تاريخ البداية.',
             'notes.required' => 'وصف الإسناد مطلوب.',
             'notes.max' => 'الملاحظات يجب ألا تتجاوز 1000 حرف.',
+            'property_ids.required' => 'يجب اختيار عقار واحد على الأقل.',
+            'property_ids.min' => 'يجب اختيار عقار واحد على الأقل.',
             'assignment_image.image' => 'صورة الإسناد يجب أن تكون صورة صالحة.',
             'assignment_image.mimes' => 'صيغة صورة الإسناد غير مدعومة.',
             'assignment_image.max' => 'حجم صورة الإسناد يجب ألا يتجاوز 10 ميجابايت.',
@@ -122,6 +155,7 @@ class UpdateAssignmentRequest extends WizardFormRequest
         return [
             'assignment_number' => 'رقم الإسناد',
             'name' => 'اسم الإسناد',
+            'issuing_entity_id' => 'الجهة المسندة',
             'issuing_entity' => 'الجهة المسندة',
             'city' => 'المدينة',
             'district' => 'النطاق/الحي',

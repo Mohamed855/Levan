@@ -288,7 +288,13 @@
                         <!-- Header -->
                         <div class="email-header">
                             <a href="{{ config('app.url', 'https://lot.sa') }}" target="_blank" style="display: inline-block;">
-                                <img src="{{ $brandLogo ?? url('static/brand/logos/lot/trans-profile-white.png') }}" alt="{{ $brandName ?? 'لوت LOT' }}" class="logo" />
+                                @if(isset($message) && !empty($brandLogoPath) && file_exists($brandLogoPath))
+                                    <img src="{{ $message->embed($brandLogoPath) }}" alt="{{ $brandName ?? 'لوت LOT' }}" class="logo" />
+                                @elseif(!empty($brandLogo))
+                                    <img src="{{ $brandLogo }}" alt="{{ $brandName ?? 'لوت LOT' }}" class="logo" />
+                                @else
+                                    <img src="{{ url('static/brand/logos/lot/trans-profile-white.png') }}" alt="{{ $brandName ?? 'لوت LOT' }}" class="logo" />
+                                @endif
                             </a>
                             <h1 class="platform-title">{{ $brandName ?? 'منصة لوت LOT' }}</h1>
                             <p class="platform-subtitle">{{ $brandTagline ?? 'منصة إدارة المزادات والممتلكات العقارية الذكية' }}</p>

@@ -49,6 +49,7 @@
             'assignment_number',
             'name',
             'category',
+            'issuing_entity_id',
             'issuing_entity',
             'city',
             'district',
@@ -71,9 +72,10 @@
                     :value="$is_edit ? $assignment->category : old('category', \App\Enums\Tenants\Assignments\AssignmentCategory::LANDS->value)"
                     :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
 
-                <x-form.controls.input name="issuing_entity" label="الجهة المسندة"
-                    :value="$is_edit ? $assignment->issuing_entity : old('issuing_entity')"
-                    placeholder="أدخل الجهة المسندة (مثال: محكمة التنفيذ)" required col="col-md-6" />
+                <x-form.controls.select name="issuing_entity_id" id="assignment_issuing_entity" label="الجهة المسندة"
+                    :value="$is_edit ? ($assignment->issuing_entity_id ?? old('issuing_entity_id')) : old('issuing_entity_id')"
+                    :options="$issuingEntityOptions ?? []"
+                    placeholder="اختر الجهة المسندة" required col="col-md-6" />
 
                 <x-form.controls.select name="city" id="assignment-city" label="المدينة" required col="col-md-6"
                     :value="$is_edit ? $assignment->city : old('city')"

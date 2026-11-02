@@ -14,6 +14,7 @@ use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Admin\Tickets\Ticket;
 use App\Models\Tenants\Assignments\Assignment;
+use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
@@ -23,6 +24,7 @@ use Spatie\Permission\Models\Role;
 return [
     'User' => User::class,
     'Assignment' => Assignment::class,
+    'IssuingEntity' => IssuingEntity::class,
     'Property' => Property::class,
     'Auction' => Auction::class,
     'Role' => Role::class,

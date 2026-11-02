@@ -77,6 +77,10 @@ final class CreateAssignmentAction
                     $data['category'] = $data['category']->value;
                 }
 
+                if (! empty($data['issuing_entity_id']) && empty($data['issuing_entity'])) {
+                    $data['issuing_entity'] = (string) \App\Models\Tenants\Assignments\IssuingEntity::whereKey($data['issuing_entity_id'])->value('name');
+                }
+
                 $assignment = Assignment::query()->create($data);
 
                 $properties = Property::query()

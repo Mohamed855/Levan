@@ -549,6 +549,20 @@ document.addEventListener("DOMContentLoaded", () => {
             if (wrapper) wrapper.classList.remove("is-invalid");
         }
 
+        const stepProps = document.getElementById("step-properties");
+        const propNextBtn = stepProps?.querySelector("[data-wizard-next], .btn-next");
+        if (propNextBtn) {
+            if (count === 0) {
+                propNextBtn.disabled = true;
+                propNextBtn.setAttribute("disabled", "disabled");
+                propNextBtn.classList.add("disabled");
+            } else {
+                propNextBtn.disabled = false;
+                propNextBtn.removeAttribute("disabled");
+                propNextBtn.classList.remove("disabled");
+            }
+        }
+
         renderSelectedPropertyCards();
         syncReportInputs();
 
@@ -880,4 +894,12 @@ document.addEventListener("DOMContentLoaded", () => {
             true,
         );
     }
+
+    form.addEventListener("stepChanged", (e) => {
+        if (e.detail?.stepIndex === 2) {
+            calculateSelectedProperties();
+        }
+    });
+
+    calculateSelectedProperties();
 });

@@ -138,6 +138,20 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        const asgPropStep = document.getElementById("assignment-properties-validation");
+        const propNextBtn = asgPropStep?.querySelector("[data-wizard-next], .btn-next");
+        if (propNextBtn) {
+            if (selectedProperties.size === 0) {
+                propNextBtn.disabled = true;
+                propNextBtn.setAttribute("disabled", "disabled");
+                propNextBtn.classList.add("disabled");
+            } else {
+                propNextBtn.disabled = false;
+                propNextBtn.removeAttribute("disabled");
+                propNextBtn.classList.remove("disabled");
+            }
+        }
+
         form.dispatchEvent(new Event("change", { bubbles: true }));
     }
 
@@ -410,7 +424,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ["رقم الإسناد", value("assignment_number")],
             ["اسم الإسناد", value("name")],
             ["تصنيف الإسناد", selectedText("category")],
-            ["الجهة المسندة", value("issuing_entity")],
+            ["الجهة المسندة", selectedText("issuing_entity_id") !== "-" ? selectedText("issuing_entity_id") : value("issuing_entity")],
             ["المدينة", selectedText("city")],
             ["النطاق/الحي", selectedText("district") !== "-" ? selectedText("district") : value("district")],
             ["تاريخ البداية", value("start_date")],
@@ -524,6 +538,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         syncProperties();
         buildReview();
+    });
+
+    form.addEventListener("stepChanged", (e) => {
+        if (e.detail?.stepIndex === 1) {
+            syncProperties();
+        }
     });
 
     syncProperties();

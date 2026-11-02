@@ -23,6 +23,7 @@ class Assignment extends Model
     protected $fillable = [
         'assignment_number',
         'name',
+        'issuing_entity_id',
         'issuing_entity',
         'city',
         'district',
@@ -35,10 +36,16 @@ class Assignment extends Model
     ];
 
     protected $casts = [
+        'issuing_entity_id' => 'integer',
         'start_date' => 'date',
         'end_date' => 'date',
         'is_active' => 'boolean',
     ];
+
+    public function issuingEntity(): BelongsTo
+    {
+        return $this->belongsTo(IssuingEntity::class, 'issuing_entity_id');
+    }
 
     public function properties(): HasMany
     {

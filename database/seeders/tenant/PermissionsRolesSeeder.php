@@ -78,6 +78,13 @@ class PermissionsRolesSeeder extends Seeder
                 'assignments.delete',
                 'assignments.toggle_status',
             ],
+            'issuing_entities_management' => [
+                'issuing_entities.view',
+                'issuing_entities.create',
+                'issuing_entities.edit',
+                'issuing_entities.delete',
+                'issuing_entities.toggle_status',
+            ],
             'properties_management' => [
                 'properties.view',
                 'properties.create',

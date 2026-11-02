@@ -95,6 +95,10 @@ final class UpdateAssignmentAction
                     $data['_wizard_resource_key'],
                 );
 
+                if (! empty($data['issuing_entity_id']) && empty($data['issuing_entity'])) {
+                    $data['issuing_entity'] = (string) \App\Models\Tenants\Assignments\IssuingEntity::whereKey($data['issuing_entity_id'])->value('name');
+                }
+
                 return $this->assignmentService->updateAssignment($assignment, $data, $image);
             });
         } catch (Throwable $e) {

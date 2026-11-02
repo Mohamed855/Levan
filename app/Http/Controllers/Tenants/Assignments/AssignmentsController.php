@@ -19,6 +19,7 @@ use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Assignments\AssignmentService;
+use App\Services\Tenants\Assignments\IssuingEntityService;
 use App\Services\Tenants\Shared\CentralCityOptionsGateway;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -31,7 +32,8 @@ class AssignmentsController extends Controller
 {
     public function __construct(
         protected AssignmentService $assignmentService,
-        protected CentralCityOptionsGateway $cityOptionsGateway
+        protected CentralCityOptionsGateway $cityOptionsGateway,
+        protected IssuingEntityService $issuingEntityService,
     ) {
         $this->middleware('auth:tenant');
         $this->authorizeResource(Assignment::class, 'assignment');
@@ -73,6 +75,7 @@ class AssignmentsController extends Controller
         return $dataTable->render('tenant.assignments.create', [
             'generatedAssignmentNumber' => $generatedAssignmentNumber,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'issuingEntityOptions' => $this->issuingEntityService->getActiveOptions(),
             'districtOptions' => $districtOptions,
             'propertyImageFallback' => $tenantImage ? tasset($tenantImage) : asset('static/brand/logos/logo.svg'),
         ]);
@@ -149,9 +152,18 @@ class AssignmentsController extends Controller
             $districtOptions[$currentDistrict] = $currentDistrict;
         }
 
+        $issuingEntityOptions = $this->issuingEntityService->getActiveOptions();
+        if ($assignment->issuing_entity_id && ! isset($issuingEntityOptions[$assignment->issuing_entity_id])) {
+            $currentEntityName = $assignment->issuingEntity?->name ?? $assignment->issuing_entity;
+            if ($currentEntityName) {
+                $issuingEntityOptions[$assignment->issuing_entity_id] = $currentEntityName . ' (معطلة)';
+            }
+        }
+
         return $dataTable->render('tenant.assignments.edit', [
-            'assignment' => $assignment->load(['properties', 'attachments', 'assignmentImage']),
+            'assignment' => $assignment->load(['properties', 'attachments', 'assignmentImage', 'issuingEntity']),
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'issuingEntityOptions' => $issuingEntityOptions,
             'districtOptions' => $districtOptions,
             'propertyImageFallback' => $fallbackImage,
         ]);

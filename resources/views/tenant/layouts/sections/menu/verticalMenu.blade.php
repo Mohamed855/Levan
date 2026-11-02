@@ -37,7 +37,7 @@
         </li>
 
         {{-- المزادات والعقارات --}}
-        @canany(['assignments.view', 'properties.view', 'auctions.view'])
+        @canany(['assignments.view', 'properties.view', 'auctions.view', 'issuing_entities.view'])
             <li class="menu-header small">
                 <span class="menu-header-text">المزادات والعقارات</span>
             </li>
@@ -56,6 +56,15 @@
                     <a href="{{ tenant_route_name('assignments.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons ti ti-file-certificate"></i>
                         <div>الإسنادات</div>
+                    </a>
+                </li>
+            @endcan
+
+            @can('issuing_entities.view')
+                <li class="menu-item @if (Helpers::isActiveRoute('issuing-entities.*')) active @endif">
+                    <a href="{{ tenant_route_name('issuing-entities.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons ti ti-landmark"></i>
+                        <div>الجهات المسندة</div>
                     </a>
                 </li>
             @endcan

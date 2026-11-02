@@ -10,6 +10,7 @@ use App\Http\Controllers\Tenants\Archive\Auction\AuctionArchiveController;
 use App\Http\Controllers\Tenants\Archive\Property\PropertyArchiveController;
 use App\Http\Controllers\Tenants\Archive\User\UserArchiveController;
 use App\Http\Controllers\Tenants\Assignments\AssignmentsController;
+use App\Http\Controllers\Tenants\Assignments\IssuingEntitiesController;
 use App\Http\Controllers\Tenants\Auctions\AuctionReportController;
 use App\Http\Controllers\Tenants\Auctions\AuctionsController;
 use App\Http\Controllers\Tenants\Auth\AuthenticatedSessionController;
@@ -324,6 +325,18 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         });
         Route::resource('assignments', AssignmentsController::class)
             ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Issuing Entities Management (الجهات المسندة)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('issuing-entities')->name('issuing-entities.')->group(function () {
+            Route::name('toggle-status')->patch('{issuing_entity}/toggle-status', [IssuingEntitiesController::class, 'toggleStatus']);
+        });
+        Route::resource('issuing-entities', IssuingEntitiesController::class)
+            ->parameters(['issuing-entities' => 'issuing_entity'])
+            ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
         /*
         |--------------------------------------------------------------------------

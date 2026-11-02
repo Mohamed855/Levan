@@ -32,6 +32,7 @@ class UpdateResourceStatusRequest extends FormRequest
             str_contains($action, 'ContractController@') => 'contracts.edit',
             str_contains($action, 'PortfolioController@') => 'portfolios.edit',
             str_contains($action, 'AssignmentsController@') => 'assignments.edit',
+            str_contains($action, 'IssuingEntitiesController@') => 'issuing_entities.edit',
             str_contains($action, 'PropertiesController@') => 'properties.edit',
             str_contains($action, 'AuctionsController@') => 'auctions.edit',
             default => null,

@@ -6,6 +6,7 @@ namespace App\Http\Requests\Tenants\Assignments;
 
 use App\Enums\Tenants\Assignments\AssignmentCategory;
 use App\Http\Requests\Concerns\WizardFormRequest;
+use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\Properties\Property;
 use Illuminate\Validation\Rule;
 
@@ -16,12 +17,38 @@ class StoreAssignmentRequest extends WizardFormRequest
         return $this->user('tenant')?->can('assignments.create') ?? false;
     }
 
+    protected function prepareForValidation(): void
+    {
+        parent::prepareForValidation();
+
+        if ($this->filled('issuing_entity_id')) {
+            $name = IssuingEntity::whereKey($this->input('issuing_entity_id'))->value('name');
+            if ($name) {
+                $this->merge(['issuing_entity' => $name]);
+            }
+        } elseif ($this->filled('issuing_entity')) {
+            $trimmed = trim((string) $this->input('issuing_entity'));
+            if ($trimmed !== '') {
+                $id = IssuingEntity::where('name', $trimmed)->value('id');
+                if (! $id) {
+                    $id = IssuingEntity::create([
+                        'name' => $trimmed,
+                        'is_active' => true,
+                        'created_by' => $this->user('tenant')?->getAuthIdentifier(),
+                    ])->id;
+                }
+                $this->merge(['issuing_entity_id' => $id, 'issuing_entity' => $trimmed]);
+            }
+        }
+    }
+
     public function rules(): array
     {
         return [
             'assignment_number' => ['required', 'string', 'max:100', 'unique:assignments,assignment_number'],
             'name' => ['required', 'string', 'min:3', 'max:255'],
-            'issuing_entity' => ['required', 'string', 'max:255'],
+            'issuing_entity_id' => ['required_without:issuing_entity', 'nullable', 'integer', 'exists:issuing_entities,id'],
+            'issuing_entity' => ['required_without:issuing_entity_id', 'nullable', 'string', 'max:255'],
             'city' => ['required', 'string', 'max:100'],
             'district' => ['nullable', 'string', 'max:255'],
             'category' => ['required', Rule::enum(AssignmentCategory::class)],
@@ -71,6 +98,9 @@ class StoreAssignmentRequest extends WizardFormRequest
             'assignment_number.required' => 'رقم الإسناد مطلوب.',
             'assignment_number.unique' => 'رقم الإسناد مسجل مسبقًا.',
             'name.required' => 'اسم الإسناد مطلوب.',
+            'issuing_entity_id.required_without' => 'الجهة المسندة مطلوبة.',
+            'issuing_entity_id.exists' => 'الجهة المسندة المختارة غير صالحة.',
+            'issuing_entity.required_without' => 'الجهة المسندة مطلوبة.',
             'issuing_entity.required' => 'الجهة المسندة مطلوبة.',
             'city.required' => 'المدينة مطلوبة.',
             'category.required' => 'تصنيف الإسناد مطلوب.',
@@ -101,6 +131,7 @@ class StoreAssignmentRequest extends WizardFormRequest
         return [
             'assignment_number' => 'رقم الإسناد',
             'name' => 'اسم الإسناد',
+            'issuing_entity_id' => 'الجهة المسندة',
             'issuing_entity' => 'الجهة المسندة',
             'city' => 'المدينة',
             'district' => 'النطاق/الحي',

@@ -33,14 +33,25 @@ abstract class BaseMailable extends Mailable implements ShouldQueue
         }
 
         $appUrl = rtrim((string) config('app.url', 'https://lot.sa'), '/');
-        $logoUrl = $this->officeSettings?->image 
-            ? url('storage/' . $this->officeSettings->image) 
-            : url('static/brand/logos/lot/trans-profile-white.png');
+
+        $customImage = $this->officeSettings?->image;
+        $hasCustomImage = ! empty($customImage)
+            && $customImage !== 'default-office.png'
+            && file_exists(public_path('storage/' . $customImage));
+
+        $brandLogoPath = $hasCustomImage
+            ? public_path('storage/' . $customImage)
+            : public_path('static/brand/logos/lot/trans-profile-white.png');
+
+        $brandLogoUrl = $hasCustomImage
+            ? asset('storage/' . $customImage)
+            : asset('static/brand/logos/lot/trans-profile-white.png');
 
         return [
             'brandName'          => 'لوت LOT',
             'brandTagline'       => 'منصة إدارة المزادات والممتلكات العقارية الذكية',
-            'brandLogo'          => $logoUrl,
+            'brandLogo'          => $brandLogoUrl,
+            'brandLogoPath'      => file_exists($brandLogoPath) ? $brandLogoPath : null,
             'officeName'         => $this->officeSettings?->office_name ?? config('app.name', 'لوت LOT'),
             'officeAddress'      => $this->officeSettings?->office_address ?? '',
             'commercialRegister' => $this->officeSettings?->commercial_register ?? '',

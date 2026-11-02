@@ -1222,6 +1222,16 @@ function validateControlClientSide(form, control) {
 function isStepValid(form, step) {
     if (!step) return true;
 
+    const stepFields = validationFieldsFromStep(step);
+    if (stepFields.includes("property_ids")) {
+        const propertyInputs = form.querySelectorAll(
+            'input[name="property_ids[]"]',
+        );
+        if (propertyInputs.length === 0) {
+            return false;
+        }
+    }
+
     const controls = Array.from(step.querySelectorAll("[name]")).filter(
         (control) => {
             if (
@@ -1341,10 +1351,23 @@ function updateStepNextButton(form, step) {
         "[data-wizard-next], .btn-next:not(.btn-submit)",
     );
 
+    const stepFields = validationFieldsFromStep(step);
+    const hasPropertyIds = stepFields.includes("property_ids");
+    const propertyInputs = hasPropertyIds
+        ? form.querySelectorAll('input[name="property_ids[]"]')
+        : [];
+    const isPropertyStepEmpty = hasPropertyIds && propertyInputs.length === 0;
+
     nextButtons.forEach((btn) => {
-        btn.disabled = false;
-        btn.removeAttribute("disabled");
-        btn.classList.remove("disabled");
+        if (isPropertyStepEmpty) {
+            btn.disabled = true;
+            btn.setAttribute("disabled", "disabled");
+            btn.classList.add("disabled");
+        } else {
+            btn.disabled = false;
+            btn.removeAttribute("disabled");
+            btn.classList.remove("disabled");
+        }
     });
 }
 
@@ -1648,8 +1671,17 @@ function initStepper(form) {
                 return;
             }
 
-            // Header clicks are informational only and cannot jump steps ahead
+            // Header clicks: allow moving back to previously completed steps, block jumping ahead
             if (trigger) {
+                const stepNode = trigger.closest(".step");
+                const allSteps = Array.from(
+                    stepperElement.querySelectorAll(".bs-stepper-header .step"),
+                );
+                const targetIndex = allSteps.indexOf(stepNode);
+                const currentIndex = getCurrentIndex();
+                if (targetIndex >= 0 && targetIndex < currentIndex) {
+                    moveTo(targetIndex);
+                }
                 return;
             }
 
@@ -1665,6 +1697,26 @@ function initStepper(form) {
                     return;
                 }
                 const stepFields = validationFieldsFromStep(currentStep);
+
+                // Dedicated check for property_ids: at least 1 property must be selected!
+                if (stepFields.includes("property_ids")) {
+                    const propertyInputs = form.querySelectorAll(
+                        'input[name="property_ids[]"]',
+                    );
+                    if (propertyInputs.length === 0) {
+                        const message =
+                            currentStep.id.includes("auction") ||
+                            form.id.includes("auction")
+                                ? "يجب اختيار عقار واحد على الأقل للمزاد."
+                                : "يجب اختيار عقار واحد على الأقل للإسناد.";
+                        setFieldError(form, "property_ids", message);
+                        if (window.toastr?.error) {
+                            window.toastr.error(message);
+                        }
+                        scrollToFirstInvalid(currentStep);
+                        return;
+                    }
+                }
 
                 state.isValidatingStep = true;
                 nextButton.setAttribute("aria-busy", "true");
@@ -1735,6 +1787,11 @@ function initStepper(form) {
 
     form.addEventListener("stepChanged", () => {
         initSelect2Controls(form);
+        updateCurrentStepButton();
+    });
+
+    form.addEventListener("change", () => {
+        updateCurrentStepButton();
     });
 
     // Initial check on load

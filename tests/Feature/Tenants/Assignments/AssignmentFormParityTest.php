@@ -51,5 +51,24 @@ class AssignmentFormParityTest extends TestCase
         $this->assertStringContainsString('assignment-basic-validation', $rendered);
         $this->assertStringContainsString('data-category-mapping', $rendered);
     }
+
+    public function test_assignment_requests_require_property_ids_to_have_at_least_one_property(): void
+    {
+        $storeReq = new \App\Http\Requests\Tenants\Assignments\StoreAssignmentRequest();
+        $storeRules = $storeReq->rules();
+        $this->assertContains('required', $storeRules['property_ids']);
+        $this->assertContains('min:1', $storeRules['property_ids']);
+
+        $updateReq = new \App\Http\Requests\Tenants\Assignments\UpdateAssignmentRequest();
+        $updateRules = $updateReq->rules();
+        $this->assertContains('required', $updateRules['property_ids']);
+        $this->assertContains('min:1', $updateRules['property_ids']);
+
+        $validator = \Illuminate\Support\Facades\Validator::make([], [
+            'property_ids' => $updateRules['property_ids'],
+        ]);
+        $this->assertTrue($validator->fails());
+        $this->assertTrue($validator->errors()->has('property_ids'));
+    }
 }
 

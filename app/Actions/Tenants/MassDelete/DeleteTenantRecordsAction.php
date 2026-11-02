@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Actions\Tenants\MassDelete;
 
 use App\Models\Tenants\Assignments\Assignment;
+use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Assignments\AssignmentService;
+use App\Services\Tenants\Assignments\IssuingEntityService;
 use App\Services\Tenants\Auctions\AuctionService;
 use App\Services\Tenants\Properties\PropertyService;
 use App\Services\Tenants\UserManagement\Role\RoleService;
@@ -23,6 +25,7 @@ final class DeleteTenantRecordsAction
 {
     public function __construct(
         private readonly AssignmentService $assignments,
+        private readonly IssuingEntityService $issuingEntities,
         private readonly PropertyService $properties,
         private readonly AuctionService $auctions,
         private readonly RoleService $roles,
@@ -43,6 +46,7 @@ final class DeleteTenantRecordsAction
 
             return $locked->sum(fn (Model $record): int => (int) match (true) {
                 $record instanceof Assignment => $this->assignments->deleteAssignment($record),
+                $record instanceof IssuingEntity => $this->issuingEntities->delete($record),
                 $record instanceof Property => $this->properties->deleteProperty($record),
                 $record instanceof Auction => $this->auctions->deleteAuction($record),
                 $record instanceof User => $this->deleteUser($record),

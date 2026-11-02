@@ -239,4 +239,23 @@ class AuctionValidationScenariosTest extends TestCase
 
         $this->assertFalse($validator->fails(), json_encode($validator->errors()->toArray(), JSON_UNESCAPED_UNICODE));
     }
+
+    public function test_auction_requests_require_property_ids_to_have_at_least_one_property(): void
+    {
+        $storeReq = new StoreAuctionRequest();
+        $storeRules = $storeReq->rules();
+        $this->assertContains('required', $storeRules['property_ids']);
+        $this->assertContains('min:1', $storeRules['property_ids']);
+
+        $updateReq = new \App\Http\Requests\Tenants\Auctions\UpdateAuctionRequest();
+        $updateRules = $updateReq->rules();
+        $this->assertContains('required', $updateRules['property_ids']);
+        $this->assertContains('min:1', $updateRules['property_ids']);
+
+        $validator = Validator::make([], [
+            'property_ids' => $storeRules['property_ids'],
+        ]);
+        $this->assertTrue($validator->fails());
+        $this->assertTrue($validator->errors()->has('property_ids'));
+    }
 }

@@ -39,6 +39,13 @@ return [
     'assignments_archive.restore' => 'استعادة إسناد من الأرشيف',
     'assignments_archive.force_delete' => 'حذف إسناد نهائيًا من الأرشيف',
 
+    // إدارة الجهات المسندة
+    'issuing_entities.view' => 'عرض الجهات المسندة',
+    'issuing_entities.create' => 'إضافة جهة مسندة',
+    'issuing_entities.edit' => 'تعديل جهة مسندة',
+    'issuing_entities.delete' => 'حذف جهة مسندة',
+    'issuing_entities.toggle_status' => 'تغيير حالة الجهة المسندة',
+
     // إدارة العقارات والأصول
     'properties.view' => 'عرض العقارات',
     'properties.create' => 'إضافة عقار',
