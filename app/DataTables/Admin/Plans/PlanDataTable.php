@@ -48,6 +48,7 @@ class PlanDataTable extends AbstractDataTable
             ['data' => 'active_auctions_limit', 'name' => 'active_auctions_limit', 'title' => 'المزادات', 'className' => 'text-center'],
             ['data' => 'available_from', 'name' => 'available_from', 'title' => 'الإتاحة', 'className' => 'text-center'],
             ['data' => 'domain_management', 'name' => 'domain_management_enabled', 'title' => 'الدومينات', 'className' => 'text-center'],
+            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'is_active', 'name' => 'is_active', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
@@ -193,6 +194,8 @@ class PlanDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-secondary">غير مفعّلة</span>';
             })
+
+            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
 
             ->editColumn('is_active', function ($row) {
                 if (! auth()->user()?->can('plans.edit')) {

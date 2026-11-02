@@ -36,7 +36,7 @@ class AssignmentArchiveDataTable extends AbstractDataTable
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم الإسناد'],
             ['data' => 'issuing_entity', 'name' => 'issuing_entity', 'title' => 'الجهة المسندة'],
             ['data' => 'city', 'name' => 'city', 'title' => 'المدينة'],
-            ['data' => 'deleted_at', 'name' => 'deleted_at', 'title' => 'تاريخ الحذف'],
+            ['data' => 'deleted_at', 'name' => 'deleted_at', 'title' => 'تاريخ الحذف', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -45,7 +45,7 @@ class AssignmentArchiveDataTable extends AbstractDataTable
     {
         $datatable
             ->editColumn('deleted_at', function ($row) {
-                return $row->deleted_at ? Carbon::parse($row->deleted_at)->format('Y-m-d H:i') : '-';
+                return $row->deleted_at ? $row->deleted_at->format('Y-m-d') : '-';
             })
             ->addColumn('actions', function ($row) {
                 return view('tenant.archive.assignments.action', ['row' => $row])->render();

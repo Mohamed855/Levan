@@ -95,7 +95,7 @@
                     @if (! $is_edit)
                         <x-form.wizard.draft-button />
                     @endif
-                    <x-form.wizard.next-button />
+                    <x-form.wizard.next-button :disabled="!($is_edit && $auction->properties && $auction->properties->isNotEmpty())" />
                 </div>
             </x-form.wizard.actions>
         </x-form.wizard.step>

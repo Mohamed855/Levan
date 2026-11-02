@@ -35,7 +35,7 @@ class PropertyArchiveDataTable extends AbstractDataTable
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم العقار'],
             ['data' => 'assignment_name', 'name' => 'assignment.name', 'title' => 'الإسناد التابع له'],
             ['data' => 'city', 'name' => 'city', 'title' => 'المدينة'],
-            ['data' => 'deleted_at', 'name' => 'deleted_at', 'title' => 'تاريخ الحذف'],
+            ['data' => 'deleted_at', 'name' => 'deleted_at', 'title' => 'تاريخ الحذف', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -47,7 +47,7 @@ class PropertyArchiveDataTable extends AbstractDataTable
                 return $row->assignment?->name ?? '-';
             })
             ->editColumn('deleted_at', function ($row) {
-                return $row->deleted_at ? Carbon::parse($row->deleted_at)->format('Y-m-d H:i') : '-';
+                return $row->deleted_at ? $row->deleted_at->format('Y-m-d') : '-';
             })
             ->addColumn('actions', function ($row) {
                 return view('tenant.archive.properties.action', ['row' => $row])->render();

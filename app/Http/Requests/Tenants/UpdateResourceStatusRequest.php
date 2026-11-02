@@ -10,6 +10,13 @@ class UpdateResourceStatusRequest extends FormRequest
 {
     protected function prepareForValidation(): void
     {
+        $rawStatus = $this->input('status');
+        if ($rawStatus === 1 || $rawStatus === '1' || $rawStatus === true) {
+            $this->merge(['status' => 'active']);
+        } elseif ($rawStatus === 0 || $rawStatus === '0' || $rawStatus === false) {
+            $this->merge(['status' => 'inactive']);
+        }
+
         if ($this->filled('status')) {
             return;
         }

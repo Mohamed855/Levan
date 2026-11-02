@@ -19,7 +19,7 @@ class AuctionTemplate extends Model
 {
     use ActivityLogTrait, HasFactory, SoftDeletes;
 
-    public const TYPES = ['brochure', 'billboard', 'social'];
+    public const TYPES = ['billboard', 'social'];
 
     protected $connection = 'mysql';
 
@@ -93,12 +93,12 @@ class AuctionTemplate extends Model
     */
     public static function getLogName(): string
     {
-        return 'قوالب المزادات';
+        return 'قوالب إعلانية';
     }
 
     public static function getModelNameArabic(): string
     {
-        return 'قالب مزاد';
+        return 'قالب إعلاني';
     }
 
     public static function getFieldTranslations(): array

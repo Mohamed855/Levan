@@ -40,14 +40,21 @@ class FaqDataTable extends AbstractDataTable
                 'data' => 'question',
                 'name' => 'question',
                 'title' => 'السؤال',
-                'className' => 'text-start',
+                'className' => 'text-center',
             ],
             [
                 'data' => 'answer',
                 'name' => 'answer',
                 'title' => 'الإجابة',
-                'className' => 'text-start',
+                'className' => 'text-center',
                 'orderable' => false,
+            ],
+            [
+                'data' => 'created_at',
+                'name' => 'created_at',
+                'title' => 'تاريخ الإنشاء',
+                'className' => 'text-center',
+                'width' => '130px',
             ],
             [
                 'data' => 'is_active',
@@ -77,6 +84,7 @@ class FaqDataTable extends AbstractDataTable
             ->editColumn('answer', function ($row) {
                 return Str::limit(strip_tags((string) $row->answer), 100);
             })
+            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
             ->editColumn('is_active', function ($row) {
                 $checked = $row->is_active ? 'checked' : '';
                 $url = route('admin.faqs.toggle-status', $row->id);

@@ -12,6 +12,7 @@ use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Models\Admin\Tenants\Domain;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\UserMangment\User\User;
+use Database\Seeders\tenant\IssuingEntitySeeder;
 use Database\Seeders\tenant\TenantDatabaseSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
@@ -94,6 +95,7 @@ class TestTenantSeeder extends Seeder
         tenancy()->initialize($tenant);
         try {
             $this->call(TenantDatabaseSeeder::class);
+            $this->call(IssuingEntitySeeder::class);
         } finally {
             tenancy()->end();
         }

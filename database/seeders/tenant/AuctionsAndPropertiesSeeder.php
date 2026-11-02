@@ -4,6 +4,7 @@ namespace Database\Seeders\tenant;
 
 use App\Jobs\Tenants\Auctions\GenerateAuctionReportsJob;
 use App\Models\Tenants\Assignments\Assignment;
+use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
 use App\Models\Tenants\Properties\Property;
@@ -95,9 +96,16 @@ class AuctionsAndPropertiesSeeder extends Seeder
         $assignments = [];
         foreach ($assignmentsData as $data) {
             $isArchived = ($data['assignment_number'] === 'ASN-' . date('Y') . '-00106');
+            $issuingEntityId = ! empty($data['issuing_entity'])
+                ? IssuingEntity::where('name', trim($data['issuing_entity']))->value('id')
+                : null;
+
             $assignment = Assignment::withTrashed()->updateOrCreate(
                 ['assignment_number' => $data['assignment_number']],
-                array_merge($data, ['created_by' => $userId])
+                array_merge($data, [
+                    'created_by' => $userId,
+                    'issuing_entity_id' => $issuingEntityId,
+                ])
             );
 
             if ($isArchived && ! $assignment->trashed()) {

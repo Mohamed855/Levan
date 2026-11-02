@@ -16,12 +16,13 @@
 
                 <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
                     <div>
-                        <h6 class="mb-0 text-muted small">تاريخ الإضافة</h6>
+                        <h6 class="mb-0 text-muted small">تاريخ الإنشاء</h6>
                         <span class="fw-semibold">{{ optional($user->created_at)->format('Y-m-d') ?? '-' }}</span>
                     </div>
                     <div>
                         <h6 class="mb-0 text-muted small">آخر دخول</h6>
-                        <span class="fw-semibold">{{ $user->last_login_at ? $user->last_login_at->locale('ar')->diffForHumans() : 'لم يسجل' }}</span>
+                        <span
+                            class="fw-semibold">{{ $user->last_login_at ? $user->last_login_at->locale('ar')->diffForHumans() : 'لم يسجل' }}</span>
                     </div>
                 </div>
 
@@ -45,7 +46,8 @@
                         <li class="mb-2 d-flex align-items-center">
                             <i class="ti ti-id-badge text-primary me-2 fs-5"></i>
                             <span class="fw-bold me-2">الدور:</span>
-                            <span class="badge bg-label-primary">{{ $role ? \App\Support\AccessLabels::role($role->name) : 'غير متوفر' }}</span>
+                            <span
+                                class="badge bg-label-primary">{{ $role ? \App\Support\AccessLabels::role($role->name) : 'غير متوفر' }}</span>
                         </li>
                     </ul>
                 </div>
@@ -103,7 +105,8 @@
                             $isActive = $coupon->is_active && !$isExpired && !$isExhausted;
                         @endphp
                         <div class="col-md-6">
-                            <div class="card border h-100 shadow-none p-3 {{ $isActive ? 'border-primary' : 'border-secondary' }}">
+                            <div
+                                class="card border h-100 shadow-none p-3 {{ $isActive ? 'border-primary' : 'border-secondary' }}">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <h6 class="mb-0 fw-bold">{{ $coupon->name }}</h6>
                                     @if (!$coupon->is_active)
@@ -125,7 +128,8 @@
                                     </code>
                                 </div>
                                 <div class="d-flex justify-content-between text-muted small mt-auto pt-2 border-top">
-                                    <span>الاستخدام: {{ $coupon->used_count ?? 0 }} / {{ $coupon->usage_limit ?? '∞' }}</span>
+                                    <span>الاستخدام: {{ $coupon->used_count ?? 0 }} /
+                                        {{ $coupon->usage_limit ?? '∞' }}</span>
                                     <span>{{ $expiryDate ? $expiryDate->format('Y-m-d') : 'بدون انتهاء' }}</span>
                                 </div>
                             </div>

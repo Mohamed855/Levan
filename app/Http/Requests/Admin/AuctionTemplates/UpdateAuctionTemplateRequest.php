@@ -22,7 +22,7 @@ class UpdateAuctionTemplateRequest extends WizardFormRequest
         $templateId = $template instanceof AuctionTemplate ? $template->id : $template;
         $type = $template instanceof AuctionTemplate
             ? (is_object($template->type) ? $template->type->value : (string) $template->type)
-            : (string) $this->input('type', 'brochure');
+            : (string) $this->input('type', 'billboard');
 
         return [
             'name' => [

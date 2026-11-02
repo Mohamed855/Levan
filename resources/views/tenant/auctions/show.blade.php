@@ -256,6 +256,73 @@
                     </table>
                 </div>
             </div>
+
+            {{-- الإعلانات الترويجية للمزاد --}}
+            <div class="card mb-4" id="promotional-advertisements-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-speakerphone me-1 text-primary"></i>الإعلانات الترويجية للمزاد ({{ $auction->promotionalAdvertisements->count() }})
+                    </h5>
+                    @canany(['promotional_advertisements.create', 'auctions.create', 'auctions.edit'])
+                        <a href="{{ tenant_route_name('promotional-advertisements.create', ['auction_id' => $auction->id]) }}" class="btn btn-sm btn-primary">
+                            <i class="ti ti-plus me-1"></i>إضافة إعلان ترويجي
+                        </a>
+                    @endcanany
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="promotional-advertisements-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>نوع القالب</th>
+                                <th>اسم القالب</th>
+                                <th>تاريخ الإنشاء</th>
+                                <th>الحالة</th>
+                                <th class="text-center">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="promotional-advertisements-tbody">
+                            @forelse($auction->promotionalAdvertisements as $ad)
+                                <tr data-ad-id="{{ $ad->id }}" data-ad-status="{{ $ad->status }}">
+                                    <td><span class="fw-semibold">#{{ $ad->id }}</span></td>
+                                    <td>
+                                        <span class="badge bg-label-info">{{ $ad->type_label }}</span>
+                                    </td>
+                                    <td class="fw-medium">{{ $ad->template_name }}</td>
+                                    <td><small class="text-muted">{{ $ad->created_at?->format('Y-m-d H:i') }}</small></td>
+                                    <td data-ad-status-cell>
+                                        <span class="badge bg-{{ $ad->status_badge }}">{{ $ad->status_label }}</span>
+                                    </td>
+                                    <td class="text-center" data-ad-action-cell>
+                                        @if($ad->isReady())
+                                            <a href="{{ tenant_route_name('promotional-advertisements.download', $ad->id) }}" class="btn btn-sm btn-primary">
+                                                <i class="ti ti-download me-1"></i>تحميل الصورة
+                                            </a>
+                                        @elseif($ad->isProcessing())
+                                            <button class="btn btn-sm btn-outline-primary" disabled>
+                                                <i class="ti ti-loader ti-spin me-1"></i>جارٍ التجهيز...
+                                            </button>
+                                        @elseif($ad->isFailed())
+                                            <span class="text-danger small" title="{{ $ad->error_message }}">
+                                                <i class="ti ti-alert-triangle me-1"></i>فشل التجهيز
+                                            </span>
+                                        @else
+                                            <span class="text-muted small">-</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr id="empty-advertisements-row">
+                                    <td colspan="6" class="text-center py-4 text-muted">
+                                        <i class="ti ti-speakerphone-off fs-3 d-block mb-1 text-secondary"></i>
+                                        لا توجد إعلانات ترويجية لهذا المزاد بعد.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 @endsection
@@ -501,6 +568,56 @@
             @if ($auction->latestReportGeneration && in_array($auction->latestReportGeneration->status, ['queued', 'processing']))
                 startReportGeneration();
             @endif
+
+            // متابعة حالة الإعلانات الترويجية للمزاد
+            const promoStatusUrl = @json(tenant_route_name('auctions.promotional-advertisements.status', $auction->id));
+            const hasProcessingAds = document.querySelectorAll('[data-ad-status="processing"], [data-ad-status="pending"]').length > 0;
+
+            if (hasProcessingAds) {
+                let promoPollInterval = setInterval(function () {
+                    fetch(promoStatusUrl, {
+                        headers: { 'Accept': 'application/json' }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data || !data.advertisements) return;
+
+                        let anyProcessing = false;
+                        data.advertisements.forEach(ad => {
+                            const row = document.querySelector(`tr[data-ad-id="${ad.id}"]`);
+                            if (!row) return;
+
+                            row.setAttribute('data-ad-status', ad.status);
+                            const statusCell = row.querySelector('[data-ad-status-cell]');
+                            const actionCell = row.querySelector('[data-ad-action-cell]');
+
+                            if (statusCell) {
+                                statusCell.innerHTML = `<span class="badge bg-${ad.status_badge}">${ad.status_label}</span>`;
+                            }
+
+                            if (actionCell) {
+                                if (ad.is_ready && ad.download_url) {
+                                    actionCell.innerHTML = `<a href="${ad.download_url}" class="btn btn-sm btn-primary"><i class="ti ti-download me-1"></i>تحميل الصورة</a>`;
+                                } else if (ad.is_processing) {
+                                    anyProcessing = true;
+                                    actionCell.innerHTML = `<button class="btn btn-sm btn-outline-primary" disabled><i class="ti ti-loader ti-spin me-1"></i>جارٍ التجهيز...</button>`;
+                                } else if (ad.is_failed) {
+                                    actionCell.innerHTML = `<span class="text-danger small" title="${ad.error_message || ''}"><i class="ti ti-alert-triangle me-1"></i>فشل التجهيز</span>`;
+                                }
+                            }
+                        });
+
+                        if (data.all_ready || !anyProcessing) {
+                            clearInterval(promoPollInterval);
+                            promoPollInterval = null;
+                            if (window.toastr) {
+                                toastr.success('تم اكتمال وتجهيز صورة الإعلان بنجاح!');
+                            }
+                        }
+                    })
+                    .catch(() => {});
+                }, 3000);
+            }
         });
     </script>
 @endsection

@@ -47,6 +47,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             ['data' => 'ends_at', 'name' => 'ends_at', 'title' => 'نهاية الاشتراك'],
 
             ['data' => 'days_remaining',    'name' => 'days_remaining', 'title' => 'الأيام المتبقية', 'orderable' => false],
+            ['data' => 'created_at',        'name' => 'created_at',     'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'status', 'name' => 'status', 'title' => 'حالة الإشتراك'],
         ];
 
@@ -117,6 +118,8 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-success">'.$days.' يوماً</span>';
             })
+
+            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
 
             ->editColumn('status', function ($row) {
                 return $this->StageBadge($row);

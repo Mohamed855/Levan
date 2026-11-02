@@ -45,6 +45,7 @@ class DomainDataTable extends AbstractDataTable
             ['data' => 'expires_at',      'title' => 'تاريخ الانتهاء',  'orderable' => false],
             ['data' => 'remaining_days',  'title' => 'الأيام المتبقية', 'orderable' => false],
             ['data' => 'trasnfer_status', 'title' => 'حالة النقل'],
+            ['data' => 'created_at',      'name' => 'created_at',       'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'actions',         'name' => 'actions',          'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -121,7 +122,7 @@ class DomainDataTable extends AbstractDataTable
             })
 
             ->editColumn('created_at', function ($row) {
-                return $row->created_at?->format('Y-m-d');
+                return $row->created_at ? $row->created_at->format('Y-m-d') : '-';
             })
 
             ->editColumn('updated_at', function ($row) {

@@ -55,6 +55,9 @@
                                 تفاصيل الباقة
                             </h6>
                             <div class="d-flex align-items-center gap-2">
+                                <a href="{{ route('admin.plans.index') }}" class="btn btn-secondary">
+                                    <i class="ti ti-arrow-right me-1"></i>رجوع
+                                </a>
                                 @can('plans.edit')
                                     <button type="button"
                                         class="btn btn-sm {{ $plan->is_active ? 'btn-warning' : 'btn-success' }} js-toggle-details-status"
@@ -66,9 +69,6 @@
                                         <i class="ti ti-edit me-1"></i>تعديل الباقة
                                     </a>
                                 @endcan
-                                <a href="{{ route('admin.plans.index') }}" class="btn btn-secondary">
-                                    <i class="ti ti-arrow-right me-1"></i>رجوع
-                                </a>
                             </div>
                         </div>
 

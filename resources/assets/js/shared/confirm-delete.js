@@ -21,7 +21,7 @@ const VARIANT_CONFIGS = {
     },
     warning: {
         wrapperClass:
-            "avatar avatar-xl mx-auto rounded-circle d-flex align-items-center justify-content-center bg-warning mb-3",
+            "avatar avatar-xl mx-auto rounded-circle d-flex align-items-center justify-content-center bg-danger mb-3",
         iconClass: "ti ti-alert-triangle fs-2 text-white",
         btnClass: "btn btn-warning px-4 text-white",
         btnIcon: "ti-alert-triangle",

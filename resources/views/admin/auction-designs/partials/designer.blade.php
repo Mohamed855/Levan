@@ -1,7 +1,5 @@
 <div class="auction-design-surface" data-designer-surface>
     <div class="d-flex flex-wrap gap-2 my-3 align-items-center">
-        <button class="btn btn-outline-primary btn-sm" type="button" data-add-page><i class="ti ti-plus me-1"></i>إضافة
-            صفحة</button>
         <button class="btn btn-outline-primary btn-sm" type="button" data-add-element="text"><i
                 class="ti ti-typography me-1"></i>إضافة نص</button>
         <button class="btn btn-outline-primary btn-sm" type="button" data-add-element="variable"><i

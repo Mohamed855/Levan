@@ -50,29 +50,17 @@
             </li>
         @endif
 
-        @can('domain.view')
+        {{-- @can('domain.view')
             <li class="nav-item dropdown me-2 me-xl-2">
                 <a href="{{ tenant_route_name('domains.setting') }}" class="menu-link" title="إدارة النطاقات"
                     data-bs-toggle="tooltip" data-bs-placement="bottom">
                     <i class="menu-icon tf-icons ti ti-world"></i>
                 </a>
             </li>
-        @endcan
+        @endcan --}}
 
-
-
-        {{-- Settings - يظهر فقط إذا توفرت إحدى الصلاحيات --}}
-        @canany([
-            'system.settings',
-            'users.view',
-            'roles.view',
-            'activity_log.view',
-            'domain.view',
-            'user_archive.view',
-            'properties_archive.view',
-            'assignments_archive.view',
-            'auctions_archive.view',
-        ])
+        @canany(['system.settings', 'users.view', 'roles.view', 'activity_log.view', 'domain.view', 'user_archive.view',
+            'properties_archive.view', 'assignments_archive.view', 'auctions_archive.view'])
             <li class="nav-item dropdown me-2 me-xl-2">
                 <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
                     href="javascript:void(0);" data-bs-toggle="dropdown">
@@ -164,7 +152,8 @@
                             </div>
                         @endcan
 
-                        @canany(['user_archive.view', 'properties_archive.view', 'assignments_archive.view', 'auctions_archive.view'])
+                        @canany(['user_archive.view', 'properties_archive.view', 'assignments_archive.view',
+                            'auctions_archive.view'])
                             <div class="col-12">
                                 <div class="border rounded p-2">
                                     <div class="d-flex align-items-center gap-1 mb-2">
@@ -253,8 +242,8 @@
             <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
                 <div class="avatar avatar-online">
 
-                    <img src="{{ tasset(Auth::user()->image) }}" alt="{{ Auth::user()->name }}"
-                        class="rounded-circle" width="40" height="40">
+                    <img src="{{ tasset(Auth::user()->image) }}" alt="{{ Auth::user()->name }}" class="rounded-circle"
+                        width="40" height="40">
 
                 </div>
             </a>
@@ -268,7 +257,8 @@
                             </div>
                             <div class="flex-grow-1">
                                 <h6 class="mb-0">{{ Auth::user()->name }}</h6>
-                                <small class="text-muted">{{ Auth::user()->getRoleNames()->map(fn ($name) => \App\Support\AccessLabels::role($name))->implode('، ') }}</small>
+                                <small
+                                    class="text-muted">{{ Auth::user()->getRoleNames()->map(fn($name) => \App\Support\AccessLabels::role($name))->implode('، ') }}</small>
                             </div>
                         </div>
                     </a>

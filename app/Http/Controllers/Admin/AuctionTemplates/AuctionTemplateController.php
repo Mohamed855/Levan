@@ -83,7 +83,7 @@ class AuctionTemplateController extends Controller
 
         return redirect()
             ->route('admin.auction-templates.show', $template->id)
-            ->with('success', 'تم حفظ قالب المزاد بنجاح.');
+            ->with('success', 'تم حفظ القالب الإعلاني بنجاح.');
     }
 
     public function show(AuctionTemplate $auctionTemplate): View
@@ -155,11 +155,11 @@ class AuctionTemplateController extends Controller
         if (request()->ajax() || request()->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'تم حذف قالب المزاد بنجاح.',
+                'message' => 'تم حذف القالب الإعلاني بنجاح.',
             ]);
         }
 
-        return redirect()->back()->with('success', 'تم حذف قالب المزاد بنجاح.');
+        return redirect()->back()->with('success', 'تم حذف القالب الإعلاني بنجاح.');
     }
 
     public function toggleStatus(UpdateAuctionTemplateStatusRequest $request, AuctionTemplate $auctionTemplate): JsonResponse

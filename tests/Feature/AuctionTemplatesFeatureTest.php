@@ -18,7 +18,6 @@ use App\Models\Tenants\UserMangment\User\User;
 use App\Rules\AuctionTemplateFileSpecificationRule;
 use App\Rules\ExistsInCentralAuctionTemplates;
 use App\Rules\PublishedTemplateVersionRule;
-use App\Services\Tenants\Auctions\AuctionOutputService;
 use App\Services\Tenants\Auctions\AuctionTemplateRenderer;
 use App\Services\Tenants\Shared\CentralAuctionTemplatesGateway;
 use App\Support\Auctions\TemplateSchema;
@@ -74,15 +73,15 @@ class AuctionTemplatesFeatureTest extends TestCase
 
         $action = app(CreateAuctionTemplateAction::class);
         $template = $action->execute([
-            'name' => 'بروشور تجريبي '.uniqid(),
-            'type' => AuctionTemplateType::BROCHURE->value,
+            'name' => 'قالب إعلاني تجريبي '.uniqid(),
+            'type' => AuctionTemplateType::BILLBOARD->value,
             'description' => 'وصف القالب التجريبي',
             'is_active' => true,
         ], $pdfFile);
 
         $this->assertDatabaseHas('auction_templates', [
             'id' => $template->id,
-            'type' => 'brochure',
+            'type' => 'billboard',
             'is_active' => 1,
         ]);
 
@@ -95,26 +94,26 @@ class AuctionTemplatesFeatureTest extends TestCase
     {
         $template = AuctionTemplate::create([
             'name' => 'قالب بوابة نشط '.uniqid(),
-            'type' => AuctionTemplateType::BROCHURE,
-            'file_path' => 'auction_templates/brochure/test.pdf',
+            'type' => AuctionTemplateType::BILLBOARD,
+            'file_path' => 'auction_templates/billboard/test.png',
             'field_names' => ['auction_name'],
             'is_active' => true,
         ]);
 
         $gateway = app(CentralAuctionTemplatesGateway::class);
-        $activeBrochures = $gateway->activeByType('brochure');
+        $activeBillboards = $gateway->activeByType('billboard');
 
-        $this->assertNotEmpty($activeBrochures);
-        $found = collect($activeBrochures)->firstWhere('value', $template->id);
+        $this->assertNotEmpty($activeBillboards);
+        $found = collect($activeBillboards)->firstWhere('value', $template->id);
         $this->assertNotNull($found);
         $this->assertEquals($template->name, $found['label']);
 
-        $foundModel = $gateway->findActive($template->id, 'brochure');
+        $foundModel = $gateway->findActive($template->id, 'billboard');
         $this->assertNotNull($foundModel);
         $this->assertEquals($template->id, $foundModel->id);
 
-        $this->assertTrue($gateway->existsActive($template->id, 'brochure'));
-        $this->assertFalse($gateway->existsActive(999999, 'brochure'));
+        $this->assertTrue($gateway->existsActive($template->id, 'billboard'));
+        $this->assertFalse($gateway->existsActive(999999, 'billboard'));
     }
 
     public function test_validation_rule_validates_against_central_templates(): void
@@ -141,7 +140,7 @@ class AuctionTemplatesFeatureTest extends TestCase
         $this->assertTrue($validatorFail->fails());
     }
 
-    public function test_auction_output_service_builds_correct_data(): void
+    public function test_auction_template_renderer_builds_correct_bindings(): void
     {
         $tenant = Tenant::find('test') ?? Tenant::first();
         if (! $tenant) {
@@ -180,15 +179,14 @@ class AuctionTemplatesFeatureTest extends TestCase
                 'is_active' => true,
             ]);
 
-            $service = app(AuctionOutputService::class);
-            $brochureData = $service->buildFieldData($auction, 'brochure');
+            $renderer = app(AuctionTemplateRenderer::class);
+            $bindings = $renderer->bindings($auction);
 
-            $this->assertEquals('مزاد لوت الرياض التجريبي', $brochureData['auction_name']);
-            $this->assertEquals('الرياض', $brochureData['auction_city']);
-            $this->assertEquals('منصة المزاد الوطنية', $brochureData['platform_name']);
-            $this->assertEquals('وزارة العدل', $brochureData['supervising_entity']);
-            $this->assertEquals('إلكتروني', $brochureData['auction_type']);
-            $this->assertEquals($assignment->assignment_number, $brochureData['assignment_number']);
+            $this->assertEquals('مزاد لوت الرياض التجريبي', $bindings['auction.name']);
+            $this->assertEquals('الرياض', $bindings['auction.city']);
+            $this->assertEquals('منصة المزاد الوطنية', $bindings['auction.platform_name']);
+            $this->assertEquals('وزارة العدل', $bindings['auction.supervising_entity']);
+            $this->assertEquals('electronic', $bindings['auction.type']);
         } finally {
             if (tenancy()->initialized) {
                 tenancy()->end();
@@ -200,8 +198,8 @@ class AuctionTemplatesFeatureTest extends TestCase
     {
         $template = AuctionTemplate::create([
             'name' => 'قالب فحص العرض '.uniqid(),
-            'type' => AuctionTemplateType::BROCHURE,
-            'file_path' => 'auction_templates/brochure/test.pdf',
+            'type' => AuctionTemplateType::BILLBOARD,
+            'file_path' => 'auction_templates/billboard/test.png',
             'field_names' => ['auction_name', 'auction_date'],
             'is_active' => true,
         ]);
@@ -210,7 +208,7 @@ class AuctionTemplatesFeatureTest extends TestCase
             ->get(route('admin.auction-templates.index'));
 
         $response->assertOk();
-        $response->assertSee('قوالب المزادات');
+        $response->assertSee('قوالب إعلانية');
         $response->assertSee('auction-templates-table');
 
         $showResponse = $this->actingAs($this->admin, 'admin')
@@ -275,76 +273,35 @@ class AuctionTemplatesFeatureTest extends TestCase
         ], $imageFile);
     }
 
-    public function test_auction_output_service_generates_pdf_file_from_template(): void
+    public function test_superadmin_can_save_and_retrieve_wizard_draft_for_templates(): void
     {
-        $tenant = Tenant::find('test') ?? Tenant::first();
-        if (! $tenant) {
-            $this->markTestSkipped('No tenant found in database.');
-        }
+        $draftData = [
+            'resource_key' => 'admin.auction-templates.create',
+            'step' => 1,
+            'name' => 'قالب مسودة إعلاني تجريبي',
+            'type' => 'billboard',
+            'description' => 'وصف المسودة',
+            'schema' => json_encode(['canvas' => ['width' => 1200, 'height' => 628]]),
+        ];
 
-        // Create an image template file on central_public
-        $imgContent = imagecreatetruecolor(600, 800);
-        ob_start();
-        imagepng($imgContent);
-        $rawPng = ob_get_clean();
-        imagedestroy($imgContent);
+        $saveResponse = $this->actingAs($this->admin, 'admin')
+            ->postJson(route('admin.wizard-drafts.store'), $draftData);
 
-        $relPath = 'auction_templates/brochure/test_bg_'.uniqid().'.png';
-        Storage::disk('central_public')->put($relPath, $rawPng);
-
-        $template = AuctionTemplate::create([
-            'name' => 'قالب بروشور حقيقي '.uniqid(),
-            'type' => AuctionTemplateType::BROCHURE,
-            'file_path' => $relPath,
-            'is_active' => true,
+        $saveResponse->assertOk();
+        $saveResponse->assertJson([
+            'success' => true,
+            'message' => 'تم حفظ المسودة بنجاح.',
         ]);
 
-        tenancy()->initialize($tenant);
+        $draftId = $saveResponse->json('draft_id');
+        $this->assertNotEmpty($draftId);
 
-        try {
-            $assignment = Assignment::firstOrCreate(
-                ['assignment_number' => 'ASN-OUT-'.uniqid()],
-                [
-                    'name' => 'إسناد المخرجات',
-                    'issuing_entity' => 'مركز الإسناد والتصفية (إنفاذ)',
-                    'is_active' => true,
-                ]
-            );
+        $getResponse = $this->actingAs($this->admin, 'admin')
+            ->getJson(route('admin.wizard-drafts.index', ['resource_key' => 'admin.auction-templates.create']));
 
-            $auction = Auction::create([
-                'assignment_id' => $assignment->id,
-                'name' => 'مزاد لوت النرجس التلقائي',
-                'description' => 'مزاد تجريبي لتأكيد المخرجات',
-                'start_date' => now()->toDateString(),
-                'start_time' => '16:00',
-                'end_date' => now()->addDays(3)->toDateString(),
-                'end_time' => '19:00',
-                'type' => 'electronic',
-                'category' => 'buildings',
-                'city' => 'الرياض',
-                'platform_name' => 'سعودي مزاد',
-                'platform_url' => 'https://saudimazad.sa',
-                'supervising_entity' => 'إنفاذ',
-                'status' => 'active',
-                'is_active' => true,
-            ]);
-
-            $service = app(AuctionOutputService::class);
-            $generatedPdfPath = $service->generate($auction, 'brochure', $template->id);
-
-            $this->assertFileExists($generatedPdfPath);
-            $content = file_get_contents($generatedPdfPath);
-            $this->assertStringStartsWith('%PDF-', $content);
-
-            // Cleanup generated file
-            if (file_exists($generatedPdfPath)) {
-                @unlink($generatedPdfPath);
-            }
-        } finally {
-            if (tenancy()->initialized) {
-                tenancy()->end();
-            }
-        }
+        $getResponse->assertOk();
+        $this->assertEquals($draftId, $getResponse->json('draft_id'));
+        $this->assertEquals('قالب مسودة إعلاني تجريبي', $getResponse->json('data.name'));
     }
 
     public function test_superadmin_can_view_create_wizard_with_canonical_contracts(): void
@@ -365,8 +322,8 @@ class AuctionTemplatesFeatureTest extends TestCase
     {
         $template = AuctionTemplate::create([
             'name' => 'قالب فحص شاشة التعديل '.uniqid(),
-            'type' => AuctionTemplateType::BROCHURE,
-            'file_path' => 'auction_templates/brochure/test.pdf',
+            'type' => AuctionTemplateType::BILLBOARD,
+            'file_path' => 'auction_templates/billboard/test.png',
             'is_active' => true,
         ]);
 
@@ -375,7 +332,7 @@ class AuctionTemplatesFeatureTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('auction-template-edit-form');
-        $response->assertSee('تعديل قالب المزاد:');
+        $response->assertSee('تعديل القالب الإعلاني:');
         $response->assertSee('data-form-validate');
         $response->assertSee($template->name);
     }
@@ -388,20 +345,19 @@ class AuctionTemplatesFeatureTest extends TestCase
         $response->assertOk();
         $response->assertSee('إجمالي القوالب');
         $response->assertSee('قوالب مفعلة');
-        $response->assertSee('قوالب البروشور');
+        $response->assertSee('سوشيال ميديا');
         $response->assertSee('اللوحات الإعلانية');
         $response->assertSee('قوالب معطلة');
     }
 
     public function test_specification_rule_enforces_type_dimensions_and_formats(): void
     {
-        $brochureRule = new AuctionTemplateFileSpecificationRule('brochure');
         $socialRule = new AuctionTemplateFileSpecificationRule('social');
         $billboardRule = new AuctionTemplateFileSpecificationRule('billboard');
 
-        // 1. Brochure must be PDF, rejecting images
-        $imageFile = UploadedFile::fake()->image('brochure.png', 1080, 1080);
-        $v1 = Validator::make(['file' => $imageFile], ['file' => [$brochureRule]]);
+        // 1. PDF files must be rejected
+        $pdfFile = UploadedFile::fake()->create('document.pdf', 100, 'application/pdf');
+        $v1 = Validator::make(['file' => $pdfFile], ['file' => [$socialRule]]);
         $this->assertTrue($v1->fails());
 
         // 2. Social square image templates are accepted for manual field placement.
@@ -421,72 +377,6 @@ class AuctionTemplatesFeatureTest extends TestCase
         $landscapeImage = UploadedFile::fake()->image('billboard_landscape.png', 1920, 1080);
         $v5 = Validator::make(['file' => $landscapeImage], ['file' => [$billboardRule]]);
         $this->assertFalse($v5->fails());
-    }
-
-    public function test_auction_output_service_generates_social_png_image(): void
-    {
-        $tenant = Tenant::find('test') ?? Tenant::first();
-        if (! $tenant) {
-            $this->markTestSkipped('No tenant found in database.');
-        }
-
-        $template = AuctionTemplate::create([
-            'name' => 'قالب سوشيال تجريبي '.uniqid(),
-            'type' => AuctionTemplateType::SOCIAL,
-            'file_path' => 'auction_templates/social/test.png',
-            'is_active' => true,
-        ]);
-
-        // Place a mock template image on disk
-        $disk = Storage::disk('central_public');
-        $disk->put('auction_templates/social/test.png', base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='));
-
-        tenancy()->initialize($tenant);
-
-        try {
-            $assignment = Assignment::firstOrCreate(
-                ['assignment_number' => 'ASN-IMG-'.uniqid()],
-                [
-                    'name' => 'إسناد فحص الصور',
-                    'issuing_entity' => 'مركز الإسناد والتصفية (إنفاذ)',
-                    'is_active' => true,
-                ]
-            );
-
-            $auction = Auction::create([
-                'assignment_id' => $assignment->id,
-                'name' => 'مزاد لوت سوشيال التجريبي',
-                'description' => 'مزاد فحص توليد صورة السوشيال',
-                'start_date' => now()->toDateString(),
-                'start_time' => '16:00',
-                'end_date' => now()->addDays(2)->toDateString(),
-                'end_time' => '18:00',
-                'type' => 'electronic',
-                'category' => 'lands',
-                'city' => 'جدة',
-                'platform_name' => 'سعودي مزاد',
-                'social_template_id' => $template->id,
-                'status' => 'active',
-                'is_active' => true,
-            ]);
-
-            $service = app(AuctionOutputService::class);
-            $pngPath = $service->generateSocialImage($auction);
-
-            $this->assertFileExists($pngPath);
-            $content = file_get_contents($pngPath);
-            // Verify PNG header: 89 50 4E 47 0D 0A 1A 0A
-            $this->assertStringStartsWith("\x89PNG\r\n\x1a\n", $content);
-
-            if (file_exists($pngPath)) {
-                @unlink($pngPath);
-            }
-        } finally {
-            if (tenancy()->initialized) {
-                tenancy()->end();
-            }
-            $disk->delete('auction_templates/social/test.png');
-        }
     }
 
     public function test_superadmin_can_create_auction_template_with_schema_and_version(): void
@@ -513,16 +403,16 @@ class AuctionTemplatesFeatureTest extends TestCase
         ];
 
         $template = $action->execute([
-            'name' => 'بروشور تصميمي فيرجن '.uniqid(),
-            'type' => AuctionTemplateType::BROCHURE->value,
-            'description' => 'قالب بروشور بمصمم مرئي ومخطط',
+            'name' => 'قالب إعلاني فيرجن '.uniqid(),
+            'type' => AuctionTemplateType::BILLBOARD->value,
+            'description' => 'قالب إعلاني بمصمم مرئي ومخطط',
             'schema' => $validSchema,
             'status' => 'draft',
         ]);
 
         $this->assertDatabaseHas('auction_templates', [
             'id' => $template->id,
-            'type' => 'brochure',
+            'type' => 'billboard',
             'status' => 'draft',
             'current_version' => null,
         ]);
@@ -542,7 +432,7 @@ class AuctionTemplatesFeatureTest extends TestCase
     {
         $template = AuctionTemplate::create([
             'name' => 'قالب للنشر '.uniqid(),
-            'type' => AuctionTemplateType::BROCHURE,
+            'type' => AuctionTemplateType::BILLBOARD,
             'status' => 'draft',
             'current_version' => 1,
             'is_active' => true,
@@ -551,7 +441,7 @@ class AuctionTemplatesFeatureTest extends TestCase
         $version = AuctionTemplateVersion::create([
             'auction_template_id' => $template->id,
             'version' => 1,
-            'schema' => TemplateSchema::sample(AuctionTemplateType::BROCHURE),
+            'schema' => TemplateSchema::sample(AuctionTemplateType::BILLBOARD),
             'status' => 'draft',
         ]);
 
@@ -618,102 +508,6 @@ class AuctionTemplatesFeatureTest extends TestCase
 
         $this->assertTrue($gateway->existsPublished($v2->id, 'social'));
         $this->assertFalse($gateway->existsPublished(999999, 'social'));
-    }
-
-    public function test_auction_keeps_immutable_template_snapshot_and_renderer_binds_data(): void
-    {
-        $tenant = Tenant::find('test') ?? Tenant::first();
-        if (! $tenant) {
-            $this->markTestSkipped('No tenant found in database.');
-        }
-
-        $template = AuctionTemplate::create([
-            'name' => 'قالب سوشيال معتمد '.uniqid(),
-            'type' => AuctionTemplateType::SOCIAL,
-            'status' => 'published',
-            'current_version' => 1,
-            'is_active' => true,
-        ]);
-
-        $sampleSchema = [
-            'canvas' => ['width' => 1080, 'height' => 1080, 'unit' => 'px', 'background' => '#F7F3EC'],
-            'pages' => [
-                [
-                    'page_number' => 1,
-                    'elements' => [
-                        [
-                            'id' => 'elem-title',
-                            'type' => 'text',
-                            'binding' => 'auction.name',
-                            'default_value' => 'عنوان افتراضي',
-                            'position' => ['x' => 10, 'y' => 20, 'width' => 300, 'height' => 50],
-                            'style' => ['fontSize' => 20, 'color' => '#1D4F44'],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $v1 = AuctionTemplateVersion::create([
-            'auction_template_id' => $template->id,
-            'version' => 1,
-            'schema' => $sampleSchema,
-            'status' => 'published',
-            'published_at' => now(),
-        ]);
-
-        tenancy()->initialize($tenant);
-
-        try {
-            $owner = User::first();
-
-            $assignment = Assignment::firstOrCreate(
-                ['assignment_number' => 'ASN-SNAP-'.uniqid()],
-                [
-                    'name' => 'إسناد فحص اللقطة',
-                    'issuing_entity' => 'مركز الإسناد والتصفية (إنفاذ)',
-                    'is_active' => true,
-                    'created_by' => $owner?->id,
-                ]
-            );
-
-            $action = app(CreateAuctionAction::class);
-            $auction = $action->execute([
-                'assignment_id' => $assignment->id,
-                'name' => 'مزاد لوت العقاري الذهبي',
-                'description' => 'وصف تجريبي',
-                'start_date' => now()->toDateString(),
-                'start_time' => '16:00',
-                'end_date' => now()->addDays(3)->toDateString(),
-                'end_time' => '19:00',
-                'type' => 'electronic',
-                'category' => 'lands',
-                'city' => 'الرياض',
-                'platform_name' => 'سعودي مزاد',
-                'status' => 'active',
-                'is_active' => true,
-                'created_by' => $owner?->id,
-                'template_versions' => [
-                    'social' => $v1->id,
-                ],
-            ]);
-
-            $this->assertNotNull($auction->template_snapshot);
-            $this->assertArrayHasKey('social', $auction->template_snapshot);
-            $this->assertSame(1, $auction->template_snapshot['social']['version'] ?? null);
-
-            // Now render the template via AuctionTemplateRenderer
-            $renderer = app(AuctionTemplateRenderer::class);
-            $renderData = $renderer->render($auction, 'social');
-
-            $this->assertIsArray($renderData);
-            $this->assertSame('مزاد لوت العقاري الذهبي', $renderData['bindings']['auction.name']);
-            $this->assertSame('#F7F3EC', $renderData['template']['schema']['canvas']['background']);
-        } finally {
-            if (tenancy()->initialized) {
-                tenancy()->end();
-            }
-        }
     }
 }
 

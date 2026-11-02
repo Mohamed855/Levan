@@ -93,6 +93,8 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 PropertiesController::class.'@update',
                 AuctionsController::class.'@store',
                 AuctionsController::class.'@update',
+                IssuingEntitiesController::class.'@store',
+                IssuingEntitiesController::class.'@update',
                 TicketController::class.'@store',
                 TicketController::class.'@reply',
                 TicketController::class.'@rateReply',
@@ -361,9 +363,22 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 Route::name('download')->get('download/{type}', [AuctionReportController::class, 'download']);
                 Route::name('retry')->post('retry', [AuctionReportController::class, 'retry']);
             });
+            Route::name('promotional-advertisements.status')->get('{auction}/promotional-advertisements/status', [\App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController::class, 'status']);
         });
         Route::resource('auctions', AuctionsController::class)
             ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Promotional Advertisements (الإعلانات الترويجية)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('promotional-advertisements')->name('promotional-advertisements.')->group(function () {
+            Route::get('create', [\App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController::class, 'store'])->name('store');
+            Route::get('templates-by-type', [\App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController::class, 'templatesByType'])->name('templates-by-type');
+            Route::get('{advertisement}/download', [\App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController::class, 'download'])->name('download');
+        });
 
         /*
         |--------------------------------------------------------------------------

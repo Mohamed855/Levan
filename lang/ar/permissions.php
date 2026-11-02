@@ -7,7 +7,7 @@ return [
         'assignments_management' => 'إدارة الإسنادات',
         'properties_management' => 'إدارة العقارات',
         'auctions_management' => 'إدارة المزادات',
-        'auction_templates_management' => 'إدارة قوالب المزادات',
+        'auction_templates_management' => 'إدارة القوالب الإعلانية',
         'users_management' => 'إدارة المستخدمين',
         'plans_management' => 'إدارة الباقات',
         'coupons_management' => 'إدارة الكوبونات',
@@ -66,13 +66,13 @@ return [
     'auctions_archive.restore' => 'استعادة مزاد من الأرشيف',
     'auctions_archive.force_delete' => 'حذف مزاد نهائيًا من الأرشيف',
 
-    // قوالب المزادات (الإدارة المركزية)
-    'auction_templates.view' => 'عرض قوالب المزادات',
-    'auction_templates.create' => 'إضافة قالب مزاد',
-    'auction_templates.edit' => 'تعديل قالب مزاد',
-    'auction_templates.delete' => 'حذف قالب مزاد',
-    'auction_templates.restore' => 'استعادة قالب مزاد',
-    'auction_templates.force_delete' => 'حذف نهائي لقالب مزاد',
+    // قوالب إعلانية (الإدارة المركزية)
+    'auction_templates.view' => 'عرض القوالب الإعلانية',
+    'auction_templates.create' => 'إضافة قالب إعلاني',
+    'auction_templates.edit' => 'تعديل قالب إعلاني',
+    'auction_templates.delete' => 'حذف قالب إعلاني',
+    'auction_templates.restore' => 'استعادة قالب إعلاني',
+    'auction_templates.force_delete' => 'حذف نهائي لقالب إعلاني',
 
     // إدارة المستخدمين
     'users.view' => 'المستخدمين',

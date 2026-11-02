@@ -86,6 +86,7 @@ class SubscriptionDataTable extends AbstractDataTable
             ['data' => 'starts_at', 'name' => 'starts_at', 'title' => 'تاريخ البداية'],
             ['data' => 'ends_at', 'name' => 'ends_at', 'title' => 'تاريخ النهاية'],
             ['data' => 'days_remaining', 'name' => 'days_remaining', 'title' => 'الأيام المتبقية', 'orderable' => false, 'searchable' => false],
+            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'status', 'name' => 'status', 'title' => 'حالة الاشتراك'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '100px'],
         ];
@@ -146,6 +147,7 @@ class SubscriptionDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-success">'.$days.' يوماً</span>';
             })
+            ->editColumn('created_at', fn (Subscription $row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
             ->editColumn('status', function (Subscription $row) {
                 $isActive = $row->status === SubscriptionStatus::ACTIVE;
                 $checked = $isActive ? 'checked' : '';

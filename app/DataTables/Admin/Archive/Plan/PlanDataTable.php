@@ -38,6 +38,7 @@ class PlanDataTable extends AbstractDataTable
             ['data' => 'included_users',     'name' => 'included_users',            'title' => 'عدد المستخدمين'],
             ['data' => 'extra_user_license_price',     'name' => 'extra_user_license_price',            'title' => 'سعر الترخيص الاضافي'],
             ['data' => 'domain_management',  'name' => 'domain_management_enabled', 'title' => 'إعدادات الدومينات'],
+            ['data' => 'deleted_at',         'name' => 'deleted_at',                'title' => 'تاريخ الحذف', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'is_active',          'name' => 'is_active',                 'title' => 'الحالة'],
             ['data' => 'actions',            'name' => 'actions',                   'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
@@ -85,6 +86,8 @@ class PlanDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-secondary">غير مفعّلة</span>';
             })
+
+            ->editColumn('deleted_at', fn ($row): string => $row->deleted_at ? $row->deleted_at->format('Y-m-d') : '-')
 
             ->editColumn('is_active', function ($row) {
                 return $row->is_active

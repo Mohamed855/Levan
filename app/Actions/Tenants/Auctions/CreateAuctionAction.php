@@ -143,10 +143,6 @@ final class CreateAuctionAction
                     $data['_wizard_step'],
                     $data['fields'],
                     $data['target_path'],
-                    $data['template_versions'],
-                    $data['brochure_template_id'],
-                    $data['billboard_template_id'],
-                    $data['social_template_id'],
                 );
 
                 $creator = $creatorId ?? auth('tenant')->id() ?? auth()->id();

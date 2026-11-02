@@ -14,42 +14,6 @@ const TEXT_ALIGNMENTS = [
 ];
 
 const BINDINGS_BY_TYPE = {
-    brochure: [
-        { key: "auction.name", label: "اسم المزاد", required: true },
-        {
-            key: "auction.start_date",
-            label: "تاريخ بداية المزاد",
-            required: true,
-        },
-        {
-            key: "auction.start_time",
-            label: "وقت بداية المزاد",
-            required: false,
-        },
-        {
-            key: "auction.end_date",
-            label: "تاريخ نهاية المزاد",
-            required: false,
-        },
-        { key: "auction.end_time", label: "وقت نهاية المزاد", required: false },
-        { key: "auction.city", label: "المدينة", required: true },
-        { key: "auction.type", label: "نوع المزاد", required: false },
-        { key: "auction.category", label: "تصنيف المزاد", required: false },
-        {
-            key: "auction.expected_properties_count",
-            label: "عدد العقارات",
-            required: false,
-        },
-        {
-            key: "auction.supervising_entity",
-            label: "الجهة المشرفة",
-            required: false,
-        },
-        { key: "auction.platform_name", label: "منصة المزاد", required: false },
-        { key: "auction.platform_url", label: "رابط المنصة", required: false },
-        { key: "auction.description", label: "وصف المزاد", required: false },
-        { key: "auction.cover_image", label: "صورة الغلاف", required: false },
-    ],
     billboard: [
         { key: "auction.name", label: "اسم المزاد", required: true },
         {
@@ -104,14 +68,12 @@ function getBindingLabel(bindingKey) {
 }
 
 const canvasFor = (type) => ({
-    width: type === "billboard" ? 1200 : type === "social" ? 1080 : 794,
-    height: type === "billboard" ? 628 : type === "social" ? 1080 : 1123,
+    width: type === "social" ? 1080 : 1200,
+    height: type === "social" ? 1080 : 628,
     label:
-        type === "billboard"
-            ? "1200 × 628 px (16:9 عريض)"
-            : type === "social"
-              ? "1080 × 1080 px (1:1 مربع)"
-              : "794 × 1123 px (A4 رأسي)",
+        type === "social"
+            ? "1080 × 1080 px (1:1 مربع)"
+            : "1200 × 628 px (16:9 عريض)",
 });
 
 const id = () =>
@@ -137,7 +99,7 @@ function initTemplateDesigners() {
 
         const input = root.querySelector("[data-schema-input]");
         const form = root.closest("form");
-        let type = root.dataset.type || "brochure";
+        let type = root.dataset.type || "billboard";
 
         let initial;
         try {
@@ -195,7 +157,7 @@ function initTemplateDesigners() {
             );
             const countBadge = document.getElementById("approved-fields-count");
             const fields =
-                BINDINGS_BY_TYPE[currentType] || BINDINGS_BY_TYPE.brochure;
+                BINDINGS_BY_TYPE[currentType] || BINDINGS_BY_TYPE.billboard;
 
             if (countBadge) {
                 countBadge.textContent = `${fields.length} متغير`;
@@ -221,15 +183,10 @@ function initTemplateDesigners() {
         function renderTabs() {
             const tabs = root.querySelector("[data-page-tabs]");
             if (tabs) {
-                tabs.innerHTML = schema.pages
-                    .map(
-                        (_, i) =>
-                            `<button type="button" class="btn btn-sm ${i === pageIndex ? "btn-primary" : "btn-outline-secondary"}" data-page-index="${i}">صفحة ${i + 1}</button>`,
-                    )
-                    .join("");
+                tabs.innerHTML = "";
             }
             const add = root.querySelector("[data-add-page]");
-            if (add) add.classList.toggle("d-none", type !== "brochure");
+            if (add) add.classList.add("d-none");
         }
 
         function renderCanvas() {
@@ -621,24 +578,6 @@ function initTemplateDesigners() {
                 };
                 page().elements.push(e);
                 selectedId = e.id;
-                render();
-                return;
-            }
-
-            if (ev.target.closest("[data-add-page]") && type === "brochure") {
-                schema.pages.push({
-                    id: id(),
-                    background: {
-                        color: "#ffffff",
-                        image: null,
-                        fit: "cover",
-                        position_x: 50,
-                        position_y: 50,
-                    },
-                    elements: [],
-                });
-                pageIndex = schema.pages.length - 1;
-                selectedId = null;
                 render();
                 return;
             }

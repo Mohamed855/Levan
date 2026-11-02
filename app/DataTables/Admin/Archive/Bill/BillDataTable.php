@@ -40,7 +40,7 @@ class BillDataTable extends AbstractDataTable
             ['data' => 'settlement_amount', 'title' => 'التسوية',           'className' => 'text-start'],
             ['data' => 'payment_method',    'title' => 'طريقة الدفع',   'className' => 'text-start'],
             ['data' => 'status',            'title' => 'حالة العملية',   'className' => 'text-start'],
-            ['data' => 'created_at',        'title' => 'تاريخ العملية',   'className' => 'text-start'],
+            ['data' => 'deleted_at',        'name' => 'deleted_at',         'title' => 'تاريخ الحذف',   'className' => 'text-center', 'width' => '130px'],
             ['data' => 'actions',           'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
 
         ];
@@ -81,8 +81,8 @@ class BillDataTable extends AbstractDataTable
                 return $this->StatusBadge($row);
             })
 
-            ->editColumn('created_at', function ($row) {
-                return $row->created_at?->format('Y-m-d');
+            ->editColumn('deleted_at', function ($row) {
+                return $row->deleted_at ? $row->deleted_at->format('Y-m-d') : '-';
             })
 
             ->addColumn('actions', function ($row) {

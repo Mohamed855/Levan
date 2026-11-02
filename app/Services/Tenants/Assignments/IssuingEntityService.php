@@ -36,10 +36,16 @@ class IssuingEntityService
             $newName = trim((string) $data['name']);
             $oldName = $entity->name;
 
-            $entity->update([
-                'name' => $newName,
-                'is_active' => (bool) ($data['is_active'] ?? $entity->is_active),
-            ]);
+            $updateData = ['name' => $newName];
+            if (array_key_exists('is_active', $data)) {
+                $requestedActive = (bool) $data['is_active'];
+                if (! $requestedActive && $entity->is_active && $entity->assignments()->exists()) {
+                    throw new LogicException('لا يمكن تعطيل جهة مسندة مرتبطة بإسنادات في النظام.');
+                }
+                $updateData['is_active'] = $requestedActive;
+            }
+
+            $entity->update($updateData);
 
             // Keep assigned assignments text field in sync if name changed
             if ($oldName !== $newName) {
@@ -61,6 +67,10 @@ class IssuingEntityService
 
     public function toggleStatus(IssuingEntity $entity, ?bool $status = null): bool
     {
+        if ($entity->assignments()->exists()) {
+            throw new LogicException('لا يمكن تعطيل جهة مسندة مرتبطة بإسنادات في النظام.');
+        }
+
         $newStatus = $status ?? ! $entity->is_active;
 
         $entity->update(['is_active' => $newStatus]);

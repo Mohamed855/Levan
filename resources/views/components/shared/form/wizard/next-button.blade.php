@@ -7,7 +7,7 @@
     'loadingText' => null,
 ])
 
-<button type="{{ $type }}" data-wizard-next @if($loadingText) data-loading-text="{{ $loadingText }}" @endif {{ $attributes->class(['btn', 'btn-primary', 'btn-next']) }}>
+<button type="{{ $type }}" data-wizard-next @disabled($disabled) @if($loadingText) data-loading-text="{{ $loadingText }}" @endif {{ $attributes->class(['btn', 'btn-primary', 'btn-next', 'disabled' => $disabled]) }}>
     @if ($icon && $iconPosition === 'start')
         <span class="spinner-border spinner-border-sm me-1 d-none btn-spinner" role="status" aria-hidden="true"></span>
         <i class="{{ $icon }}" aria-hidden="true"></i>

@@ -556,10 +556,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 propNextBtn.disabled = true;
                 propNextBtn.setAttribute("disabled", "disabled");
                 propNextBtn.classList.add("disabled");
+                propNextBtn.style.pointerEvents = "none";
             } else {
                 propNextBtn.disabled = false;
                 propNextBtn.removeAttribute("disabled");
                 propNextBtn.classList.remove("disabled");
+                propNextBtn.style.pointerEvents = "";
             }
         }
 
@@ -573,6 +575,7 @@ document.addEventListener("DOMContentLoaded", () => {
             $("#select-all-properties").prop("checked", false);
         }
 
+        window.SharedFormValidation?.syncAllPropertyStepButtons?.(form);
         form.dispatchEvent(new Event("change", { bubbles: true }));
     }
 

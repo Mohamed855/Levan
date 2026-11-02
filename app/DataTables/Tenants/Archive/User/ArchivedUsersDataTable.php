@@ -60,7 +60,7 @@ class ArchivedUsersDataTable extends AbstractDataTable
             ['data' => 'phone', 'name' => 'phone', 'title' => 'رقم الهاتف', 'width' => '120px'],
             ['data' => 'roles', 'name' => 'roles', 'title' => 'الأدوار', 'width' => '120px', 'orderable' => false],
             ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'width' => '100px'],
-            ['data' => 'deleted_at', 'name' => 'deleted_at', 'title' => 'تاريخ الأرشفة', 'width' => '120px'],
+            ['data' => 'deleted_at', 'name' => 'deleted_at', 'title' => 'تاريخ الحذف', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -111,7 +111,7 @@ class ArchivedUsersDataTable extends AbstractDataTable
                 return '<span class="badge '.$statusClass.'">'.$statusText.'</span>';
             })
             ->editColumn('deleted_at', function ($row) {
-                return Carbon::parse($row->deleted_at)->format('Y-m-d');
+                return $row->deleted_at ? Carbon::parse($row->deleted_at)->format('Y-m-d') : '-';
             })
             ->addColumn('actions', function ($row) {
                 return view('tenant.archive.users.action', ['id' => $row->id, 'route' => $this->route])->render();

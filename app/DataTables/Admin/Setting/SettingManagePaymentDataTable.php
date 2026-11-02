@@ -43,7 +43,7 @@ class SettingManagePaymentDataTable extends AbstractDataTable
             ['data' => 'amount', 'name' => 'amount', 'title' => 'المبلغ', 'className' => 'text-start'],
             ['data' => 'description', 'name' => 'description', 'title' => 'نوع العملية', 'className' => 'text-start'],
             ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'className' => 'text-start'],
-            ['data' => 'paid_at', 'name' => 'paid_at', 'title' => 'تاريخ العملية', 'className' => 'text-start'],
+            ['data' => 'paid_at', 'name' => 'paid_at', 'title' => 'تاريخ العملية', 'className' => 'text-center', 'width' => '130px'],
         ];
     }
 

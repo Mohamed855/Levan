@@ -58,6 +58,7 @@ class UsersDataTable extends AbstractDataTable
             ['data' => 'phone', 'name' => 'phone', 'title' => 'رقم الهاتف'],
             ['data' => 'roles', 'name' => 'roles.name', 'title' => 'الأدوار', 'orderable' => false, 'searchable' => true],
             ['data' => 'last_login_at', 'name' => 'last_login_at', 'title' => 'آخر دخول'],
+            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false],
         ];
@@ -71,7 +72,7 @@ class UsersDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable)
     {
         $datatable
-            ->editColumn('created_at', fn (User $user) => $user->created_at->locale('ar')->translatedFormat('d F Y'))
+            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
             ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
             ->addColumn('image', function (User $user) {
                 $profilePicture = $user->image ? tasset($user->image) : null;

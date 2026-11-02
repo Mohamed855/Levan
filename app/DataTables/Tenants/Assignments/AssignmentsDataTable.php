@@ -37,6 +37,7 @@ class AssignmentsDataTable extends AbstractDataTable
             ['data' => 'auctions_count', 'name' => 'auctions_count', 'title' => 'عدد المزادات', 'className' => 'text-center'],
             ['data' => 'start_date', 'name' => 'start_date', 'title' => 'تاريخ البداية'],
             ['data' => 'end_date', 'name' => 'end_date', 'title' => 'تاريخ النهاية'],
+            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'status', 'name' => 'is_active', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false],
         ];
@@ -59,6 +60,7 @@ class AssignmentsDataTable extends AbstractDataTable
             ->editColumn('auctions_count', fn ($row): string => '<span class="badge bg-secondary">'.(int) $row->auctions_count.'</span>')
             ->editColumn('start_date', fn ($row): string => $row->start_date?->format('Y-m-d') ?? '-')
             ->editColumn('end_date', fn ($row): string => $row->end_date?->format('Y-m-d') ?? '-')
+            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
             ->editColumn('status', function ($row): string {
                 $canEdit = auth('tenant')->user()?->can('assignments.edit');
                 if ($canEdit) {

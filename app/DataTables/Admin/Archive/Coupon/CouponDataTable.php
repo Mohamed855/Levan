@@ -44,7 +44,7 @@ class CouponDataTable extends AbstractDataTable
             ['data' => 'expiry_date',      'name' => 'expiry_date',         'title' => 'تاريخ الانتهاء'],
             ['data' => 'usage_limit',      'name' => 'usage_limit',         'title' => 'حد الاستخدام'],
             ['data' => 'used_count',      'name' => 'used_count',         'title' => 'مرات الاستخدام'],
-
+            ['data' => 'deleted_at',      'name' => 'deleted_at',         'title' => 'تاريخ الحذف', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'is_active',         'name' => 'is_active',          'title' => 'الحالة'],
             ['data' => 'actions',           'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
@@ -74,6 +74,8 @@ class CouponDataTable extends AbstractDataTable
             ->editColumn('expiry_date', function ($row) {
                 return $row->expiry_date?->format('Y-m-d');
             })
+
+            ->editColumn('deleted_at', fn ($row): string => $row->deleted_at ? $row->deleted_at->format('Y-m-d') : '-')
 
             ->addColumn('actions', function ($row) {
                 return view('admin.archive.coupon.action', ['id' => $row->id, 'route' => $this->route])->render();

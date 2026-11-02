@@ -47,7 +47,7 @@
     <x-data-table.page table-id="issuing-entities-table">
         <x-slot:stats>
             <x-ui.stat-card col="col-sm-6 col-xl-4" title="إجمالي الجهات المسندة" :value="number_format($statistics['total'])" subtitle="كافة الجهات المسجلة"
-                icon="ti-landmark" color="primary" />
+                icon="ti-scale" color="primary" />
             <x-ui.stat-card col="col-sm-6 col-xl-4" title="الجهات النشطة" :value="number_format($statistics['active'])" subtitle="متاحة للاستخدام والربط"
                 icon="ti-circle-check" color="success" />
             <x-ui.stat-card col="col-sm-6 col-xl-4" title="الجهات المعطلة" :value="number_format($statistics['inactive'])" subtitle="معطلة مؤقتًا"
@@ -58,6 +58,8 @@
             <x-data-table.filters table="#issuing-entities-table">
                 <x-filter.select id="filter-status" filterKey="status" label="الحالة" placeholder="اختر الحالة"
                     :options="$filterOptions['statuses'] ?? []" />
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
             </x-data-table.filters>
         </x-slot:filters>
 

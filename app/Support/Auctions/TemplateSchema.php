@@ -12,7 +12,7 @@ final class TemplateSchema
 {
     public const SCHEMA_VERSION = 2;
 
-    public const TYPES = ['brochure', 'billboard', 'social'];
+    public const TYPES = ['billboard', 'social'];
 
     public const BINDINGS = ['auction.name', 'auction.description', 'auction.start_date', 'auction.start_time', 'auction.end_date', 'auction.end_time', 'auction.type', 'auction.category', 'auction.city', 'auction.expected_properties_count', 'auction.supervising_entity', 'auction.platform_name', 'auction.platform_url', 'auction.cover_image'];
 
@@ -20,11 +20,11 @@ final class TemplateSchema
 
     public const BACKGROUND_FITS = ['cover'];
 
-    public static function sample(string|AuctionTemplateType $type = 'brochure'): array
+    public static function sample(string|AuctionTemplateType $type = 'billboard'): array
     {
         $typeVal = is_object($type) ? $type->value : (string) $type;
-        $width = $typeVal === 'billboard' ? 1200 : ($typeVal === 'social' ? 1080 : 794);
-        $height = $typeVal === 'billboard' ? 628 : ($typeVal === 'social' ? 1080 : 1123);
+        $width = $typeVal === 'billboard' ? 1200 : 1080;
+        $height = $typeVal === 'billboard' ? 628 : 1080;
 
         return ['version' => self::SCHEMA_VERSION, 'canvas' => ['width' => $width, 'height' => $height], 'pages' => [['id' => 'page-1', 'background' => ['color' => '#ffffff', 'image' => null, 'fit' => 'cover', 'position_x' => 50, 'position_y' => 50], 'elements' => [['id' => 'elem-1', 'type' => 'variable', 'x' => 50, 'y' => 50, 'width' => 400, 'height' => 60, 'binding' => 'auction.name', 'required' => true, 'style' => self::defaultStyle()]]]]];
     }
@@ -240,12 +240,14 @@ final class TemplateSchema
         return $decoded;
     }
 
-    public function normalize(string|array $schema, string $templateType = 'brochure'): array
+    public function normalize(string|array $schema, string $templateType = 'billboard'): array
     {
         $source = $this->decode($schema);
         $out = $source;
         $out['version'] = self::SCHEMA_VERSION;
-        $out['canvas'] = array_merge(['width' => 794, 'height' => 1123], (array) ($source['canvas'] ?? []));
+        $defaultWidth = $templateType === 'billboard' ? 1200 : 1080;
+        $defaultHeight = $templateType === 'billboard' ? 628 : 1080;
+        $out['canvas'] = array_merge(['width' => $defaultWidth, 'height' => $defaultHeight], (array) ($source['canvas'] ?? []));
         if (isset($out['canvas']['background']) && ! isset($out['canvas']['background_color'])) {
             $out['canvas']['background_color'] = $out['canvas']['background'];
             unset($out['canvas']['background']);
@@ -308,7 +310,7 @@ final class TemplateSchema
         $schema = $this->normalize($schema, $templateType);
         $validator = Validator::make($schema, [
             'version' => ['required', 'integer', 'in:2'], 'canvas' => ['required', 'array'], 'canvas.width' => ['required', 'integer', 'min:320', 'max:10000'], 'canvas.height' => ['required', 'integer', 'min:320', 'max:10000'],
-            'pages' => ['required', 'array', 'min:1', $templateType === 'brochure' ? 'max:50' : 'max:1'], 'pages.*.id' => ['required', 'string', 'max:80', 'distinct'], 'pages.*.background' => ['nullable', 'array'], 'pages.*.background.color' => ['nullable', 'regex:/^#[A-Fa-f0-9]{6}$/'], 'pages.*.background.image' => ['nullable', 'string', 'max:2048'], 'pages.*.background.fit' => ['required', 'in:'.implode(',', self::BACKGROUND_FITS)], 'pages.*.background.position_x' => ['required', 'numeric', 'min:0', 'max:100'], 'pages.*.background.position_y' => ['required', 'numeric', 'min:0', 'max:100'], 'pages.*.elements' => ['required', 'array', 'max:100'], 'pages.*.elements.*.id' => ['required', 'string', 'max:80'], 'pages.*.elements.*.type' => ['required', 'in:'.implode(',', self::ELEMENT_TYPES)], 'pages.*.elements.*.x' => ['required', 'numeric', 'min:0'], 'pages.*.elements.*.y' => ['required', 'numeric', 'min:0'], 'pages.*.elements.*.width' => ['required', 'numeric', 'min:20'], 'pages.*.elements.*.height' => ['required', 'numeric', 'min:20'], 'pages.*.elements.*.content' => ['nullable', 'string', 'max:5000'], 'pages.*.elements.*.binding' => ['nullable', 'string', 'max:120'], 'pages.*.elements.*.required' => ['nullable', 'boolean'], 'pages.*.elements.*.style' => ['nullable', 'array'], 'pages.*.elements.*.style.font_size' => ['nullable', 'numeric', 'min:6', 'max:300'], 'pages.*.elements.*.style.line_height' => ['nullable', 'numeric', 'min:0.8', 'max:3'], 'pages.*.elements.*.style.font_weight' => ['nullable', 'in:normal,bold,100,200,300,400,500,600,700,800,900'], 'pages.*.elements.*.style.text_align' => ['nullable', 'in:right,center,left'], 'pages.*.elements.*.style.border_radius' => ['nullable', 'numeric', 'min:0', 'max:500'],
+            'pages' => ['required', 'array', 'size:1'], 'pages.*.id' => ['required', 'string', 'max:80', 'distinct'], 'pages.*.background' => ['nullable', 'array'], 'pages.*.background.color' => ['nullable', 'regex:/^#[A-Fa-f0-9]{6}$/'], 'pages.*.background.image' => ['nullable', 'string', 'max:2048'], 'pages.*.background.fit' => ['required', 'in:'.implode(',', self::BACKGROUND_FITS)], 'pages.*.background.position_x' => ['required', 'numeric', 'min:0', 'max:100'], 'pages.*.background.position_y' => ['required', 'numeric', 'min:0', 'max:100'], 'pages.*.elements' => ['required', 'array', 'max:100'], 'pages.*.elements.*.id' => ['required', 'string', 'max:80'], 'pages.*.elements.*.type' => ['required', 'in:'.implode(',', self::ELEMENT_TYPES)], 'pages.*.elements.*.x' => ['required', 'numeric', 'min:0'], 'pages.*.elements.*.y' => ['required', 'numeric', 'min:0'], 'pages.*.elements.*.width' => ['required', 'numeric', 'min:20'], 'pages.*.elements.*.height' => ['required', 'numeric', 'min:20'], 'pages.*.elements.*.content' => ['nullable', 'string', 'max:5000'], 'pages.*.elements.*.binding' => ['nullable', 'string', 'max:120'], 'pages.*.elements.*.required' => ['nullable', 'boolean'], 'pages.*.elements.*.style' => ['nullable', 'array'], 'pages.*.elements.*.style.font_size' => ['nullable', 'numeric', 'min:6', 'max:300'], 'pages.*.elements.*.style.line_height' => ['nullable', 'numeric', 'min:0.8', 'max:3'], 'pages.*.elements.*.style.font_weight' => ['nullable', 'in:normal,bold,100,200,300,400,500,600,700,800,900'], 'pages.*.elements.*.style.text_align' => ['nullable', 'in:right,center,left'], 'pages.*.elements.*.style.border_radius' => ['nullable', 'numeric', 'min:0', 'max:500'],
         ]);
         $validator->after(function ($v) use ($schema): void {
             foreach ($schema['pages'] as $pi => $page) {

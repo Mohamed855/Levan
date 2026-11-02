@@ -13,7 +13,8 @@
                 <i class="ti ti-user me-2 text-primary"></i>الملف الشخصي: {{ $user->name }}
             </h4>
             <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-{{ $user->status === \App\Enums\Admin\Users\AdminUserStatus::ACTIVE ? 'success' : 'danger' }}">
+                <span
+                    class="badge bg-{{ $user->status === \App\Enums\Admin\Users\AdminUserStatus::ACTIVE ? 'success' : 'danger' }}">
                     {{ $user->status === \App\Enums\Admin\Users\AdminUserStatus::ACTIVE ? 'نشط' : 'غير نشط' }}
                 </span>
                 @if ($user->isSuperAdmin())
@@ -22,14 +23,14 @@
             </div>
         </div>
         <div class="d-flex gap-2">
+            <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
+                <i class="ti ti-arrow-right me-1"></i> العودة
+            </a>
             @can('users.edit')
                 <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-primary">
                     <i class="ti ti-edit me-1"></i> تعديل المستخدم
                 </a>
             @endcan
-            <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
-                <i class="ti ti-arrow-right me-1"></i> العودة
-            </a>
         </div>
     </div>
 

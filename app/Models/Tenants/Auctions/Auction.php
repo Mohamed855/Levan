@@ -87,6 +87,11 @@ class Auction extends Model
         return $this->hasOne(AuctionReportGeneration::class)->latestOfMany('id');
     }
 
+    public function promotionalAdvertisements(): HasMany
+    {
+        return $this->hasMany(\App\Models\Tenants\PromotionalAdvertisements\PromotionalAdvertisement::class, 'auction_id')->latest('id');
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

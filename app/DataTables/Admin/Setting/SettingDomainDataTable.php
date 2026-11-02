@@ -35,7 +35,7 @@ class SettingDomainDataTable extends AbstractDataTable
             ],
             ['data' => 'domain_extension',  'name' => 'domain_extension',   'title' => 'امتداد الدومين',   'className' => 'text-start'],
             ['data' => 'price',             'name' => 'price',              'title' => 'السعر',             'className' => 'text-start'],
-            ['data' => 'created_at',         'name' => 'created_at',          'title' => 'تاريخ الاضافة'],
+            ['data' => 'created_at',         'name' => 'created_at',          'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'is_active',         'name' => 'is_active',          'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions',           'name' => 'actions',            'title' => 'الإجراءات',         'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
@@ -56,7 +56,7 @@ class SettingDomainDataTable extends AbstractDataTable
             })
 
             ->editColumn('created_at', function ($row) {
-                return $row->created_at?->format('Y-m-d');
+                return $row->created_at ? $row->created_at->format('Y-m-d') : '-';
             })
 
             ->addColumn('actions', function ($row) {

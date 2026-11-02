@@ -34,6 +34,7 @@ class AdminUserDataTable extends AbstractDataTable
             ['data' => 'roles',     'name' => 'roles.name', 'title' => 'الأدوار',   'orderable' => false, 'searchable' => true],
             ['data' => 'last_login_at', 'name' => 'last_login_at', 'title' => 'آخر دخول'],
             ['data' => 'status',    'name' => 'status',     'title' => 'الحالة', 'className' => 'text-center'],
+            ['data' => 'deleted_at', 'name' => 'deleted_at', 'title' => 'تاريخ الحذف', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'actions',        'name' => 'actions',            'title' => 'الإجراءات', 'className' => 'no-export',     'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -74,6 +75,8 @@ class AdminUserDataTable extends AbstractDataTable
                     ? $user->last_login_at->locale('ar')->diffForHumans()
                     : '-';
             })
+
+            ->editColumn('deleted_at', fn ($row): string => $row->deleted_at ? $row->deleted_at->format('Y-m-d') : '-')
 
             ->addColumn('actions', function ($row) {
                 return view('admin.archive.admin_user.action', ['id' => $row->id, 'route' => $this->route])->render();

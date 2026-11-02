@@ -60,6 +60,9 @@
                                 بيانات العميل الأساسية
                             </h6>
                             <div class="d-flex align-items-center gap-2">
+                                <a href="{{ route('admin.clients.index') }}" class="btn btn-secondary">
+                                    <i class="ti ti-arrow-right me-1"></i>رجوع
+                                </a>
                                 <a href="{{ route('path.dashboard', ['tenant' => $target->id]) }}" target="_blank"
                                     class="btn btn-primary">
                                     <i class="ti ti-dashboard me-1"></i>لوحة التحكم
@@ -69,9 +72,6 @@
                                         <i class="ti ti-edit me-1"></i>تعديل
                                     </a>
                                 @endcanany
-                                <a href="{{ route('admin.clients.index') }}" class="btn btn-secondary">
-                                    <i class="ti ti-arrow-right me-1"></i>رجوع
-                                </a>
                             </div>
                         </div>
 

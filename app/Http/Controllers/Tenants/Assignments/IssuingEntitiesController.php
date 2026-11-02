@@ -65,28 +65,34 @@ class IssuingEntitiesController extends Controller
             ->with('success', 'تمت إضافة الجهة المسندة بنجاح.');
     }
 
-    public function edit(IssuingEntity $issuingEntity): View
+    public function edit(IssuingEntity $issuing_entity): View
     {
         return view('tenant.issuing-entities.edit', [
-            'issuingEntity' => $issuingEntity,
+            'issuingEntity' => $issuing_entity,
         ]);
     }
 
-    public function update(UpdateIssuingEntityRequest $request, IssuingEntity $issuingEntity): RedirectResponse
-    {
-        $this->issuingEntityService->update(
-            $issuingEntity,
-            $request->validated()
-        );
-
-        return redirect()->to(tenant_route_name('issuing-entities.index'))
-            ->with('success', 'تم تحديث الجهة المسندة بنجاح.');
-    }
-
-    public function destroy(TenantAuthenticatedRequest $request, IssuingEntity $issuingEntity)
+    public function update(UpdateIssuingEntityRequest $request, IssuingEntity $issuing_entity): RedirectResponse
     {
         try {
-            $this->issuingEntityService->delete($issuingEntity);
+            $this->issuingEntityService->update(
+                $issuing_entity,
+                $request->validated()
+            );
+
+            return redirect()->to(tenant_route_name('issuing-entities.index'))
+                ->with('success', 'تم تحديث الجهة المسندة بنجاح.');
+        } catch (LogicException $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    public function destroy(TenantAuthenticatedRequest $request, IssuingEntity $issuing_entity)
+    {
+        try {
+            $this->issuingEntityService->delete($issuing_entity);
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -117,11 +123,11 @@ class IssuingEntitiesController extends Controller
         }
     }
 
-    public function toggleStatus(UpdateResourceStatusRequest $request, IssuingEntity $issuingEntity): JsonResponse
+    public function toggleStatus(UpdateResourceStatusRequest $request, IssuingEntity $issuing_entity): JsonResponse
     {
         try {
             $status = $this->issuingEntityService->toggleStatus(
-                $issuingEntity,
+                $issuing_entity,
                 $request->validated('status') === 'active'
             );
 
@@ -130,6 +136,11 @@ class IssuingEntitiesController extends Controller
                 'message' => $status ? 'تم تفعيل الجهة المسندة بنجاح' : 'تم تعطيل الجهة المسندة بنجاح',
                 'status' => $status,
             ]);
+        } catch (LogicException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

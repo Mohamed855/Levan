@@ -36,6 +36,13 @@
                 <small id="polygon-status-text" class="text-muted">انقر على زوايا العقار لوضع نقاط الحدود، واسحب النقاط
                     لتعديلها</small>
             </div>
+            <div class="d-none mt-3 px-1" id="property-boundary-dimming-control">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label class="form-label small mb-0" for="property-boundary-dimming">تعتيم ما خارج حدود العقار</label>
+                    <output id="property-boundary-dimming-value" class="small text-muted" for="property-boundary-dimming">50%</output>
+                </div>
+                <input id="property-boundary-dimming" class="form-range" type="range" min="0" max="0.95" step="0.05" value="0.5">
+            </div>
         </div>
 
         {{-- شريط أزرار التحكم بالرسم والتحميل --}}

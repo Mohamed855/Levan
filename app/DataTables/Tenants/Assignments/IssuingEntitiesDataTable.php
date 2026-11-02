@@ -39,7 +39,7 @@ class IssuingEntitiesDataTable extends AbstractDataTable
                 'data' => 'name',
                 'name' => 'name',
                 'title' => 'اسم الجهة المسندة',
-                'className' => 'text-start fw-semibold',
+                'className' => 'text-center',
             ],
             [
                 'data' => 'assignments_count',
@@ -53,7 +53,7 @@ class IssuingEntitiesDataTable extends AbstractDataTable
             [
                 'data' => 'created_at',
                 'name' => 'created_at',
-                'title' => 'تاريخ الإضافة',
+                'title' => 'تاريخ الإنشاء',
                 'className' => 'text-center',
                 'width' => '130px',
             ],
@@ -80,6 +80,10 @@ class IssuingEntitiesDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
+                if ($row->assignments_count > 0) {
+                    return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'" disabled title="لا يمكن حذف جهة مرتبطة بإسنادات">';
+                }
+
                 return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('assignments_count', function ($row) {
@@ -89,10 +93,22 @@ class IssuingEntitiesDataTable extends AbstractDataTable
                 return $row->created_at ? $row->created_at->format('Y-m-d') : '-';
             })
             ->editColumn('is_active', function ($row) {
-                $checked = $row->is_active ? 'checked' : '';
-                $url = tenant_route_name('issuing-entities.toggle-status', $row->id);
+                if ($row->assignments_count > 0) {
+                    return '<div class="d-flex justify-content-center" data-bs-toggle="tooltip" title="لا يمكن تعطيل جهة مسندة مرتبطة بإسنادات"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input" id="status_'.$row->id.'" checked disabled aria-label="لا يمكن تعطيل جهة مسندة مرتبطة بإسنادات"></div></div>';
+                }
 
-                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_'.$row->id.'" data-url="'.e($url).'" '.$checked.' aria-label="تبديل حالة الجهة المسندة"></div></div>';
+                $canEdit = auth('tenant')->user()?->can('issuing_entities.edit');
+                if ($canEdit) {
+                    $checked = $row->is_active ? 'checked' : '';
+                    $url = tenant_route_name('issuing-entities.toggle-status', $row->id);
+
+                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_'.$row->id.'" data-url="'.e($url).'" data-active-value="active" data-inactive-value="inactive" '.$checked.' aria-label="تبديل حالة الجهة المسندة"></div></div>';
+                }
+
+                $statusClass = $row->is_active ? 'bg-success' : 'bg-danger';
+                $statusText = $row->is_active ? 'نشط' : 'معطل';
+
+                return '<span class="badge '.$statusClass.'">'.$statusText.'</span>';
             })
             ->addColumn('actions', function ($row) {
                 return view($this->page.'.action', ['row' => $row, 'route' => $this->route])->render();

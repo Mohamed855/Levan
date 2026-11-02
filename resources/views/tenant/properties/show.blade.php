@@ -27,14 +27,14 @@
             </div>
         </div>
         <div class="d-flex gap-2">
+            <a href="{{ tenant_route_name('properties.index') }}" class="btn btn-secondary">
+                <i class="ti ti-arrow-right me-1"></i> العودة
+            </a>
             @can('properties.edit')
                 <a href="{{ tenant_route_name('properties.edit', $property->id) }}" class="btn btn-primary">
                     <i class="ti ti-edit me-1"></i> تعديل العقار
                 </a>
             @endcan
-            <a href="{{ tenant_route_name('properties.index') }}" class="btn btn-secondary">
-                <i class="ti ti-arrow-right me-1"></i> العودة
-            </a>
         </div>
     </div>
 
@@ -65,29 +65,39 @@
                     <div class="info-container text-start">
                         <ul class="list-unstyled">
                             <li class="mb-2"><span class="fw-bold me-1">تصنيف الاستخدام:</span>
-                                <span>{{ $property->usage_classification_label }}</span></li>
+                                <span>{{ $property->usage_classification_label }}</span>
+                            </li>
                             <li class="mb-2"><span class="fw-bold me-1">المدينة:</span>
-                                <span>{{ $property->city ?? '-' }}</span></li>
+                                <span>{{ $property->city ?? '-' }}</span>
+                            </li>
                             @if ($property->district)
                                 <li class="mb-2"><span class="fw-bold me-1">الحي / النطاق:</span>
-                                    <span>{{ $property->district }}</span></li>
+                                    <span>{{ $property->district }}</span>
+                                </li>
                             @endif
                             @if ($property->administrative_region)
                                 <li class="mb-2"><span class="fw-bold me-1">المنطقة الإدارية:</span>
-                                    <span>{{ $property->administrative_region }}</span></li>
+                                    <span>{{ $property->administrative_region }}</span>
+                                </li>
                             @endif
                             <li class="mb-2"><span class="fw-bold me-1">رقم المخطط:</span>
-                                <span>{{ $property->plan_number ?? '-' }}</span></li>
+                                <span>{{ $property->plan_number ?? '-' }}</span>
+                            </li>
                             <li class="mb-2"><span class="fw-bold me-1">رقم القطعة:</span>
-                                <span>{{ $property->parcel_number ?? '-' }}</span></li>
+                                <span>{{ $property->parcel_number ?? '-' }}</span>
+                            </li>
                             <li class="mb-2"><span class="fw-bold me-1">رقم الصك:</span>
-                                <span>{{ $property->deed_number ?? '-' }}</span></li>
+                                <span>{{ $property->deed_number ?? '-' }}</span>
+                            </li>
                             <li class="mb-2"><span class="fw-bold me-1">تاريخ الصك:</span>
-                                <span>{{ $property->deed_date?->format('Y-m-d') ?? '-' }}</span></li>
+                                <span>{{ $property->deed_date?->format('Y-m-d') ?? '-' }}</span>
+                            </li>
                             <li class="mb-2"><span class="fw-bold me-1">جهة الإصدار:</span>
-                                <span>{{ $property->issuing_authority ?? '-' }}</span></li>
+                                <span>{{ $property->issuing_authority ?? '-' }}</span>
+                            </li>
                             <li class="mb-2"><span class="fw-bold me-1">نوع الملكية:</span>
-                                <span>{{ $property->ownership_type_label }}</span></li>
+                                <span>{{ $property->ownership_type_label }}</span>
+                            </li>
                             <li class="mb-2"><span class="fw-bold me-1">حالة العقار:</span>
                                 <span
                                     class="badge {{ $property->is_active ? 'bg-success' : 'bg-danger' }}">{{ $property->is_active ? 'نشط' : 'متوقف' }}</span>
@@ -99,7 +109,8 @@
                             @if ($property->agent_name)
                                 <li class="mb-2 border-top pt-2"><span class="fw-bold me-1">الوكيل:</span>
                                     <span>{{ $property->agent_name }} (هوية:
-                                        {{ $property->agent_national_id ?? '-' }})</span></li>
+                                        {{ $property->agent_national_id ?? '-' }})</span>
+                                </li>
                             @endif
                         </ul>
                     </div>

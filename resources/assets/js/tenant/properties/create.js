@@ -1,6 +1,11 @@
 "use strict";
 
 import { initCityDistrictSelector } from "../../shared/city-district-selector.js";
+import {
+    bindBoundaryDragEndListeners,
+    getBoundaryPointerAction,
+    getBoundaryRenderState,
+} from "./boundary-drawing.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("property-create-form");
@@ -351,6 +356,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const statusBar = document.getElementById("property-image-status-bar");
     const pointsBadge = document.getElementById("points-count-badge");
     const statusText = document.getElementById("polygon-status-text");
+    const dimmingControl = document.getElementById(
+        "property-boundary-dimming-control",
+    );
+    const dimmingInput = document.getElementById("property-boundary-dimming");
+    const dimmingValue = document.getElementById(
+        "property-boundary-dimming-value",
+    );
     const btnDownload = document.getElementById("btn-download-annotated");
     const btnChangeImage = document.getElementById("btn-change-image");
     const btnClearBoundary = document.getElementById("btn-clear-boundary");
@@ -366,8 +378,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let rawImageDataUrl =
         rawAerialImageInput?.value || aerialImageInput?.value || "";
     let points = []; // Array of normalized { x: 0..1, y: 0..1 }
+    let isBoundaryClosed = false;
     let draggedPointIndex = null;
     let hoveredPointIndex = null;
+    let previewPoint = null;
+    let outsideDimOpacity = Number(dimmingInput?.value ?? 0.5);
     let annotatedDataUrl = "";
     let drawFrameId = null;
     let syncTimeout = null;
@@ -402,6 +417,9 @@ document.addEventListener("DOMContentLoaded", () => {
             button.classList.toggle("d-none", !visible);
             button.setAttribute("aria-hidden", visible ? "false" : "true");
         });
+        if (dimmingControl) {
+            dimmingControl.classList.toggle("d-none", !visible);
+        }
     }
 
     setImageActionVisibility(false);
@@ -454,22 +472,24 @@ document.addEventListener("DOMContentLoaded", () => {
         return -1;
     }
 
-    function appendPolygonPath(context, width, height) {
-        context.moveTo(points[0].x * width, points[0].y * height);
-        for (let i = 1; i < points.length; i++) {
-            context.lineTo(points[i].x * width, points[i].y * height);
+    function appendPolygonPath(context, width, height, pathPoints = points) {
+        if (!pathPoints.length) return;
+
+        context.moveTo(pathPoints[0].x * width, pathPoints[0].y * height);
+        for (let i = 1; i < pathPoints.length; i++) {
+            context.lineTo(pathPoints[i].x * width, pathPoints[i].y * height);
         }
     }
 
-    function drawOutsideSelectionOverlay(context, width, height) {
-        if (points.length < 3) return;
+    function drawOutsideSelectionOverlay(context, width, height, opacity) {
+        if (!isBoundaryClosed || points.length < 3) return;
 
         context.save();
         context.beginPath();
         context.rect(0, 0, width, height);
         appendPolygonPath(context, width, height);
         context.closePath();
-        context.fillStyle = "rgba(0, 0, 0, 0.5)";
+        context.fillStyle = `rgba(0, 0, 0, ${opacity})`;
         context.fill("evenodd");
         context.restore();
     }
@@ -487,14 +507,30 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Dim the area outside the selected property boundary.
-        drawOutsideSelectionOverlay(ctx, canvas.width, canvas.height);
+        const renderState = getBoundaryRenderState(
+            points,
+            isBoundaryClosed,
+            previewPoint,
+        );
 
-        // Draw Polygon path
+        if (renderState.shouldDimOutside) {
+            drawOutsideSelectionOverlay(
+                ctx,
+                canvas.width,
+                canvas.height,
+                outsideDimOpacity,
+            );
+        }
+
         ctx.beginPath();
-        appendPolygonPath(ctx, canvas.width, canvas.height);
+        appendPolygonPath(
+            ctx,
+            canvas.width,
+            canvas.height,
+            renderState.pathPoints,
+        );
 
-        if (points.length >= 3) {
+        if (isBoundaryClosed && points.length >= 3) {
             ctx.closePath();
             ctx.fillStyle = "rgba(29, 79, 68, 0.28)";
             ctx.fill();
@@ -549,6 +585,9 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (points.length < 3) {
             statusText.textContent = `حدد ${3 - points.length} نقاط إضافية على الأقل لإغلاق المضلع`;
             pointsBadge.className = "badge bg-warning";
+        } else if (!isBoundaryClosed) {
+            statusText.textContent = "انقر على النقطة الأولى لإغلاق حدود العقار.";
+            pointsBadge.className = "badge bg-warning";
         } else {
             statusText.textContent =
                 "تم إغلاق وتحديد مضلع العقار بنجاح (يمكنك سحب أي نقطة لتعديلها)";
@@ -559,7 +598,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function syncAnnotatedImage() {
         if (!loadedImage) return;
 
-        if (points.length >= 3) {
+        if (isBoundaryClosed && points.length >= 3) {
             const rawW = loadedImage.naturalWidth || loadedImage.width || 1200;
             const rawH = loadedImage.naturalHeight || loadedImage.height || 800;
             const maxExportDim = 1600;
@@ -578,7 +617,12 @@ document.addEventListener("DOMContentLoaded", () => {
             oCtx.drawImage(loadedImage, 0, 0, naturalW, naturalH);
 
             // Keep the exported/annotated image visually consistent with the canvas.
-            drawOutsideSelectionOverlay(oCtx, naturalW, naturalH);
+            drawOutsideSelectionOverlay(
+                oCtx,
+                naturalW,
+                naturalH,
+                outsideDimOpacity,
+            );
 
             oCtx.beginPath();
             appendPolygonPath(oCtx, naturalW, naturalH);
@@ -709,6 +753,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         x: Math.max(0, Math.min(1, Number(c[0]) / 100)),
                         y: Math.max(0, Math.min(1, Number(c[1]) / 100)),
                     }));
+                    isBoundaryClosed = points.length >= 3;
                 }
             }
 
@@ -765,6 +810,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             }
             points = [];
+            isBoundaryClosed = false;
+            previewPoint = null;
             loadImageSrc(dataUrl);
             notifyUser(
                 "info",
@@ -842,20 +889,55 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    function handleBoundaryPointerDown(coords, nearPointIndex) {
+        const action = getBoundaryPointerAction({
+            points,
+            isClosed: isBoundaryClosed,
+            nearPointIndex,
+            point: { x: coords.x, y: coords.y },
+        });
+
+        if (action.type === "close") {
+            isBoundaryClosed = true;
+            previewPoint = null;
+            requestDraw();
+            scheduleSyncAnnotatedImage();
+            return;
+        }
+
+        if (action.type === "drag") {
+            draggedPointIndex = action.pointIndex;
+            requestDraw();
+            return;
+        }
+
+        if (action.type === "add") {
+            points.push(action.point);
+            previewPoint = action.previewPoint;
+            requestDraw();
+            scheduleSyncAnnotatedImage();
+        }
+    }
+
+    function finishBoundaryPointDrag() {
+        if (draggedPointIndex === null) return;
+
+        draggedPointIndex = null;
+        if (canvas) {
+            canvas.style.cursor = isBoundaryClosed ? "default" : "crosshair";
+        }
+        requestDraw();
+        scheduleSyncAnnotatedImage();
+    }
+
     if (canvas) {
         canvas.addEventListener("mousedown", (e) => {
             if (!loadedImage) return;
             const coords = getCanvasCoords(e);
             const nearIndex = findPointNear(coords.pixelX, coords.pixelY);
-
-            if (nearIndex >= 0) {
-                draggedPointIndex = nearIndex;
+            handleBoundaryPointerDown(coords, nearIndex);
+            if (draggedPointIndex !== null) {
                 canvas.style.cursor = "grabbing";
-                requestDraw();
-            } else {
-                points.push({ x: coords.x, y: coords.y });
-                requestDraw();
-                scheduleSyncAnnotatedImage();
             }
         });
 
@@ -863,19 +945,34 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!loadedImage || draggedPointIndex !== null) return;
             const coords = getCanvasCoords(e);
             const nearIndex = findPointNear(coords.pixelX, coords.pixelY);
-            if (nearIndex !== hoveredPointIndex) {
+            previewPoint = isBoundaryClosed ? null : {
+                x: coords.x,
+                y: coords.y,
+            };
+            if (nearIndex !== hoveredPointIndex || !isBoundaryClosed) {
                 hoveredPointIndex = nearIndex;
-                canvas.style.cursor = nearIndex >= 0 ? "grab" : "crosshair";
+                const canCloseAtFirstPoint =
+                    !isBoundaryClosed && points.length >= 3 && nearIndex === 0;
+                canvas.style.cursor = canCloseAtFirstPoint
+                    ? "pointer"
+                    : nearIndex >= 0
+                      ? "grab"
+                      : isBoundaryClosed
+                        ? "default"
+                        : "crosshair";
                 requestDraw();
             }
         });
 
         canvas.addEventListener("mouseleave", () => {
-            if (hoveredPointIndex !== null && draggedPointIndex === null) {
-                hoveredPointIndex = null;
-                if (canvas) canvas.style.cursor = "crosshair";
-                requestDraw();
+            if (draggedPointIndex !== null) return;
+
+            hoveredPointIndex = null;
+            previewPoint = null;
+            if (canvas) {
+                canvas.style.cursor = isBoundaryClosed ? "default" : "crosshair";
             }
+            requestDraw();
         });
 
         window.addEventListener("mousemove", (e) => {
@@ -889,14 +986,8 @@ document.addEventListener("DOMContentLoaded", () => {
             requestDraw();
         });
 
-        window.addEventListener("mouseup", () => {
-            if (draggedPointIndex !== null) {
-                draggedPointIndex = null;
-                if (canvas) canvas.style.cursor = "crosshair";
-                requestDraw();
-                scheduleSyncAnnotatedImage();
-            }
-        });
+        window.addEventListener("mouseup", finishBoundaryPointDrag);
+        bindBoundaryDragEndListeners(window, finishBoundaryPointDrag);
 
         canvas.addEventListener(
             "touchstart",
@@ -909,15 +1000,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     coords.pixelY,
                     20,
                 );
-
-                if (nearIndex >= 0) {
-                    draggedPointIndex = nearIndex;
-                    requestDraw();
-                } else {
-                    points.push({ x: coords.x, y: coords.y });
-                    requestDraw();
-                    scheduleSyncAnnotatedImage();
-                }
+                handleBoundaryPointerDown(coords, nearIndex);
             },
             { passive: false },
         );
@@ -938,13 +1021,6 @@ document.addEventListener("DOMContentLoaded", () => {
             { passive: false },
         );
 
-        canvas.addEventListener("touchend", () => {
-            if (draggedPointIndex !== null) {
-                draggedPointIndex = null;
-                requestDraw();
-                scheduleSyncAnnotatedImage();
-            }
-        });
     }
 
     if (btnClearBoundary) {
@@ -952,6 +1028,8 @@ document.addEventListener("DOMContentLoaded", () => {
             clearTimeout(syncTimeout);
             syncTimeout = null;
             points = [];
+            isBoundaryClosed = false;
+            previewPoint = null;
             annotatedDataUrl = "";
             requestDraw();
             syncAnnotatedImage();
@@ -964,6 +1042,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 "info",
                 "تم مسح تحديد المضلع. يمكنك النقر للبدء من جديد.",
             );
+        });
+    }
+
+    if (dimmingInput) {
+        dimmingInput.addEventListener("input", () => {
+            outsideDimOpacity = Number(dimmingInput.value);
+            if (dimmingValue) {
+                dimmingValue.textContent = `${Math.round(outsideDimOpacity * 100)}%`;
+            }
+            requestDraw();
+            scheduleSyncAnnotatedImage();
         });
     }
 

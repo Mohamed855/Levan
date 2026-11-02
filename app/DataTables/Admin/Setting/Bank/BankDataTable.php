@@ -39,6 +39,7 @@ class BankDataTable extends AbstractDataTable
             ['data' => 'account_name',  'name' => 'account_name',  'title' => 'اسم الحساب', 'className' => 'text-start'],
             ['data' => 'account_number', 'name' => 'account_number', 'title' => 'رقم الحساب', 'className' => 'text-start'],
             ['data' => 'iban',          'name' => 'iban',           'title' => 'رقم الحساب البنكي الدولي', 'className' => 'text-start'],
+            ['data' => 'created_at',    'name' => 'created_at',     'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'is_active',     'name' => 'is_active',     'title' => 'الحالة'],
 
             ['data' => 'actions',       'name' => 'actions',        'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
@@ -74,6 +75,8 @@ class BankDataTable extends AbstractDataTable
                     htmlspecialchars($row->bank_name)
                 );
             })
+
+            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
 
             ->editColumn('is_active', function ($row) {
                 $checked = $row->is_active ? 'checked' : '';

@@ -11,6 +11,54 @@ document.addEventListener("DOMContentLoaded", () => {
         districtSelector: "#assignment-district",
     });
 
+    // ==================== ASSIGNMENT NUMBER GENERATOR ====================
+    window.generateAssignmentNumber = function () {
+        const year = new Date().getFullYear();
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        let random = "";
+        for (let i = 0; i < 4; i++) {
+            random += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        const code = `ES-${year}-${random}`;
+
+        const input = document.getElementById("assignment_number") || form.querySelector('input[name="assignment_number"]');
+        if (input) {
+            input.value = code;
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+            input.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+
+        const btn = document.getElementById("btn-generate-code") || form.querySelector(".btn-generate-code");
+        const icon = btn ? btn.querySelector("i") : null;
+        if (icon) {
+            icon.classList.add("ti-spin");
+            setTimeout(() => icon.classList.remove("ti-spin"), 500);
+        }
+
+        return code;
+    };
+    window.generateCode = window.generateCode || window.generateAssignmentNumber;
+
+    const assignmentNumberInput = document.getElementById("assignment_number") || form.querySelector('input[name="assignment_number"]');
+    if (assignmentNumberInput) {
+        assignmentNumberInput.addEventListener("input", function () {
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            this.value = this.value.toUpperCase().replace(/[^A-Z0-9_-]/g, "");
+            if (start !== null && end !== null) {
+                this.setSelectionRange(start, end);
+            }
+        });
+    }
+
+    const generateBtn = document.getElementById("btn-generate-code") || form.querySelector(".btn-generate-code");
+    if (generateBtn) {
+        generateBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            window.generateAssignmentNumber();
+        });
+    }
+
     const selectedProperties = new Map();
     const propertyInputs = document.getElementById("selected-property-inputs");
     const propertyCards = document.getElementById("selected-properties-cards");
@@ -145,13 +193,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 propNextBtn.disabled = true;
                 propNextBtn.setAttribute("disabled", "disabled");
                 propNextBtn.classList.add("disabled");
+                propNextBtn.style.pointerEvents = "none";
             } else {
                 propNextBtn.disabled = false;
                 propNextBtn.removeAttribute("disabled");
                 propNextBtn.classList.remove("disabled");
+                propNextBtn.style.pointerEvents = "";
             }
         }
 
+        window.SharedFormValidation?.syncAllPropertyStepButtons?.(form);
         form.dispatchEvent(new Event("change", { bubbles: true }));
     }
 

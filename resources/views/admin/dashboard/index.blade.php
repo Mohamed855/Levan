@@ -39,7 +39,7 @@
         <x-ui.stat-card title="الاشتراكات المعلقة" :value="number_format($kpis['suspended_subscriptions'])" subtitle="اشتراكات موقوفة مؤقتاً" icon="ti-clock"
             color="warning" />
 
-        <x-ui.stat-card title="القوالب المركزية" :value="number_format($kpis['central_templates'])" subtitle="قالب متاح للتطبيق" icon="ti-template"
+        <x-ui.stat-card title="القوالب الإعلانية" :value="number_format($kpis['central_templates'])" subtitle="قالب إعلاني متاح" icon="ti-template"
             color="secondary" />
 
         <x-ui.stat-card title="المدفوعات هذا الشهر" :value="number_format($kpis['monthly_payments'], 0)" subtitle="ر.س إجمالي هذا الشهر" icon="ti-wallet"

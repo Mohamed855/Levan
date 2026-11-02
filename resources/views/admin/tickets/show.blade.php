@@ -17,11 +17,9 @@
             </h4>
             <p class="text-muted mb-0">{{ $ticket->title }}</p>
         </div>
-        <div>
-            <a href="{{ route('admin.tickets.index') }}" class="btn btn-secondary">
-                <i class="ti ti-arrow-right me-1"></i> العودة لقائمة التذاكر
-            </a>
-        </div>
+        <a href="{{ route('admin.tickets.index') }}" class="btn btn-secondary">
+            <i class="ti ti-arrow-right me-1"></i> العودة
+        </a>
     </div>
 
     @if ($errors->any())
@@ -57,10 +55,7 @@
                             <h6 class="small text-muted mb-2"><i class="ti ti-paperclip me-1"></i> المرفقات:</h6>
                             <div class="d-flex flex-wrap gap-3">
                                 @foreach ($ticket->attachments as $file)
-                                    <x-ui.file-card
-                                        :name="$file['name'] ?? 'مرفق'"
-                                        :url="Storage::url($file['url'] ?? $file)"
-                                    />
+                                    <x-ui.file-card :name="$file['name'] ?? 'مرفق'" :url="Storage::url($file['url'] ?? $file)" />
                                 @endforeach
                             </div>
                         </div>
@@ -102,10 +97,7 @@
                                             <div class="mt-2 pt-2 border-top">
                                                 <div class="d-flex flex-wrap gap-3">
                                                     @foreach ($reply->attachments as $att)
-                                                        <x-ui.file-card
-                                                            :name="$att['name'] ?? 'مرفق'"
-                                                            :url="Storage::url($att['url'] ?? $att)"
-                                                        />
+                                                        <x-ui.file-card :name="$att['name'] ?? 'مرفق'" :url="Storage::url($att['url'] ?? $att)" />
                                                     @endforeach
                                                 </div>
                                             </div>
@@ -307,11 +299,7 @@
                     @if (count($allAttachments) > 0)
                         <div class="d-flex flex-wrap gap-3">
                             @foreach ($allAttachments as $attachment)
-                                <x-ui.file-card
-                                    :name="$attachment['name']"
-                                    :url="$attachment['url']"
-                                    :meta="$attachment['source']"
-                                />
+                                <x-ui.file-card :name="$attachment['name']" :url="$attachment['url']" :meta="$attachment['source']" />
                             @endforeach
                         </div>
                     @else

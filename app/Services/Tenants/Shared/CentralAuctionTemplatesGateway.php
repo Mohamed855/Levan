@@ -9,7 +9,7 @@ use App\Models\Admin\AuctionTemplates\AuctionTemplateVersion;
 use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Facades\Tenancy;
 
-final class CentralAuctionTemplatesGateway
+class CentralAuctionTemplatesGateway
 {
     /**
      * Get published template versions formatted for select options.
@@ -107,6 +107,38 @@ final class CentralAuctionTemplatesGateway
                 ->where('is_active', true)
                 ->whereNull('deleted_at')
                 ->exists();
+        });
+    }
+
+    /**
+     * Get active template details and published schema for rendering.
+     *
+     * @return array{template: AuctionTemplate, name: string, type: string, schema: array|null}|null
+     */
+    public function findActiveWithSchema(int $id, string $type): ?array
+    {
+        return Tenancy::central(function () use ($id, $type): ?array {
+            $template = AuctionTemplate::query()
+                ->with(['publishedVersions', 'versions'])
+                ->where('id', $id)
+                ->where('type', $type)
+                ->where('is_active', true)
+                ->whereNull('deleted_at')
+                ->first();
+
+            if (! $template) {
+                return null;
+            }
+
+            $version = $template->publishedVersions->first() ?? $template->versions->first();
+            $schema = $version?->schema;
+
+            return [
+                'template' => $template,
+                'name' => $template->name,
+                'type' => $template->type instanceof \BackedEnum ? $template->type->value : (string) $template->type,
+                'schema' => $schema,
+            ];
         });
     }
 }

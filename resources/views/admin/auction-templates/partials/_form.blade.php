@@ -7,7 +7,7 @@
         ? ($template->type instanceof \BackedEnum
             ? $template->type->value
             : (string) $template->type)
-        : old('type', 'brochure');
+        : old('type', 'billboard');
 @endphp
 
 <div class="row g-4" data-template-designer data-type="{{ $typeValue }}" data-is-edit="{{ $isEdit ? '1' : '0' }}"
@@ -17,7 +17,7 @@
         <div class="card h-100">
             <div class="card-body">
                 <div id="specifications-guide-wrapper">
-                    <div class="card border border-primary-subtle shadow-none bg-primary mb-0">
+                    <div class="card border border-primary-subtle shadow-none bg-label-primary mb-0">
                         <div class="card-body p-3">
                             <div class="d-flex align-items-start gap-3">
                                 <div
@@ -26,16 +26,6 @@
                                 </div>
                                 <div class="flex-grow-1">
                                     <h6 class="mb-1 fw-bold text-primary">المعايير المعتمدة لهذا القالب والتصميم:</h6>
-
-                                    <div id="spec-guide-brochure"
-                                        class="spec-guide-item {{ $typeValue === 'brochure' ? '' : 'd-none' }}">
-                                        <span class="badge bg-primary text-white">A4 رأسي (متعدد الصفحات)</span>
-                                        <p class="mt-1 mb-0 text-heading small" style="line-height: 1.75">
-                                            <strong>قالب البروشور:</strong> مقاس صفحات <strong>A4 رأسي (210×297
-                                                مم)</strong> بدقة <strong>794×1123 بكسل</strong>. كتيب تسويقي متعدد
-                                            الصفحات يُطبع أو يُعرض رقمياً ويشمل تفاصيل المزاد والعقارات المشمولة.
-                                        </p>
-                                    </div>
 
                                     <div id="spec-guide-billboard"
                                         class="spec-guide-item {{ $typeValue === 'billboard' ? '' : 'd-none' }}">
@@ -113,10 +103,7 @@
             <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
                 <div>
                     <h5 class="mb-1">مصمم القالب</h5>
-                    <small class="text-muted">ارسم المحتوى وحدد مواضع المتغيرات والصور على كل صفحة من القالب.</small>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <div class="d-flex gap-2 flex-wrap" data-page-tabs></div>
+                    <small class="text-muted">ارسم المحتوى وحدد مواضع المتغيرات والصور على مساحة عمل القالب.</small>
                 </div>
             </div>
             <div class="card-body">
@@ -175,7 +162,8 @@
                 </div>
             </div>
             <div class="modal-footer border-top">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إغلاق</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i
+                        class="ti ti-x me-1"></i>إغلاق</button>
             </div>
         </div>
     </div>

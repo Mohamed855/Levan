@@ -79,6 +79,7 @@ class ClientsDataTable extends AbstractDataTable
             ['data' => 'starts_at', 'name' => 'starts_at', 'title' => 'بداية آخر اشتراك', 'orderable' => false, 'searchable' => false],
             ['data' => 'ends_at', 'name' => 'ends_at', 'title' => 'نهاية آخر اشتراك', 'orderable' => false, 'searchable' => false],
             ['data' => 'days_remaining', 'name' => 'days_remaining', 'title' => 'الأيام المتبقية', 'orderable' => false, 'searchable' => false],
+            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'subscription_status', 'name' => 'subscription_status', 'title' => 'حالة الاشتراك', 'orderable' => false, 'searchable' => false],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '130px'],
         ];
@@ -137,6 +138,7 @@ class ClientsDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-success">'.$days.' يوماً</span>';
             })
+            ->editColumn('created_at', fn (Tenant $row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
             ->addColumn('subscription_status', function (Tenant $row) {
                 $sub = $row->lastSubscription;
                 if (! $sub || ! $sub->status) {

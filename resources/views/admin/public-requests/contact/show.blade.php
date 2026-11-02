@@ -15,7 +15,7 @@
             <p class="text-muted mb-0">مراجعة بيانات العميل والرد على الاستفسار</p>
         </div>
         <a href="{{ route('admin.contact-requests.index') }}" class="btn btn-secondary">
-            <i class="ti ti-arrow-right me-1"></i> العودة للطلبات
+            <i class="ti ti-arrow-right me-1"></i> العودة
         </a>
     </div>
 

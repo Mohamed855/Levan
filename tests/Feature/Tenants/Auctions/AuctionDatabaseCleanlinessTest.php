@@ -39,4 +39,21 @@ class AuctionDatabaseCleanlinessTest extends TestCase
         $this->assertContains('progress', $generation->getFillable());
         $this->assertSame('integer', $generation->getCasts()['progress'] ?? null);
     }
+
+    public function test_auction_has_promotional_advertisements_relation(): void
+    {
+        $auction = new Auction();
+        $relation = $auction->promotionalAdvertisements();
+
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $relation);
+        $this->assertInstanceOf(\App\Models\Tenants\PromotionalAdvertisements\PromotionalAdvertisement::class, $relation->getRelated());
+
+        $ad = new \App\Models\Tenants\PromotionalAdvertisements\PromotionalAdvertisement();
+        $this->assertContains('auction_id', $ad->getFillable());
+        $this->assertContains('auction_template_id', $ad->getFillable());
+        $this->assertContains('template_type', $ad->getFillable());
+        $this->assertContains('template_name', $ad->getFillable());
+        $this->assertContains('status', $ad->getFillable());
+        $this->assertContains('output_path', $ad->getFillable());
+    }
 }

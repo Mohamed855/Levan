@@ -263,8 +263,7 @@
         </div>
 
         <div class="col-lg-6">
-            <x-ui.dashboard-panel class="h-100" title="رادار المزادات الحالية والقادمة" icon="ti-gavel"
-                body-class="p-0">
+            <x-ui.dashboard-panel class="h-100" title="المزادات الحالية والقادمة" icon="ti-gavel" body-class="p-0">
                 <x-slot:headerAction>
                     @can('auctions.view')
                         <a href="{{ tenant_route_name('auctions.index') }}" class="btn btn-sm btn-primary">

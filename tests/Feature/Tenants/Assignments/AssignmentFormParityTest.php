@@ -50,6 +50,30 @@ class AssignmentFormParityTest extends TestCase
         $this->assertNotEmpty($rendered);
         $this->assertStringContainsString('assignment-basic-validation', $rendered);
         $this->assertStringContainsString('data-category-mapping', $rendered);
+        $this->assertStringContainsString('btn-generate-code', $rendered);
+        $this->assertStringContainsString('ti ti-wand', $rendered);
+        $this->assertStringContainsString('ASG-TEST-001', $rendered);
+
+        $assignmentModel = new Assignment(['assignment_number' => 'ASG-EDIT-999']);
+        $assignmentModel->id = 999;
+        $assignmentModel->setRelation('properties', collect());
+        $assignmentModel->setRelation('assignmentImage', null);
+        $assignmentModel->setRelation('assignmentLetter', null);
+        $assignmentModel->setRelation('attachments', collect());
+        $assignmentModel->setRelation('generalDocuments', collect());
+        $assignmentModel->setRelation('additionalAttachments', collect());
+        $renderedEdit = view('tenant.assignments.partials._form', [
+            'is_edit' => true,
+            'assignment' => $assignmentModel,
+            'generatedAssignmentNumber' => 'ASG-EDIT-999',
+            'cityOptions' => ['Riyadh' => 'الرياض'],
+            'propertyImageFallback' => '/test.png',
+            'dataTable' => $dataTable->html(),
+        ])->render();
+
+        $this->assertStringNotContainsString('btn-generate-code', $renderedEdit);
+        $this->assertStringContainsString('readonly', $renderedEdit);
+        $this->assertStringContainsString('ASG-EDIT-999', $renderedEdit);
     }
 
     public function test_assignment_requests_require_property_ids_to_have_at_least_one_property(): void

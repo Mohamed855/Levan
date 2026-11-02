@@ -1,9 +1,13 @@
 @extends('admin.layouts.layoutMaster')
 
-@section('title', 'إنشاء قالب مزاد')
+@section('title', 'إنشاء قالب إعلاني')
 
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/select2/select2.scss'])
+@endsection
+
+@section('toastr')
+    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
 @endsection
 
 @section('page-style')

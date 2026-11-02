@@ -44,7 +44,7 @@ class CouponDataTable extends AbstractDataTable
             ['data' => 'expiry_date',      'name' => 'expiry_date',         'title' => 'تاريخ الانتهاء'],
             ['data' => 'usage_limit',      'name' => 'usage_limit',         'title' => 'حد الاستخدام'],
             ['data' => 'used_count',      'name' => 'used_count',         'title' => 'مرات الاستخدام'],
-
+            ['data' => 'created_at',      'name' => 'created_at',         'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'is_active',         'name' => 'is_active',          'title' => 'الحالة'],
             ['data' => 'actions',           'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
@@ -64,6 +64,8 @@ class CouponDataTable extends AbstractDataTable
             ->editColumn('discount_type', function ($row) {
                 return $this->DiscountTypeBadge($row);
             })
+
+            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
 
             ->editColumn('is_active', function ($row) {
                 $user = auth('admin')->user() ?? auth()->user();

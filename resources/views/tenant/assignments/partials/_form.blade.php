@@ -58,11 +58,22 @@
             'notes',
         ]">
             <div class="row g-4">
-                <x-form.controls.input name="assignment_number" label="رقم الإسناد"
-                    :value="$is_edit ? $assignment->assignment_number : ($generatedAssignmentNumber ?? old('assignment_number'))"
-                    :readonly="$is_edit"
-                    :required="true"
-                    placeholder="رقم الإسناد" col="col-md-6" />
+                <!-- رقم الإسناد -->
+                @if($is_edit)
+                    <x-form.controls.input name="assignment_number" id="assignment_number" label="رقم الإسناد"
+                        help="رقم الإسناد ثابت ولا يمكن تعديله بعد إنشائه."
+                        :value="$assignment->assignment_number" readonly required
+                        col="col-md-6" style="text-transform: uppercase;" />
+                @else
+                    <x-form.controls.input name="assignment_number" id="assignment_number" label="رقم الإسناد"
+                        help="سيتم تحويل رقم الإسناد إلى أحرف كبيرة تلقائيًا"
+                        :value="$generatedAssignmentNumber ?? ''" required col="col-md-6"
+                        :input-group="true" style="text-transform: uppercase;">
+                        <button type="button" class="input-group-text cursor-pointer btn-generate-code" id="btn-generate-code" title="توليد رقم إسناد تلقائي">
+                            <i class="ti ti-wand me-1"></i> توليد
+                        </button>
+                    </x-form.controls.input>
+                @endif
 
                 <x-form.controls.input name="name" label="اسم الإسناد"
                     :value="$is_edit ? $assignment->name : old('name')"
@@ -157,7 +168,7 @@
                     @if (! $is_edit)
                         <x-form.wizard.draft-button />
                     @endif
-                    <x-form.wizard.next-button />
+                    <x-form.wizard.next-button :disabled="!($is_edit && $assignment->properties && $assignment->properties->isNotEmpty())" />
                 </div>
             </x-form.wizard.actions>
         </x-form.wizard.step>

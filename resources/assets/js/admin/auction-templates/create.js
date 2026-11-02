@@ -354,30 +354,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Specification Guide Synchronize
         $(".spec-guide-item").addClass("d-none");
-        if (typeVal === "brochure") {
-            $("#spec-guide-brochure").removeClass("d-none");
-            if (fileInput)
-                fileInput.setAttribute("accept", ".pdf,application/pdf");
-        } else if (typeVal === "social") {
+        if (typeVal === "social") {
             $("#spec-guide-social").removeClass("d-none");
             if (fileInput)
                 fileInput.setAttribute(
                     "accept",
-                    ".pdf,application/pdf,image/png,image/jpeg,image/webp",
+                    "image/png,image/jpeg,image/webp",
                 );
         } else if (typeVal === "billboard") {
             $("#spec-guide-billboard").removeClass("d-none");
             if (fileInput)
                 fileInput.setAttribute(
                     "accept",
-                    ".pdf,application/pdf,image/png,image/jpeg,image/webp",
+                    "image/png,image/jpeg,image/webp",
                 );
         } else {
-            $("#spec-guide-default").removeClass("d-none");
+            $("#spec-guide-billboard").removeClass("d-none");
             if (fileInput)
                 fileInput.setAttribute(
                     "accept",
-                    ".pdf,application/pdf,image/png,image/jpeg,image/webp",
+                    "image/png,image/jpeg,image/webp",
                 );
         }
     }

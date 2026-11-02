@@ -832,10 +832,10 @@ async function restoreDraft(form) {
                 title: "مسودة محفوظة",
                 text: "توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟",
                 variant: "primary",
+                icon: "ti-file-pencil",
                 confirmButtonText: "تأكيد الاستعادة",
-                cancelButtonText: "تجاهل",
-                confirmButtonClass: "btn btn-primary",
-                icon: "ti ti-file-text text-primary",
+                confirmClass: "btn btn-primary px-4",
+                cancelText: "تجاهل",
             });
         } else {
             shouldRestore = Boolean(
@@ -1025,11 +1025,33 @@ function initDrafts(form) {
                 "_wizard_resource_key",
                 draftResourceKey(form),
             );
-            window.toastr?.success?.(
-                payload.message || "تم حفظ المسودة بنجاح.",
-            );
+            const successMessage = payload.message || "تم حفظ المسودة بنجاح.";
+            if (window.toastr?.success) {
+                window.toastr.success(successMessage);
+            } else if (window.Swal) {
+                window.Swal.fire({
+                    icon: "success",
+                    title: successMessage,
+                    timer: 3000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: "top-start",
+                });
+            }
         } catch (_) {
-            window.toastr?.error?.("تعذر حفظ المسودة. يرجى المحاولة مرة أخرى.");
+            const errorMessage = "تعذر حفظ المسودة. يرجى المحاولة مرة أخرى.";
+            if (window.toastr?.error) {
+                window.toastr.error(errorMessage);
+            } else if (window.Swal) {
+                window.Swal.fire({
+                    icon: "error",
+                    title: errorMessage,
+                    timer: 3500,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: "top-start",
+                });
+            }
         } finally {
             resetButtonLoading(button);
         }
@@ -1352,9 +1374,19 @@ function updateStepNextButton(form, step) {
     );
 
     const stepFields = validationFieldsFromStep(step);
-    const hasPropertyIds = stepFields.includes("property_ids");
+    const hasPropertyIds =
+        stepFields.includes("property_ids") ||
+        step.id.includes("properties") ||
+        step.id.includes("property");
     const propertyInputs = hasPropertyIds
-        ? form.querySelectorAll('input[name="property_ids[]"]')
+        ? Array.from(
+              form.querySelectorAll('input[name="property_ids[]"]'),
+          ).filter(
+              (input) =>
+                  input.value &&
+                  String(input.value).trim() !== "" &&
+                  String(input.value) !== "0",
+          )
         : [];
     const isPropertyStepEmpty = hasPropertyIds && propertyInputs.length === 0;
 
@@ -1363,10 +1395,57 @@ function updateStepNextButton(form, step) {
             btn.disabled = true;
             btn.setAttribute("disabled", "disabled");
             btn.classList.add("disabled");
+            btn.style.pointerEvents = "none";
         } else {
             btn.disabled = false;
             btn.removeAttribute("disabled");
             btn.classList.remove("disabled");
+            btn.style.pointerEvents = "";
+        }
+    });
+}
+
+function syncAllPropertyStepButtons(form) {
+    if (!form) return;
+    const stepperElement = form.closest("[data-form-stepper]") || form;
+    const steps = [
+        ...form.querySelectorAll("[data-form-step], .content, .bs-stepper-pane"),
+        ...stepperElement.querySelectorAll("[data-form-step], .content, .bs-stepper-pane"),
+    ];
+
+    const propertyInputs = Array.from(
+        form.querySelectorAll('input[name="property_ids[]"]'),
+    ).filter(
+        (input) =>
+            input.value &&
+            String(input.value).trim() !== "" &&
+            String(input.value) !== "0",
+    );
+    const hasSelectedProperties = propertyInputs.length > 0;
+
+    steps.forEach((step) => {
+        const fields = validationFieldsFromStep(step);
+        if (
+            fields.includes("property_ids") ||
+            step.id.includes("properties") ||
+            step.id.includes("property")
+        ) {
+            const nextButtons = step.querySelectorAll(
+                "[data-wizard-next], .btn-next:not(.btn-submit)",
+            );
+            nextButtons.forEach((btn) => {
+                if (!hasSelectedProperties) {
+                    btn.disabled = true;
+                    btn.setAttribute("disabled", "disabled");
+                    btn.classList.add("disabled");
+                    btn.style.pointerEvents = "none";
+                } else {
+                    btn.disabled = false;
+                    btn.removeAttribute("disabled");
+                    btn.classList.remove("disabled");
+                    btn.style.pointerEvents = "";
+                }
+            });
         }
     });
 }
@@ -1597,6 +1676,9 @@ function initStepper(form) {
         Array.from(stepperElement.querySelectorAll("[data-form-step]"));
 
     const getCurrentIndex = () => {
+        if (Number.isInteger(state.stepper?._currentIndex)) {
+            return state.stepper._currentIndex;
+        }
         const steps = getSteps();
         const activeIndex = steps.findIndex((step) =>
             step.classList.contains("active"),
@@ -1606,11 +1688,8 @@ function initStepper(form) {
 
     const updateCurrentStepButton = () => {
         const steps = getSteps();
-        const currentIndex = getCurrentIndex();
-        const currentStep = steps[currentIndex];
-        if (currentStep) {
-            updateStepNextButton(form, currentStep);
-        }
+        steps.forEach((step) => updateStepNextButton(form, step));
+        syncAllPropertyStepButtons(form);
     };
 
     const moveTo = (targetIndex) => {
@@ -1643,6 +1722,68 @@ function initStepper(form) {
     };
 
     state.moveTo = moveTo;
+
+    // Intercept every step transition from BS-Stepper
+    stepperElement.addEventListener("show.bs-stepper", (event) => {
+        const fromIndex =
+            typeof event.detail?.from === "number"
+                ? event.detail.from
+                : getCurrentIndex();
+        const toIndex =
+            typeof event.detail?.to === "number"
+                ? event.detail.to
+                : event.detail?.indexStep;
+
+        // 1. Moving backwards is always permitted
+        if (typeof toIndex === "number" && toIndex <= fromIndex) {
+            return;
+        }
+
+        // 2. Prevent arbitrary forward navigation that wasn't initiated through validated moveTo()
+        if (!state.isNavigating) {
+            event.preventDefault();
+            return;
+        }
+
+        // 3. Strict property selection requirement:
+        // If moving past any step that has 'property_ids', ensure at least 1 property is selected!
+        const steps = getSteps();
+        const targetIndex =
+            typeof toIndex === "number" ? toIndex : steps.length;
+        for (let i = 0; i < targetIndex; i++) {
+            const step = steps[i];
+            if (!step) continue;
+            const stepFields = validationFieldsFromStep(step);
+            if (stepFields.includes("property_ids")) {
+                const propertyInputs = Array.from(
+                    form.querySelectorAll('input[name="property_ids[]"]'),
+                ).filter(
+                    (input) =>
+                        input.value &&
+                        String(input.value).trim() !== "" &&
+                        String(input.value) !== "0",
+                );
+
+                if (propertyInputs.length === 0) {
+                    event.preventDefault();
+                    const isAuction =
+                        step.id.includes("auction") ||
+                        form.id.includes("auction");
+                    const message = isAuction
+                        ? "يجب اختيار عقار واحد على الأقل للمزاد."
+                        : "يجب اختيار عقار واحد على الأقل للإسناد.";
+
+                    setFieldError(form, "property_ids", message);
+                    if (window.toastr?.error) {
+                        window.toastr.error(message);
+                    }
+                    scrollToFirstInvalid(step);
+                    updateStepNextButton(form, step);
+                    return;
+                }
+            }
+        }
+    });
 
     stepperElement.addEventListener(
         "click",
@@ -1681,6 +1822,37 @@ function initStepper(form) {
                 const currentIndex = getCurrentIndex();
                 if (targetIndex >= 0 && targetIndex < currentIndex) {
                     moveTo(targetIndex);
+                } else if (targetIndex > currentIndex) {
+                    const currentStep = getSteps()[currentIndex];
+                    if (currentStep) {
+                        const stepFields =
+                            validationFieldsFromStep(currentStep);
+                        if (stepFields.includes("property_ids")) {
+                            const propertyInputs = Array.from(
+                                form.querySelectorAll(
+                                    'input[name="property_ids[]"]',
+                                ),
+                            ).filter(
+                                (input) =>
+                                    input.value &&
+                                    String(input.value).trim() !== "" &&
+                                    String(input.value) !== "0",
+                            );
+                            if (propertyInputs.length === 0) {
+                                const message =
+                                    currentStep.id.includes("auction") ||
+                                    form.id.includes("auction")
+                                        ? "يجب اختيار عقار واحد على الأقل للمزاد."
+                                        : "يجب اختيار عقار واحد على الأقل للإسناد.";
+                                setFieldError(form, "property_ids", message);
+                                if (window.toastr?.error) {
+                                    window.toastr.error(message);
+                                }
+                                scrollToFirstInvalid(currentStep);
+                                updateStepNextButton(form, currentStep);
+                            }
+                        }
+                    }
                 }
                 return;
             }
@@ -1700,8 +1872,13 @@ function initStepper(form) {
 
                 // Dedicated check for property_ids: at least 1 property must be selected!
                 if (stepFields.includes("property_ids")) {
-                    const propertyInputs = form.querySelectorAll(
-                        'input[name="property_ids[]"]',
+                    const propertyInputs = Array.from(
+                        form.querySelectorAll('input[name="property_ids[]"]'),
+                    ).filter(
+                        (input) =>
+                            input.value &&
+                            String(input.value).trim() !== "" &&
+                            String(input.value) !== "0",
                     );
                     if (propertyInputs.length === 0) {
                         const message =
@@ -1714,6 +1891,7 @@ function initStepper(form) {
                             window.toastr.error(message);
                         }
                         scrollToFirstInvalid(currentStep);
+                        updateStepNextButton(form, currentStep);
                         return;
                     }
                 }
@@ -1788,14 +1966,32 @@ function initStepper(form) {
     form.addEventListener("stepChanged", () => {
         initSelect2Controls(form);
         updateCurrentStepButton();
+        syncAllPropertyStepButtons(form);
     });
 
     form.addEventListener("change", () => {
         updateCurrentStepButton();
+        syncAllPropertyStepButtons(form);
     });
 
-    // Initial check on load
+    form.addEventListener("input", () => {
+        syncAllPropertyStepButtons(form);
+    });
+
+    if (window.jQuery) {
+        window.jQuery(form).on("draw.dt", () => {
+            syncAllPropertyStepButtons(form);
+        });
+        window.jQuery(document).on("draw.dt", () => {
+            syncAllPropertyStepButtons(form);
+        });
+    }
+
+    // Initial checks on load
+    syncAllPropertyStepButtons(form);
+    setTimeout(updateCurrentStepButton, 50);
     setTimeout(updateCurrentStepButton, 150);
+    setTimeout(updateCurrentStepButton, 300);
 }
 
 function initSelect2Controls(form, retryCount = 0) {
@@ -2455,7 +2651,10 @@ if (document.readyState === "loading") {
 window.addEventListener("load", () => {
     document
         .querySelectorAll("form[data-form-validate]")
-        .forEach((form) => initSelect2Controls(form));
+        .forEach((form) => {
+            initSelect2Controls(form);
+            syncAllPropertyStepButtons(form);
+        });
 });
 
 window.SharedFormValidation = {
@@ -2464,6 +2663,7 @@ window.SharedFormValidation = {
     setFieldValid,
     clearFieldError,
     updateStepNextButton,
+    syncAllPropertyStepButtons,
     isStepValid,
     setButtonLoading,
     resetButtonLoading,

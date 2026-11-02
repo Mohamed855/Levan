@@ -282,10 +282,6 @@
                     </a>
                 </li>
 
-
-                <li>
-                    <div class="dropdown-divider my-1 mx-n2"></div>
-                </li>
                 <li>
                     <a class="dropdown-item" href="{{ route('admin.two-factor.index') }}">
                         <i class="ti ti-shield-lock me-3 ti-md"></i>

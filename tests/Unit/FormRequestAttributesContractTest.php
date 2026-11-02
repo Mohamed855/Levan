@@ -15,6 +15,8 @@ use App\Http\Requests\Site\VerifyCheckoutOtpRequest;
 use App\Http\Requests\Site\VerifyTrialOtpRequest;
 use App\Http\Requests\Tenants\Auth\LoginRequest;
 use App\Http\Requests\Tenants\Auth\ResetTenantPasswordRequest;
+use App\Http\Requests\Tenants\IssuingEntities\StoreIssuingEntityRequest;
+use App\Http\Requests\Tenants\IssuingEntities\UpdateIssuingEntityRequest;
 use App\Http\Requests\Tenants\Assignments\StoreAssignmentRequest;
 use App\Http\Requests\Tenants\Assignments\UpdateAssignmentRequest;
 use App\Http\Requests\Tenants\Settings\MainSettingsRequest;
@@ -93,6 +95,17 @@ class FormRequestAttributesContractTest extends TestCase
             'token' => 'رمز إعادة التعيين',
             'email' => 'البريد الإلكتروني',
         ]);
+    }
+
+    public function test_issuing_entity_attributes_match_their_form_labels(): void
+    {
+        $expected = [
+            'name' => 'اسم الجهة المسندة',
+            'is_active' => 'الحالة',
+        ];
+
+        $this->assertAttributes(new StoreIssuingEntityRequest, $expected);
+        $this->assertAttributes(new UpdateIssuingEntityRequest, $expected);
     }
 
     public function test_tenant_settings_and_assignment_attributes_cover_visible_and_internal_fields(): void

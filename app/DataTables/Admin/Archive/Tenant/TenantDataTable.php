@@ -36,7 +36,7 @@ class TenantDataTable extends AbstractDataTable
             ['data' => 'id',                   'name' => 'id',                 'title' => 'المعرف'],
             ['data' => 'company_name',         'name' => 'company_name',       'title' => 'اسم الشركة'],
             ['data' => 'commercial_number',    'name' => 'commercial_number',  'title' => 'السجل التجاري'],
-            ['data' => 'deleted_at',           'name' => 'deleted_at',         'title' => 'حالة العميل', 'orderable' => false],
+            ['data' => 'deleted_at',           'name' => 'deleted_at',         'title' => 'تاريخ الحذف', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'subscription_status',  'name' => 'subscription_status', 'title' => 'حالة الاشتراك', 'orderable' => false],
             ['data' => 'actions',              'name' => 'actions',            'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
@@ -49,12 +49,8 @@ class TenantDataTable extends AbstractDataTable
                 return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
 
-            ->addColumn('deleted_at', function ($row) {
-                if ($row->deleted_at !== null) {
-                    return '<span class="badge bg-danger">تم حذف العميل</span>';
-                } else {
-                    return '<span class="badge bg-success">نشط</span>';
-                }
+            ->editColumn('deleted_at', function ($row) {
+                return $row->deleted_at ? $row->deleted_at->format('Y-m-d') : '-';
             })
 
             ->addColumn('subscription_status', function ($row) {

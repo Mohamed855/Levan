@@ -34,6 +34,7 @@ class AdminUserDataTable extends AbstractDataTable
             ['data' => 'phone',     'name' => 'phone',      'title' => 'رقم الهاتف'],
             ['data' => 'roles',     'name' => 'roles.name', 'title' => 'الأدوار',   'orderable' => false, 'searchable' => true],
             ['data' => 'last_login_at', 'name' => 'last_login_at', 'title' => 'آخر دخول'],
+            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'status',    'name' => 'status',     'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions',        'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
@@ -66,6 +67,7 @@ class AdminUserDataTable extends AbstractDataTable
                 return '<button type="button" class="btn btn-link p-0 edit-role-link" data-user-id="'.e((string) $user->id).'" aria-label="تعديل دور المستخدم">'.$roleBadges.'</button>';
             })
 
+            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
             ->editColumn('status', function ($row) {
                 if ($row->isSuperAdmin()) {
                     return '<div class="d-flex justify-content-center"><span class="badge bg-primary">سوبر أدمن</span></div>';

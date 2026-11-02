@@ -15,7 +15,7 @@
             <p class="text-muted mb-0">مراجعة الطلب واتخاذ الإجراء المناسب</p>
         </div>
         <a href="{{ route('admin.trial-requests.index') }}" class="btn btn-secondary">
-            <i class="ti ti-arrow-right me-1"></i> العودة للطلبات
+            <i class="ti ti-arrow-right me-1"></i> العودة
         </a>
     </div>
 
@@ -57,7 +57,8 @@
                         @endif
                         @if ($trialRequest->status->value === 'approved' && $trialRequest->tenant)
                             <dd class="col-12"><a class="btn btn-success" target="_blank" rel="noopener"
-                                    href="{{ route('path.login', ['tenant' => $trialRequest->tenant_id]) }}"><i class="ti ti-external-link me-1"></i>فتح رابط دخول العميل</a></dd>
+                                    href="{{ route('path.login', ['tenant' => $trialRequest->tenant_id]) }}"><i
+                                        class="ti ti-external-link me-1"></i>فتح رابط دخول العميل</a></dd>
                             <dt class="col-sm-5 text-muted">بداية التجربة</dt>
                             <dd class="col-sm-7">{{ $trialRequest->subscription?->starts_at?->format('Y-m-d H:i') }}</dd>
                             <dt class="col-sm-5 text-muted">نهاية التجربة</dt>
@@ -124,7 +125,8 @@
                 <x-form.controls.textarea name="rejection_reason" label="سبب الرفض" rows="4" col="col-12"
                     required />
                 <x-slot:footer>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إلغاء</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i
+                            class="ti ti-x me-1"></i>إلغاء</button>
                     <button type="submit" class="btn btn-danger"><i class="ti ti-ban me-1"></i>تأكيد الرفض</button>
                 </x-slot:footer>
             </form>

@@ -52,7 +52,7 @@ class AuctionTemplateDataTable extends AbstractDataTable
             ['data' => 'type', 'name' => 'type', 'title' => 'النوع', 'className' => 'text-center'],
             ['data' => 'version', 'name' => 'current_version', 'title' => 'الإصدار الحالي', 'className' => 'text-center'],
             ['data' => 'publication_status', 'name' => 'status', 'title' => 'حالة النشر', 'className' => 'text-center'],
-            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإضافة', 'className' => 'text-center'],
+            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center'],
             ['data' => 'is_active', 'name' => 'is_active', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
@@ -182,7 +182,7 @@ class AuctionTemplateDataTable extends AbstractDataTable
     {
         if (auth()->user()?->can('auction_templates.create')) {
             return [
-                'text' => '<i class="ti ti-plus me-1"></i> إضافة قالب جديد',
+                'text' => '<i class="ti ti-plus me-1"></i> إضافة قالب إعلاني جديد',
                 'className' => 'btn btn-primary btn-add',
                 'action' => "function(){ window.location.href='".route($this->route.'.create')."'; }",
             ];

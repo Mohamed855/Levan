@@ -17,18 +17,19 @@
                     onclick="navigator.clipboard.writeText('{{ $assignment->assignment_number }}'); toastr.success('تم نسخ الرقم');">
                     {{ $assignment->assignment_number }}
                 </code>
-                <span class="badge {{ $assignment->is_active ? 'bg-success' : 'bg-danger' }}">{{ $assignment->is_active ? 'نشط' : 'متوقف' }}</span>
+                <span
+                    class="badge {{ $assignment->is_active ? 'bg-success' : 'bg-danger' }}">{{ $assignment->is_active ? 'نشط' : 'متوقف' }}</span>
             </div>
         </div>
         <div class="d-flex gap-2">
+            <a href="{{ tenant_route_name('assignments.index') }}" class="btn btn-secondary">
+                <i class="ti ti-arrow-right me-1"></i> العودة
+            </a>
             @can('assignments.edit')
                 <a href="{{ tenant_route_name('assignments.edit', $assignment->id) }}" class="btn btn-primary">
                     <i class="ti ti-edit me-1"></i> تعديل الإسناد
                 </a>
             @endcan
-            <a href="{{ tenant_route_name('assignments.index') }}" class="btn btn-secondary">
-                <i class="ti ti-arrow-right me-1"></i> العودة
-            </a>
         </div>
     </div>
 
@@ -58,17 +59,22 @@
                     <div class="info-container text-start">
                         <ul class="list-unstyled">
                             <li class="mb-2"><span class="fw-bold me-1">الجهة المسندة:</span>
-                                <span>{{ $assignment->issuing_entity }}</span></li>
+                                <span>{{ $assignment->issuing_entity }}</span>
+                            </li>
                             <li class="mb-2"><span class="fw-bold me-1">المدينة:</span>
-                                <span>{{ $assignment->city ?? '-' }}</span></li>
+                                <span>{{ $assignment->city ?? '-' }}</span>
+                            </li>
                             @if ($assignment->district)
                                 <li class="mb-2"><span class="fw-bold me-1">النطاق/الحي:</span>
-                                    <span>{{ $assignment->district }}</span></li>
+                                    <span>{{ $assignment->district }}</span>
+                                </li>
                             @endif
                             <li class="mb-2"><span class="fw-bold me-1">تاريخ البداية:</span>
-                                <span>{{ $assignment->start_date?->format('Y-m-d') ?? '-' }}</span></li>
+                                <span>{{ $assignment->start_date?->format('Y-m-d') ?? '-' }}</span>
+                            </li>
                             <li class="mb-2"><span class="fw-bold me-1">تاريخ الانتهاء:</span>
-                                <span>{{ $assignment->end_date?->format('Y-m-d') ?? '-' }}</span></li>
+                                <span>{{ $assignment->end_date?->format('Y-m-d') ?? '-' }}</span>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -180,7 +186,8 @@
                                     </td>
                                     <td>{{ $auc->start_date?->format('Y-m-d') }}</td>
                                     <td><span class="badge bg-secondary">{{ $auc->type_label }}</span></td>
-                                    <td><span class="badge {{ $auc->is_active ? 'bg-success' : 'bg-danger' }}">{{ $auc->is_active ? 'نشط' : 'متوقف' }}</span>
+                                    <td><span
+                                            class="badge {{ $auc->is_active ? 'bg-success' : 'bg-danger' }}">{{ $auc->is_active ? 'نشط' : 'متوقف' }}</span>
                                     </td>
                                 </tr>
                             @empty

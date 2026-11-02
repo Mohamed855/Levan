@@ -32,9 +32,8 @@
 @section('content')
     {{-- مودال تقييم التذكرة --}}
     <x-bootstrap.modal id="ticketSurveyModal" title="تقييم التذكرة #{{ $ticket->ticket_number }}" icon="ti-star" size="lg">
-        <form action="{{ tenant_route_name('tickets.survey.submit', $ticket->ticket_number) }}" method="POST"
-            novalidate data-form-validate
-            data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+        <form action="{{ tenant_route_name('tickets.survey.submit', $ticket->ticket_number) }}" method="POST" novalidate
+            data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
             @csrf
 
             <div class="text-center py-2">
@@ -43,14 +42,14 @@
                 </p>
                 <div class="d-flex justify-content-center gap-3 mb-4 choice-buttons" data-form-field
                     data-field-name="solved">
-                    <input type="radio" class="btn-check" name="solved" id="solvedYes" value="1"
-                        autocomplete="off" required data-form-control {{ old('solved') == '1' ? 'checked' : '' }}>
+                    <input type="radio" class="btn-check" name="solved" id="solvedYes" value="1" autocomplete="off"
+                        required data-form-control {{ old('solved') == '1' ? 'checked' : '' }}>
                     <label class="btn btn-outline-success" for="solvedYes">
                         نعم، تم الحل
                     </label>
 
-                    <input type="radio" class="btn-check" name="solved" id="solvedNo" value="0"
-                        autocomplete="off" required data-form-control {{ old('solved') == '0' ? 'checked' : '' }}>
+                    <input type="radio" class="btn-check" name="solved" id="solvedNo" value="0" autocomplete="off"
+                        required data-form-control {{ old('solved') == '0' ? 'checked' : '' }}>
                     <label class="btn btn-outline-danger" for="solvedNo">
                         لا، لم تُحل
                     </label>
@@ -85,7 +84,8 @@
             </div>
 
             <x-slot:footer>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إلغاء</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i
+                        class="ti ti-x me-1"></i>إلغاء</button>
                 <button type="submit" class="btn btn-primary" id="submitSurveyBtn">
                     <i class="ti ti-send me-1"></i> إرسال التقييم
                 </button>
@@ -102,11 +102,9 @@
             </h4>
             <p class="text-muted mb-0">{{ $ticket->title }}</p>
         </div>
-        <div>
-            <a href="{{ tenant_route_name('tickets.index') }}" class="btn btn-secondary">
-                <i class="ti ti-arrow-right me-1"></i> العودة لقائمة التذاكر
-            </a>
-        </div>
+        <a href="{{ tenant_route_name('tickets.index') }}" class="btn btn-secondary">
+            <i class="ti ti-arrow-right me-1"></i> العودة لقائمة التذاكر
+        </a>
     </div>
 
     @if ($errors->any())
@@ -157,10 +155,7 @@
                                             ? $fileUrl
                                             : Storage::url($fileUrl);
                                     @endphp
-                                    <x-ui.file-card
-                                        :name="$fileName"
-                                        :url="$fullUrl"
-                                    />
+                                    <x-ui.file-card :name="$fileName" :url="$fullUrl" />
                                 @endforeach
                             </div>
                         </div>
@@ -230,10 +225,7 @@
                                                                 ? $attUrl
                                                                 : Storage::url($attUrl);
                                                         @endphp
-                                                        <x-ui.file-card
-                                                            :name="$attName"
-                                                            :url="$fullAttUrl"
-                                                        />
+                                                        <x-ui.file-card :name="$attName" :url="$fullAttUrl" />
                                                     @endforeach
                                                 </div>
                                             </div>
@@ -479,11 +471,7 @@
                     @if (count($allAttachments) > 0)
                         <div class="d-flex flex-wrap gap-3">
                             @foreach ($allAttachments as $attachment)
-                                <x-ui.file-card
-                                    :name="$attachment['name']"
-                                    :url="$attachment['url']"
-                                    :meta="$attachment['source']"
-                                />
+                                <x-ui.file-card :name="$attachment['name']" :url="$attachment['url']" :meta="$attachment['source']" />
                             @endforeach
                         </div>
                     @else

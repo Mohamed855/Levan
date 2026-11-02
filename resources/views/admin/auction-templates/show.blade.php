@@ -1,6 +1,6 @@
 @extends('admin.layouts.layoutMaster')
 
-@section('title', 'تفاصيل قالب المزاد - ' . $template->name)
+@section('title', 'تفاصيل القالب الإعلاني - ' . $template->name)
 
 @section('toastr')
     @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
@@ -10,7 +10,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold mb-1">
-                <i class="ti ti-layout-dashboard me-2 text-primary"></i>تفاصيل قالب المزاد: {{ $template->name }}
+                <i class="ti ti-layout-dashboard me-2 text-primary"></i>تفاصيل القالب الإعلاني: {{ $template->name }}
             </h4>
             <div class="d-flex align-items-center gap-2">
                 <span class="badge {{ $template->status === 'published' ? 'bg-success' : 'bg-warning' }}">
@@ -24,14 +24,14 @@
             </div>
         </div>
         <div class="d-flex gap-2">
+            <a href="{{ route('admin.auction-templates.index') }}" class="btn btn-secondary">
+                <i class="ti ti-arrow-right me-1"></i> العودة
+            </a>
             @can('auction_templates.edit')
                 <a href="{{ route('admin.auction-templates.edit', $template) }}" class="btn btn-primary">
                     <i class="ti ti-edit me-1"></i> تعديل القالب
                 </a>
             @endcan
-            <a href="{{ route('admin.auction-templates.index') }}" class="btn btn-secondary">
-                <i class="ti ti-arrow-right me-1"></i> العودة
-            </a>
         </div>
     </div>
 
@@ -90,7 +90,7 @@
                                 <span>{{ $template->creator?->name ?? 'النظام' }}</span>
                             </li>
                             <li class="mb-2">
-                                <span class="fw-bold me-1">تاريخ الإضافة:</span>
+                                <span class="fw-bold me-1">تاريخ الإنشاء:</span>
                                 <span>{{ $template->created_at?->format('Y-m-d H:i') ?? '-' }}</span>
                             </li>
                             @if (!empty($template->field_names))

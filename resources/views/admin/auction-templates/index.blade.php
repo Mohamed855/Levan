@@ -1,6 +1,6 @@
 @extends('admin.layouts.layoutMaster')
 
-@section('title', 'قوالب المزادات')
+@section('title', 'قوالب إعلانية')
 
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
@@ -31,15 +31,15 @@
 @section('content')
     <x-data-table.page table-id="auction-templates-table">
         <x-slot:stats>
-            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي القوالب" :value="$statistics['total']" subtitle="جميع القوالب المسجلة"
+            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي القوالب" :value="$statistics['total']" subtitle="جميع القوالب الإعلانية المسجلة"
                 icon="ti-files" color="primary" />
-            <x-ui.stat-card col="col-sm-6 col-xl" title="قوالب مفعلة" :value="$statistics['active']" subtitle="القوالب النشطة المتاحة"
+            <x-ui.stat-card col="col-sm-6 col-xl" title="قوالب مفعلة" :value="$statistics['active']" subtitle="القوالب الإعلانية النشطة المتاحة"
                 icon="ti-check" color="success" />
-            <x-ui.stat-card col="col-sm-6 col-xl" title="قوالب البروشور" :value="$statistics['brochure']"
-                subtitle="قوالب الكتيبات التعريفية" icon="ti-file-description" color="info" />
             <x-ui.stat-card col="col-sm-6 col-xl" title="اللوحات الإعلانية" :value="$statistics['billboard']"
-                subtitle="قوالب اللوحات الخارجية" icon="ti-ad" color="warning" />
-            <x-ui.stat-card col="col-sm-6 col-xl" title="قوالب معطلة" :value="$statistics['inactive']" subtitle="القوالب غير المفعلة"
+                subtitle="قوالب اللوحات الإعلانية" icon="ti-ad" color="warning" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="سوشيال ميديا" :value="$statistics['social']"
+                subtitle="قوالب منصات التواصل" icon="ti-brand-instagram" color="info" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="قوالب معطلة" :value="$statistics['inactive']" subtitle="القوالب الإعلانية المعطلة"
                 icon="ti-ban" color="danger" />
         </x-slot:stats>
 

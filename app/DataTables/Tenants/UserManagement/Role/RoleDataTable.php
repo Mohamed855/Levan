@@ -33,7 +33,7 @@ final class RoleDataTable extends AbstractDataTable
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم الدور'],
             ['data' => 'users_count', 'name' => 'users_count', 'title' => 'المستخدمون', 'searchable' => false],
             ['data' => 'permissions_count', 'name' => 'permissions_count', 'title' => 'الصلاحيات', 'searchable' => false],
-            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإضافة'],
+            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -45,7 +45,7 @@ final class RoleDataTable extends AbstractDataTable
             ->editColumn('name', fn (Role $role): string => '<span class="fw-medium text-heading">'.e(AccessLabels::role($role->name)).'</span>')
             ->editColumn('users_count', fn (Role $role): string => '<span class="badge bg-primary">'.number_format($role->users_count).'</span>')
             ->editColumn('permissions_count', fn (Role $role): string => '<span class="badge bg-info">'.number_format($role->permissions_count).'</span>')
-            ->editColumn('created_at', fn (Role $role): string => $role->created_at?->locale('ar')->translatedFormat('d F Y') ?? '-')
+            ->editColumn('created_at', fn (Role $role): string => $role->created_at ? $role->created_at->format('Y-m-d') : '-')
             ->addColumn('actions', fn (Role $role): string => view($this->page.'.action', compact('role'))->render());
     }
 

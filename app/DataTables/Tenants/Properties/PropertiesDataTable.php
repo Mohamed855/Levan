@@ -36,6 +36,7 @@ class PropertiesDataTable extends AbstractDataTable
             ['data' => 'deed_number', 'name' => 'deed_number', 'title' => 'رقم الصك', 'width' => '120px'],
             ['data' => 'data_status', 'name' => 'data_status', 'title' => 'حالة البيانات', 'width' => '110px', 'className' => 'text-center'],
             ['data' => 'assignment_status', 'name' => 'assignment_id', 'title' => 'حالة الارتباط', 'width' => '130px', 'className' => 'text-center'],
+            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'width' => '130px', 'className' => 'text-center'],
             ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'width' => '90px', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '100px'],
         ];
@@ -93,6 +94,7 @@ class PropertiesDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-danger d-inline-flex align-items-center gap-1"><i class="ti ti-link-off text-danger fs-6"></i> غير مرتبط</span>';
             })
+            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
             ->editColumn('status', function ($row): string {
                 $canEdit = auth('tenant')->user()?->can('properties.edit');
                 if ($canEdit) {

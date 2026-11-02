@@ -57,6 +57,7 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
             ['data' => 'location', 'name' => 'city', 'title' => 'المدينة / الحي'],
             ['data' => 'area', 'name' => 'area', 'title' => 'المساحة'],
             ['data' => 'data_status', 'name' => 'data_status', 'title' => 'حالة البيانات'],
+            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'status', 'name' => 'status', 'title' => 'الحالة'],
         ];
     }
@@ -80,6 +81,7 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
             ->addColumn('location', fn (Property $property): string => e($property->city.($property->district ? ' - '.$property->district : '')))
             ->editColumn('area', fn (Property $property): string => number_format((float) $property->area).' م²')
             ->editColumn('data_status', fn (Property $property): string => '<span class="badge '.$property->data_status_badge_class.'">'.e($property->data_status_label).'</span>')
+            ->editColumn('created_at', fn (Property $property): string => $property->created_at ? $property->created_at->format('Y-m-d') : '-')
             ->editColumn('status', fn (Property $property): string => '<span class="badge bg-secondary">'.e($property->status_label).'</span>');
     }
 
