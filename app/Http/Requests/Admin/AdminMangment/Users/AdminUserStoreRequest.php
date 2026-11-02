@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin\AdminMangment\Users;
 
 use App\Http\Requests\Concerns\WizardFormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class AdminUserStoreRequest extends WizardFormRequest
 {
@@ -16,7 +17,7 @@ class AdminUserStoreRequest extends WizardFormRequest
         return [
             'name' => ['required', 'string', 'max:255', 'min:3', 'regex:/^[\pL\s\-\.]+$/u'],
             'email' => ['required', 'email:rfc', 'max:255', 'unique:admin_users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', Password::defaults(), 'confirmed'],
             'phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240', 'dimensions:min_width=100,min_height=100,max_width=2000,max_height=2000'],
         ];

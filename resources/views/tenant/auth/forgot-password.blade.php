@@ -29,10 +29,6 @@
         ]" :back-url="tenant_route_name('login')" back-text="العودة لتسجيل الدخول">
 
         @if ($isOtp)
-            <div class="alert alert-info py-2 px-3 mb-4 text-center" role="alert">
-                تم إرسال رمز التحقق إلى <strong class="text-break">{{ $email ?? '' }}</strong>
-            </div>
-
             <form id="formAuthentication" method="POST" action="{{ tenant_route_name('password.otp.verify') }}" novalidate
                 data-form-validate data-validation-url="{{ tenant_route_name('form-validation') }}">
                 @csrf

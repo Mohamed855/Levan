@@ -17,7 +17,7 @@
 @section('content')
     <section class="section-py bg-body">
         <div class="">
-            <form id="payment-form" method="POST" action="{{ tenant_route_name('bills.checkout.store') }}" autocomplete="off"
+            <form id="payment-form" method="POST" action="{{ tenant_route_name('bills.checkout.process', $bill->id) }}" autocomplete="off"
                 novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                 @csrf
                 <input type="hidden" name="coupon_code" id="coupon_code_hidden" data-validation-skip>

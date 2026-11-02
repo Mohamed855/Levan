@@ -197,6 +197,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('faq')->get('faq', [DomainController::class, 'faq']);
             Route::name('explain')->get('explain', [DomainController::class, 'explain']);
             Route::name('subdomainblade')->get('subdomain', [DomainController::class, 'subdomainblade']);
+            Route::name('transfer-domain')->match(['get', 'post'], 'transfer-domain', [DomainController::class, 'transferDom']);
 
             Route::name('get-domain-info')->get('getInfo/{domain}', [GetDomainInfoController::class, 'getDomainInfo']);
 

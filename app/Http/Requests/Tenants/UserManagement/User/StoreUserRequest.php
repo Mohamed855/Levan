@@ -5,6 +5,7 @@ namespace App\Http\Requests\Tenants\UserManagement\User;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Shared\CentralSubscriptionContextGateway;
+use Illuminate\Validation\Rules\Password;
 
 class StoreUserRequest extends WizardFormRequest
 {
@@ -44,7 +45,7 @@ class StoreUserRequest extends WizardFormRequest
             'password' => [
                 'required',
                 'string',
-                'min:8',
+                Password::defaults(),
                 'confirmed',
             ],
             'phone' => [

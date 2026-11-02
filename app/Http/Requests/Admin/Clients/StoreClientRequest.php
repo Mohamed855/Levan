@@ -6,6 +6,7 @@ namespace App\Http\Requests\Admin\Clients;
 
 use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class StoreClientRequest extends WizardFormRequest
 {
@@ -57,7 +58,7 @@ class StoreClientRequest extends WizardFormRequest
             'name' => ['required', 'string', 'min:2', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
             'phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
             'email' => ['required', 'email:rfc', 'max:255'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', Password::defaults(), 'confirmed'],
 
             // Step 3: Subscription
             'plan_id' => ['required', 'exists:plans,id'],

@@ -4,6 +4,7 @@ namespace App\Http\Requests\Tenants\UserManagement\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -46,7 +47,7 @@ class UpdateUserRequest extends FormRequest
             'password' => [
                 'nullable',
                 'string',
-                'min:8',
+                Password::defaults(),
                 'confirmed',
             ],
             'phone' => [

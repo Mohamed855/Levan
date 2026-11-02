@@ -35,9 +35,7 @@
             data-validation-url="{{ tenant() ? tenant_route_name('form-validation') : route('admin.wizard-drafts.validate-step') }}">
             @csrf
 
-            <x-form.controls.input name="email" label="البريد الإلكتروني" placeholder="أدخل البريد الإلكتروني"
-                type="email" :value="$resolvedEmail" required autocomplete="username" col="col-12 mb-3"
-                icon="ti ti-mail" :readonly="!empty($resolvedEmail)" />
+            <input type="hidden" name="email" value="{{ $resolvedEmail }}" autocomplete="username">
 
             <x-form.controls.password name="password" id="password" label="كلمة المرور الجديدة"
                 placeholder="أدخل كلمة المرور الجديدة" required autocomplete="new-password" col="col-12 mb-2"

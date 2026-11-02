@@ -40,7 +40,7 @@
             color="warning" />
 
         <x-ui.stat-card title="القوالب المركزية" :value="number_format($kpis['central_templates'])" subtitle="قالب متاح للتطبيق" icon="ti-template"
-            color="danger" />
+            color="secondary" />
 
         <x-ui.stat-card title="المدفوعات هذا الشهر" :value="number_format($kpis['monthly_payments'], 0)" subtitle="ر.س إجمالي هذا الشهر" icon="ti-wallet"
             color="label-dark text-dark" />
@@ -150,7 +150,7 @@
                         <div class="col-4">
                             <a href="{{ route('admin.subscriptionManage.expired') }}" class="quick-action-box">
                                 <div class="avatar avatar-md mb-2">
-                                    <span class="avatar-initial rounded bg-danger">
+                                    <span class="avatar-initial rounded bg-secondary">
                                         <i class="ti ti-timeline-event fs-4"></i>
                                     </span>
                                 </div>
@@ -202,15 +202,26 @@
                                                 $causer = $activity->causer;
                                                 $avatarUrl = null;
                                                 if ($causer) {
-                                                    $rawImage = $causer->image ?: ($causer->profile_picture ?? null);
+                                                    $rawImage = $causer->image ?: $causer->profile_picture ?? null;
                                                     if ($rawImage) {
-                                                        if (\Illuminate\Support\Str::startsWith($rawImage, ['http://', 'https://'])) {
+                                                        if (
+                                                            \Illuminate\Support\Str::startsWith($rawImage, [
+                                                                'http://',
+                                                                'https://',
+                                                            ])
+                                                        ) {
                                                             $avatarUrl = $rawImage;
                                                         } else {
-                                                            $cleanPath = ltrim(\Illuminate\Support\Str::after($rawImage, 'storage/'), '/');
+                                                            $cleanPath = ltrim(
+                                                                \Illuminate\Support\Str::after($rawImage, 'storage/'),
+                                                                '/',
+                                                            );
                                                             $avatarUrl = asset('storage/' . $cleanPath);
                                                         }
-                                                    } elseif (isset($causer->profile_photo_url) && !empty($causer->profile_photo_url)) {
+                                                    } elseif (
+                                                        isset($causer->profile_photo_url) &&
+                                                        !empty($causer->profile_photo_url)
+                                                    ) {
                                                         $avatarUrl = $causer->profile_photo_url;
                                                     }
                                                 }
@@ -229,17 +240,19 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="d-inline-flex align-items-center gap-1 overflow-hidden" style="max-width: 210px;">
+                                        <div class="d-inline-flex align-items-center gap-1 overflow-hidden"
+                                            style="max-width: 210px;">
                                             @php
-                                                $eventClass = match($activity->event) {
+                                                $eventClass = match ($activity->event) {
                                                     'created' => 'bg-label-success',
                                                     'updated' => 'bg-label-info',
                                                     'deleted' => 'bg-label-danger',
-                                                    'login'   => 'bg-label-primary',
-                                                    default   => 'bg-label-secondary',
+                                                    'login' => 'bg-label-primary',
+                                                    default => 'bg-label-secondary',
                                                 };
                                             @endphp
-                                            <span class="badge {{ $eventClass }} small dashboard-activity-event text-truncate"
+                                            <span
+                                                class="badge {{ $eventClass }} small dashboard-activity-event text-truncate"
                                                 title="{{ $activity->formatted_event }}">{{ $activity->formatted_event }}</span>
                                             @if ($activity->formatted_module)
                                                 <span class="text-muted small text-truncate" style="max-width: 90px;"
@@ -285,7 +298,6 @@
                                 <th>تاريخ البدء</th>
                                 <th>المبلغ</th>
                                 <th>الحالة</th>
-                                <th class="text-center">الإجراء</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
@@ -302,19 +314,15 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <small class="text-muted">{{ $request->starts_at?->format('Y-m-d') ?? $request->created_at?->format('Y-m-d') }}</small>
+                                        <small
+                                            class="text-muted">{{ $request->starts_at?->format('Y-m-d') ?? $request->created_at?->format('Y-m-d') }}</small>
                                     </td>
                                     <td>
                                         <span class="fw-bold">{{ number_format($request->price, 2) }} ر.س</span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-{{ $request->status->color() }}">{{ $request->status->label() }}</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <a href="{{ route('admin.subscriptions.index') }}"
-                                            class="btn btn-sm btn-icon btn-primary" title="عرض في الاشتراكات">
-                                            <i class="ti ti-arrow-left"></i>
-                                        </a>
+                                        <span
+                                            class="badge bg-{{ $request->status->color() }}">{{ $request->status->label() }}</span>
                                     </td>
                                 </tr>
                             @empty

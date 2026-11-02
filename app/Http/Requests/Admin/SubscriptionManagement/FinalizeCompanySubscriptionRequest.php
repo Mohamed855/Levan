@@ -7,6 +7,7 @@ use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Models\Admin\Plans\Plan;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class FinalizeCompanySubscriptionRequest extends WizardFormRequest
 {
@@ -23,7 +24,7 @@ class FinalizeCompanySubscriptionRequest extends WizardFormRequest
             'tax_number' => ['required', 'string', 'max:255'], 'city_id' => ['required', 'exists:cities,id'],
             'address' => ['required', 'string', 'max:1000'],
             'name' => ['required', 'string', 'min:2', 'max:255'], 'phone' => ['required', 'regex:/^05[0-9]{8}$/'],
-            'email' => ['required', 'email', 'max:255'], 'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'email' => ['required', 'email', 'max:255'], 'password' => ['required', 'string', Password::defaults(), 'confirmed'],
             'plan_id' => ['required', 'exists:plans,id'], 'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after:start_date'],
             'total_users' => ['required', 'integer', 'min:1'], 'activate_immediately' => ['required', 'boolean'],

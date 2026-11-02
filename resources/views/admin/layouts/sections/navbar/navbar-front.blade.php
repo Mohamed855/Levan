@@ -35,20 +35,19 @@
                         <a class="nav-link fw-medium" aria-current="page" href="{{ route('site.home') }}">الرئيسية</a>
                     </li> --}}
                     <li class="nav-item">
-                        <a class="nav-link fw-medium" href="{{ route('site.home') }}#landingFeatures">المميزات</a>
+                        <a class="nav-link fw-medium" href="{{ route('site.index') }}#services">المميزات</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link fw-medium" href="{{ route('site.home') }}#landingPricing">الباقات و
-                            الاسعار</a>
+                        <a class="nav-link fw-medium" href="{{ route('site.index') }}#pricing">الباقات والأسعار</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link fw-medium" href="{{ route('site.home') }}#landingFAQ">الأسئلة الشائعة</a>
+                        <a class="nav-link fw-medium" href="{{ route('site.index') }}#faq">الأسئلة الشائعة</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link fw-medium" href="{{ route('site.home') }}#landingContact">تواصل معنا</a>
+                        <a class="nav-link fw-medium" href="{{ route('site.index') }}#contact">تواصل معنا</a>
                     </li>
 
                 </ul>

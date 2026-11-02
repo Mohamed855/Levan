@@ -7,6 +7,7 @@ use App\Rules\SystemPhoneAvailable;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class SubscriptionCheckoutRequest extends FormRequest
 {
@@ -52,7 +53,7 @@ class SubscriptionCheckoutRequest extends FormRequest
             'billing_name' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\p{Arabic}a-zA-Z\s\.\-]+$/u'],
             'billing_email' => ['required', 'email', 'max:255', Rule::unique('tenants', 'primary_contact_email'), new SystemEmailAvailable],
             'billing_phone' => ['required', 'regex:/^(05\d{8}|966\d{9})$/', Rule::unique('tenants', 'primary_contact_phone'), new SystemPhoneAvailable],
-            'billing_password' => ['required', 'string', 'min:8', 'max:50', 'confirmed'],
+            'billing_password' => ['required', 'string', Password::defaults(), 'max:50', 'confirmed'],
             'coupon_code' => ['nullable', 'string', 'max:255'],
         ];
     }

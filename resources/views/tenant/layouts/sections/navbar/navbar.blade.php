@@ -62,9 +62,7 @@
 
 
         {{-- Settings - يظهر فقط إذا توفرت إحدى الصلاحيات --}}
-        @canany(['system.settings', 'users.view', 'roles.view', 'activity_log.view', 'message_logs.view',
-            'countries.view', 'payment_methods.view', 'client_statuses.view', 'contact_channels.view',
-            'message_templates.view', 'subscriptions.view', 'bills.view', 'system.groups'])
+        @canany(['system.settings', 'users.view', 'roles.view', 'activity_log.view', 'subscriptions.view', 'bills.view'])
             <li class="nav-item dropdown me-2 me-xl-2">
                 <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
                     href="javascript:void(0);" data-bs-toggle="dropdown">
@@ -122,7 +120,7 @@
 
                         {{-- الصف الثالث: السجلات --}}
                         @can('activity_log.view')
-                            <div class="col-6">
+                            <div class="col-12">
                                 <a href="{{ tenant_route_name('activity-logs.index') }}"
                                     class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
@@ -131,20 +129,6 @@
                                         </span>
                                     </div>
                                     <small class="text-muted fw-medium">سجل النشاطات</small>
-                                </a>
-                            </div>
-                        @endcan
-
-                        @can('message_logs.view')
-                            <div class="col-6">
-                                <a href="{{ tenant_route_name('communication.message-individual-logs.index') }}"
-                                    class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
-                                    <div class="avatar avatar-md mx-auto mb-2">
-                                        <span class="avatar-initial rounded bg-info">
-                                            <i class="ti ti-message ti-lg"></i>
-                                        </span>
-                                    </div>
-                                    <small class="text-muted fw-medium">سجل الرسائل</small>
                                 </a>
                             </div>
                         @endcan
@@ -163,9 +147,8 @@
                             </div>
                         @endcan
 
-
                         @can('bills.view')
-                            <div class="col-12">
+                            <div class="col-6">
                                 <a href="{{ tenant_route_name('bills.index') }}"
                                     class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
@@ -181,8 +164,7 @@
                     </div>
 
                     {{-- رابط المركز التفصيلي --}}
-                    @canany(['countries.view', 'payment_methods.view', 'client_statuses.view', 'contact_channels.view',
-                        'message_templates.view'])
+                    @can('system.settings')
                         <div class="dropdown-divider my-3"></div>
                         <div class="d-grid">
                             <a href="{{ tenant_route_name('settings.center') }}" class="btn btn-primary btn-sm">
@@ -190,7 +172,7 @@
                                 الإعدادات التفصيلية
                             </a>
                         </div>
-                    @endcanany
+                    @endcan
                 </div>
             </li>
         @endcanany

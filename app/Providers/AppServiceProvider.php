@@ -15,6 +15,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Vite as ViteFacade;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 use Laravel\Fortify\Fortify;
 
 class AppServiceProvider extends ServiceProvider
@@ -39,6 +40,16 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Password::defaults(fn () => Password::min(8)
+            ->rules(function (string $attribute, mixed $value, \Closure $fail): void {
+                if (! is_string($value)
+                    || ! preg_match('/[A-Z]/', $value)
+                    || ! preg_match('/\pN/u', $value)
+                    || ! preg_match('/\p{Z}|\p{S}|\p{P}/u', $value)) {
+                    $fail('يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتحتوي على حرف إنجليزي كبير ورقم ورمز خاص.');
+                }
+            }));
+
         if (PHP_OS_FAMILY === 'Windows' && empty(ini_get('openssl.cafile'))) {
             $caPath = storage_path('certificates/cacert.pem');
             if (file_exists($caPath)) {

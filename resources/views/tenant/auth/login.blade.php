@@ -54,15 +54,9 @@
                     <label class="form-check-label" for="remember_me">تذكرني في هذا الجهاز</label>
                 </div>
 
-                @if (tenant() && Route::has('domain.password.request'))
-                    <a href="{{ tenant_route_name('password.request') }}" class="auth-link">
-                        نسيت كلمة المرور؟
-                    </a>
-                @elseif (Route::has('password.request'))
-                    <a href="{{ route('password.request') }}" class="auth-link">
-                        نسيت كلمة المرور؟
-                    </a>
-                @endif
+                <a href="{{ tenant_route_name('password.request') }}" class="auth-link">
+                    نسيت كلمة المرور؟
+                </a>
             </div>
 
             <button class="btn-auth-primary" type="submit">

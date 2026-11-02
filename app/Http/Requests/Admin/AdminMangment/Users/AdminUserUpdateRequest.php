@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin\AdminMangment\Users;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class AdminUserUpdateRequest extends FormRequest
 {
@@ -27,7 +28,7 @@ class AdminUserUpdateRequest extends FormRequest
                 Rule::unique('admin_users', 'email')->ignore($userId),
             ],
 
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'password' => ['nullable', 'string', Password::defaults(), 'confirmed'],
             'phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240', 'dimensions:min_width=100,min_height=100,max_width=2000,max_height=2000'],
         ];

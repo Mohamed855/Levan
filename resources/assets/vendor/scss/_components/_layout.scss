@@ -510,15 +510,22 @@
     transition: color $menu-animation-duration ease-in-out;
   }
 
-  // Updated menu toggle icon for menu expanded and collapsed
+  // Updated menu toggle icon for menu expanded and collapsed:
+  // Right arrow to collapse in RTL, left arrow to expand
   .menu-toggle-icon::before {
-    content: '\efb1';
+    content: '\ea1f';
     display: inline-block;
     transition: transform $menu-animation-duration ease-in-out;
+
+    @include ltr-style {
+      content: '\ea19';
+    }
+    @include rtl-style {
+      content: '\ea1f';
+    }
   }
   .menu-toggle-icon::before {
     .layout-menu-collapsed & {
-      content: '\ea6b';
       transform: rotate(180deg);
     }
   }

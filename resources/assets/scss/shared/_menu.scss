@@ -122,7 +122,30 @@
         &:hover {
             color: #ffffff !important;
         }
+
+        .menu-toggle-icon {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+
+            &::before {
+                content: '\ea1f' !important; // Right arrow to collapse in RTL
+                display: inline-block !important;
+                transition: transform 0.25s ease-in-out !important;
+
+                :root:not([dir="rtl"]) &,
+                [dir="ltr"] & {
+                    content: '\ea19' !important; // Left arrow to collapse in LTR
+                }
+            }
+        }
     }
+}
+
+// Collapsed state toggler rotation (flips right arrow to left arrow in RTL, and left to right in LTR)
+html.layout-menu-collapsed .layout-menu-toggle .menu-toggle-icon::before,
+.layout-menu-collapsed .layout-menu-toggle .menu-toggle-icon::before {
+    transform: rotate(180deg) !important;
 }
 
 // -----------------------------------------------------------------------------

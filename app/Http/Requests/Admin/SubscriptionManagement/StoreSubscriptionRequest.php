@@ -5,6 +5,7 @@ namespace App\Http\Requests\Admin\SubscriptionManagement;
 use App\Enums\Admin\Billing\PaymentMethod;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class StoreSubscriptionRequest extends FormRequest
 {
@@ -27,7 +28,7 @@ class StoreSubscriptionRequest extends FormRequest
             'name' => 'required|string|min:2|max:255',
             'phone' => ['required', 'regex:/^05[0-9]{8}$/'],
             'email' => ['required', 'email', 'max:255'],
-            'password' => $tenantId ? 'nullable|string|min:8|confirmed' : 'required|string|min:8|confirmed',
+            'password' => [$tenantId ? 'nullable' : 'required', 'string', Password::defaults(), 'confirmed'],
 
             'trial_end_date' => 'required_if:payment_type,trial|nullable|date|after:today',
 
