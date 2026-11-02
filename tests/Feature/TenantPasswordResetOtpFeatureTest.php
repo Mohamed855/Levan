@@ -231,4 +231,32 @@ class TenantPasswordResetOtpFeatureTest extends TestCase
         // Verify that the user's password was updated
         $this->assertTrue(Hash::check($newPassword, $this->user->fresh()->password));
     }
+
+    public function test_form_validation_endpoint_validates_otp_successfully(): void
+    {
+        $response = $this->postJson('http://test.localhost/form-validation', [
+            'target_path' => 'http://test.localhost/forgot-password/verify',
+            'target_method' => 'POST',
+            'fields' => ['otp'],
+            'otp' => '123456',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+    }
+
+    public function test_form_validation_endpoint_fails_when_otp_is_invalid_format(): void
+    {
+        $response = $this->postJson('http://test.localhost/form-validation', [
+            'target_path' => 'http://test.localhost/forgot-password/verify',
+            'target_method' => 'POST',
+            'fields' => ['otp'],
+            'otp' => '123',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['otp']);
+    }
 }

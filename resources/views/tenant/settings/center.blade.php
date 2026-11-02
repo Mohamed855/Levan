@@ -27,7 +27,7 @@
                             </span>
                         </div>
                         <div class="flex-grow-1">
-                            <h5 class="card-title mb-1 fw-semibold">طرق الدفع والتحصيل</h5>
+                            <h5 class="card-title mb-1 fw-semibold">طرق الدفع والسداد</h5>
                             <small class="text-muted">إدارة وسائل الدفع المعتمدة للمنظمة</small>
                         </div>
                     </div>

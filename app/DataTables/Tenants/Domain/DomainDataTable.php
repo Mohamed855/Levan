@@ -210,7 +210,7 @@ class DomainDataTable extends AbstractDataTable
                 // 'action'    => "function(){ window.location.href='" . tenant_route_name('domains.link-domain') . "'; }",
             ],
             // [
-            //     'text'      => '<i class="ti ti-transfer-in me-1"></i> نقل نطاق إلى مسند (قريبا)',
+            //     'text'      => '<i class="ti ti-transfer-in me-1"></i> نقل نطاق إلى لوت (قريبا)',
             //     'className' => 'btn btn-primary btn-add',
             //     // 'action'    => "function(){ window.location.href='" . tenant_route_name('domains.transfer-domain') . "'; }",
             // ]

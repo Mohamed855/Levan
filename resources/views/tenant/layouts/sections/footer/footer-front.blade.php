@@ -12,8 +12,8 @@
                         <span class="app-brand-text demo footer-link fw-bold ms-2 ps-1">ليفـان</span>
                     </a>
                     <p class="footer-text footer-logo-description mb-6">
-                        حل تقني ذكي لإدارة عمليات التحصيل بكفاءة، عدالة، وتحفيز. منظومة رقمية متكاملة لتحقيق أعلى معدلات
-                        الإنجاز.
+                        منظومة رقمية متكاملة لإدارة المزادات العلنية والإلكترونية، الإسنادات القضائية، والأصول العقارية
+                        بأعلى درجات الكفاءة والموثوقية.
                     </p>
                     {{-- <form class="footer-form">
             <label for="footer-email" class="small">اشترك في النشرة الإخبارية</label>

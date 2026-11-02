@@ -18,7 +18,8 @@
                     <div class="alert alert-primary d-flex align-items-start mb-4" role="alert">
                         <i class="ti ti-info-circle ti-md me-2 mt-1"></i>
                         <div>
-                            يُستخدم هذا المفتاح للسماح لأنظمة خارجية بالاطلاع على بيانات العملاء والتحصيلات عبر الـ API،
+                            يُستخدم هذا المفتاح للسماح لأنظمة خارجية بالاطلاع على بيانات المزادات والعقارات والإسنادات عبر
+                            الـ API،
                             من خلال إرساله في هيدر <code>Authorization: Bearer</code>. لا تشارك هذا المفتاح مع جهات غير
                             موثوقة.
                         </div>
@@ -34,7 +35,8 @@
                             <div class="input-group input-group-merge">
                                 <input type="text" id="apiTokenField" class="form-control"
                                     value="{{ session('new_api_token') }}" readonly>
-                                <button type="button" class="input-group-text cursor-pointer" id="copyApiTokenBtn" title="نسخ التوكن">
+                                <button type="button" class="input-group-text cursor-pointer" id="copyApiTokenBtn"
+                                    title="نسخ التوكن">
                                     <i class="ti ti-copy"></i>
                                 </button>
                             </div>

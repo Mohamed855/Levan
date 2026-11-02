@@ -22,7 +22,7 @@
                         <div class="card-header border-bottom">
                             <div class="d-flex align-items-center justify-content-between gap-3">
                                 <div>
-                                    <p class="text-muted mb-1">نقل نطاق إلى مسند</p>
+                                    <p class="text-muted mb-1">نقل نطاق إلى المنصة</p>
                                     <h5 class="mb-0">الخطوة {{ min((int) $step, 3) }} من 3</h5>
                                 </div>
                                 <span class="badge bg-primary">نقل نطاق</span>
@@ -50,7 +50,8 @@
                                 <form method="GET" action="{{ tenant_route_name('domains.transfer-domain') }}">
                                     <input type="hidden" name="step" value="2">
                                     <div class="mb-4">
-                                        <label class="form-label" for="transfer-domain">اسم النطاق <span class="text-danger">*</span></label>
+                                        <label class="form-label" for="transfer-domain">اسم النطاق <span
+                                                class="text-danger">*</span></label>
                                         <input class="form-control" id="transfer-domain" name="domain" type="text"
                                             value="{{ $currentDomain }}" placeholder="example.com" dir="ltr"
                                             autocomplete="off" required>
@@ -81,7 +82,8 @@
                                     <input type="hidden" name="domain" value="{{ $currentDomain }}">
 
                                     <div class="mb-4">
-                                        <label class="form-label" for="epp-code">كود EPP / Auth Code <span class="text-danger">*</span></label>
+                                        <label class="form-label" for="epp-code">كود EPP / Auth Code <span
+                                                class="text-danger">*</span></label>
                                         <input class="form-control" id="epp-code" name="eppCode" type="text"
                                             value="{{ old('eppCode') }}" dir="ltr" autocomplete="off" minlength="6"
                                             required>
@@ -90,7 +92,8 @@
 
                                     <div class="d-flex justify-content-between">
                                         <a class="btn btn-secondary"
-                                            href="{{ tenant_route_name('domains.transfer-domain') }}"><i class="ti ti-arrow-right me-1"></i>رجوع</a>
+                                            href="{{ tenant_route_name('domains.transfer-domain') }}"><i
+                                                class="ti ti-arrow-right me-1"></i>رجوع</a>
                                         <button class="btn btn-primary" type="submit">
                                             مراجعة الدفع
                                             <i class="ti ti-arrow-left ms-1"></i>
@@ -115,7 +118,8 @@
 
                                     <div class="d-flex justify-content-between">
                                         <a class="btn btn-secondary"
-                                            href="{{ tenant_route_name('domains.transfer-domain', ['step' => 2, 'domain' => $currentDomain]) }}"><i class="ti ti-arrow-right me-1"></i>رجوع</a>
+                                            href="{{ tenant_route_name('domains.transfer-domain', ['step' => 2, 'domain' => $currentDomain]) }}"><i
+                                                class="ti ti-arrow-right me-1"></i>رجوع</a>
                                         <button class="btn btn-primary" type="submit">
                                             المتابعة للدفع الآمن
                                             <i class="ti ti-arrow-left ms-1"></i>

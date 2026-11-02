@@ -450,7 +450,8 @@ Route::middleware('guest:tenant')->group(function () {
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
     Route::name('password.request')->get('forgot-password', [PasswordResetLinkController::class, 'create']);
     Route::name('password.email')->post('forgot-password', [PasswordResetLinkController::class, 'store']);
-    Route::name('password.otp.verify')->post('forgot-password/verify', [PasswordResetLinkController::class, 'verifyOtp']);
+    Route::name('password.otp.verify')->post('forgot-password/verify', [PasswordResetLinkController::class, 'verifyOtp'])
+        ->defaults('shared_form_validation', true);
     Route::name('password.otp.resend')->post('forgot-password/resend-otp', [PasswordResetLinkController::class, 'resendOtp'])->middleware('throttle:6,1');
     Route::name('password.otp.edit')->get('forgot-password/edit', [PasswordResetLinkController::class, 'editEmail']);
     Route::name('password.reset')->get('reset-password', [NewPasswordController::class, 'create']);

@@ -10,7 +10,7 @@ class MailService
 
     public function __construct(private MicrosoftMailService $mailService)
     {
-        $this->office_name = config('app.name', 'مسند');
+        $this->office_name = config('app.name', 'لوت LOT');
     }
 
     // New subscription email
@@ -28,7 +28,7 @@ class MailService
                 'preview_text' => $previewText,
                 'office_name' => $this->office_name,
                 'customer_name' => $subscription->tenant->company_name,
-                'operation_type' => " الاشتراك في نظام مسند في    {$subscription->plan->name}  ",
+                'operation_type' => " الاشتراك في نظام لوت في    {$subscription->plan->name}  ",
                 'plan_name' => $subscription->plan->name,
                 'next_payment_date' => $subscription->next_payment_date,
                 'url' => 'https://levan.com/'.$subscription->tenant_id.'/login',
@@ -52,7 +52,7 @@ class MailService
                 'preview_text' => $previewText,
                 'office_name' => $this->office_name,
                 'customer_name' => $subscription->tenant->company_name,
-                'operation_type' => " تجديد الاشتراك في نظام مسند في    {$subscription->plan->name}  ",
+                'operation_type' => " تجديد الاشتراك في نظام لوت في    {$subscription->plan->name}  ",
                 'plan_name' => $subscription->plan->name,
                 'next_payment_date' => $subscription->next_payment_date,
                 'url' => 'https://levan.com/'.$subscription->tenant_id.'/login',
@@ -92,7 +92,7 @@ class MailService
             return;
         }
 
-        $previewText = 'تم اضافتك كعميل جديد في نظام مسند';
+        $previewText = 'تم اضافتك كعميل جديد في نظام لوت';
         $html = view(
             'emails.new_client',
             $this->officeData(),
@@ -100,14 +100,14 @@ class MailService
                 'preview_text' => $previewText,
                 'office_name' => $this->office_name,
                 'customer_name' => $subscription['company_name'],
-                'operation_type' => '  إضافة عميل جديد في نظام مسند  ',
+                'operation_type' => '  إضافة عميل جديد في نظام لوت  ',
                 // 'plan_name'             => $subscription['plan']['name'],
                 // 'total_users'           => $subscription['total_users'],
                 'url' => 'https://levan.com',
             ]
         )->render();
 
-        $this->mailService->sendEmail($email, 'تم اضافتك كعميل جديد في نظام مسند', $html);
+        $this->mailService->sendEmail($email, 'تم اضافتك كعميل جديد في نظام لوت', $html);
     }
 
     // Trial subscription email
@@ -139,7 +139,7 @@ class MailService
             return;
         }
 
-        $previewText = 'الدعم الفني لنظام مسند';
+        $previewText = 'الدعم الفني لنظام لوت';
         $html = view(
             'emails.contact_request',
             $this->officeData(),

@@ -42,7 +42,8 @@
                         </h1>
 
                         <p class="hero-desc">
-                            حل رقمي متكامل مصمم خصيصاً لتمكين الشركات والجهات من ضبط وإدارة المزادات والتحصيلات بثقة وكفاءة
+                            حل رقمي متكامل مصمم خصيصاً لتمكين الشركات والمكاتب والجهات القضائية من ضبط وإدارة المزادات
+                            والإسنادات والأصول العقارية بثقة وكفاءة
                             استثنائية.
                         </p>
 
@@ -79,74 +80,78 @@
         <section id="services" class="section-area">
             <div class="container">
                 <x-web.section-header title="أبرز مميزات منصة لوت" subtitle="خدمات متكاملة"
-                    desc="نقدّم حزمة متطورة من الأدوات الذكية المصممة لرفع كفاءة أعمالك وضبط العمليات بدقة متناهية." />
+                    desc="نقدّم حزمة متطورة من الأدوات الذكية المصممة لإدارة المزادات والإسنادات والأصول العقارية بدقة متناهية." />
 
                 <div class="services-grid">
-                    <!-- Feature 1 -->
+                    <!-- Feature 1: Auctions Management -->
+                    <div class="service-card scroll-revealed">
+                        <div class="service-icon-wrap">
+                            <i class="ti ti-gavel"></i>
+                        </div>
+                        <h3 class="service-title">تنظيم وإدارة المزادات</h3>
+                        <p class="service-desc">
+                            إعداد وإدارة المزادات العلنية والإلكترونية باحترافية، وإصدار كراسات الشروط، وتنظيم الجلسات،
+                            وتحديثات الترسية بدقة وشفافية.
+                        </p>
+                    </div>
+
+                    <!-- Feature 2: Judicial Assignments -->
+                    <div class="service-card scroll-revealed">
+                        <div class="service-icon-wrap">
+                            <i class="ti ti-scale"></i>
+                        </div>
+                        <h3 class="service-title">إدارة الإسنادات والتصفية</h3>
+                        <p class="service-desc">
+                            توثيق ومتابعة أوامر الإسناد من محاكم التنفيذ والجهات القضائية، وربط العقارات بقرارات الإسناد،
+                            ومتابعة مراحل التصفية حتى الإنجاز.
+                        </p>
+                    </div>
+
+                    <!-- Feature 3: Real Estate & Asset Registry -->
+                    <div class="service-card scroll-revealed">
+                        <div class="service-icon-wrap">
+                            <i class="ti ti-building"></i>
+                        </div>
+                        <h3 class="service-title">سجل رقمي شامل للأصول</h3>
+                        <p class="service-desc">
+                            حصر وإدارة العقارات والأصول بتفاصيل الصكوك، والحدود والأطوال، والوحدات، وبيانات الملاك، وتحديد
+                            الجاهزية للطرح في المزاد.
+                        </p>
+                    </div>
+
+                    <!-- Feature 4: Smart Dashboard & Live Analytics -->
                     <div class="service-card scroll-revealed">
                         <div class="service-icon-wrap">
                             <i class="ti ti-layout-dashboard"></i>
                         </div>
-                        <h3 class="service-title">لوحة القيادة الذكية</h3>
+                        <h3 class="service-title">لوحة قيادة وتحليلات ذكية</h3>
                         <p class="service-desc">
-                            نظرة شاملة ولحظية على مؤشرات الأداء الحيوية، وحالة المزادات، وسير عمليات التحصيل والمهام
-                            الجارية.
+                            رؤية شاملة ولحظية لمؤشرات الأداء الحيوية، وحالة المزادات، ومراحل الإسنادات، وإحصائيات المبيعات
+                            لدعم اتخاذ القرار.
                         </p>
                     </div>
 
-                    <!-- Feature 2 -->
+                    <!-- Feature 5: Digital Archiving & Governance -->
                     <div class="service-card scroll-revealed">
                         <div class="service-icon-wrap">
-                            <i class="ti ti-arrows-shuffle"></i>
+                            <i class="ti ti-archive"></i>
                         </div>
-                        <h3 class="service-title">توزيع ذكي وعادل</h3>
+                        <h3 class="service-title">أرشفة رقمية وحوكمة موثقة</h3>
                         <p class="service-desc">
-                            آليات مؤتمتة لتوزيع المحافظ والمهام بين فرق العمل حسب المبالغ أو الكثافة لضمان أعلى مستويات
-                            الإنتاجية.
+                            حفظ وأرشفة لكافة المستندات ومحاضر المزادات والقرارات، مع سجل تدقيق تفصيلي لجميع الأنشطة
+                            والعمليات لضمان أعلى معايير الأمان.
                         </p>
                     </div>
 
-                    <!-- Feature 3 -->
+                    <!-- Feature 6: Custom Domains & Cloud Multi-tenancy -->
                     <div class="service-card scroll-revealed">
                         <div class="service-icon-wrap">
-                            <i class="ti ti-chart-bar"></i>
+                            <i class="ti ti-world"></i>
                         </div>
-                        <h3 class="service-title">لوحة التميز التنافسية</h3>
+                        <h3 class="service-title">بيئة سحابية ونطاق مخصص</h3>
                         <p class="service-desc">
-                            شاشات تقدم لحظية تعزز الشفافية والتحفيز التنافسي الإيجابي بين فرق العمل التنفيذية.
-                        </p>
-                    </div>
-
-                    <!-- Feature 4 -->
-                    <div class="service-card scroll-revealed">
-                        <div class="service-icon-wrap">
-                            <i class="ti ti-stack-front"></i>
-                        </div>
-                        <h3 class="service-title">إدارة شاملة للعمليات</h3>
-                        <p class="service-desc">
-                            إدارة مرنة للمحافظ والعملاء والأصول وصلاحيات المستخدمين بأعلى معايير الحوكمة والأمان.
-                        </p>
-                    </div>
-
-                    <!-- Feature 5 -->
-                    <div class="service-card scroll-revealed">
-                        <div class="service-icon-wrap">
-                            <i class="ti ti-headset"></i>
-                        </div>
-                        <h3 class="service-title">دعم فني استشاري 24/7</h3>
-                        <p class="service-desc">
-                            فريق تقني واستشاري متخصص على مدار الساعة لمرافقتك في تخصيص وتشغيل المنصة بكل سلاسة.
-                        </p>
-                    </div>
-
-                    <!-- Feature 6 -->
-                    <div class="service-card scroll-revealed">
-                        <div class="service-icon-wrap">
-                            <i class="ti ti-trending-up"></i>
-                        </div>
-                        <h3 class="service-title">تقارير تحليلية وأرشفة</h3>
-                        <p class="service-desc">
-                            تقارير مالية وتشغيلية تفصيلية جاهزة للتصدير مع نظام أرشفة موثق يحفظ كامل المستندات والوثائق.
+                            عزل سحابي تام ومستقل لبيانات كل منشأة مع إمكانية ربط نطاق مخصص (Custom Domain)، وإدارة مرنة
+                            لصلاحيات وأدوار فرق العمل.
                         </p>
                     </div>
                 </div>

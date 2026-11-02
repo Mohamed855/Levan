@@ -237,7 +237,7 @@ $firstSegment = $segments ? reset($segments) : null;
 $fileExtension = pathinfo($path, PATHINFO_EXTENSION);
 $assetExtensions = ['js', 'css', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'woff', 'woff2', 'ttf', 'eot', 'ico', 'webp'];
 
-// ✅ مسار مسند
+// ✅ مسار ليفان
 $levanPublicPath = '/home/levan/public_html/releases/v1.0.0-beta/public';
 
 // ===============================

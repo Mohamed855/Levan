@@ -173,15 +173,16 @@ class WizardDraftController extends Controller
 
         $action = $route->getActionMethod();
         $allowsSharedValidation = (bool) ($route->defaults['shared_form_validation'] ?? false);
-        abort_unless(in_array($action, ['store', 'update'], true) || $allowsSharedValidation, 404);
-
         $normalizedRouteAction = ltrim($route->getActionName(), '\\');
         $normalizedAllowedActions = array_map(
             static fn (string $allowedAction): string => ltrim($allowedAction, '\\'),
             $allowedActions,
         );
+        $isExplicitlyAllowed = $normalizedAllowedActions !== [] && in_array($normalizedRouteAction, $normalizedAllowedActions, true);
 
-        abort_if($normalizedAllowedActions !== [] && ! in_array($normalizedRouteAction, $normalizedAllowedActions, true), 404);
+        abort_unless(in_array($action, ['store', 'update'], true) || $allowsSharedValidation || $isExplicitlyAllowed, 404);
+
+        abort_if($normalizedAllowedActions !== [] && ! $isExplicitlyAllowed, 404);
 
         return $route;
     }
