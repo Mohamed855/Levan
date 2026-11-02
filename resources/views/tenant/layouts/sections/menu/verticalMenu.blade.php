@@ -36,31 +36,6 @@
             </a>
         </li>
 
-        {{-- إدارة الشركة والمستخدمين --}}
-        @canany(['users.view', 'roles.view'])
-            <li class="menu-header small">
-                <span class="menu-header-text">الشركة والمستخدمين</span>
-            </li>
-
-            @can('users.view')
-                <li class="menu-item @if (Helpers::isActiveRoute('users.*')) active @endif">
-                    <a href="{{ tenant_route_name('users.index') }}" class="menu-link">
-                        <i class="menu-icon tf-icons ti ti-users"></i>
-                        <div>المستخدمين</div>
-                    </a>
-                </li>
-            @endcan
-
-            @can('roles.view')
-                <li class="menu-item @if (Helpers::isActiveRoute('roles.*')) active @endif">
-                    <a href="{{ tenant_route_name('roles.index') }}" class="menu-link">
-                        <i class="menu-icon tf-icons ti ti-shield-lock"></i>
-                        <div>الأدوار والصلاحيات</div>
-                    </a>
-                </li>
-            @endcan
-        @endcanany
-
         {{-- المزادات والعقارات --}}
         @canany(['assignments.view', 'properties.view', 'auctions.view'])
             <li class="menu-header small">
@@ -96,7 +71,7 @@
         @endcanany
 
         {{-- الاشتراكات والفوترة --}}
-        @canany(['subscriptions.view', 'bills.view', 'domain.view'])
+        @canany(['subscriptions.view', 'bills.view'])
             <li class="menu-header small">
                 <span class="menu-header-text">الاشتراك والفوترة</span>
             </li>
@@ -105,7 +80,7 @@
                 <li class="menu-item @if (Helpers::isActiveRoute('subscriptions.*')) active @endif">
                     <a href="{{ tenant_route_name('subscriptions.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons ti ti-award"></i>
-                        <div>الاشتراك والمستخدمين</div>
+                        <div>إدارة الاشتراك</div>
                     </a>
                 </li>
             @endcan
@@ -118,15 +93,6 @@
                     </a>
                 </li>
             @endcan
-
-            @can('domain.view')
-                <li class="menu-item @if (Helpers::isActiveRoute('domains.*')) active @endif">
-                    <a href="{{ tenant_route_name('domains.setting') }}" class="menu-link">
-                        <i class="menu-icon tf-icons ti ti-world"></i>
-                        <div>إدارة النطاقات</div>
-                    </a>
-                </li>
-            @endcan
         @endcanany
 
         {{-- الدعم الفني والنظام --}}
@@ -136,13 +102,19 @@
 
         @can('tickets.view')
             @php
-                $openTicketsCount = cache()->remember('tenant:' . tenant('id') . ':open_tickets_count', 60, function () {
-                    try {
-                        return app(\App\Services\Shared\Integration\EtmamTicketService::class)->getTenantTicketStats()['open'] ?? 0;
-                    } catch (\Throwable $e) {
-                        return 0;
-                    }
-                });
+                $openTicketsCount = cache()->remember(
+                    'tenant:' . tenant('id') . ':open_tickets_count',
+                    60,
+                    function () {
+                        try {
+                            return app(
+                                \App\Services\Shared\Integration\EtmamTicketService::class,
+                            )->getTenantTicketStats()['open'] ?? 0;
+                        } catch (\Throwable $e) {
+                            return 0;
+                        }
+                    },
+                );
             @endphp
             <li class="menu-item @if (Helpers::isActiveRoute('tickets.*')) active @endif">
                 <a href="{{ tenant_route_name('tickets.index') }}" class="menu-link">
@@ -153,24 +125,5 @@
                 </a>
             </li>
         @endcan
-
-        @can('activity_log.view')
-            <li class="menu-item @if (Helpers::isActiveRoute('activity-logs.*')) active @endif">
-                <a href="{{ tenant_route_name('activity-logs.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons ti ti-activity"></i>
-                    <div>سجل النشاطات</div>
-                </a>
-            </li>
-        @endcan
-
-        @can('system.settings')
-            <li class="menu-item @if (Helpers::isActiveRoute('settings.*')) active @endif">
-                <a href="{{ tenant_route_name('settings.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons ti ti-settings"></i>
-                    <div>إعدادات الشركة</div>
-                </a>
-            </li>
-        @endcan
-
     </ul>
 </aside>
