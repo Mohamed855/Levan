@@ -116,4 +116,27 @@ class UpdateAssignmentRequest extends WizardFormRequest
             'assignment_letter.max' => 'حجم خطاب الإسناد يجب ألا يتجاوز 10 ميجابايت.',
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'assignment_number' => 'رقم الإسناد',
+            'name' => 'اسم الإسناد',
+            'issuing_entity' => 'الجهة المسندة',
+            'city' => 'المدينة',
+            'district' => 'النطاق/الحي',
+            'category' => 'تصنيف الإسناد',
+            'start_date' => 'تاريخ البداية',
+            'end_date' => 'تاريخ النهاية',
+            'notes' => 'وصف الإسناد',
+            'property_ids' => 'العقارات المرتبطة',
+            'property_ids.*' => 'العقارات المرتبطة',
+            'assignment_image' => 'صورة الإسناد',
+            'assignment_letter' => 'خطاب الإسناد',
+            'general_documents' => 'مستندات عامة',
+            'general_documents.*' => 'مستندات عامة',
+            'additional_attachments' => 'مرفقات إضافية',
+            'additional_attachments.*' => 'مرفقات إضافية',
+        ];
+    }
 }

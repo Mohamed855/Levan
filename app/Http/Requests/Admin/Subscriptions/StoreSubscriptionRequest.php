@@ -79,4 +79,17 @@ class StoreSubscriptionRequest extends WizardFormRequest
             'receipt_upload.max' => 'حجم ملف الإيصال يجب ألا يتجاوز 10 ميجابايت',
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'company_id' => 'الشركة المستفيدة', 'plan_id' => 'الباقة المطلوبة', 'start_date' => 'تاريخ بداية الاشتراك',
+            'end_date' => 'تاريخ نهاية الاشتراك', 'period_months' => 'مدة الاشتراك (بالشهور)', 'coupon_code' => 'كود كوبون الخصم',
+            'payment_method' => 'طريقة الدفع', 'payment_status' => 'حالة الدفع الآن', 'payment_type' => 'نوع الدفع',
+            'transaction_id' => 'رقم العملية / الحوالة البنكية', 'payment_proof' => 'إثبات الدفع',
+            'receipt_upload' => 'إيصال الدفع / الحوالة (مستند)', 'admin_notes' => 'ملاحظات إدارية داخلية',
+            'has_discount' => 'تطبيق الخصم', 'discount_value' => 'قيمة الخصم', 'trial_end_date' => 'تاريخ انتهاء التجربة',
+            'activate_immediately' => 'التفعيل الفوري',
+        ];
+    }
 }

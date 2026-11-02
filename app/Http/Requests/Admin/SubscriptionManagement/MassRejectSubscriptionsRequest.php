@@ -18,4 +18,6 @@ class MassRejectSubscriptionsRequest extends MassAcceptSubscriptionsRequest
             'reject_reason' => ['nullable', 'string', 'max:1000'],
         ];
     }
+
+    public function attributes(): array { return [...parent::attributes(), 'reject_reason' => 'سبب الرفض']; }
 }

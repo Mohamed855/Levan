@@ -21,6 +21,11 @@ abstract class AuthenticatedWizardDraftRequest extends FormRequest
 
     public function attributes(): array
     {
-        return ['resource_key' => 'مورد المسودة', 'step' => 'الخطوة', 'file_key' => 'الملف', 'target_path' => 'مسار النموذج'];
+        return [
+            'resource_key' => 'نوع المورد',
+            'step' => 'خطوة النموذج',
+            'file_key' => 'معرّف الملف',
+            'target_path' => 'مسار التحقق',
+        ];
     }
 }

@@ -21,4 +21,12 @@ class StoreControlDomainRequest extends WizardFormRequest
             'price' => ['required', 'numeric', 'min:0'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'domain_extension' => 'الامتداد',
+            'price' => 'السعر',
+        ];
+    }
 }

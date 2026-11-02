@@ -17,4 +17,6 @@ class RejectSubscriptionRequest extends FormRequest
     {
         return ['reject_reason' => ['nullable', 'string', 'max:1000']];
     }
+
+    public function attributes(): array { return ['reject_reason' => 'سبب الرفض']; }
 }

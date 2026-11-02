@@ -45,7 +45,7 @@ class BankTransferReceiptRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'bank_id' => 'البنك',
+            'bank_id' => 'البنك المحول إليه',
             'receipt' => 'إيصال التحويل',
         ];
     }

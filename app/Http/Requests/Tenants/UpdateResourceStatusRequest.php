@@ -44,4 +44,9 @@ class UpdateResourceStatusRequest extends FormRequest
     {
         return ['status' => ['required', 'in:active,inactive']];
     }
+
+    public function attributes(): array
+    {
+        return ['status' => 'الحالة'];
+    }
 }

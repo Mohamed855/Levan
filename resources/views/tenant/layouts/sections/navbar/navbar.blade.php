@@ -62,44 +62,34 @@
 
 
         {{-- Settings - يظهر فقط إذا توفرت إحدى الصلاحيات --}}
-        @canany(['system.settings', 'users.view', 'roles.view', 'activity_log.view', 'subscriptions.view', 'bills.view'])
+        @canany([
+            'system.settings',
+            'users.view',
+            'roles.view',
+            'activity_log.view',
+            'domain.view',
+            'user_archive.view',
+            'properties_archive.view',
+            'assignments_archive.view',
+            'auctions_archive.view',
+        ])
             <li class="nav-item dropdown me-2 me-xl-2">
                 <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
                     href="javascript:void(0);" data-bs-toggle="dropdown">
                     <i class="ti ti-settings ti-md"></i>
                 </a>
-                <div class="dropdown-menu dropdown-menu-end p-3 nav-min-width">
+                <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 320px;">
                     <div class="row g-2">
-                        {{-- الصف الأول: إعدادات النظام --}}
-                        @can('system.settings')
-                            <div class="col-12">
-                                <a href="{{ tenant_route_name('settings.index') }}"
-                                    class="d-flex align-items-center p-3 border rounded hover-bg-secondary text-decoration-none">
-                                    <div class="avatar avatar-md me-3">
-                                        <span class="avatar-initial rounded bg-primary">
-                                            <i class="ti ti-settings ti-lg"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-0 fw-medium">إعدادات النظام</h6>
-                                        <small class="text-muted">إدارة الإعدادات الأساسية للنظام</small>
-                                    </div>
-                                    <i class="ti ti-chevron-left text-muted"></i>
-                                </a>
-                            </div>
-                        @endcan
-
-                        {{-- الصف الثاني: المستخدمين والأنظمة الأمنية --}}
                         @can('users.view')
                             <div class="col-6">
                                 <a href="{{ tenant_route_name('users.index') }}"
-                                    class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
+                                    class="d-block p-3 text-center border rounded text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
-                                        <span class="avatar-initial rounded bg-success">
+                                        <span class="avatar-initial rounded bg-primary">
                                             <i class="ti ti-users ti-lg"></i>
                                         </span>
                                     </div>
-                                    <small class="text-muted fw-medium">المستخدمين</small>
+                                    <small class="text-muted fw-medium">إدارة المستخدمين</small>
                                 </a>
                             </div>
                         @endcan
@@ -107,22 +97,35 @@
                         @can('roles.view')
                             <div class="col-6">
                                 <a href="{{ tenant_route_name('roles.index') }}"
-                                    class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
+                                    class="d-block p-3 text-center border rounded text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
-                                        <span class="avatar-initial rounded bg-info">
+                                        <span class="avatar-initial rounded bg-success">
                                             <i class="ti ti-shield-lock ti-lg"></i>
                                         </span>
                                     </div>
-                                    <small class="text-muted fw-medium">الأنظمة الأمنية</small>
+                                    <small class="text-muted fw-medium">إدارة الصلاحيات</small>
                                 </a>
                             </div>
                         @endcan
 
-                        {{-- الصف الثالث: السجلات --}}
+                        @can('system.settings')
+                            <div class="col-6">
+                                <a href="{{ tenant_route_name('settings.index') }}"
+                                    class="d-block p-3 text-center border rounded text-decoration-none">
+                                    <div class="avatar avatar-md mx-auto mb-2">
+                                        <span class="avatar-initial rounded bg-info">
+                                            <i class="ti ti-settings ti-lg"></i>
+                                        </span>
+                                    </div>
+                                    <small class="text-muted fw-medium">إعدادات الشركة</small>
+                                </a>
+                            </div>
+                        @endcan
+
                         @can('activity_log.view')
-                            <div class="col-12">
+                            <div class="col-6">
                                 <a href="{{ tenant_route_name('activity-logs.index') }}"
-                                    class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
+                                    class="d-block p-3 text-center border rounded text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
                                         <span class="avatar-initial rounded bg-warning">
                                             <i class="ti ti-activity ti-lg"></i>
@@ -133,46 +136,82 @@
                             </div>
                         @endcan
 
-                        @can('subscriptions.view')
+                        @can('domain.view')
                             <div class="col-6">
-                                <a href="{{ tenant_route_name('subscriptions.index') }}"
-                                    class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
+                                <a href="{{ tenant_route_name('domains.setting') }}"
+                                    class="d-block p-3 text-center border rounded text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
                                         <span class="avatar-initial rounded bg-secondary">
-                                            <i class="ti ti-settings-cog ti-lg"></i>
+                                            <i class="ti ti-world ti-lg"></i>
                                         </span>
                                     </div>
-                                    <small class="text-muted fw-medium">إدارة الإشتراك</small>
+                                    <small class="text-muted fw-medium">إدارة النطاقات</small>
                                 </a>
                             </div>
                         @endcan
 
-                        @can('bills.view')
+                        @can('system.settings')
                             <div class="col-6">
-                                <a href="{{ tenant_route_name('bills.index') }}"
-                                    class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
+                                <a href="{{ tenant_route_name('settings.center') }}"
+                                    class="d-block p-3 text-center border rounded text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
-                                        <span class="avatar-initial rounded bg-primary">
-                                            <i class="ti ti-receipt ti-lg"></i>
+                                        <span class="avatar-initial rounded bg-label-dark">
+                                            <i class="ti ti-adjustments ti-lg"></i>
                                         </span>
                                     </div>
-                                    <small class="text-muted fw-medium">الفواتير</small>
+                                    <small class="text-muted fw-medium">الإعدادات التفصيلية</small>
                                 </a>
                             </div>
                         @endcan
 
-                    </div>
+                        @canany(['user_archive.view', 'properties_archive.view', 'assignments_archive.view', 'auctions_archive.view'])
+                            <div class="col-12">
+                                <div class="border rounded p-2">
+                                    <div class="d-flex align-items-center gap-1 mb-2">
+                                        <i class="ti ti-trash"></i>
+                                        <small class="fw-medium text-black">المحذوفة</small>
+                                    </div>
+                                    <div class="row g-2">
+                                        @can('user_archive.view')
+                                            <div class="col-6">
+                                                <a href="{{ tenant_route_name('archive.users.index') }}"
+                                                    class="d-block p-2 text-center border rounded text-decoration-none">
+                                                    <small>المستخدمين</small>
+                                                </a>
+                                            </div>
+                                        @endcan
 
-                    {{-- رابط المركز التفصيلي --}}
-                    @can('system.settings')
-                        <div class="dropdown-divider my-3"></div>
-                        <div class="d-grid">
-                            <a href="{{ tenant_route_name('settings.center') }}" class="btn btn-primary btn-sm">
-                                <i class="ti ti-adjustments me-2"></i>
-                                الإعدادات التفصيلية
-                            </a>
-                        </div>
-                    @endcan
+                                        @can('properties_archive.view')
+                                            <div class="col-6">
+                                                <a href="{{ tenant_route_name('archive.properties.index') }}"
+                                                    class="d-block p-2 text-center border rounded text-decoration-none">
+                                                    <small>العقارات</small>
+                                                </a>
+                                            </div>
+                                        @endcan
+
+                                        @can('assignments_archive.view')
+                                            <div class="col-6">
+                                                <a href="{{ tenant_route_name('archive.assignments.index') }}"
+                                                    class="d-block p-2 text-center border rounded text-decoration-none">
+                                                    <small>الإسنادات</small>
+                                                </a>
+                                            </div>
+                                        @endcan
+
+                                        @can('auctions_archive.view')
+                                            <div class="col-6">
+                                                <a href="{{ tenant_route_name('archive.auctions.index') }}"
+                                                    class="d-block p-2 text-center border rounded text-decoration-none">
+                                                    <small>المزادات</small>
+                                                </a>
+                                            </div>
+                                        @endcan
+                                    </div>
+                                </div>
+                            </div>
+                        @endcanany
+                    </div>
                 </div>
             </li>
         @endcanany

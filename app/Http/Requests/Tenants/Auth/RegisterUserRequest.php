@@ -34,7 +34,11 @@ class RegisterUserRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'name' => 'الاسم الكامل',
+            'email' => 'البريد الإلكتروني',
             'phone' => 'رقم الجوال',
+            'password' => 'كلمة المرور',
+            'password_confirmation' => 'تأكيد كلمة المرور',
         ];
     }
 }

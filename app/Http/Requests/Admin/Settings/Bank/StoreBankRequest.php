@@ -37,4 +37,15 @@ class StoreBankRequest extends WizardFormRequest
             'account_number.required' => 'رقم الحساب مطلوب',
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'bank_name' => 'اسم البنك',
+            'icon' => 'أيقونة البنك',
+            'account_name' => 'اسم الحساب',
+            'iban' => 'رقم الآيبان (IBAN)',
+            'account_number' => 'رقم الحساب',
+        ];
+    }
 }

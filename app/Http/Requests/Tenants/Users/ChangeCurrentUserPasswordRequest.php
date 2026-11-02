@@ -28,4 +28,13 @@ class ChangeCurrentUserPasswordRequest extends FormRequest
             'new_password.confirmed' => 'كلمة المرور الجديدة وتأكيدها غير متطابقتين.',
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'current_password' => 'كلمة المرور الحالية',
+            'new_password' => 'كلمة المرور الجديدة',
+            'new_password_confirmation' => 'تأكيد كلمة المرور الجديدة',
+        ];
+    }
 }

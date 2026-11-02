@@ -112,6 +112,33 @@ class PlanRequest extends WizardFormRequest
         return $rules;
     }
 
+    public function attributes(): array
+    {
+        return [
+            'name' => 'اسم الباقة',
+            'code' => 'كود الباقة (English Uppercase)',
+            'plan_type' => 'نوع الباقة',
+            'color' => 'لون الباقة المميز',
+            'description' => 'وصف الباقة',
+            'price' => 'سعر الدورة الأساسية (ر.س)',
+            'discount_percentage' => 'نسبة الخصم (%)',
+            'yearly_renewal_price' => 'سعر العرض السنوي الترويجي (ر.س)',
+            'subscription_billing_cycle' => 'دورة الفوترة الأساسية',
+            'available_from' => 'تاريخ بدء الإتاحة',
+            'admin_notes' => 'ملاحظات إدارية',
+            'is_active' => 'حالة تفعيل الباقة',
+            'domain_management_enabled' => 'إدارة الدومينات',
+            'limits_mode' => 'وضع الحدود',
+            'features' => 'ميزات الباقة',
+            'features.*' => 'ميزات الباقة',
+            'included_users' => 'عدد المستخدمين المشمولين',
+            'properties_limit' => 'حد العقارات',
+            'storage_quota_gb' => 'حصة التخزين (GB)',
+            'active_auctions_limit' => 'حد المزادات النشطة',
+            'extra_user_license_price' => 'سعر المستخدم الإضافي (ر.س)',
+        ];
+    }
+
     public function messages(): array
     {
         return [

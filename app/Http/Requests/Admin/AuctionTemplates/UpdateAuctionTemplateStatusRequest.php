@@ -20,4 +20,9 @@ final class UpdateAuctionTemplateStatusRequest extends AdminAuthenticatedRequest
             'is_active' => ['nullable', 'boolean'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return ['status' => 'الحالة', 'is_active' => 'الحالة'];
+    }
 }

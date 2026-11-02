@@ -42,9 +42,9 @@ class StoreAuctionTemplateRequest extends WizardFormRequest
         return [
             'name' => 'اسم القالب',
             'type' => 'نوع القالب',
-            'description' => 'الوصف',
+            'description' => 'وصف القالب',
             'schema' => 'مخطط القالب',
-            'is_active' => 'الحالة',
+            'is_active' => 'القالب نشط',
         ];
     }
 

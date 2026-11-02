@@ -1,4 +1,5 @@
-const primaryAddButtonSelector = '.dt-buttons .btn-add.btn-primary.btn-secondary';
+const primaryAddButtonSelector =
+    '.dt-buttons .btn-primary.btn-secondary, .dt-buttons .btn-success.btn-secondary, .dt-buttons .btn-danger.btn-secondary';
 
 function normalizePrimaryAddButtons(root = document) {
     const buttons = root.matches?.(primaryAddButtonSelector)

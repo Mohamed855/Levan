@@ -39,4 +39,14 @@ class ValidateWizardStepRequest extends FormRequest
             'fields.*' => ['required', 'string', 'max:255'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'target_path' => 'مسار التحقق',
+            'target_method' => 'طريقة التحقق',
+            'fields' => 'بيانات الحقول',
+            'fields.*' => 'بيانات الحقول',
+        ];
+    }
 }

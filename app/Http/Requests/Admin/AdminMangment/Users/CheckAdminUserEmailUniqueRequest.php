@@ -17,4 +17,6 @@ class CheckAdminUserEmailUniqueRequest extends FormRequest
     {
         return ['email' => ['required', 'email'], 'user_id' => ['nullable', 'integer']];
     }
+
+    public function attributes(): array { return ['email' => 'البريد الإلكتروني', 'user_id' => 'معرّف المستخدم']; }
 }

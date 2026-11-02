@@ -17,4 +17,9 @@ class SendPasswordResetLinkRequest extends FormRequest
     {
         return ['email' => ['required', 'email']];
     }
+
+    public function attributes(): array
+    {
+        return ['email' => 'البريد الإلكتروني'];
+    }
 }

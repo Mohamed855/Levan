@@ -65,6 +65,21 @@ class CouponRequest extends WizardFormRequest
         ];
     }
 
+    public function attributes(): array
+    {
+        return [
+            'name' => 'اسم الكوبون',
+            'code' => 'كود الكوبون',
+            'discount_type' => 'نوع الخصم',
+            'discount_value' => 'قيمة الخصم',
+            'max_discount' => 'الحد الأقصى للخصم',
+            'expiry_date' => 'تاريخ الانتهاء',
+            'usage_limit' => 'حد الاستخدام',
+            'is_active' => 'حالة الكوبون',
+            'admin_user_id' => 'إسناد الكوبون',
+        ];
+    }
+
     protected function prepareForValidation(): void
     {
         if ($this->has('is_active')) {

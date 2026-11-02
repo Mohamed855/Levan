@@ -20,4 +20,6 @@ class MassAcceptSubscriptionsRequest extends FormRequest
             'ids.*' => ['required', 'integer', 'exists:subscriptions,id'],
         ];
     }
+
+    public function attributes(): array { return ['ids' => 'العناصر المحددة', 'ids.*' => 'العناصر المحددة']; }
 }

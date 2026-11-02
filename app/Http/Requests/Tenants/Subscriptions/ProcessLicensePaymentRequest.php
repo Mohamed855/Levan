@@ -31,7 +31,7 @@ class ProcessLicensePaymentRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'new_licenses_count' => 'عدد المستخدمين الجدد',
+            'new_licenses_count' => 'عدد المستخدمين الإضافيين المطلوبين',
             'coupon_code' => 'رمز الخصم',
         ];
     }

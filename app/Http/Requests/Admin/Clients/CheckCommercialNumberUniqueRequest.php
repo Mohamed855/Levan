@@ -33,4 +33,6 @@ class CheckCommercialNumberUniqueRequest extends FormRequest
             'company_id' => ['nullable', 'string'],
         ];
     }
+
+    public function attributes(): array { return ['commercial_number' => 'رقم السجل التجاري', 'company_id' => 'معرّف الشركة']; }
 }

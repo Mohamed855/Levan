@@ -17,4 +17,6 @@ class CheckAdminUserNameUniqueRequest extends FormRequest
     {
         return ['name' => ['required', 'string', 'max:255'], 'user_id' => ['nullable', 'integer']];
     }
+
+    public function attributes(): array { return ['name' => 'الاسم الكامل', 'user_id' => 'معرّف المستخدم']; }
 }

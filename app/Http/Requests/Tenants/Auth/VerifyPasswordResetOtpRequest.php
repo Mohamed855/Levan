@@ -32,7 +32,7 @@ class VerifyPasswordResetOtpRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'otp' => 'رمز التحقق',
+            'otp' => 'رمز التحقق (OTP)',
         ];
     }
 }

@@ -45,7 +45,7 @@ class LoginRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'email' => 'البريد الإلكتروني أو رقم الهاتف',
+            'email' => 'البريد الإلكتروني أو رقم الجوال',
             'password' => 'كلمة المرور',
         ];
     }

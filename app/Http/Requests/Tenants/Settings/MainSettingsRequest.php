@@ -112,6 +112,35 @@ class MainSettingsRequest extends FormRequest
         ];
     }
 
+    public function attributes(): array
+    {
+        return [
+            'active_tab' => 'تبويب الإعدادات',
+            'office_name' => 'إسم الشركة',
+            'logo_text' => 'النص بجانب الشعار',
+            'image' => 'شعار الشركة',
+            'maintenance_mode' => 'وضع الصيانة',
+            'breadcrumb_visibility' => 'إظهار قائمة التنقل',
+            'force_two_factor_auth' => 'إجبارية المصادقة الثنائية',
+            'horizontal_header_image' => 'الترويسة الأفقية',
+            'vertical_header_image' => 'الترويسة الرأسية',
+            'horizontal_footer_image' => 'الفوتر الأفقي',
+            'vertical_footer_image' => 'الفوتر الرأسي',
+            'signature' => 'الختم الخاص بالمؤسسة',
+            'sms_provider' => 'مزود الخدمة',
+            'sms_api_key' => 'Api Key',
+            'sms_api_secret' => 'Api Secret',
+            'sms_api_endpoint' => 'رابط واجهة الرسائل',
+            'sms_sender_id' => 'معرف المرسل',
+            'sms_from_number' => 'رقم الإرسال',
+            'sms_callback_url' => 'رابط الاستدعاء الراجع',
+            'sms_enabled' => 'حالة الرسائل',
+            'sms_rate_limit' => 'الحد الأقصى لمعدل الإرسال',
+            'support_emails' => 'عناوين بريد الدعم',
+            'support_emails.*' => 'عناوين بريد الدعم',
+        ];
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Handle a failed validation attempt.

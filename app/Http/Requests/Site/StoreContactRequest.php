@@ -23,6 +23,15 @@ class StoreContactRequest extends FormRequest
         ];
     }
 
+    public function attributes(): array
+    {
+        return [
+            'customer_name' => 'الاسم',
+            'customer_email' => 'البريد الإلكتروني',
+            'message' => 'الرسالة أو الاستفسار',
+        ];
+    }
+
     public function messages(): array
     {
         return [

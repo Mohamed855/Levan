@@ -25,4 +25,9 @@ class RateTicketReplyRequest extends FormRequest
             'stars.between' => 'يجب أن يكون التقييم بين نجمة واحدة وخمس نجوم.',
         ];
     }
+
+    public function attributes(): array
+    {
+        return ['stars' => 'تقييم هذا الرد:'];
+    }
 }

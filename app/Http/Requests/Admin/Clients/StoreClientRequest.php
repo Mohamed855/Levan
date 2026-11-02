@@ -114,7 +114,7 @@ class StoreClientRequest extends WizardFormRequest
             'tax_number' => 'الرقم الضريبي',
             'city_id' => 'المدينة',
             'address' => 'العنوان',
-            'name' => 'اسم المسؤول',
+            'name' => 'اسم المستخدم المسؤول',
             'phone' => 'رقم الجوال',
             'email' => 'البريد الإلكتروني',
             'password' => 'كلمة المرور',
@@ -123,6 +123,9 @@ class StoreClientRequest extends WizardFormRequest
             'start_date' => 'تاريخ البداية',
             'end_date' => 'تاريخ النهاية',
             'activate_immediately' => 'تفعيل الاشتراك فوراً',
+            'email_notifications_enabled' => 'تنبيهات البريد',
+            'two_factor_enabled' => 'التحقق الثنائي (2FA)',
+            'external_integrations_enabled' => 'التكاملات الخارجية',
         ];
     }
 }

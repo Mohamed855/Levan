@@ -17,4 +17,9 @@ final class VerifyCheckoutOtpRequest extends FormRequest
     {
         return ['otp' => ['required', 'digits:6']];
     }
+
+    public function attributes(): array
+    {
+        return ['otp' => 'رمز التحقق'];
+    }
 }

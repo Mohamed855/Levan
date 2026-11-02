@@ -37,4 +37,6 @@ class StartDomainRegistrationPaymentRequest extends FormRequest
             'domain.regex' => 'اسم النطاق غير صالح.',
         ];
     }
+
+    public function attributes(): array { return ['domain' => 'اسم النطاق']; }
 }

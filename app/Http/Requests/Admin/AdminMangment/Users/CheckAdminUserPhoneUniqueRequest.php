@@ -17,4 +17,6 @@ class CheckAdminUserPhoneUniqueRequest extends FormRequest
     {
         return ['phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'], 'user_id' => ['nullable', 'integer']];
     }
+
+    public function attributes(): array { return ['phone' => 'رقم الهاتف', 'user_id' => 'معرّف المستخدم']; }
 }

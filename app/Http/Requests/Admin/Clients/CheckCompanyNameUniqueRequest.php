@@ -23,4 +23,6 @@ class CheckCompanyNameUniqueRequest extends FormRequest
             'company_id' => ['nullable', 'string'],
         ];
     }
+
+    public function attributes(): array { return ['company_name' => 'اسم العميل / الشركة', 'company_id' => 'معرّف الشركة']; }
 }

@@ -23,4 +23,9 @@ class UpdateTenantPasswordRequest extends FormRequest
             'password' => ['required', Password::defaults(), 'confirmed'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return ['current_password' => 'كلمة المرور الحالية', 'password' => 'كلمة المرور الجديدة', 'password_confirmation' => 'تأكيد كلمة المرور الجديدة'];
+    }
 }

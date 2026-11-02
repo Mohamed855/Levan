@@ -33,4 +33,15 @@ class SubmitTicketSurveyRequest extends FormRequest
             'comment.max' => 'لا يمكن أن تتجاوز الملاحظات 1000 حرف.',
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'solved' => 'شاركنا تجربتك! هل تم حل مشكلتك بنجاح؟',
+            'agent_rating' => 'ما تقييمك لأداء موظف الدعم الفني؟',
+            'system_rating' => 'ما تقييمك للنظام؟',
+            'solution_rating' => 'ما تقييمك لجودة الحل المقدم؟',
+            'comment' => 'ملاحظات إضافية',
+        ];
+    }
 }

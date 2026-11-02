@@ -86,7 +86,8 @@ class UpdateRoleRequest extends FormRequest
     {
         return [
             'name' => 'اسم الدور',
-            'permissions' => 'الصلاحيات',
+            'permissions' => 'الصلاحيات المتاحة',
+            'permissions.*' => 'الصلاحيات المتاحة',
             'select_all' => 'تحديد الكل',
         ];
     }

@@ -20,4 +20,6 @@ class CheckAdminPhoneUniqueRequest extends FormRequest
     {
         return ['phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/']];
     }
+
+    public function attributes(): array { return ['phone' => 'رقم الجوال']; }
 }

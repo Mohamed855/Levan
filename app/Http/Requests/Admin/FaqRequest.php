@@ -34,6 +34,6 @@ abstract class FaqRequest extends FormRequest
 
     public function attributes(): array
     {
-        return ['question' => 'السؤال', 'answer' => 'الإجابة', 'is_active' => 'حالة التفعيل'];
+        return ['question' => 'السؤال', 'answer' => 'الإجابة', 'is_active' => 'الحالة'];
     }
 }

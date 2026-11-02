@@ -25,4 +25,6 @@ class LicenseCheckoutRequest extends FormRequest
             'new_licenses_count.between' => 'يجب أن يكون عدد المستخدمين بين 1 و1000.',
         ];
     }
+
+    public function attributes(): array { return ['new_licenses_count' => 'عدد المستخدمين الإضافيين المطلوبين']; }
 }

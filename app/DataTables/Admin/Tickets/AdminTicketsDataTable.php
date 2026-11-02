@@ -128,25 +128,33 @@ class AdminTicketsDataTable extends AbstractDataTable
     private function getToggleServiceButton(): array
     {
         $settings = Settings::first();
-        $ticketsEnabled = $settings?->tickets_enabled ?? true;
+        $ticketsEnabled = (bool) ($settings?->tickets_enabled ?? true);
 
         $icon = $ticketsEnabled ? 'ti-toggle-right' : 'ti-toggle-left';
-        $text = $ticketsEnabled ? 'الخدمة مفعلة' : 'الخدمة معطلة';
+        $text = $ticketsEnabled ? 'الخدمة مفعلة' : 'الخدمة غير مفعلة';
         $btnClass = $ticketsEnabled ? 'btn-success' : 'btn-danger';
+
+        $confirmTitle = $ticketsEnabled ? 'تأكيد إيقاف خدمة التذاكر' : 'تأكيد تفعيل خدمة التذاكر';
+        $confirmText = $ticketsEnabled
+            ? 'هل أنت متأكد من إيقاف خدمة التذاكر في النظام؟'
+            : 'هل أنت متأكد من تفعيل خدمة التذاكر في النظام؟';
+        $confirmBtnText = $ticketsEnabled ? 'نعم، إيقاف الخدمة' : 'نعم، تفعيل الخدمة';
+        $confirmVariant = $ticketsEnabled ? 'danger' : 'success';
+        $confirmBtnClass = $ticketsEnabled ? 'btn btn-danger px-4' : 'btn btn-success px-4';
 
         return [
             'text' => '<i class="ti '.$icon.' me-1"></i> '.$text,
-            'className' => 'btn '.$btnClass.' btn-add',
+            'className' => 'btn '.$btnClass.' btn-add btn-toggle-service',
             'action' => "function() {
                 var form = document.getElementById('toggle-service-form');
                 if (!form) return;
                 window.confirmAction({
-                    title: 'تأكيد تغيير حالة الخدمة',
-                    text: 'هل أنت متأكد من تغيير حالة خدمة التذاكر في النظام؟',
-                    variant: 'warning',
+                    title: '{$confirmTitle}',
+                    text: '{$confirmText}',
+                    variant: '{$confirmVariant}',
                     icon: 'ti-settings',
-                    confirmText: 'نعم، تغيير الحالة',
-                    confirmClass: 'btn btn-primary px-4',
+                    confirmText: '{$confirmBtnText}',
+                    confirmClass: '{$confirmBtnClass}',
                     onConfirm: function() {
                         form.submit();
                     }

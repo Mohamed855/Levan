@@ -28,4 +28,9 @@ class UpdateTicketStatusRequest extends FormRequest
             ])],
         ];
     }
+
+    public function attributes(): array
+    {
+        return ['status' => 'الحالة الحالية:'];
+    }
 }

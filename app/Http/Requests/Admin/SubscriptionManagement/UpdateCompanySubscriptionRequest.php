@@ -30,4 +30,14 @@ class UpdateCompanySubscriptionRequest extends FormRequest
             'next_payment_date' => ['nullable', 'date'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'tenant_id' => 'المستأجر', 'tax_number' => 'الرقم الضريبي', 'city_id' => 'المدينة', 'address' => 'العنوان',
+            'plan_id' => 'الباقة', 'price' => 'السعر', 'status' => 'الحالة', 'total_users' => 'إجمالي المستخدمين',
+            'licenses_quota' => 'حصة التراخيص', 'starts_at' => 'تاريخ البداية', 'ends_at' => 'تاريخ النهاية',
+            'next_payment_date' => 'تاريخ الدفعة القادمة',
+        ];
+    }
 }

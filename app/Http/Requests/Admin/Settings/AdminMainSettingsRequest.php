@@ -75,6 +75,21 @@ class AdminMainSettingsRequest extends FormRequest
         ];
     }
 
+    public function attributes(): array
+    {
+        return [
+            'office_name' => 'إسم الشركة', 'logo_text' => 'النص بجانب الشعار', 'image' => 'شعار الموقع / الشعار العام',
+            'maintenance_mode' => 'وضع الصيانة', 'trial_days_mode' => 'فترة التجربة', 'force_two_factor_auth' => 'إجبارية المصادقة الثنائية',
+            'office_address' => 'عنوان المكتب', 'commercial_register' => 'السجل التجاري', 'tax_number' => 'الرقم الضريبي',
+            'phone_number' => 'رقم الهاتف', 'email' => 'البريد الإلكتروني', 'facebook_url' => 'رابط Facebook', 'x_url' => 'رابط X',
+            'linkedin_url' => 'رابط LinkedIn', 'google_maps_embed_url' => 'رابط Google Maps Embed',
+            'etmam_base_url' => 'الرابط الاساسي (API URL)', 'etmam_system_code' => 'رمز التكامل (System Code)',
+            'etmam_api_token' => 'API Key', 'etmam_hmac_secret' => 'API Secret', 'etmam_enabled' => 'حالة التكامل',
+            'microsoft_client_id' => 'Client ID', 'microsoft_client_secret' => 'Client Secret', 'microsoft_redirect_uri' => 'Redirect URI',
+            'microsoft_tenant_id' => 'Tenant ID', 'main_email' => 'البريد الالكتروني الخاص بالرسائل',
+        ];
+    }
+
     protected function failedValidation(Validator $validator)
     {
         $fragment = $this->input('active_tab', null);

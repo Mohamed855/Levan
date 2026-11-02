@@ -22,4 +22,14 @@ class ResetTenantPasswordRequest extends FormRequest
             'password' => ['required', 'confirmed', Password::defaults()],
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'token' => 'رمز إعادة التعيين',
+            'email' => 'البريد الإلكتروني',
+            'password' => 'كلمة المرور الجديدة',
+            'password_confirmation' => 'تأكيد كلمة المرور الجديدة',
+        ];
+    }
 }

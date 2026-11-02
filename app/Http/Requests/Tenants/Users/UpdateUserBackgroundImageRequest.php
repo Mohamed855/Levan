@@ -24,4 +24,9 @@ class UpdateUserBackgroundImageRequest extends FormRequest
     {
         return ['background_image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240']];
     }
+
+    public function attributes(): array
+    {
+        return ['background_image' => 'صورة الغلاف'];
+    }
 }

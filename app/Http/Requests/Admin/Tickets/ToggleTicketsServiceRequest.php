@@ -17,4 +17,9 @@ class ToggleTicketsServiceRequest extends FormRequest
     {
         return ['tickets_enabled' => ['required', 'boolean']];
     }
+
+    public function attributes(): array
+    {
+        return ['tickets_enabled' => 'حالة خدمة التذاكر'];
+    }
 }

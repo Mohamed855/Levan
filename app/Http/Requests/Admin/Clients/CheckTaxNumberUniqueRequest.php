@@ -33,4 +33,6 @@ class CheckTaxNumberUniqueRequest extends FormRequest
             'company_id' => ['nullable', 'string'],
         ];
     }
+
+    public function attributes(): array { return ['tax_number' => 'الرقم الضريبي', 'company_id' => 'معرّف الشركة']; }
 }

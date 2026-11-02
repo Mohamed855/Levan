@@ -72,10 +72,10 @@ class AdminUserUpdateRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'name' => 'الاسم',
+            'name' => 'الاسم الكامل',
             'email' => 'البريد الإلكتروني',
-            'password' => 'كلمة المرور',
-            'password_confirmation' => 'تأكيد كلمة المرور',
+            'password' => 'كلمة المرور الجديدة',
+            'password_confirmation' => 'تأكيد كلمة المرور الجديدة',
             'phone' => 'رقم الهاتف',
             'image' => 'الصورة الشخصية',
         ];

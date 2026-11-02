@@ -86,6 +86,9 @@ class UpdateClientRequest extends FormRequest
             'primary_contact_name' => 'اسم المسؤول',
             'primary_contact_email' => 'البريد الإلكتروني',
             'primary_contact_phone' => 'رقم الجوال',
+            'email_notifications_enabled' => 'تنبيهات البريد',
+            'two_factor_enabled' => 'التحقق الثنائي (2FA)',
+            'external_integrations_enabled' => 'التكاملات الخارجية',
         ];
     }
 }

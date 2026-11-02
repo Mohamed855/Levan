@@ -17,7 +17,7 @@ use Tests\TestCase;
 
 class PasswordComplexityPolicyTest extends TestCase
 {
-    private const POLICY_MESSAGE = 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتحتوي على حرف إنجليزي كبير ورقم ورمز خاص.';
+    private const POLICY_MESSAGE = 'يجب ألا تقل كلمة المرور عن 8 أحرف (منهم حرف كبير ، رمز و رقم واحد علي الأقل)..';
 
     public function test_shared_password_policy_requires_an_uppercase_letter_a_number_and_a_symbol(): void
     {

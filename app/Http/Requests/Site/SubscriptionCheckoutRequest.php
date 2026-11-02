@@ -120,9 +120,10 @@ class SubscriptionCheckoutRequest extends FormRequest
             'billing_city_id' => 'المدينة',
             'billing_address' => 'العنوان',
             'billing_name' => 'اسم المدير المسؤول',
-            'billing_email' => 'البريد الإلكتروني',
+            'billing_email' => 'البريد الإلكتروني للإدارة',
             'billing_phone' => 'رقم الجوال',
             'billing_password' => 'كلمة المرور',
+            'coupon_code' => 'كود الخصم',
         ];
     }
 

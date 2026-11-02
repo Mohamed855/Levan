@@ -109,10 +109,13 @@ class StoreAssignmentRequest extends WizardFormRequest
             'end_date' => 'تاريخ النهاية',
             'notes' => 'وصف الإسناد',
             'property_ids' => 'العقارات المرتبطة',
+            'property_ids.*' => 'العقارات المرتبطة',
             'assignment_image' => 'صورة الإسناد',
             'assignment_letter' => 'خطاب الإسناد',
             'general_documents' => 'المستندات العامة',
+            'general_documents.*' => 'مستندات عامة',
             'additional_attachments' => 'المرفقات الإضافية',
+            'additional_attachments.*' => 'مرفقات إضافية',
         ];
     }
 }

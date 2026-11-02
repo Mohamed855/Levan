@@ -32,4 +32,13 @@ class PlanReorderRequest extends FormRequest
             'order.*.sort_order.integer' => 'قيمة الترتيب يجب أن تكون رقماً صحيحاً.',
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'order' => 'ترتيب العناصر',
+            'order.*.id' => 'معرّف العنصر',
+            'order.*.sort_order' => 'ترتيب العرض',
+        ];
+    }
 }

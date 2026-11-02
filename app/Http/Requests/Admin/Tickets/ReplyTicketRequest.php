@@ -31,4 +31,13 @@ class ReplyTicketRequest extends FormRequest
             'attachments.*.mimes' => 'نوع الملف غير مدعوم',
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'message' => 'إضافة رد على التذكرة:',
+            'attachments' => 'المرفقات',
+            'attachments.*' => 'المرفقات',
+        ];
+    }
 }

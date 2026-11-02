@@ -32,7 +32,7 @@ class TenantTwoFactorChallengeRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'code' => 'كود التحقق',
+            'code' => 'أدخل الرمز الأمني المكون من 6 أرقام',
             'recovery_code' => 'كود الاسترجاع',
         ];
     }

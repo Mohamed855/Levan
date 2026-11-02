@@ -21,6 +21,11 @@ class DownloadActivityLogExportRequest extends ExportActivityLogsRequest
         ];
     }
 
+    public function attributes(): array
+    {
+        return ['file' => 'ملف التصدير'];
+    }
+
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {

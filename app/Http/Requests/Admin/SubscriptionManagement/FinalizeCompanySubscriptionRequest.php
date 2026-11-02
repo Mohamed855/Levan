@@ -63,4 +63,17 @@ class FinalizeCompanySubscriptionRequest extends WizardFormRequest
             }
         }];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'company_name' => 'اسم الشركة', 'commercial_number' => 'رقم السجل التجاري', 'tax_number' => 'الرقم الضريبي',
+            'city_id' => 'المدينة', 'address' => 'العنوان', 'name' => 'اسم المستخدم المسؤول', 'phone' => 'رقم الجوال',
+            'email' => 'البريد الإلكتروني', 'password' => 'كلمة المرور', 'password_confirmation' => 'تأكيد كلمة المرور',
+            'plan_id' => 'الباقة', 'start_date' => 'تاريخ البداية', 'end_date' => 'تاريخ النهاية',
+            'total_users' => 'إجمالي المستخدمين', 'activate_immediately' => 'التفعيل الفوري', 'payment_type' => 'نوع الدفع',
+            'payment_method' => 'طريقة الدفع', 'receipt_upload' => 'إيصال الدفع / الحوالة (مستند)',
+            'has_discount' => 'تطبيق الخصم', 'discount_value' => 'قيمة الخصم', 'trial_end_date' => 'تاريخ انتهاء التجربة',
+        ];
+    }
 }

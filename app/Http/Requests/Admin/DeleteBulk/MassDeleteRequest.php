@@ -31,4 +31,9 @@ class MassDeleteRequest extends FormRequest
             'ids.required' => 'حدد سجلاً واحداً على الأقل.',
         ];
     }
+
+    public function attributes(): array
+    {
+        return ['model' => 'نوع السجل', 'ids' => 'العناصر المحددة'];
+    }
 }

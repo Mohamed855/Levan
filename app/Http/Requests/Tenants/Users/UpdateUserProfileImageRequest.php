@@ -24,4 +24,9 @@ class UpdateUserProfileImageRequest extends FormRequest
     {
         return ['profile_image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240']];
     }
+
+    public function attributes(): array
+    {
+        return ['profile_image' => 'اختر صورة شخصية جديدة'];
+    }
 }

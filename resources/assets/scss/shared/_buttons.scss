@@ -291,6 +291,64 @@ table.dataTable .btn {
         border-color: var(--primary-color-deep, #12332c) !important;
         color: #fff !important;
     }
+
+    &.btn-success {
+        background-color: #28c76f !important;
+        border-color: #28c76f !important;
+        color: #fff !important;
+
+        &:hover,
+        &:focus,
+        &:active {
+            background-color: #24b263 !important;
+            border-color: #24b263 !important;
+            color: #fff !important;
+        }
+    }
+
+    &.btn-danger {
+        background-color: #ea5455 !important;
+        border-color: #ea5455 !important;
+        color: #fff !important;
+
+        &:hover,
+        &:focus,
+        &:active {
+            background-color: #e6383a !important;
+            border-color: #e6383a !important;
+            color: #fff !important;
+        }
+    }
+}
+
+.btn-toggle-service {
+    &.btn-success {
+        background-color: #28c76f !important;
+        border-color: #28c76f !important;
+        color: #fff !important;
+
+        &:hover,
+        &:focus,
+        &:active {
+            background-color: #24b263 !important;
+            border-color: #24b263 !important;
+            color: #fff !important;
+        }
+    }
+
+    &.btn-danger {
+        background-color: #ea5455 !important;
+        border-color: #ea5455 !important;
+        color: #fff !important;
+
+        &:hover,
+        &:focus,
+        &:active {
+            background-color: #e6383a !important;
+            border-color: #e6383a !important;
+            color: #fff !important;
+        }
+    }
 }
 
 // Unified generic spinner

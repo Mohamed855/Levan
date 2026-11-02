@@ -19,4 +19,9 @@ class ExportActivityLogsRequest extends FormRequest
             'ids' => ['required', 'string', 'json'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return ['ids' => 'العناصر المحددة'];
+    }
 }

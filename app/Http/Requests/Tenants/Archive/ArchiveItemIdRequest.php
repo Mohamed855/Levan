@@ -27,4 +27,9 @@ class ArchiveItemIdRequest extends FormRequest
     {
         return ['id' => ['required', 'integer', 'min:1']];
     }
+
+    public function attributes(): array
+    {
+        return ['id' => 'معرّف السجل'];
+    }
 }

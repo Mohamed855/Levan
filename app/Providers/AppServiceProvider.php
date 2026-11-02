@@ -46,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
                     || ! preg_match('/[A-Z]/', $value)
                     || ! preg_match('/\pN/u', $value)
                     || ! preg_match('/\p{Z}|\p{S}|\p{P}/u', $value)) {
-                    $fail('يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتحتوي على حرف إنجليزي كبير ورقم ورمز خاص.');
+                    $fail('يجب ألا تقل كلمة المرور عن 8 أحرف (منهم حرف كبير ، رمز و رقم واحد علي الأقل)..');
                 }
             }));
 

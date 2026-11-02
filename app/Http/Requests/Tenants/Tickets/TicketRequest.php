@@ -38,9 +38,9 @@ class TicketRequest extends WizardFormRequest
         return [
             'title' => 'عنوان التذكرة',
             'description' => 'وصف المشكلة',
-            'ticketing_sections_id' => 'القسم',
+            'ticketing_sections_id' => 'تصنيف التذكرة',
             'attachments' => 'المرفقات',
-            'attachments.*' => 'المرفق',
+            'attachments.*' => 'المرفقات',
         ];
     }
 

@@ -30,7 +30,7 @@ final class CompleteCheckoutPaymentRequest extends FormRequest
         return [
             'payment_method' => 'طريقة الدفع',
             'coupon_code' => 'كود الخصم',
-            'bank_id' => 'الحساب البنكي',
+            'bank_id' => 'اختر البنك للتحويل',
             'transfer_receipt' => 'إيصال التحويل البنكي',
         ];
     }

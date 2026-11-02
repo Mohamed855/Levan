@@ -31,4 +31,9 @@ class BulkDeleteAdminUsersRequest extends FormRequest
             'ids.*' => ['required', 'integer', 'exists:admin_users,id'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return ['ids' => 'العناصر المحددة', 'ids.*' => 'العناصر المحددة'];
+    }
 }

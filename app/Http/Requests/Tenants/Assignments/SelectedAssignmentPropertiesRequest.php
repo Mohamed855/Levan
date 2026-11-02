@@ -20,4 +20,9 @@ class SelectedAssignmentPropertiesRequest extends FormRequest
             'ids.*' => ['required', 'integer', 'distinct'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return ['ids' => 'العناصر المحددة', 'ids.*' => 'العناصر المحددة'];
+    }
 }
