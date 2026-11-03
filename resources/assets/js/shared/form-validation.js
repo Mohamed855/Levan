@@ -1374,10 +1374,7 @@ function updateStepNextButton(form, step) {
     );
 
     const stepFields = validationFieldsFromStep(step);
-    const hasPropertyIds =
-        stepFields.includes("property_ids") ||
-        step.id.includes("properties") ||
-        step.id.includes("property");
+    const hasPropertyIds = stepFields.includes("property_ids");
     const propertyInputs = hasPropertyIds
         ? Array.from(
               form.querySelectorAll('input[name="property_ids[]"]'),
@@ -1425,11 +1422,7 @@ function syncAllPropertyStepButtons(form) {
 
     steps.forEach((step) => {
         const fields = validationFieldsFromStep(step);
-        if (
-            fields.includes("property_ids") ||
-            step.id.includes("properties") ||
-            step.id.includes("property")
-        ) {
+        if (fields.includes("property_ids")) {
             const nextButtons = step.querySelectorAll(
                 "[data-wizard-next], .btn-next:not(.btn-submit)",
             );
