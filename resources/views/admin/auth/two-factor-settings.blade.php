@@ -41,13 +41,13 @@
                                 </div>
                             </div>
                         @else
-                            <div class="alert alert-primary d-flex align-items-start mb-4" role="alert">
-                                <i class="ti ti-info-circle ti-md me-2 mt-1"></i>
-                                <div>
+                            <div class="alert alert-primary d-flex align-items-center mb-4" role="alert">
+                                <i class="ti ti-info-circle ti-md me-1 mt-1"></i>
+                                <span>
                                     فعّل المصادقة الثنائية لإضافة خطوة تحقق عبر تطبيق مثل
                                     <strong>Microsoft Authenticator</strong> أو <strong>Google Authenticator</strong>
                                     بجانب كلمة المرور، لحماية أقوى لحسابك.
-                                </div>
+                                </span>
                             </div>
                         @endif
                         <button type="button" id="enable2faBtn" class="btn btn-primary">
@@ -58,12 +58,12 @@
 
                     {{-- حالة: مفعّلة --}}
                     <div id="enabledActions" class="{{ $enabled ? '' : 'd-none' }}">
-                        <div class="alert alert-success d-flex align-items-start mb-4" role="alert">
-                            <i class="ti ti-shield-check ti-md me-2 mt-1"></i>
-                            <div>
+                        <div class="alert alert-success d-flex align-items-center mb-4" role="alert">
+                            <i class="ti ti-shield-check ti-md me-1 mt-1"></i>
+                            <span>
                                 حسابك محمي حاليًا بالمصادقة الثنائية. عند تسجيل الدخول سيُطلب منك
                                 إدخال كود من تطبيق المصادقة الخاص بك.
-                            </div>
+                            </span>
                         </div>
 
                         <div class="row g-4">
@@ -107,9 +107,9 @@
                         </div>
 
                         <div id="recoveryCodesWrapper" class="d-none mt-4">
-                            <div class="alert alert-warning d-flex align-items-start mb-3">
-                                <i class="ti ti-alert-triangle ti-md me-2 mt-1"></i>
-                                <div>احفظ هذه الأكواد في مكان آمن الآن - لن تظهر مرة أخرى بعد مغادرة الصفحة.</div>
+                            <div class="alert alert-warning d-flex align-items-center mb-3">
+                                <i class="ti ti-alert-triangle ti-md me-1 mt-1"></i>
+                                <span>احفظ هذه الأكواد في مكان آمن الآن - لن تظهر مرة أخرى بعد مغادرة الصفحة.</span>
                             </div>
                             <div class="row row-cols-2 row-cols-sm-3 g-2" id="recoveryCodesList"></div>
                         </div>
@@ -141,19 +141,15 @@
                                     <div>أدخل الكود المكوّن من 6 أرقام الظاهر في التطبيق</div>
                                 </div>
 
-                                <div class="row g-2 align-items-end">
-                                    <div class="col-12 col-sm-7">
+                                <div class="w-100 d-flex flex-column gap-2">
+                                    <div>
                                         <label class="form-label" for="twoFactorCode">كود التحقق</label>
                                         <input type="text" inputmode="numeric" class="form-control" id="twoFactorCode"
                                             placeholder="XXXXXX" autocomplete="one-time-code" maxlength="6">
                                     </div>
-                                    <div class="col-12 col-sm-5">
-                                        <button type="button" id="confirm2faBtn" class="btn btn-success w-100">
-                                            <i class="ti ti-check me-1"></i>تأكيد التفعيل
-                                        </button>
-                                    </div>
-
-
+                                    <button type="button" id="confirm2faBtn" class="btn btn-success w-100">
+                                        <i class="ti ti-check me-1"></i>تأكيد التفعيل
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -291,7 +287,7 @@
                 window.confirmAction({
                     title: 'توليد أكواد استرجاع جديدة؟',
                     text: 'سيتم إلغاء أي أكواد سابقة نهائيًا، واستبدالها بأكواد جديدة. احفظها فور ظهورها.',
-                    variant: 'warning',
+                    variant: 'primary',
                     icon: 'ti-refresh',
                     confirmText: 'توليد الآن',
                     confirmClass: 'btn btn-primary px-4',

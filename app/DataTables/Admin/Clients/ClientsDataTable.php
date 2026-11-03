@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DataTables\Admin\Clients;
 
 use App\DataTables\Abstract\AbstractDataTable;
+use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\Tenants\Tenant;
 use App\Services\Shared\Subscription\SubscriptionManager;
 
