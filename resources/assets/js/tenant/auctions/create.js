@@ -223,7 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
             $("#start_date").removeAttr("min").removeAttr("max");
             $("#end_date").removeAttr("min").removeAttr("max");
             calculateSelectedProperties();
-            return;
+            return Promise.resolve();
         }
 
         const urlTemplate =
@@ -234,7 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
             encodeURIComponent(assignmentId),
         );
 
-        $.ajax({
+        return $.ajax({
             url: url,
             type: "GET",
             headers: {
@@ -473,11 +473,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (detailData.assignment_id) {
             $("#assignment_id").val(detailData.assignment_id);
-            loadAssignmentProperties(
+            const task = loadAssignmentProperties(
                 detailData.assignment_id,
                 restoredPropertyIds,
                 true,
             );
+            (event.originalEvent?.detail || event.detail)?.waitUntil?.(task);
         }
 
         updateLivePreview();

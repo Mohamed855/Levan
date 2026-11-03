@@ -726,74 +726,33 @@ function hasVisibleServerErrors(form) {
     return false;
 }
 
-function isControlPopulated(control) {
-    if (!control || control.disabled || control.type === "hidden") {
-        return false;
-    }
-    if (control.type === "checkbox" || control.type === "radio") {
-        return control.checked;
-    }
-    if (control.type === "password" || control.type === "file") {
-        return false;
-    }
-    if (control.tagName === "SELECT") {
-        return Boolean(control.value && control.value !== "");
-    }
-    return Boolean(control.value && String(control.value).trim() !== "");
-}
-
-function resolveDraftNavigation(form, defaultStep) {
-    const fallbackStep = Math.max(1, Number(defaultStep || 1));
+async function resolveDraftNavigation(form, defaultStep) {
     const stepperElement = form.closest("[data-form-stepper]");
     const steps = stepperElement
         ? Array.from(stepperElement.querySelectorAll("[data-form-step]"))
         : Array.from(form.querySelectorAll("[data-form-step]"));
 
-    const controls = Array.from(
-        form.querySelectorAll(
-            'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])',
-        ),
+    if (!steps.length) {
+        return { targetStep: 1, targetControl: null };
+    }
+
+    const savedStep = Math.min(
+        Math.max(1, Number(defaultStep) || 1),
+        steps.length,
     );
 
-    const populatedControls = controls.filter(isControlPopulated);
-    const lastPopulatedControl = populatedControls.length
-        ? populatedControls[populatedControls.length - 1]
-        : null;
-
-    const passwordInput = form.querySelector(
-        'input[type="password"]:not([disabled])',
-    );
-
-    const passwordIndex = passwordInput ? controls.indexOf(passwordInput) : -1;
-    const lastPopulatedIndex = lastPopulatedControl
-        ? controls.indexOf(lastPopulatedControl)
-        : -1;
-
-    const isPasswordBeforeLastPopulated =
-        passwordInput !== null &&
-        lastPopulatedControl !== null &&
-        passwordIndex !== -1 &&
-        lastPopulatedIndex !== -1 &&
-        passwordIndex < lastPopulatedIndex;
-
-    const targetControl = isPasswordBeforeLastPopulated
-        ? passwordInput
-        : lastPopulatedControl;
-
-    let targetStep = fallbackStep;
-    if (steps.length && targetControl) {
-        const stepElement = targetControl.closest("[data-form-step]");
-        const stepIndex = stepElement ? steps.indexOf(stepElement) : -1;
-        if (stepIndex !== -1) {
-            targetStep = stepIndex + 1;
+    for (let index = 0; index < savedStep - 1; index += 1) {
+        const fields = validationFieldsFromStep(steps[index]);
+        if (fields.length && !(await validateFields(form, fields, { force: true }))) {
+            return { targetStep: index + 1, targetControl: null };
         }
     }
 
-    return { targetStep, targetControl };
+    return { targetStep: savedStep, targetControl: null };
 }
 
-function resolveDraftTargetStep(form, defaultStep) {
-    return resolveDraftNavigation(form, defaultStep).targetStep;
+async function resolveDraftTargetStep(form, defaultStep) {
+    return (await resolveDraftNavigation(form, defaultStep)).targetStep;
 }
 
 async function restoreDraft(form) {
@@ -855,16 +814,23 @@ async function restoreDraft(form) {
         addHiddenField(form, "_wizard_resource_key", draftResourceKey(form));
         restoreDraftValues(form, draft.data || {});
         await restoreDraftFiles(form, draft.files || {});
+        const restorationTasks = [];
         form.dispatchEvent(
             new CustomEvent("wizardDraftRestored", {
                 detail: {
                     data: draft.data || {},
                     files: draft.files || {},
                     draftId: draft.draft_id,
+                    waitUntil(task) {
+                        if (task && typeof task.then === "function") {
+                            restorationTasks.push(Promise.resolve(task));
+                        }
+                    },
                 },
             }),
         );
-        const { targetStep, targetControl } = resolveDraftNavigation(
+        await Promise.allSettled(restorationTasks);
+        const { targetStep, targetControl } = await resolveDraftNavigation(
             form,
             draft.step,
         );

@@ -128,6 +128,9 @@ class FormRequestAttributesContractTest extends TestCase
     public function test_property_and_auction_wildcard_attributes_match_their_form_groups(): void
     {
         $propertyAttributes = [
+            'boundary_geojson' => 'حدود العقار',
+            'boundary_geojson.coordinates' => 'حدود العقار',
+            'boundary_geojson.coordinates.0' => 'حدود العقار',
             'boundaries.*.direction' => 'الجهة',
             'owners.*.owner_name' => 'اسم المالك',
             'units.*.unit_number' => 'رقم الوحدة',
@@ -144,6 +147,24 @@ class FormRequestAttributesContractTest extends TestCase
         $this->assertAttributes(new UpdatePropertyRequest, $propertyAttributes);
         $this->assertAttributes(new StoreAuctionRequest, $auctionAttributes);
         $this->assertAttributes(new UpdateAuctionRequest, $auctionAttributes);
+    }
+
+    public function test_property_boundary_geojson_coordinates_validation_message_uses_arabic_attribute(): void
+    {
+        foreach ([new StorePropertyRequest, new UpdatePropertyRequest] as $request) {
+            $validator = validator(
+                ['boundary_geojson' => ['type' => 'Polygon', 'coordinates' => []]],
+                $request->rules(),
+                $request->messages(),
+                $request->attributes(),
+            );
+
+            $this->assertTrue($validator->fails());
+            $this->assertSame(
+                ['حقل حدود العقار مطلوب.'],
+                $validator->errors()->get('boundary_geojson.coordinates.0'),
+            );
+        }
     }
 
     /**

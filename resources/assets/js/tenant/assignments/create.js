@@ -564,31 +564,35 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    form.addEventListener("wizardDraftRestored", async (event) => {
-        let ids = event.detail?.data?.property_ids || [];
-        if (!Array.isArray(ids)) {
-            ids = ids ? [ids] : [];
-        }
-        ids = ids.map(String).filter(Boolean);
-        if (ids.length && form.dataset.selectedPropertiesUrl) {
-            const url = new URL(
-                form.dataset.selectedPropertiesUrl,
-                window.location.origin,
-            );
-            ids.forEach((id) => url.searchParams.append("ids[]", id));
-            const response = await fetch(url, {
-                headers: { Accept: "application/json" },
-                credentials: "same-origin",
-            });
-            if (response.ok) {
-                const payload = await response.json();
-                (payload.data || []).forEach((property) =>
-                    selectedProperties.set(String(property.id), property),
-                );
+    form.addEventListener("wizardDraftRestored", (event) => {
+        const restoreSelectedProperties = async () => {
+            let ids = event.detail?.data?.property_ids || [];
+            if (!Array.isArray(ids)) {
+                ids = ids ? [ids] : [];
             }
-        }
-        syncProperties();
-        buildReview();
+            ids = ids.map(String).filter(Boolean);
+            if (ids.length && form.dataset.selectedPropertiesUrl) {
+                const url = new URL(
+                    form.dataset.selectedPropertiesUrl,
+                    window.location.origin,
+                );
+                ids.forEach((id) => url.searchParams.append("ids[]", id));
+                const response = await fetch(url, {
+                    headers: { Accept: "application/json" },
+                    credentials: "same-origin",
+                });
+                if (response.ok) {
+                    const payload = await response.json();
+                    (payload.data || []).forEach((property) =>
+                        selectedProperties.set(String(property.id), property),
+                    );
+                }
+            }
+            syncProperties();
+            buildReview();
+        };
+
+        event.detail?.waitUntil?.(restoreSelectedProperties());
     });
 
     form.addEventListener("stepChanged", (e) => {

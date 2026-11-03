@@ -181,6 +181,14 @@ return [
 
     'attributes' => [
         'billing_email' => 'البريد الإلكتروني',
+        'boundary_geojson' => 'حدود العقار',
+        'boundary_geojson.type' => 'حدود العقار',
+        'boundary_geojson.coordinates' => 'حدود العقار',
+        'boundary_geojson.coordinates.*' => 'حدود العقار',
+        'boundary_geojson.coordinates.0' => 'حدود العقار',
+        'boundary_geojson.coordinates.0.*' => 'حدود العقار',
+        'boundary_geojson.coordinates.0.*.0' => 'حدود العقار',
+        'boundary_geojson.coordinates.0.*.1' => 'حدود العقار',
     ],
 
 ];
