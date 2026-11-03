@@ -128,8 +128,8 @@
                                 <x-form.controls.select name="city" id="property-city" label="المدينة" required
                                     col="col-md-6" :value="$is_edit ? $property->city : old('city')" :options="$cityOptions" />
                                 <x-form.controls.select name="district" id="property-district" label="الحي / النطاق"
-                                    :value="$is_edit ? $property->district : old('district')" :options="$districtOptions ?? []" placeholder="اختر الحي أو اكتب حياً جديداً"
-                                    data-tags="true" required col="col-md-6" />
+                                    :value="$is_edit ? $property->district : old('district')" :options="$districtOptions ?? []" placeholder="اختر الحي" data-tags="true"
+                                    required col="col-md-6" />
                                 <x-form.controls.input name="administrative_region" label="المنطقة الإدارية"
                                     :value="$is_edit
                                         ? $property->administrative_region

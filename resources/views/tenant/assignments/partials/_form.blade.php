@@ -138,9 +138,6 @@
                     <x-slot:filters>
                         <div class="row g-3 mb-4" data-datatable-filter-group="assignment-properties"
                             data-datatable-target="#assignment-properties-table">
-                            <input type="hidden" id="assignment-category-filter" name="assignment_category"
-                                data-datatable-filter data-filter-key="assignment_category" data-datatable-target="#assignment-properties-table"
-                                value="{{ $is_edit && $assignment->category ? ($assignment->category instanceof \BackedEnum ? $assignment->category->value : $assignment->category) : old('category', \App\Enums\Tenants\Assignments\AssignmentCategory::LANDS->value) }}">
                             <x-filter.select id="assignment-property-type" filterKey="type" label="نوع العقار"
                                 placeholder="جميع الأنواع" :enum="\App\Enums\Tenants\Properties\PropertyType::class" col="col-md-4" />
                             <x-filter.select id="assignment-property-data-status" filterKey="data_status"

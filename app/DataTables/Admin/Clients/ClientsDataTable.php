@@ -120,15 +120,24 @@ class ClientsDataTable extends AbstractDataTable
                 if (! $sub) {
                     return '<span class="badge bg-secondary">-</span>';
                 }
+                $isExpired = in_array($sub->status, [SubscriptionStatus::EXPIRED, SubscriptionStatus::CANCELLED], true);
                 $period = $sub->currentPeriod ?? $sub->periods->sortByDesc('period_end')->first();
-                $days = app(SubscriptionManager::class)->calculateDaysRemaining($period);
+                $days = app(SubscriptionManager::class)->calculateDaysRemaining($period, $sub->ends_at ?? $sub->trial_end_date);
+
+                if ($isExpired || ($days !== null && $days <= 0)) {
+                    return '<span class="badge bg-danger fw-bold">0 يوم</span>';
+                }
 
                 if ($days === null) {
                     return '<span class="badge bg-secondary">-</span>';
                 }
-                if ($days <= 0) {
-                    return '<span class="badge bg-danger">منتهي</span>';
+
+                $days = max(0, $days);
+
+                if ($days === 0) {
+                    return '<span class="badge bg-danger fw-bold">0 يوم</span>';
                 }
+
                 if ($days <= 7) {
                     return '<span class="badge bg-danger fw-bold">'.$days.' '.($days === 1 ? 'يوم' : ($days === 2 ? 'يومان' : 'أيام')).'</span>';
                 }

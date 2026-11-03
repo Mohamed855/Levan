@@ -2109,6 +2109,7 @@ function initForm(form) {
         });
 
         control.addEventListener("input", (event) => {
+            if (form.inert) return;
             if (isAuth && !isPageReady) return;
             if (
                 isAuth &&
@@ -2141,6 +2142,7 @@ function initForm(form) {
         });
 
         control.addEventListener("change", (event) => {
+            if (form.inert) return;
             if (isAuth && !isPageReady) return;
             if (
                 isAuth &&
@@ -2162,6 +2164,7 @@ function initForm(form) {
         });
 
         control.addEventListener("blur", () => {
+            if (form.inert) return;
             if (isAuth && !isPageReady) return;
             if (isAuth && !userInteractedControls.has(control)) return;
 
@@ -2185,6 +2188,7 @@ function initForm(form) {
                 "change.sharedFormValidation",
                 validatedSelectSelector,
                 function (event) {
+                    if (form.inert) return;
                     if (isAuth && !isPageReady) return;
                     if (!shouldValidateInteraction(this, event.originalEvent))
                         return;
@@ -2202,6 +2206,7 @@ function initForm(form) {
                 "select2:close.sharedFormValidation",
                 validatedSelectSelector,
                 function () {
+                    if (form.inert) return;
                     if (isAuth && !isPageReady) return;
                     validateControlClientSide(form, this);
                     const step = getStepForControl(this);

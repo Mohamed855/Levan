@@ -63,43 +63,7 @@ class UpdateAssignmentRequest extends WizardFormRequest
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'notes' => ['required', 'string', 'max:1000'],
-            'property_ids' => [
-                'required',
-                'array',
-                'min:1',
-                function ($attribute, $value, $fail): void {
-                    if (empty($value)) {
-                        return;
-                    }
-
-                    $categoryValue = $this->input('category');
-                    if (! $categoryValue) {
-                        $assignmentParam = $this->route('assignment');
-                        $categoryValue = is_object($assignmentParam) ? $assignmentParam->category : null;
-                    }
-
-                    $category = $categoryValue instanceof AssignmentCategory
-                        ? $categoryValue
-                        : AssignmentCategory::tryFrom((string) $categoryValue);
-
-                    if (! $category) {
-                        return;
-                    }
-
-                    $allowedTypes = $category->allowedPropertyTypes();
-                    $invalidProperties = Property::query()
-                        ->whereIn('id', (array) $value)
-                        ->whereNotIn('type', $allowedTypes)
-                        ->get(['id', 'name', 'type', 'property_number']);
-
-                    if ($invalidProperties->isNotEmpty()) {
-                        $invalidDetails = $invalidProperties
-                            ->map(fn (Property $p) => $p->name.' ('.$p->type_label.')')
-                            ->join('، ');
-                        $fail("العقارات التالية: [{$invalidDetails}] لا تتطابق مع تصنيف الإسناد المختار ({$category->label()}). يرجى اختيار عقارات متوافقة مع التصنيف فقط.");
-                    }
-                },
-            ],
+            'property_ids' => ['required', 'array', 'min:1'],
             'property_ids.*' => [
                 'integer',
                 'distinct',

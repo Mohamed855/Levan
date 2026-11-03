@@ -179,5 +179,51 @@ class AssignmentCreationTest extends TestCase
         $this->assertSame($assignmentNumber, $assignment->assignment_number);
         $this->assertSame($assignment->id, $property->fresh()->assignment_id);
     }
+
+    public function test_assignment_creation_allows_linking_any_property_type_regardless_of_category(): void
+    {
+        Storage::fake('tenant_public');
+
+        // Create a property of type 'villa'
+        $villa = Property::create([
+            'assignment_id' => null,
+            'property_number' => 'PROP-VILLA-'.uniqid(),
+            'name' => 'فيلا تجريبية لإسناد من نوع أراضي',
+            'type' => 'villa',
+            'city' => 'الرياض',
+            'district' => 'النرجس',
+            'area' => 600,
+            'data_status' => 'completed',
+            'status' => 'available',
+            'is_active' => true,
+            'created_by' => $this->user->id,
+        ]);
+
+        $assignmentNumber = 'TEST-CROSS-CAT-'.strtoupper(uniqid());
+
+        // Create an assignment with category 'lands' while selecting the villa
+        $response = $this->actingAs($this->user, 'tenant')
+            ->post('http://test.localhost/assignments', [
+                'assignment_number' => $assignmentNumber,
+                'name' => 'إسناد أراضي يحتوي على فيلا',
+                'issuing_entity' => 'محكمة التنفيذ بالرياض',
+                'city' => 'الرياض',
+                'district' => 'النرجس',
+                'category' => 'lands',
+                'start_date' => now()->toDateString(),
+                'end_date' => now()->addMonth()->toDateString(),
+                'notes' => 'وصف الإسناد التجريبي لربط عقار من نوع فيلا مع تصنيف أراضي',
+                'property_ids' => [$villa->id],
+                'assignment_image' => UploadedFile::fake()->image('assignment.jpg'),
+                'assignment_letter' => UploadedFile::fake()->create('letter.pdf', 100, 'application/pdf'),
+                'general_documents' => [UploadedFile::fake()->create('general.docx', 100)],
+            ]);
+
+        $response->assertRedirect('http://test.localhost/assignments');
+        $response->assertSessionHas('success', 'تم إضافة الإسناد بنجاح');
+
+        $assignment = Assignment::where('assignment_number', $assignmentNumber)->firstOrFail();
+        $this->assertSame($assignment->id, $villa->fresh()->assignment_id);
+    }
 }
 

@@ -100,3 +100,41 @@ test("only a property_ids step disables Next until a property is selected", () =
 
     assert.equal(selectedPropertyNext.disabled, false);
 });
+
+test("assignment and auction selection synchronizers refresh the property-step Next button", () => {
+    const assignments = readFileSync(
+        path.resolve(__dirname, "../../resources/assets/js/tenant/assignments/create.js"),
+        "utf8",
+    );
+    const auctions = readFileSync(
+        path.resolve(__dirname, "../../resources/assets/js/tenant/auctions/create.js"),
+        "utf8",
+    );
+
+    assert.match(
+        assignments.slice(
+            assignments.indexOf("function syncProperties()"),
+            assignments.indexOf("function propertyFromCheckbox"),
+        ),
+        /SharedFormValidation\?\.syncAllPropertyStepButtons\?\.\(form\)/,
+    );
+    assert.match(
+        auctions.slice(
+            auctions.indexOf("function calculateSelectedProperties()"),
+            auctions.indexOf("    // Select all properties checkbox"),
+        ),
+        /SharedFormValidation\?\.syncAllPropertyStepButtons\?\.\(form\)/,
+    );
+});
+
+test("draft restoration does not validate controls while the form is inert", () => {
+    const handlers = source.slice(
+        source.indexOf('control.addEventListener("input"'),
+        source.indexOf("    const hasInitialValue"),
+    );
+
+    assert.equal(
+        (handlers.match(/if \(form\.inert\) return;/g) || []).length,
+        5,
+    );
+});

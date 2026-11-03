@@ -167,6 +167,15 @@ class Subscription extends Model
         return $this->status === SubscriptionStatus::TRIAL;
     }
 
+    // current_period_end
+    public function getCurrentPeriodEndAttribute(): ?Carbon
+    {
+        return $this->currentPeriod?->period_end
+            ?? $this->periods()->latest('period_end')->first()?->period_end
+            ?? $this->ends_at
+            ?? ($this->trial_end_date ? Carbon::parse($this->trial_end_date) : null);
+    }
+
     // formatted_end_date
     public function getFormattedEndDateAttribute()
     {
@@ -176,13 +185,23 @@ class Subscription extends Model
     }
 
     // days_remaining
-    public function getDaysRemainingAttribute()
+    public function getDaysRemainingAttribute(): ?int
     {
-        if (! $this->current_period_end) {
+        if (in_array($this->status, [SubscriptionStatus::EXPIRED, SubscriptionStatus::CANCELLED], true)) {
+            return 0;
+        }
+
+        $endDate = $this->current_period_end;
+        if (! $endDate) {
             return null;
         }
 
-        return Carbon::now()->diffInDays($this->current_period_end, false);
+        $today = Carbon::now();
+        if ($endDate->lt($today)) {
+            return 0;
+        }
+
+        return max(0, (int) $today->diffInDays($endDate, false) + 1);
     }
 
     // اجمالي المقاعد

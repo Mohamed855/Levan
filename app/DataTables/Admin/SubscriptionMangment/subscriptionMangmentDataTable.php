@@ -46,7 +46,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             ['data' => 'period_end',      'name' => 'period_end',       'title' => 'نهاية الإشتراك الحالي', 'orderable' => false, 'searchable' => false],
             ['data' => 'ends_at', 'name' => 'ends_at', 'title' => 'نهاية الاشتراك'],
 
-            ['data' => 'days_remaining',    'name' => 'days_remaining', 'title' => 'الأيام المتبقية', 'orderable' => false],
+            ['data' => 'days_remaining',    'name' => 'days_remaining', 'title' => 'الأيام المتبقية', 'orderable' => true],
             ['data' => 'created_at',        'name' => 'created_at',     'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'status', 'name' => 'status', 'title' => 'حالة الإشتراك'],
         ];
@@ -87,25 +87,43 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 return $row->starts_at?->format('Y-m-d') ?? '-';
             })
 
-            ->editColumn('ends_at', fn ($row) => $row->ends_at?->format('Y-m-d') ?? '-')
+            ->editColumn('ends_at', function ($row) {
+                return $row->ends_at?->format('Y-m-d')
+                    ?? ($row->currentPeriod?->period_end?->format('Y-m-d') ?? '-');
+            })
             ->editColumn('period_end', function ($row) {
-                $latestPeriod = $row->periods()->latest('period_end')->first();
+                $latestPeriod = $row->currentPeriod ?? $row->periods()->latest('period_end')->first();
 
-                return $latestPeriod?->period_end?->format('Y-m-d') ?? '-';
+                return $latestPeriod?->period_end?->format('Y-m-d')
+                    ?? ($row->ends_at?->format('Y-m-d') ?? '-');
+            })
+
+            // ترتيب عمود الأيام المتبقية
+            ->orderColumn('days_remaining', function ($query, $order) {
+                $direction = strtolower((string) $order) === 'desc' ? 'desc' : 'asc';
+                $expr = 'COALESCE((SELECT sp.period_end FROM subscription_periods sp WHERE sp.subscription_id = subscriptions.id AND sp.deleted_at IS NULL ORDER BY sp.is_current DESC, sp.period_end DESC LIMIT 1), subscriptions.ends_at, subscriptions.trial_end_date)';
+                $query->orderByRaw("({$expr} IS NULL), {$expr} {$direction}");
             })
 
             // عمود الأيام المتبقية
             ->addColumn('days_remaining', function ($row) {
+                $isExpired = $this->isExpiredRoute() || in_array($row->status, [SubscriptionStatus::EXPIRED, SubscriptionStatus::CANCELLED], true);
                 $period = $row->currentPeriod ?? $row->periods()->latest('period_end')->first();
                 $service = app(SubscriptionManager::class);
-                $days = $service->calculateDaysRemaining($period);
+                $days = $service->calculateDaysRemaining($period, $row->ends_at ?? $row->trial_end_date);
+
+                if ($isExpired || ($days !== null && $days <= 0)) {
+                    return '<span class="badge bg-danger fw-bold">0 يوم</span>';
+                }
 
                 if ($days === null) {
                     return '<span class="badge bg-secondary">-</span>';
                 }
 
-                if ($days <= 0) {
-                    return '<span class="badge bg-danger">منتهي</span>';
+                $days = max(0, $days);
+
+                if ($days === 0) {
+                    return '<span class="badge bg-danger fw-bold">0 يوم</span>';
                 }
 
                 if ($days <= 7) {
@@ -155,10 +173,16 @@ class subscriptionMangmentDataTable extends AbstractDataTable
         } elseif ($this->isExpiringRoute()) {
             $days = $request->filled('expiring_in') ? (int) $request->expiring_in : 30;
             $query->where('status', SubscriptionStatus::ACTIVE)
-                ->whereHas('currentPeriod', function ($q) use ($days) {
-                    $q->where('status', 'active')
-                        ->where('period_end', '<=', now()->addDays($days))
-                        ->where('period_end', '>=', now()->startOfDay());
+                ->where(function ($q) use ($days) {
+                    $q->whereHas('currentPeriod', function ($periodQuery) use ($days) {
+                        $periodQuery->where('status', 'active')
+                            ->where('period_end', '<=', now()->addDays($days))
+                            ->where('period_end', '>=', now()->startOfDay());
+                    })->orWhere(function ($periodQuery) use ($days) {
+                        $periodQuery->whereDoesntHave('periods')
+                            ->where('ends_at', '<=', now()->addDays($days))
+                            ->where('ends_at', '>=', now()->startOfDay());
+                    });
                 });
         } elseif ($request->filled('status')) {
             $query->where('status', $request->status);

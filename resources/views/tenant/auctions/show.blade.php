@@ -261,10 +261,11 @@
             <div class="card mb-4" id="promotional-advertisements-card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">
-                        <i class="ti ti-speakerphone me-1 text-primary"></i>الإعلانات الترويجية للمزاد ({{ $auction->promotionalAdvertisements->count() }})
+                        الإعلانات الترويجية للمزاد ({{ $auction->promotionalAdvertisements->count() }})
                     </h5>
                     @canany(['promotional_advertisements.create', 'auctions.create', 'auctions.edit'])
-                        <a href="{{ tenant_route_name('promotional-advertisements.create', ['auction_id' => $auction->id]) }}" class="btn btn-sm btn-primary">
+                        <a href="{{ tenant_route_name('promotional-advertisements.create', ['auction_id' => $auction->id]) }}"
+                            class="btn btn-sm btn-primary">
                             <i class="ti ti-plus me-1"></i>إضافة إعلان ترويجي
                         </a>
                     @endcanany
@@ -294,8 +295,9 @@
                                         <span class="badge bg-{{ $ad->status_badge }}">{{ $ad->status_label }}</span>
                                     </td>
                                     <td class="text-center" data-ad-action-cell>
-                                        @if($ad->isReady())
-                                            <a href="{{ tenant_route_name('promotional-advertisements.download', $ad->id) }}" class="btn btn-sm btn-primary">
+                                        @if ($ad->isReady())
+                                            <a href="{{ tenant_route_name('promotional-advertisements.download', $ad->id) }}"
+                                                class="btn btn-sm btn-primary">
                                                 <i class="ti ti-download me-1"></i>تحميل الصورة
                                             </a>
                                         @elseif($ad->isProcessing())
@@ -571,51 +573,58 @@
 
             // متابعة حالة الإعلانات الترويجية للمزاد
             const promoStatusUrl = @json(tenant_route_name('auctions.promotional-advertisements.status', $auction->id));
-            const hasProcessingAds = document.querySelectorAll('[data-ad-status="processing"], [data-ad-status="pending"]').length > 0;
+            const hasProcessingAds = document.querySelectorAll(
+                '[data-ad-status="processing"], [data-ad-status="pending"]').length > 0;
 
             if (hasProcessingAds) {
-                let promoPollInterval = setInterval(function () {
+                let promoPollInterval = setInterval(function() {
                     fetch(promoStatusUrl, {
-                        headers: { 'Accept': 'application/json' }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (!data || !data.advertisements) return;
-
-                        let anyProcessing = false;
-                        data.advertisements.forEach(ad => {
-                            const row = document.querySelector(`tr[data-ad-id="${ad.id}"]`);
-                            if (!row) return;
-
-                            row.setAttribute('data-ad-status', ad.status);
-                            const statusCell = row.querySelector('[data-ad-status-cell]');
-                            const actionCell = row.querySelector('[data-ad-action-cell]');
-
-                            if (statusCell) {
-                                statusCell.innerHTML = `<span class="badge bg-${ad.status_badge}">${ad.status_label}</span>`;
+                            headers: {
+                                'Accept': 'application/json'
                             }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (!data || !data.advertisements) return;
 
-                            if (actionCell) {
-                                if (ad.is_ready && ad.download_url) {
-                                    actionCell.innerHTML = `<a href="${ad.download_url}" class="btn btn-sm btn-primary"><i class="ti ti-download me-1"></i>تحميل الصورة</a>`;
-                                } else if (ad.is_processing) {
-                                    anyProcessing = true;
-                                    actionCell.innerHTML = `<button class="btn btn-sm btn-outline-primary" disabled><i class="ti ti-loader ti-spin me-1"></i>جارٍ التجهيز...</button>`;
-                                } else if (ad.is_failed) {
-                                    actionCell.innerHTML = `<span class="text-danger small" title="${ad.error_message || ''}"><i class="ti ti-alert-triangle me-1"></i>فشل التجهيز</span>`;
+                            let anyProcessing = false;
+                            data.advertisements.forEach(ad => {
+                                const row = document.querySelector(`tr[data-ad-id="${ad.id}"]`);
+                                if (!row) return;
+
+                                row.setAttribute('data-ad-status', ad.status);
+                                const statusCell = row.querySelector('[data-ad-status-cell]');
+                                const actionCell = row.querySelector('[data-ad-action-cell]');
+
+                                if (statusCell) {
+                                    statusCell.innerHTML =
+                                        `<span class="badge bg-${ad.status_badge}">${ad.status_label}</span>`;
+                                }
+
+                                if (actionCell) {
+                                    if (ad.is_ready && ad.download_url) {
+                                        actionCell.innerHTML =
+                                            `<a href="${ad.download_url}" class="btn btn-sm btn-primary"><i class="ti ti-download me-1"></i>تحميل الصورة</a>`;
+                                    } else if (ad.is_processing) {
+                                        anyProcessing = true;
+                                        actionCell.innerHTML =
+                                            `<button class="btn btn-sm btn-outline-primary" disabled><i class="ti ti-loader ti-spin me-1"></i>جارٍ التجهيز...</button>`;
+                                    } else if (ad.is_failed) {
+                                        actionCell.innerHTML =
+                                            `<span class="text-danger small" title="${ad.error_message || ''}"><i class="ti ti-alert-triangle me-1"></i>فشل التجهيز</span>`;
+                                    }
+                                }
+                            });
+
+                            if (data.all_ready || !anyProcessing) {
+                                clearInterval(promoPollInterval);
+                                promoPollInterval = null;
+                                if (window.toastr) {
+                                    toastr.success('تم اكتمال وتجهيز صورة الإعلان بنجاح!');
                                 }
                             }
-                        });
-
-                        if (data.all_ready || !anyProcessing) {
-                            clearInterval(promoPollInterval);
-                            promoPollInterval = null;
-                            if (window.toastr) {
-                                toastr.success('تم اكتمال وتجهيز صورة الإعلان بنجاح!');
-                            }
-                        }
-                    })
-                    .catch(() => {});
+                        })
+                        .catch(() => {});
                 }, 3000);
             }
         });

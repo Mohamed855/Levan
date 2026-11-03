@@ -92,14 +92,6 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
 
     protected function applyCustomFilters($query)
     {
-        $assignmentCategory = request('assignment_category') ?? $this->assignmentCategory;
-        if ($assignmentCategory) {
-            $catEnum = AssignmentCategory::tryFrom($assignmentCategory);
-            if ($catEnum) {
-                $query->whereIn('type', $catEnum->allowedPropertyTypes());
-            }
-        }
-
         return $query
             ->when(request()->filled('type'), fn ($builder) => $builder->where('type', request('type')))
             ->when(request()->filled('city'), fn ($builder) => $builder->where('city', request('city')))

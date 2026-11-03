@@ -225,14 +225,21 @@ class SubscriptionManager
 
     // TODO
     // يجب ان تنقل من هنا
-    public function calculateDaysRemaining(?SubscriptionPeriod $period): ?int
+    public function calculateDaysRemaining(?SubscriptionPeriod $period = null, mixed $fallbackEndDate = null): ?int
     {
-        if (! $period || ! $period->period_end) {
+        $endDate = $period?->period_end?->copy();
+
+        if (! $endDate && $fallbackEndDate) {
+            $endDate = $fallbackEndDate instanceof \Carbon\CarbonInterface
+                ? $fallbackEndDate->copy()
+                : \Carbon\Carbon::parse($fallbackEndDate);
+        }
+
+        if (! $endDate) {
             return null;
         }
 
         $today = now();
-        $endDate = $period->period_end->copy();
 
         // إذا تاريخ الانتهاء أقل من اليوم
         if ($endDate->lt($today)) {
@@ -240,6 +247,16 @@ class SubscriptionManager
         }
 
         return (int) $today->diffInDays($endDate, false) + 1;
+    }
+
+    public function calculateDaysRemainingForSubscription(Subscription $subscription): ?int
+    {
+        $period = $subscription->currentPeriod ?? $subscription->periods()->latest('period_end')->first();
+
+        return $this->calculateDaysRemaining(
+            $period,
+            $subscription->ends_at ?? $subscription->trial_end_date
+        );
     }
 
     /*

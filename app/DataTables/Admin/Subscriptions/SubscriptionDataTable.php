@@ -85,7 +85,7 @@ class SubscriptionDataTable extends AbstractDataTable
             // ['data' => 'plan_limits', 'name' => 'plan_limits', 'title' => 'حدود الباقة', 'orderable' => false, 'searchable' => false],
             ['data' => 'starts_at', 'name' => 'starts_at', 'title' => 'تاريخ البداية'],
             ['data' => 'ends_at', 'name' => 'ends_at', 'title' => 'تاريخ النهاية'],
-            ['data' => 'days_remaining', 'name' => 'days_remaining', 'title' => 'الأيام المتبقية', 'orderable' => false, 'searchable' => false],
+            ['data' => 'days_remaining', 'name' => 'days_remaining', 'title' => 'الأيام المتبقية', 'orderable' => true, 'searchable' => false],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'status', 'name' => 'status', 'title' => 'حالة الاشتراك'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '100px'],
@@ -128,16 +128,30 @@ class SubscriptionDataTable extends AbstractDataTable
 
                 return $period?->period_end?->format('Y-m-d') ?: ($row->ends_at?->format('Y-m-d') ?: '-');
             })
+            ->orderColumn('days_remaining', function ($query, $order) {
+                $direction = strtolower((string) $order) === 'desc' ? 'desc' : 'asc';
+                $expr = 'COALESCE((SELECT sp.period_end FROM subscription_periods sp WHERE sp.subscription_id = subscriptions.id AND sp.deleted_at IS NULL ORDER BY sp.is_current DESC, sp.period_end DESC LIMIT 1), subscriptions.ends_at, subscriptions.trial_end_date)';
+                $query->orderByRaw("({$expr} IS NULL), {$expr} {$direction}");
+            })
             ->addColumn('days_remaining', function (Subscription $row) {
+                $isExpired = in_array($row->status, [SubscriptionStatus::EXPIRED, SubscriptionStatus::CANCELLED], true);
                 $period = $row->currentPeriod ?? $row->periods->sortByDesc('period_end')->first();
-                $days = app(SubscriptionManager::class)->calculateDaysRemaining($period);
+                $days = app(SubscriptionManager::class)->calculateDaysRemaining($period, $row->ends_at ?? $row->trial_end_date);
+
+                if ($isExpired || ($days !== null && $days <= 0)) {
+                    return '<span class="badge bg-danger fw-bold">0 يوم</span>';
+                }
 
                 if ($days === null) {
                     return '<span class="badge bg-secondary">-</span>';
                 }
-                if ($days <= 0) {
-                    return '<span class="badge bg-danger">منتهي</span>';
+
+                $days = max(0, $days);
+
+                if ($days === 0) {
+                    return '<span class="badge bg-danger fw-bold">0 يوم</span>';
                 }
+
                 if ($days <= 7) {
                     return '<span class="badge bg-danger fw-bold">'.$days.' '.($days === 1 ? 'يوم' : ($days === 2 ? 'يومان' : 'أيام')).'</span>';
                 }

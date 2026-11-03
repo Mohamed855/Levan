@@ -63,8 +63,6 @@ class AssignmentsController extends Controller
     {
         $generatedAssignmentNumber = $this->assignmentService->generateAssignmentNumber();
         $tenantImage = SettingsHelper::get('image');
-        $initialCategory = old('category', AssignmentCategory::LANDS->value);
-        $dataTable->forCategory($initialCategory);
 
         $city = old('city');
         $districtOptions = $city ? $this->cityOptionsGateway->districtsByCityName($city) : [];
@@ -143,7 +141,6 @@ class AssignmentsController extends Controller
         $fallbackImage = $tenantImage ? tasset($tenantImage) : asset('static/brand/logos/logo.svg');
 
         $dataTable->forAssignment($assignment->id);
-        $dataTable->forCategory($assignment->category instanceof \BackedEnum ? $assignment->category->value : (string) $assignment->category);
 
         $city = old('city', $assignment->city);
         $districtOptions = $city ? $this->cityOptionsGateway->districtsByCityName($city) : [];

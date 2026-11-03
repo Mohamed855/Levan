@@ -167,10 +167,16 @@ class SubscriptionManagementService
     public function getExpiringSoonCount(): int
     {
         return Subscription::where('status', SubscriptionStatus::ACTIVE)
-            ->whereHas('currentPeriod', function ($q) {
-                $q->where('status', SubscriptionPeriodStatus::ACTIVE)
-                    ->where('period_end', '<=', now()->addDays(30))
-                    ->where('period_end', '>=', now()->startOfDay());
+            ->where(function ($query) {
+                $query->whereHas('currentPeriod', function ($q) {
+                    $q->where('status', SubscriptionPeriodStatus::ACTIVE)
+                        ->where('period_end', '<=', now()->addDays(30))
+                        ->where('period_end', '>=', now()->startOfDay());
+                })->orWhere(function ($q) {
+                    $q->whereDoesntHave('periods')
+                        ->where('ends_at', '<=', now()->addDays(30))
+                        ->where('ends_at', '>=', now()->startOfDay());
+                });
             })
             ->count();
     }

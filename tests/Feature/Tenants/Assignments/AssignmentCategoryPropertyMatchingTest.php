@@ -63,14 +63,25 @@ class AssignmentCategoryPropertyMatchingTest extends TestCase
         $this->assertSame(AssignmentCategory::VILLAS->value, $prop->getValue($dataTable));
     }
 
-    public function test_form_partial_contains_category_filter_and_mapping(): void
+    public function test_form_partial_does_not_contain_category_filter(): void
     {
         $partialPath = resource_path('views/tenant/assignments/partials/_form.blade.php');
         $this->assertFileExists($partialPath);
 
         $content = file_get_contents($partialPath);
-        $this->assertStringContainsString('data-category-mapping', $content);
-        $this->assertStringContainsString('assignment-category-filter', $content);
-        $this->assertStringContainsString('assignment_category', $content);
+        $this->assertStringNotContainsString('id="assignment-category-filter"', $content);
+    }
+
+    public function test_assignment_requests_allow_property_types_regardless_of_category(): void
+    {
+        $storeReq = new \App\Http\Requests\Tenants\Assignments\StoreAssignmentRequest();
+        $storeRules = $storeReq->rules();
+
+        // property_ids should only require array with at least 1 item and no category-matching closure
+        $this->assertSame(['required', 'array', 'min:1'], $storeRules['property_ids']);
+
+        $updateReq = new \App\Http\Requests\Tenants\Assignments\UpdateAssignmentRequest();
+        $updateRules = $updateReq->rules();
+        $this->assertSame(['required', 'array', 'min:1'], $updateRules['property_ids']);
     }
 }

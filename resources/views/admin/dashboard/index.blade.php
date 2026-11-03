@@ -179,7 +179,7 @@
                 <x-slot:headerAction>
                     @can('activity_log.view')
                         <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-sm btn-primary">
-                            <i class="ti ti-list me-1"></i>عرض الكل
+                            عرض الكل
                         </a>
                     @endcan
                 </x-slot:headerAction>
@@ -284,7 +284,7 @@
                 <x-slot:headerAction>
                     @can('subscriptions.view')
                         <a href="{{ route('admin.subscriptions.index') }}" class="btn btn-sm btn-primary">
-                            <i class="ti ti-list me-1"></i>عرض الكل
+                            عرض الكل
                         </a>
                     @endcan
                 </x-slot:headerAction>
