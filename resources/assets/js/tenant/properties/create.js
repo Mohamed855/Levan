@@ -481,7 +481,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function drawOutsideSelectionOverlay(context, width, height, opacity) {
+    function drawOutsideSelectionOverlay(context, width, height, opacity = outsideDimOpacity ?? 0.5) {
         if (!isBoundaryClosed || points.length < 3) return;
 
         context.save();
@@ -489,8 +489,8 @@ document.addEventListener("DOMContentLoaded", () => {
         context.rect(0, 0, width, height);
         appendPolygonPath(context, width, height);
         context.closePath();
-        context.fillStyle = `rgba(0, 0, 0, ${opacity})`;
-        context.fill("evenodd");
+        context.fillStyle = opacity !== undefined ? `rgba(0, 0, 0, ${opacity})` : "rgba(0, 0, 0, 0.5)";
+        context.fill('evenodd');
         context.restore();
     }
 
@@ -514,12 +514,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         if (renderState.shouldDimOutside) {
-            drawOutsideSelectionOverlay(
-                ctx,
-                canvas.width,
-                canvas.height,
-                outsideDimOpacity,
-            );
+            drawOutsideSelectionOverlay(ctx, canvas.width, canvas.height);
         }
 
         ctx.beginPath();
@@ -617,12 +612,7 @@ document.addEventListener("DOMContentLoaded", () => {
             oCtx.drawImage(loadedImage, 0, 0, naturalW, naturalH);
 
             // Keep the exported/annotated image visually consistent with the canvas.
-            drawOutsideSelectionOverlay(
-                oCtx,
-                naturalW,
-                naturalH,
-                outsideDimOpacity,
-            );
+            drawOutsideSelectionOverlay(oCtx, naturalW, naturalH);
 
             oCtx.beginPath();
             appendPolygonPath(oCtx, naturalW, naturalH);
@@ -651,7 +641,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 oCtx.stroke();
             });
 
-            annotatedDataUrl = offscreen.toDataURL("image/png");
+            annotatedDataUrl = offscreen.toDataURL("image/jpeg", 0.85);
             if (aerialImageInput) {
                 aerialImageInput.value = annotatedDataUrl;
                 aerialImageInput.dispatchEvent(
@@ -763,6 +753,29 @@ document.addEventListener("DOMContentLoaded", () => {
         img.src = src;
     }
 
+    function optimizeImage(dataUrl, maxDim = 1600, quality = 0.85) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+                const w = img.naturalWidth || img.width;
+                const h = img.naturalHeight || img.height;
+                const scale = Math.min(1, maxDim / Math.max(w, h));
+                const targetW = Math.round(w * scale);
+                const targetH = Math.round(h * scale);
+
+                const c = document.createElement("canvas");
+                c.width = targetW;
+                c.height = targetH;
+                const cCtx = c.getContext("2d");
+                cCtx.drawImage(img, 0, 0, targetW, targetH);
+                resolve(c.toDataURL("image/jpeg", quality));
+            };
+            img.onerror = () => resolve(dataUrl);
+            img.src = dataUrl;
+        });
+    }
+
     const MAX_PROPERTY_IMAGE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
     const MAX_PROPERTY_IMAGE_SIZE_MB = 10;
 
@@ -788,11 +801,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const reader = new FileReader();
-        reader.onload = (event) => {
-            const dataUrl = event.target.result;
-            rawImageDataUrl = dataUrl;
+        reader.onload = async (event) => {
+            const originalDataUrl = event.target.result;
+            const optimizedDataUrl = await optimizeImage(originalDataUrl, 1600, 0.85);
+            rawImageDataUrl = optimizedDataUrl;
             if (rawAerialImageInput) {
-                rawAerialImageInput.value = dataUrl;
+                rawAerialImageInput.value = optimizedDataUrl;
                 rawAerialImageInput.dispatchEvent(
                     new Event("input", { bubbles: true }),
                 );
@@ -801,7 +815,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             }
             if (aerialImageInput) {
-                aerialImageInput.value = dataUrl;
+                aerialImageInput.value = optimizedDataUrl;
                 aerialImageInput.dispatchEvent(
                     new Event("input", { bubbles: true }),
                 );
@@ -812,7 +826,7 @@ document.addEventListener("DOMContentLoaded", () => {
             points = [];
             isBoundaryClosed = false;
             previewPoint = null;
-            loadImageSrc(dataUrl);
+            loadImageSrc(optimizedDataUrl);
             notifyUser(
                 "info",
                 "تم تحميل الصورة. انقر الآن على زوايا العقار لتحديد حدوده.",
@@ -1070,7 +1084,7 @@ document.addEventListener("DOMContentLoaded", () => {
             a.href = annotatedDataUrl;
             const propName =
                 form.elements.namedItem("name")?.value?.trim() || "property";
-            a.download = `${propName}-marked-boundary.png`;
+            a.download = `${propName}-marked-boundary.jpg`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);

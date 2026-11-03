@@ -114,7 +114,11 @@ async function validateOnServer(form, pane) {
         new URL(form.action, window.location.origin).pathname,
     );
     payload.append("target_method", targetMethod);
-    fieldsIn(pane).forEach((field) => payload.append("fields[]", field.name));
+    const stepFieldNames = fieldsIn(pane).map((field) => field.name);
+    stepFieldNames.forEach((name) => payload.append("fields[]", name));
+    if (!stepFieldNames.includes("raw_aerial_image")) {
+        payload.delete("raw_aerial_image");
+    }
 
     const response = await fetch(
         `${draftUrl.replace(/\/$/, "")}/validate-step`,

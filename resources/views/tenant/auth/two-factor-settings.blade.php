@@ -147,8 +147,8 @@
                                     data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                                     @csrf
                                     <x-form.controls.input name="code" id="twoFactorCode" label="كود التحقق"
-                                        type="text" placeholder="XXXXXX" required autocomplete="one-time-code"
-                                        maxlength="6" inputmode="numeric" />
+                                        col="col-12" type="text" placeholder="XXXXXX" required
+                                        autocomplete="one-time-code" maxlength="6" inputmode="numeric" />
                                     <button type="submit" class="btn btn-success w-100">
                                         <i class="ti ti-check me-1"></i>تأكيد التفعيل
                                     </button>

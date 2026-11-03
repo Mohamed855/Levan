@@ -188,7 +188,7 @@
                 <x-slot:headerAction>
                     @can('activity_log.view')
                         <a href="{{ tenant_route_name('activity-logs.index') }}" class="btn btn-sm btn-primary">
-                            <i class="ti ti-list me-1"></i>عرض الكل
+                            عرض الكل
                         </a>
                     @endcan
                 </x-slot:headerAction>
@@ -267,7 +267,7 @@
                 <x-slot:headerAction>
                     @can('auctions.view')
                         <a href="{{ tenant_route_name('auctions.index') }}" class="btn btn-sm btn-primary">
-                            <i class="ti ti-list me-1"></i>عرض الكل
+                            عرض الكل
                         </a>
                     @endcan
                 </x-slot:headerAction>

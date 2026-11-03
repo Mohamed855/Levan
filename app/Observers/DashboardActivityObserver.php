@@ -55,10 +55,10 @@ class DashboardActivityObserver implements ShouldHandleEventsAfterCommit
                 }
             } elseif ($model instanceof Bill && $model->type->value === 'new_subscription') {
                 if ($created && (($model->metadata['checkout_source'] ?? null) === 'site_checkout' || isset($model->metadata['tenant_id']))) {
-                    $notices->admins("subscription.requested:$model->id", Notices::payload('subscription.requested', 'طلب اشتراك جديد', 'طلب اشتراك من '.($model->metadata['billing_company_name'] ?? $model->metadata['billing_name'] ?? 'عميل'), route('admin.bills.show', $model, false)));
+                    $notices->admins("subscription.requested:$model->id", Notices::payload('subscription.requested', 'تسجيل عميل جديد', 'تسجيل عميل جديد من '.($model->metadata['billing_company_name'] ?? $model->metadata['billing_name'] ?? 'عميل'), route('admin.bills.show', $model, false)));
                 }
                 if ($model->status->value === 'paid' && $model->tenant_id && ($created || $model->wasChanged(['status', 'tenant_id']))) {
-                    $notices->tenant($model->tenant_id, "subscription.approved:$model->id", Notices::payload('subscription.approved', 'تمت الموافقة على طلب الاشتراك', 'تم تفعيل اشتراك شركتك وأصبح جاهزًا للاستخدام.', route('path.subscriptions.index', ['tenant' => $model->tenant_id], false), 'success'));
+                    $notices->tenant($model->tenant_id, "subscription.approved:$model->id", Notices::payload('subscription.approved', 'تم تفعيل الاشتراك', 'تم تفعيل اشتراك شركتك وأصبح جاهزًا للاستخدام.', route('path.subscriptions.index', ['tenant' => $model->tenant_id], false), 'success'));
                     $notices->refreshAdmins();
                 } elseif (! $created && $model->wasChanged('status')) {
                     $notices->refreshAdmins();

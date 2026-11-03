@@ -1466,6 +1466,9 @@ async function validateFields(form, fieldNames, { force = false } = {}) {
             data.delete(fileInput.name);
         }
     });
+    if (!fields.includes("raw_aerial_image")) {
+        data.delete("raw_aerial_image");
+    }
     if (csrfToken) {
         data.set("_token", csrfToken);
     }

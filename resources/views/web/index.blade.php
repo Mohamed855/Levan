@@ -50,7 +50,7 @@
                         <div class="hero-actions">
                             <a href="{{ $plans->count() === 1 ? route('site.plans.checkout', $plans->first()->id) : '#pricing' }}"
                                 class="btn-hero-primary" role="button">
-                                <span>طلب اشتراك</span>
+                                <span>تسجيل اشتراك</span>
                                 <i class="ti ti-arrow-left"></i>
                             </a>
 
