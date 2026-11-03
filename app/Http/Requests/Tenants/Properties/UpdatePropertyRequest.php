@@ -56,7 +56,7 @@ class UpdatePropertyRequest extends WizardFormRequest
             // Step 2: الموقع والحدود
             'city' => ['required', 'string', 'max:100'],
             'district' => ['required', 'string', 'max:100'],
-            'administrative_region' => ['required', 'string', 'max:100'],
+            'administrative_region' => ['nullable', 'string', 'max:100'],
             'plan_number' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
             'parcel_number' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
             'latitude' => ['nullable', 'numeric'],
@@ -158,7 +158,6 @@ class UpdatePropertyRequest extends WizardFormRequest
             'short_description.required' => 'الوصف المختصر للعقار مطلوب.',
             'city.required' => 'المدينة مطلوبة.',
             'district.required' => 'الحي مطلوب.',
-            'administrative_region.required' => 'المنطقة الإدارية مطلوبة.',
             'plan_number.required' => 'رقم المخطط مطلوب.',
             'parcel_number.required' => 'رقم القطعة مطلوب.',
             'aerial_image.required' => 'برجاء رسم حدود العقار علي الصورة للمتابعة.',

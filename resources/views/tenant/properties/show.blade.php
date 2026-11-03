@@ -77,7 +77,7 @@
                             @endif
                             @if ($property->administrative_region)
                                 <li class="mb-2"><span class="fw-bold me-1">المنطقة الإدارية:</span>
-                                    <span>{{ $property->administrative_region }}</span>
+                                    <span>{{ $property->administrative_region ?? '-' }}</span>
                                 </li>
                             @endif
                             <li class="mb-2"><span class="fw-bold me-1">رقم المخطط:</span>
