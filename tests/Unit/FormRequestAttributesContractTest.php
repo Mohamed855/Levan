@@ -161,7 +161,7 @@ class FormRequestAttributesContractTest extends TestCase
 
             $this->assertTrue($validator->fails());
             $this->assertSame(
-                ['برجاء تحديد العقار علي صورة العقار.'],
+                ['برجاء رسم حدود العقار علي الصورة للمتابعة.'],
                 $validator->errors()->get('boundary_geojson.coordinates.0'),
             );
         }

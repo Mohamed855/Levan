@@ -96,7 +96,7 @@ class StorePropertyRequest extends WizardFormRequest
                             }
                         }
                     } else {
-                        $fail('برجاء تحديد العقار علي صورة العقار.');
+                        $fail('برجاء رسم حدود العقار علي الصورة للمتابعة.');
                     }
                 },
             ],
@@ -168,12 +168,12 @@ class StorePropertyRequest extends WizardFormRequest
             'administrative_region.required' => 'المنطقة الإدارية مطلوبة.',
             'plan_number.required' => 'رقم المخطط مطلوب.',
             'parcel_number.required' => 'رقم القطعة مطلوب.',
-            'aerial_image.required' => 'برجاء تحديد العقار علي صورة العقار.',
-            'boundary_geojson.required' => 'برجاء تحديد العقار علي صورة العقار.',
-            'boundary_geojson.coordinates.required' => 'برجاء تحديد العقار علي صورة العقار.',
-            'boundary_geojson.coordinates.size' => 'برجاء تحديد العقار علي صورة العقار.',
-            'boundary_geojson.coordinates.0.required' => 'برجاء تحديد العقار علي صورة العقار.',
-            'boundary_geojson.coordinates.0.min' => 'برجاء تحديد العقار علي صورة العقار.',
+            'aerial_image.required' => 'برجاء رسم حدود العقار علي الصورة للمتابعة.',
+            'boundary_geojson.required' => 'برجاء رسم حدود العقار علي الصورة للمتابعة.',
+            'boundary_geojson.coordinates.required' => 'برجاء رسم حدود العقار علي الصورة للمتابعة.',
+            'boundary_geojson.coordinates.size' => 'برجاء رسم حدود العقار علي الصورة للمتابعة.',
+            'boundary_geojson.coordinates.0.required' => 'برجاء رسم حدود العقار علي الصورة للمتابعة.',
+            'boundary_geojson.coordinates.0.min' => 'برجاء رسم حدود العقار علي الصورة للمتابعة.',
             'boundaries.required' => 'يجب إدخال حدود العقار وأطوالها.',
             'boundaries.min' => 'يجب إدخال حد واحد على الأقل للعقار.',
             'boundaries.*.direction.required' => 'جهة الحد مطلوبة.',
