@@ -101,14 +101,14 @@ class AuctionsController extends Controller
 
     public function edit(Auction $auction): View
     {
-        $auction->load(['assignment', 'properties.pivot', 'attachments']);
+        $auction->load(['assignment', 'properties', 'attachments']);
         $assignments = Assignment::where(function ($query) {
-                $query->where('is_active', true)
-                    ->where(function ($q) {
-                        $q->whereNull('end_date')
-                            ->orWhereDate('end_date', '>=', now()->toDateString());
-                    });
-            })
+            $query->where('is_active', true)
+                ->where(function ($q) {
+                    $q->whereNull('end_date')
+                        ->orWhereDate('end_date', '>=', now()->toDateString());
+                });
+        })
             ->when($auction->assignment_id, fn ($q) => $q->orWhere('id', $auction->assignment_id))
             ->select(['id', 'name', 'assignment_number', 'issuing_entity'])
             ->get();
@@ -119,9 +119,9 @@ class AuctionsController extends Controller
             ->get();
 
         return view('tenant.auctions.edit', [
-            'auction'     => $auction,
+            'auction' => $auction,
             'assignments' => $assignments,
-            'properties'  => $properties,
+            'properties' => $properties,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
@@ -146,7 +146,7 @@ class AuctionsController extends Controller
 
             return redirect()->to(tenant_route_name('auctions.show', $auction->id))
                 ->with('success', 'تم تحديث المزاد بنجاح وبدأ إعادة تجهيز ملفات التقارير.');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'حدث خطأ أثناء تحديث المزاد: '.$e->getMessage());

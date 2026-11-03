@@ -12,7 +12,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/shared/auth-layout.js', 'resources/assets/js/shared/form-validation.js'])
+    @vite(['resources/assets/js/shared/auth-layout.js'])
 @endsection
 
 @section('content')
@@ -38,41 +38,33 @@
             data-form-validate data-validation-url="{{ tenant_route_name('form-validation') }}">
             @csrf
 
-            <div class="mb-4 {{ $isRecovery ? 'd-none' : '' }}" id="codeInputsWrapper" data-form-field data-field-name="code">
-                <label class="form-label text-center d-block mb-3" id="codeLabel">أدخل الرمز الأمني المكون من 6
-                    أرقام</label>
-                <div class="auth-otp-wrapper" dir="ltr">
-                    <input type="tel" class="form-control auth-otp-input" maxlength="1" autocomplete="off">
-                    <input type="tel" class="form-control auth-otp-input" maxlength="1" autocomplete="off">
-                    <input type="tel" class="form-control auth-otp-input" maxlength="1" autocomplete="off">
-                    <input type="tel" class="form-control auth-otp-input" maxlength="1" autocomplete="off">
-                    <input type="tel" class="form-control auth-otp-input" maxlength="1" autocomplete="off">
-                    <input type="tel" class="form-control auth-otp-input" maxlength="1" autocomplete="off">
-                </div>
-                <input type="hidden" name="code" id="otpHidden" />
-                <p class="invalid-feedback hidden" data-form-error aria-live="polite" hidden></p>
+            <div class="mb-4 {{ $isRecovery ? 'd-none' : '' }}" id="codeInputsWrapper">
+                <x-form.controls.input name="code" id="code" label="أدخل الرمز الأمني المكون من 6 أرقام"
+                    placeholder="XXXXXX" inputmode="numeric" maxlength="6" autocomplete="one-time-code"
+                    class="otp-input text-center fw-bold" style="font-size: 24px; letter-spacing: 6px;"
+                    :disabled="$isRecovery" col="col-12" icon="ti ti-shield-check" />
             </div>
 
             <div class="mb-4 {{ $isRecovery ? '' : 'd-none' }}" id="recoveryWrapper">
                 <x-form.controls.input name="recovery_code" id="recovery_code" label="كود الاسترجاع"
-                    placeholder="أدخل كود الاسترجاع الاحتياطي" col="col-12" icon="ti ti-key" />
+                    placeholder="أدخل كود الاسترجاع الاحتياطي" col="col-12" icon="ti ti-key"
+                    :disabled="!$isRecovery" />
             </div>
 
-            <button class="btn-auth-primary mb-3" type="submit">
+            <button class="btn-auth-primary mb-3" type="submit" id="submitBtn">
                 <span>تأكيد الرمز</span>
                 <i class="ti ti-arrow-left" aria-hidden="true"></i>
             </button>
 
-            <div class="text-center mb-3">
-                <a href="javascript:void(0);" id="toggleRecoveryLink" class="auth-link">
-                    {{ $isRecovery ? 'استخدام رمز المصادقة بدلاً من ذلك' : 'استخدام كود استرجاع بدلاً من ذلك' }}
-                </a>
-            </div>
-
-            <div class="text-center">
+            <div class="auth-challenge-links-row d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4">
                 <a href="{{ tenant_route_name('tenants.two-factor.cancel') }}" class="auth-back-link">
                     <i class="ti ti-arrow-right me-1"></i>
-                    الرجوع لتسجيل الدخول بحساب آخر
+                    <span>الرجوع لتسجيل الدخول بحساب آخر</span>
+                </a>
+
+                <a href="javascript:void(0);" id="toggleRecoveryLink" class="auth-back-link auth-toggle-link">
+                    <i class="ti {{ $isRecovery ? 'ti-shield-check' : 'ti-key' }} me-1" id="toggleRecoveryIcon"></i>
+                    <span id="toggleRecoveryText">{{ $isRecovery ? 'استخدام رمز المصادقة بدلاً من ذلك' : 'استخدام كود استرجاع بدلاً من ذلك' }}</span>
                 </a>
             </div>
         </form>

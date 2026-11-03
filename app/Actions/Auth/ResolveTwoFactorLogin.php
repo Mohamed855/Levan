@@ -18,12 +18,33 @@ class ResolveTwoFactorLogin
     public function verify(string $guard, Request $request, array $credentials): Authenticatable
     {
         $userId = $request->session()->get('login.id');
+        $sessionGuard = $request->session()->get('login.guard');
+        $sessionTenantId = $request->session()->get('login.tenant_id');
 
         abort_unless($userId, 419);
+
+        if ($sessionGuard !== null && $sessionGuard !== $guard) {
+            abort(419);
+        }
+
+        if ($guard === 'tenant' && $sessionTenantId !== null && function_exists('tenant') && tenant('id') !== $sessionTenantId) {
+            abort(419);
+        }
 
         $user = Auth::guard($guard)->getProvider()->retrieveById($userId);
 
         abort_unless($user, 419);
+
+        // التحقق من أن الحساب لا يزال نشطاً ولم يُعطل بعد خطوة كلمة المرور
+        $statusValue = is_object($user->status) && enum_exists($user->status::class)
+            ? $user->status->value
+            : (string) ($user->status ?? 'active');
+
+        if ($statusValue !== 'active') {
+            throw ValidationException::withMessages([
+                'code' => 'حسابك غير نشط.',
+            ]);
+        }
 
         if (! empty($credentials['code'])) {
             try {

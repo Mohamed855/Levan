@@ -34,6 +34,8 @@
             $placeholder = 'أدخل ' . $cleanedLabel;
         }
     }
+
+    $errorsBag = $errors ?? view()->shared('errors') ?? new \Illuminate\Support\ViewErrorBag;
 @endphp
 
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help"
@@ -41,19 +43,19 @@
     @if ($inputGroup)
         <div @class([
             'input-group input-group-merge',
-            'is-invalid' => $errors->has($name),
+            'is-invalid' => $errorsBag->has($name),
         ])>
             <input id="{{ $fieldId }}" name="{{ $name }}" type="{{ $type }}" value="{{ old($name, $value) }}"
                 @if ($placeholder) placeholder="{{ $placeholder }}" @endif data-form-control
-                aria-describedby="{{ $errorId }}" aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"
-                {{ $attributes->class(['form-control', 'is-invalid' => $errors->has($name)]) }}>
+                aria-describedby="{{ $errorId }}" aria-invalid="{{ $errorsBag->has($name) ? 'true' : 'false' }}"
+                {{ $attributes->class(['form-control', 'is-invalid' => $errorsBag->has($name)]) }}>
             {{ $slot }}
         </div>
     @else
         <input id="{{ $fieldId }}" name="{{ $name }}" type="{{ $type }}" value="{{ old($name, $value) }}"
-            @if ($placeholder) placeholder="{{ $placeholder }}" @endif data-form-control
-            aria-describedby="{{ $errorId }}" aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"
-            {{ $attributes->class(['form-control', 'is-invalid' => $errors->has($name)]) }}>
+                @if ($placeholder) placeholder="{{ $placeholder }}" @endif data-form-control
+            aria-describedby="{{ $errorId }}" aria-invalid="{{ $errorsBag->has($name) ? 'true' : 'false' }}"
+            {{ $attributes->class(['form-control', 'is-invalid' => $errorsBag->has($name)]) }}>
         {{ $slot }}
     @endif
 </x-form.layout.field>

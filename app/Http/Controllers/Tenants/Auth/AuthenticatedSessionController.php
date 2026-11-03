@@ -54,6 +54,8 @@ class AuthenticatedSessionController extends Controller
             $request->session()->put([
                 'login.id' => $user->getKey(),
                 'login.remember' => $request->boolean('remember'),
+                'login.guard' => 'tenant',
+                'login.tenant_id' => tenant('id'),
             ]);
 
             return redirect(tenant_route_name('tenants.two-factor.login'));

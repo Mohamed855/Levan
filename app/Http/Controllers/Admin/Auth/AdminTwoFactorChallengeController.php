@@ -16,7 +16,7 @@ class AdminTwoFactorChallengeController extends Controller
 {
     public function create(Request $request): View|RedirectResponse
     {
-        if (! $request->session()->has('login.id')) {
+        if (! $request->session()->has('login.id') || ($request->session()->has('login.guard') && $request->session()->get('login.guard') !== 'admin')) {
             return redirect()->route('admin.login');
         }
 
@@ -28,7 +28,7 @@ class AdminTwoFactorChallengeController extends Controller
         $admin = $resolver->verify('admin', $request, $request->validated());
         $remember = $request->session()->pull('login.remember', false);
 
-        $request->session()->forget('login.id');
+        $request->session()->forget(['login.id', 'login.guard']);
 
         Auth::guard('admin')->login($admin, $remember);
 
@@ -41,7 +41,7 @@ class AdminTwoFactorChallengeController extends Controller
 
     public function cancel(Request $request): RedirectResponse
     {
-        $request->session()->forget(['login.id', 'login.remember']);
+        $request->session()->forget(['login.id', 'login.remember', 'login.guard']);
 
         return redirect()->route('admin.login');
     }

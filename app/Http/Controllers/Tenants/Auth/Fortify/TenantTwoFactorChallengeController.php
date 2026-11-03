@@ -16,7 +16,11 @@ class TenantTwoFactorChallengeController extends Controller
 {
     public function create(Request $request): View|RedirectResponse
     {
-        if (! $request->session()->has('login.id')) {
+        $hasLoginId = $request->session()->has('login.id');
+        $guardMismatch = $request->session()->has('login.guard') && $request->session()->get('login.guard') !== 'tenant';
+        $tenantMismatch = $request->session()->has('login.tenant_id') && (function_exists('tenant') && $request->session()->get('login.tenant_id') !== tenant('id'));
+
+        if (! $hasLoginId || $guardMismatch || $tenantMismatch) {
             return redirect(tenant_route_name('login'));
         }
 
@@ -28,7 +32,7 @@ class TenantTwoFactorChallengeController extends Controller
         $user = $resolver->verify('tenant', $request, $request->validated());
         $remember = $request->session()->pull('login.remember', false);
 
-        $request->session()->forget('login.id');
+        $request->session()->forget(['login.id', 'login.guard', 'login.tenant_id']);
 
         Auth::guard('tenant')->login($user, $remember);
 
@@ -43,7 +47,7 @@ class TenantTwoFactorChallengeController extends Controller
 
     public function cancel(Request $request): RedirectResponse
     {
-        $request->session()->forget(['login.id', 'login.remember']);
+        $request->session()->forget(['login.id', 'login.remember', 'login.guard', 'login.tenant_id']);
 
         return redirect(tenant_route_name('login'));
     }

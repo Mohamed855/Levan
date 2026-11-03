@@ -354,6 +354,48 @@ body:has(.tenant-login-container) {
     color: var(--auth-primary);
 }
 
+.auth-challenge-links-row {
+    width: 100%;
+}
+
+.auth-challenge-links-row .auth-back-link {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--auth-primary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    max-width: 49%;
+}
+
+.auth-challenge-links-row .auth-back-link:hover {
+    color: var(--auth-primary);
+    opacity: 0.85;
+}
+
+.auth-challenge-links-row .auth-back-link:focus-visible {
+    outline: 2px solid var(--auth-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.otp-input {
+    text-align: center !important;
+    letter-spacing: 6px;
+    font-size: 24px;
+    font-weight: 700;
+    direction: ltr !important;
+}
+
+.otp-input::placeholder {
+    letter-spacing: 6px;
+    color: rgba(29, 79, 68, 0.35);
+    font-weight: 600;
+    text-align: center;
+}
+
 /* -----------------------------------------------------------------------------
    Buttons
    ----------------------------------------------------------------------------- */

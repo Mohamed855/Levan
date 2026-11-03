@@ -263,6 +263,7 @@ Route::prefix('superadmin')->name('admin.')->group(function () {
         Route::match(['post', 'put', 'patch'], 'form-validation', [WizardDraftController::class, 'validateStep'])
             ->defaults('shared_form_validation_actions', [
                 AdminAuthController::class.'@login',
+                AdminTwoFactorChallengeController::class.'@store',
             ])
             ->name('form-validation');
 
@@ -272,7 +273,10 @@ Route::prefix('superadmin')->name('admin.')->group(function () {
             ->defaults('shared_form_validation', true);
 
         Route::get('two-factor-challenge', [AdminTwoFactorChallengeController::class, 'create'])->name('two-factor.login');
-        Route::post('two-factor-challenge', [AdminTwoFactorChallengeController::class, 'store'])->name('two-factor.store')->middleware('throttle:5,1');
+        Route::post('two-factor-challenge', [AdminTwoFactorChallengeController::class, 'store'])
+            ->middleware('throttle:5,1')
+            ->defaults('shared_form_validation', true)
+            ->name('two-factor.store');
         Route::get('two-factor-challenge/cancel', [AdminTwoFactorChallengeController::class, 'cancel'])->name('two-factor.cancel');
     });
 

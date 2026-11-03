@@ -497,7 +497,10 @@ Route::middleware('guest:tenant')->group(function () {
     Route::name('password.store')->post('reset-password', [NewPasswordController::class, 'store']);
 
     Route::get('two-factor-challenge', [TenantTwoFactorChallengeController::class, 'create'])->name('tenants.two-factor.login');
-    Route::post('two-factor-challenge', [TenantTwoFactorChallengeController::class, 'store'])->name('tenants.two-factor.store')->middleware('throttle:5,1');
+    Route::post('two-factor-challenge', [TenantTwoFactorChallengeController::class, 'store'])
+        ->middleware('throttle:5,1')
+        ->defaults('shared_form_validation', true)
+        ->name('tenants.two-factor.store');
     Route::get('two-factor-challenge/cancel', [TenantTwoFactorChallengeController::class, 'cancel'])->name('tenants.two-factor.cancel');
 });
 

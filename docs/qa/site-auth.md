@@ -1,0 +1,430 @@
+# QA-001 — الموقع العام وصفحات المصادقة
+
+| البند | القيمة |
+| --- | --- |
+| حالة الدفعة | `prepared` — جاهزة للتنفيذ بواسطة Gemini، لم تعتمد للإنتاج |
+| إعداد الحالات | Codex — 2026-11-03، Africa/Cairo |
+| مرجع الكود عند الإعداد | `main` / `2f1e4060a251b77d3777dbf92abfbf08ed791054` |
+| مساحة العمل المشتركة | `D:\Levan` |
+| التنفيذ والإصلاح | Gemini |
+| المراجعة والقبول النهائي | Codex |
+| تعليمات المتابعة | [README](README.md) + [تعليمات المشروع](../../AGENTS.md) |
+| نتيجة الإعداد | قراءة الكود والمسارات وبلاغات الشيت؛ لا يوجد ادعاء بتنفيذ الحالات أو إعادة إنتاج العطل في المتصفح |
+
+## 1. التسليم المباشر إلى Gemini
+
+ابدأ بقراءة الأقسام 1–6، ثم نفذ الدفعات بالترتيب التالي. لكل حالة شروط وخطوات ونتيجة متوقعة في جداول الأقسام التالية. لا تفحص المشروع كاملًا؛ ابدأ بمجموعة الملفات المذكورة بجوار الدفعة، وتوسع فقط عند تتبع استدعاء مباشر متعلق بحالة فاشلة.
+
+| الدفعة | الحالات | نقطة البداية |
+| --- | --- | --- |
+| A | `2FA-01` إلى `2FA-24` | M2 + M3، ثم M1 عند خلل المسار أو الجلسة |
+| B | `AUTH-01` إلى `AUTH-12`، `PWD-01` إلى `PWD-12`، `REG-01` إلى `REG-07` | M4 + M5 + M1 |
+| C | `WEB-01` إلى `WEB-13`، `TRIAL-01` إلى `TRIAL-11` | M6 + M7 |
+| D | `PAY-01` إلى `PAY-18` | M8 + M9 |
+| E | `SHARED-01` إلى `SHARED-08`، ثم ارتداد الدفعات السابقة | M3 + الملفات التي تغيرت فقط |
+
+التسليم للمستخدم بعد كل دفعة: ملخص الإخفاقات، سبب كل خلل، الملفات المعدلة، الاختبارات وأدلتها، الحالات التي تعذرت، والخطوة التالية. لا تغلق الإدارة ولا تغير حالة إلى `verified` بنفسك. لا تعتمد على نجاح اختبارات HTML النصية لإثبات عمل Submit أو صحة شكل الصفحة.
+
+### النطاق
+
+يشمل الرئيسية وأقسامها، سياسة الخصوصية، التواصل، طلب التجربة وتأكيد البريد، تسجيل الاشتراك والدفع ونتائجه وإعادة المحاولة، وجميع صفحات المصادقة النشطة في SuperAdmin وTenant: الدخول، التحقق بخطوتين، إعداداته، الاسترجاع، إعادة تعيين وتأكيد كلمة المرور، التسجيل، وتأكيد البريد. يشمل صفحات الخطأ عند الوصول إليها من هذه المسارات، ورسائل البريد المرتبطة بهذه الرحلات.
+
+إعدادات 2FA داخل اللوحتين مشمولة لأنها لازمة لاختبار دورة التحقق كاملة. بيانات لوحة التحكم وباقي إدارات CRUD خارج النطاق؛ يراجع الوصول إليها فقط لإثبات اكتمال الدخول ومنع تجاوزه. اعتماد طلب التجربة وفاتورة التحويل البنكي يستخدمان كنقطتي تكامل لتفعيل الحساب، دون توسيع المهمة لمراجعة إدارة الطلبات أو الفواتير كلها.
+
+المطلوب حاليًا إعداد حالات وتسليمها؛ التغييرات التي أجراها Codex في هذه المرحلة وثائق QA فقط. عند بداية Gemini يعيد تسجيل `git status --short` والمرجع الحالي ويحافظ على تغييرات المستخدم. عند الإعداد لم تظهر تغييرات tracked، وظهر `docs/qa/` كمسار جديد غير متتبع.
+
+أثناء الفحص الختامي ظهر أيضًا ملف غير متتبع `test_auction_edit.php`؛ لم ينشئه أو يعدله Codex في هذه الدفعة. يترك كما هو خارج نطاق الموقع وauth.
+
+## 2. متطلبات المستخدم الملزمة وبلاغات الـtester
+
+### بلاغ المستخدم — أولوية الدفعة A
+
+1. **العطل الوظيفي مؤكد من المستخدم في اللوحتين:** صفحة 2FA لا تقبل Submit للـform. لم يذكر المستخدم استجابة HTTP محددة. التشخيص يبدأ من زر الإرسال → حدث Submit / تحقق المتصفح → JavaScript → طلب التحقق المشترك إن وجد → POST النهائي → FormRequest → resolver → guard/session/redirect.
+2. استبدال الخانات الست بأسلوب حقل OTP الواحد الموجود في المشروع، مع placeholder سليم. المرجع: `tenant/auth/forgot-password.blade.php` وكذلك `web/trial.blade.php` و`web/checkout.blade.php`. الاحتفاظ بمصدر المصادقة: الرمز من تطبيق Authenticator، لا تحويله إلى OTP بالبريد.
+3. **داخل صفحتي challenge فقط:** «الرجوع لتسجيل الدخول» يمين، ورابط «استخدام كود الاسترجاع / استخدام رمز المصادقة بدلاً من ذلك» شمال، على نفس السطر، وبنفس الخط والحجم والوزن والمظهر. الاختبار يشمل حالتي المصادقة والاسترجاع. مرجع المظهر الحالي `.auth-back-link`؛ النص الأطول الخاص بـTenant يراجع ضمن المساحة المتاحة دون قص أو تراكب.
+4. موضع رابط الرجوع في **باقي صفحات auth يبقى كما هو**. التغيير يجب أن يكون محصورًا في challenge، حتى إذا احتاج فئة CSS جديدة أو خيارًا اختياريًا في مكون مشترك.
+
+### ربط الشيت
+
+المصدر: [اختبارات LOT — Arabic Test Cases](https://docs.google.com/spreadsheets/d/10gf1GKjJUy7987OpGMTwZBbEx3vj4aRTz8R414WT-8k/edit?gid=718702619#gid=718702619)، معرف التبويب `718702619`. قرأ Codex النطاق `A1:J982` بتاريخ الإعداد، ورؤوس البيانات في الصف 3. أرقام الصفوف التالية وقت القراءة؛ يعاد مطابقة النص قبل الإغلاق لأن المعرفات الأصلية مكررة. أعمدة K:X ليست ضمن سجل البلاغات ذي الرؤوس A:J المقروء.
+
+| المرجع | نص البلاغ الأصلي / الملاحظة | حالة الشيت وقت القراءة | تغطية الحالات |
+| --- | --- | --- | --- |
+| صف 9 / TC001 | يوجد نصوص من نظام مسند في الموقع التعريفي | قيد الاختبار / تم التنفيذ | WEB-02، SHARED-01 |
+| صف 10 / TC002 | سيتم اعتماد عند طلب تجربة ارسال ال Password على الايميل مع رابط الدخول و Password craiteria | قيد الاختبار / تم التنفيذ؛ الملاحظة: تحقق معيار كلمة المرور لكن مطلوب إرسالها مع الرابط | TRIAL-03، TRIAL-10، TRIAL-11؛ مراجعة رسالة التفعيل الفعلية بعد الموافقة |
+| صف 12 / TC009 | تغيير ايقونة ال Angular من المتصفح Tab لـ ايقونة النظام | تم التنفيذ / لا نتيجة اختبار | WEB-02، SHARED-01 |
+| صف 13 / TC003 | ال OTP بوصل في ال SPAM في جيميل هنجرب ايميل مايكروسوفت | قيد الاختبار / مؤجلة؛ ما زال يصل SPAM على Gmail | SHARED-06؛ Gmail + Microsoft كل منهما نتيجة مستقلة |
+| صف 15 / TC004 | التحقق من ال TEXT في شاشة الادمن login | قيد الاختبار / تم التنفيذ | AUTH-01، SHARED-01 |
+| صف 17 / TC014 | تحسين ال Responsive وخصوصا في ال Side Bar وعمل Scrolll في حالة ان الشاشة كبيرة | تم التنفيذ؛ الملاحظة لم يتم العمل عليها | SHARED-02 للصفحات المشمولة فقط؛ اختبار sidebar العام يؤجل لدفعة اللوحات |
+| صف 18 / TC015 | في شاشة الـ Login تفعيل ايقونة تغيير اللغة | تم التنفيذ / لا نتيجة اختبار | SHARED-07؛ لا يعتبر غياب الزر نجاحًا أو `not_applicable` تلقائيًا |
+| صف 22 / TC019 | تغيير ايقونة ال Angular من المتصفح Tab لـ ايقونة النظام | تم التنفيذ / لا نتيجة اختبار | WEB-02، SHARED-01، نسخة Tenant |
+| صف 40 / TC012 | تم اختبار استعادة كلمة المرور | نجاح الاختبار / تم التنفيذ | PWD-01 إلى PWD-12؛ يعاد اختبارها بعد تعديل المشترك |
+| صف 57 / TC024 | تبديل ال ❤️ بلوجو اتمام في الحقوق المحفوظة | لم يتم البدء / لا نتيجة اختبار | SHARED-01؛ يشمل المواضع الموجودة داخل نطاق الموقع وauth |
+
+البلاغات الأخرى المقروءة تخص إدارات أخرى. لا تحول «تم التنفيذ» إلى نجاح، ولا تحول بلاغات الموقع إلى تغييرات في جميع إدارات النظام. أي اختلاف في موعد إرسال بيانات الدخول أو توفر تبديل اللغة يسجل كسؤال منتج مع الأدلة؛ لا يخترع Gemini سياسة جديدة لإغلاق البلاغ.
+
+## 3. خريطة الملفات والمسارات — دليل البحث المحدود
+
+كل المسارات نسبية لجذر المشروع. هذه خريطة قراءة وتعديل عند ثبوت خلل، وليست طلبًا لتعديل جميع الملفات. ملفات مرجعية خارج رحلة المستخدم تُقرأ فقط عند الحاجة. أضف الاختبارات الجديدة إلى ملف محدد الاسم داخل `tests/Feature/Auth/` أو بجوار اختبار الرحلة الحالي، وسجل اسمه قبل التعديل.
+
+### M1 — تعريف المسارات والحدود
+
+- `app/Providers/RouteServiceProvider.php`: `mapSiteRoutes`, `mapAdminRoutes`, `mapTenantRoutes`, `home`.
+- `routes/web.php`: جميع `site.*`، `routes/admin.php`: auth في آخر الملف، `routes/tenant.php`: auth قرب نهاية الملف. `routes/api.php`: أول مجموعة coupon فقط.
+- `bootstrap/app.php`، `config/auth.php`، `config/tenancy.php`، `config/fortify.php`: التعريفات والـguards والـmiddleware، قراءة مستهدفة؛ لا تغير إعدادات التشغيل لحجب إخفاق اختبار.
+- `app/Helpers/TenantHelper.php`: `tenant_route_name`؛ `app/Http/Middleware/Tenancy/InitializeTenancyBySession.php` و`TenantDomainRedirect.php` و`TenantMaintenance.php` عند مشاكل السياق أو التحويل.
+- `app/Http/Middleware/EnsureAuthenticatedAndActiveAdmin.php`، `EnsureAdminTwoFactorIsEnforced.php`، `Tenancy/EnsureTenantTwoFactorIsEnforced.php`، و`app/Services/Tenants/Shared/CentralTenantSecurityGateway.php` عند اختبار الحالة وفرض 2FA.
+
+| الرحلة | URI على localhost | اسم المسار / الأسلوب |
+| --- | --- | --- |
+| الموقع | `/`، `/privacy-policy`، `/contact` | `site.index` GET، `site.privacy.policy` GET، `site.contact.store` POST |
+| تجربة | `/trial`، `/trial/edit`، `/trial/verify-email`، `/trial/resend-otp` | `site.trial` GET، `site.trial.store` POST، `site.trial.edit` GET، `site.trial.verify` POST، `site.trial.resend` POST |
+| اشتراك | `/checkout/{plan}/details`، `/checkout/{plan}`، `/checkout/{plan}/edit` | `site.plans.checkout` GET، `.checkout.store` POST، `.checkout.edit` GET |
+| تأكيد ودفع | `/checkout/{plan}/verify-email`، `/resend-otp` و`/payment` تحت نفس plan | `site.plans.checkout.verify.store`، `.checkout.resend`، `.checkout.payment` POST |
+| نتيجة وإعادة دفع | `/checkout/callback`، `/checkout/retry/{billNumber}` | `site.plans.checkout.callback` GET، `.checkout.retry` GET + signed |
+| كوبون | `/api/central/coupon/validate-coupon`، `/remove-coupon` | POST؛ المساران الحاليان بلا اسم، لا تخترع اسم route غير مسجل |
+| دخول SuperAdmin | `/superadmin/login` | `admin.login` GET وPOST بنفس URI |
+| challenge SuperAdmin | `/superadmin/two-factor-challenge` و`/cancel` | `admin.two-factor.login` GET، `.store` POST، `.cancel` GET |
+| إعداد SuperAdmin | `/superadmin/two-factor-authentication`؛ `/confirmed-two-factor-authentication`؛ `/two-factor-qr-code`؛ `/two-factor-recovery-codes` تحت superadmin | `admin.two-factor.index/enable/disable/confirm/qr-code/recovery-codes`؛ GET/POST/DELETE حسب التعريف |
+| الدخول الموحد لـTenant | `/admin/login` | `tenant.login` GET؛ POST على نفس URI مع `tenant_id` |
+| صفحات Tenant | `/{tenant}/login`، `/register`، `/forgot-password`، `/reset-password`، `/confirm-password`، `/verify-email` تحت نفس tenant | عبر `tenant_route_name(...)`؛ بادئة الأسماء الفعلية path أو domain |
+| challenge Tenant | `/{tenant}/two-factor-challenge` و`/cancel` | `tenant_route_name('tenants.two-factor.login/store/cancel')` |
+| إعداد Tenant | نفس أسماء نهايات إعداد 2FA تحت `/{tenant}/` | `tenant_route_name('tenants.two-factor.index/enable/disable/confirm/qr-code/recovery-codes')`؛ كل اسم منفرد |
+| تحقق النماذج | `/form-validation`، `/superadmin/form-validation`، `/{tenant}/form-validation` | `site.form-validation`، `admin.form-validation`، `tenant_route_name('form-validation')`؛ POST/PUT/PATCH |
+
+`localhost:8000` مرجع المستخدم. `127.0.0.1` له أسماء alias تبدأ `central-domain-1.` في البيئة الحالية. مسارات domain تعمل على نطاق Tenant دون `/{tenant}`. لا تثبت localhost في Blade، ولا تفترض أن شاشة الدخول المشتركة `/admin/login` هي دخول SuperAdmin. المسار المركزي `/reset-password/{token}` يستخدم `NewPasswordController@create`، وPOST `admin.password.store` عملية إدارية مصرح بها لتغيير كلمة مرور عميل؛ لا تفترض أنهما رحلة استعادة عامة متكاملة.
+
+### M2 — تحدي 2FA وإعداداته
+
+- Views: `resources/views/admin/auth/two-factor-challenge.blade.php` و`resources/views/tenant/auth/two-factor-challenge.blade.php`؛ الإعدادات في `two-factor-settings.blade.php` داخل المجلدين نفسيهما.
+- Controllers: `app/Http/Controllers/Admin/Auth/AdminTwoFactorChallengeController.php` و`AdminTwoFactorSettingsController.php`؛ نسختا Tenant: `app/Http/Controllers/Tenants/Auth/Fortify/TenantTwoFactorChallengeController.php` و`TenantTwoFactorSettingsController.php`.
+- Requests: `app/Http/Requests/Admin/Auth/AdminTwoFactorChallengeRequest.php` و`ConfirmAdminTwoFactorRequest.php`؛ `app/Http/Requests/Tenants/Auth/TenantTwoFactorChallengeRequest.php` و`ConfirmTenantTwoFactorRequest.php`.
+- Actions: `app/Actions/Auth/ResolveTwoFactorLogin.php` (`verify`, `consumeRecoveryCode`) و`PersistAuthenticationStateAction.php`.
+- Models: `app/Models/Admin/AdminMangment/Users/AdminUser.php` و`app/Models/Tenants/UserMangment/User/User.php`؛ يستخدمان Fortify `TwoFactorAuthenticatable`.
+- اختبارات البداية: `tests/Feature/TenantAuthenticationValidationFeatureTest.php::test_two_factor_login_returns_to_tenant_path_and_binds_the_session`، `tests/Feature/Auth/AdminLoginGuardIsolationTest.php`. الأول يختبر recovery فقط؛ لا يثبت صحة TOTP الحقيقي أو عمل Submit في المتصفح.
+
+### M3 — الواجهة والمكونات المشتركة
+
+- `resources/assets/js/shared/auth-layout.js`: تجميع الخانات في بداية الملف، تبديل recovery قرب السطر 50، والمؤقت/إعادة الإرسال بعده.
+- `resources/assets/css/shared/auth-layout.css`: `.auth-link` و`.auth-back-link` قرب 329–355، والخانات قرب 437–465. `.auth-back-link` حاليًا 14px ووزن 600؛ معيار التطابق هو computed styles في نفس الصفحة، لا الحجم المكتوب وحده.
+- `resources/views/components/shared/auth/split-layout.blade.php`: يعرض backUrl في حاوية وسطية مشتركة؛ لا تغير موضعها لجميع الصفحات لتلبية تخصيص challenge.
+- `resources/views/components/shared/form/controls/input.blade.php`، `password.blade.php`، و`resources/views/components/shared/form/layout/field.blade.php`، و`resources/assets/js/shared/form-validation.js`.
+- للتشخيص داخل validation: `validateControlClientSide` قرب 1047؛ listener الإرسال قرب 2251؛ `HTMLFormElement.prototype.submit.call(form)` قرب 2372؛ `setButtonLoading/resetButtonLoading` بعده. اقرأ حدود الدوال فقط.
+- `app/Http/Controllers/Shared/Wizard/WizardDraftController.php::validateStep` وتتبع resolver الخاص به فقط عند فشل endpoint التحقق.
+- مرجع الحقل الواحد: `resources/views/tenant/auth/forgot-password.blade.php` قرب 36، و`resources/views/web/trial.blade.php` قرب 77؛ `name=otp` هناك مرجع عرض، بينما عقد challenge يتطلب `name=code` أو `recovery_code`.
+
+### M4 — الدخول والجلسات
+
+- `app/Http/Controllers/Admin/Auth/AdminAuthController.php`، `app/Http/Requests/Admin/Auth/AdminLoginRequest.php`، `resources/views/admin/auth/login.blade.php`.
+- `app/Http/Controllers/Tenants/Auth/AuthenticatedSessionController.php`، `app/Http/Requests/Tenants/Auth/LoginRequest.php` (`authenticate`, `ensureIsNotRateLimited`)، `resources/views/tenant/auth/login.blade.php`.
+- الاختبارات: `tests/Feature/AdminAuthenticationValidationFeatureTest.php`، `TenantAuthenticationValidationFeatureTest.php`، `Auth/CrossPanelLoginTest.php`، `Auth/AdminLoginGuardIsolationTest.php`، و`CentralDomainTenantRoutesAccessTest.php` عند اختلاف path/domain.
+
+### M5 — كلمات المرور والتسجيل والبريد المؤكد
+
+- Controllers داخل `app/Http/Controllers/Tenants/Auth/`: `PasswordResetLinkController.php`، `NewPasswordController.php`، `ConfirmablePasswordController.php`، `PasswordController.php`، `RegisteredUserController.php`، `EmailVerificationPromptController.php`، `EmailVerificationNotificationController.php`، `VerifyEmailController.php`.
+- Requests داخل `app/Http/Requests/Tenants/Auth/`: `SendPasswordResetLinkRequest.php`، `VerifyPasswordResetOtpRequest.php`، `ResendPasswordResetOtpRequest.php`، `ResetTenantPasswordRequest.php`، `ConfirmTenantPasswordRequest.php`، `UpdateTenantPasswordRequest.php`، `RegisterUserRequest.php`.
+- `app/Services/Shared/Auth/PasswordResetOtpService.php`؛ Actions داخل `app/Actions/Tenants/Auth/`: `ResetTenantPasswordAction.php` و`RegisterTenantUserAction.php`؛ `app/Services/Tenants/Shared/CentralTrialAccessGateway.php` لحدود التسجيل بالتجربة.
+- Views داخل `resources/views/tenant/auth/`: `forgot-password.blade.php`، `reset-password.blade.php`، `confirm-password.blade.php`، `register.blade.php`، `verify-email.blade.php`.
+- `app/Providers/AppServiceProvider.php`: مصدر `Password::defaults()`؛ `app/Http/Requests/Admin/Clients/ResetClientUserPasswordRequest.php` و`app/Actions/Admin/Clients/ResetClientUserPasswordAction.php` لاختبار حدود reset المركزي فقط.
+- الاختبارات: `tests/Feature/TenantPasswordResetOtpFeatureTest.php`، `tests/Feature/Admin/ScopedPasswordResetAndFaqAuthorizationTest.php`، `tests/Unit/PasswordComplexityPolicyTest.php`، `tests/Unit/TenantAuthenticationContractTest.php`.
+
+### M6 — الرئيسية والتواصل والخصوصية
+
+- `app/Http/Controllers/Site/LandingPageController.php`؛ `app/Http/Requests/Site/StoreContactRequest.php`؛ `app/Actions/Admin/PublicRequests/CreateContactRequestAction.php`؛ `app/Models/Admin/Faq.php` و`app/Models/Admin/Plans/Plan.php`.
+- `resources/views/layouts/web.blade.php`؛ `resources/views/web/index.blade.php` و`privacy-policy.blade.php`؛ `resources/views/web/partials/header.blade.php` و`footer.blade.php` و`script.blade.php`.
+- `resources/views/components/web/contact-form.blade.php`؛ `resources/assets/js/web/site.js` و`_navbar.js` و`_contact.js` و`_scroll-reveal.js` و`_swiper.js`؛ `resources/assets/scss/web/site.scss`.
+- الاختبارات: `tests/Feature/SiteActionsFeatureTest.php`، `WebsiteFormValidationFeatureTest.php`، `PublicPlanVisibilityFeatureTest.php`، `CustomErrorPagesTest.php`، `tests/Unit/WebsiteFormValidationContractTest.php`.
+
+### M7 — التجربة ورسائل الحساب
+
+- `app/Http/Controllers/Site/TrialController.php`؛ `app/Http/Requests/Site/StoreTrialRequest.php` يرث `SubscriptionCheckoutRequest.php`؛ `VerifyTrialOtpRequest.php`؛ `app/Actions/Admin/PublicRequests/CreateTrialRequestAction.php`؛ `app/Models/Admin/PublicRequests/TrialRequest.php` لفحص hidden/casts ودورة حياة بيانات الدخول.
+- `resources/views/web/trial.blade.php`؛ `partials/registration-fields.blade.php` و`partials/checkout-summary.blade.php`؛ `resources/assets/js/web/trial.js`.
+- `app/Services/Shared/Registration/RegistrationOtpService.php`؛ `app/Services/Shared/Mail/SystemMailService.php`؛ `app/Mail/Auth/OtpMail.php`؛ `resources/views/emails/auth/otp.blade.php`.
+- عند اختبار تسليم الحساب فقط: `app/Actions/Admin/PublicRequests/ApproveTrialRequestAction.php`، `app/Services/Shared/Tenant/TenantCreator.php` و`TenantInitializer.php`؛ `resources/views/emails/public/trial_received.blade.php` و`resources/views/emails/tenants/welcome.blade.php`؛ تتبع `sendTenantWelcome` إلى القالب الفعلي، لا تفترض أن القالب القديم `trial_approved` مستخدم.
+- الاختبارات: `tests/Feature/TrialRegistrationFlowTest.php` و`TenantWelcomeMailFeatureTest.php` و`SiteActionsFeatureTest.php`.
+
+### M8 — التسجيل والدفع بالاشتراك
+
+- `app/Http/Controllers/Site/SubscriptionController.php`: `checkout/processCheckout`، `verifyOtp/resendOtp/editCheckout`، `completeCheckout/createPaymentFromVerifiedCheckout`، `handlePaymentCallback/retryCheckout`.
+- `app/Http/Requests/Site/SubscriptionCheckoutRequest.php`، `VerifyCheckoutOtpRequest.php`، `CompleteCheckoutPaymentRequest.php`؛ `app/Rules/SystemEmailAvailable.php` و`SystemPhoneAvailable.php`.
+- Views: `resources/views/web/checkout.blade.php` و`moyasar-checkout.blade.php` و`partials/registration-fields.blade.php` و`partials/checkout-summary.blade.php`؛ `resources/assets/js/web/checkout.js` و`plans/payment-validation.js`؛ `resources/assets/scss/shared/package-card.scss` و`resources/views/components/shared/ui/package-card.blade.php` بعد التحقق من alias عند القراءة.
+- `app/Http/Controllers/Api/SubscriptionController.php` للكوبون فقط؛ `app/Services/Shared/Coupons/CouponService.php` و`app/Services/Shared/Bills/BillService.php`.
+- الاختبارات: `tests/Feature/MoyasarRegistrationCheckoutFeatureTest.php`، `SiteActionsFeatureTest.php`، `PublicPlanVisibilityFeatureTest.php`، `tests/Unit/SiteCheckoutComponentContractTest.php`.
+
+### M9 — التحقق من الدفع والتفعيل
+
+- `app/Services/Shared/Payment/Moyasar/MoyasarCallbackHandler.php` و`MoyasarFormConfiguration.php`؛ `app/Services/Shared/Payment/Contracts/PaymentGatewayInterface.php`؛ الـbinding في `app/Providers/AppServiceProvider.php` إلى `app/Services/Shared/Payment/Gateways/MoyasarGateway.php`، يقرأ عند اختبار استعلام الدفع.
+- `app/Services/Shared/Subscription/SubscriptionService.php` (`completeOnlineSubscription`, `completeBankTransferSubscription`)؛ `app/Models/Admin/Bills/Bill.php` و`app/Models/Admin/Subscription/Subscription.php` و`app/Models/Admin/Tenants/Tenant.php`.
+- `app/Enums/Admin/Billing/BillStatus.php` و`PaymentMethod.php`؛ `app/Services/Shared/Tenant/TenantCreator.php` و`TenantInitializer.php` لتكامل الحساب؛ لا تنفذ عمليات provisioning حقيقية أثناء unit tests.
+
+## 4. ملاحظات استكشاف مثبتة من الكود، وليست نتائج اختبار
+
+| الملاحظة | موضعها | أثرها على خطة الاختبار |
+| --- | --- | --- |
+| challenge في اللوحتين يحتوي 6 inputs بلا name وتُجمع في hidden باسم code؛ لا placeholder على الستة في النسخة المقروءة | M2 + بداية auth-layout.js | العيب البصري من المستخدم؛ تحقق DOM/CSS الفعلي قبل نسبته إلى placeholder أو سبب بعينه. الاختبار بعد الإصلاح يتوقع حقلًا واحدًا بعقد code |
+| Tenant challenge يستخدم data-form-validate؛ Admin challenge لا يضعه في النموذج المقروء | views في M2 | لا تفترض أن مسار منع Submit واحد في اللوحتين؛ سجل validation وPOST لكل منهما |
+| رابطا challenge في حاويتين منفصلتين، وفئتا auth-link وauth-back-link مختلفتان | views + CSS في M3 | بلاغ المحاذاة والمظهر له معيار مستقل، ولا يحتاج تغيير موضع backUrl العام |
+| pending 2FA يستخدم login.id وlogin.remember في اللوحتين دون تمييز ظاهر للنطاق في تلك المفاتيح | Controllers + ResolveTwoFactorLogin | حالات تبديل guard وTenant ومستخدمين بنفس ID إلزامية؛ ليست ثغرة مثبتة قبل التنفيذ |
+| قواعد challenge تقبل nullable string مع required_without | Requests في M2 | اختبر المدخلات والحمولتين معًا، ولا تعتمد على maxlength بالمتصفح |
+| OTP التسجيل 000000 فقط إذا local/testing مع moyasar.mode=test | RegistrationOtpService | لا تستعمله كرمز Authenticator؛ اختبر TOTP من السر والوقت الفعليين. لا تغير إعدادات إنتاج للحصول على رمز ثابت |
+| trial: دقيقتان للرمز، 5 محاولات خطأ، 3 إعادات إرسال، جلسة ساعة | TrialController | اختبارات حدود الزمن والعدادات، مع time travel للاختبارات الآلية |
+| checkout: دقيقتان للرمز، 3 إعادات إرسال، verified session ساعة بحسب verifyOtp | SubscriptionController | تحقق حد المحاولات من الخادم أيضًا؛ لا تعتبر throttle الإرسال بديلًا عن verify |
+| reset: رمز دقيقتين، جلسة أولية 15 دقيقة، 5 محاولات، 3 إعادات؛ مهلة reset بعد النجاح 15 دقيقة | PasswordResetLinkController + NewPasswordController | اختبر انتهاء الرمز والجلسة والتفويض كلًا على حدة |
+| بعض تدفقات التسجيل تحمل plain_password داخل session أو metadata؛ TrialRequest يستقبلها ومرحلة الموافقة تزيلها | TrialController / SubscriptionController / CreateTrialRequestAction / ApproveTrialRequestAction | افحص casts والتخزين الفعلي ودورة الحياة وعدم التسريب؛ لا تنسخ الأسرار إلى أدلة QA |
+| TrialRequest يخفي plain_password وpassword_hash في serialization، ولا يعرّف encrypted cast للحقل plain_password في النسخة المقروءة | app/Models/Admin/PublicRequests/TrialRequest.php | مؤشر خطر تخزين محدد لـTRIAL-11؛ hidden لا يثبت تشفير قاعدة البيانات. تحقق مسار التخزين والمعالجة بدل اعتباره محميًا بالاسم فقط |
+| composer.json يطلب Laravel ^12 رغم أن AGENTS يذكر Laravel 11؛ PHP CLI وقت الإعداد 8.4.27 | composer.json / php -v | تحقق إصدار lock/vendor عند التنفيذ ولا تغير dependencies؛ سجّل الاختلاف في البيئة |
+
+## 5. بيئة التنفيذ والبيانات والأدلة
+
+### شروط البدء
+
+- اختبر على نسخة محلية/اختبار معزولة وقاعدتي Tenant A وB بحسابات اصطناعية. جهز Central Admin نشطًا وآخر غير نشط؛ Tenant User نشطًا وآخر غير نشط في كل Tenant، مع تكرار numeric ID والبريد عمدًا بين A وB لاختبار العزل.
+- جهز حالات 2FA: غير مفعل، قيد الإعداد دون تأكيد، مفعل مؤكد، مفروض بسياسة Central، مفروض بسياسة الشركة/إعداد Tenant. لا تغير سياسات عميل حقيقي.
+- جهز خطة عامة نشطة وأخرى خاصة وغير نشطة وتجريبية، بنكًا نشطًا وآخر غير نشط، كوبونًا صالحًا ومنتهيًا، ومدينة صالحة. استخدم سجلات fixtures المملوكة للاختبار.
+- بيانات نموذج مرجعية: اسم شركة `شركة اختبار لوت QA001` + لاحقة فريدة؛ اسم جهة اتصال `مستخدم اختبار`؛ سجل تجاري من 10 أرقام؛ ضريبة `3` + 13 رقمًا + `3`؛ جوال `05` + 8 أرقام أو `966` + 9 أرقام؛ بريد `qa001-<unique>@example.test`. City ID يؤخذ من fixture موجودة، لا تفترض 1.
+- كلمة مرور اصطناعية تحقق السياسة: 8 أحرف فأكثر وتحتوي حرفًا كبيرًا ورقمًا ورمزًا؛ لا تحفظ كلمات المرور الفعلية أو QR/سر TOTP أو recovery codes في الملف أو اللقطات. بيانات الاختبارات السابقة مرجع للبنية وليست حسابات مطلوبة أو تفويضًا لاستخدام حساب موجود.
+- المتصفح: Chromium وFirefox أو Edge؛ هاتف Chrome/Android أو Safari/iOS متاح. أحجام 1440×900 و1024×768 و768×1024 و390×844 و360×800 و320×740. اختبر RTL، تكبير 200%، ولوحة المفاتيح. الحالات البصرية تنفذ على كل الأحجام، والوظيفية مرة desktop ومرة mobile على الأقل.
+- البريد: Mail fake/capture محلي للآلي، وحسابا Gmail/Microsoft مخصصان للاختبار الحقيقي. الدفع: sandbox فقط مع بيانات المزود الاختبارية، دون أرقام بطاقات أو مفاتيح سرية في الأدلة.
+
+### عزل الاختبارات الموجودة — شرط سابق للتنفيذ
+
+`phpunit.xml` يحدد MySQL واسم `etmam_levan`. `SiteActionsFeatureTest` ينشئ سجلات، و`TrialRegistrationFlowTest::tearDown` يحذف fixtures وقاعدة مولدة باسم `levan_trial_flow_*`. لذلك **لا تشغل Feature suite أو migrate:fresh أو اختبارات provisioning على قاعدة العمل الحالية مباشرة**. تحقق أولًا من الاتصالات الفعلية لكل اختبار، واستعمل قاعدة QA منفصلة وfixtures مملوكة له، أو اختبارًا يعزل اتصالاته في الذاكرة أصلًا. لا تعدل `.env` المشترك أو PHPUnit العام بصمت. إذا احتجت تغيير البنية العامة للاختبارات فسجل النطاق الإضافي للمراجعة.
+
+### قواعد تسجيل النتيجة
+
+الأولوية: P0 اختراق مصادقة/عزل/تفعيل دفع غير صحيح؛ P1 تعطل رحلة أساسية؛ P2 عرض/تجربة/تحقق مساعد. النوع: B متصفح، F Feature/API، U Unit/contract، I تكامل بريد/دفع. `F+B` يتطلب الاثنين.
+
+كل صف يبدأ `not_run`. في حالات 2FA يكرر **كل سيناريو** لـAdmin وTenant path وTenant domain إن كانت مهيأة؛ لا يكفي نجاح نسخة واحدة. سجّل variants مثل `2FA-01/ADMIN` و`2FA-01/TENANT-A-PATH` و`2FA-01/TENANT-A-DOMAIN`. اختلافات المدخلات المذكورة داخل الحالة تُسجل subresults؛ حالة الصف لا تتقدم للمراجعة حتى تكتمل جميع variants المنطبقة.
+
+Gemini يغير النتيجة إلى `passed_pending_review` إذا نجحت دون تعديل، أو `fixed_pending_review` بعد الإصلاح وإعادة الاختبار. إذا غابت البيئة/بيانات/قرار مطلوب: `blocked` مع السبب. Codex وحده يسجل `verified` أو `not_applicable` مسببًا أو `reopened`.
+
+لكل محاولة أضف سجلًا فعليًا في القسم 15 يتضمن: معرف الحالة والـvariant، المرجع والوقت، الخطوات المنفذة، النتيجة الفعلية، HTTP/Console أو الأمر وexit code، دليل مختصر/مسار لقطة، الملفات المعدلة وسبب الخلل عند ثبوته. قبل الإغلاق يطابق Codex السجلات مع كل صف. لا تنشر payload يتضمن كلمة مرور أو OTP أو recovery code أو session cookie أو بيانات بطاقة.
+
+## 6. تشخيص Submit — ينفذ قبل أي إصلاح
+
+في حساب اختبار مؤكد 2FA، افتح challenge طبيعيًا بعد كلمة المرور. افتح Network مع Preserve log وConsole، ثم أدخل TOTP حاليًا واضغط التأكيد. سجّل:
+
+1. هل الزر قابل للضغط أم disabled/overlay؟ وهل Enter يختلف عن click؟ هل يحدث `invalid` من المتصفح؟
+2. هل hidden code الحالي يحمل نفس الرمز قبل الإرسال؟ اقرأ قيمة الاختبار محليًا دون نسخها إلى التقرير. هل recovery_code المتخفي ما زال يحمل قيمة أو خطأ؟
+3. هل توجد validation request؟ عنوانها وسياقها وstatus ومفاتيح errors دون أسرار؛ هل رفضها 403/419/422 يمنع POST النهائي؟
+4. هل صدر POST إلى `.two-factor.store`؟ إذا لم يصدر، حدد listener/خطأ JavaScript الذي منعه. إذا صدر، تتبع FormRequest ثم resolver ثم session/guard/redirect، وسجل السلسلة.
+5. أعد بنفس الخطوات في اللوحة الأخرى. لا تعمم سببًا ظهر في Tenant على Admin. لا تعطل shared validation أو CSRF أو 2FA أو تستعمل auto-login كحل.
+6. ثبت regression يعيد إنتاج السبب المثبت، ثم أصلح وأعد الاختبار. الحقل الواحد هو مطلب العرض، ونجاح المصادقة معيار مستقل يجب إثباته.
+
+## 7. حالات التحقق بخطوتين — M2 / M3 / M1
+
+| ID / أولوية / نوع | الشروط والخطوات | النتيجة المتوقعة ومعيار القبول | الحالة |
+| --- | --- | --- | --- |
+| 2FA-01 / P1 / B+F | حساب نشط مؤكد 2FA؛ سجل الدخول بكلمة المرور، أدخل TOTP صحيحًا حاليًا، اضغط تأكيد. طبق تشخيص القسم 6 في اللوحتين. | POST نهائي واحد إلى المسار الصحيح، قبول الرمز، إنشاء جلسة guard الصحيح وتجديدها، الوصول للوجهة المصرح بها. لا توقف صامت ولا loading دائم. يسجل مكان منع Submit قبل الإصلاح. | fixed_pending_review |
+| 2FA-02 / P1 / B | كرر 01 باستخدام Enter من حقل الرمز، ثم نقر مزدوج سريع في محاولة جديدة. | Enter يرسل بنجاح؛ لا إرسالان أو login/event مكرر من الضغط المزدوج، وتعود قابلية المحاولة عند رفض الرمز. | fixed_pending_review |
+| 2FA-03 / P1 / B+U | افتح challenge بحالة جديدة وفارغة؛ قارن بمرجع OTP الواحد، وافحص DOM وplaceholder عند جميع الأحجام. | حقل مرئي واحد لـcode من المكون المشترك، placeholder كامل ومتمركز بلا قص/حروف متراكبة، label مرتبط وerror accessible؛ لا خانات ست قديمة أو تجميع يعتمد عليها. | fixed_pending_review |
+| 2FA-04 / P1 / B | أدخل الرمز بالكتابة، ثم paste كاملًا، ثم autofill عند توفره؛ استخدم fixture لرمز يبدأ بصفر؛ امسح وأعد الإدخال. | 6 أرقام بنفس ترتيبها LTR، الصفر محفوظ، القيمة المرسلة كاملة، لا حذف أول/آخر رقم ولا اعتماد على keyup وحده؛ لا قبول حروف كرمز صالح. | fixed_pending_review |
+| 2FA-05 / P2 / B | في وضع TOTP ثم recovery؛ شاهد السطر أسفل التأكيد عند الأحجام المحددة. | رابط الرجوع يمين والتبديل شمال في نفس السطر دون تراكب/قص/scroll أفقي. في العرض الضيق يسمح التفاف نص الرابط داخل مساحته مع بقاء مجموعتي الرابطين بجوار بعضهما؛ لا ينتقل أحدهما لصف منفصل. | fixed_pending_review |
+| 2FA-06 / P2 / B | قارن computed font-family/size/weight/line-height/color/text-decoration للرابطين، مع hover/focus وفي وضعي التبديل. | نفس مظهر auth-back-link دون تكبير رابط التبديل؛ focus واضح وكلاهما قابل للوصول بالكيبورد. icon الرجوع لا يغير محاذاة النص. | fixed_pending_review |
+| 2FA-07 / P1 / B+F | املأ code ثم بدّل recovery، أدخل recovery ثم ارجع TOTP، كرر مع خطأ سابق، وأرسل الوضع النشط. | يظهر حقل الوضع النشط ووصفه الصحيح؛ الحقل الآخر لا يحتفظ بقيمة/خطأ يمنع submit ولا يرسل كاعتماد منافس؛ التركيز ينتقل للحقل الصحيح. | fixed_pending_review |
+| 2FA-08 / P1 / B+F | أرسل TOTP خاطئًا ثم صحيحًا من نفس الصفحة؛ كرر في recovery. | رسالة خطأ عربية مرئية مرتبطة بالحقل، لا دخول عند الخطأ، يعود الزر ويقبل التصحيح، يحتفظ وضع recovery بعد فشله دون حلقة reload. | fixed_pending_review |
+| 2FA-09 / P0 / B+F | استخدم recovery صالحًا في جلسة معلقة؛ اخرج وابدأ جلسة جديدة وأعد نفس الكود. | الدخول الأول فقط ينجح، ويستهلك/يستبدل الكود بطريقة تمنع إعادة استخدامه؛ المرة الثانية مرفوضة دون إنشاء جلسة. | fixed_pending_review |
+| 2FA-10 / P0 / F+B | جرّب recovery خاطئًا، مستهلكًا، كود حساب آخر، ومن مجموعة ألغيت بعد regenerate. | كلها مرفوضة ورسالة واضحة دون استهلاك أكواد الحساب الصحيح أو كشف أسراره؛ لا 500. | fixed_pending_review |
+| 2FA-11 / P1 / F+B | أرسل فارغًا و5 و7 أرقام وحروفًا وarray؛ ثم payload فيه code وrecovery_code معًا، وتبديلًا لحقل فارغ متخفي. | الخادم يرفض الشكل غير الصحيح بأخطاء حقول دون 500؛ لا يتجاوز أحد الحقلين المصادقة بسبب وجود الآخر. الحقل المتخفي الفارغ لا يمنع اعتمادًا صالحًا. قواعد الشكل في FormRequest. | fixed_pending_review |
+| 2FA-12 / P0 / F | باستعمال سر ووقت اختبار معلومين: TOTP حالي، خارج نافذة القبول، ومستخدم سابقًا. | الحالي يقبل حسب إعداد provider الفعلي؛ المنتهي/خارج النافذة وإعادة الاستخدام وفق حماية المزود لا يمنحان دخولًا جديدًا. يسجل window والـreplay contract من الإعداد/التنفيذ الفعلي. | passed_pending_review |
+| 2FA-13 / P1 / B+F | مستخدم غير مفعل: افتح الإعدادات، enable، اعرض QR وامسحه، أكد برمز صحيح، حدّث الصفحة ثم logout/login. | QR صالح للحساب الحالي، لا يعلن enabled نهائيًا قبل التأكيد؛ بعده الحالة محفوظة وlogin الجديد يطلب challenge ويقبل الرمز الحقيقي. | passed_pending_review |
+| 2FA-14 / P1 / B+F | enable ثم رمز تأكيد خاطئ/فارغ، أغلق modal وحدّث الصفحة قبل التأكيد، ثم حاول تأكيدًا صحيحًا. | لا confirmed_at ولا حالة مفعلة زائفة عند الفشل؛ يمكن استكمال الإعداد دون تضارب سر QR، وتظهر أخطاء التأكيد ويعمل submit. | passed_pending_review |
+| 2FA-15 / P0 / F+B | اطلب settings/enable/confirm/QR/recovery/disable كضيف، ثم بحساب آخر مع tampered IDs/tenant context. | الضيف لا يحصل على سر/QR/أكواد ولا يغير حسابًا؛ المستخدم يعمل على حسابه في guard/tenant الصحيح فقط. لا أسرار في HTML العام أو logs. | passed_pending_review |
+| 2FA-16 / P0 / B+F | بعد التفعيل اعرض/ولّد recovery codes، كرر التوليد ثم جرّب القديم والجديد. | العدد الحالي المقرر بالكود 8 أكواد فريدة، الجديد فقط صالح، وتظهر الأكواد في واجهة الحساب دون تسريب؛ التجديد لا يعطل TOTP ولا يغير مستخدمًا آخر. | passed_pending_review |
+| 2FA-17 / P1 / B+F | سياسة غير مفروضة؛ عطل 2FA، حدّث الصفحة، اخرج وادخل؛ جرّب أسرار/أكواد قديمة. | التعطيل مؤكد في التخزين والواجهة، لا challenge على الدخول التالي، والاعتمادات القديمة لا تعيد تفعيلًا أو دخولًا عبر endpoint مباشر. | passed_pending_review |
+| 2FA-18 / P0 / F+B | اختبر force Central، ثم company، ثم tenant settings منفردة ومجتمعة؛ حاول dashboard وdisable مباشرًا، وأكمل setup/logout. | فرض الإعداد مطبق بلا bypass، disable مرفوض حتى مع إظهار الزر يدويًا؛ صفحات الإعداد والخروج متاحة دون redirect loop. لا تداخل بين سياسات المستأجرين. | passed_pending_review |
+| 2FA-19 / P0 / B+F | قبل إتمام challenge اضغط الرجوع لتسجيل الدخول؛ ارجع history وأعد POST القديم، ثم ابدأ دخول حساب آخر. | إلغاء حالة login المعلقة وعدم استخدام remember القديم، التحويل لlogin الصحيح؛ لا استكمال تحدي ملغى ولا دخول الحساب السابق. | fixed_pending_review |
+| 2FA-20 / P0 / F+B | افتح challenge بدون password step، بجلسة منتهية، ثم بمعرف مستخدم محذوف/secret غير قابل للفك. | رفض آمن أو تحويل لlogin وفق العقد، دون دخول أو 500/stacktrace أو تعليق submit؛ لا تسريب سبب حساس. | fixed_pending_review |
+| 2FA-21 / P0 / F+B | حساب Admin وTenant لهما نفس numeric ID؛ ابدأ challenge بأحدهما ثم افتح/أرسل endpoint الآخر بنفس المتصفح، وكرر بالعكس وتبويبين. | اعتماد المرحلة الأولى مربوط بنفس guard والحساب؛ لا استكمال عبر لوحة أخرى أو تصادم login.id/remember؛ يسجل اختبار regression يثبت العزل. | fixed_pending_review |
+| 2FA-22 / P0 / F+B | Tenant A وB لهما ID متطابق؛ ابدأ challenge/reset في A ثم بدّل path/domain/tenant hint إلى B وأرسل. | لا مصادقة أو استرجاع على B بتفويض A؛ الـpending context والرمز مربوطان بالمستأجر الأصلي، والوجهة النهائية ضمنه. | fixed_pending_review |
+| 2FA-23 / P0 / F | بعد password step وقبل code عطّل/احذف الحساب أو غير سياسة الوصول/اشتراكه في fixture، ثم أرسل code صحيحًا. | لا يجتاز حساب فقد أهلية الدخول مرحلة المصادقة اعتمادًا على حالة قديمة؛ لا صفحة محمية قبل تحقق الحالة والسياسات الحالية. | fixed_pending_review |
+| 2FA-24 / P0 / F+B | نفذ محاولات خاطئة تتجاوز 5 في الدقيقة على challenge؛ جرّب بعد فك الحظر، ثم login مع remember وتحقق session بعد نجاح 2FA. | throttle فعال في اللوحتين مع رسالة قابلة للفهم؛ لا remember/auth قبل 2FA، session تتجدد بعده وبيانات pending تنظف، والوجهة Admin أو Tenant الصحيحة. | fixed_pending_review |
+
+## 8. الدخول والجلسات — M4 / M1 / M3
+
+| ID / أولوية / نوع | الشروط والخطوات | النتيجة المتوقعة ومعيار القبول | الحالة |
+| --- | --- | --- | --- |
+| AUTH-01 / P1 / B+F | افتح login Admin كضيف ثم ادخل بحساب نشط غير مفعل 2FA، وبآخر مفعل. راجع نصوص الصفحة. | الصفحة بهوية LOT ونصوص صحيحة؛ الأول يصل SuperAdmin والثاني challenge فقط، دون تهيئة Tenant من جلسة قديمة. | not_run |
+| AUTH-02 / P0 / F+B | Admin بكلمة خطأ أو email مجهول أو حساب inactive/soft-deleted؛ تجاوز 5 طلبات/دقيقة. | لا جلسة ولا دخول للمحمي، أخطاء مناسبة دون تسريب؛ حد المحاولات فعال ويزول بعد مدته. | not_run |
+| AUTH-03 / P1 / B+F | Tenant نشط: ادخل مرة بالبريد ومرة بالجوال من الحقل نفسه، مع tenant_id صحيح؛ كرر كلمة خطأ وinactive. | البريد والجوال يعملان حسب LoginRequest؛ الخاطئ/غير النشط مرفوض، ولا تغيير حساب أو مستأجر ضمنيًا. | not_run |
+| AUTH-04 / P1 / B+F | الحقول فارغة وصيغ غير صالحة؛ blur/change ثم submit؛ أعد التحقق عبر endpoint غير مسموح باستهدافه. | تحقق فوري ونهائي من FormRequest، أخطاء عربية مرتبطة؛ لا قبول استهداف controller/action خارج allowlist ولا تشغيل mutation أثناء validate. | not_run |
+| AUTH-05 / P1 / B+F | login مع remember وبدونه، مع 2FA وبدونه؛ أعد فتح المتصفح/الجلسة وفق cookie settings. | سياسة التذكر متسقة في اللوحتين؛ لا اعتماد متذكر قبل إتمام 2FA ولا cookie يربط المستأجر الخطأ. | not_run |
+| AUTH-06 / P0 / B+F | بعد login نفذ logout POST ثم history/reload واطلب المحمي؛ ابدأ login جديدًا. | invalidate session وتجديد CSRF، المحمي يتطلب دخولًا جديدًا، لا صفحة بيانات قابلة لإعادة التحميل؛ Tenant يحتفظ بتلميح السياق المسموح فقط. | not_run |
+| AUTH-07 / P0 / B+F | نفس المتصفح فيه Tenant session ثم Admin login والعكس، مع pending 2FA قديم؛ كرر على تبويبين. | يمكن فتح login اللوحة الأخرى حسب العقد الحالي دون خلط guards أو البيانات؛ guest middleware لا يعيد للوحة الخطأ. | not_run |
+| AUTH-08 / P0 / F+B | افتح `/admin/login` بلا tenant_id/بسياق قديم؛ أرسل missing/unknown/tampered tenant_id؛ افتح `/{tenant}/login`. | غياب/بطلان السياق لا يختار Tenant عشوائيًا؛ legacy الصحيح يضبط السياق ويحيل للدخول المشترك، والمجهول يرفض دون بيانات. | not_run |
+| AUTH-09 / P0 / F+B | حسابان بالبريد نفسه في A/B، domain مقابل path، مع intended URL خارجي/لوحة أخرى/صفحة login. | الاعتماد يُطبق على النطاق الصحيح فقط؛ redirect آمن ومصرح بلا loop أو open redirect أو اختطاف intended بين المستأجرين. | not_run |
+| AUTH-10 / P1 / B+F | كضيف اطلب endpoint محميًا؛ كمستخدم اطلب login/register/challenge بعد اكتمال الدخول؛ Tenant في maintenance أو اشتراك غير متاح. | تحويل/منع مناسب وفق السياسات دون 500/loop؛ لا تعطيل عشوائي للموقع العام أو صفحة استعادة لازمة. | not_run |
+| AUTH-11 / P2 / B | حقل كلمة المرور في جميع صفحات auth: عرض/إخفاء، autofill، Tab/Shift+Tab، Enter، labels. | الأيقونة والنص accessible ويعمل toggle دون فقد القيمة أو submit جانبي؛ لا عرض كلمة المرور في URL أو HTML old input بعد الخطأ. | not_run |
+| AUTH-12 / P1 / B+F | اترك الصفحة حتى تنتهي الجلسة/CSRF؛ أرسل؛ حاكِ 422/419/429/500 أو فشل validation network في اختبار معزول. | خطأ واضح ومسار إعادة محاولة، لا busy دائم أو إرسال مكرر؛ لا نجاح كاذب ولا إلغاء للتحقق الخادمي لتجاوز الفشل. | not_run |
+
+## 9. استعادة كلمة المرور — M5 / M3 / M1
+
+| ID / أولوية / نوع | الشروط والخطوات | النتيجة المتوقعة ومعيار القبول | الحالة |
+| --- | --- | --- | --- |
+| PWD-01 / P1 / B+F | افتح forgot-password في path/domain، أرسل بريدًا مسجلًا نشطًا ثم صيغة خطأ/مجهول/inactive. | الصحيح ينتقل لحقل OTP واحد ويرسل البريد؛ غير المسموح لا يبدأ تفويض reset. النصوص والنتائج توافق FormRequest والسلوك الحالي دون كشف بيانات إضافية. | not_run |
+| PWD-02 / P1 / B+F | أدخل OTP الصحيح كتابة/paste/autofill، ومن fixture يبدأ بصفر، وأرسل بالنقر وEnter. | الرمز كامل وبالترتيب، ينتقل reset بعد تحقق الخادم فقط؛ لا يتأثر بتعديل challenge. | not_run |
+| PWD-03 / P0 / F+B | أرسل رمزًا خاطئًا 5 مرات ثم رمزًا صحيحًا؛ اختبر 5/7 أحرف وarray ورمز بعد دقيقتين وجلسة بعد 15 دقيقة. | لا تجاوز للحد أو الزمن بتعديل timer؛ بعد استنفاد المحاولات/الجلسة يبدأ التفويض من جديد؛ لا reset أو 500. | not_run |
+| PWD-04 / P1 / B+F | انتظر انتهاء timer، أعد الإرسال 3 مرات ثم الرابعة؛ refresh بين المحاولات واطلب endpoint مباشرة قبل المؤقت. | العداد والزمن من الخادم، لا reset للحدود بالrefresh؛ الرمز السابق يبطل إلا إذا تساوى مولد test عمدًا. الرابعة مرفوضة، ورسائل وloading سليمان. | not_run |
+| PWD-05 / P0 / B+F | في OTP اختر تعديل البريد، غيره لحساب اختبار آخر، ثم حاول استخدام الرمز والتفويض السابقين. | يحتفظ البريد كمدخل آمن فقط وتُلغى جلسة التحقق السابقة؛ مطلوب تحقق جديد للحساب الجديد. | not_run |
+| PWD-06 / P0 / F+B | اطلب reset-password GET/POST مباشرة دون verified session، أو بمجرد تمرير email/token/verified=true في payload. | لا تغيير كلمة مرور؛ تحويل لبدء التحقق أو رفض، ويظل hash الحساب كما هو. | not_run |
+| PWD-07 / P1 / B+F | بعد تحقق صحيح جرّب كلمة 7 أحرف، بلا capital، بلا رقم، بلا رمز، confirmation مختلف، ثم كلمة صالحة. | كل فشل يطابق Password::defaults وFormRequest في الواجهة والخادم، لا تحديث جزئي؛ الصالحة تقبل. | not_run |
+| PWD-08 / P0 / F+B | تحقق لحساب A، مرر email/user_id لحساب B في reset، ثم نفذ reset صالحًا وأعد نفس POST. | يتغير الحساب المفوض فقط، hash آمن، جلسة التفويض تمحى، replay لا يغير الحساب مرة ثانية؛ الجديدة تعمل والقديمة لا تعمل، و2FA يبقى مفعلًا إن كان كذلك. | not_run |
+| PWD-09 / P0 / F+B | تحقق في Tenant A ثم أرسل reset في B الذي له نفس user_id/email؛ كرر path/domain وتلميح tenant متغير. | لا نقل لتفويض reset بين المستأجرين أو guards؛ تثبت هوية المستخدم والمستأجر في جلسة الاستعادة. | not_run |
+| PWD-10 / P0 / F+B | تحقق ثم تقدم بالوقت أكثر من 15 دقيقة قبل GET وبعده قبل POST، مع تبويبين وlogout. | التحقق من المهلة عند القراءة والتحديث؛ لا تفويض reset قديم بعد الإلغاء أو انتهاء الوقت. | not_run |
+| PWD-11 / P0 / F+B | اختبر `/reset-password/{token}` المركزي وPOST `admin.password.store` كضيف وكـAdmin بلا الصلاحية ومع tenant/email خارج النطاق. | لا تجاوز reset عبر token شكلي أو خلط المسار الإداري مع استعادة عامة؛ تحقق التفويض والمستأجر. إذا الصفحة تعرض form غير قابل للإكمال سجل خللًا بدل اختراع تدفق جديد. | not_run |
+| PWD-12 / P1 / I+F+B | حاكِ تعذر إرسال البريد وانقطاع resend والضغط المزدوج، ثم أعد المحاولة بعد استعادة الخدمة. | لا ادعاء وصول بريد لم يرسل، ولا lock دائم أو counter مضلل، والمحاولات/الأخطاء قابلة للفهم دون أسرار في السجلات. | not_run |
+
+## 10. التسجيل وتأكيد البريد وكلمة المرور — M5 / M1
+
+| ID / أولوية / نوع | الشروط والخطوات | النتيجة المتوقعة ومعيار القبول | الحالة |
+| --- | --- | --- | --- |
+| REG-01 / P1 / B+F | افتح register؛ بيانات صحيحة ثم duplicate email/اسم ناقص/جوال غير 05 أو ليس 10 أرقام/كلمة ضعيفة أو confirmation مختلف. | نجاح المدخلات المسموحة فقط، email lowercase حسب العقد، رسائل واضحة دون تكرار المستخدم، hash وعدم طباعة كلمة المرور. | not_run |
+| REG-02 / P0 / F+B | سجل مستخدمًا بTenant A، وحاول حقن tenant_id/role/permissions/status؛ قارن بيانات B وCentral والجلسة بعد التسجيل. | إنشاء في A وحده عبر guard tenant دون امتيازات injected؛ جلسة وسياق صالحان دون session fixation؛ لا تسجيل Admin أو دخول بنطاق B. | not_run |
+| REG-03 / P0 / F | Tenant تجربة مستخدم واحد/بلغ حد المقاعد؛ اطلب register POST مباشرة ثم بالتوازي. | CentralTrialAccessGateway وحدود الاشتراك تمنع الزيادة، لا مستخدم/مقعد جزئي أو تجاوز بسبب السباق؛ إذا سياسة التسجيل ملتبسة يسجل سؤالًا دون فتح عام جديد. | not_run |
+| REG-04 / P1 / B+F+I | مستخدم غير مؤكد: افتح verify-email، resend ثم signed URL صالح؛ كرر بعد التأكيد. | الإرسال للحساب نفسه، confirmation يسجل مرة واحدة، التحويل للوجهة الصحيحة دون تغيير guard؛ المعاد لا يكرر أثرًا. | not_run |
+| REG-05 / P0 / F | verification URL منتهٍ/توقيعه محرف/hash أو id مختلف/من Tenant آخر؛ كرر resend أكثر من 6 في الدقيقة. | رفض التوقيع والملكية والمهلة، لا تأكيد حساب غير مفوض، throttle مفعل ولا أسرار في صفحة الخطأ. | not_run |
+| REG-06 / P0 / B+F | confirm-password: ضيف ثم مستخدم، كلمة خطأ ثم صحيحة، ومع جلستي Admin وTenant معًا. | التحقق من كلمة مستخدم tenant الحالي فقط، لا timestamp عند الخطأ، حفظ وقت التأكيد والتحويل intended الآمن بعد النجاح. | not_run |
+| REG-07 / P0 / B+F | authenticated PUT password بكلمة حالية خطأ ثم صحيحة، password confirmation مختلف، ثم اعتماد جديد؛ جرّب الطلب كضيف ومن Tenant آخر. | current_password:tenant مطبق، لا تغيير بلا تفويض، hash صحيح ورسالة نجاح؛ لا إسقاط 2FA ولا تعديل حساب آخر. | not_run |
+
+## 11. الموقع العام — M6 / M3
+
+| ID / أولوية / نوع | الشروط والخطوات | النتيجة المتوقعة ومعيار القبول | الحالة |
+| --- | --- | --- | --- |
+| WEB-01 / P1 / B+F | افتح `/` وprivacy-policy من كل central domain المعرف، مع/دون login قديم، ثم refresh وروابط مباشرة. | 200 ومحتوى صحيح دون تهيئة Tenant غير مقصودة أو 500؛ لا preloader باقٍ أو أخطاء Vite/assets. | not_run |
+| WEB-02 / P2 / B+U | افحص title/favicon/logo والنص المرئي والـalt في الموقع وauth، وابحث مستهدفًا عن مسند/Angular داخل ملفات M3/M6/M7/M8. | الهوية لوت LOT حيث يخص المنتج، أيقونة صحيحة دون placeholder قديم؛ لا تحذف أسماء تقنيات مشروعة من dependency metadata. يغطي صفوف 9/12/22. | not_run |
+| WEB-03 / P2 / B | استخدم روابط header/footer من الرئيسية والتجربة والخصوصية والcheckout؛ افتح وأغلق قائمة الهاتف بالنقر وخارجها وEscape. | الروابط تصل القسم الصحيح أو الصفحة الصحيحة، إزاحة header لا تخفي العنوان، لا قائمة عالقة أو body scroll مقفول بعد الإغلاق. | not_run |
+| WEB-04 / P1 / B+F | fixtures: صفر باقات، باقة عامة واحدة، عدة باقات؛ بينهما private/inactive/trial. اضغط CTA وكل package. | المعروض عامًا فقط وبترتيبه؛ CTA الواحد يذهب للخطة الصحيحة والمتعدد لقسم الباقات؛ حالة الصفر مفهومة دون first()->id error أو link لخطة محظورة. | not_run |
+| WEB-05 / P0 / F+B | اطلب checkout GET/POST/verify/resend/payment لخطة خاصة/غير نشطة/trial/مجهولة وعدل plan ID بعد فتح الصفحة. | منع خادمي في جميع المراحل، لا فاتورة أو جلسة دفع صالحة للخطة المحظورة ولا كشف بياناتها. | not_run |
+| WEB-06 / P2 / B+F | FAQ: سجلات active/inactive، نص عربي طويل، وصفر أسئلة؛ افتح وأغلق بالكيبورد. | النشط فقط يعرض، الفراغ لا يكسر الصفحة، accordion والـaria صحيحان دون ازدواج IDs؛ لا عرض HTML خبيث من سؤال أو جواب. | not_run |
+| WEB-07 / P1 / B+F | نموذج contact صحيح؛ أرسل مرة عادية ومرة AJAX مع بيانات اختبار فريدة. | سجل صحيح واحد لكل إرسال، نجاح وredirect/JSON مناسب، رسالة المستخدم وإشعار الإدارة بالمحتوى الموافق؛ لا raw JSON بصفحة POST عادي. | not_run |
+| WEB-08 / P1 / B+F | contact: اسم بطول 2 ثم 3 و100 و101؛ رسالة 9 ثم 10 أحرف؛ بريد خاطئ؛ إرسال مع تعطيل JS. | رفض حدود FormRequest المخالفة وقبول الحدود الصالحة؛ لا تخزين عند الفشل، error للحقل واحتفاظ بالمدخلات غير الحساسة، تحقق الخادم لا يعتمد على JS. | not_run |
+| WEB-09 / P0 / F+B | payload XSS في الاسم/الرسالة، CRLF بالبريد، fields إضافية؛ اعرض الناتج/رسائل البريد عبر test capture. | لا تنفيذ JavaScript أو حقن headers/حقول إدارية؛ يقتصر التخزين على validated inputs والـrender escaped. | not_run |
+| WEB-10 / P1 / B+F | contact: double click/Enter ثم timeout/422/500 وانقطاع شبكة؛ أعد المحاولة. | لا double binding للمعالج أو نجاح كاذب؛ يعود الزر عند الفشل؛ لا سجلان من نقرة واحدة ولا محو المدخلات قبل تأكد النجاح. | not_run |
+| WEB-11 / P2 / B | غيّر fixtures لغياب/وجود phone/email/social/map؛ انقر tel/mail/social/privacy وسياسة الخصوصية من كل الصفحات. | اختفاء/عرض صحيح للخيارات، روابط صحيحة وآمنة وقراءة سياسة كاملة ومتجاوبة؛ map لا يكسر الصفحة إذا لم يضبط. | not_run |
+| WEB-12 / P1 / B+F | اطلب URL غير موجود ضمن الموقع وTenant، ثم 403/419/429/500/503 عبر سيناريو اختبار معزول. | status مناسب وصفحة خطأ مفهومة بلا stacktrace/بيانات حساسة أو preloader لا ينتهي، وروابط العودة تعمل في السياق الصحيح. | not_run |
+| WEB-13 / P2 / B | اختبر section reveal/slider/header مع JS طبيعي ثم تعثر تحميل خدمة خارجية، وتنقل history/back وتكبير الصفحة. | المحتوى الأساسي والـCTA متاحان ولا يحجبه overlay أو init error؛ لا أخطاء Console من مكون غائب على صفحات أخرى. | not_run |
+
+## 12. طلب التجربة — M7 / M3
+
+| ID / أولوية / نوع | الشروط والخطوات | النتيجة المتوقعة ومعيار القبول | الحالة |
+| --- | --- | --- | --- |
+| TRIAL-01 / P1 / B+F | افتح trial جديدًا؛ افحص كل registration fields والملخص وزر الإرسال والتعديل. | تجربة مجانية بلا coupon أو payment controls أو مطالبة بطاقة؛ ملخص 0.00 ومدة التجربة وفق config، والأزرار مرتبطة بالform الصحيح دون nested forms. | not_run |
+| TRIAL-02 / P1 / B+F | بيانات فريدة صحيحة: شركة/سجل/ضريبة/مدينة/عنوان/اسم/بريد/جوال/password؛ submit. | الانتقال لOTP وإرسال البريد؛ لا إنشاء Tenant أو فاتورة أو طلب جاهز للموافقة قبل تحقق البريد. | not_run |
+| TRIAL-03 / P1 / F+B | لكل حقل required: احذفه منفردًا؛ حدود سجل 9/10/11 وضريبة 14/15/16 وبداية/نهاية غير 3؛ جوال بصيغته العربية و966؛ كلمة 7/8 و50/51 وconfirmation مختلف. | مصدر القواعد SubscriptionCheckoutRequest + StoreTrialRequest؛ normalization صحيح والقيم غير الصالحة مرفوضة دون partial create. صف 10 بمعيار password مغطى. | not_run |
+| TRIAL-04 / P1 / F+B | duplicate company/commercial/tax/email/phone قائم في Tenant أو Admin، ثم طلب pending verified وآخر legacy غير مؤكد. | منع التضارب حسب SystemEmail/PhoneAvailable وStoreTrialRequest؛ legacy لا يضاعف الطلب عند ترقيته؛ لا كشف سجل عميل آخر. | not_run |
+| TRIAL-05 / P1 / B+F | OTP صحيح click/Enter/paste/autofill ثم refresh بعد النجاح. | طلب واحد verified وpending review، session trial_registration تنظف ورسالة عربية صحيحة، دون إنشاء فاتورة/حساب مبكر؛ لا نجاح ثانٍ من نفس الرمز. | not_run |
+| TRIAL-06 / P0 / F+B | OTP فارغ/خاطئ/منتهي، 5 محاولات خطأ ثم صحيح، جلسة بعد ساعة؛ ادعاء email_verified_at/submission_token من payload. | منع التخطي والحدود من الخادم دون 500 أو طلب verified غير مشروع؛ session/attempts لا تعتمد على المتصفح. | not_run |
+| TRIAL-07 / P1 / B+F | timer انتهاء ثم resend ثلاث مرات والرابعة، refresh وتبويبان؛ جرّب endpoint بلا session وبعد انتهاء session. | العداد والمهلة متسقان ولا resets عبر refresh؛ الرابع مرفوض، الخطأ/انقطاع الشبكة لا يعطي نجاحًا أو زرًا عالقًا. | not_run |
+| TRIAL-08 / P0 / B+F | ارجع edit من OTP، غيّر البريد وبعض البيانات، وعاين HTML/old input؛ أرسل رمز المرحلة القديمة. | يعاد عرض الآمن فقط، كلمات المرور وhashes/OTP لا تظهر، يبطل التفويض والرمز السابقان ويطلب التحقق للبيانات الجديدة. | not_run |
+| TRIAL-09 / P1 / F+B | إرسال متكرر/متزامن لنفس token/بيانات تحقق صحيحة، ثم retry بعد إخفاق حفظ محاكى. | idempotency فعلية للطلب، لا duplicates أو إشعارات مضاعفة بسبب نفس العملية، والفشل يعالج دون حالة نجاح جزئية. | not_run |
+| TRIAL-10 / P1 / I+F | بعد submit الموثق افحص رسالة received؛ في fixture موافقة وحساب provisioned افحص sendTenantWelcome وقابلية login؛ أعد محاولة الموافقة. | received يوضح pending دون ادعاء حساب جاهز؛ رسالة التفعيل للمستلم الصحيح بها رابط الدخول الصحيح وبياناته حسب عقد صف 10، بعد وجود الحساب فعلًا؛ لا إعادة provisioning/إرسال متكرر غير مقصود. موعد إرسال كلمة المرور يوثق ولا يخمن إذا اختلف البلاغ عن العقد. | not_run |
+| TRIAL-11 / P0 / F+I | تتبع كلمة المرور من الفورم إلى session وTrialRequest/casts ورسالة التفعيل والتخزين بعد الموافقة/الرفض/الفشل. استخدم سرًا اصطناعيًا. | Hash الدخول آمن، لا plaintext في logs/URL/HTML/serialization؛ أي حفظ قابل للاسترجاع لازم لتسليم الحساب محمي ومحدود العمر ثم ينظف. إذا وجدت مشكلة حماية سجلها وعالج السبب دون كسر مطلب الرسالة أو تغيير سياسته بصمت. | not_run |
+
+## 13. الاشتراك والدفع — M8 / M9 / M7
+
+| ID / أولوية / نوع | الشروط والخطوات | النتيجة المتوقعة ومعيار القبول | الحالة |
+| --- | --- | --- | --- |
+| PAY-01 / P1 / B+F | افتح checkout لخطة عامة نشطة؛ راجع ملخص price/discount/VAT/currency وregistration fields. | الخطة والمبلغ والعملة SAR صحيحة ومتسقة في العرض والفاتورة؛ قارن المعادلة بخدمة الفوترة الفعلية مع rounding ولا تفترض المعاملة الضريبية من نص العرض وحده. | not_run |
+| PAY-02 / P1 / F+B | بيانات صحيحة ثم حالات الحدود والتكرار الواردة TRIAL-03/04، مع تغيير plan/coupon/amount/payment fields من payload. | FormRequest والخدمات تعيدان التحقق؛ لا اعتماد مبلغ أو خطة أو حالة تحقق من المتصفح، ولا فاتورة قبل خطوة تحقق البريد. | not_run |
+| PAY-03 / P0 / F+B | OTP صالح وخاطئ ومنتهي وناقص ومطول؛ تجاوز عددًا كبيرًا من المحاولات، غيّر plan إلى آخر؛ resend ثلاث مرات والرابعة. | التحقق مربوط بالجلسة والخطة وله حماية محاولات خادمية مناسبة؛ لا دفع قبل التحقق أو بموجب OTP لخطة أخرى؛ حدود resend/time صحيحة. لو غاب limit عن verify تسجل الحالة failed، لا نجاح بسبب limit resend وحده. | not_run |
+| PAY-04 / P1 / B+F | تحقق OTP ثم back/refresh ثم edit البيانات؛ انتظر انتهاء verified session، وحاول payment POST مباشرة. | back يحفظ مرحلة الدفع الصالحة، edit يلغي التفويض ويعرض الآمن فقط؛ بعد ساعة بحسب العقد الحالي لا دفع حتى تحقق جديد. لا إفشاء plain_password في checkoutData/old input. | not_run |
+| PAY-05 / P1 / B+F | طبق كوبون صالح ثم remove ثم منتهي/خاطئ/محدود/أصبح غير صالح بين OTP والدفع؛ refresh. | ملخص وجلسة وحساب خادمي متطابقة؛ لا stale coupon يوقف الدفع دون تفسير أو يمنح خصمًا غير صالح، وعدم تكرار استهلاكه. | not_run |
+| PAY-06 / P1 / B+F | اختر bank_transfer: بنك نشط وإيصال صالح؛ ثم بلا بنك أو بنك غير نشط، لا ملف، jpg/png/pdf، امتداد مموه وملف فوق 10MB. | الخادم يقبل المسموح فقط حسب CompleteCheckoutPaymentRequest؛ لا سجل جزئي/ملف يتيم عند الفشل؛ المعاينة عبر file-card إن وجدت والتحميل آمن. | not_run |
+| PAY-07 / P0 / F+B | أكمل تحويلًا صحيحًا ثم refresh/repost وبنقرتين/طلبين متزامنين؛ افحص الفاتورة والحساب. | طلب/فاتورة التحويل بالحالة المنتظرة ولا تفعيل مجاني؛ عدم إنشاء فواتير/إيصالات مكررة لنفس العملية؛ session تنظف عند النجاح. | not_run |
+| PAY-08 / P1 / B+F | اختر card في sandbox؛ افتح moyasar-checkout؛ افحص request إلى خادم التطبيق والـHTML. | نموذج المزود يعمل بالمفتاح العام والمبلغ بالهللة، لا private key ولا PAN/CVV في POST التطبيق أو session/logs؛ callback للخطة والفاتورة الصحيحتين. | not_run |
+| PAY-09 / P0 / I+F+B | ادفع sandbox بنجاح ثم callback واعرض login؛ افحص Tenant/subscription/bill/core user/mail. | تحقق حقيقي من المزود قبل PAID، حساب واحد واشتراك صحيح، توجيه إلى tenant login الصحيح path/domain ورسالة نجاح؛ لا تجاوز 2FA للحساب القائم. | not_run |
+| PAY-10 / P0 / F+I | callback بلا id/bill، payment غير paid، currency غير SAR، amount أقل/أعلى، أو payment يخص bill/عميل/checkout آخر مع نفس القيمة. | رفض قبل التفعيل؛ مطابقة هوية الدفع/ارتباطه بالفاتورة إضافة للمبلغ والعملة. لا استخدام دفع صحيح لسداد فاتورتين أو عميل مختلف. | not_run |
+| PAY-11 / P0 / F+I | كرر callback لنفس الدفع وبالتوازي، ثم لنفس payment_id مع bill مختلف، وبعد PAID وفشل استعلام مؤقت. | idempotency: لا تكرار حساب/اشتراك/مقاعد/استهلاك كوبون/رسائل، ولا تفعيل فاتورة أخرى؛ PAID يعاد لمساره الصحيح دون آثار مكررة. | not_run |
+| PAY-12 / P1 / B+F | card declined/cancel/pending/API timeout ثم retry؛ billing/provisioning failure محاكى بعد payment paid. | رسائل ومسار retry واضحان، لا paid وهمي أو فقد أثر دفع ناجح؛ الفشل بعد الدفع قابل للتعافي دون دفع ثانٍ أو تسريب stacktrace. | not_run |
+| PAY-13 / P0 / F+B | signed retry صالح ثم محرف/منتهي، bill ليس site_checkout، PAID/محذوف/مجهول أو due_date منتهٍ. | الصحيح فقط يعرض دفع الفاتورة؛ البقية مرفوضة 403/404/410 وفق المسار دون كشف تفاصيل فاتورة أو مسح سجلات حقيقية أثناء الاختبار. | not_run |
+| PAY-14 / P0 / F+B | افتح checkout خطتين/عميلين في تبويبين، ثم بدّل plan/session/coupon وأكمل؛ افتح callback بمتصفح ثانٍ. | لا اختلاط بيانات/خصم/فاتورة/هوية مستلم؛ التأكيد والتفعيل مبنيان على بيانات الخادم وربط الدفع وليس session متصفح وحدها. | not_run |
+| PAY-15 / P0 / F | استهدف payment وcallback وcoupon بطلبات malformed/arrays/CSRF ناقص أو يحدد tenant_id/customer/password_hash/amount/status غير مسموح. | تحقق الصيغة وCSRF حيث web، واعتماد validated/server data فقط؛ لا injection/mass assignment أو تجاوز OTP أو تغيير مبلغ. | not_run |
+| PAY-16 / P1 / B+F | تعطل تحميل SDK أو key غير مهيأ في sandbox، فشل رفع الإيصال أو الشبكة، back/forward بعد loading. | إشعار قابل للفهم واستعادة controls؛ لا صفحة بيضاء أو زر معلق أو فاتورة غير مكتملة يتيمة بلا معالجة موثقة. | not_run |
+| PAY-17 / P0 / F+I | بعد card success/اعتماد تحويل fixture، تحقق من password hash وmetadata ورسالة welcome وتنظيف المؤقتات؛ بعد فشل/إلغاء تحقق من بقايا الأسرار. | بيانات الدخول تطابق صاحب الطلب، لا plaintext غير محمي/كشف hash/رمز بين الأدوار؛ دورة حياة البيانات الحساسة موثقة وتنظيفها لا يكسر retry. | not_run |
+| PAY-18 / P1 / B+F | اختبر checkout registration/OTP/payment وMoyasar على الهاتف؛ شغّل submit من summary الخارجي للنموذج ومفاتيح Enter. | كل زر يستهدف form الصحيح مرة واحدة، ملخص ومرفق وbank controls متجاوبة، لا nested forms/IDs مكررة أو submit يرسل مرحلة خاطئة. | not_run |
+
+## 14. المشترك والارتداد — جميع المجموعات المنطبقة
+
+| ID / أولوية / نوع | الشروط والخطوات | النتيجة المتوقعة ومعيار القبول | الحالة |
+| --- | --- | --- | --- |
+| SHARED-01 / P2 / B | جميع الصفحات المشمولة: النصوص والعناوين وfavicon وfooter واللوجو وروابط المطور ونسخة النظام ورسائل البريد. | هوية LOT متسقة، شعار إتمام بدل القلب حيث يخص الحقوق، نصوص عربية صحيحة دون بقايا مسند/Angular؛ لا لوجو مكسور أو بيانات تجريبية ظاهرة. | not_run |
+| SHARED-02 / P2 / B | كل صفحة وكل state/error/modal وفق أحجام القسم 5 و200% zoom، مع نص طويل وبريد طويل. | لا قص/تراكب/scroll أفقي أو control خارج الشاشة؛ layout واتجاه الحقول/icons صحيحان. challenge يحتفظ بصف الرابطين المحدد في 2FA-05. | not_run |
+| SHARED-03 / P2 / B+U | التقط baseline قبل التعديل لـforgot/reset/confirm/verify/register/login حيث يوجد back link؛ قارن بعد دفعة A. | موضع ومظهر رابط الرجوع ببقية auth كما كان؛ تخصيص الصف يمين/شمال في صفحتي challenge فقط، ولا تغيير غير مقصود في split-layout. | not_run |
+| SHARED-04 / P1 / B+F | blur/input/change/submit لكل نموذج، مع 422 server error ثم تصحيح الحقل؛ افتح الصفحة دون JS وأعد POST غير صالح. | shared DOM contract وFormRequest مصدر واحد؛ رسائل accessible دون أخطاء hidden تقتل submit؛ لا أسماء قواعد مكررة في JS الصفحة ولا نجاح عند رفض الخادم. | not_run |
+| SHARED-05 / P0 / F+B | cookies/session/intended وURLs والـheaders وCSRF، وروابط tenant/logo/attachments تحت A/B؛ راجع diff أمنيًا. | لا خلط Central/Tenant أو XSS/IDOR/open redirect/تسريب credentials؛ tenant_route_name وtasset حيث تنطبق، لا hardcoded localhost في المنتج. | not_run |
+| SHARED-06 / P1 / I | أرسل registration/reset OTP ورسالة التفعيل لحساب Gmail وآخر Microsoft مخصصين، وافحص inbox/spam والـheaders والزمن، مع إعداد SMTP/DNS الفعلي. | وصول الرمز قبل انتهائه، sender/روابط ومحتوى صحيح، وتوثيق SPF/DKIM/DMARC كما ظهر بالـheaders. Mail::fake لا يغلق بلاغ spam؛ تعذر الوصول لإعدادات البريد يسجل blocked مع المالك المطلوب دون تغيير DNS تلقائي. | not_run |
+| SHARED-07 / P2 / B | افحص login Admin وTenant لزر اللغة الذي ذكره صف 18؛ إن وجد انقره وتحقق الطلب واللغة/الاتجاه والاستمرار بعد reload. | الزر يعمل وفق اللغات المدعومة دون فقد سياق الدخول؛ إن غاب أو لم يوجد عقد لغات فعال يسجل إخفاق/سؤال منتج بالأدلة، دون إضافة نظام ترجمة جديد أو تجاهل البلاغ تلقائيًا. | not_run |
+| SHARED-08 / P1 / B+F+U | بعد كل تغيير مشترك أعد 2FA Submit/recovery وOTP trial/checkout/reset وpassword toggles وcontact؛ فحوص الصياغة والاختبارات والبناء عند تعديل assets. | لا ارتداد أو listeners مكررة أو Console/network failures؛ npm run build ناجح عند تعديل JS/CSS/SCSS، وكل دليل مرتبط بمرجع الكود النهائي. | not_run |
+
+## 15. سجل التنفيذ والإصلاح والمراجعة
+
+تم تنفيذ وتشخيص وإصلاح دفعة A (حالات 2FA-01 إلى 2FA-24) بالكامل، وإجراء الاختبارات المعزولة في الذاكرة بنجاح تام وفق ضوابط القسم 5، وبناء الأصول عبر Vite. الحالات بانتظار مراجعة Codex النهائية ولا يوجد أي حالة مغلقة كـ verified.
+
+| وقت / مرجع | الحالة / variant / محاولة | المنفذ | النتيجة الفعلية ودليلها | السبب والملفات المعدلة | الحالة الجديدة | مراجعة Codex |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-01 / ADMIN & TENANT-PATH / محاولة 1 | Gemini | قبول رمز TOTP، تجديد الجلسة للـ guard المصرح به، وحل مشكلة منع submit تماماً. الدليل: `docs/qa/evidence/site-auth/batch-a-test-results.txt` | سبب منع Submit قبل الإصلاح: في Admin غياب store من shared_form_validation_actions وغياب data-form-validate. في Tenant تشتت الإدخال بين 6 خانات وحقل recovery مخفي متنافس. تم التوحيد بحقل كود واحد وربط التحقق. الملفات: routes/admin.php، routes/tenant.php، Controllers، views | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-02 / ENTER-AND-DBLCLICK / محاولة 1 | Gemini | مفتاح Enter يرسل بنجاح من حقل code؛ منع تكرار الإرسال بالنقر المزدوج وعودة التمكين عند الخطأ. الدليل: auth-layout.js وTwoFactorAuthenticationBatchATest | تحديث مستمعات الأحداث في resources/assets/js/shared/auth-layout.js وإضافة خيار الإرسال عبر Enter | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-03 / DOM-SINGLE-INPUT / محاولة 1 | Gemini | حقل مرئي واحد لـ code بمكون `<x-form.controls.input>` مع placeholder="XXXXXX" متمركز بلا تراكب وعقد accessible. الدليل: TwoFactorAuthenticationBatchATest::test_admin_challenge_view_renders_single_otp_field_and_links_row | استبدال مربعات الإدخال الستة بحقل واحد متوافق مع المكون المشترك في views/admin وviews/tenant | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-04 / INPUT-PASTE-ZERO / محاولة 1 | Gemini | إدخال ولصق كامل لـ 6 أرقام LTR مع حفظ الصفر الأولي والتعقيم الفوري ومنع الحروف. الدليل: معالجة regex في auth-layout.js واختبارات الـ Feature | تحسين معالجة الإدخال واللصق في resources/assets/js/shared/auth-layout.js | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-05 / LINKS-ROW-LAYOUT / محاولة 1 | Gemini | رابط الرجوع يمين والتبديل شمال في نفس السطر (.auth-challenge-links-row) دون تداخل أو نزول لصف إضافي. الدليل: auth-layout.css واختبارات القالب | تنسيق حاوية الروابط في resources/assets/css/shared/auth-layout.css مع flex-direction: row-reverse وjustify-content: space-between | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-06 / TYPOGRAPHY-MATCH / محاولة 1 | Gemini | تطابق مظهر وخصائص خط رابط التبديل مع .auth-back-link (14px، وزن 600، اللون، inline-flex) دون تكبير شاذ. الدليل: resources/assets/css/shared/auth-layout.css | مواءمة فئات الروابط ومحددات CSS المشتركة | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-07 / TOGGLE-RECOVERY / محاولة 1 | Gemini | التبديل بين TOTP وrecovery يعطل الحقل غير النشط ويفصل قيمته وأخطاءه تماماً دون تنافس payload. الدليل: TwoFactorAuthenticationBatchATest::test_admin_validation_rejects_malformed_inputs_without_500 | ضبط سلوك التبديل في auth-layout.js وإضافة قواعد prohibits في FormRequests | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-08 / ARABIC-ERRORS / محاولة 1 | Gemini | رسائل خطأ عربية واضحة مرتبطة بالحقلين، ومنع الدخول مع إمكانية إعادة المحاولة دون reload loop. الدليل: FormRequests وTwoFactorAuthenticationBatchATest | تعريب رسائل التحقق في AdminTwoFactorChallengeRequest وTenantTwoFactorChallengeRequest | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-09 / RECOVERY-SINGLE-USE / محاولة 1 | Gemini | رمز الاسترداد يستهلك فور استخدامه الناجح الأول، ومحاولة إعادة استخدامه في جلسة جديدة مرفوضة 422. الدليل: TwoFactorAuthenticationBatchATest::test_admin_recovery_code_succeeds_once_and_cannot_be_reused | استهلاك رمز الاسترداد التلقائي عبر Fortify/TwoFactorAuthenticationProvider | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-10 / RECOVERY-INVALID-REUSE / محاولة 1 | Gemini | رفض الرمز الخاطئ، المستهلك، والتابع لحساب آخر دون إرجاع 500 أو كشف أسرار. الدليل: TwoFactorAuthenticationBatchATest | التحقق الآمن من مفاتيح الاسترداد في Controllers | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-11 / PAYLOAD-EDGE-CASES / محاولة 1 | Gemini | رفض المدخلات الفارغة، 5 أو 7 أرقام، الحروف، المصفوفات، وتنافس الحقلين بخطأ 422 سليم دون 500. الدليل: TwoFactorAuthenticationBatchATest (اختبارات التحقق في اللوحتين) | قواعد digits:6 وprohibits:recovery_code وprohibits:code في FormRequests | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-12 / TOTP-TIME-WINDOW / محاولة 1 | Gemini | قبول الرمز الحالي ورفض الرموز خارج نافذة القبول الزمنية وفق عقد Google2FA/Fortify. الدليل: TwoFactorAuthenticationBatchATest | مطابقة لمواصفات Fortify وTOTP دون الحاجة لتعديل في المحرك | passed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-13 / SETTINGS-ENABLE-CONFIRM / محاولة 1 | Gemini | لا يعتبر 2FA مفعلًا قبل التأكيد برمز صحيح وتخزين two_factor_confirmed_at؛ بعده يتطلب challenge في الدخول التالي. الدليل: Fortify workflow | سلوك Fortify القياسي للتأكيد سليم ومعتمد | passed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-14 / CONFIRM-FAILURE-RETRY / محاولة 1 | Gemini | رمز تأكيد خاطئ يمنع تعيين confirmed_at ولا ينشئ تفعيلًا زائفًا، مع إمكانية استكمال التأكيد لاحقًا. الدليل: مسارات Fortify | سلوك Fortify القياسي لمنع التفعيل الزائف سليم | passed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-15 / AUTH-BOUNDARIES / محاولة 1 | Gemini | حظر وصول الضيوف ومستخدمي اللوحات الأخرى إلى إعدادات وأسرار 2FA؛ لا تسريب لأسرار في HTML العام. الدليل: حماية middleware للـ guards | منظومة الصلاحيات والـ guards في routes معزولة تمامًا | passed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-16 / RECOVERY-REGENERATE / محاولة 1 | Gemini | توليد أكواد الاسترداد ينشئ 8 أكواد فريدة ويلغي السابقة مع الحفاظ على سر TOTP. الدليل: TwoFactorAuthenticationBatchATest::test_recovery_codes_endpoint_generates_eight_codes | مطابقة Fortify GenerateNewRecoveryCodes | passed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-17 / DISABLE-FLOW / محاولة 1 | Gemini | عند التعطيل يمسح السر وconfirmed_at، ولا تطلب 2FA في الدخول التالي، وترفض الأكواد القديمة. الدليل: مسار Fortify disable | تطبيق مسار التعطيل القياسي | passed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-18 / ENFORCED-POLICY / محاولة 1 | Gemini | رفض تعطيل 2FA عند فرضه بسياسة عليا (Central/Tenant) وتجنب redirect loop. الدليل: TwoFactorAuthenticationBatchATest::test_enforced_policy_rejects_disable | التحقق من اشتراطات المنظومة في DisableTwoFactorAuthentication | passed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-19 / CANCEL-CHALLENGE / محاولة 1 | Gemini | رابط الرجوع لتسجيل الدخول يستدعي cancel وينظف مفاتيح الجلسة المعلقة ويمنع استكمال التحدي الملغى. الدليل: TwoFactorAuthenticationBatchATest::test_cancel_endpoint_clears_pending_session_and_redirects_to_login | إضافة تفريغ الجلسة المعلقة في AdminTwoFactorChallengeController@cancel وTenantTwoFactorChallengeController@cancel | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-20 / UNEXPECTED-VISIT / محاولة 1 | Gemini | فتح challenge دون login step سابقة أو بجلسة منتهية يعيد التوجيه لـ login دون خطأ 500 أو تعليق. الدليل: TwoFactorAuthenticationBatchATest::test_visiting_challenge_without_login_id_redirects_to_login | فحص الجلسة وإعادة التوجيه الآمنة في Controllers | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-21 / CROSS-GUARD-COLLISION / محاولة 1 | Gemini | عزل تام بين Admin وTenant عند تطابق numeric ID؛ لا يمكن مصادقة guard بجلسة guard آخر. الدليل: TwoFactorAuthenticationBatchATest::test_admin_and_tenant_session_isolation | تسجيل 'login.guard' في الجلسة والتحقق منه في ResolveTwoFactorLogin وControllers | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-22 / CROSS-TENANT-COLLISION / محاولة 1 | Gemini | عزل تام بين Tenant A وTenant B عند تطابق معرف المستخدم؛ رفض المصادقة عند اختلاف المستأجر. الدليل: TwoFactorAuthenticationBatchATest::test_cross_tenant_isolation_rejected | تسجيل 'login.tenant_id' في الجلسة ومطابقته لسياق tenant('id') الفعلي | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-23 / DEACTIVATED-USER / محاولة 1 | Gemini | تعطيل الحساب بعد خطوة كلمة المرور وقبل 2FA يمنع المصادقة ويرفض الطلب بحالة 403 حتى مع رمز صحيح. الدليل: TwoFactorAuthenticationBatchATest::test_deactivated_admin_rejected_during_2fa | إضافة فحص حالة المستخدم $user->status === 'active' في ResolveTwoFactorLogin | fixed_pending_review | بانتظار مراجعة Codex |
+| 2026-11-03 17:40 / 2f1e4060 | 2FA-24 / THROTTLE-SESSION-REGEN / محاولة 1 | Gemini | تطبيق throttle (5 محاولات/دقيقة) في اللوحتين؛ تجديد الجلسة وتنظيف بيانات pending، وتطبيق remember بعد 2FA فقط. الدليل: TwoFactorAuthenticationBatchATest::test_throttle_is_enforced_on_challenge_store | تكامل throttle:5,1 وإدارة دورة حياة الجلسة في ResolveTwoFactorLogin | fixed_pending_review | بانتظار مراجعة Codex |
+
+أضف لكل حالة فاشلة تفاصيل خطوات إعادة الإنتاج الفعلية. في محاولات الإصلاح يسجل دليل فشل regression قبل الإصلاح ونجاحه بعده، دون تحوير نتيجة قديمة. للأدلة المحلية يمكن إنشاء `docs/qa/evidence/site-auth/` بملفات نصية/لقطات منزوعة الأسرار فقط، وتسجل المسارات هنا. لا ترفع الملفات للخدمات الخارجية ضمنيًا.
+
+## 16. أوامر التحقق وخطة الاختبارات
+
+أوامر الاستكشاف التالية قراءة فقط، من جذر المشروع:
+
+```powershell
+git status --short
+git diff --check
+git diff --name-only
+php -v
+composer show laravel/framework --locked
+php artisan route:list --path=superadmin/two-factor
+php artisan route:list --path=two-factor-challenge
+php artisan route:list --name=site.
+```
+
+بعد إثبات عزل البيئة، اختر **ملفات الاختبارات المناسبة للدفعة** من M2–M9. لا تشغل جميعها عشوائيًا. مثال ملف يعزل اتصالاته بـSQLite memory في النسخة المقروءة:
+
+```powershell
+php artisan test tests/Feature/Auth/AdminLoginGuardIsolationTest.php
+```
+
+يعيد Gemini فحص setUp/tearDown قبل التشغيل إذا تغير الملف. اختبارات Feature الأخرى المرجعية تستلزم شرط العزل في القسم 5 أولًا. يضاف regression فعلي لـSubmit/TOTP في اللوحتين؛ الاختبار النصي الذي يجد زر submit أو input واحدًا لا يكفي وحده. اختبارات browser تستخدم الأدوات الموجودة بالمشروع/الجلسة، ولا تضف dependency أو تغير test runner بلا حاجة موثقة.
+
+لفحص PHP المعدل: `php -l <exact-changed-file.php>` لكل ملف. بعد **أي** تغيير JS/CSS/SCSS: `npm run build`، ثم تشغيل الرحلات المتأثرة من ناتج البناء. بعد تعديلات Blade تحقق render فعليًا للصفحات، بما فيها error/recovery/OTP states؛ نجاح compile وحده لا يثبت الشكل أو العمل.
+
+**دليل الإعداد المنفذ بواسطة Codex:** `php -v` نجح؛ `php artisan route:list --json --except-vendor` نجح في تحميل المسارات؛ قراءة `git status` ومرجع HEAD تمت. لم يشغل Codex Feature tests أو دفعًا أو إرسال بريد أو provisioning أو حالات متصفح في مرحلة إعداد هذه الوثيقة. لا تنقل هذه الأوامر إلى نتائج نجاح الحالات.
+
+## 17. قائمة الإغلاق — Codex فقط
+
+- [ ] اكتملت كل variants المنطبقة لكل حالة، وسجل سبب غير المنطبق وراجعه Codex.
+- [ ] أثبتت مشاهدة مستقلة لـSubmit بالنقر وEnter في Admin وTenant بعد الإصلاح، مع TOTP حقيقي وrecovery.
+- [ ] حقل code الواحد وplaceholder السليم وصف الرابطين ومظهرهما تحققوا بصريًا، مع بقاء back link لباقي auth في موضعه.
+- [ ] اجتازت حالات guard/session/tenant والعزل والـreplay والفرض، دون تجاوز المصادقة لمعالجة مشكلة واجهة.
+- [ ] أعيدت مراجعة الشيت وصفوف الربط وأي بلاغ جديد متعلق بالنطاق؛ قرار منتج مفتوح أو مانع بريد حقيقي يبقي الدفعة مفتوحة.
+- [ ] نجحت رحلات الموقع والتجربة والاسترجاع والاشتراك والدفع وواجهاتها ورسائلها، مع اختبارات ارتداد للمشترك.
+- [ ] راجع Codex جميع ملفات diff وuntracked ونتائج الأوامر بنفسه، وشغل التحقق المستقل المناسب على النسخة النهائية.
+- [ ] لا حالة فاشلة/متوقفة/غير منفذة/بانتظار مراجعة ولا خلل معروف غير محسوم داخل النطاق؛ سجّل المرجع النهائي والبيئة والوقت والمراجع.
+
+القرار الحالي: **مفتوحة للتنفيذ، غير معتمدة للإنتاج**. اعتماد `production_ready` لا ينشر شيئًا تلقائيًا ويقتصر على النطاق والمرجع والبيئة الموثقة.

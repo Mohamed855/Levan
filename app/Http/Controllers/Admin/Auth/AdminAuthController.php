@@ -39,6 +39,7 @@ class AdminAuthController extends Controller
             $request->session()->put([
                 'login.id' => $admin->getKey(),
                 'login.remember' => $request->boolean('remember'),
+                'login.guard' => 'admin',
             ]);
 
             return redirect()->route('admin.two-factor.login');

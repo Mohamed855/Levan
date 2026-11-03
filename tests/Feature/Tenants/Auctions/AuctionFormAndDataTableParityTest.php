@@ -62,13 +62,21 @@ class AuctionFormAndDataTableParityTest extends TestCase
         $this->assertStringNotContainsString('status->value', $formContent);
     }
 
+    public function test_auction_edit_does_not_load_invalid_pivot_relation(): void
+    {
+        $controllerContent = file_get_contents(app_path('Http/Controllers/Tenants/Auctions/AuctionsController.php'));
+
+        $this->assertStringNotContainsString('properties.pivot', $controllerContent);
+        $this->assertStringContainsString("'properties'", $controllerContent);
+    }
+
     public function test_auction_show_renders_card_layout_and_loading_title(): void
     {
         $showContent = file_get_contents(resource_path('views/tenant/auctions/show.blade.php'));
 
         $this->assertStringNotContainsString('layout="list"', $showContent);
         $this->assertStringContainsString('layout="card"', $showContent);
-        $this->assertStringContainsString('برجاء الانتظار، جار تحضير تقارير المزاد', $showContent);
+        $this->assertStringContainsString('تحضير وتجهيز تقارير المزاد', $showContent);
         $this->assertStringContainsString('reports-progress-bar', $showContent);
     }
 
