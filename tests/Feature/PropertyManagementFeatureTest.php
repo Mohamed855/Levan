@@ -63,13 +63,31 @@ class PropertyManagementFeatureTest extends TestCase
             ->assertOk()
             ->getContent();
 
-        foreach (['filter-assignment-status', 'filter-assignment', 'filter-type', 'filter-data-status', 'filter-city'] as $filterId) {
+        foreach (['filter-assignment-status', 'filter-assignment', 'filter-type', 'filter-data-status', 'filter-city', 'filter-administrative-region'] as $filterId) {
             $this->assertMatchesRegularExpression(
                 '/<select[^>]*id="'.$filterId.'"[^>]*data-datatable-target="#properties-table"/',
                 $content,
                 $filterId.' must target the property DataTable explicitly.',
             );
         }
+    }
+
+    public function test_administrative_region_renders_as_dropdown_with_options(): void
+    {
+        $response = $this->actingAs($this->owner, 'tenant')
+            ->get($this->tenantUrl('properties/create'));
+
+        $response->assertOk();
+        $content = $response->getContent();
+
+        $this->assertMatchesRegularExpression(
+            '/<select[^>]*id="property-administrative-region"[^>]*name="administrative_region"/',
+            $content,
+            'The administrative region must be rendered as a select dropdown with id property-administrative-region.'
+        );
+        $this->assertStringContainsString('منطقة الرياض', $content);
+        $this->assertStringContainsString('منطقة مكة المكرمة', $content);
+        $this->assertStringContainsString('المنطقة الشرقية', $content);
     }
 
     public function test_user_can_view_property_create_page(): void

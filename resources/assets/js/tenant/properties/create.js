@@ -1302,7 +1302,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const locationFields = [
                 ["المدينة", getSelectedText("city")],
                 ["الحي", getSelectedText("district") !== "-" ? getSelectedText("district") : getVal("district")],
-                ["المنطقة الإدارية", getVal("administrative_region")],
+                ["المنطقة الإدارية", getSelectedText("administrative_region") !== "-" ? getSelectedText("administrative_region") : getVal("administrative_region")],
                 ["رقم المخطط", getVal("plan_number")],
                 ["رقم القطعة", getVal("parcel_number")],
                 [

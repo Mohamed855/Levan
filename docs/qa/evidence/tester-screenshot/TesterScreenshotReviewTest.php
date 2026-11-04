@@ -50,13 +50,13 @@ final class TesterScreenshotReviewTest extends TestCase
     {
         View::share('errors', new \Illuminate\Support\ViewErrorBag());
         $source = file_get_contents(resource_path('views/tenant/properties/partials/_form.blade.php'));
-        $this->assertSame(1, preg_match('/<x-form\.controls\.input name="administrative_region".*?\/>/s', $source, $matches));
-        $html = Blade::render($matches[0], ['is_edit' => false]);
+        $this->assertSame(1, preg_match('/<x-form\.controls\.select name="administrative_region".*?\/>/s', $source, $matches));
+        $html = Blade::render($matches[0], ['is_edit' => false, 'property' => null, 'regionOptions' => ['منطقة الرياض' => 'منطقة الرياض']]);
         $document = new \DOMDocument();
         @$document->loadHTML('<?xml encoding="utf-8" ?>'.$html);
-        $input = (new \DOMXPath($document))->query('//input[@name="administrative_region"]')->item(0);
-        $this->assertNotNull($input);
-        $this->assertFalse($input->hasAttribute('required'));
+        $select = (new \DOMXPath($document))->query('//select[@name="administrative_region"]')->item(0);
+        $this->assertNotNull($select);
+        $this->assertFalse($select->hasAttribute('required'));
     }
 
     public function test_tc011_actual_property_district_control_renders_exact_requested_placeholder(): void

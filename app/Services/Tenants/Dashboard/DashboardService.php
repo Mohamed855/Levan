@@ -156,39 +156,61 @@ class DashboardService
 
     public function getPropertyStatusDistribution(): array
     {
-        $statistics = $this->propertyService->getStatistics();
-        $total = $statistics['total'];
+        $total = Property::query()->count();
+
+        // 4 شرائح حصرية ومستقلة تغطي 100% من عقارات المستأجر دون تكرار أو إدراج الإجمالي كشريحة:
+        // 1. جاهزة للإسناد: نشطة ومكتملة البيانات وغير مرتبطة بإسناد بعد
+        // 2. مرتبطة بإسناد: نشطة ومرتبطة بملف إسناد
+        // 3. تحتاج للمراجعة: نشطة وغير مرتبطة وبياناتها غير مكتملة أو تحتاج تدقيق/صور
+        // 4. غير نشطة: معطلة بغض النظر عن حالة بياناتها
+        $readyCount = Property::query()
+            ->where('is_active', true)
+            ->whereNull('assignment_id')
+            ->where('data_status', PropertyDataStatus::COMPLETED->value)
+            ->count();
+
+        $linkedCount = Property::query()
+            ->where('is_active', true)
+            ->whereNotNull('assignment_id')
+            ->count();
+
+        $needsReviewCount = Property::query()
+            ->where('is_active', true)
+            ->whereNull('assignment_id')
+            ->where(function ($q) {
+                $q->where('data_status', '!=', PropertyDataStatus::COMPLETED->value)
+                    ->orWhereNull('data_status');
+            })
+            ->count();
+
+        $inactiveCount = Property::query()
+            ->where('is_active', false)
+            ->count();
 
         $statuses = [
             [
-                'key' => 'total',
-                'label' => 'إجمالي العقارات',
-                'color' => 'primary',
-                'count' => $statistics['total'],
-            ],
-            [
-                'key' => 'active',
-                'label' => 'عقار نشط',
+                'key' => 'ready_for_assignment',
+                'label' => 'جاهزة للإسناد',
                 'color' => 'success',
-                'count' => $statistics['active'],
+                'count' => $readyCount,
             ],
             [
-                'key' => 'completed',
-                'label' => 'مكتملة البيانات',
+                'key' => 'linked',
+                'label' => 'مرتبطة بإسناد',
                 'color' => 'info',
-                'count' => $statistics['completed'],
-            ],
-            [
-                'key' => 'unlinked',
-                'label' => 'غير مرتبطة بإسناد',
-                'color' => 'warning',
-                'count' => $statistics['unlinked'],
+                'count' => $linkedCount,
             ],
             [
                 'key' => 'needs_review',
                 'label' => 'تحتاج للمراجعة',
-                'color' => 'danger',
-                'count' => $statistics['needs_review'],
+                'color' => 'warning',
+                'count' => $needsReviewCount,
+            ],
+            [
+                'key' => 'inactive',
+                'label' => 'غير نشطة',
+                'color' => 'secondary',
+                'count' => $inactiveCount,
             ],
         ];
 

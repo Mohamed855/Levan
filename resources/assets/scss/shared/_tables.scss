@@ -2,8 +2,8 @@
 // Tables — DataTable overrides, styling and tooltip positioning fix
 // =============================================================================
 
-@use 'sass:map';
-@use 'palette';
+@use "sass:map";
+@use "palette";
 
 .table,
 table.dataTable {
@@ -13,7 +13,7 @@ table.dataTable {
 
     thead th {
         background-color: rgba(247, 243, 236, 0.6) !important;
-        color: var(--primary-color, #1D4F44) !important;
+        color: var(--primary-color, #1d4f44) !important;
         font-weight: 600 !important;
         font-size: 0.85rem !important;
         border-bottom: 2px solid rgba(29, 79, 68, 0.1) !important;
@@ -46,11 +46,21 @@ table.dataTable {
                 vertical-align: middle !important;
                 text-align: center !important;
                 border-bottom: 1px solid rgba(29, 79, 68, 0.06) !important;
-                color: var(--brand-dark-green, #12332C);
+                color: var(--brand-dark-green, #12332c);
                 font-size: var(--font-size-base, 0.9375rem);
                 font-weight: 400 !important;
 
-                &:not(.custom-checkbox):not(.dt-actions):not(.actions):not(.dt-checkboxes-cell):not(.td-no-clamp):not(:has(.btn)):not(:has(button)):not(:has(.badge)):not(:has(.form-switch)):not(:has(.js-table-status-toggle)):not(:has(.dropdown)):not(:has(i)):not(:has(svg)):not(:has(.avatar)):not(:has(.avatar-group)):not(:has(input[type="checkbox"])) {
+                &:not(.custom-checkbox):not(.dt-actions):not(.actions):not(
+                        .dt-checkboxes-cell
+                    ):not(.td-no-clamp):not(:has(.btn)):not(:has(button)):not(
+                        :has(.badge)
+                    ):not(:has(.form-switch)):not(
+                        :has(.js-table-status-toggle)
+                    ):not(:has(.dropdown)):not(:has(i)):not(:has(svg)):not(
+                        :has(.avatar)
+                    ):not(:has(.avatar-group)):not(
+                        :has(input[type="checkbox"])
+                    ) {
                     max-width: 200px !important;
                 }
 
@@ -121,8 +131,16 @@ table.dataTable {
 
                 // Fallback direct children clamping (strictly 1 line for pure text elements)
                 > p,
-                > div:not(.form-check):not(.form-switch):not(.d-flex):not(.dropdown):not(.btn-group):not(.avatar-group):not(.copyable-code-wrapper):not(.table-cell-clamp):not(:has(.btn)):not(:has(button)):not(:has(i)):not(:has(svg)):not(:has(.badge)),
-                > a:not(.btn):not(.dropdown-item):not(.avatar):not(.badge):not(:has(i)):not(:has(svg)) {
+                > div:not(.form-check):not(.form-switch):not(.d-flex):not(
+                        .dropdown
+                    ):not(.btn-group):not(.avatar-group):not(
+                        .copyable-code-wrapper
+                    ):not(.table-cell-clamp):not(:has(.btn)):not(
+                        :has(button)
+                    ):not(:has(i)):not(:has(svg)):not(:has(.badge)),
+                > a:not(.btn):not(.dropdown-item):not(.avatar):not(.badge):not(
+                        :has(i)
+                    ):not(:has(svg)) {
                     display: inline-block !important;
                     max-width: 200px !important;
                     white-space: nowrap !important;
@@ -249,7 +267,7 @@ table.dataTable tbody tr.child .dtr-data .table-cell-clamp {
             &.active {
                 background-color: rgba(29, 79, 68, 0.16) !important;
                 border-color: transparent !important;
-                color: var(--primary-color-deep, #12332C) !important;
+                color: var(--primary-color-deep, #12332c) !important;
             }
         }
     }
@@ -355,7 +373,7 @@ table.dataTable tbody tr.child .dtr-data .table-cell-clamp {
                     &:hover {
                         background-color: var(--secondary-color);
                         border-color: var(--secondary-color-dark);
-                        color: var(--primary-color-deep, #12332C);
+                        color: var(--primary-color-deep, #12332c);
                     }
                 }
 
@@ -392,7 +410,10 @@ input[type="checkbox"].row-checkbox,
 #select-all,
 table.dataTable th.custom-checkbox input[type="checkbox"],
 table.dataTable td.custom-checkbox input[type="checkbox"],
-.table input[type="checkbox"]:not(.form-switch input):not(.js-table-status-toggle) {
+.table
+    input[type="checkbox"]:not(.form-switch input):not(
+        .js-table-status-toggle
+    ) {
     appearance: none !important;
     -webkit-appearance: none !important;
     width: 17px !important;
@@ -403,7 +424,9 @@ table.dataTable td.custom-checkbox input[type="checkbox"],
     cursor: pointer !important;
     outline: none !important;
     box-shadow: none !important;
-    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+    transition:
+        background-color 0.15s ease-in-out,
+        border-color 0.15s ease-in-out;
     background-repeat: no-repeat !important;
     background-position: center !important;
     background-size: contain !important;
@@ -449,16 +472,19 @@ table.dataTable td.custom-checkbox input[type="checkbox"],
     display: inline-flex !important;
     align-items: center;
     gap: 0.25rem;
-    max-width: 200px !important;
+    width: 100% !important;
+    max-width: 250px;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     vertical-align: middle;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
 
     &:hover {
         background-color: rgba(29, 79, 68, 0.12);
-        color: var(--primary-color-deep, #12332C);
+        color: var(--primary-color-deep, #12332c);
     }
 
     .copyable-code {
@@ -506,11 +532,13 @@ table.dataTable td.custom-checkbox input[type="checkbox"],
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     vertical-align: middle;
-    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+    transition:
+        background-color 0.15s ease-in-out,
+        color 0.15s ease-in-out;
 
     &:hover {
         background-color: rgba(29, 79, 68, 0.12);
-        color: var(--primary-color-deep, #12332C) !important;
+        color: var(--primary-color-deep, #12332c) !important;
     }
 }
 
@@ -602,7 +630,9 @@ table.dataTable {
             text-align-last: center !important;
         }
 
-        .select2-container .select2-selection--single .select2-selection__rendered {
+        .select2-container
+            .select2-selection--single
+            .select2-selection__rendered {
             text-align: center !important;
         }
     }

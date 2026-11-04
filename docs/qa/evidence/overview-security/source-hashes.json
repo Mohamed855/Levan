@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-11-04T14:07:30+02:00",
+  "files": [
+    {
+      "path": "app/Services/Tenants/Dashboard/DashboardService.php",
+      "sha256": "D3BD367950FB89620F93D41D3492ED3E4B9F4A5127265DC40801C9C66D5CB1AD"
+    },
+    {
+      "path": "resources/views/tenant/dashboard/index.blade.php",
+      "sha256": "DD8ABBA3DA3DB46786C506A52A702877EC203759EB57EC85A6E38BC53C9452DE"
+    },
+    {
+      "path": "resources/views/admin/auth/two-factor-settings.blade.php",
+      "sha256": "1C79BC373F2B679C0BF42BD0F13CB60B6912ACBC90FA804EB6E1D6116899655C"
+    },
+    {
+      "path": "resources/views/tenant/auth/two-factor-settings.blade.php",
+      "sha256": "A7540C68434BA5C2189093A948102825D876477BC8DF792152EA4D0A716E4FB6"
+    },
+    {
+      "path": "resources/assets/js/shared/datatable-page-defaults.js",
+      "sha256": "D45BF83C31CD8C7D0B7EBD5BB9C990935C8D69F1FED782792220612536E537AC"
+    },
+    {
+      "path": "tests/Feature/Auth/OverviewAndSecurityDualReviewTest.php",
+      "sha256": "AF82261DAB05F19364CA3B1CBB19E681AD984DCDC3C02B2B9F33DDAF6DB5639E"
+    }
+  ]
+}

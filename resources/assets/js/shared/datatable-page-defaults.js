@@ -69,7 +69,32 @@ $(function () {
     // 5. Copyable Code Wrapper Single-Click Clipboard Copy
     $(document).on("click", ".copyable-code-wrapper", function () {
         const code = $(this).data("code") || $(this).text().trim();
-        if (code && navigator.clipboard) {
+        if (!code) return;
+
+        function execCommandFallback(text) {
+            try {
+                const tempInput = document.createElement("textarea");
+                tempInput.value = text;
+                tempInput.setAttribute("readonly", "");
+                tempInput.style.position = "absolute";
+                tempInput.style.left = "-9999px";
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                const successful = document.execCommand("copy");
+                document.body.removeChild(tempInput);
+                if (successful && typeof toastr !== "undefined") {
+                    toastr.success("تم النسخ إلى الحافظة: " + text);
+                } else if (!successful && typeof toastr !== "undefined") {
+                    toastr.error("تعذر النسخ إلى الحافظة");
+                }
+            } catch (e) {
+                if (typeof toastr !== "undefined") {
+                    toastr.error("تعذر النسخ إلى الحافظة");
+                }
+            }
+        }
+
+        if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard
                 .writeText(code)
                 .then(function () {
@@ -78,17 +103,10 @@ $(function () {
                     }
                 })
                 .catch(function () {
-                    // Fallback for non-secure contexts
-                    const tempInput = document.createElement("input");
-                    tempInput.value = code;
-                    document.body.appendChild(tempInput);
-                    tempInput.select();
-                    document.execCommand("copy");
-                    document.body.removeChild(tempInput);
-                    if (typeof toastr !== "undefined") {
-                        toastr.success("تم النسخ إلى الحافظة: " + code);
-                    }
+                    execCommandFallback(code);
                 });
+        } else {
+            execCommandFallback(code);
         }
     });
 

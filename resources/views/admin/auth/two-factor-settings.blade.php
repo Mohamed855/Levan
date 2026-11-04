@@ -141,8 +141,9 @@
                                     <div>أدخل الكود المكوّن من 6 أرقام الظاهر في التطبيق</div>
                                 </div>
 
-                                <form id="twoFactorConfirmForm" method="POST" novalidate action="{{ route('admin.two-factor.confirm') }}"
-                                    class="w-100 d-flex flex-column gap-2" data-form-validate data-validation-submit="ajax"
+                                <form id="twoFactorConfirmForm" method="POST" novalidate
+                                    action="{{ route('admin.two-factor.confirm') }}" class="w-100 d-flex flex-column gap-2"
+                                    data-form-validate data-validation-submit="ajax"
                                     data-validation-url="{{ route('admin.two-factor.validate') }}">
                                     @csrf
                                     <x-form.controls.input name="code" id="twoFactorCode" label="كود التحقق"
@@ -318,13 +319,71 @@
                 });
             });
 
+            function copyCodeToClipboard(code) {
+                if (!code) return;
+                const cleanCode = String(code).trim();
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(cleanCode).then(function() {
+                        toastr.success('تم النسخ إلى الحافظة: ' + cleanCode);
+                    }).catch(function() {
+                        fallbackCopyText(cleanCode);
+                    });
+                } else {
+                    fallbackCopyText(cleanCode);
+                }
+            }
+
+            function fallbackCopyText(text) {
+                try {
+                    const tempInput = document.createElement('textarea');
+                    tempInput.value = text;
+                    tempInput.setAttribute('readonly', '');
+                    tempInput.style.position = 'absolute';
+                    tempInput.style.left = '-9999px';
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    const successful = document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    if (successful) {
+                        toastr.success('تم النسخ إلى الحافظة: ' + text);
+                    } else {
+                        toastr.error('تعذر النسخ إلى الحافظة');
+                    }
+                } catch (err) {
+                    toastr.error('تعذر النسخ إلى الحافظة');
+                }
+            }
+
+            $('#recoveryCodesList').on('click', '.copyable-code-wrapper', function(e) {
+                e.preventDefault();
+                const code = $(this).data('code') || $(this).find('.copyable-code').text().trim();
+                copyCodeToClipboard(code);
+            });
+
+            $('#recoveryCodesList').on('keydown', '.copyable-code-wrapper', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const code = $(this).data('code') || $(this).find('.copyable-code').text().trim();
+                    copyCodeToClipboard(code);
+                }
+            });
+
             function renderRecoveryCodes(codes) {
                 recoveryCodesList.empty();
                 (codes || []).forEach(function(code) {
+                    const escaped = String(code).trim();
                     recoveryCodesList.append(
                         '<div class="col">' +
-                        '<div class="border rounded px-2 py-1 text-center small">' +
-                        code + '</div>' +
+                        '<div class="copyable-code-wrapper d-flex align-items-center justify-content-between border rounded px-2 py-1 bg-label-primary cursor-pointer" ' +
+                        'data-code="' + escaped +
+                        '" role="button" tabindex="0" title="اضغط لنسخ الكود" aria-label="نسخ كود الاسترجاع ' +
+                        escaped + '">' +
+                        '<code class="copyable-code text-dark fw-bold" dir="ltr">' + escaped +
+                        '</code>' +
+                        '<button type="button" class="btn btn-sm btn-icon text-muted p-0 border-0 bg-transparent copy-code-btn" tabindex="-1" aria-hidden="true">' +
+                        '<i class="ti ti-copy"></i>' +
+                        '</button>' +
+                        '</div>' +
                         '</div>'
                     );
                 });

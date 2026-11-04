@@ -131,10 +131,10 @@
                                 <x-form.controls.select name="district" id="property-district" label="الحي / النطاق"
                                     :value="$is_edit ? $property->district : old('district')" :options="$districtOptions ?? []" placeholder="اختر الحي" data-tags="true"
                                     required col="col-md-6" />
-                                <x-form.controls.input name="administrative_region" label="المنطقة الإدارية"
+                                <x-form.controls.select name="administrative_region" id="property-administrative-region" label="المنطقة الإدارية"
                                     :value="$is_edit
                                         ? $property->administrative_region
-                                        : old('administrative_region')" placeholder="مثال: منطقة الرياض" col="col-md-6" />
+                                        : old('administrative_region')" :options="$regionOptions ?? []" placeholder="اختر المنطقة الإدارية" col="col-md-6" />
                                 <x-form.controls.input name="plan_number" type="number" step="1" min="0"
                                     :value="$is_edit ? $property->plan_number : old('plan_number')" label="رقم المخطط" placeholder="مثال: 2357" required
                                     col="col-md-6" />

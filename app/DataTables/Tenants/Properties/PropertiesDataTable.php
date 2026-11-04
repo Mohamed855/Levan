@@ -143,6 +143,10 @@ class PropertiesDataTable extends AbstractDataTable
             $query->where('city', $request->city);
         }
 
+        if ($request->filled('administrative_region')) {
+            $query->where('administrative_region', $request->administrative_region);
+        }
+
         if ($request->filled('data_status')) {
             $query->where('data_status', $request->data_status);
         }
