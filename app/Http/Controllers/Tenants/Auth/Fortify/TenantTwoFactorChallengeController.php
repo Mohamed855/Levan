@@ -17,10 +17,19 @@ class TenantTwoFactorChallengeController extends Controller
     public function create(Request $request): View|RedirectResponse
     {
         $hasLoginId = $request->session()->has('login.id');
-        $guardMismatch = $request->session()->has('login.guard') && $request->session()->get('login.guard') !== 'tenant';
-        $tenantMismatch = $request->session()->has('login.tenant_id') && (function_exists('tenant') && $request->session()->get('login.tenant_id') !== tenant('id'));
+        $guard = $request->session()->get('login.guard');
+        $tenantId = $request->session()->get('login.tenant_id');
+        $currentTenantId = function_exists('tenant') ? tenant('id') : null;
 
-        if (! $hasLoginId || $guardMismatch || $tenantMismatch) {
+        if (! $hasLoginId || $guard !== 'tenant' || $tenantId === null || $currentTenantId === null || (string) $tenantId !== (string) $currentTenantId) {
+            $request->session()->forget(['login.id', 'login.guard', 'login.tenant_id', 'login.remember']);
+            return redirect(tenant_route_name('login'));
+        }
+
+        $user = Auth::guard('tenant')->getProvider()->retrieveById($request->session()->get('login.id'));
+        $statusValue = $user && $user->status instanceof \BackedEnum ? $user->status->value : (string) ($user->status ?? '');
+        if (! $user || $statusValue !== 'active' || empty($user->two_factor_secret) || empty($user->two_factor_confirmed_at)) {
+            $request->session()->forget(['login.id', 'login.guard', 'login.tenant_id', 'login.remember']);
             return redirect(tenant_route_name('login'));
         }
 
@@ -32,7 +41,7 @@ class TenantTwoFactorChallengeController extends Controller
         $user = $resolver->verify('tenant', $request, $request->validated());
         $remember = $request->session()->pull('login.remember', false);
 
-        $request->session()->forget(['login.id', 'login.guard', 'login.tenant_id']);
+        $request->session()->forget(['login.id', 'login.guard', 'login.tenant_id', 'login.remember']);
 
         Auth::guard('tenant')->login($user, $remember);
 
@@ -47,7 +56,7 @@ class TenantTwoFactorChallengeController extends Controller
 
     public function cancel(Request $request): RedirectResponse
     {
-        $request->session()->forget(['login.id', 'login.remember', 'login.guard', 'login.tenant_id']);
+        $request->session()->forget(['login.id', 'login.guard', 'login.tenant_id', 'login.remember']);
 
         return redirect(tenant_route_name('login'));
     }

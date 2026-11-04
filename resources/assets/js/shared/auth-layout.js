@@ -1,36 +1,40 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
     // 1. Single 2FA OTP Code Input Handling
-    const codeInput = document.getElementById('code');
-    const recoveryInput = document.getElementById('recovery_code');
+    const codeInput = document.getElementById("code");
+    const recoveryInput = document.getElementById("recovery_code");
 
     if (codeInput) {
         // Enforce numeric only and max 6 digits
-        codeInput.addEventListener('input', function (e) {
-            const clean = e.target.value.replace(/\D/g, '').slice(0, 6);
+        codeInput.addEventListener("input", function (e) {
+            const clean = e.target.value.replace(/\D/g, "").slice(0, 6);
             if (e.target.value !== clean) {
                 e.target.value = clean;
             }
         });
 
-        codeInput.addEventListener('paste', function (e) {
+        codeInput.addEventListener("paste", function (e) {
             e.preventDefault();
-            const pasted = (e.clipboardData || window.clipboardData).getData('text').trim();
-            const clean = pasted.replace(/\D/g, '').slice(0, 6);
+            const pasted = (e.clipboardData || window.clipboardData)
+                .getData("text")
+                .trim();
+            const clean = pasted.replace(/\D/g, "").slice(0, 6);
             codeInput.value = clean;
-            codeInput.dispatchEvent(new Event('input', { bubbles: true }));
-            codeInput.dispatchEvent(new Event('change', { bubbles: true }));
+            codeInput.dispatchEvent(new Event("input", { bubbles: true }));
+            codeInput.dispatchEvent(new Event("change", { bubbles: true }));
         });
 
         // Ensure Enter key triggers form submission smoothly
-        codeInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
+        codeInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
                 e.preventDefault();
-                const form = codeInput.closest('form');
+                const form = codeInput.closest("form");
                 if (form) {
-                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const submitBtn = form.querySelector(
+                        'button[type="submit"]',
+                    );
                     if (submitBtn) {
                         submitBtn.click();
-                    } else if (typeof form.requestSubmit === 'function') {
+                    } else if (typeof form.requestSubmit === "function") {
                         form.requestSubmit();
                     } else {
                         form.submit();
@@ -41,15 +45,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (recoveryInput) {
-        recoveryInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
+        recoveryInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
                 e.preventDefault();
-                const form = recoveryInput.closest('form');
+                const form = recoveryInput.closest("form");
                 if (form) {
-                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const submitBtn = form.querySelector(
+                        'button[type="submit"]',
+                    );
                     if (submitBtn) {
                         submitBtn.click();
-                    } else if (typeof form.requestSubmit === 'function') {
+                    } else if (typeof form.requestSubmit === "function") {
                         form.requestSubmit();
                     } else {
                         form.submit();
@@ -60,67 +66,73 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // 2. Toggle between OTP and Recovery Code in 2FA Challenge
-    const toggleRecoveryLink = document.getElementById('toggleRecoveryLink');
-    const codeWrapper = document.getElementById('codeInputsWrapper');
-    const recoveryWrapper = document.getElementById('recoveryWrapper');
-    const toggleRecoveryText = document.getElementById('toggleRecoveryText');
-    const toggleRecoveryIcon = document.getElementById('toggleRecoveryIcon');
+    const toggleRecoveryLink = document.getElementById("toggleRecoveryLink");
+    const codeWrapper = document.getElementById("codeInputsWrapper");
+    const recoveryWrapper = document.getElementById("recoveryWrapper");
+    const toggleRecoveryText = document.getElementById("toggleRecoveryText");
+    const toggleRecoveryIcon = document.getElementById("toggleRecoveryIcon");
 
     if (toggleRecoveryLink && codeWrapper && recoveryWrapper) {
-        let isRecoveryMode = !recoveryWrapper.classList.contains('d-none');
+        let isRecoveryMode = !recoveryWrapper.classList.contains("d-none");
 
-        toggleRecoveryLink.addEventListener('click', function (e) {
+        toggleRecoveryLink.addEventListener("click", function (e) {
             e.preventDefault();
             isRecoveryMode = !isRecoveryMode;
 
             if (isRecoveryMode) {
                 // Switch to Recovery mode
                 if (codeInput) {
-                    codeInput.value = '';
+                    codeInput.value = "";
                     codeInput.disabled = true;
-                    codeInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    codeInput.dispatchEvent(
+                        new Event("input", { bubbles: true }),
+                    );
                 }
-                codeWrapper.classList.add('d-none');
-                recoveryWrapper.classList.remove('d-none');
+                codeWrapper.classList.add("d-none");
+                recoveryWrapper.classList.remove("d-none");
                 if (recoveryInput) {
                     recoveryInput.disabled = false;
                     recoveryInput.focus();
                 }
                 if (toggleRecoveryText) {
-                    toggleRecoveryText.textContent = 'استخدام رمز المصادقة بدلاً من ذلك';
+                    toggleRecoveryText.textContent = "استخدام رمز المصادقة";
                 } else {
-                    toggleRecoveryLink.textContent = 'استخدام رمز المصادقة بدلاً من ذلك';
+                    toggleRecoveryLink.textContent = "استخدام رمز المصادقة";
                 }
                 if (toggleRecoveryIcon) {
-                    toggleRecoveryIcon.className = 'ti ti-shield-check me-1';
+                    toggleRecoveryIcon.className = "ti ti-shield-check me-1";
                 }
             } else {
                 // Switch to OTP mode
                 if (recoveryInput) {
-                    recoveryInput.value = '';
+                    recoveryInput.value = "";
                     recoveryInput.disabled = true;
-                    recoveryInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    recoveryInput.dispatchEvent(
+                        new Event("input", { bubbles: true }),
+                    );
                 }
-                recoveryWrapper.classList.add('d-none');
-                codeWrapper.classList.remove('d-none');
+                recoveryWrapper.classList.add("d-none");
+                codeWrapper.classList.remove("d-none");
                 if (codeInput) {
                     codeInput.disabled = false;
                     codeInput.focus();
                 }
                 if (toggleRecoveryText) {
-                    toggleRecoveryText.textContent = 'استخدام كود استرجاع بدلاً من ذلك';
+                    toggleRecoveryText.textContent = "استخدام كود استرجاع";
                 } else {
-                    toggleRecoveryLink.textContent = 'استخدام كود استرجاع بدلاً من ذلك';
+                    toggleRecoveryLink.textContent = "استخدام كود استرجاع";
                 }
                 if (toggleRecoveryIcon) {
-                    toggleRecoveryIcon.className = 'ti ti-key me-1';
+                    toggleRecoveryIcon.className = "ti ti-key me-1";
                 }
             }
         });
     }
 
     // 3. OTP Countdown Timer & Resend Handling
-    const otpTimer = document.querySelector("#checkout-otp-timer, .auth-otp-timer");
+    const otpTimer = document.querySelector(
+        "#checkout-otp-timer, .auth-otp-timer",
+    );
     if (otpTimer) {
         let expiresAt = Number(otpTimer.dataset.expiresAt || 0) * 1000;
         let resendCount = Number(otpTimer.dataset.resendCount || 0);
@@ -173,7 +185,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (resendBtn) resendBtn.disabled = true;
 
             const totalSeconds = Math.ceil(remaining / 1000);
-            const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+            const minutes = String(Math.floor(totalSeconds / 60)).padStart(
+                2,
+                "0",
+            );
             const seconds = String(totalSeconds % 60).padStart(2, "0");
             otpTimer.textContent = `${minutes}:${seconds}`;
         };
@@ -201,7 +216,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const resendUrl = otpTimer.dataset.resendUrl;
                 const csrfToken =
-                    document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") ||
+                    document
+                        .querySelector('meta[name="csrf-token"]')
+                        ?.getAttribute("content") ||
                     resendForm?.querySelector('input[name="_token"]')?.value ||
                     document.querySelector('input[name="_token"]')?.value;
 
@@ -225,7 +242,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         if (response.ok && data.success) {
                             if (window.toastr) {
-                                window.toastr.success(data.message || "تم إعادة إرسال رمز التحقق بنجاح.");
+                                window.toastr.success(
+                                    data.message ||
+                                        "تم إعادة إرسال رمز التحقق بنجاح.",
+                                );
                             }
 
                             if (data.expires_at) {
@@ -240,7 +260,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                 resendCount += 1;
                             }
 
-                            otpTimer.dataset.expiresAt = Math.floor(expiresAt / 1000);
+                            otpTimer.dataset.expiresAt = Math.floor(
+                                expiresAt / 1000,
+                            );
                             otpTimer.dataset.resendCount = resendCount;
 
                             renderResendButton(false);
@@ -250,7 +272,10 @@ document.addEventListener('DOMContentLoaded', function () {
                             return;
                         } else {
                             if (window.toastr) {
-                                window.toastr.error(data.message || "حدث خطأ أثناء إعادة إرسال الرمز.");
+                                window.toastr.error(
+                                    data.message ||
+                                        "حدث خطأ أثناء إعادة إرسال الرمز.",
+                                );
                             }
                             if (typeof data.resend_count !== "undefined") {
                                 resendCount = Number(data.resend_count);
@@ -261,7 +286,10 @@ document.addEventListener('DOMContentLoaded', function () {
                             return;
                         }
                     } catch (err) {
-                        console.error("AJAX resend failed, falling back to form submit:", err);
+                        console.error(
+                            "AJAX resend failed, falling back to form submit:",
+                            err,
+                        );
                     }
                 }
 

@@ -1,0 +1,226 @@
+{
+  "scope": "User screenshot: only TC001–TC024 for ليفان العقارية; screenshot overrides mixed spreadsheet scope",
+  "review_date": "2026-11-04",
+  "spreadsheet_url": "https://docs.google.com/spreadsheets/d/10gf1GKjJUy7987OpGMTwZBbEx3vj4aRTz8R414WT-8k/edit?gid=718702619",
+  "sheet": "Arabic Test Cases",
+  "sheet_id": 718702619,
+  "source_note": "Text transcribed from matching live rows, with membership and statuses checked against the user-provided screenshot. Other rows are excluded.",
+  "entries": [
+    {
+      "source_row": 9,
+      "id": "TC001",
+      "scenario": "يوجد نصوص من نظام مسند في الموقع التعريفي",
+      "delivery_status": "تم التنفيذ",
+      "test_status": "قيد الاختبار",
+      "priority": "منخفضة",
+      "notes": null
+    },
+    {
+      "source_row": 10,
+      "id": "TC002",
+      "scenario": "سيتم اعتماد عند طلب تجربة ارسال ال Password على الايميل مع رابط الدخول و Password craiteria ",
+      "delivery_status": "تم التنفيذ",
+      "test_status": "قيد الاختبار",
+      "priority": "متوسطة",
+      "notes": " تم تحقيق شرط ال Password Criteria ولكن مفترض الباسورد يتبعت على الايميل مع لينك الدخول"
+    },
+    {
+      "source_row": 13,
+      "id": "TC003",
+      "scenario": "ال OTP بوصل في ال SPAM في جيميل هنجرب ايميل مايكروسوفت ",
+      "delivery_status": "مؤجلة",
+      "test_status": "قيد الاختبار",
+      "priority": "متوسطة",
+      "notes": "حاليا بيوصل في ال SPAM  على ال GMAIL هنجرب مايكروسوفت"
+    },
+    {
+      "source_row": 15,
+      "id": "TC004",
+      "scenario": "التحقق من ال TEXT في شاشة الادمن login",
+      "delivery_status": "تم التنفيذ",
+      "test_status": "قيد الاختبار",
+      "priority": "منخفضة",
+      "notes": null
+    },
+    {
+      "source_row": 19,
+      "id": "TC005",
+      "scenario": "الجهات المسندة تكون Dropdownlist ويكون في اوبشن اضافة جهات في النظام ",
+      "delivery_status": "تم التنفيذ",
+      "test_status": "قيد الاختبار",
+      "priority": "عاجلة",
+      "notes": null
+    },
+    {
+      "source_row": 26,
+      "id": "TC006",
+      "scenario": "الاحياء تكون Dropdownlist وتكون مرتبطة بالمدن",
+      "delivery_status": "تم التنفيذ",
+      "test_status": "قيد الاختبار",
+      "priority": "عاجلة",
+      "notes": null
+    },
+    {
+      "source_row": 28,
+      "id": "TC007",
+      "scenario": "الشركة والمستخدمة مكررة نلغيها من ال Sidebar ",
+      "delivery_status": "تم التنفيذ",
+      "test_status": "قيد الاختبار",
+      "priority": "عاجلة",
+      "notes": null
+    },
+    {
+      "source_row": 29,
+      "id": "TC008",
+      "scenario": "كان في مشكلة في اخيار عقار بعد ما كملت كل بيانات الاسناد رجعني لاختيار عقار تاني ",
+      "delivery_status": "قيد التنفيذ",
+      "test_status": "قيد الاختبار",
+      "priority": "عاجلة",
+      "notes": null
+    },
+    {
+      "source_row": 30,
+      "id": "TC009",
+      "scenario": "مشكلة تحديد صورة العقار اقتراح بتغيير ال Pckage لانها مش User Freindly ",
+      "delivery_status": "تم التنفيذ",
+      "test_status": "قيد الاختبار",
+      "priority": "عاجلة",
+      "notes": null
+    },
+    {
+      "source_row": 31,
+      "id": "TC010",
+      "scenario": "عند اضافة عقار جديد المنطقة الإدارية * اجباري المطلوب تكون اختياري",
+      "delivery_status": "تم التنفيذ",
+      "test_status": "قيد الاختبار",
+      "priority": "متوسطة",
+      "notes": null
+    },
+    {
+      "source_row": 39,
+      "id": "TC011",
+      "scenario": "عند اضافة عقار نغير ال Placeholder الخاص باختيار الحي من اختر الحي او اكتب حيا جديدا الى اختر الحي فقط",
+      "delivery_status": "تم التنفيذ",
+      "test_status": "قيد الاختبار",
+      "priority": "متوسطة",
+      "notes": null
+    },
+    {
+      "source_row": 40,
+      "id": "TC012",
+      "scenario": "تم اختبار استعادة كلمة المرور ",
+      "delivery_status": "تم التنفيذ",
+      "test_status": "نجاح الاختبار",
+      "priority": "عاجلة",
+      "notes": null
+    },
+    {
+      "source_row": 41,
+      "id": "TC013",
+      "scenario": "اضافة خيار في النظام في الاعدادات لاضافة المناطق الادارة للمدن مثال منطقة الرياض - منطقة مكة المكرمة وهكذا ",
+      "delivery_status": "لم يتم البدء",
+      "test_status": null,
+      "priority": "عاجلة",
+      "notes": null
+    },
+    {
+      "source_row": 42,
+      "id": "TC014",
+      "scenario": "في الخطوة رقم 2 عند اضافة عقار - اضافة خيار لتمكين المستخدم من اضافة رابط موقع العقار من Google Map ps مثال توضيحي في الواير فريم",
+      "delivery_status": "لم يتم البدء",
+      "test_status": null,
+      "priority": "متوسطة",
+      "notes": null
+    },
+    {
+      "source_row": 43,
+      "id": "TC015",
+      "scenario": "صورة العقار مفترض تكون في الخطوة الاولى والخطوة الثانية مفترض عرض العقار على الخريطة",
+      "delivery_status": "لم يتم البدء",
+      "test_status": null,
+      "priority": "متوسطة",
+      "notes": null
+    },
+    {
+      "source_row": 44,
+      "id": "TC016",
+      "scenario": "اضافة قسم الملفات والصور مقسم مثال الواير فريم",
+      "delivery_status": "لم يتم البدء",
+      "test_status": null,
+      "priority": "متوسطة",
+      "notes": null
+    },
+    {
+      "source_row": 45,
+      "id": "TC017",
+      "scenario": "في قسم المزادات جدول المزادات استبدال اسم الاسناد بالجهة المسندة على المزاد مثال  جهة انفاذ او حسب الجهة المختارة في الاسناد",
+      "delivery_status": "لم يتم البدء",
+      "test_status": null,
+      "priority": "منخفضة",
+      "notes": null
+    },
+    {
+      "source_row": 46,
+      "id": "TC018",
+      "scenario": "اضافة خيار اضافة صورة للجهات المسندة فيما بعد سيتم استخدامها عند توليد المخرجات بوضع صورة الجهة المسندة المختارة في المزاد  في ال PDF",
+      "delivery_status": "لم يتم البدء",
+      "test_status": null,
+      "priority": "متوسطة",
+      "notes": null
+    },
+    {
+      "source_row": 47,
+      "id": "TC019",
+      "scenario": "اضافة خيار عند توليد  مخرج PDF وضع لوجو العميل بدلا من ليفان",
+      "delivery_status": "لم يتم البدء",
+      "test_status": null,
+      "priority": "متوسطة",
+      "notes": null
+    },
+    {
+      "source_row": 48,
+      "id": "TC020",
+      "scenario": "اضافة حالة اخرى للمزاد منهي او تم الاغلاق بعد انتهاء وقت المزاد الفعلي او معلق اذا كان من الجهة نفسها لسبب ما",
+      "delivery_status": "لم يتم البدء",
+      "test_status": null,
+      "priority": "متوسطة",
+      "notes": null
+    },
+    {
+      "source_row": 50,
+      "id": "TC021",
+      "scenario": "يوجد خطأ 500 عند تعديل المزاد",
+      "delivery_status": "تم التنفيذ",
+      "test_status": null,
+      "priority": "عاجلة",
+      "notes": null
+    },
+    {
+      "source_row": 52,
+      "id": "TC022",
+      "scenario": " اضافة رقم الاصل في خطوة الملكية والتفاصيل عند اضافة عقار ومفترض تظهر في مخرج المزاد فيما بعد في ال PDF",
+      "delivery_status": "لم يتم البدء",
+      "test_status": null,
+      "priority": "عاجلة",
+      "notes": null
+    },
+    {
+      "source_row": 55,
+      "id": "TC023",
+      "scenario": "يوجد مشكلة  عند اضافة عقار والضغط على التالي يظهر Validation على اختيار مدينة مع العلم انه تم اختيار المدينة",
+      "delivery_status": "تم التنفيذ",
+      "test_status": null,
+      "priority": "عاجلة",
+      "notes": null
+    },
+    {
+      "source_row": 57,
+      "id": "TC024",
+      "scenario": "تبديل ال ❤️ بلوجو اتمام في الحقوق المحفوظة",
+      "delivery_status": "لم يتم البدء",
+      "test_status": null,
+      "priority": "عاجلة",
+      "notes": null
+    }
+  ]
+}

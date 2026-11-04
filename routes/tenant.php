@@ -38,8 +38,9 @@ use App\Http\Controllers\Tenants\Domains\RenewalDomainController;
 use App\Http\Controllers\Tenants\License\LicenseController;
 use App\Http\Controllers\Tenants\Locations\LocationController;
 use App\Http\Controllers\Tenants\Notification\NotificationController;
-use App\Http\Controllers\Tenants\Properties\PropertiesController;
 use App\Http\Controllers\Tenants\Profile\ProfileController;
+use App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController;
+use App\Http\Controllers\Tenants\Properties\PropertiesController;
 use App\Http\Controllers\Tenants\Settings\ApiTokenSettingsController;
 use App\Http\Controllers\Tenants\Settings\SettingsController;
 use App\Http\Controllers\Tenants\Subscriptions\NewSubscriptionController;
@@ -363,7 +364,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 Route::name('download')->get('download/{type}', [AuctionReportController::class, 'download']);
                 Route::name('retry')->post('retry', [AuctionReportController::class, 'retry']);
             });
-            Route::name('promotional-advertisements.status')->get('{auction}/promotional-advertisements/status', [\App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController::class, 'status']);
+            // Route::name('promotional-advertisements.status')->get('{auction}/promotional-advertisements/status', [\App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController::class, 'status']);
         });
         Route::resource('auctions', AuctionsController::class)
             ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
@@ -373,12 +374,12 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         | Promotional Advertisements (الإعلانات الترويجية)
         |--------------------------------------------------------------------------
         */
-        Route::prefix('promotional-advertisements')->name('promotional-advertisements.')->group(function () {
-            Route::get('create', [\App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController::class, 'create'])->name('create');
-            Route::post('/', [\App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController::class, 'store'])->name('store');
-            Route::get('templates-by-type', [\App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController::class, 'templatesByType'])->name('templates-by-type');
-            Route::get('{advertisement}/download', [\App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController::class, 'download'])->name('download');
-        });
+        // Route::prefix('promotional-advertisements')->name('promotional-advertisements.')->group(function () {
+        //     Route::get('create', [PromotionalAdvertisementsController::class, 'create'])->name('create');
+        //     Route::post('/', [PromotionalAdvertisementsController::class, 'store'])->name('store');
+        //     Route::get('templates-by-type', [PromotionalAdvertisementsController::class, 'templatesByType'])->name('templates-by-type');
+        //     Route::get('{advertisement}/download', [PromotionalAdvertisementsController::class, 'download'])->name('download');
+        // });
 
         /*
         |--------------------------------------------------------------------------

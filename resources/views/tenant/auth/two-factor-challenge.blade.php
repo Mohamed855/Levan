@@ -56,7 +56,7 @@
                 <i class="ti ti-arrow-left" aria-hidden="true"></i>
             </button>
 
-            <div class="auth-challenge-links-row d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4">
+            <div class="auth-challenge-links-row d-flex justify-content-between align-items-center gap-2 mt-4">
                 <a href="{{ tenant_route_name('tenants.two-factor.cancel') }}" class="auth-back-link">
                     <i class="ti ti-arrow-right me-1"></i>
                     <span>الرجوع لتسجيل الدخول بحساب آخر</span>
@@ -64,7 +64,7 @@
 
                 <a href="javascript:void(0);" id="toggleRecoveryLink" class="auth-back-link auth-toggle-link">
                     <i class="ti {{ $isRecovery ? 'ti-shield-check' : 'ti-key' }} me-1" id="toggleRecoveryIcon"></i>
-                    <span id="toggleRecoveryText">{{ $isRecovery ? 'استخدام رمز المصادقة بدلاً من ذلك' : 'استخدام كود استرجاع بدلاً من ذلك' }}</span>
+                    <span id="toggleRecoveryText">{{ $isRecovery ? 'استخدام رمز المصادقة' : 'استخدام كود استرجاع' }}</span>
                 </a>
             </div>
         </form>

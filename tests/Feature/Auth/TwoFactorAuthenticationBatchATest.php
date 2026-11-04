@@ -57,6 +57,14 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
             $table->timestamps();
         });
 
+        // Company settings table (Central)
+        Schema::connection('mysql')->create('company_settings', function (Blueprint $table): void {
+            $table->id();
+            $table->string('tenant_id')->nullable();
+            $table->boolean('force_two_factor_auth')->default(false);
+            $table->timestamps();
+        });
+
         // Tenants table
         Schema::connection('mysql')->create('tenants', function (Blueprint $table): void {
             $table->string('id')->primary();
@@ -114,12 +122,58 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
     }
 
     // --------------------------------------------------------------------------
+    // Fixture Helpers
+    // --------------------------------------------------------------------------
+
+    private function createAdminFixture(array $attributes = []): AdminUser
+    {
+        $admin = AdminUser::create(array_merge([
+            'name' => 'Admin User',
+            'email' => 'admin-' . uniqid() . '@example.test',
+            'password' => bcrypt('password123'),
+            'status' => 'active',
+        ], $attributes));
+
+        $admin->forceFill([
+            'two_factor_secret' => $attributes['two_factor_secret'] ?? encrypt('test-secret'),
+            'two_factor_confirmed_at' => $attributes['two_factor_confirmed_at'] ?? now(),
+            'two_factor_recovery_codes' => $attributes['two_factor_recovery_codes'] ?? encrypt(json_encode(['code1', 'code2'])),
+        ])->save();
+
+        return $admin;
+    }
+
+    private function createTenantUserFixture(string $tenantId = 'test-tenant', array $attributes = []): User
+    {
+        if (! tenancy()->initialized || tenant('id') !== $tenantId) {
+            $tenant = Tenant::firstOrCreate(['id' => $tenantId]);
+            tenancy()->initialize($tenant);
+        }
+
+        $user = User::create(array_merge([
+            'name' => 'Tenant User',
+            'email' => 'tenant-' . uniqid() . '@example.test',
+            'password' => bcrypt('password123'),
+            'status' => 'active',
+        ], $attributes));
+
+        $user->forceFill([
+            'two_factor_secret' => $attributes['two_factor_secret'] ?? encrypt('test-secret'),
+            'two_factor_confirmed_at' => $attributes['two_factor_confirmed_at'] ?? now(),
+            'two_factor_recovery_codes' => $attributes['two_factor_recovery_codes'] ?? encrypt(json_encode(['code1', 'code2'])),
+        ])->save();
+
+        return $user;
+    }
+
+    // --------------------------------------------------------------------------
     // 2FA-03, 2FA-05, 2FA-06: UI Structure & Contract
     // --------------------------------------------------------------------------
 
     public function test_admin_challenge_view_renders_single_otp_field_and_links_row(): void
     {
-        $response = $this->withSession(['login.id' => 1, 'login.guard' => 'admin'])
+        $admin = $this->createAdminFixture();
+        $response = $this->withSession(['login.id' => $admin->id, 'login.guard' => 'admin'])
             ->get('/superadmin/two-factor-challenge');
 
         $response->assertOk();
@@ -142,9 +196,10 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
     {
         $tenant = Tenant::create(['id' => 'test-tenant']);
         tenancy()->initialize($tenant);
+        $user = $this->createTenantUserFixture('test-tenant');
 
         $response = $this->withSession([
-            'login.id' => 1,
+            'login.id' => $user->id,
             'login.guard' => 'tenant',
             'login.tenant_id' => 'test-tenant',
         ])->get('/test-tenant/two-factor-challenge');
@@ -417,12 +472,35 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
 
     public function test_cancel_endpoint_clears_pending_session_and_redirects_to_login(): void
     {
-        $response = $this->withSession(['login.id' => 10, 'login.guard' => 'admin', 'login.remember' => true])
-            ->get('/superadmin/two-factor-challenge/cancel');
+        // Admin Cancel
+        $this->withSession([
+            'login.id' => 10,
+            'login.guard' => 'admin',
+            'login.tenant_id' => 'leftover-tenant',
+            'login.remember' => true,
+        ])->get('/superadmin/two-factor-challenge/cancel')
+            ->assertRedirect('/superadmin/login');
 
-        $response->assertRedirect('/superadmin/login');
         $this->assertNull(session('login.id'));
         $this->assertNull(session('login.guard'));
+        $this->assertNull(session('login.tenant_id'));
+        $this->assertNull(session('login.remember'));
+
+        // Tenant Cancel
+        $tenant = Tenant::create(['id' => 'cancel-tenant']);
+        tenancy()->initialize($tenant);
+
+        $this->withSession([
+            'login.id' => 20,
+            'login.guard' => 'tenant',
+            'login.tenant_id' => 'cancel-tenant',
+            'login.remember' => true,
+        ])->get('/cancel-tenant/two-factor-challenge/cancel')
+            ->assertRedirect(tenant_route_name('login'));
+
+        $this->assertNull(session('login.id'));
+        $this->assertNull(session('login.guard'));
+        $this->assertNull(session('login.tenant_id'));
         $this->assertNull(session('login.remember'));
     }
 
@@ -439,7 +517,7 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
     }
 
     // --------------------------------------------------------------------------
-    // 2FA-21, 2FA-22: Guard & Tenant Isolation
+    // 2FA-21, 2FA-22: Guard & Tenant Isolation with Identical Numeric IDs
     // --------------------------------------------------------------------------
 
     public function test_admin_and_tenant_session_isolation(): void
@@ -447,14 +525,14 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
         $tenant = Tenant::create(['id' => 'iso-tenant']);
         tenancy()->initialize($tenant);
 
-        // Admin pending session attempting to post to tenant endpoint -> 419 / rejected
+        // Admin pending session attempting to post to tenant endpoint -> rejected fail-closed
         $response = $this->withSession(['login.id' => 1, 'login.guard' => 'admin'])
             ->post('/iso-tenant/two-factor-challenge', ['code' => '123456']);
 
         $this->assertTrue(in_array($response->getStatusCode(), [403, 419, 302], true));
         $this->assertFalse(Auth::guard('tenant')->check());
 
-        // Tenant pending session attempting to post to admin endpoint -> 419 / rejected
+        // Tenant pending session attempting to post to admin endpoint -> rejected fail-closed
         $responseAdmin = $this->withSession([
             'login.id' => 1,
             'login.guard' => 'tenant',
@@ -470,117 +548,363 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
         $tenantA = Tenant::create(['id' => 'tenant-a']);
         $tenantB = Tenant::create(['id' => 'tenant-b']);
 
-        tenancy()->initialize($tenantB);
+        // Create user in Tenant A with ID 1
+        tenancy()->initialize($tenantA);
+        $userA = User::create([
+            'id' => 1,
+            'name' => 'User in Tenant A',
+            'email' => 'user-a@example.test',
+            'password' => bcrypt('password123'),
+            'status' => 'active',
+        ]);
+        $userA->forceFill([
+            'two_factor_secret' => encrypt('secret-a'),
+            'two_factor_confirmed_at' => now(),
+            'two_factor_recovery_codes' => encrypt(json_encode(['recovery-a'])),
+        ])->save();
 
-        // Session created for tenant-a cannot be completed on tenant-b
+        // Create user in Tenant B with ID 1
+        tenancy()->initialize($tenantB);
+        $userB = User::create([
+            'id' => 1,
+            'name' => 'User in Tenant B',
+            'email' => 'user-b@example.test',
+            'password' => bcrypt('password123'),
+            'status' => 'active',
+        ]);
+        $userB->forceFill([
+            'two_factor_secret' => encrypt('secret-b'),
+            'two_factor_confirmed_at' => now(),
+            'two_factor_recovery_codes' => encrypt(json_encode(['recovery-b'])),
+        ])->save();
+
+        // Pending session initialized under Tenant A cannot complete challenge on Tenant B
         $response = $this->withSession([
             'login.id' => 1,
             'login.guard' => 'tenant',
             'login.tenant_id' => 'tenant-a',
-        ])->post('/tenant-b/two-factor-challenge', ['code' => '123456']);
+        ])->post('/tenant-b/two-factor-challenge', ['recovery_code' => 'recovery-a']);
 
         $this->assertTrue(in_array($response->getStatusCode(), [403, 419, 302], true));
         $this->assertFalse(Auth::guard('tenant')->check());
     }
 
     // --------------------------------------------------------------------------
-    // 2FA-23: Deactivated User
+    // 2FA-12: TOTP Time Window & Expiry Verification
     // --------------------------------------------------------------------------
 
-    public function test_deactivated_admin_rejected_during_2fa(): void
+    public function test_totp_window_rejects_expired_and_future_codes(): void
     {
         $google2fa = app(\PragmaRX\Google2FA\Google2FA::class);
         $secret = $google2fa->generateSecretKey();
 
-        $admin = AdminUser::create([
-            'name' => 'Inactive Admin',
-            'email' => 'inactive@example.test',
-            'password' => bcrypt('password123'),
-            'status' => 'inactive',
-        ]);
-        $admin->forceFill([
+        $admin = $this->createAdminFixture([
             'two_factor_secret' => encrypt($secret),
             'two_factor_confirmed_at' => now(),
-        ])->save();
+        ]);
 
-        $validCode = $google2fa->getCurrentOtp($secret);
+        $session = ['login.id' => $admin->id, 'login.guard' => 'admin'];
 
-        $response = $this->withSession(['login.id' => $admin->id, 'login.guard' => 'admin'])
-            ->post('/superadmin/two-factor-challenge', [
-                'code' => $validCode,
-            ]);
+        // Expired OTP from 5 minutes ago (-300 seconds, 10 windows)
+        $pastTimestamp = (int) floor((time() - 300) / 30);
+        $expiredOtp = $google2fa->oathTotp($secret, $pastTimestamp);
+
+        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+
+        $responseExpired = $this->withSession($session)
+            ->post('/superadmin/two-factor-challenge', ['code' => $expiredOtp]);
 
         $this->assertFalse(Auth::guard('admin')->check());
+        $responseExpired->assertSessionHasErrors('code');
+
+        // Future OTP from 5 minutes ahead (+300 seconds)
+        $futureTimestamp = (int) floor((time() + 300) / 30);
+        $futureOtp = $google2fa->oathTotp($secret, $futureTimestamp);
+
+        $responseFuture = $this->withSession($session)
+            ->post('/superadmin/two-factor-challenge', ['code' => $futureOtp]);
+
+        $this->assertFalse(Auth::guard('admin')->check());
+        $responseFuture->assertSessionHasErrors('code');
     }
 
     // --------------------------------------------------------------------------
-    // 2FA-15, 2FA-16, 2FA-18: Settings Management & Enforcement
+    // 2FA-13, 2FA-14: Setup, QR, and Confirmation Flow
     // --------------------------------------------------------------------------
 
-    public function test_recovery_codes_endpoint_generates_eight_codes(): void
+    public function test_settings_enable_and_confirm_lifecycle_admin_and_tenant(): void
     {
+        $google2fa = app(\PragmaRX\Google2FA\Google2FA::class);
+
+        // 1. Admin Lifecycle
         $admin = AdminUser::create([
-            'name' => 'Settings Admin',
-            'email' => 'settings@example.test',
+            'name' => 'Unconfirmed Admin',
+            'email' => 'unconf-admin@example.test',
             'password' => bcrypt('password123'),
             'status' => 'active',
-            'two_factor_secret' => encrypt('secret'),
-            'two_factor_confirmed_at' => now(),
         ]);
+
+        // Enable 2FA
+        $this->actingAs($admin, 'admin')
+            ->postJson('/superadmin/two-factor-authentication')
+            ->assertOk();
+
+        $admin->refresh();
+        $this->assertNotNull($admin->two_factor_secret);
+        $this->assertNull($admin->two_factor_confirmed_at);
+
+        // Confirm with wrong code -> fails, confirmed_at remains null
+        $this->actingAs($admin, 'admin')
+            ->postJson('/superadmin/confirmed-two-factor-authentication', ['code' => '000000'])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('code');
+
+        $admin->refresh();
+        $this->assertNull($admin->two_factor_confirmed_at);
+
+        // Confirm with valid code -> succeeds, confirmed_at is set
+        $secret = decrypt($admin->two_factor_secret);
+        $validCode = $google2fa->getCurrentOtp($secret);
 
         $this->actingAs($admin, 'admin')
-            ->postJson('/superadmin/two-factor-recovery-codes')
+            ->postJson('/superadmin/confirmed-two-factor-authentication', ['code' => $validCode])
             ->assertOk()
-            ->assertJsonCount(8);
-    }
+            ->assertJson(['status' => 'confirmed']);
 
-    public function test_enforced_policy_rejects_disable(): void
-    {
-        AdminSettings::create(['force_two_factor_auth' => true]);
+        $admin->refresh();
+        $this->assertNotNull($admin->two_factor_confirmed_at);
 
-        $admin = AdminUser::create([
-            'name' => 'Enforced Admin',
-            'email' => 'enforced@example.test',
+        // 2. Tenant Lifecycle
+        $tenant = Tenant::create(['id' => 'lifecycle-tenant']);
+        tenancy()->initialize($tenant);
+
+        $user = User::create([
+            'name' => 'Unconfirmed Tenant User',
+            'email' => 'unconf-tenant@example.test',
             'password' => bcrypt('password123'),
             'status' => 'active',
-            'two_factor_secret' => encrypt('secret'),
-            'two_factor_confirmed_at' => now(),
         ]);
+
+        $this->actingAs($user, 'tenant')
+            ->postJson('/lifecycle-tenant/two-factor-authentication')
+            ->assertOk();
+
+        $user->refresh();
+        $this->assertNotNull($user->two_factor_secret);
+        $this->assertNull($user->two_factor_confirmed_at);
+
+        // Confirm with wrong code
+        $this->actingAs($user, 'tenant')
+            ->postJson('/lifecycle-tenant/confirmed-two-factor-authentication', ['code' => '000000'])
+            ->assertStatus(422);
+
+        $user->refresh();
+        $this->assertNull($user->two_factor_confirmed_at);
+
+        // Confirm with valid code
+        $tenantSecret = decrypt($user->two_factor_secret);
+        $validTenantCode = $google2fa->getCurrentOtp($tenantSecret);
+
+        $this->actingAs($user, 'tenant')
+            ->postJson('/lifecycle-tenant/confirmed-two-factor-authentication', ['code' => $validTenantCode])
+            ->assertOk();
+
+        $user->refresh();
+        $this->assertNotNull($user->two_factor_confirmed_at);
+    }
+
+    // --------------------------------------------------------------------------
+    // 2FA-15: Guest and Cross-Guard Authorization
+    // --------------------------------------------------------------------------
+
+    public function test_settings_endpoints_require_authentication_and_guard_boundaries(): void
+    {
+        // Guests cannot access settings
+        $this->get('/superadmin/two-factor-authentication')->assertRedirect('/superadmin/login');
+        $this->postJson('/superadmin/two-factor-authentication')->assertStatus(401);
+        $this->deleteJson('/superadmin/two-factor-authentication')->assertStatus(401);
+        $this->getJson('/superadmin/two-factor-qr-code')->assertStatus(401);
+        $this->postJson('/superadmin/two-factor-recovery-codes')->assertStatus(401);
+
+        // Tenant user cannot access SuperAdmin settings
+        $tenant = Tenant::create(['id' => 'auth-b-tenant']);
+        tenancy()->initialize($tenant);
+        $user = $this->createTenantUserFixture('auth-b-tenant');
+
+        $this->actingAs($user, 'tenant')
+            ->postJson('/superadmin/two-factor-authentication')
+            ->assertStatus(401);
+    }
+
+    // --------------------------------------------------------------------------
+    // 2FA-16: Recovery Code Regeneration Uniqueness & Invalidation
+    // --------------------------------------------------------------------------
+
+    public function test_recovery_codes_regeneration_invalidates_old_codes(): void
+    {
+        $admin = $this->createAdminFixture();
+
+        // 1. Initial generation
+        $response1 = $this->actingAs($admin, 'admin')
+            ->postJson('/superadmin/two-factor-recovery-codes')
+            ->assertOk();
+
+        $codes1 = $response1->json();
+        $this->assertCount(8, $codes1);
+        $this->assertCount(8, array_unique($codes1), 'All 8 generated recovery codes must be unique.');
+
+        $oldCode = $codes1[0];
+
+        // 2. Regenerate codes
+        $response2 = $this->actingAs($admin, 'admin')
+            ->postJson('/superadmin/two-factor-recovery-codes')
+            ->assertOk();
+
+        $codes2 = $response2->json();
+        $this->assertCount(8, $codes2);
+        $this->assertNotContains($oldCode, $codes2);
+
+        $newCode = $codes2[0];
+
+        // 3. Attempt challenge with old code -> rejected
+        Auth::guard('admin')->logout();
+        $session = ['login.id' => $admin->id, 'login.guard' => 'admin'];
+
+        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+
+        $this->withSession($session)
+            ->post('/superadmin/two-factor-challenge', ['recovery_code' => $oldCode]);
+
+        $this->assertFalse(Auth::guard('admin')->check(), 'Old recovery code must be invalidated.');
+
+        // 4. Attempt challenge with new code -> succeeds
+        $this->withSession($session)
+            ->post('/superadmin/two-factor-challenge', ['recovery_code' => $newCode])
+            ->assertRedirect('/superadmin');
+
+        $this->assertTrue(Auth::guard('admin')->check(), 'New recovery code must authenticate successfully.');
+    }
+
+    // --------------------------------------------------------------------------
+    // 2FA-17, 2FA-18: Disable Flow & Policy Enforcement
+    // --------------------------------------------------------------------------
+
+    public function test_disable_2fa_flow_and_policy_enforcement(): void
+    {
+        // When not enforced: Admin disable succeeds
+        $admin = $this->createAdminFixture();
 
         $this->actingAs($admin, 'admin')
             ->deleteJson('/superadmin/two-factor-authentication')
+            ->assertOk()
+            ->assertJson(['status' => 'disabled']);
+
+        $admin->refresh();
+        $this->assertNull($admin->two_factor_secret);
+        $this->assertNull($admin->two_factor_confirmed_at);
+
+        // When enforced by AdminSettings: Admin disable fails
+        AdminSettings::create(['force_two_factor_auth' => true]);
+        $enforcedAdmin = $this->createAdminFixture();
+
+        $this->actingAs($enforcedAdmin, 'admin')
+            ->deleteJson('/superadmin/two-factor-authentication')
             ->assertStatus(422)
             ->assertJsonPath('message', 'المصادقة الثنائية مفروضة بموجب سياسة النظام ولا يمكن تعطيلها.');
+
+        // When enforced by TenantSettings: Tenant disable fails
+        $tenant = Tenant::create(['id' => 'enforced-t']);
+        tenancy()->initialize($tenant);
+        TenantSettings::create(['force_two_factor_auth' => true]);
+        $enforcedTenantUser = $this->createTenantUserFixture('enforced-t');
+
+        $this->actingAs($enforcedTenantUser, 'tenant')
+            ->deleteJson('/enforced-t/two-factor-authentication')
+            ->assertStatus(422);
     }
 
-    public function test_throttle_is_enforced_on_challenge_store(): void
+    // --------------------------------------------------------------------------
+    // 2FA-23: Deactivated User Rejection
+    // --------------------------------------------------------------------------
+
+    public function test_deactivated_admin_and_tenant_user_rejected_during_2fa(): void
     {
-        $admin = AdminUser::create([
-            'name' => 'Throttle Admin',
-            'email' => 'throttle@example.test',
-            'password' => bcrypt('password123'),
-            'status' => 'active',
+        $google2fa = app(\PragmaRX\Google2FA\Google2FA::class);
+
+        // Inactive Admin
+        $secretAdmin = $google2fa->generateSecretKey();
+        $admin = $this->createAdminFixture([
+            'status' => 'inactive',
+            'two_factor_secret' => encrypt($secretAdmin),
+            'two_factor_confirmed_at' => now(),
         ]);
-        $session = ['login.id' => $admin->id, 'login.guard' => 'admin'];
+        $validAdminCode = $google2fa->getCurrentOtp($secretAdmin);
+
+        $this->withSession(['login.id' => $admin->id, 'login.guard' => 'admin'])
+            ->post('/superadmin/two-factor-challenge', ['code' => $validAdminCode]);
+
+        $this->assertFalse(Auth::guard('admin')->check(), 'Deactivated admin must be rejected.');
+
+        // Inactive Tenant User
+        $tenant = Tenant::create(['id' => 'deact-t']);
+        tenancy()->initialize($tenant);
+        $secretTenant = $google2fa->generateSecretKey();
+        $tenantUser = $this->createTenantUserFixture('deact-t', [
+            'status' => 'inactive',
+            'two_factor_secret' => encrypt($secretTenant),
+            'two_factor_confirmed_at' => now(),
+        ]);
+        $validTenantCode = $google2fa->getCurrentOtp($secretTenant);
+
+        $this->withSession([
+            'login.id' => $tenantUser->id,
+            'login.guard' => 'tenant',
+            'login.tenant_id' => 'deact-t',
+        ])->post('/deact-t/two-factor-challenge', ['code' => $validTenantCode]);
+
+        $this->assertFalse(Auth::guard('tenant')->check(), 'Deactivated tenant user must be rejected.');
+    }
+
+    // --------------------------------------------------------------------------
+    // 2FA-24: Throttling on Challenge Store
+    // --------------------------------------------------------------------------
+
+    public function test_throttle_is_enforced_on_challenge_store_admin_and_tenant(): void
+    {
+        // Admin throttle
+        $admin = $this->createAdminFixture();
+        $adminSession = ['login.id' => $admin->id, 'login.guard' => 'admin'];
 
         for ($i = 0; $i < 5; $i++) {
-            $this->withSession($session)
+            $this->withSession($adminSession)
                 ->post('/superadmin/two-factor-challenge', ['code' => '000000']);
         }
-
-        $this->withSession($session)
+        $this->withSession($adminSession)
             ->post('/superadmin/two-factor-challenge', ['code' => '000000'])
+            ->assertStatus(429);
+
+        // Tenant throttle
+        $tenant = Tenant::create(['id' => 'throttle-t']);
+        tenancy()->initialize($tenant);
+        $tenantUser = $this->createTenantUserFixture('throttle-t');
+        $tenantSession = [
+            'login.id' => $tenantUser->id,
+            'login.guard' => 'tenant',
+            'login.tenant_id' => 'throttle-t',
+        ];
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->withSession($tenantSession)
+                ->post('/throttle-t/two-factor-challenge', ['code' => '000000']);
+        }
+        $this->withSession($tenantSession)
+            ->post('/throttle-t/two-factor-challenge', ['code' => '000000'])
             ->assertStatus(429);
     }
 
     public function test_form_validation_endpoint_accepts_two_factor_challenge(): void
     {
-        $admin = AdminUser::create([
-            'name' => 'FormVal Admin',
-            'email' => 'formval@example.test',
-            'password' => bcrypt('password123'),
-            'status' => 'active',
-        ]);
+        $admin = $this->createAdminFixture();
 
         // Admin form-validation
         $this->withSession(['login.id' => $admin->id, 'login.guard' => 'admin'])
@@ -597,13 +921,7 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
         // Tenant form-validation
         $tenant = Tenant::create(['id' => 'fv-tenant']);
         tenancy()->initialize($tenant);
-
-        $user = User::create([
-            'name' => 'FV User',
-            'email' => 'fv@example.test',
-            'password' => bcrypt('password123'),
-            'status' => 'active',
-        ]);
+        $user = $this->createTenantUserFixture('fv-tenant');
 
         $this->withSession([
             'login.id' => $user->id,

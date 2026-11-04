@@ -51,6 +51,7 @@ class AuthenticatedSessionController extends Controller
 
         // لو مفعّل عنده 2FA ومؤكد، نوقف الجلسة مؤقتًا وننتقل لصفحة التحقق
         if ($user->two_factor_secret && ! is_null($user->two_factor_confirmed_at)) {
+            $request->session()->forget(['login.id', 'login.guard', 'login.tenant_id', 'login.remember']);
             $request->session()->put([
                 'login.id' => $user->getKey(),
                 'login.remember' => $request->boolean('remember'),

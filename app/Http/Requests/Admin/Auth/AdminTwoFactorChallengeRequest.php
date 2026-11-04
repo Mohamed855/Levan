@@ -13,7 +13,7 @@ class AdminTwoFactorChallengeRequest extends FormRequest
         $hasLoginId = $this->session()->has('login.id');
         $guard = $this->session()->get('login.guard');
 
-        return $hasLoginId && ($guard === null || $guard === 'admin');
+        return $hasLoginId && $guard === 'admin';
     }
 
     protected function prepareForValidation(): void

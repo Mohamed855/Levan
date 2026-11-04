@@ -37,7 +37,7 @@
         </li>
 
         {{-- الإسنادات والعقارات --}}
-        @canany(['issuing_entities.view', 'properties.view', 'assignments.view'])
+        @canany(['issuing_entities.view', 'properties.view', 'assignments.view', 'auctions.view'])
             <li class="menu-header small">
                 <span class="menu-header-text">الإسنادات والعقارات</span>
             </li>
@@ -68,10 +68,19 @@
                     </a>
                 </li>
             @endcan
+
+            @can('auctions.view')
+                <li class="menu-item @if (Helpers::isActiveRoute('auctions.*')) active @endif">
+                    <a href="{{ tenant_route_name('auctions.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons ti ti-gavel"></i>
+                        <div>المزادات</div>
+                    </a>
+                </li>
+            @endcan
         @endcanany
 
         {{-- المزادات والإعلانات --}}
-        @canany(['auctions.view'])
+        {{-- @canany(['auctions.view'])
             <li class="menu-header small">
                 <span class="menu-header-text">المزادات والإعلانات</span>
             </li>
@@ -93,7 +102,7 @@
                     </a>
                 </li>
             @endcanany
-        @endcanany
+        @endcanany --}}
 
         {{-- الاشتراكات والفوترة --}}
         @canany(['subscriptions.view', 'bills.view'])

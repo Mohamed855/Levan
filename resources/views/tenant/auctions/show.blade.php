@@ -258,7 +258,7 @@
             </div>
 
             {{-- الإعلانات الترويجية للمزاد --}}
-            <div class="card mb-4" id="promotional-advertisements-card">
+            {{-- <div class="card mb-4" id="promotional-advertisements-card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">
                         الإعلانات الترويجية للمزاد ({{ $auction->promotionalAdvertisements->count() }})
@@ -324,7 +324,7 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>
 @endsection

@@ -13,11 +13,13 @@ class TenantTwoFactorChallengeRequest extends FormRequest
         $hasLoginId = $this->session()->has('login.id');
         $guard = $this->session()->get('login.guard');
         $tenantId = $this->session()->get('login.tenant_id');
+        $currentTenantId = function_exists('tenant') ? tenant('id') : null;
 
-        $guardValid = $guard === null || $guard === 'tenant';
-        $tenantValid = $tenantId === null || (function_exists('tenant') && tenant('id') === $tenantId);
-
-        return $hasLoginId && $guardValid && $tenantValid;
+        return $hasLoginId
+            && $guard === 'tenant'
+            && $tenantId !== null
+            && $currentTenantId !== null
+            && (string) $tenantId === (string) $currentTenantId;
     }
 
     protected function prepareForValidation(): void

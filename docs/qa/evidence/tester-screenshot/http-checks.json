@@ -1,0 +1,34 @@
+﻿[
+    {
+        "path":  "/",
+        "status":  200,
+        "title":  "لوت LOT - المنصة المتقدمة لإدارة المزادات والأصول",
+        "legacyBrandFound":  false,
+        "etmamHeartFound":  true,
+        "centralLoginCopyFound":  false
+    },
+    {
+        "path":  "/trial",
+        "status":  200,
+        "title":  "لوت — تجربة مجانية",
+        "legacyBrandFound":  false,
+        "etmamHeartFound":  true,
+        "centralLoginCopyFound":  false
+    },
+    {
+        "path":  "/privacy-policy",
+        "status":  200,
+        "title":  "لوت LOT - السياسات",
+        "legacyBrandFound":  false,
+        "etmamHeartFound":  true,
+        "centralLoginCopyFound":  false
+    },
+    {
+        "path":  "/superadmin/login",
+        "status":  200,
+        "title":  "تسجيل الدخول - الإدارة | لـــوت LOT",
+        "legacyBrandFound":  false,
+        "etmamHeartFound":  false,
+        "centralLoginCopyFound":  true
+    }
+]

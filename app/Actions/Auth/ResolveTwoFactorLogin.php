@@ -23,12 +23,17 @@ class ResolveTwoFactorLogin
 
         abort_unless($userId, 419);
 
-        if ($sessionGuard !== null && $sessionGuard !== $guard) {
+        // Fail-closed: session guard must be present and match expected guard exactly
+        if ($sessionGuard !== $guard) {
             abort(419);
         }
 
-        if ($guard === 'tenant' && $sessionTenantId !== null && function_exists('tenant') && tenant('id') !== $sessionTenantId) {
-            abort(419);
+        // Fail-closed: for tenant guard, tenant binding must be present and match current tenant
+        if ($guard === 'tenant') {
+            $currentTenantId = function_exists('tenant') ? tenant('id') : null;
+            if ($sessionTenantId === null || $currentTenantId === null || (string) $sessionTenantId !== (string) $currentTenantId) {
+                abort(419);
+            }
         }
 
         $user = Auth::guard($guard)->getProvider()->retrieveById($userId);
@@ -44,6 +49,11 @@ class ResolveTwoFactorLogin
             throw ValidationException::withMessages([
                 'code' => 'حسابك غير نشط.',
             ]);
+        }
+
+        // التحقق من أن 2FA لا يزال مؤكداً ومفعلاً ولم يُلغَ أو يُعطل
+        if (empty($user->two_factor_secret) || empty($user->two_factor_confirmed_at)) {
+            abort(403, 'التحقق بخطوتين غير مؤكد لهذا الحساب.');
         }
 
         if (! empty($credentials['code'])) {

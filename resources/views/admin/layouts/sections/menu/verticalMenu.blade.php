@@ -49,14 +49,14 @@
             </li>
         @endcanany
 
-        @can('auction_templates.view')
+        {{-- @can('auction_templates.view')
             <li class="menu-item @if (Route::is('admin.auction-templates.*')) active open @endif">
                 <a href="{{ route('admin.auction-templates.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-template"></i>
                     <div>قوالب إعلانية</div>
                 </a>
             </li>
-        @endcan
+        @endcan --}}
 
         @canany(['plans.view', 'coupons.view'])
             <li class="menu-header small">

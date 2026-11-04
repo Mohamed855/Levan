@@ -36,6 +36,7 @@ class AdminAuthController extends Controller
 
         // لو مفعّل عنده 2FA ومؤكد
         if ($admin->two_factor_secret && ! is_null($admin->two_factor_confirmed_at)) {
+            $request->session()->forget(['login.id', 'login.guard', 'login.tenant_id', 'login.remember']);
             $request->session()->put([
                 'login.id' => $admin->getKey(),
                 'login.remember' => $request->boolean('remember'),

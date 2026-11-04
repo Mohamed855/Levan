@@ -56,7 +56,7 @@ final class AdminLoginGuardIsolationTest extends TestCase
     public function test_persisted_tenant_session_does_not_break_admin_two_factor_validation(): void
     {
         $this->withPersistedTenantSession()
-            ->withSession(['login.id' => 1])
+            ->withSession(['login.id' => 1, 'login.guard' => 'admin'])
             ->post('http://localhost/superadmin/two-factor-challenge', [])
             ->assertSessionHasErrors(['code', 'recovery_code']);
 

@@ -16,7 +16,15 @@ class AdminTwoFactorChallengeController extends Controller
 {
     public function create(Request $request): View|RedirectResponse
     {
-        if (! $request->session()->has('login.id') || ($request->session()->has('login.guard') && $request->session()->get('login.guard') !== 'admin')) {
+        if (! $request->session()->has('login.id') || $request->session()->get('login.guard') !== 'admin') {
+            $request->session()->forget(['login.id', 'login.guard', 'login.tenant_id', 'login.remember']);
+            return redirect()->route('admin.login');
+        }
+
+        $admin = Auth::guard('admin')->getProvider()->retrieveById($request->session()->get('login.id'));
+        $statusValue = $admin && $admin->status instanceof \BackedEnum ? $admin->status->value : (string) ($admin->status ?? '');
+        if (! $admin || $statusValue !== 'active' || empty($admin->two_factor_secret) || empty($admin->two_factor_confirmed_at)) {
+            $request->session()->forget(['login.id', 'login.guard', 'login.tenant_id', 'login.remember']);
             return redirect()->route('admin.login');
         }
 
@@ -28,7 +36,7 @@ class AdminTwoFactorChallengeController extends Controller
         $admin = $resolver->verify('admin', $request, $request->validated());
         $remember = $request->session()->pull('login.remember', false);
 
-        $request->session()->forget(['login.id', 'login.guard']);
+        $request->session()->forget(['login.id', 'login.guard', 'login.tenant_id', 'login.remember']);
 
         Auth::guard('admin')->login($admin, $remember);
 
@@ -41,7 +49,7 @@ class AdminTwoFactorChallengeController extends Controller
 
     public function cancel(Request $request): RedirectResponse
     {
-        $request->session()->forget(['login.id', 'login.remember', 'login.guard']);
+        $request->session()->forget(['login.id', 'login.guard', 'login.tenant_id', 'login.remember']);
 
         return redirect()->route('admin.login');
     }

@@ -356,18 +356,40 @@ body:has(.tenant-login-container) {
 
 .auth-challenge-links-row {
     width: 100%;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    flex-wrap: nowrap !important;
 }
 
 .auth-challenge-links-row .auth-back-link {
     font-size: 14px;
     font-weight: 600;
-    line-height: 1.5;
+    line-height: 1.35;
     color: var(--auth-primary);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     transition: all 0.2s ease;
-    max-width: 49%;
+    flex: 1 1 50%;
+    max-width: 50%;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.auth-challenge-links-row .auth-back-link:first-child {
+    justify-content: flex-start;
+    text-align: right;
+}
+
+.auth-challenge-links-row .auth-back-link:last-child {
+    justify-content: flex-end;
+    text-align: left;
+}
+
+.auth-challenge-links-row .auth-back-link i {
+    flex-shrink: 0;
 }
 
 .auth-challenge-links-row .auth-back-link:hover {
