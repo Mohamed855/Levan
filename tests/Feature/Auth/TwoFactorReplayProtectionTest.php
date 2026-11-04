@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Auth;
 
+use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider as TwoFactorAuthenticationProviderContract;
 use Laravel\Fortify\TwoFactorAuthenticationProvider;
 use PragmaRX\Google2FA\Google2FA;
 use Tests\TestCase;
@@ -12,7 +13,8 @@ final class TwoFactorReplayProtectionTest extends TestCase
 {
     private function engine(): Google2FA
     {
-        $engine = new class extends Google2FA {
+        $engine = new class extends Google2FA
+        {
             public int $timestamp = 60000000;
 
             public function getTimestamp(): int
@@ -62,5 +64,15 @@ final class TwoFactorReplayProtectionTest extends TestCase
         }
 
         self::fail('Deterministic fixture must contain a real numeric TOTP collision.');
+    }
+
+    public function test_fortify_confirmation_and_challenge_bindings_share_replay_protection(): void
+    {
+        $engine = $this->engine();
+        $secret = $engine->generateSecretKey();
+        $code = $engine->getCurrentOtp($secret);
+
+        self::assertTrue(app(TwoFactorAuthenticationProviderContract::class)->verify($secret, $code));
+        self::assertFalse(app(TwoFactorAuthenticationProvider::class)->verify($secret, $code));
     }
 }

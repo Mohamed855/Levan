@@ -2,6 +2,7 @@
 
 namespace App\Actions\Auth;
 
+use App\Services\Tenants\Shared\CentralTenantSecurityGateway;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +13,8 @@ class ResolveTwoFactorLogin
 {
     public function __construct(
         protected TwoFactorAuthenticationProvider $provider,
-        protected PersistAuthenticationStateAction $authenticationState
+        protected PersistAuthenticationStateAction $authenticationState,
+        protected CentralTenantSecurityGateway $tenantSecurity
     ) {}
 
     public function verify(string $guard, Request $request, array $credentials): Authenticatable
@@ -76,6 +78,11 @@ class ResolveTwoFactorLogin
             throw ValidationException::withMessages([
                 'code' => 'الرجاء إدخال الكود أو كود الاسترجاع.',
             ]);
+        }
+
+        if ($guard === 'tenant') {
+            // The protected-route middleware must re-read eligibility changed during pending 2FA.
+            $this->tenantSecurity->forgetSubscriptionSnapshot((string) $sessionTenantId);
         }
 
         return $user;

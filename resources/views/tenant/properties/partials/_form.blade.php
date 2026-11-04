@@ -77,6 +77,7 @@
             'administrative_region',
             'plan_number',
             'parcel_number',
+            'google_maps_url',
             'aerial_image',
             'boundary_geojson',
             'boundaries',
@@ -140,6 +141,9 @@
                                 <x-form.controls.input name="parcel_number" type="number" step="1" min="0"
                                     :value="$is_edit ? $property->parcel_number : old('parcel_number')" label="رقم القطعة" placeholder="مثال: 1288" required
                                     col="col-md-6" />
+                                <x-form.controls.input name="google_maps_url" label="رابط الموقع (Google Maps)"
+                                    :value="$is_edit ? $property->google_maps_url : old('google_maps_url')" placeholder="https://maps.google.com/?q=..." :required="false"
+                                    col="col-md-6" help="رابط موقع العقار على خرائط جوجل إن وُجد." />
                             </div>
                             @include('tenant.properties._boundaries-table', [
                                 'bordersData' => $bordersData,

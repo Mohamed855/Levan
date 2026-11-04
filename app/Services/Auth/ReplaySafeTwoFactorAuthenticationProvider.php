@@ -6,6 +6,7 @@ namespace App\Services\Auth;
 
 use Illuminate\Contracts\Cache\Repository;
 use Laravel\Fortify\TwoFactorAuthenticationProvider;
+use PragmaRX\Google2FA\Exceptions\Google2FAException;
 use PragmaRX\Google2FA\Google2FA;
 
 final class ReplaySafeTwoFactorAuthenticationProvider extends TwoFactorAuthenticationProvider
@@ -22,7 +23,11 @@ final class ReplaySafeTwoFactorAuthenticationProvider extends TwoFactorAuthentic
         }
 
         // A non-null lower bound makes Google2FA return the matched step, including T+1.
-        $timestamp = $this->engine->verifyKeyNewer($secret, $code, 0);
+        try {
+            $timestamp = $this->engine->verifyKeyNewer($secret, $code, 0);
+        } catch (Google2FAException) {
+            return false;
+        }
         if ($timestamp === false) {
             return false;
         }

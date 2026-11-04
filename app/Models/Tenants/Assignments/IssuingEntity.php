@@ -20,6 +20,7 @@ class IssuingEntity extends Model
 
     protected $fillable = [
         'name',
+        'image',
         'is_active',
         'created_by',
     ];
@@ -41,5 +42,10 @@ class IssuingEntity extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image ? tasset($this->image) : null;
     }
 }

@@ -9,6 +9,11 @@ use Stancl\Tenancy\Facades\Tenancy;
 
 final class CentralTenantSecurityGateway
 {
+    public function forgetSubscriptionSnapshot(string $tenantId): void
+    {
+        cache()->forget("tenant:{$tenantId}:subscription");
+    }
+
     public function isTwoFactorRequired(?string $tenantId = null): bool
     {
         $targetTenantId = $tenantId ?? (string) tenant('id');

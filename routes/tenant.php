@@ -515,6 +515,9 @@ Route::middleware('auth:tenant')->group(function () {
     Route::name('logout')->post('logout', [AuthenticatedSessionController::class, 'destroy']);
 
     Route::name('tenants.two-factor.')->group(function () {
+        Route::post('two-factor-authentication/validate', [WizardDraftController::class, 'validateStep'])
+            ->defaults('shared_form_validation_actions', [TenantTwoFactorSettingsController::class.'@confirm'])
+            ->name('validate');
         Route::get('two-factor-authentication', [TenantTwoFactorSettingsController::class, 'show'])->name('index');
         Route::post('two-factor-authentication', [TenantTwoFactorSettingsController::class, 'enable'])->name('enable');
         Route::delete('two-factor-authentication', [TenantTwoFactorSettingsController::class, 'disable'])->name('disable');

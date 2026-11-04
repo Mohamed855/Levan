@@ -15,6 +15,7 @@ return new class extends Migration
             Schema::create('issuing_entities', function (Blueprint $table): void {
                 $table->id();
                 $table->string('name')->unique();
+                $table->string('image')->nullable();
                 $table->boolean('is_active')->default(true)->index();
                 $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
                 $table->timestamps();

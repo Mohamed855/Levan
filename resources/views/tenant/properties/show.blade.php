@@ -86,6 +86,14 @@
                             <li class="mb-2"><span class="fw-bold me-1">رقم القطعة:</span>
                                 <span>{{ $property->parcel_number ?? '-' }}</span>
                             </li>
+                            @if ($property->google_maps_url)
+                                <li class="mb-2"><span class="fw-bold me-1">رابط الموقع:</span>
+                                    <a href="{{ $property->google_maps_url }}" target="_blank" rel="noopener noreferrer"
+                                        class="text-primary text-decoration-none">
+                                        <i class="ti ti-map-pin me-1"></i> فتح على Google Maps
+                                    </a>
+                                </li>
+                            @endif
                             <li class="mb-2"><span class="fw-bold me-1">رقم الصك:</span>
                                 <span>{{ $property->deed_number ?? '-' }}</span>
                             </li>

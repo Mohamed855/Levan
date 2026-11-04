@@ -83,6 +83,8 @@ class PropertyManagementFeatureTest extends TestCase
         $response->assertSee('الملكية والتفاصيل');
         $response->assertSee('المستندات والصور');
         $response->assertSee('المراجعة والحفظ');
+        $response->assertSee('name="google_maps_url"', false);
+        $response->assertSee('رابط الموقع (Google Maps)');
         $response->assertDontSee('name="is_active"', false);
         $this->assertMatchesRegularExpression(
             '/class="[^"]*\bd-none\b[^"]*"[^>]*id="btn-download-annotated"/',
@@ -113,6 +115,7 @@ class PropertyManagementFeatureTest extends TestCase
             'administrative_region' => 'منطقة الرياض',
             'plan_number' => '999',
             'parcel_number' => '123',
+            'google_maps_url' => 'https://maps.google.com/?q=24.7136,46.6753',
             'latitude' => 24.7136,
             'longitude' => 46.6753,
             'boundary_geojson' => [
@@ -174,12 +177,21 @@ class PropertyManagementFeatureTest extends TestCase
         $this->assertCount(1, $property->units);
         $this->assertGreaterThanOrEqual(5, $property->attachments()->count());
         $this->assertSame('available', $property->units->firstOrFail()->getRawOriginal('status'));
+        $this->assertSame('https://maps.google.com/?q=24.7136,46.6753', $property->google_maps_url);
 
         $this->actingAs($this->owner, 'tenant')
             ->get($this->tenantUrl('properties/'.$property->id))
             ->assertOk()
             ->assertSee('صورة العقار المحددة')
-            ->assertSee('متاح');
+            ->assertSee('متاح')
+            ->assertSee('https://maps.google.com/?q=24.7136,46.6753', false)
+            ->assertSee('فتح على Google Maps');
+
+        $this->actingAs($this->owner, 'tenant')
+            ->get($this->tenantUrl('properties/'.$property->id.'/edit'))
+            ->assertOk()
+            ->assertSee('name="google_maps_url"', false)
+            ->assertSee('https://maps.google.com/?q=24.7136,46.6753', false);
 
         $property->forceDelete();
     }

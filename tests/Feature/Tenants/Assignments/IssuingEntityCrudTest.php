@@ -8,6 +8,8 @@ use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\UserMangment\User\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class IssuingEntityCrudTest extends TestCase
@@ -386,5 +388,105 @@ class IssuingEntityCrudTest extends TestCase
 
         // MUST be called in TestTenantSeeder
         $this->assertStringContainsString('IssuingEntitySeeder::class', $testTenantSeederContent);
+    }
+
+    public function test_can_create_new_issuing_entity_with_image(): void
+    {
+        Storage::fake('tenant_public');
+
+        $uniqueName = 'محكمة التنفيذ مع صورة ' . uniqid();
+        $fakeImage = UploadedFile::fake()->image('entity_logo.png', 200, 200);
+
+        $response = $this->actingAs($this->user, 'tenant')
+            ->post(tenant_route_name('issuing-entities.store'), [
+                'name' => $uniqueName,
+                'image' => $fakeImage,
+            ]);
+
+        $response->assertRedirect(tenant_route_name('issuing-entities.index'));
+
+        $entity = IssuingEntity::where('name', $uniqueName)->firstOrFail();
+        $this->assertNotNull($entity->image);
+        Storage::disk('tenant_public')->assertExists($entity->image);
+    }
+
+    public function test_can_update_issuing_entity_image_and_replaces_old_file(): void
+    {
+        Storage::fake('tenant_public');
+
+        $initialImage = UploadedFile::fake()->image('old_logo.png', 200, 200);
+        $storedOldPath = $initialImage->store('issuing-entities', 'tenant_public');
+
+        $entity = IssuingEntity::create([
+            'name' => 'جهة لتحديث الصورة ' . uniqid(),
+            'image' => $storedOldPath,
+            'is_active' => true,
+            'created_by' => $this->user->id,
+        ]);
+
+        Storage::disk('tenant_public')->assertExists($storedOldPath);
+
+        $newImage = UploadedFile::fake()->image('new_logo.png', 300, 300);
+
+        $response = $this->actingAs($this->user, 'tenant')
+            ->put(tenant_route_name('issuing-entities.update', $entity->id), [
+                'name' => $entity->name,
+                'image' => $newImage,
+            ]);
+
+        $response->assertRedirect(tenant_route_name('issuing-entities.index'));
+
+        $entity->refresh();
+        $this->assertNotEquals($storedOldPath, $entity->image);
+        Storage::disk('tenant_public')->assertMissing($storedOldPath);
+        Storage::disk('tenant_public')->assertExists($entity->image);
+    }
+
+    public function test_can_remove_issuing_entity_image(): void
+    {
+        Storage::fake('tenant_public');
+
+        $initialImage = UploadedFile::fake()->image('to_remove.png', 200, 200);
+        $storedOldPath = $initialImage->store('issuing-entities', 'tenant_public');
+
+        $entity = IssuingEntity::create([
+            'name' => 'جهة لحذف الصورة ' . uniqid(),
+            'image' => $storedOldPath,
+            'is_active' => true,
+            'created_by' => $this->user->id,
+        ]);
+
+        Storage::disk('tenant_public')->assertExists($storedOldPath);
+
+        $response = $this->actingAs($this->user, 'tenant')
+            ->put(tenant_route_name('issuing-entities.update', $entity->id), [
+                'name' => $entity->name,
+                'remove_image' => 1,
+            ]);
+
+        $response->assertRedirect(tenant_route_name('issuing-entities.index'));
+
+        $entity->refresh();
+        $this->assertNull($entity->image);
+        Storage::disk('tenant_public')->assertMissing($storedOldPath);
+    }
+
+    public function test_datatable_renders_image_column_before_name(): void
+    {
+        $entityWithImage = IssuingEntity::create([
+            'name' => 'جهة مع صورة للجدول ' . uniqid(),
+            'image' => 'issuing-entities/sample.png',
+            'is_active' => true,
+            'created_by' => $this->user->id,
+        ]);
+
+        $response = $this->actingAs($this->user, 'tenant')
+            ->getJson(tenant_route_name('issuing-entities.index') . '?' . http_build_query(['draw' => 1]));
+
+        $response->assertOk();
+        $data = collect($response->json('data'))->firstWhere('name', $entityWithImage->name);
+        $this->assertNotNull($data);
+        $this->assertArrayHasKey('image', $data);
+        $this->assertStringContainsString('rounded-circle', $data['image']);
     }
 }

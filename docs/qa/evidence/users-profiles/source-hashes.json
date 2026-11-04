@@ -1,0 +1,52 @@
+﻿[
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "5D9D55F9D47DEF9255C8810EFE3E634D134890B56A3BF10B70D16B6B342311F7",
+        "Path":  "D:\\Levan\\app\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "91AD350E9E9B270565EEEB8E307DCB7595B5B7CC25B048C5C2B3F288B0C761A9",
+        "Path":  "D:\\Levan\\app\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "DF117A8A480A6B3CD7604D13D226FCC4CE85BC048E283BCE7CD0381A7A223244",
+        "Path":  "D:\\Levan\\app\\Actions\\Admin\\MassDelete\\DeleteAdminRecordsAction.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "789340072E24DBCD75FB2947725309B010F7D88D3F1B22A3A32AE06BB9FE2CAE",
+        "Path":  "D:\\Levan\\app\\Actions\\Tenants\\MassDelete\\DeleteTenantRecordsAction.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "F965EF5B2CD788D5978FE6B42101731E1A0839250DB2420B7E287106ECC53035",
+        "Path":  "D:\\Levan\\app\\Http\\Controllers\\Admin\\Auth\\AdminAuthController.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "326743F04B06F05CCE905E4EC74562C286508FBB03207BAF20AC8A6D023E1E9F",
+        "Path":  "D:\\Levan\\app\\Services\\Admin\\AdminMangment\\Users\\UserService.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "B070F202785536B136069087A46B8EC8D7904A070A5704C1FDF850857A479E54",
+        "Path":  "D:\\Levan\\app\\Services\\Tenants\\UserManagement\\User\\UserService.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "D4432D659480C45038EB3B997AA89528946F24D548721E9EC697677FBCD4EC67",
+        "Path":  "D:\\Levan\\resources\\views\\admin\\users\\action.blade.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "9762025B4F6B36FC5CCA81925B967FE1A4D01A217FD6EE3919A86749AC8C32DF",
+        "Path":  "D:\\Levan\\resources\\views\\tenant\\user-management\\users\\action.blade.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "67DA58F4EBF1C7C4F4C93A8CAC352D190A0790C4BAE97DAE77FDECAA78CA09AC",
+        "Path":  "D:\\Levan\\tests\\Feature\\Auth\\UsersAndProfilesDualReviewTest.php"
+    }
+]

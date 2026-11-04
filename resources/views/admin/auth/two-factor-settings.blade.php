@@ -141,16 +141,17 @@
                                     <div>أدخل الكود المكوّن من 6 أرقام الظاهر في التطبيق</div>
                                 </div>
 
-                                <div class="w-100 d-flex flex-column gap-2">
-                                    <div>
-                                        <label class="form-label" for="twoFactorCode">كود التحقق</label>
-                                        <input type="text" inputmode="numeric" class="form-control" id="twoFactorCode"
-                                            placeholder="XXXXXX" autocomplete="one-time-code" maxlength="6">
-                                    </div>
-                                    <button type="button" id="confirm2faBtn" class="btn btn-success w-100">
+                                <form id="twoFactorConfirmForm" method="POST" novalidate action="{{ route('admin.two-factor.confirm') }}"
+                                    class="w-100 d-flex flex-column gap-2" data-form-validate data-validation-submit="ajax"
+                                    data-validation-url="{{ route('admin.two-factor.validate') }}">
+                                    @csrf
+                                    <x-form.controls.input name="code" id="twoFactorCode" label="كود التحقق"
+                                        col="col-12" type="text" placeholder="XXXXXX" required
+                                        autocomplete="one-time-code" maxlength="6" inputmode="numeric" />
+                                    <button type="submit" id="confirm2faBtn" class="btn btn-success w-100">
                                         <i class="ti ti-check me-1"></i>تأكيد التفعيل
                                     </button>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -162,6 +163,7 @@
 @endsection
 
 @section('page-script')
+    @vite(['resources/assets/js/shared/form-validation.js'])
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const $ = window.jQuery;
@@ -219,16 +221,14 @@
                 });
             });
 
-            $('#confirm2faBtn').on('click', function() {
-                const code = $('#twoFactorCode').val();
+            $('#twoFactorConfirmForm').on('formValidationPassed', function() {
+                const form = this;
+                const submitBtn = form.querySelector('[type="submit"]');
 
                 $.ajax({
                     url: routes.confirm,
                     method: 'POST',
-                    data: {
-                        _token: csrfToken,
-                        code: code
-                    },
+                    data: $(form).serialize(),
                     success: function() {
                         toastr.success('تم تفعيل المصادقة الثنائية بنجاح');
                         markEnabled();
@@ -248,7 +248,13 @@
                     error: function(xhr) {
                         const message = xhr.responseJSON?.errors?.code?.[0] ??
                             xhr.responseJSON?.message ?? 'الكود غير صحيح';
+                        window.SharedFormValidation?.setFieldError(form, 'code', message);
                         toastr.error(message);
+                    },
+                    complete: function() {
+                        if (submitBtn) {
+                            window.SharedFormValidation?.resetButtonLoading(submitBtn);
+                        }
                     }
                 });
             });

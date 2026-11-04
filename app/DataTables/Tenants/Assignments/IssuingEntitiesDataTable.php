@@ -36,6 +36,15 @@ class IssuingEntitiesDataTable extends AbstractDataTable
                 'className' => 'custom-checkbox',
             ],
             [
+                'data' => 'image',
+                'name' => 'image',
+                'title' => 'الصورة',
+                'orderable' => false,
+                'searchable' => false,
+                'width' => '70px',
+                'className' => 'text-center',
+            ],
+            [
                 'data' => 'name',
                 'name' => 'name',
                 'title' => 'اسم الجهة المسندة',
@@ -86,6 +95,11 @@ class IssuingEntitiesDataTable extends AbstractDataTable
 
                 return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
+            ->addColumn('image', function ($row): string {
+                $image = $row->image ? tasset($row->image) : null;
+
+                return $this->renderTableImage($image, (string) $row->name);
+            })
             ->editColumn('assignments_count', function ($row) {
                 return '<span class="badge bg-label-primary fs-6">'.$row->assignments_count.'</span>';
             })
@@ -117,7 +131,7 @@ class IssuingEntitiesDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'assignments_count', 'is_active', 'actions'];
+        return ['checkbox', 'image', 'assignments_count', 'is_active', 'actions'];
     }
 
     protected function applyCustomFilters($query)
@@ -147,7 +161,7 @@ class IssuingEntitiesDataTable extends AbstractDataTable
 
     protected function getCustomOrder(): array
     {
-        return [1, 'asc'];
+        return [2, 'asc'];
     }
 
     protected function buttons(): array

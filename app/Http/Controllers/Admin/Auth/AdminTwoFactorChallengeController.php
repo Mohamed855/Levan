@@ -44,7 +44,27 @@ class AdminTwoFactorChallengeController extends Controller
 
         $authenticationState->recordLogin($admin, $request->ip());
 
-        return redirect()->intended(RouteServiceProvider::ADMIN);
+        $intended = $request->session()->pull('url.intended');
+        $target = is_string($intended) ? parse_url($intended) : false;
+        $path = is_array($target) ? ($target['path'] ?? '') : '';
+        $isAdminPath = $path === RouteServiceProvider::ADMIN || str_starts_with($path, RouteServiceProvider::ADMIN.'/');
+        $hasDotSegment = preg_match('~(?:^|/)\.{1,2}(?:/|$)~', rawurldecode($path)) === 1;
+        $isSameOrigin = is_array($target)
+            && ! isset($target['user']) && ! isset($target['pass'])
+            && (! isset($target['host']) || strcasecmp($target['host'], $request->getHost()) === 0)
+            && (! isset($target['port']) || $target['port'] === $request->getPort())
+            && (! isset($target['scheme']) || in_array($target['scheme'], ['http', 'https'], true));
+
+        if (! $isAdminPath || ! $isSameOrigin || $hasDotSegment || str_contains($intended, '\\') || preg_match('/[\r\n]/', $intended)) {
+            return redirect(RouteServiceProvider::ADMIN);
+        }
+
+        // Rebuild an internal destination instead of forwarding an authority browsers may parse differently.
+        $destination = $path
+            .(isset($target['query']) ? '?'.$target['query'] : '')
+            .(isset($target['fragment']) ? '#'.$target['fragment'] : '');
+
+        return redirect($destination);
     }
 
     public function cancel(Request $request): RedirectResponse

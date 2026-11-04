@@ -48,6 +48,7 @@ class PropertiesController extends Controller
             'needsReviewProperties' => $statistics['needs_review'],
             'assignments' => $assignments,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'regionOptions' => $this->cityOptionsGateway->regionOptionsByName(),
         ]);
     }
 
@@ -61,10 +62,16 @@ class PropertiesController extends Controller
             $districtOptions[old('district')] = old('district');
         }
 
+        $regionOptions = $this->cityOptionsGateway->regionOptionsByName();
+        if (old('administrative_region') && ! isset($regionOptions[old('administrative_region')])) {
+            $regionOptions[old('administrative_region')] = old('administrative_region');
+        }
+
         return view('tenant.properties.create', [
             'assignments' => $assignments,
             'generatedPropertyNumber' => $generatedPropertyNumber,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'regionOptions' => $regionOptions,
             'districtOptions' => $districtOptions,
         ]);
     }
@@ -112,10 +119,17 @@ class PropertiesController extends Controller
             $districtOptions[$currentDistrict] = $currentDistrict;
         }
 
+        $regionOptions = $this->cityOptionsGateway->regionOptionsByName();
+        $currentRegion = old('administrative_region', $property->administrative_region);
+        if ($currentRegion && ! isset($regionOptions[$currentRegion])) {
+            $regionOptions[$currentRegion] = $currentRegion;
+        }
+
         return view('tenant.properties.edit', [
             'property' => $property,
             'assignments' => $assignments,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'regionOptions' => $regionOptions,
             'districtOptions' => $districtOptions,
         ]);
     }

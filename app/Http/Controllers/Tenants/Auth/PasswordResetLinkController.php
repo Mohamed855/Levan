@@ -10,6 +10,7 @@ use App\Http\Requests\Tenants\Auth\SendPasswordResetLinkRequest;
 use App\Http\Requests\Tenants\Auth\VerifyPasswordResetOtpRequest;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Shared\Auth\PasswordResetOtpService;
+use App\Support\Auth\TenantPasswordResetContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -22,6 +23,11 @@ class PasswordResetLinkController extends Controller
     public function create(Request $request): View
     {
         $verification = $request->session()->get('password_reset_verification');
+
+        if ($verification && ! TenantPasswordResetContext::matchesCurrentTenant($verification)) {
+            $request->session()->forget('password_reset_verification');
+            $verification = [];
+        }
 
         if (is_array($verification) && ! empty($verification)) {
             $sessionExpires = (int) ($verification['session_expires_at'] ?? 0);
@@ -64,6 +70,7 @@ class PasswordResetLinkController extends Controller
         $otpHash = $otpService->issue($user->email, $user->name);
 
         $request->session()->put('password_reset_verification', [
+            'tenant_id' => (string) tenant('id'),
             'email' => $user->email,
             'user_id' => $user->id,
             'otp_hash' => $otpHash,
@@ -85,7 +92,7 @@ class PasswordResetLinkController extends Controller
     {
         $verification = $request->session()->get('password_reset_verification');
 
-        if (! is_array($verification) || ! isset($verification['otp_hash']) || (int) ($verification['session_expires_at'] ?? 0) < now()->timestamp) {
+        if (! TenantPasswordResetContext::matchesCurrentTenant($verification) || ! isset($verification['otp_hash']) || (int) ($verification['session_expires_at'] ?? 0) < now()->timestamp) {
             $request->session()->forget('password_reset_verification');
 
             return redirect()->to(tenant_route_name('password.request'))
@@ -127,7 +134,8 @@ class PasswordResetLinkController extends Controller
     {
         $verification = $request->session()->get('password_reset_verification');
 
-        if (! is_array($verification) || ! isset($verification['otp_hash'])) {
+        if (! TenantPasswordResetContext::matchesCurrentTenant($verification) || ! isset($verification['otp_hash'])) {
+            $request->session()->forget('password_reset_verification');
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json(['success' => false, 'message' => 'لا توجد جلسة تحقق نشطة.'], 422);
             }

@@ -48,10 +48,17 @@ final class RolesAndPermissionsDualReviewTest extends TestCase
 {
     protected array $tempFiles = [];
     protected string $defaultTenantDb = '';
+    protected ?array $originalBootstrappers = null;
+    protected ?array $originalMysqlConfig = null;
+    protected ?array $originalTenantConfig = null;
 
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->originalBootstrappers = config('tenancy.bootstrappers');
+        $this->originalMysqlConfig = config('database.connections.mysql');
+        $this->originalTenantConfig = config('database.connections.tenant');
 
         $this->defaultTenantDb = tempnam(sys_get_temp_dir(), 'ten_def_') . '.sqlite';
         touch($this->defaultTenantDb);
@@ -81,6 +88,14 @@ final class RolesAndPermissionsDualReviewTest extends TestCase
         if (tenancy()->initialized) {
             tenancy()->end();
         }
+
+        config([
+            'tenancy.bootstrappers' => $this->originalBootstrappers,
+            'database.connections.mysql' => $this->originalMysqlConfig,
+            'database.connections.tenant' => $this->originalTenantConfig,
+        ]);
+        DB::purge('mysql');
+        DB::purge('tenant');
 
         foreach ($this->tempFiles as $file) {
             if (file_exists($file)) {

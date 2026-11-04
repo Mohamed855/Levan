@@ -58,6 +58,15 @@ final class UpdatePropertyAction
                     $data['_wizard_resource_key']
                 );
 
+                // Parse coordinates from Google Maps URL if empty
+                if ((empty($data['latitude']) || empty($data['longitude'])) && ! empty($data['google_maps_url'])) {
+                    $parsed = $this->parseCoordinatesFromUrl($data['google_maps_url']);
+                    if ($parsed) {
+                        $data['latitude'] = $parsed['lat'];
+                        $data['longitude'] = $parsed['lng'];
+                    }
+                }
+
                 // If new main image uploaded
                 if ($mainImageFile instanceof UploadedFile) {
                     if ($property->main_image) {

@@ -38,6 +38,7 @@ class Property extends Model
         'administrative_region',
         'plan_number',
         'parcel_number',
+        'google_maps_url',
         'latitude',
         'longitude',
         'boundary_geojson',

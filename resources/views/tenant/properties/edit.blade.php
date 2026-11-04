@@ -39,6 +39,7 @@
         'generatedPropertyNumber' => $property->property_number,
         'assignments' => $assignments,
         'cityOptions' => $cityOptions,
+        'regionOptions' => $regionOptions ?? [],
         'districtOptions' => $districtOptions ?? [],
     ])
 @endsection

@@ -144,7 +144,7 @@
                                 <form id="twoFactorConfirmForm" class="w-100 d-flex flex-column gap-2"
                                     action="{{ tenant_route_name('tenants.two-factor.confirm') }}" method="POST" novalidate
                                     data-form-validate data-validation-submit="ajax"
-                                    data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+                                    data-validation-url="{{ tenant_route_name('tenants.two-factor.validate') }}">
                                     @csrf
                                     <x-form.controls.input name="code" id="twoFactorCode" label="كود التحقق"
                                         col="col-12" type="text" placeholder="XXXXXX" required

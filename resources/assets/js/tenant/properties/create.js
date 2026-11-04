@@ -1231,6 +1231,42 @@ document.addEventListener("DOMContentLoaded", () => {
         return `<figure class="property-aerial-review mt-3 mb-0"><img src="${escapeHtml(source)}" alt="صورة العقار بعد تحديد الحدود"><a class="property-aerial-review__download" href="${escapeHtml(source)}" download="property-boundary.png" aria-label="تحميل صورة العقار المحددة"><i class="ti ti-download" aria-hidden="true"></i></a></figure>`;
     }
 
+    const googleMapsInput = form.elements.namedItem("google_maps_url");
+    const latInput = form.elements.namedItem("latitude");
+    const lngInput = form.elements.namedItem("longitude");
+
+    function parseGoogleMapsUrl(url) {
+        if (!url) return null;
+        let match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+
+        match = url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
+        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+
+        match = url.match(/[?&]ll=(-?\d+\.\d+),(-?\d+\.\d+)/);
+        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+
+        match = url.match(/place\/(-?\d+\.\d+),(-?\d+\.\d+)/);
+        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+
+        return null;
+    }
+
+    function syncCoordinatesFromMapsUrl() {
+        const url = googleMapsInput?.value?.trim();
+        if (!url) return;
+        const coords = parseGoogleMapsUrl(url);
+        if (coords) {
+            if (latInput) latInput.value = coords.lat.toFixed(7);
+            if (lngInput) lngInput.value = coords.lng.toFixed(7);
+        }
+    }
+
+    if (googleMapsInput) {
+        googleMapsInput.addEventListener("input", syncCoordinatesFromMapsUrl);
+        googleMapsInput.addEventListener("change", syncCoordinatesFromMapsUrl);
+    }
+
     function buildReview() {
         // Review Basic Info
         const reviewBasic = document.getElementById("review-basic");
@@ -1262,12 +1298,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 boundaryGeoJsonInput?.value && points.length >= 3,
             );
             const hasImage = Boolean(aerialImageInput?.value || loadedImage);
+            const googleMapsUrl = getVal("google_maps_url");
             const locationFields = [
                 ["المدينة", getSelectedText("city")],
                 ["الحي", getSelectedText("district") !== "-" ? getSelectedText("district") : getVal("district")],
                 ["المنطقة الإدارية", getVal("administrative_region")],
                 ["رقم المخطط", getVal("plan_number")],
                 ["رقم القطعة", getVal("parcel_number")],
+                [
+                    "رابط الموقع (Google Maps)",
+                    googleMapsUrl && googleMapsUrl !== "-"
+                        ? googleMapsUrl
+                        : "لم يتم التحديد",
+                ],
                 [
                     "صورة العقار",
                     hasImage ? "تم رفع صورة العقار" : "لم يتم الرفع",
@@ -1284,7 +1327,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 .map(
                     ([label, val]) => `
         <dt class="col-sm-4 text-muted mb-2">${label}:</dt>
-        <dd class="col-sm-8 fw-medium mb-2">${escapeHtml(val)}</dd>
+        <dd class="col-sm-8 fw-medium mb-2">${label === "رابط الموقع (Google Maps)" && val !== "لم يتم التحديد" ? `<a href="${escapeHtml(val)}" target="_blank" rel="noopener noreferrer" class="text-primary text-truncate d-inline-block mw-100">${escapeHtml(val)}</a>` : escapeHtml(val)}</dd>
       `,
                 )
                 .join(
@@ -1645,6 +1688,10 @@ document.addEventListener("DOMContentLoaded", () => {
             loadImageSrc(restoredImage, data.boundary_geojson || null);
         } else if (data.boundary_geojson && aerialImageInput?.value) {
             loadImageSrc(aerialImageInput.value, data.boundary_geojson);
+        }
+
+        if (data.google_maps_url) {
+            syncCoordinatesFromMapsUrl();
         }
 
         buildReview();

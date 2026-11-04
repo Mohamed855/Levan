@@ -59,6 +59,7 @@ class StorePropertyRequest extends WizardFormRequest
             'administrative_region' => ['nullable', 'string', 'max:100'],
             'plan_number' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
             'parcel_number' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
+            'google_maps_url' => ['nullable', 'url', 'max:1000'],
             'latitude' => ['nullable', 'numeric'],
             'longitude' => ['nullable', 'numeric'],
             'aerial_image' => [
@@ -224,6 +225,7 @@ class StorePropertyRequest extends WizardFormRequest
             'administrative_region' => 'المنطقة الإدارية',
             'plan_number' => 'رقم المخطط',
             'parcel_number' => 'رقم القطعة',
+            'google_maps_url' => 'رابط الموقع (Google Maps)',
             'aerial_image' => 'صورة العقار',
             'boundary_geojson' => 'حدود العقار',
             'boundary_geojson.type' => 'حدود العقار',

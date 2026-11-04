@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Clients\ResetClientUserPasswordRequest;
 use App\Http\Requests\Tenants\Auth\ResetTenantPasswordRequest;
 use App\Models\Tenants\UserMangment\User\User;
+use App\Support\Auth\TenantPasswordResetContext;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,6 +25,11 @@ class NewPasswordController extends Controller
     public function create(Request $request): View|RedirectResponse
     {
         $verification = $request->session()->get('password_reset_verification');
+
+        if ($verification && ! TenantPasswordResetContext::matchesCurrentTenant($verification)) {
+            $request->session()->forget('password_reset_verification');
+            $verification = null;
+        }
 
         if (is_array($verification) && ! empty($verification['verified'])) {
             if ((int) ($verification['expires_at'] ?? 0) < now()->timestamp) {
@@ -60,7 +66,9 @@ class NewPasswordController extends Controller
     {
         $verification = $request->session()->get('password_reset_verification');
 
-        if (! is_array($verification) || empty($verification['verified'])) {
+        if (! TenantPasswordResetContext::matchesCurrentTenant($verification) || empty($verification['verified'])) {
+            $request->session()->forget('password_reset_verification');
+
             return redirect()->to(tenant_route_name('password.request'))
                 ->withErrors(['email' => 'جلسة التحقق غير صالحة، يرجى البدء من جديد.']);
         }
@@ -73,7 +81,7 @@ class NewPasswordController extends Controller
         }
 
         $email = (string) ($verification['email'] ?? $request->validated('email'));
-        $user = User::query()->where('email', $email)->first();
+        $user = User::query()->whereKey($verification['user_id'] ?? null)->where('email', $email)->first();
 
         if (! $user) {
             $request->session()->forget('password_reset_verification');

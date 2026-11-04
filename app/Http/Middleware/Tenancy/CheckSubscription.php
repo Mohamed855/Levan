@@ -3,6 +3,7 @@
 namespace App\Http\Middleware\Tenancy;
 
 use App\Enums\Admin\Billing\BillStatus;
+use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,6 +52,14 @@ class CheckSubscription
 
             return redirect()->to(tenant_route_name('login'))->withErrors([
                 'email' => 'يرجى التواصل مع الإدارة لتفعيل الاشتراك.',
+            ]);
+        }
+
+        if ($subscription->status === SubscriptionStatus::PENDING) {
+            $terminateSession();
+
+            return redirect()->to(tenant_route_name('login'))->withErrors([
+                'email' => 'الاشتراك لم يُفعّل بعد. يرجى التواصل مع الإدارة.',
             ]);
         }
 

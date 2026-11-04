@@ -285,10 +285,15 @@ Route::prefix('superadmin')->name('admin.')->group(function () {
         Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
 
         Route::name('two-factor.')->group(function () {
+            Route::post('two-factor-authentication/validate', [WizardDraftController::class, 'validateStep'])
+                ->defaults('shared_form_validation_actions', [AdminTwoFactorSettingsController::class.'@confirm'])
+                ->name('validate');
             Route::get('two-factor-authentication', [AdminTwoFactorSettingsController::class, 'show'])->name('index');
             Route::post('two-factor-authentication', [AdminTwoFactorSettingsController::class, 'enable'])->name('enable');
             Route::delete('two-factor-authentication', [AdminTwoFactorSettingsController::class, 'disable'])->name('disable');
-            Route::post('confirmed-two-factor-authentication', [AdminTwoFactorSettingsController::class, 'confirm'])->name('confirm');
+            Route::post('confirmed-two-factor-authentication', [AdminTwoFactorSettingsController::class, 'confirm'])
+                ->defaults('shared_form_validation', true)
+                ->name('confirm');
             Route::get('two-factor-qr-code', [AdminTwoFactorSettingsController::class, 'qrCode'])->name('qr-code');
             Route::post('two-factor-recovery-codes', [AdminTwoFactorSettingsController::class, 'recoveryCodes'])->name('recovery-codes');
         });

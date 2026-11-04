@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Tenants\Assignments;
 
 use App\Models\Tenants\Assignments\IssuingEntity;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use LogicException;
 
 class IssuingEntityService
@@ -22,8 +24,16 @@ class IssuingEntityService
     public function create(array $data, int $userId): IssuingEntity
     {
         return DB::transaction(function () use ($data, $userId): IssuingEntity {
+            $imagePath = null;
+            if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
+                $imagePath = $data['image']->store('issuing-entities', 'tenant_public');
+            } elseif (isset($data['image']) && is_string($data['image'])) {
+                $imagePath = $data['image'];
+            }
+
             return IssuingEntity::create([
                 'name' => trim((string) $data['name']),
+                'image' => $imagePath,
                 'is_active' => (bool) ($data['is_active'] ?? true),
                 'created_by' => $userId,
             ]);
@@ -43,6 +53,18 @@ class IssuingEntityService
                     throw new LogicException('لا يمكن تعطيل جهة مسندة مرتبطة بإسنادات في النظام.');
                 }
                 $updateData['is_active'] = $requestedActive;
+            }
+
+            if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
+                if ($entity->image && Storage::disk('tenant_public')->exists($entity->image)) {
+                    Storage::disk('tenant_public')->delete($entity->image);
+                }
+                $updateData['image'] = $data['image']->store('issuing-entities', 'tenant_public');
+            } elseif (! empty($data['remove_image'])) {
+                if ($entity->image && Storage::disk('tenant_public')->exists($entity->image)) {
+                    Storage::disk('tenant_public')->delete($entity->image);
+                }
+                $updateData['image'] = null;
             }
 
             $entity->update($updateData);
