@@ -547,21 +547,21 @@ final class ArchivesDualReviewTest extends TestCase
             'users.view', 'users.create', 'users.edit', 'users.delete',
         ];
 
-        foreach (['tenant-a' => $this->tenantDbA, 'tenant-b' => $this->tenantDbB] as $tenantId => $db) {
-            config(['database.connections.tenant.database' => $db]);
-            DB::purge('tenant');
+        foreach (['tenant-a' => $this->tenantA, 'tenant-b' => $this->tenantB] as $tenantId => $tenant) {
+            tenancy()->initialize($tenant);
+            app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
             foreach ($tenantPerms as $perm) {
-                Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'tenant']);
+                Permission::on('tenant')->firstOrCreate(['name' => $perm, 'guard_name' => 'tenant']);
             }
 
-            $adminRole = Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'tenant']);
-            $adminRole->syncPermissions(Permission::where('guard_name', 'tenant')->get());
+            $adminRole = Role::on('tenant')->firstOrCreate(['name' => 'Admin', 'guard_name' => 'tenant']);
+            $adminRole->syncPermissions(Permission::on('tenant')->where('guard_name', 'tenant')->get());
 
-            $userRole = Role::firstOrCreate(['name' => 'User', 'guard_name' => 'tenant']);
-            $userRole->syncPermissions(['dashboard.view']);
+            $userRole = Role::on('tenant')->firstOrCreate(['name' => 'User', 'guard_name' => 'tenant']);
+            $userRole->syncPermissions(Permission::on('tenant')->where('name', 'dashboard.view')->get());
 
-            $user = User::create([
+            $user = User::on('tenant')->create([
                 'name' => "Admin {$tenantId}",
                 'email' => "admin@{$tenantId}.com",
                 'phone' => "050000000" . ($tenantId === 'tenant-a' ? '1' : '2'),
@@ -584,6 +584,8 @@ final class ArchivesDualReviewTest extends TestCase
             } else {
                 $this->tenantUserB = $user;
             }
+
+            tenancy()->end();
         }
     }
 
