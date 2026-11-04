@@ -1,0 +1,59 @@
+// Run: Get-Content -Raw docs/qa/evidence/site-auth/codex-round-2-confirm-retry-probe.txt | node --input-type=module
+// Isolated source-level integration probe. No DOM browser, network, or database.
+import fs from 'node:fs';
+const validation = fs.readFileSync('resources/assets/js/shared/form-validation.js', 'utf8').replaceAll('\r\n', '\n');
+const settings = fs.readFileSync('resources/views/tenant/auth/two-factor-settings.blade.php', 'utf8').replaceAll('\r\n', '\n');
+
+function functionSource(name) {
+    const start = validation.indexOf(`function ${name}(`);
+    const end = validation.indexOf('\n}', start);
+    if (start < 0 || end < 0) throw new Error(`Function not found: ${name}`);
+    return validation.slice(start, end + 2);
+}
+const loadingFactory = new Function('getButtonLoadingText', 'escapeHtml', `${functionSource('setButtonLoading')}; return setButtonLoading;`);
+const setLoading = loadingFactory(() => 'loading', value => String(value));
+const button = {
+    dataset: {}, style: {}, classList: {add() {}, remove() {}}, disabled: false,
+    innerHTML: 'confirm', querySelector() {return null;}, setAttribute() {},
+};
+const codeControl = {name: 'code', matches() {return false;}};
+const state = {isSubmitting: false};
+let displayedError = null;
+const form = {
+    dataset: {validationSubmit: 'ajax'},
+    querySelector() {return button;},
+    querySelectorAll(selector) {return selector === '[name]' ? [codeControl] : [];},
+    dispatchEvent(event) {if (event.type === 'formValidationPassed') settingsCallback.call(this);},
+};
+button.form = form;
+globalThis.window = {SharedFormValidation: {setFieldError(_form, _field, message) {displayedError = message;}}};
+const $ = () => ({serialize() {return 'code=synthetic-invalid-code';}});
+$.ajax = options => queueMicrotask(() => options.error({responseJSON: {errors: {code: ['synthetic invalid TOTP']}}}));
+const handlerMarker = "$('#twoFactorConfirmForm').on('formValidationPassed', function() {";
+const handlerStart = settings.indexOf(handlerMarker) + handlerMarker.length;
+const handlerEnd = settings.indexOf("\n            });\n\n            $('#disable2faBtn')", handlerStart);
+if (handlerStart < handlerMarker.length || handlerEnd < 0) throw new Error('Settings handler not found');
+const settingsCallback = new Function('$', 'routes', 'toastr', 'markEnabled', 'renderRecoveryCodes', 'csrfToken',
+    `return function(){${settings.slice(handlerStart, handlerEnd)}};`)(
+    $, {confirm: '/synthetic-confirm'}, {error() {}, success() {}}, () => {}, () => {}, 'synthetic-csrf');
+
+const submitMarker = 'form.addEventListener("submit", async (event) => {';
+const submitStart = validation.indexOf(submitMarker) + submitMarker.length;
+const submitEnd = validation.indexOf('\n    });\n}', submitStart);
+if (submitStart < submitMarker.length || submitEnd < 0) throw new Error('Submit handler not found');
+const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
+const submitCallback = new AsyncFunction('event', 'form', 'getFormState', 'setButtonLoading', 'validateFields', 'CustomEvent',
+    validation.slice(submitStart, submitEnd));
+await submitCallback({submitter: button, preventDefault() {}}, form, () => state, setLoading, async () => true,
+    class {constructor(type) {this.type = type;}});
+await new Promise(resolve => setTimeout(resolve, 10));
+const result = {
+    scope: 'Actual shared submit/loader functions and actual tenant confirmation handler, with isolated adapters',
+    serverValidationErrorDisplayed: displayedError,
+    isSubmitting: state.isSubmitting,
+    buttonDisabledAfter422: button.disabled,
+    buttonLoadingAfter422: button.dataset.buttonIsLoading,
+    retryAvailable: !button.disabled && button.dataset.buttonIsLoading !== 'true',
+};
+console.log(JSON.stringify(result, null, 2));
+if (!result.retryAvailable) process.exitCode = 1;

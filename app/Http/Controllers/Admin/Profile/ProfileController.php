@@ -22,7 +22,9 @@ class ProfileController extends Controller
 
     public function edit(AdminAuthenticatedRequest $request): View
     {
-        return view('admin.profile.edit', ['user' => $request->user('admin')]);
+        $user = $request->user('admin')->load('roles');
+
+        return view('admin.profile.edit', ['user' => $user, 'roles' => $user->roles]);
     }
 
     public function update(UpdateProfileRequest $request): RedirectResponse

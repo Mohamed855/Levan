@@ -16,10 +16,12 @@ use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Coupons\Coupon;
 use App\Services\Admin\AdminMangment\Users\UserService;
+use App\Services\Shared\Notifications\DashboardNotificationService;
 use App\Support\AccessLabels;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
@@ -81,7 +83,9 @@ class AdminUserController extends Controller
 
     public function create()
     {
-        return view($this->page.'.create');
+        $roles = Role::query()->where('guard_name', 'admin')->select('id', 'name')->orderBy('name', 'asc')->get();
+
+        return view($this->page.'.create', compact('roles'));
     }
 
     public function store(AdminUserStoreRequest $request)
@@ -97,7 +101,10 @@ class AdminUserController extends Controller
             return redirect()->route($this->route.'.index')->with('error', 'لا يمكن تعديل بيانات السوبر أدمن');
         }
 
-        return view($this->page.'.edit', compact('user'));
+        $user->load('roles');
+        $roles = Role::query()->where('guard_name', 'admin')->select('id', 'name')->orderBy('name', 'asc')->get();
+
+        return view($this->page.'.edit', compact('user', 'roles'));
     }
 
     public function update(AdminUserUpdateRequest $request, AdminUser $user)
@@ -203,16 +210,33 @@ class AdminUserController extends Controller
 
     public function updatePassword(ChangeCurrentAdminPasswordRequest $request): RedirectResponse
     {
+        $user = $request->user('admin');
         $password = $request->validated('new_password');
-        $this->userService->updatePassword($request->user('admin'), $password);
+        $this->userService->updatePassword($user, $password);
 
         Auth::guard('admin')->logoutOtherDevices($password);
-        Auth::guard('admin')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
 
-        return redirect()->route('admin.login')
-            ->with('success', 'تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول باستخدام كلمة المرور الجديدة.');
+        $time = now()->translatedFormat('Y-m-d h:i A');
+
+        try {
+            app(DashboardNotificationService::class)->admin(
+                (int) $user->id,
+                'password.changed:' . Str::uuid(),
+                DashboardNotificationService::payload(
+                    'password.changed',
+                    'تغيير كلمة المرور',
+                    "تم تغيير كلمة المرور بنجاح في الوقت {$time}.",
+                    route('admin.profile.show'),
+                    'success',
+                    'ti ti-key'
+                )
+            );
+        } catch (\Throwable $e) {
+            Log::warning('Failed to send admin password change notification: ' . $e->getMessage());
+        }
+
+        return redirect()->route('admin.profile.show')
+            ->with('success', 'تم تغيير كلمة المرور بنجاح.');
     }
 
     public function showProfile($id)

@@ -1,5 +1,8 @@
 @php
     $is_profile = $is_profile ?? false;
+    $isEdit = isset($user) && $user->exists;
+    $currentRoleId = $isEdit ? $user->roles->first()?->id : null;
+    $roles = $roles ?? collect();
     $steps = [
         [
             'id' => 'user-info-validation',
@@ -32,7 +35,7 @@
 
                 <x-form.wizard.step id="user-info-validation" :fields="$is_profile
                     ? ['name', 'email', 'phone', 'image']
-                    : ['name', 'email', 'phone', 'password', 'password_confirmation', 'image']">
+                    : ['name', 'email', 'phone', 'role_id', 'password', 'password_confirmation', 'image']">
                     <div class="row g-4">
                         <x-form.controls.input name="name" label="الاسم الكامل" :value="old('name', $user->name ?? '')"
                             placeholder="ادخل الاسم الكامل" required col="col-md-6" />
@@ -43,9 +46,12 @@
                         <x-form.controls.input name="phone" label="رقم الهاتف" :value="old('phone', $user->phone ?? '')"
                             placeholder="05xxxxxxxx" maxlength="10" inputmode="numeric" required col="col-md-6" />
 
-                        <x-form.controls.file name="image" label="الصورة الشخصية"
-                            :value="!empty($user?->image) ? asset('storage/' . $user->image) : null"
-                            accept="image/*" col="col-md-6" />
+                        <x-form.controls.select name="role_id" label="الدور" :options="$roles"
+                            :value="$is_profile ? $currentRoleId : old('role_id', $currentRoleId)" placeholder="اختر الدور"
+                            :required="!$is_profile" :disabled="$is_profile" col="col-md-6" />
+                        @if ($is_profile)
+                            <input type="hidden" name="role_id" value="{{ $currentRoleId }}">
+                        @endif
 
                         @if (!$is_profile)
                             <x-form.controls.password name="password"
@@ -59,6 +65,10 @@
                                 :placeholder="$is_edit ? 'أعد إدخال كلمة المرور' : 'أعد إدخال كلمة المرور'"
                                 :required="!$is_edit" col="col-md-6" />
                         @endif
+
+                        <x-form.controls.file name="image" label="الصورة الشخصية"
+                            :value="!empty($user?->image) ? asset('storage/' . $user->image) : null"
+                            accept="image/*" col="col-12" />
                     </div>
 
                     <x-form.wizard.actions>

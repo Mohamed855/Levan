@@ -17,7 +17,7 @@ class UpdateProfileRequest extends AdminUserUpdateRequest
     public function rules(): array
     {
         $rules = parent::rules();
-        unset($rules['password']);
+        unset($rules['password'], $rules['role_id']);
         $rules['email'] = [
             'required', 'email:rfc', 'max:255',
             Rule::unique('mysql.admin_users', 'email')->ignore($this->user('admin')?->getKey()),

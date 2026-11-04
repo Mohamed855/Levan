@@ -70,12 +70,11 @@ class DashboardService
     private function getKPIs(array $subscription): array
     {
         $activeAuctionsCount = Auction::query()
-            ->where('is_active', true)
+            ->activeStatus()
             ->count();
 
         $upcomingAuctionsCount = Auction::query()
-            ->where('is_active', true)
-            ->whereDate('start_date', '>', now()->toDateString())
+            ->upcoming()
             ->count();
 
         $totalProperties = Property::query()->count();

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Models\Activity;
+use Spatie\Permission\Models\Role;
 
 class UserService
 {
@@ -30,9 +31,15 @@ class UserService
 
     public function create(array $data): AdminUser
     {
+        $roleId = $data['role_id'] ?? null;
+        if (! $roleId) {
+            throw new \InvalidArgumentException('لا يمكن إنشاء مستخدم بدون دور.');
+        }
+
         $rawPassword = $data['password'] ?? null;
 
-        $user = DB::transaction(function () use ($data) {
+        $user = DB::transaction(function () use ($data, $roleId) {
+            unset($data['role_id']);
 
             // Handle image upload
             if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
@@ -46,7 +53,16 @@ class UserService
             $data['status'] = $data['status'] ?? 'active';
 
             // Create user
-            return AdminUser::create($data);
+            $user = AdminUser::create($data);
+
+            $role = Role::query()->where('guard_name', 'admin')->findOrFail($roleId);
+            $user->syncRoles([$role]);
+
+            if ($user->roles()->count() === 0) {
+                throw new \DomainException('فشل تعيين الدور للمستخدم.');
+            }
+
+            return $user;
         });
 
         try {
@@ -68,6 +84,14 @@ class UserService
     public function update(AdminUser $user, array $data): AdminUser
     {
         return DB::transaction(function () use ($user, $data) {
+            $hasRoleId = array_key_exists('role_id', $data);
+            $roleId = $data['role_id'] ?? null;
+            unset($data['role_id']);
+
+            if ($hasRoleId && empty($roleId)) {
+                throw new \InvalidArgumentException('لا يمكن ترك المستخدم بدون دور.');
+            }
+
             // Handle image upload
             if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
                 // Delete old image
@@ -86,6 +110,15 @@ class UserService
 
             // Update user
             $user->update($data);
+
+            if ($hasRoleId && $roleId) {
+                $role = Role::query()->where('guard_name', 'admin')->findOrFail($roleId);
+                $user->syncRoles([$role]);
+            }
+
+            if ($hasRoleId && $user->roles()->count() === 0) {
+                throw new \DomainException('لا يمكن حفظ مستخدم بدون دور.');
+            }
 
             return $user->fresh();
         });

@@ -19,5 +19,5 @@
 @endsection
 
 @section('content')
-    @include('admin.users.partials._form', ['is_edit' => true, 'user' => $user])
+    @include('admin.users.partials._form', ['is_edit' => true, 'user' => $user, 'roles' => $roles])
 @endsection

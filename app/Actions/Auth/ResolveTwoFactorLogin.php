@@ -90,21 +90,44 @@ class ResolveTwoFactorLogin
     */
     protected function consumeRecoveryCode(Authenticatable $user, string $code): void
     {
-        try {
-            $recoveryCodes = collect(json_decode(decrypt($user->two_factor_recovery_codes), true, 512, JSON_THROW_ON_ERROR) ?: []);
-        } catch (\Throwable) {
-            throw ValidationException::withMessages([
-                'recovery_code' => 'كود الاسترجاع غير صحيح.',
-            ]);
-        }
+        /** @var \Illuminate\Database\Eloquent\Model $userModel */
+        $userModel = $user;
+        $connection = $userModel->getConnection();
 
-        if (! $recoveryCodes->contains($code)) {
-            throw ValidationException::withMessages([
-                'recovery_code' => 'كود الاسترجاع غير صحيح.',
-            ]);
-        }
+        $connection->transaction(function () use ($userModel, $code): void {
+            /** @var \Illuminate\Database\Eloquent\Model|null $freshUser */
+            $freshUser = $userModel->newQuery()->lockForUpdate()->find($userModel->getKey());
 
-        $remainingCodes = $recoveryCodes->reject(fn ($c) => $c === $code)->values()->all();
-        $this->authenticationState->replaceRecoveryCodes($user, $remainingCodes);
+            if (! $freshUser) {
+                throw ValidationException::withMessages([
+                    'recovery_code' => 'كود الاسترجاع غير صحيح.',
+                ]);
+            }
+
+            $statusValue = $freshUser->status instanceof \BackedEnum ? $freshUser->status->value : (string) $freshUser->status;
+            if ($statusValue !== 'active' || empty($freshUser->two_factor_secret) || empty($freshUser->two_factor_confirmed_at)) {
+                throw ValidationException::withMessages([
+                    'recovery_code' => 'كود الاسترجاع غير صحيح.',
+                ]);
+            }
+
+            try {
+                $recoveryCodes = collect(json_decode(decrypt($freshUser->two_factor_recovery_codes), true, 512, JSON_THROW_ON_ERROR) ?: []);
+            } catch (\Throwable) {
+                throw ValidationException::withMessages([
+                    'recovery_code' => 'كود الاسترجاع غير صحيح.',
+                ]);
+            }
+
+            if (! $recoveryCodes->contains($code)) {
+                throw ValidationException::withMessages([
+                    'recovery_code' => 'كود الاسترجاع غير صحيح.',
+                ]);
+            }
+
+            $remainingCodes = $recoveryCodes->reject(fn ($c) => $c === $code)->values()->all();
+            $this->authenticationState->replaceRecoveryCodes($freshUser, $remainingCodes);
+            $userModel->setRawAttributes($freshUser->getAttributes());
+        });
     }
 }

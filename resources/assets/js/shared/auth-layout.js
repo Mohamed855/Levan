@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+function initAuthLayout() {
     // 1. Single 2FA OTP Code Input Handling
     const codeInput = document.getElementById("code");
     const recoveryInput = document.getElementById("recovery_code");
@@ -306,4 +306,10 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
     }
-});
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAuthLayout);
+} else {
+    initAuthLayout();
+}

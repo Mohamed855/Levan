@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Tenants\Auctions;
 use App\Actions\Tenants\Auctions\CreateAuctionAction;
 use App\Actions\Tenants\Auctions\UpdateAuctionAction;
 use App\DataTables\Tenants\Auctions\AuctionsDataTable;
+use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auctions\StoreAuctionRequest;
 use App\Http\Requests\Tenants\Auctions\UpdateAuctionRequest;
@@ -42,12 +43,15 @@ class AuctionsController extends Controller
         return $dataTable->render('tenant.auctions.index', [
             'totalAuctions' => $statistics['total'],
             'activeAuctions' => $statistics['active'],
+            'closedAuctions' => $statistics['closed'],
+            'suspendedAuctions' => $statistics['suspended'],
+            'upcomingAuctions' => $statistics['upcoming'],
             'inactiveAuctions' => $statistics['inactive'],
             'withoutPropertiesAuctions' => $statistics['without_properties'],
             'readyReportsAuctions' => $statistics['ready_reports'],
             'assignments' => Assignment::query()->select(['id', 'name', 'assignment_number'])->orderBy('name')->get(),
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
-            'statusOptions' => ['active' => 'نشط', 'inactive' => 'متوقف'],
+            'statusOptions' => AuctionStatus::options(),
         ]);
     }
 

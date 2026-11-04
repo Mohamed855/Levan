@@ -227,6 +227,13 @@
         align-items: center;
         gap: 0.35rem;
 
+        .footer-logo {
+          height: 18px;
+          width: auto;
+          object-fit: contain;
+          vertical-align: middle;
+        }
+
         i {
           color: #ef4444;
         }

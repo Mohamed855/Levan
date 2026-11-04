@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models\Tenants\Auctions;
 
+use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -123,5 +126,150 @@ class Auction extends Model
             'mixed_use' => 'متعدد الاستخدام',
             default => $this->category ?? 'أراضي',
         };
+    }
+
+    public function getStartDateTime(): ?Carbon
+    {
+        if (! $this->start_date) {
+            return null;
+        }
+
+        $time = $this->start_time ?: '00:00:00';
+
+        return Carbon::parse($this->start_date->format('Y-m-d').' '.$time);
+    }
+
+    public function getEndDateTime(): ?Carbon
+    {
+        if (! $this->end_date) {
+            return null;
+        }
+
+        $time = $this->end_time ?: '23:59:59';
+
+        return Carbon::parse($this->end_date->format('Y-m-d').' '.$time);
+    }
+
+    public function getStatusAttribute(): AuctionStatus
+    {
+        if (! $this->is_active) {
+            return AuctionStatus::SUSPENDED;
+        }
+
+        $now = Carbon::now();
+
+        $endDateTime = $this->getEndDateTime();
+        if ($endDateTime && $now->greaterThanOrEqualTo($endDateTime)) {
+            return AuctionStatus::CLOSED;
+        }
+
+        $startDateTime = $this->getStartDateTime();
+        if ($startDateTime && $now->lessThan($startDateTime)) {
+            return AuctionStatus::UPCOMING;
+        }
+
+        return AuctionStatus::ACTIVE;
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return $this->status->label();
+    }
+
+    public function getStatusBadgeClassAttribute(): string
+    {
+        return $this->status->badgeClass();
+    }
+
+    public function getStatusLabelBadgeClassAttribute(): string
+    {
+        return $this->status->labelBadgeClass();
+    }
+
+    public function isClosed(): bool
+    {
+        return $this->status === AuctionStatus::CLOSED;
+    }
+
+    public function isSuspended(): bool
+    {
+        return $this->status === AuctionStatus::SUSPENDED;
+    }
+
+    public function isUpcoming(): bool
+    {
+        return $this->status === AuctionStatus::UPCOMING;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === AuctionStatus::ACTIVE;
+    }
+
+    public function scopeSuspended(Builder $query): Builder
+    {
+        return $query->where('is_active', false);
+    }
+
+    public function scopeClosed(Builder $query): Builder
+    {
+        $today = Carbon::today()->toDateString();
+        $nowTime = Carbon::now()->format('H:i:s');
+
+        return $query->where('is_active', true)
+            ->where(function (Builder $q) use ($today, $nowTime): void {
+                $q->whereDate('end_date', '<', $today)
+                    ->orWhere(function (Builder $sub) use ($today, $nowTime): void {
+                        $sub->whereDate('end_date', '=', $today)
+                            ->whereNotNull('end_time')
+                            ->where('end_time', '<=', $nowTime);
+                    });
+            });
+    }
+
+    public function scopeUpcoming(Builder $query): Builder
+    {
+        $today = Carbon::today()->toDateString();
+        $nowTime = Carbon::now()->format('H:i:s');
+
+        return $query->where('is_active', true)
+            ->where(function (Builder $q) use ($today, $nowTime): void {
+                $q->whereDate('start_date', '>', $today)
+                    ->orWhere(function (Builder $sub) use ($today, $nowTime): void {
+                        $sub->whereDate('start_date', '=', $today)
+                            ->whereNotNull('start_time')
+                            ->where('start_time', '>', $nowTime);
+                    });
+            });
+    }
+
+    public function scopeActiveStatus(Builder $query): Builder
+    {
+        $today = Carbon::today()->toDateString();
+        $nowTime = Carbon::now()->format('H:i:s');
+
+        return $query->where('is_active', true)
+            ->where(function (Builder $q) use ($today, $nowTime): void {
+                $q->whereDate('end_date', '>', $today)
+                    ->orWhere(function (Builder $sub) use ($today, $nowTime): void {
+                        $sub->whereDate('end_date', '=', $today)
+                            ->where(function (Builder $t) use ($nowTime): void {
+                                $t->whereNull('end_time')
+                                    ->orWhere('end_time', '>', $nowTime);
+                            });
+                    })
+                    ->orWhereNull('end_date');
+            })
+            ->where(function (Builder $q) use ($today, $nowTime): void {
+                $q->whereDate('start_date', '<', $today)
+                    ->orWhere(function (Builder $sub) use ($today, $nowTime): void {
+                        $sub->whereDate('start_date', '=', $today)
+                            ->where(function (Builder $t) use ($nowTime): void {
+                                $t->whereNull('start_time')
+                                    ->orWhere('start_time', '<=', $nowTime);
+                            });
+                    })
+                    ->orWhereNull('start_date');
+            });
     }
 }

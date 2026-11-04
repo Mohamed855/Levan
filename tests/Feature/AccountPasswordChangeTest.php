@@ -30,6 +30,8 @@ final class AccountPasswordChangeTest extends TestCase
             'database.connections.mysql' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => ''],
             'database.connections.tenant' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => ''],
             'activitylog.enabled' => false,
+            'dashboard-notifications.enabled' => true,
+            'dashboard-notifications.broadcast' => false,
         ]);
         DB::purge('mysql');
         DB::purge('tenant');
@@ -45,6 +47,26 @@ final class AccountPasswordChangeTest extends TestCase
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
+        });
+
+        Schema::connection('mysql')->create('dashboard_notification_deliveries', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->string('scope', 10);
+            $table->string('tenant_id')->nullable();
+            $table->unsignedBigInteger('user_id');
+            $table->json('payload');
+            $table->timestamp('delivered_at')->nullable()->index();
+            $table->text('last_error')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::connection('mysql')->create('notifications', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->string('type');
+            $table->morphs('notifiable');
+            $table->text('data');
+            $table->timestamp('read_at')->nullable();
+            $table->timestamps();
         });
 
         $this->admin = AdminUser::create([
@@ -101,7 +123,7 @@ final class AccountPasswordChangeTest extends TestCase
             ->assertSessionMissing('_old_input.new_password_confirmation');
     }
 
-    public function test_admin_can_change_only_their_own_password_and_is_logged_out(): void
+    public function test_admin_can_change_only_their_own_password_and_remains_logged_in_with_redirect_to_profile(): void
     {
         self::assertTrue(Route::has('admin.users.password.update'));
         $otherAdmin = AdminUser::create([
@@ -115,11 +137,17 @@ final class AccountPasswordChangeTest extends TestCase
                 'current_password' => 'OldPassword123!',
                 'new_password' => 'NewPassword123!',
                 'new_password_confirmation' => 'NewPassword123!',
-            ])->assertRedirect(route('admin.login'))->assertSessionHas('success');
+            ])->assertRedirect(route('admin.profile.show'))->assertSessionHas('success');
 
         self::assertTrue(Hash::check('NewPassword123!', $this->admin->fresh()->password));
         self::assertTrue(Hash::check('OtherPassword123!', $otherAdmin->fresh()->password));
-        $this->assertGuest('admin');
+        $this->assertAuthenticatedAs($this->admin, 'admin');
+
+        $this->assertCount(1, $this->admin->fresh()->notifications);
+        $notice = $this->admin->fresh()->notifications->first();
+        self::assertSame('تغيير كلمة المرور', $notice->data['title']);
+        self::assertStringContainsString('تم تغيير كلمة المرور بنجاح في الوقت', $notice->data['message']);
+        self::assertSame(route('admin.profile.show'), $notice->data['url']);
     }
 
     public function test_admin_password_form_uses_shared_server_validation_without_changing_password(): void
@@ -192,5 +220,62 @@ final class AccountPasswordChangeTest extends TestCase
         self::assertSame('Updated Tenant', $user->fresh()->name);
         self::assertNotSame($originalPassword, $user->fresh()->password);
         self::assertTrue(Hash::check('InjectedPassword123!', $user->fresh()->password));
+    }
+
+    public function test_tenant_user_password_change_remains_logged_in_redirects_to_profile_and_creates_notification(): void
+    {
+        if (! Schema::connection('tenant')->hasTable('users')) {
+            Schema::connection('tenant')->create('users', function (Blueprint $table): void {
+                $table->id();
+                $table->string('name');
+                $table->string('password');
+                $table->string('global_uid')->nullable();
+                $table->rememberToken();
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
+        if (! Schema::connection('tenant')->hasTable('notifications')) {
+            Schema::connection('tenant')->create('notifications', function (Blueprint $table): void {
+                $table->uuid('id')->primary();
+                $table->string('type');
+                $table->morphs('notifiable');
+                $table->text('data');
+                $table->timestamp('read_at')->nullable();
+                $table->timestamps();
+            });
+        }
+
+        $user = User::create(['name' => 'Tenant User', 'password' => Hash::make('OldPassword123!')]);
+
+        $this->actingAs($user, 'tenant');
+
+        $request = ChangeCurrentUserPasswordRequest::create(
+            tenant_route_name('users.password.update'),
+            'POST',
+            [
+                'current_password' => 'OldPassword123!',
+                'new_password' => 'NewTenantPassword123!',
+                'new_password_confirmation' => 'NewTenantPassword123!',
+            ]
+        );
+        $request->setUserResolver(fn ($guard = null) => $user);
+        $request->setContainer($this->app);
+        $request->setRedirector($this->app->make(\Illuminate\Routing\Redirector::class));
+        $request->validateResolved();
+
+        $response = $this->app->make(\App\Http\Controllers\Tenants\UserMangment\User\UserController::class)
+            ->updatePassword($request);
+
+        self::assertTrue(Hash::check('NewTenantPassword123!', $user->fresh()->password));
+        self::assertSame(tenant_route_name('profile.show'), $response->getTargetUrl());
+        self::assertSame('تم تغيير كلمة المرور بنجاح.', session('success'));
+        $this->assertAuthenticatedAs($user, 'tenant');
+
+        $this->assertCount(1, $user->fresh()->notifications);
+        $notice = $user->fresh()->notifications->first();
+        self::assertSame('تغيير كلمة المرور', $notice->data['title']);
+        self::assertStringContainsString('تم تغيير كلمة المرور بنجاح في الوقت', $notice->data['message']);
+        self::assertSame(tenant_route_name('profile.show'), $notice->data['url']);
     }
 }

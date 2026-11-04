@@ -7,6 +7,23 @@ $app = require_once __DIR__ . '/../../../../bootstrap/app.php';
 $kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
+config([
+    'database.connections.mysql' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => ''],
+    'database.connections.tenant' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => ''],
+    'tenancy.bootstrappers' => [],
+]);
+\Illuminate\Support\Facades\DB::purge('mysql');
+\Illuminate\Support\Facades\DB::purge('tenant');
+
+\Illuminate\Support\Facades\Schema::connection('tenant')->create('settings', function ($table) {
+    $table->id();
+    $table->boolean('maintenance_mode')->default(false);
+});
+\Illuminate\Support\Facades\Schema::connection('mysql')->create('settings', function ($table) {
+    $table->id();
+    $table->boolean('maintenance_mode')->default(false);
+});
+
 $request = \Illuminate\Http\Request::create('/superadmin/two-factor-challenge', 'GET');
 $request->setLaravelSession(app('session')->driver());
 app()->instance('request', $request);
@@ -22,7 +39,7 @@ app()->instance('request', $tenantRequest);
 
 // Create tenant context for view rendering
 $tenant = new \App\Models\Admin\Tenants\Tenant(['id' => 'test-tenant', 'company_name' => 'شركة لوت التجريبية']);
-app()->instance('tenant', $tenant);
+tenancy()->initialize($tenant);
 
 $htmlTenant = view('tenant.auth.two-factor-challenge')->render();
 file_put_contents(__DIR__ . '/tenant_challenge.html', $htmlTenant);

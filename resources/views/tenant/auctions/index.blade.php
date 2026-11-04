@@ -40,10 +40,11 @@
                 color="primary" />
             <x-ui.stat-card title="مزادات نشطة" :value="$activeAuctions" subtitle="قيد التشغيل حالياً" icon="ti-player-play"
                 color="success" />
-            <x-ui.stat-card title="مزادات متوقفة" :value="$inactiveAuctions" subtitle="غير نشطة" icon="ti-player-pause" color="secondary" />
-            <x-ui.stat-card title="بدون عقارات" :value="$withoutPropertiesAuctions" subtitle="تحتاج ربط عقارات" icon="ti-home-question"
+            <x-ui.stat-card title="تم الإغلاق" :value="$closedAuctions" subtitle="انتهى وقت المزاد" icon="ti-circle-check"
+                color="secondary" />
+            <x-ui.stat-card title="مزادات معلقة" :value="$suspendedAuctions" subtitle="معلقة من الجهة" icon="ti-player-pause"
                 color="warning" />
-            <x-ui.stat-card title="تقارير جاهزة" :value="$readyReportsAuctions" subtitle="جاهزة للتحميل" icon="ti-file-check"
+            <x-ui.stat-card title="مزادات قادمة" :value="$upcomingAuctions" subtitle="مجدولة للبدء" icon="ti-calendar-time"
                 color="info" />
         </x-slot:stats>
 

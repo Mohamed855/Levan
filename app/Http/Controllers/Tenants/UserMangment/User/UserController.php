@@ -12,6 +12,7 @@ use App\Http\Requests\Tenants\Users\ChangeCurrentUserPasswordRequest;
 use App\Http\Requests\Tenants\Users\UpdateUserBackgroundImageRequest;
 use App\Http\Requests\Tenants\Users\UpdateUserProfileImageRequest;
 use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Shared\Notifications\DashboardNotificationService;
 use App\Services\Shared\Subscription\SubscriptionFormatter;
 use App\Services\Shared\Subscription\SubscriptionManager;
 use App\Services\Tenants\Shared\CentralSubscriptionContextGateway;
@@ -20,6 +21,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
@@ -289,14 +291,51 @@ class UserController extends Controller
     public function updatePassword(ChangeCurrentUserPasswordRequest $request): RedirectResponse
     {
         $user = $request->user('tenant');
+        $password = $request->validated('new_password');
 
-        $this->userService->updatePassword($user, $request->validated('new_password'));
+        $this->userService->updatePassword($user, $password);
 
-        Auth::guard('tenant')->logoutOtherDevices($request->validated('new_password'));
-        Auth::guard('tenant')->logout();
+        Auth::guard('tenant')->logoutOtherDevices($password);
 
-        return redirect()->to(tenant_route_name('login'))
-            ->with('success', 'تم إعادة تعيين كلمة المرور بنجاح. يرجى تسجيل الدخول باستخدام كلمة المرور الجديدة.');
+        $time = now()->translatedFormat('Y-m-d h:i A');
+
+        try {
+            $tenantId = (string) (tenant('id') ?? tenant()?->id);
+            if ($tenantId !== '') {
+                app(DashboardNotificationService::class)->tenant(
+                    $tenantId,
+                    'password.changed:' . Str::uuid(),
+                    DashboardNotificationService::payload(
+                        'password.changed',
+                        'تغيير كلمة المرور',
+                        "تم تغيير كلمة المرور بنجاح في الوقت {$time}.",
+                        tenant_route_name('profile.show'),
+                        'success',
+                        'ti ti-key'
+                    ),
+                    (int) $user->id
+                );
+            } else {
+                $user->notifications()->firstOrCreate([
+                    'id' => (string) Str::uuid(),
+                ], [
+                    'type' => 'dashboard.event',
+                    'data' => DashboardNotificationService::payload(
+                        'password.changed',
+                        'تغيير كلمة المرور',
+                        "تم تغيير كلمة المرور بنجاح في الوقت {$time}.",
+                        tenant_route_name('profile.show'),
+                        'success',
+                        'ti ti-key'
+                    ),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Failed to send tenant password change notification: ' . $e->getMessage());
+        }
+
+        return redirect()->to(tenant_route_name('profile.show'))
+            ->with('success', 'تم تغيير كلمة المرور بنجاح.');
     }
 
     /*

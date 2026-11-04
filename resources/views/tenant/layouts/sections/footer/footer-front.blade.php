@@ -97,16 +97,17 @@
     <div class="footer-bottom py-3 py-md-5">
         <div
             class="container d-flex flex-wrap justify-content-between flex-md-row flex-column text-center text-md-start">
-            <div class="mb-2 mb-md-0">
+            <div class="mb-2 mb-md-0 d-inline-flex align-items-center flex-wrap gap-1">
                 <span class="footer-bottom-text">جميع الحقوق محفوظة
                     <script>
                         document.write(new Date().getFullYear());
                     </script>
                     ©
                 </span>
-                <a href="https://e-tec.sa" target="_blank" class="fw-medium text-white text-white">إتمام لتقنية نظم
-                    المعلومات،</a>
-                <span class="footer-bottom-text"> ❤️</span>
+                <a href="https://e-tec.sa" target="_blank" class="fw-medium text-white d-inline-flex align-items-center gap-1">
+                    <span>إتمام لتقنية نظم المعلومات</span>
+                    <img src="{{ asset('static/brand/logos/logo-footer.png') }}" alt="إتمام لتقنية نظم المعلومات" class="footer-logo" style="height: 18px; width: auto; object-fit: contain; vertical-align: middle;">
+                </a>
             </div>
             <div>
                 <a href="{{ config('variables.githubUrl') }}" class="me-3" target="_blank">

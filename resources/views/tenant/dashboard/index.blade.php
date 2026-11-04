@@ -308,8 +308,8 @@
                                             class="text-muted">{{ $auction->start_date ? $auction->start_date->format('Y-m-d') : '-' }}</small>
                                     </td>
                                     <td>
-                                        <span class="badge {{ $auction->is_active ? 'bg-success' : 'bg-danger' }}">
-                                            {{ $auction->is_active ? 'نشط' : 'متوقف' }}
+                                        <span class="badge {{ $auction->status_badge_class }}">
+                                            {{ $auction->status_label }}
                                         </span>
                                     </td>
                                     <td class="text-center">

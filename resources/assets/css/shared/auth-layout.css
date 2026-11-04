@@ -358,7 +358,7 @@ body:has(.tenant-login-container) {
     width: 100%;
     display: flex !important;
     justify-content: space-between !important;
-    align-items: center !important;
+    align-items: flex-start !important;
     gap: 0.5rem !important;
     flex-wrap: nowrap !important;
 }

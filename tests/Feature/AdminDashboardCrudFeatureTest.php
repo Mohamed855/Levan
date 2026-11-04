@@ -40,7 +40,12 @@ class AdminDashboardCrudFeatureTest extends TestCase
             tenancy()->end();
         }
 
-        $this->superAdmin = AdminUser::where('email', 'superadmin@gmail.com')->first();
+        $superAdminRole = Role::firstOrCreate(['name' => 'SuperAdmin', 'guard_name' => 'admin']);
+
+        $this->superAdmin = AdminUser::where('email', 'superadmin@gmail.com')->first() ?? AdminUser::first();
+        if ($this->superAdmin && ! $this->superAdmin->hasRole('SuperAdmin')) {
+            $this->superAdmin->assignRole($superAdminRole);
+        }
         $this->actingAs($this->superAdmin, 'admin');
     }
 
@@ -133,7 +138,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl('users/create'))->assertStatus(200);
 
         // 3. Unique checks via AJAX
-        $this->postJson($this->adminUrl('users/check-email-unique'), ['email' => 'superadmin@gmail.com'])
+        $this->postJson($this->adminUrl('users/check-email-unique'), ['email' => $this->superAdmin->email])
             ->assertStatus(200)
             ->assertJson(['available' => false]);
 
@@ -151,17 +156,20 @@ class AdminDashboardCrudFeatureTest extends TestCase
         // 4. Store
         $userName = 'مشرف اختباري';
         $phone = '05'.rand(10000000, 99999999);
+        $adminRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'admin']);
         $storeResponse = $this->post($this->adminUrl('users'), [
             'name' => $userName,
             'email' => $uniqueEmail,
-            'password' => '123456789',
-            'password_confirmation' => '123456789',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
             'phone' => $phone,
+            'role_id' => $adminRole->id,
         ]);
         $storeResponse->assertStatus(302);
 
         $user = AdminUser::where('email', $uniqueEmail)->first();
         $this->assertNotNull($user, 'Admin user was not created in database.');
+        $this->assertTrue($user->hasRole('Admin'));
 
         // 5. Profile view
         $this->get($this->adminUrl("users/profile/{$user->id}"))->assertStatus(200);
@@ -175,6 +183,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'name' => $updatedName,
             'email' => $uniqueEmail,
             'phone' => $phone,
+            'role_id' => $adminRole->id,
         ]);
         $updateResponse->assertStatus(302);
         $user->refresh();

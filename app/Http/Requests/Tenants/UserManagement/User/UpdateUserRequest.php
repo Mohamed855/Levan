@@ -56,7 +56,11 @@ class UpdateUserRequest extends FormRequest
                 'size:10',
                 'regex:/^05[0-9]{8}$/',
             ],
-            'role_id' => ['required', 'integer', 'exists:roles,id'],
+            'role_id' => [
+                'required',
+                'integer',
+                Rule::exists('roles', 'id')->where('guard_name', 'tenant'),
+            ],
             'image' => [
                 'nullable',
                 'image',

@@ -30,6 +30,11 @@ class AdminUserUpdateRequest extends FormRequest
 
             'password' => ['nullable', 'string', Password::defaults(), 'confirmed'],
             'phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
+            'role_id' => [
+                'required',
+                'integer',
+                Rule::exists('roles', 'id')->where('guard_name', 'admin'),
+            ],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240', 'dimensions:min_width=100,min_height=100,max_width=2000,max_height=2000'],
         ];
     }
@@ -61,6 +66,11 @@ class AdminUserUpdateRequest extends FormRequest
             'phone.size' => 'رقم الهاتف يجب أن يتكون من 10 أرقام',
             'phone.regex' => 'رقم الهاتف يجب أن يبدأ بـ 05',
 
+            // role
+            'role_id.required' => 'يجب اختيار الدور',
+            'role_id.integer' => 'معرف الدور يجب أن يكون رقماً',
+            'role_id.exists' => 'الدور المحدد غير موجود',
+
             // image
             'image.image' => 'الملف يجب أن يكون صورة',
             'image.mimes' => 'الصورة يجب أن تكون من نوع: jpeg, png, jpg, gif',
@@ -77,6 +87,7 @@ class AdminUserUpdateRequest extends FormRequest
             'password' => 'كلمة المرور الجديدة',
             'password_confirmation' => 'تأكيد كلمة المرور الجديدة',
             'phone' => 'رقم الهاتف',
+            'role_id' => 'الدور',
             'image' => 'الصورة الشخصية',
         ];
     }

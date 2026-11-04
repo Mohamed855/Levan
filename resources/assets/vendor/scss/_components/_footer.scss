@@ -4,6 +4,12 @@
 .footer-link {
   display: inline-block;
 }
+.footer-logo {
+  height: 18px;
+  width: auto;
+  object-fit: contain;
+  vertical-align: middle;
+}
 .layout-footer-fixed .layout-wrapper:not(.layout-horizontal) .content-footer .footer-container {
   padding-inline: 1.5rem;
   @include border-top-radius($border-radius);

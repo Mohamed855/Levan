@@ -9,6 +9,7 @@ use App\Services\Tenants\Shared\CentralTrialAccessGateway;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class RegisterTenantUserAction
 {
@@ -16,13 +17,24 @@ class RegisterTenantUserAction
     {
         app(CentralTrialAccessGateway::class)->assertUserCreationAllowed();
 
-        return DB::transaction(fn (): User => User::create([
-            'name' => $data['name'],
-            'phone' => $data['phone'] ?? null,
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'global_uid' => (string) Str::uuid(),
-            'status' => 'active',
-        ]));
+        return DB::transaction(function () use ($data): User {
+            $user = User::create([
+                'name' => $data['name'],
+                'phone' => $data['phone'] ?? null,
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'global_uid' => (string) Str::uuid(),
+                'status' => 'active',
+            ]);
+
+            $role = Role::firstOrCreate(['name' => 'User', 'guard_name' => 'tenant']);
+            $user->syncRoles([$role]);
+
+            if ($user->roles()->count() === 0) {
+                throw new \DomainException('فشل تعيين الدور للمستخدم المسجل.');
+            }
+
+            return $user;
+        });
     }
 }

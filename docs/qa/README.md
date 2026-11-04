@@ -118,6 +118,6 @@ Gemini مسؤول التنفيذ والإصلاح. Codex مسؤول إعداد �
 
 | الإدارة | ملف الحالات | الحالة | آخر مراجعة مستقلة |
 | --- | --- | --- | --- |
-| الموقع العام وصفحات auth — SuperAdmin وTenant | [QA-001: site-auth](site-auth.md) | `in_progress` | [الدفعة A أعيدت للتصحيح بعد مراجعة Codex](site-auth-batch-a-review.md) |
+| الموقع العام وصفحات auth — SuperAdmin وTenant | [QA-001: site-auth](site-auth.md) | `in_progress` | [الجولة الثانية: التصحيحات السابقة نجحت والدفعة أعيدت للاستكمال](site-auth-batch-a-round-2-review.md) |
 
 الإدارة الأولى محددة: الموقع العام وصفحاته بما فيها auth. الدفعة A راجعها Codex وأعادها إلى Gemini للتصحيح واستكمال الأدلة. الحالة العامة: `in_progress`، ولا توجد إدارة معتمدة للإنتاج بعد.

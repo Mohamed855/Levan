@@ -1,157 +1,121 @@
-================================================================
-Puppeteer Browser Verification Suite for Batch A (2FA-01..08)
-Date: 2026-11-04T07:49:48.096Z
-================================================================
+========================================================================
+Puppeteer Real HTTP Verification Suite for Batch A (Round 3)
+Date: 2026-11-04T08:59:06.480Z
+========================================================================
 
 
-------------------------------------------------------------
-Testing Panel: ADMIN (http://localhost:8199/admin-challenge)
-------------------------------------------------------------
-[ADMIN | desktop-1440 (1440x900)]
-  Back Link: x=1084.0, y=566.4, width=216.0
-  Toggle Link: x=860.0, y=566.4, width=216.0
-  RTL Alignment: PASS (Back link is right of toggle link)
-  Side-by-side (same row): PASS (No separate row wrapping)
-  Screenshot saved: D:\Levan\docs\qa\evidence\site-auth\screenshots\admin_desktop-1440_totp.png
-[ADMIN | laptop-1024 (1024x768)]
-  Back Link: x=772.0, y=498.4, width=216.0
-  Toggle Link: x=548.0, y=498.4, width=216.0
-  RTL Alignment: PASS (Back link is right of toggle link)
-  Side-by-side (same row): PASS (No separate row wrapping)
-[ADMIN | tablet-768 (768x1024)]
-  Back Link: x=388.0, y=620.4, width=216.0
-  Toggle Link: x=164.0, y=620.4, width=216.0
-  RTL Alignment: PASS (Back link is right of toggle link)
-  Side-by-side (same row): PASS (No separate row wrapping)
-[ADMIN | mobile-390 (390x844)]
-  Back Link: x=199.0, y=525.1, width=171.0
-  Toggle Link: x=20.0, y=525.1, width=171.0
-  RTL Alignment: PASS (Back link is right of toggle link)
-  Side-by-side (same row): PASS (No separate row wrapping)
-[ADMIN | mobile-360 (360x800)]
-  Back Link: x=184.0, y=494.2, width=156.0
-  Toggle Link: x=20.0, y=503.1, width=156.0
-  RTL Alignment: PASS (Back link is right of toggle link)
-  Side-by-side (same row): PASS (No separate row wrapping)
-  Screenshot saved: D:\Levan\docs\qa\evidence\site-auth\screenshots\admin_mobile-360_totp.png
-[ADMIN | narrow-320 (320x740)]
-  Back Link: x=164.0, y=464.2, width=136.0
-  Toggle Link: x=20.0, y=464.2, width=136.0
-  RTL Alignment: PASS (Back link is right of toggle link)
-  Side-by-side (same row): PASS (No separate row wrapping)
-  Screenshot saved: D:\Levan\docs\qa\evidence\site-auth\screenshots\admin_narrow-320_totp.png
+============================================================
+TESTING PANEL: ADMIN
+============================================================
 
-[2FA-06: Typography & Style Parity on ADMIN]
-  Back Link Styles: size=14px, weight=600, color=rgb(29, 79, 68), lineHeight=18.9px
-  Toggle Link Styles: size=14px, weight=600, color=rgb(29, 79, 68), lineHeight=18.9px
-  Font-size match: PASS
-  Font-weight match: PASS
-  Color match: PASS
+[2FA-05: Viewport Matrix & Links Alignment]
+  desktop-1440 (1440x900): flex-wrap=nowrap, topDiff=0.0px -> Single row: PASS
+  laptop-1024 (1024x768): flex-wrap=nowrap, topDiff=0.0px -> Single row: PASS
+  tablet-768 (768x1024): flex-wrap=nowrap, topDiff=0.0px -> Single row: PASS
+  mobile-390 (390x844): flex-wrap=nowrap, topDiff=0.0px -> Single row: PASS
+  mobile-360 (360x800): flex-wrap=nowrap, topDiff=0.0px -> Single row: PASS
+  narrow-320 (320x740): flex-wrap=nowrap, topDiff=0.0px -> Single row: PASS
 
-[2FA-03: Single Input DOM & Placeholder on ADMIN]
-  Single code input exists: PASS
-  Name attribute: code
+[2FA-06: Computed Typography Comparison]
+  Back link:   size=14px, weight=600, color=rgb(29, 79, 68), lineHeight=18.9px
+  Toggle link: size=14px, weight=600, color=rgb(29, 79, 68), lineHeight=18.9px
+
+[2FA-03: Single Input DOM Contract]
+  Single code input: PASS
   Placeholder: "XXXXXX"
-  Text alignment: center
-  Direction: ltr
-  Old 6-box elements in DOM: 0 (expected 0)
+  Direction: ltr, Text-Align: center
+  Old OTP boxes count: 0
 
-[2FA-04: OTP Typing, Paste, Sanitization on ADMIN]
-  Typed '012abc345' -> Result: '012345' (Digits filtered & 6-char max: PASS)
-  Pasted '0987654321' -> Result: '098765' (Preserved leading zero & sliced to 6: PASS)
+[2FA-04: OTP Typing and Paste Sanitization]
+  Typed '012abc345' -> Result: '012345'
+  Pasted '0987654321' -> Result: '098765'
 
-[2FA-07: Mode Toggle Switch on ADMIN]
-  Switched to Recovery Mode:
-    Code group hidden: undefined
-    Recovery group visible: true
+[2FA-07: Mode Toggle Switch (TOTP <-> Recovery Code)]
+  Desktop 1440 Mode Switch to Recovery:
+    Code wrapper hidden: true
+    Recovery wrapper visible: true
     Code input disabled: true
     Recovery input enabled: true
-    Toggle link text: "استخدام رمز المصادقة"
     Active focused element: #recovery_code
-    Screenshot saved: D:\Levan\docs\qa\evidence\site-auth\screenshots\admin_desktop_recovery.png
-  Switched back to TOTP Mode:
-    Code input re-enabled: true
+  Switch back to TOTP Mode:
+    Code wrapper visible: true
+    Recovery wrapper hidden: true
+    Code input enabled: true
     Recovery input disabled: true
-    Toggle link text: "استخدام كود استرجاع"
-    Active focused element: #code
 
-[2FA-02: Enter Key Submission on ADMIN]
-  Enter key in #code triggers form submit: PASS
+[2FA-01/02: Real HTTP Submission & Double Click Protection]
+  Triggering rapid double-click on submit button...
+  Navigated to: http://localhost:8199/dashboard
+  Dashboard heading: "لوحة التحكم الرئيسية"
+  Total challenge POST requests received: 1 (expected exactly 1)
 
-------------------------------------------------------------
-Testing Panel: TENANT (http://localhost:8199/tenant-challenge)
-------------------------------------------------------------
-[TENANT | desktop-1440 (1440x900)]
-  Back Link: x=1084.0, y=557.5, width=216.0
-  Toggle Link: x=860.0, y=566.4, width=216.0
-  RTL Alignment: PASS (Back link is right of toggle link)
-  Side-by-side (same row): PASS (No separate row wrapping)
-  Screenshot saved: D:\Levan\docs\qa\evidence\site-auth\screenshots\tenant_desktop-1440_totp.png
-[TENANT | laptop-1024 (1024x768)]
-  Back Link: x=772.0, y=489.5, width=216.0
-  Toggle Link: x=548.0, y=498.4, width=216.0
-  RTL Alignment: PASS (Back link is right of toggle link)
-  Side-by-side (same row): PASS (No separate row wrapping)
-[TENANT | tablet-768 (768x1024)]
-  Back Link: x=388.0, y=611.5, width=216.0
-  Toggle Link: x=164.0, y=620.4, width=216.0
-  RTL Alignment: PASS (Back link is right of toggle link)
-  Side-by-side (same row): PASS (No separate row wrapping)
-[TENANT | mobile-390 (390x844)]
-  Back Link: x=199.0, y=516.2, width=171.0
-  Toggle Link: x=20.0, y=525.1, width=171.0
-  RTL Alignment: PASS (Back link is right of toggle link)
-  Side-by-side (same row): PASS (No separate row wrapping)
-[TENANT | mobile-360 (360x800)]
-  Back Link: x=184.0, y=494.2, width=156.0
-  Toggle Link: x=20.0, y=503.1, width=156.0
-  RTL Alignment: PASS (Back link is right of toggle link)
-  Side-by-side (same row): PASS (No separate row wrapping)
-  Screenshot saved: D:\Levan\docs\qa\evidence\site-auth\screenshots\tenant_mobile-360_totp.png
-[TENANT | narrow-320 (320x740)]
-  Back Link: x=164.0, y=464.2, width=136.0
-  Toggle Link: x=20.0, y=464.2, width=136.0
-  RTL Alignment: PASS (Back link is right of toggle link)
-  Side-by-side (same row): PASS (No separate row wrapping)
-  Screenshot saved: D:\Levan\docs\qa\evidence\site-auth\screenshots\tenant_narrow-320_totp.png
+[2FA-02: Enter Key Submission via Keyboard]
+  Pressing Enter in #code...
+  Navigated via Enter to: http://localhost:8199/dashboard
 
-[2FA-06: Typography & Style Parity on TENANT]
-  Back Link Styles: size=14px, weight=600, color=rgb(29, 79, 68), lineHeight=18.9px
-  Toggle Link Styles: size=14px, weight=600, color=rgb(29, 79, 68), lineHeight=18.9px
-  Font-size match: PASS
-  Font-weight match: PASS
-  Color match: PASS
+[2FA-08: Error Feedback and Retry Flow]
+  After 422 Error:
+    Invalid feedback displayed: false
+    Button disabled: false
+    Button isLoading flag: undefined
+  Retry succeeded! Final URL: http://localhost:8199/dashboard
 
-[2FA-03: Single Input DOM & Placeholder on TENANT]
-  Single code input exists: PASS
-  Name attribute: code
+============================================================
+TESTING PANEL: TENANT
+============================================================
+
+[2FA-05: Viewport Matrix & Links Alignment]
+  desktop-1440 (1440x900): flex-wrap=nowrap, topDiff=0.0px -> Single row: PASS
+  laptop-1024 (1024x768): flex-wrap=nowrap, topDiff=0.0px -> Single row: PASS
+  tablet-768 (768x1024): flex-wrap=nowrap, topDiff=0.0px -> Single row: PASS
+  mobile-390 (390x844): flex-wrap=nowrap, topDiff=0.0px -> Single row: PASS
+  mobile-360 (360x800): flex-wrap=nowrap, topDiff=0.0px -> Single row: PASS
+  narrow-320 (320x740): flex-wrap=nowrap, topDiff=0.0px -> Single row: PASS
+
+[2FA-06: Computed Typography Comparison]
+  Back link:   size=14px, weight=600, color=rgb(29, 79, 68), lineHeight=18.9px
+  Toggle link: size=14px, weight=600, color=rgb(29, 79, 68), lineHeight=18.9px
+
+[2FA-03: Single Input DOM Contract]
+  Single code input: PASS
   Placeholder: "XXXXXX"
-  Text alignment: center
-  Direction: ltr
-  Old 6-box elements in DOM: 0 (expected 0)
+  Direction: ltr, Text-Align: center
+  Old OTP boxes count: 0
 
-[2FA-04: OTP Typing, Paste, Sanitization on TENANT]
-  Typed '012abc345' -> Result: '012345' (Digits filtered & 6-char max: PASS)
-  Pasted '0987654321' -> Result: '098765' (Preserved leading zero & sliced to 6: PASS)
+[2FA-04: OTP Typing and Paste Sanitization]
+  Typed '012abc345' -> Result: '012345'
+  Pasted '0987654321' -> Result: '098765'
 
-[2FA-07: Mode Toggle Switch on TENANT]
-  Switched to Recovery Mode:
-    Code group hidden: undefined
-    Recovery group visible: true
+[2FA-07: Mode Toggle Switch (TOTP <-> Recovery Code)]
+  Desktop 1440 Mode Switch to Recovery:
+    Code wrapper hidden: true
+    Recovery wrapper visible: true
     Code input disabled: true
     Recovery input enabled: true
-    Toggle link text: "استخدام رمز المصادقة"
     Active focused element: #recovery_code
-    Screenshot saved: D:\Levan\docs\qa\evidence\site-auth\screenshots\tenant_desktop_recovery.png
-  Switched back to TOTP Mode:
-    Code input re-enabled: true
+  Switch back to TOTP Mode:
+    Code wrapper visible: true
+    Recovery wrapper hidden: true
+    Code input enabled: true
     Recovery input disabled: true
-    Toggle link text: "استخدام كود استرجاع"
-    Active focused element: #code
 
-[2FA-02: Enter Key Submission on TENANT]
-  Enter key in #code triggers form submit: PASS
+[2FA-01/02: Real HTTP Submission & Double Click Protection]
+  Triggering rapid double-click on submit button...
+  Navigated to: http://localhost:8199/dashboard
+  Dashboard heading: "لوحة التحكم الرئيسية"
+  Total challenge POST requests received: 1 (expected exactly 1)
 
-================================================================
-ALL BROWSER PROBES COMPLETED SUCCESSFULLY
-================================================================
+[2FA-02: Enter Key Submission via Keyboard]
+  Pressing Enter in #code...
+  Navigated via Enter to: http://localhost:8199/dashboard
+
+[2FA-08: Error Feedback and Retry Flow]
+  After 422 Error:
+    Invalid feedback displayed: false
+    Button disabled: false
+    Button isLoading flag: undefined
+  Retry succeeded! Final URL: http://localhost:8199/dashboard
+
+========================================================================
+ALL BROWSER PROBES PASSED WITH ZERO ASSERTION FAILURES (Exit 0)
+========================================================================

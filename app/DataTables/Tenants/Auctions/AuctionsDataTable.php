@@ -35,6 +35,7 @@ class AuctionsDataTable extends AbstractDataTable
             ['data' => 'end_date', 'name' => 'end_date', 'title' => 'تاريخ النهاية', 'width' => '130px'],
             ['data' => 'properties_count', 'name' => 'properties_count', 'title' => 'عدد العقارات', 'width' => '90px', 'className' => 'text-center'],
             ['data' => 'outputs', 'name' => 'outputs', 'title' => 'المخرجات', 'orderable' => false, 'searchable' => false, 'width' => '110px', 'className' => 'text-center'],
+            ['data' => 'status_badge', 'name' => 'status_badge', 'title' => 'حالة المزاد', 'orderable' => false, 'searchable' => false, 'width' => '100px', 'className' => 'text-center'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'width' => '130px', 'className' => 'text-center'],
             ['data' => 'is_active', 'name' => 'is_active', 'title' => 'الحالة', 'width' => '90px', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
@@ -110,6 +111,9 @@ class AuctionsDataTable extends AbstractDataTable
 
                 return '<span class="text-muted">—</span>';
             })
+            ->addColumn('status_badge', function ($row): string {
+                return '<span class="badge '.$row->status_badge_class.'">'.e($row->status_label).'</span>';
+            })
             ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
             ->editColumn('is_active', function ($row): string {
                 $canEdit = auth('tenant')->user()?->can('auctions.edit');
@@ -132,7 +136,7 @@ class AuctionsDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'image', 'name', 'assignment', 'start_date', 'end_date', 'properties_count', 'is_active', 'outputs', 'actions'];
+        return ['checkbox', 'image', 'name', 'assignment', 'start_date', 'end_date', 'properties_count', 'outputs', 'status_badge', 'is_active', 'actions'];
     }
 
     protected function applyCustomFilters($query)
@@ -144,10 +148,15 @@ class AuctionsDataTable extends AbstractDataTable
         }
 
         if ($request->filled('status')) {
-            if ($request->status === 'active' || $request->status === '1') {
-                $query->where('is_active', true);
-            } elseif ($request->status === 'inactive' || $request->status === 'suspended' || $request->status === '0') {
-                $query->where('is_active', false);
+            $status = (string) $request->status;
+            if ($status === 'active' || $status === '1') {
+                $query->activeStatus();
+            } elseif ($status === 'closed') {
+                $query->closed();
+            } elseif ($status === 'suspended' || $status === 'inactive' || $status === '0') {
+                $query->suspended();
+            } elseif ($status === 'upcoming') {
+                $query->upcoming();
             }
         }
 

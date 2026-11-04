@@ -162,4 +162,68 @@ final class CodexBatchARoundTwoReviewTest extends TestCase
         self::assertNotSame($userA->id, $userB->id);
         self::assertSame(2, User::count());
     }
+
+    public function test_tenant_recovery_consumption_rejects_a_second_preloaded_snapshot(): void
+    {
+        tenancy()->initialize(Tenant::create(['id' => 'recovery-race']));
+        $user = User::create([
+            'name' => 'Synthetic recovery race', 'email' => 'recovery-race@example.test',
+            'password' => 'SyntheticReview123!', 'status' => 'active',
+        ]);
+        $user->forceFill([
+            'two_factor_secret' => encrypt('synthetic-unused-secret'), 'two_factor_confirmed_at' => now(),
+            'two_factor_recovery_codes' => encrypt(json_encode(['synthetic-tenant-recovery'])),
+        ])->save();
+        $requestASnapshot = $user->fresh();
+        $requestBSnapshot = $user->fresh();
+        $resolver = app(\App\Actions\Auth\ResolveTwoFactorLogin::class);
+        $consume = new \ReflectionMethod($resolver, 'consumeRecoveryCode');
+        $consume->invoke($resolver, $requestASnapshot, 'synthetic-tenant-recovery');
+        self::assertSame([], json_decode(decrypt($user->fresh()->two_factor_recovery_codes), true));
+
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $consume->invoke($resolver, $requestBSnapshot, 'synthetic-tenant-recovery');
+    }
+
+    public function test_domain_challenge_validation_and_completion_do_not_require_dns_in_feature_requests(): void
+    {
+        Schema::connection('mysql')->create('domains', function (Blueprint $table): void {
+            $table->id();
+            $table->string('domain')->unique();
+            $table->string('tenant_id');
+            $table->timestamps();
+        });
+        Schema::connection('tenant')->create('settings', function (Blueprint $table): void {
+            $table->id();
+            $table->boolean('maintenance_mode')->default(false);
+        });
+        Schema::connection('mysql')->create('settings', function (Blueprint $table): void {
+            $table->id();
+            $table->boolean('maintenance_mode')->default(false);
+        });
+        $tenant = Tenant::create(['id' => 'domain-review', 'access_type' => 'domain']);
+        $tenant->domains()->create(['domain' => 'review-auth.example.test']);
+        tenancy()->initialize($tenant);
+        $user = User::create([
+            'name' => 'Synthetic domain review', 'email' => 'domain-review@example.test',
+            'password' => 'SyntheticReview123!', 'status' => 'active',
+        ]);
+        $user->forceFill([
+            'two_factor_secret' => encrypt('synthetic-unused-secret'), 'two_factor_confirmed_at' => now(),
+            'two_factor_recovery_codes' => encrypt(json_encode(['synthetic-domain-recovery'])),
+        ])->save();
+        tenancy()->end();
+        $pending = ['login.id' => $user->id, 'login.guard' => 'tenant', 'login.tenant_id' => 'domain-review'];
+
+        $this->withSession($pending)->get('http://review-auth.example.test/two-factor-challenge')
+            ->assertOk()->assertSee('action="http://review-auth.example.test/two-factor-challenge"', false);
+        self::assertSame('domain-review', tenant('id'));
+        $this->postJson('http://review-auth.example.test/form-validation', [
+            'target_path' => '/two-factor-challenge', 'target_method' => 'POST',
+            'fields' => ['recovery_code'], 'recovery_code' => 'synthetic-domain-recovery',
+        ])->assertOk()->assertJsonPath('success', true);
+        $this->post('http://review-auth.example.test/two-factor-challenge', ['recovery_code' => 'synthetic-domain-recovery'])
+            ->assertRedirect('http://review-auth.example.test/dashboard');
+        self::assertTrue(Auth::guard('tenant')->check());
+    }
 }

@@ -14,10 +14,30 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Laravel\Fortify\TwoFactorAuthenticationProvider;
+use Stancl\Tenancy\Contracts\TenancyBootstrapper;
 use Tests\TestCase;
+
+class TestTwoFactorTenancyBootstrapper implements TenancyBootstrapper
+{
+    public static array $databases = [];
+
+    public function bootstrap(\Stancl\Tenancy\Contracts\Tenant $tenant): void
+    {
+        $db = static::$databases[$tenant->getTenantKey()] ?? ':memory:';
+        config(['database.connections.tenant.database' => $db]);
+        DB::purge('tenant');
+    }
+
+    public function revert(): void
+    {
+        DB::purge('tenant');
+    }
+}
 
 final class TwoFactorAuthenticationBatchATest extends TestCase
 {
+    protected array $tempFiles = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -79,8 +99,24 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
             $table->softDeletes();
         });
 
+        // Domains table (for domain tenants)
+        Schema::connection('mysql')->create('domains', function (Blueprint $table): void {
+            $table->id();
+            $table->string('domain')->unique();
+            $table->string('tenant_id');
+            $table->timestamps();
+        });
+
+        $this->createTenantSchema('tenant');
+    }
+
+    private function createTenantSchema(string $connection = 'tenant'): void
+    {
+        Schema::connection($connection)->dropIfExists('users');
+        Schema::connection($connection)->dropIfExists('settings');
+
         // Tenant users table
-        Schema::connection('tenant')->create('users', function (Blueprint $table): void {
+        Schema::connection($connection)->create('users', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
             $table->string('employee_number')->nullable();
@@ -105,7 +141,7 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
         });
 
         // Tenant settings table
-        Schema::connection('tenant')->create('settings', function (Blueprint $table): void {
+        Schema::connection($connection)->create('settings', function (Blueprint $table): void {
             $table->id();
             $table->boolean('force_two_factor_auth')->default(false);
             $table->timestamps();
@@ -117,6 +153,14 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
         if (function_exists('tenancy') && tenancy()->initialized) {
             tenancy()->end();
         }
+
+        foreach ($this->tempFiles as $file) {
+            if (file_exists($file)) {
+                @unlink($file);
+            }
+        }
+        $this->tempFiles = [];
+        TestTwoFactorTenancyBootstrapper::$databases = [];
 
         parent::tearDown();
     }
@@ -522,22 +566,61 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
 
     public function test_admin_and_tenant_session_isolation(): void
     {
+        $engine = app(\PragmaRX\Google2FA\Google2FA::class);
+
+        // 1. Create Admin user with ID=1 on mysql connection
+        $adminSecret = $engine->generateSecretKey();
+        $admin = new AdminUser([
+            'name' => 'Admin User ID 1',
+            'email' => 'admin-isolation@example.test',
+            'password' => bcrypt('AdminPass123!'),
+            'status' => 'active',
+        ]);
+        $admin->id = 1;
+        $admin->two_factor_secret = encrypt($adminSecret);
+        $admin->two_factor_confirmed_at = now();
+        $admin->two_factor_recovery_codes = encrypt(json_encode(['admin-recovery-123']));
+        $admin->save();
+
+        self::assertSame(1, (int) $admin->id);
+        self::assertSame('mysql', $admin->getConnectionName());
+
+        // 2. Create Tenant user with ID=1 on tenant connection
         $tenant = Tenant::create(['id' => 'iso-tenant']);
         tenancy()->initialize($tenant);
 
-        // Admin pending session attempting to post to tenant endpoint -> rejected fail-closed
-        $response = $this->withSession(['login.id' => 1, 'login.guard' => 'admin'])
-            ->post('/iso-tenant/two-factor-challenge', ['code' => '123456']);
+        $tenantSecret = $engine->generateSecretKey();
+        $tenantUser = new User([
+            'name' => 'Tenant User ID 1',
+            'email' => 'tenant-isolation@example.test',
+            'password' => bcrypt('TenantPass123!'),
+            'status' => 'active',
+        ]);
+        $tenantUser->id = 1;
+        $tenantUser->two_factor_secret = encrypt($tenantSecret);
+        $tenantUser->two_factor_confirmed_at = now();
+        $tenantUser->two_factor_recovery_codes = encrypt(json_encode(['tenant-recovery-123']));
+        $tenantUser->save();
 
-        $this->assertTrue(in_array($response->getStatusCode(), [403, 419, 302], true));
+        self::assertSame(1, (int) $tenantUser->id);
+        self::assertSame('tenant', $tenantUser->getConnectionName());
+
+        $adminOtp = $engine->getCurrentOtp($adminSecret);
+        $tenantOtp = $engine->getCurrentOtp($tenantSecret);
+
+        // 3. Admin pending session with valid Admin TOTP posting to Tenant challenge -> rejected fail-closed
+        $responseTenant = $this->withSession(['login.id' => 1, 'login.guard' => 'admin'])
+            ->post('/iso-tenant/two-factor-challenge', ['code' => $adminOtp]);
+
+        $this->assertTrue(in_array($responseTenant->getStatusCode(), [403, 419, 302], true));
         $this->assertFalse(Auth::guard('tenant')->check());
 
-        // Tenant pending session attempting to post to admin endpoint -> rejected fail-closed
+        // 4. Tenant pending session with valid Tenant TOTP posting to Admin challenge -> rejected fail-closed
         $responseAdmin = $this->withSession([
             'login.id' => 1,
             'login.guard' => 'tenant',
             'login.tenant_id' => 'iso-tenant',
-        ])->post('/superadmin/two-factor-challenge', ['code' => '123456']);
+        ])->post('/superadmin/two-factor-challenge', ['code' => $tenantOtp]);
 
         $this->assertTrue(in_array($responseAdmin->getStatusCode(), [403, 419, 302], true));
         $this->assertFalse(Auth::guard('admin')->check());
@@ -545,48 +628,179 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
 
     public function test_cross_tenant_isolation_rejected(): void
     {
+        $dbFileA = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'tenant_a_' . uniqid() . '.sqlite';
+        $dbFileB = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'tenant_b_' . uniqid() . '.sqlite';
+        touch($dbFileA);
+        touch($dbFileB);
+
+        $this->tempFiles[] = $dbFileA;
+        $this->tempFiles[] = $dbFileB;
+
+        TestTwoFactorTenancyBootstrapper::$databases = [
+            'tenant-a' => $dbFileA,
+            'tenant-b' => $dbFileB,
+        ];
+        config(['tenancy.bootstrappers' => [TestTwoFactorTenancyBootstrapper::class]]);
+
         $tenantA = Tenant::create(['id' => 'tenant-a']);
         $tenantB = Tenant::create(['id' => 'tenant-b']);
 
-        // Create user in Tenant A with ID 1
+        // Setup Tenant A database
         tenancy()->initialize($tenantA);
-        $userA = User::create([
-            'id' => 1,
+        $pdoA = DB::connection('tenant')->getPdo();
+        $this->createTenantSchema('tenant');
+
+        $engine = app(\PragmaRX\Google2FA\Google2FA::class);
+        $secretA = $engine->generateSecretKey();
+        $userA = new User([
             'name' => 'User in Tenant A',
             'email' => 'user-a@example.test',
             'password' => bcrypt('password123'),
             'status' => 'active',
         ]);
-        $userA->forceFill([
-            'two_factor_secret' => encrypt('secret-a'),
-            'two_factor_confirmed_at' => now(),
-            'two_factor_recovery_codes' => encrypt(json_encode(['recovery-a'])),
-        ])->save();
+        $userA->id = 1;
+        $userA->two_factor_secret = encrypt($secretA);
+        $userA->two_factor_confirmed_at = now();
+        $userA->two_factor_recovery_codes = encrypt(json_encode(['recovery-a-only']));
+        $userA->save();
 
-        // Create user in Tenant B with ID 1
+        self::assertSame(1, (int) $userA->id);
+        self::assertSame(1, User::count());
+        $codeA = $engine->getCurrentOtp($secretA);
+
+        // Setup Tenant B database
         tenancy()->initialize($tenantB);
-        $userB = User::create([
-            'id' => 1,
+        $pdoB = DB::connection('tenant')->getPdo();
+        $this->createTenantSchema('tenant');
+
+        $secretB = $engine->generateSecretKey();
+        $userB = new User([
             'name' => 'User in Tenant B',
             'email' => 'user-b@example.test',
             'password' => bcrypt('password123'),
             'status' => 'active',
         ]);
-        $userB->forceFill([
-            'two_factor_secret' => encrypt('secret-b'),
-            'two_factor_confirmed_at' => now(),
-            'two_factor_recovery_codes' => encrypt(json_encode(['recovery-b'])),
-        ])->save();
+        $userB->id = 1;
+        $userB->two_factor_secret = encrypt($secretB);
+        $userB->two_factor_confirmed_at = now();
+        $userB->two_factor_recovery_codes = encrypt(json_encode(['recovery-b-only']));
+        $userB->save();
 
-        // Pending session initialized under Tenant A cannot complete challenge on Tenant B
+        self::assertSame(1, (int) $userB->id);
+        self::assertSame(1, User::count());
+
+        // Verify PDOs are distinct database instances
+        self::assertNotSame($pdoA, $pdoB);
+
+        // Verify user counts in respective databases
+        self::assertSame('User in Tenant B', User::find(1)->name);
+        tenancy()->initialize($tenantA);
+        self::assertSame('User in Tenant A', User::find(1)->name);
+        self::assertSame(1, User::count());
+        tenancy()->end();
+
+        // 1. Session from Tenant A trying to challenge on Tenant B endpoint -> rejected fail-closed
         $response = $this->withSession([
             'login.id' => 1,
             'login.guard' => 'tenant',
             'login.tenant_id' => 'tenant-a',
-        ])->post('/tenant-b/two-factor-challenge', ['recovery_code' => 'recovery-a']);
+        ])->post('/tenant-b/two-factor-challenge', ['code' => $codeA]);
 
         $this->assertTrue(in_array($response->getStatusCode(), [403, 419, 302], true));
         $this->assertFalse(Auth::guard('tenant')->check());
+
+        // 2. Tampered session with tenant-b hint using User A's credentials on Tenant B -> rejected
+        $responseTampered = $this->withSession([
+            'login.id' => 1,
+            'login.guard' => 'tenant',
+            'login.tenant_id' => 'tenant-b',
+        ])->post('/tenant-b/two-factor-challenge', ['code' => $codeA]);
+
+        $this->assertTrue(in_array($responseTampered->getStatusCode(), [422, 403, 302], true));
+        $this->assertFalse(Auth::guard('tenant')->check());
+
+        // 3. User A recovery code used on Tenant B -> rejected
+        $responseRecovery = $this->withSession([
+            'login.id' => 1,
+            'login.guard' => 'tenant',
+            'login.tenant_id' => 'tenant-b',
+        ])->post('/tenant-b/two-factor-challenge', ['recovery_code' => 'recovery-a-only']);
+
+        $this->assertTrue(in_array($responseRecovery->getStatusCode(), [422, 403, 302], true));
+        $this->assertFalse(Auth::guard('tenant')->check());
+
+        // 4. Verify DBs are intact and no recovery codes consumed falsely
+        tenancy()->initialize($tenantA);
+        self::assertSame(['recovery-a-only'], json_decode(decrypt(User::find(1)->two_factor_recovery_codes), true));
+        tenancy()->initialize($tenantB);
+        self::assertSame(['recovery-b-only'], json_decode(decrypt(User::find(1)->two_factor_recovery_codes), true));
+        tenancy()->end();
+    }
+
+    public function test_domain_tenant_challenge_renders_and_completes_lifecycle(): void
+    {
+        $tenant = Tenant::create(['id' => 'domain-tenant', 'access_type' => 'domain']);
+        $tenant->domains()->create(['domain' => 'tenant-auth.example.test']);
+
+        tenancy()->initialize($tenant);
+        $engine = app(\PragmaRX\Google2FA\Google2FA::class);
+        $secret = $engine->generateSecretKey();
+        $user = new User([
+            'name' => 'Domain Tenant User',
+            'email' => 'domain-user@example.test',
+            'password' => bcrypt('password123'),
+            'status' => 'active',
+        ]);
+        $user->two_factor_secret = encrypt($secret);
+        $user->two_factor_confirmed_at = now();
+        $user->two_factor_recovery_codes = encrypt(json_encode(['domain-recovery-code-1']));
+        $user->save();
+        tenancy()->end();
+
+        $code = $engine->getCurrentOtp($secret);
+        $pending = ['login.id' => $user->id, 'login.guard' => 'tenant', 'login.tenant_id' => 'domain-tenant'];
+
+        // 1. GET challenge renders on domain with correct action and single OTP placeholder
+        $this->withSession($pending)->get('http://tenant-auth.example.test/two-factor-challenge')
+            ->assertOk()
+            ->assertSee('action="http://tenant-auth.example.test/two-factor-challenge"', false)
+            ->assertSee('placeholder="XXXXXX"', false);
+
+        // 2. Form validation endpoint accepts on domain
+        $this->postJson('http://tenant-auth.example.test/form-validation', [
+            'target_path' => '/two-factor-challenge',
+            'target_method' => 'POST',
+            'fields' => ['code'],
+            'code' => $code,
+        ])->assertOk()->assertJsonPath('success', true);
+
+        // 3. POST TOTP on domain completes challenge and redirects to domain dashboard
+        $this->withSession($pending)
+            ->post('http://tenant-auth.example.test/two-factor-challenge', ['code' => $code])
+            ->assertRedirect('http://tenant-auth.example.test/dashboard');
+
+        self::assertTrue(Auth::guard('tenant')->check());
+        Auth::guard('tenant')->logout();
+
+        // 4. POST Recovery code on domain completes challenge and consumes code
+        $this->withSession($pending)
+            ->post('http://tenant-auth.example.test/two-factor-challenge', ['recovery_code' => 'domain-recovery-code-1'])
+            ->assertRedirect('http://tenant-auth.example.test/dashboard');
+
+        self::assertTrue(Auth::guard('tenant')->check());
+        Auth::guard('tenant')->logout();
+
+        tenancy()->initialize($tenant);
+        self::assertSame([], json_decode(decrypt($user->fresh()->two_factor_recovery_codes), true));
+        tenancy()->end();
+
+        // 5. Cancel on domain redirects to domain login and cleans session
+        $this->withSession($pending)
+            ->get('http://tenant-auth.example.test/two-factor-challenge/cancel')
+            ->assertRedirect('http://tenant-auth.example.test/login')
+            ->assertSessionMissing('login.id')
+            ->assertSessionMissing('login.guard')
+            ->assertSessionMissing('login.tenant_id');
     }
 
     // --------------------------------------------------------------------------

@@ -142,8 +142,8 @@
             <div>
                 تطوير وتصميم
                 <a href="https://e-tec.sa" target="_blank" rel="noopener noreferrer" class="developer-credit">
-                    إتمام لتقنية نظم المعلومات
-                    <i class="ti ti-heart-filled"></i>
+                    <span>إتمام لتقنية نظم المعلومات</span>
+                    <img src="{{ asset('static/brand/logos/logo-footer.png') }}" alt="إتمام لتقنية نظم المعلومات" class="footer-logo" style="height: 18px; width: auto; object-fit: contain; vertical-align: middle;">
                 </a>
             </div>
         </div>
