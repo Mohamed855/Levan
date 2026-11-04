@@ -408,6 +408,13 @@ final class ArchivesDualReviewTest extends TestCase
             $table->timestamps();
         });
 
+        $schema->create('auction_properties', function (Blueprint $table): void {
+            $table->id();
+            $table->unsignedBigInteger('auction_id');
+            $table->unsignedBigInteger('property_id');
+            $table->timestamps();
+        });
+
         $schema->create('settings', function (Blueprint $table): void {
             $table->id();
             $table->string('key')->nullable();
@@ -743,7 +750,8 @@ final class ArchivesDualReviewTest extends TestCase
 
         $assignment = Assignment::create(['name' => 'Main Assignment']);
         $property = Property::create(['name' => 'Linked Property', 'assignment_id' => $assignment->id]);
-        $auction = Auction::create(['name' => 'Linked Auction', 'property_id' => $property->id, 'assignment_id' => $assignment->id]);
+        $auction = Auction::create(['name' => 'Linked Auction', 'assignment_id' => $assignment->id]);
+        $auction->properties()->attach($property->id);
 
         $property->delete();
         $this->assertTrue($property->fresh()->trashed());
@@ -813,11 +821,13 @@ final class ArchivesDualReviewTest extends TestCase
         tenancy()->end();
 
         tenancy()->initialize($this->tenantB);
-        $userB = User::create([
+        $userB = new User([
             'name' => 'Tenant B Trashed',
             'email' => 'user_b_del@tenant-b.com',
             'password' => Hash::make('password123'),
         ]);
+        $userB->id = 999;
+        $userB->save();
         $userB->delete();
         tenancy()->end();
 
@@ -926,12 +936,16 @@ final class ArchivesDualReviewTest extends TestCase
     public function test_arc_12_same_id_in_tenant_a_and_tenant_b_preserves_isolation(): void
     {
         tenancy()->initialize($this->tenantA);
-        $assignmentA = Assignment::create(['id' => 999, 'name' => 'Assignment in Tenant A']);
+        $assignmentA = new Assignment(['name' => 'Assignment in Tenant A']);
+        $assignmentA->id = 999;
+        $assignmentA->save();
         $assignmentA->delete();
         tenancy()->end();
 
         tenancy()->initialize($this->tenantB);
-        $assignmentB = Assignment::create(['id' => 999, 'name' => 'Assignment in Tenant B']);
+        $assignmentB = new Assignment(['name' => 'Assignment in Tenant B']);
+        $assignmentB->id = 999;
+        $assignmentB->save();
         $assignmentB->delete();
         tenancy()->end();
 

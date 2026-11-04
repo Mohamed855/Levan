@@ -26,33 +26,20 @@ class AdminTicketsDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            [
-                'data' => 'checkbox',
-                'name' => 'checkbox',
-                'title' => '<input type="checkbox" id="select-all">',
-                'orderable' => false,
-                'searchable' => false,
-                'className' => 'custom-checkbox',
-                'width' => '10px',
-                'titleAttr' => 'تحديد الكل',
-            ],
-            ['data' => 'ticket_number', 'name' => 'ticket_number', 'title' => 'رقم التذكرة'],
-            ['data' => 'tenant_name',   'name' => 'tenant_name',   'title' => 'المستأجر'],
-            ['data' => 'customer_name', 'name' => 'customer_name', 'title' => 'صاحب التذكرة'],
-            ['data' => 'title',         'name' => 'title',         'title' => 'العنوان'],
-            ['data' => 'section',       'name' => 'section',       'title' => 'القسم'],
-            ['data' => 'status',        'name' => 'status',        'title' => 'الحالة'],
-            ['data' => 'created_at',    'name' => 'created_at',    'title' => 'تاريخ الإنشاء'],
-            ['data' => 'actions',       'name' => 'actions',       'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
+            ['data' => 'ticket_number', 'name' => 'ticket_number', 'title' => 'رقم التذكرة', 'className' => 'text-center'],
+            ['data' => 'tenant_name',   'name' => 'tenant_name',   'title' => 'المستأجر', 'className' => 'text-center'],
+            ['data' => 'customer_name', 'name' => 'customer_name', 'title' => 'صاحب التذكرة', 'className' => 'text-center'],
+            ['data' => 'title',         'name' => 'title',         'title' => 'العنوان', 'className' => 'text-center'],
+            ['data' => 'section',       'name' => 'section',       'title' => 'القسم', 'className' => 'text-center'],
+            ['data' => 'status',        'name' => 'status',        'title' => 'الحالة', 'className' => 'text-center'],
+            ['data' => 'created_at',    'name' => 'created_at',    'title' => 'تاريخ الإنشاء', 'className' => 'text-center'],
+            ['data' => 'actions',       'name' => 'actions',       'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'className' => 'text-center', 'width' => '120px'],
         ];
     }
 
     protected function addCustomColumns($datatable)
     {
         $datatable
-            ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
-            })
             ->editColumn('ticket_number', function ($row) {
                 return $this->copyableCode('#'.e($row->ticket_number));
             })
@@ -104,7 +91,7 @@ class AdminTicketsDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'ticket_number', 'tenant_name', 'customer_name', 'status', 'actions'];
+        return ['ticket_number', 'tenant_name', 'customer_name', 'status', 'actions'];
     }
 
     protected function getSearchableColumns(): array
@@ -114,7 +101,7 @@ class AdminTicketsDataTable extends AbstractDataTable
 
     protected function getCustomOrder(): array
     {
-        return [2, 'desc'];
+        return [1, 'desc'];
     }
 
     protected function buttons(): array
@@ -168,17 +155,9 @@ class AdminTicketsDataTable extends AbstractDataTable
         $buttons = [
             ['extend' => 'copy', 'text' => 'نسخ'],
             ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
-                'columns' => [10, 9, 8, 7, 6, 5, 4, 3],
+                'columns' => [7, 6, 5, 4, 3, 2, 1, 0],
             ]],
         ];
-
-        if (auth()->user()?->can('tickets.delete') || auth()->user()?->hasRole('Super Admin')) {
-            $buttons[] = [
-                'text' => 'حذف المحدد',
-                'className' => 'btn btn-default btn-delete-selected',
-                'action' => 'function() { handleMassDelete(); }',
-            ];
-        }
 
         return [
             'extend' => 'collection',

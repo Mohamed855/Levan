@@ -20,11 +20,6 @@
 @endsection
 
 @section('page-script')
-    <script>
-        window.routes = {
-            massDelete: "{{ route('admin.mass-delete') }}"
-        };
-    </script>
     @vite(['resources/assets/js/admin/tickets/index.js'])
 @endsection
 

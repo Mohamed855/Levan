@@ -10,11 +10,12 @@ document.addEventListener("DOMContentLoaded", function () {
     // ── الألوان الأساسية الخاصة بهوية لوت─────────────────────────
     const colors = {
         primary: "#1D4F44",
-        success: "#28a745",
-        warning: "#ffc107",
-        danger: "#dc3545",
-        secondary: "#BF874A",
-        info: "#17a2b8",
+        success: "#10b981",
+        warning: "#f59e0b",
+        danger: "#ef4444",
+        secondary: "#8592a3",
+        info: "#0284c7",
+        dark: "#0f172a",
     };
 
     if (typeof Chart !== "undefined") {
@@ -196,6 +197,18 @@ document.addEventListener("DOMContentLoaded", function () {
             danger: colors.danger,
             secondary: colors.secondary,
             info: colors.info,
+            dark: colors.dark,
+        };
+
+        const getDotColor = (colorName) => {
+            const dot = document.querySelector(`.status-dot.status-dot-${colorName}`);
+            if (dot) {
+                const computed = window.getComputedStyle(dot).backgroundColor;
+                if (computed && computed !== "rgba(0, 0, 0, 0)" && computed !== "transparent") {
+                    return computed;
+                }
+            }
+            return colorMap[colorName] || "#8592a3";
         };
 
         const isEmpty = totalCount === 0;
@@ -233,7 +246,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const chartColors = isEmpty
             ? ["rgba(67, 89, 113, 0.12)"]
-            : statusList.map((s) => colorMap[s.color] || "#999");
+            : statusList.map((s) => getDotColor(s.color));
 
         new Chart(statusCtx, {
             type: "doughnut",

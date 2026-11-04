@@ -52,23 +52,26 @@
     flex-shrink: 0;
 
     &.status-dot-primary {
-        background-color: var(--bs-primary, #1d4f44);
+        background-color: var(--bs-primary, #1d4f44) !important;
     }
     &.status-dot-success {
-        background-color: var(--bs-success, #28a745);
+        background-color: var(--bs-success, #10b981) !important;
     }
     &.status-dot-warning {
-        background-color: var(--bs-warning, #ffc107);
+        background-color: var(--bs-warning, #f59e0b) !important;
     }
     &.status-dot-danger {
-        background-color: var(--bs-danger, #dc3545);
+        background-color: var(--bs-danger, #ef4444) !important;
     }
     &.status-dot-secondary {
-        background-color: var(--bs-secondary, #EADFCC);
-        border: 1px solid rgba(29, 79, 68, 0.2);
+        background-color: #8592a3 !important;
+        border: none;
     }
     &.status-dot-info {
-        background-color: var(--bs-info, #17a2b8);
+        background-color: var(--bs-info, #0284c7) !important;
+    }
+    &.status-dot-dark {
+        background-color: var(--bs-dark, #0f172a) !important;
     }
 }
 

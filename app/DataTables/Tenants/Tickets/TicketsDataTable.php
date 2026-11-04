@@ -68,9 +68,9 @@ class TicketsDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'ticket_number',         'title' => 'رقم التذكرة', 'className' => 'text-start'],
-            ['data' => 'title',                 'title' => 'العنوان', 'className' => 'text-start'],
-            ['data' => 'ticketing_sections_id', 'title' => 'التصنيف', 'className' => 'text-start'],
+            ['data' => 'ticket_number',         'title' => 'رقم التذكرة', 'className' => 'text-center'],
+            ['data' => 'title',                 'title' => 'العنوان', 'className' => 'text-center'],
+            ['data' => 'ticketing_sections_id', 'title' => 'التصنيف', 'className' => 'text-center'],
             ['data' => 'status',                'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'created_at',            'title' => 'تاريخ الإنشاء', 'className' => 'text-center'],
             ['data' => 'actions',               'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'className' => 'text-center', 'width' => '100px'],

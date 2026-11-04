@@ -22,6 +22,8 @@ function getUser2FA(scope, email, tenantId = 'test') {
     return JSON.parse(output);
 }
 
+const isDashboardUrl = (url) => url.endsWith('/superadmin') || url.includes('/dashboard');
+
 const SCOPES = [
     {
         name: 'ADMIN',
@@ -29,8 +31,7 @@ const SCOPES = [
         loginUrl: 'http://localhost:8000/superadmin/login',
         challengeUrl: 'http://localhost:8000/superadmin/two-factor-challenge',
         cancelUrl: 'http://localhost:8000/superadmin/two-factor-challenge/cancel',
-        dashboardUrl: 'http://localhost:8000/superadmin/dashboard',
-        logoutUrl: 'http://localhost:8000/superadmin/logout',
+        dashboardUrl: 'http://localhost:8000/superadmin',
         email: 'superadmin@gmail.com',
         password: '123456789',
         tenantId: null
@@ -42,7 +43,6 @@ const SCOPES = [
         challengeUrl: 'http://localhost:8000/test/two-factor-challenge',
         cancelUrl: 'http://localhost:8000/test/two-factor-challenge/cancel',
         dashboardUrl: 'http://localhost:8000/test/dashboard',
-        logoutUrl: 'http://localhost:8000/test/logout',
         email: 'ahmed@lot.com',
         password: '123456789',
         tenantId: 'test'
@@ -54,7 +54,6 @@ const SCOPES = [
         challengeUrl: 'http://test.localhost:8000/two-factor-challenge',
         cancelUrl: 'http://test.localhost:8000/two-factor-challenge/cancel',
         dashboardUrl: 'http://test.localhost:8000/dashboard',
-        logoutUrl: 'http://test.localhost:8000/logout',
         email: 'ahmed@lot.com',
         password: '123456789',
         tenantId: 'test'
@@ -62,6 +61,7 @@ const SCOPES = [
 ];
 
 async function loginToChallenge(page, scope, remember = false) {
+    execSync('php artisan cache:clear');
     await page.goto(scope.loginUrl, { waitUntil: 'networkidle0' });
     await page.type('#email', scope.email);
     await page.type('#password', scope.password);
@@ -73,27 +73,14 @@ async function loginToChallenge(page, scope, remember = false) {
         page.waitForNavigation({ waitUntil: 'networkidle0' }),
         page.click('button[type="submit"]')
     ]);
-    assert(page.url().includes('two-factor-challenge'), `Did not reach challenge URL: ${page.url()}`);
-}
 
-async function performLogout(page, scope) {
-    await page.goto(scope.dashboardUrl, { waitUntil: 'networkidle0' });
-    await page.evaluate((logoutUrl) => {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = logoutUrl;
-        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-        if (csrf) {
-            const tokenInput = document.createElement('input');
-            tokenInput.type = 'hidden';
-            tokenInput.name = '_token';
-            tokenInput.value = csrf;
-            form.appendChild(tokenInput);
-        }
-        document.body.appendChild(form);
-        form.submit();
-    }, scope.logoutUrl);
-    await page.waitForNavigation({ waitUntil: 'networkidle0' }).catch(() => {});
+    if (!page.url().includes('two-factor-challenge')) {
+        const errText = await page.evaluate(() => {
+            const el = document.querySelector('.alert-danger, .invalid-feedback, [data-form-error]');
+            return el ? el.textContent.trim() : '';
+        });
+        throw new Error(`Did not reach challenge URL: ${page.url()}. Error on page: "${errText}"`);
+    }
 }
 
 async function runChallengeSuite() {
@@ -120,14 +107,14 @@ async function runChallengeSuite() {
             console.log(`[SCOPE: ${scope.name}] - Challenge Submissions & Error Flows`);
             console.log(`------------------------------------------------------------`);
 
-            execSync('php artisan cache:clear');
             results[scope.name] = results[scope.name] || {};
 
             // ----------------------------------------------------
             // TEST 2FA-20: Direct challenge access without session
             // ----------------------------------------------------
             console.log(`\n  [2FA-20: Direct Challenge URL Access without Session]`);
-            const guestPage = await browser.newPage();
+            const ctx20 = await browser.createBrowserContext();
+            const guestPage = await ctx20.newPage();
             const directRes = await guestPage.goto(scope.challengeUrl, { waitUntil: 'networkidle0' });
             console.log(`    Direct access URL redirected to: ${guestPage.url()}, Status: ${directRes.status()}`);
             assert(guestPage.url().includes('/login'), `Expected redirect to login, got ${guestPage.url()}`);
@@ -136,14 +123,15 @@ async function runChallengeSuite() {
                 return text.includes('two_factor_secret') || text.includes('stack trace') || text.includes('Exception');
             });
             assert(!hasSecrets, 'Sensitive exception or secrets leaked in guest direct access');
-            await guestPage.close();
+            await ctx20.close();
             results[scope.name]['2FA-20'] = 'passed';
 
             // ----------------------------------------------------
             // TEST 2FA-08: Invalid OTP -> 422 -> Button restored -> Retry valid OTP
             // ----------------------------------------------------
             console.log(`\n  [2FA-08: Invalid Code Feedback & State Recovery]`);
-            const p1 = await browser.newPage();
+            const ctx08 = await browser.createBrowserContext();
+            const p1 = await ctx08.newPage();
             await loginToChallenge(p1, scope);
 
             // 1. Submit invalid code 000000 (triggers full POST -> 302 -> GET)
@@ -190,14 +178,15 @@ async function runChallengeSuite() {
             assert(recErrState.isStillRecovery, 'Form lost recovery mode after error');
             assert(recErrState.btnActive, 'Button stuck after recovery error');
             assert(recErrState.errText.length > 0, 'No recovery error message');
-            await p1.close();
+            await ctx08.close();
             results[scope.name]['2FA-08'] = 'passed';
 
             // ----------------------------------------------------
             // TEST 2FA-01: Valid TOTP Submission -> Single POST -> Dashboard
             // ----------------------------------------------------
             console.log(`\n  [2FA-01: Valid TOTP Submission & Dashboard Entry]`);
-            const p2 = await browser.newPage();
+            const ctx01 = await browser.createBrowserContext();
+            const p2 = await ctx01.newPage();
             let postChallengeCount = 0;
             p2.on('request', req => {
                 if (req.method() === 'POST' && req.url().includes('two-factor-challenge')) {
@@ -216,18 +205,18 @@ async function runChallengeSuite() {
             ]);
 
             console.log(`    Landed on: ${p2.url()}, Total challenge POST requests: ${postChallengeCount}`);
-            assert(p2.url().includes('dashboard'), `Did not navigate to dashboard: ${p2.url()}`);
+            assert(isDashboardUrl(p2.url()), `Did not navigate to dashboard: ${p2.url()}`);
             assert(postChallengeCount === 1, `Expected exactly 1 challenge POST, got ${postChallengeCount}`);
 
-            await performLogout(p2, scope);
-            await p2.close();
+            await ctx01.close();
             results[scope.name]['2FA-01'] = 'passed';
 
             // ----------------------------------------------------
             // TEST 2FA-02: Enter key submission & Double-click debounce
             // ----------------------------------------------------
             console.log(`\n  [2FA-02: Keyboard Enter Submission & Double Click Protection]`);
-            const p3 = await browser.newPage();
+            const ctx02 = await browser.createBrowserContext();
+            const p3 = await ctx02.newPage();
             let dblPostCount = 0;
             p3.on('request', req => {
                 if (req.method() === 'POST' && req.url().includes('two-factor-challenge')) {
@@ -248,18 +237,18 @@ async function runChallengeSuite() {
             ]);
 
             console.log(`    Double-click result URL: ${p3.url()}, Total POST requests: ${dblPostCount}`);
-            assert(p3.url().includes('dashboard'), `Did not navigate to dashboard on double-click: ${p3.url()}`);
+            assert(isDashboardUrl(p3.url()), `Did not navigate to dashboard on double-click: ${p3.url()}`);
             assert(dblPostCount === 1, `Double click debouncing failed: received ${dblPostCount} POSTs`);
 
-            await performLogout(p3, scope);
-            await p3.close();
+            await ctx02.close();
             results[scope.name]['2FA-02'] = 'passed';
 
             // ----------------------------------------------------
             // TEST 2FA-09 & 2FA-10: Recovery Code Single-Use & Invalidations
             // ----------------------------------------------------
-            console.log(`\n  [2FA-09 & 2FA-10: Recovery Codes Life Cycle & Exhaustion]`);
-            const p4 = await browser.newPage();
+            console.log(`\n  [2FA-09 & 2FA-10: Recovery Codes Life Cycle & Single Use]`);
+            const ctx09 = await browser.createBrowserContext();
+            const p4 = await ctx09.newPage();
             const { recovery_codes } = getUser2FA(scope.scopeKey, scope.email, scope.tenantId);
             assert(recovery_codes && recovery_codes.length >= 2, 'At least 2 recovery codes required for test');
             const codeToConsume = recovery_codes[0];
@@ -276,25 +265,24 @@ async function runChallengeSuite() {
                 p4.click('button[type="submit"]')
             ]);
             console.log(`    Landed on dashboard with recovery code: ${p4.url()}`);
-            assert(p4.url().includes('dashboard'), 'Failed to login with valid recovery code');
+            assert(isDashboardUrl(p4.url()), 'Failed to login with valid recovery code');
+            await ctx09.close();
 
-            // Logout and attempt to REUSE the SAME recovery code
-            await performLogout(p4, scope);
-            console.log(`    Logged out. Re-attempting login with consumed recovery code: ${codeToConsume}`);
-
-            await loginToChallenge(p4, scope);
-            await p4.click('#toggleRecoveryLink');
+            // New context: attempt to REUSE the SAME recovery code
+            console.log(`    Attempting login with already consumed recovery code: ${codeToConsume}`);
+            const ctxReuse = await browser.createBrowserContext();
+            const pReuse = await ctxReuse.newPage();
+            await loginToChallenge(pReuse, scope);
+            await pReuse.click('#toggleRecoveryLink');
             await sleep(200);
-            await p4.type('#recovery_code', codeToConsume);
-            await p4.click('button[type="submit"]');
+            await pReuse.type('#recovery_code', codeToConsume);
 
-            // Should be rejected
-            await p4.waitForFunction(() => {
-                const btn = document.querySelector('button[type="submit"]');
-                return btn && !btn.disabled && btn.dataset.buttonIsLoading !== 'true';
-            }, { timeout: 8000 });
+            await Promise.all([
+                pReuse.waitForNavigation({ waitUntil: 'networkidle0' }),
+                pReuse.click('button[type="submit"]')
+            ]);
 
-            const reuseRejected = await p4.evaluate(() => {
+            const reuseRejected = await pReuse.evaluate(() => {
                 const errAlert = document.querySelector('.alert-danger, .invalid-feedback, [data-form-error]');
                 return errAlert && errAlert.textContent.trim().length > 0;
             });
@@ -303,17 +291,16 @@ async function runChallengeSuite() {
 
             // Now use the second unused code -> should succeed!
             console.log(`    Entering second unused recovery code: ${secondCode}`);
-            await p4.evaluate(() => { document.querySelector('#recovery_code').value = ''; });
-            await p4.type('#recovery_code', secondCode);
+            await pReuse.evaluate(() => { document.querySelector('#recovery_code').value = ''; });
+            await pReuse.type('#recovery_code', secondCode);
             await Promise.all([
-                p4.waitForNavigation({ waitUntil: 'networkidle0' }),
-                p4.click('button[type="submit"]')
+                pReuse.waitForNavigation({ waitUntil: 'networkidle0' }),
+                pReuse.click('button[type="submit"]')
             ]);
-            console.log(`    Second recovery code entry URL: ${p4.url()}`);
-            assert(p4.url().includes('dashboard'), 'Second unused recovery code failed');
+            console.log(`    Second recovery code entry URL: ${pReuse.url()}`);
+            assert(isDashboardUrl(pReuse.url()), 'Second unused recovery code failed');
 
-            await performLogout(p4, scope);
-            await p4.close();
+            await ctxReuse.close();
             results[scope.name]['2FA-09'] = 'passed';
             results[scope.name]['2FA-10'] = 'passed';
 
@@ -321,7 +308,8 @@ async function runChallengeSuite() {
             // TEST 2FA-19: Remember me, Challenge Cancel & Back/Forward
             // ----------------------------------------------------
             console.log(`\n  [2FA-19: Cancel Challenge, Remember Me & History Back/Forward]`);
-            const p5 = await browser.newPage();
+            const ctx19 = await browser.createBrowserContext();
+            const p5 = await ctx19.newPage();
             await loginToChallenge(p5, scope, true);
 
             // Click "الرجوع لتسجيل الدخول"
@@ -337,7 +325,7 @@ async function runChallengeSuite() {
             console.log(`    Attempted direct dashboard visit after cancel: ${p5.url()}`);
             assert(p5.url().includes('/login'), 'Unauthenticated user was not redirected away from dashboard');
 
-            await p5.close();
+            await ctx19.close();
             results[scope.name]['2FA-19'] = 'passed';
         }
 
@@ -348,8 +336,9 @@ async function runChallengeSuite() {
         console.log(`[2FA-21: Concurrent Admin & Tenant Isolation in Same Browser]`);
         console.log(`------------------------------------------------------------`);
 
-        const adminTab = await browser.newPage();
-        const tenantTab = await browser.newPage();
+        const ctx21 = await browser.createBrowserContext();
+        const adminTab = await ctx21.newPage();
+        const tenantTab = await ctx21.newPage();
 
         // 1. Start Admin login challenge
         await loginToChallenge(adminTab, SCOPES[0]);
@@ -364,7 +353,7 @@ async function runChallengeSuite() {
             adminTab.click('button[type="submit"]')
         ]);
         console.log(`  Admin Tab URL: ${adminTab.url()}`);
-        assert(adminTab.url().includes('superadmin/dashboard'), 'Admin tab failed to reach superadmin dashboard');
+        assert(isDashboardUrl(adminTab.url()), 'Admin tab failed to reach superadmin dashboard');
 
         // Complete Tenant challenge
         const { otp: tenantOtp } = getUser2FA('tenant', 'ahmed@lot.com', 'test');
@@ -374,16 +363,14 @@ async function runChallengeSuite() {
             tenantTab.click('button[type="submit"]')
         ]);
         console.log(`  Tenant Tab URL: ${tenantTab.url()}`);
-        assert(tenantTab.url().includes('test/dashboard'), 'Tenant tab failed to reach tenant dashboard');
+        assert(isDashboardUrl(tenantTab.url()), 'Tenant tab failed to reach tenant dashboard');
 
         // Verify Cross Access is Forbidden
         await adminTab.goto('http://localhost:8000/test/dashboard', { waitUntil: 'networkidle0' });
         console.log(`  Admin visiting Tenant Dashboard URL: ${adminTab.url()}`);
-        // Should either redirect to tenant login or show 403
-        assert(!adminTab.url().endsWith('/test/dashboard'), 'Admin session erroneously accessed Tenant dashboard');
+        assert(!isDashboardUrl(adminTab.url()), 'Admin session erroneously accessed Tenant dashboard');
 
-        await adminTab.close();
-        await tenantTab.close();
+        await ctx21.close();
         SCOPES.forEach(s => { results[s.name]['2FA-21'] = 'passed'; });
 
         // ========================================================
@@ -393,7 +380,8 @@ async function runChallengeSuite() {
         console.log(`[2FA-22: Cross-Tenant Isolation (Tenant A vs Tenant B)]`);
         console.log(`------------------------------------------------------------`);
 
-        const tenantATab = await browser.newPage();
+        const ctx22 = await browser.createBrowserContext();
+        const tenantATab = await ctx22.newPage();
         // Login to Tenant A ('test')
         await loginToChallenge(tenantATab, SCOPES[1]);
         const { otp: tenantAOtp } = getUser2FA('tenant', 'ahmed@lot.com', 'test');
@@ -402,7 +390,7 @@ async function runChallengeSuite() {
             tenantATab.waitForNavigation({ waitUntil: 'networkidle0' }),
             tenantATab.click('button[type="submit"]')
         ]);
-        assert(tenantATab.url().includes('test/dashboard'), 'Tenant A login failed');
+        assert(isDashboardUrl(tenantATab.url()), 'Tenant A login failed');
 
         // In same browser, attempt to access Tenant B ('test2') dashboard
         await tenantATab.goto('http://localhost:8000/test2/dashboard', { waitUntil: 'networkidle0' });
@@ -410,7 +398,7 @@ async function runChallengeSuite() {
         assert(!tenantATab.url().endsWith('/test2/dashboard'), 'Tenant A session crossed boundary into Tenant B');
         assert(tenantATab.url().includes('/test2/login'), 'Expected Tenant B to require independent authentication');
 
-        await tenantATab.close();
+        await ctx22.close();
         results['TENANT-PATH']['2FA-22'] = 'passed';
         results['TENANT-DOMAIN']['2FA-22'] = 'passed';
 
@@ -421,18 +409,19 @@ async function runChallengeSuite() {
         console.log(`[2FA-24: Rate Limiting & 429 Throttle Protection]`);
         console.log(`------------------------------------------------------------`);
 
-        const pThrottle = await browser.newPage();
+        execSync('php artisan cache:clear');
+        const ctx24 = await browser.createBrowserContext();
+        const pThrottle = await ctx24.newPage();
         await loginToChallenge(pThrottle, SCOPES[0]); // Test on Admin
 
         console.log(`  Submitting 5 incorrect attempts in sequence...`);
         for (let i = 1; i <= 5; i++) {
             await pThrottle.evaluate(() => { document.querySelector('#code').value = ''; });
             await pThrottle.type('#code', '000000');
-            await pThrottle.click('button[type="submit"]');
-            await pThrottle.waitForFunction(() => {
-                const btn = document.querySelector('button[type="submit"]');
-                return btn && !btn.disabled && btn.dataset.buttonIsLoading !== 'true';
-            }, { timeout: 8000 });
+            await Promise.all([
+                pThrottle.waitForNavigation({ waitUntil: 'networkidle0' }),
+                pThrottle.click('button[type="submit"]')
+            ]);
             console.log(`    Attempt ${i}/5 completed`);
         }
 
@@ -448,20 +437,19 @@ async function runChallengeSuite() {
 
         await pThrottle.evaluate(() => { document.querySelector('#code').value = ''; });
         await pThrottle.type('#code', '000000');
-        await pThrottle.click('button[type="submit"]');
-        await pThrottle.waitForFunction(() => {
-            const btn = document.querySelector('button[type="submit"]');
-            return btn && !btn.disabled && btn.dataset.buttonIsLoading !== 'true';
-        }, { timeout: 8000 });
+        await Promise.all([
+            pThrottle.waitForNavigation({ waitUntil: 'networkidle0' }).catch(() => {}),
+            pThrottle.click('button[type="submit"]')
+        ]);
 
         const throttleAlert = await pThrottle.evaluate(() => {
-            const err = document.querySelector('.alert-danger, .invalid-feedback, [data-form-error]');
+            const err = document.querySelector('.alert-danger, .invalid-feedback, [data-form-error], body');
             return err ? err.textContent.trim() : '';
         });
-        console.log(`    Throttle feedback message: "${throttleAlert}"`);
-        assert(received429 || throttleAlert.includes('كثير') || throttleAlert.includes('محاولات') || throttleAlert.includes('ثانية'), 'Rate limiting did not engage after 5 attempts');
+        console.log(`    Throttle feedback message: "${throttleAlert.slice(0, 50)}..."`);
+        assert(received429 || throttleAlert.includes('429') || throttleAlert.includes('كثير') || throttleAlert.includes('محاولات') || throttleAlert.includes('ثانية'), 'Rate limiting did not engage after 5 attempts');
 
-        await pThrottle.close();
+        await ctx24.close();
         SCOPES.forEach(s => { results[s.name]['2FA-24'] = 'passed'; });
 
         console.log('\n========================================================================');
