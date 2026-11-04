@@ -4,13 +4,12 @@ namespace Tests\Unit;
 
 use App\Http\Requests\Admin\AdminMangment\Users\AdminUserStoreRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\AdminUserUpdateRequest;
-use App\Http\Requests\Admin\Clients\StoreClientRequest;
 use App\Http\Requests\Admin\SubscriptionManagement\FinalizeCompanySubscriptionRequest;
 use App\Http\Requests\Admin\SubscriptionManagement\StoreSubscriptionRequest;
-use App\Http\Requests\Site\SubscriptionCheckoutRequest;
 use App\Http\Requests\Tenants\Auth\ChangeTenantPasswordRequest;
 use App\Http\Requests\Tenants\UserManagement\User\StoreUserRequest;
 use App\Http\Requests\Tenants\UserManagement\User\UpdateUserRequest;
+use App\Support\Security\TenantPasswordGenerator;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 use Tests\TestCase;
@@ -73,7 +72,7 @@ class PasswordComplexityPolicyTest extends TestCase
         $rules = ['password' => ['required', Password::defaults()]];
 
         for ($i = 0; $i < 20; $i++) {
-            $password = \App\Support\Security\TenantPasswordGenerator::generate();
+            $password = TenantPasswordGenerator::generate();
             $validator = Validator::make(['password' => $password], $rules);
 
             self::assertTrue($validator->passes(), "Generated password {$password} must satisfy password policy.");
