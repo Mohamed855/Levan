@@ -50,9 +50,6 @@ class UpdateClientRequest extends FormRequest
             'primary_contact_name' => ['nullable', 'string', 'max:255'],
             'primary_contact_email' => ['nullable', 'email:rfc,dns', 'max:255'],
             'primary_contact_phone' => ['nullable', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
-            'email_notifications_enabled' => ['nullable', 'boolean'],
-            'two_factor_enabled' => ['nullable', 'boolean'],
-            'external_integrations_enabled' => ['nullable', 'boolean'],
         ];
     }
 
@@ -86,9 +83,6 @@ class UpdateClientRequest extends FormRequest
             'primary_contact_name' => 'اسم المسؤول',
             'primary_contact_email' => 'البريد الإلكتروني',
             'primary_contact_phone' => 'رقم الجوال',
-            'email_notifications_enabled' => 'تنبيهات البريد',
-            'two_factor_enabled' => 'التحقق الثنائي (2FA)',
-            'external_integrations_enabled' => 'التكاملات الخارجية',
         ];
     }
 }

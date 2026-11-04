@@ -1,11 +1,12 @@
 @php
     $is_edit = $is_edit ?? false;
     $target = $client ?? ($company ?? null);
-    $companySettings = $target?->companySettings;
+    $subscription = $target?->activeSubscription ?? $target?->lastSubscription;
+    $subEnd = $subscription?->current_period_end?->format('Y-m-d') ?? $subscription?->ends_at?->format('Y-m-d');
 
     $steps = [
         ['id' => 'client-details-step', 'title' => 'بيانات العميل'],
-        ['id' => 'admin-user-step', 'title' => $is_edit ? 'بيانات المسؤول' : 'المستخدم الإداري الأول'],
+        ['id' => 'admin-user-step', 'title' => 'بيانات المسؤول'],
         ['id' => 'subscription-step', 'title' => 'بيانات الاشتراك'],
         ['id' => 'review-step', 'title' => 'مراجعة واعتماد'],
     ];
@@ -54,9 +55,6 @@
             'tax_number',
             'city_id',
             'address',
-            'email_notifications_enabled',
-            'two_factor_enabled',
-            'external_integrations_enabled',
         ]">
             <div class="row g-4">
                 <x-form.controls.input name="company_name" label="اسم العميل / الشركة" :value="old('company_name', $target?->company_name)"
@@ -84,27 +82,6 @@
                 <x-form.controls.input name="address" label="العنوان" :value="old('address', $target?->address)"
                     placeholder="مثال: الرياض - طريق الملك فهد" rows="2" maxlength="1000" required
                     col="col-md-6" />
-
-                <div class="col-12">
-                    <h6 class="fw-bold text-primary mb-0">
-                        <i class="ti ti-settings me-1" aria-hidden="true"></i>إعدادات العميل الخاصة
-                    </h6>
-                </div>
-                <x-form.controls.checkbox name="email_notifications_enabled" label="تنبيهات البريد" :checked="old('email_notifications_enabled', $companySettings?->email_notifications_enabled ?? true)"
-                    col="col-md-4">
-                    إرسال إشعارات البريد.
-                </x-form.controls.checkbox>
-                <x-form.controls.checkbox name="two_factor_enabled" label="التحقق الثنائي (2FA)" :checked="old('two_factor_enabled', $companySettings?->two_factor_enabled ?? false)"
-                    col="col-md-4">
-                    فرض 2FA على مستخدمي العميل.
-                </x-form.controls.checkbox>
-                <x-form.controls.checkbox name="external_integrations_enabled" label="التكاملات الخارجية"
-                    :checked="old(
-                        'external_integrations_enabled',
-                        $companySettings?->external_integrations_enabled ?? false,
-                    )" col="col-md-4">
-                    السماح بربط API والأنظمة.
-                </x-form.controls.checkbox>
             </div>
 
             <x-form.wizard.actions>
@@ -123,7 +100,7 @@
         <!-- 2. بيانات المسؤول -->
         <x-form.wizard.step id="admin-user-step" :fields="$is_edit
             ? ['primary_contact_name', 'primary_contact_phone', 'primary_contact_email']
-            : ['name', 'phone', 'email', 'password', 'password_confirmation']">
+            : ['name', 'phone', 'email']">
             <div class="row g-4">
                 @if ($is_edit)
                     <x-form.controls.input name="primary_contact_name" label="اسم المسؤول" :value="old('primary_contact_name', $target?->primary_contact_name)"
@@ -133,16 +110,18 @@
                     <x-form.controls.input name="primary_contact_email" type="email" label="البريد الإلكتروني"
                         :value="old('primary_contact_email', $target?->primary_contact_email)" placeholder="admin@domain.com" maxlength="255" col="col-md-6" />
                 @else
+                    <div class="col-12">
+                        <div class="alert alert-primary d-flex align-items-center gap-2 mb-0" role="alert">
+                            <i class="ti ti-info-circle fs-4"></i>
+                            <span>سيتم توليد كلمة المرور تلقائياً وإرسالها إلى البريد الإلكتروني للمسؤول في الرسالة الترحيبية.</span>
+                        </div>
+                    </div>
                     <x-form.controls.input name="name" label="اسم المستخدم المسؤول" :value="old('name')"
                         placeholder="اسم المسؤول" maxlength="255" required col="col-md-6" />
                     <x-form.controls.input name="phone" label="رقم الجوال" :value="old('phone')" placeholder="05xxxxxxxx"
                         maxlength="10" inputmode="numeric" pattern="[0-9]*" required col="col-md-6" />
                     <x-form.controls.input name="email" type="email" label="البريد الإلكتروني" :value="old('email')"
                         placeholder="admin@domain.com" maxlength="255" autocomplete="off" required col="col-md-6" />
-                    <x-form.controls.password name="password" label="كلمة المرور" placeholder="••••••••"
-                        data-validation-dependents="password_confirmation" required col="col-md-6" />
-                    <x-form.controls.password name="password_confirmation" label="تأكيد كلمة المرور"
-                        placeholder="••••••••" required col="col-md-6" />
                 @endif
             </div>
 
@@ -163,10 +142,9 @@
         <x-form.wizard.step id="subscription-step" :fields="$is_edit ? [] : ['plan_id', 'start_date', 'end_date', 'activate_immediately']">
             @if ($is_edit)
                 @php
-                    $activeSub = $target?->activeSubscription;
-                    $planName = $activeSub?->plan?->name ?? 'لا توجد باقة نشطة حالياً';
-                    $subStart = $activeSub?->starts_at?->format('Y-m-d') ?? '-';
-                    $subEnd = $activeSub?->ends_at?->format('Y-m-d') ?? '-';
+                    $selectedPlanId = $subscription?->plan_id;
+                    $subStart = $subscription?->starts_at?->format('Y-m-d');
+                    $subEndFormatted = $subscription?->current_period_end?->format('Y-m-d') ?? $subscription?->ends_at?->format('Y-m-d');
                 @endphp
                 <div class="row g-4">
                     <div class="col-12">
@@ -182,12 +160,20 @@
                             </a>
                         </div>
                     </div>
-                    <x-form.controls.input name="current_plan_name" label="الباقة الحالية" :value="$planName" readonly
-                        col="col-md-6" />
-                    <x-form.controls.input name="sub_start_date" label="تاريخ بداية الاشتراك" :value="$subStart"
-                        readonly col="col-md-6" />
-                    <x-form.controls.input name="sub_end_date" label="تاريخ نهاية الاشتراك" :value="$subEnd"
-                        readonly col="col-md-6" />
+                    <x-form.controls.select name="plan_id" label="الباقة" :options="$plans" :value="old('plan_id', $selectedPlanId)"
+                        disabled col="col-md-6" />
+                    <x-form.controls.input name="start_date" type="date" label="تاريخ البداية" :value="old('start_date', $subStart)"
+                        disabled col="col-md-6" />
+                    <x-form.controls.input name="end_date" type="date" label="تاريخ النهاية" :value="old('end_date', $subEndFormatted)"
+                        disabled col="col-md-6" />
+                    <div class="col-md-6 d-flex align-items-center">
+                        <div>
+                            <label class="form-label d-block text-muted small">حالة الاشتراك</label>
+                            <span class="badge bg-{{ $subscription?->status?->color() ?? 'secondary' }} fs-6">
+                                {{ $subscription?->status?->label() ?? 'لا يوجد اشتراك نشط' }}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             @else
                 <div class="row g-4">
@@ -198,7 +184,7 @@
                     <x-form.controls.input name="end_date" type="date" label="تاريخ النهاية" :value="old('end_date')"
                         help="يُحسب تلقائياً حسب نوع الباقة، ويمكن تعديله عند الحاجة." required col="col-md-6" />
                     <x-form.controls.checkbox name="activate_immediately" label="تفعيل الاشتراك فوراً"
-                        :checked="old('activate_immediately', true)" col="col-md-6">
+                        :checked="old('activate_immediately', true)" col="col-12">
                         تفعيل الاشتراك مباشرة ليتمكن العميل من الدخول للنظام فور التسجيل.
                     </x-form.controls.checkbox>
                 </div>
@@ -280,17 +266,24 @@
                                 <dl class="row mb-0 small">
                                     <dt class="col-5 text-muted">الباقة</dt>
                                     <dd class="col-7 fw-semibold" id="review-plan-name">
-                                        {{ $target?->activeSubscription?->plan?->name ?? '-' }}</dd>
+                                        {{ $subscription?->plan?->name ?? '-' }}</dd>
                                     <dt class="col-5 text-muted">تاريخ البداية</dt>
                                     <dd class="col-7 fw-semibold" id="review-start-date">
-                                        {{ $target?->activeSubscription?->starts_at?->format('Y-m-d') ?? '-' }}</dd>
+                                        {{ $subscription?->starts_at?->format('Y-m-d') ?? '-' }}</dd>
                                     <dt class="col-5 text-muted">تاريخ النهاية</dt>
                                     <dd class="col-7 fw-semibold" id="review-end-date">
-                                        {{ $target?->activeSubscription?->ends_at?->format('Y-m-d') ?? '-' }}</dd>
+                                        {{ $subEnd ?? '-' }}</dd>
                                     @if (!$is_edit)
                                         <dt class="col-5 text-muted">حالة التفعيل</dt>
                                         <dd class="col-7 fw-semibold" id="review-activation-status"><span
                                                 class="badge bg-success">نشط ومفعل</span></dd>
+                                    @else
+                                        <dt class="col-5 text-muted">حالة الاشتراك</dt>
+                                        <dd class="col-7 fw-semibold" id="review-activation-status">
+                                            <span class="badge bg-{{ $subscription?->status?->color() ?? 'secondary' }}">
+                                                {{ $subscription?->status?->label() ?? 'لا يوجد اشتراك' }}
+                                            </span>
+                                        </dd>
                                     @endif
                                 </dl>
                             </x-form.wizard.review-card>

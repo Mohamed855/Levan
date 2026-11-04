@@ -51,8 +51,9 @@ class TrialController extends Controller
     public function demoRequest(StoreTrialRequest $request, RegistrationOtpService $otp)
     {
         $data = $request->validated();
-        $data['billing_password_hash'] = Hash::make($data['billing_password']);
-        $data['plain_password'] = $data['billing_password'];
+        $autoPassword = \App\Support\Security\TenantPasswordGenerator::generate();
+        $data['billing_password_hash'] = Hash::make($autoPassword);
+        $data['plain_password'] = $autoPassword;
         unset($data['billing_password'], $data['billing_password_confirmation'], $data['is_editing']);
         $data['otp_hash'] = $otp->issue($data['billing_email']);
         $data['expires_at'] = now()->addMinutes(2)->timestamp;

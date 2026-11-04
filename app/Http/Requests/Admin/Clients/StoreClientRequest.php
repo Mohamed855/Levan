@@ -50,15 +50,11 @@ class StoreClientRequest extends WizardFormRequest
             'tax_number' => ['required', 'string', 'digits:15', 'regex:/^3\d{13}3$/', 'unique:tenants,tax_number'],
             'city_id' => ['required', 'exists:cities,id'],
             'address' => ['required', 'string', 'max:1000'],
-            'email_notifications_enabled' => ['nullable', 'boolean'],
-            'two_factor_enabled' => ['nullable', 'boolean'],
-            'external_integrations_enabled' => ['nullable', 'boolean'],
 
             // Step 2: First Admin User
             'name' => ['required', 'string', 'min:2', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
             'phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
             'email' => ['required', 'email:rfc', 'max:255'],
-            'password' => ['required', 'string', Password::defaults(), 'confirmed'],
 
             // Step 3: Subscription
             'plan_id' => ['required', 'exists:plans,id'],
@@ -94,9 +90,6 @@ class StoreClientRequest extends WizardFormRequest
             'email.required' => 'يرجى إدخال البريد الإلكتروني',
             'email.email' => 'يرجى إدخال بريد إلكتروني صحيح',
             'email.max' => 'يجب ألا يزيد البريد الإلكتروني عن 255 حرفاً',
-            'password.required' => 'يرجى إدخال كلمة المرور',
-            'password.min' => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
-            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق',
             'plan_id.required' => 'يرجى اختيار الباقة',
             'start_date.required' => 'يرجى تحديد تاريخ البداية',
             'start_date.date' => 'تاريخ البداية يجب أن يكون تاريخاً صالحاً',
@@ -117,15 +110,10 @@ class StoreClientRequest extends WizardFormRequest
             'name' => 'اسم المستخدم المسؤول',
             'phone' => 'رقم الجوال',
             'email' => 'البريد الإلكتروني',
-            'password' => 'كلمة المرور',
-            'password_confirmation' => 'تأكيد كلمة المرور',
             'plan_id' => 'الباقة',
             'start_date' => 'تاريخ البداية',
             'end_date' => 'تاريخ النهاية',
             'activate_immediately' => 'تفعيل الاشتراك فوراً',
-            'email_notifications_enabled' => 'تنبيهات البريد',
-            'two_factor_enabled' => 'التحقق الثنائي (2FA)',
-            'external_integrations_enabled' => 'التكاملات الخارجية',
         ];
     }
 }

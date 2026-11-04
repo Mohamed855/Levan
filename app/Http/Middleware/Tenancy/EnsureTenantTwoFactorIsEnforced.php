@@ -23,20 +23,11 @@ class EnsureTenantTwoFactorIsEnforced
             return $next($request);
         }
 
-        $tenantId = tenant('id');
-        $companyForced = false;
-
-        if ($tenantId) {
-            $companyForced = (bool) Tenancy::central(function () use ($tenantId) {
-                return Tenant::find($tenantId)?->companySettings?->two_factor_enabled ?? false;
-            });
-        }
-
         $tenantSettingsForced = (bool) (Settings::first()?->force_two_factor_auth ?? false);
 
-        if (is_null($user->two_factor_confirmed_at) && ($companyForced || $tenantSettingsForced)) {
+        if (is_null($user->two_factor_confirmed_at) && $tenantSettingsForced) {
             return redirect(tenant_route_name('tenants.two-factor.index'))
-                ->with('warning', 'سياسة النظام تفرض تفعيل المصادقة الثنائية. يرجى إعدادها للمتابعة.');
+                ->with('warning', 'سياسة المنشأة تفرض تفعيل المصادقة الثنائية. يرجى إعدادها للمتابعة.');
         }
 
         return $next($request);

@@ -84,12 +84,17 @@ class CompanyService
             $totalUsers = $plan->included_users;
             $data['total_users'] = $totalUsers;
 
+            $autoPassword = $data['password'] ?? \App\Support\Security\TenantPasswordGenerator::generate();
+            $data['password'] = $autoPassword;
+
             $metadata = [
                 'plan_id' => $data['plan_id'],
                 'billing_name' => $data['name'],
                 'billing_email' => $data['email'],
                 'billing_phone' => $data['phone'],
-                'billing_password' => $data['password'],
+                'billing_password' => $autoPassword,
+                'plain_password' => $autoPassword,
+                'billing_password_hash' => Hash::make($autoPassword),
                 'billing_company_name' => $data['company_name'],
                 'billing_tax_number' => $data['tax_number'] ?? null,
                 'billing_city_id' => $data['city_id'] ?? null,
@@ -99,9 +104,9 @@ class CompanyService
                 'end_date' => $data['end_date'] ?? null,
                 'total_users' => $totalUsers,
                 'activate_immediately' => ! empty($data['activate_immediately']),
-                'email_notifications_enabled' => isset($data['email_notifications_enabled']) ? (bool) $data['email_notifications_enabled'] : true,
-                'two_factor_enabled' => ! empty($data['two_factor_enabled']),
-                'external_integrations_enabled' => ! empty($data['external_integrations_enabled']),
+                'email_notifications_enabled' => true,
+                'two_factor_enabled' => false,
+                'external_integrations_enabled' => false,
             ];
 
             $amount = (float) $plan->price_after_discount;
@@ -163,16 +168,6 @@ class CompanyService
             }
 
             $company->update($updateData);
-
-            // Update or create Company Settings
-            CompanySetting::updateOrCreate(
-                ['tenant_id' => $company->id],
-                [
-                    'email_notifications_enabled' => ! empty($data['email_notifications_enabled']),
-                    'two_factor_enabled' => ! empty($data['two_factor_enabled']),
-                    'external_integrations_enabled' => ! empty($data['external_integrations_enabled']),
-                ]
-            );
 
             $this->clearCompanyCache($company->id);
 

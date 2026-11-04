@@ -183,12 +183,17 @@ class SubscriptionManagementService
 
     public function create(array $data): Tenant
     {
+        $autoPassword = ! empty($data['password']) ? $data['password'] : \App\Support\Security\TenantPasswordGenerator::generate();
+        $data['password'] = $autoPassword;
+
         $metadata = [
             'plan_id' => $data['plan_id'],
             'billing_name' => $data['name'],
             'billing_email' => $data['email'],
             'billing_phone' => $data['phone'],
-            'billing_password' => $data['password'],
+            'billing_password' => $autoPassword,
+            'plain_password' => $autoPassword,
+            'billing_password_hash' => Hash::make($autoPassword),
 
             'billing_company_name' => $data['company_name'],
             'billing_tax_number' => $data['tax_number'],

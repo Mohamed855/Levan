@@ -68,6 +68,19 @@ class PasswordComplexityPolicyTest extends TestCase
         }
     }
 
+    public function test_tenant_password_generator_satisfies_complexity_policy(): void
+    {
+        $rules = ['password' => ['required', Password::defaults()]];
+
+        for ($i = 0; $i < 20; $i++) {
+            $password = \App\Support\Security\TenantPasswordGenerator::generate();
+            $validator = Validator::make(['password' => $password], $rules);
+
+            self::assertTrue($validator->passes(), "Generated password {$password} must satisfy password policy.");
+            self::assertSame(12, strlen($password));
+        }
+    }
+
     /**
      * @return array<class-string, string>
      */
@@ -76,10 +89,8 @@ class PasswordComplexityPolicyTest extends TestCase
         return [
             AdminUserStoreRequest::class => 'password',
             AdminUserUpdateRequest::class => 'password',
-            StoreClientRequest::class => 'password',
             StoreSubscriptionRequest::class => 'password',
             FinalizeCompanySubscriptionRequest::class => 'password',
-            SubscriptionCheckoutRequest::class => 'billing_password',
             StoreUserRequest::class => 'password',
             UpdateUserRequest::class => 'password',
             ChangeTenantPasswordRequest::class => 'new_password',

@@ -53,7 +53,6 @@ class SubscriptionCheckoutRequest extends FormRequest
             'billing_name' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\p{Arabic}a-zA-Z\s\.\-]+$/u'],
             'billing_email' => ['required', 'email', 'max:255', Rule::unique('tenants', 'primary_contact_email'), new SystemEmailAvailable],
             'billing_phone' => ['required', 'regex:/^(05\d{8}|966\d{9})$/', Rule::unique('tenants', 'primary_contact_phone'), new SystemPhoneAvailable],
-            'billing_password' => ['required', 'string', Password::defaults(), 'max:50', 'confirmed'],
             'coupon_code' => ['nullable', 'string', 'max:255'],
         ];
     }
@@ -92,10 +91,6 @@ class SubscriptionCheckoutRequest extends FormRequest
             'billing_phone.unique' => 'رقم الجوال مستخدم بالفعل في النظام.',
             'billing_phone.regex' => 'صيغة رقم الجوال غير صحيحة (يجب أن يبدأ بـ 05 أو 966)',
 
-            'billing_password.required' => 'كلمة المرور مطلوبة',
-            'billing_password.min' => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
-            'billing_password.confirmed' => 'تأكيد كلمة المرور غير متطابق',
-
             'payment_method.required' => 'يرجى اختيار طريقة الدفع',
             'payment_method.in' => 'طريقة الدفع المختارة غير مدعومة',
 
@@ -122,7 +117,6 @@ class SubscriptionCheckoutRequest extends FormRequest
             'billing_name' => 'اسم المدير المسؤول',
             'billing_email' => 'البريد الإلكتروني للإدارة',
             'billing_phone' => 'رقم الجوال',
-            'billing_password' => 'كلمة المرور',
             'coupon_code' => 'كود الخصم',
         ];
     }
@@ -132,12 +126,7 @@ class SubscriptionCheckoutRequest extends FormRequest
         throw new HttpResponseException(
             redirect()->back()
                 ->withErrors($validator)
-                ->withInput(
-                    $this->except([
-                        'billing_password',
-                        'billing_password_confirmation',
-                    ])
-                )
+                ->withInput()
         );
     }
 }

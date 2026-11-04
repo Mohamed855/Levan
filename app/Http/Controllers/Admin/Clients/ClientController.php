@@ -145,13 +145,15 @@ class ClientController extends Controller
     public function edit(Client $client): View
     {
         $cities = City::all();
-        $client->load(['companySettings', 'city']);
+        $plans = Plan::all();
+        $client->load(['companySettings', 'city', 'subscriptions.plan', 'lastSubscription.plan', 'activeSubscription.plan']);
 
         return view('admin.clients.edit', [
             'client' => $client,
             'company' => $client,
             'settings' => $client->companySettings,
             'cities' => $cities,
+            'plans' => $plans,
         ]);
     }
 

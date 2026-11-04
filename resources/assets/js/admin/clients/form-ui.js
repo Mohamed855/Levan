@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const syncEndDate = () => {
         const endDate = form.querySelector('[name="end_date"]');
-        if (!endDate) {
+        if (!endDate || endDate.disabled) {
             return;
         }
 
@@ -129,6 +129,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const selectedPlan = plans.find(
             (plan) => String(plan.id) === String(planId?.value),
         );
+        const planDisplayName =
+            selectedPlan?.name ||
+            (selectedText("plan_id") !== "اختر" &&
+            selectedText("plan_id") !== "اختر خيارًا" &&
+            selectedText("plan_id") !== "-"
+                ? selectedText("plan_id")
+                : null);
 
         setReviewValue(
             "review-client-name",
@@ -163,20 +170,23 @@ document.addEventListener("DOMContentLoaded", () => {
             "review-admin-email",
             form.querySelector('[name="email"]')?.value || form.querySelector('[name="primary_contact_email"]')?.value,
         );
-        setReviewValue("review-plan-name", selectedPlan?.name);
-        setReviewValue("review-start-date", startDate?.value);
-        setReviewValue(
-            "review-end-date",
-            form.querySelector('[name="end_date"]')?.value,
-        );
+        if (planDisplayName) {
+            setReviewValue("review-plan-name", planDisplayName);
+        }
+        if (startDate?.value) {
+            setReviewValue("review-start-date", startDate.value);
+        }
+        const endDateInput = form.querySelector('[name="end_date"]');
+        if (endDateInput?.value) {
+            setReviewValue("review-end-date", endDateInput.value);
+        }
 
         const reviewActivation = document.getElementById(
             "review-activation-status",
         );
-        if (reviewActivation) {
-            const isImmediate = form.querySelector(
-                '[name="activate_immediately"]',
-            )?.checked;
+        const activateInput = form.querySelector('[name="activate_immediately"]');
+        if (reviewActivation && activateInput) {
+            const isImmediate = activateInput.checked;
             const badgeClass =
                 "badge " + (isImmediate ? "bg-success" : "bg-warning");
             const badgeText = isImmediate ? "نشط ومفعل" : "معلق";

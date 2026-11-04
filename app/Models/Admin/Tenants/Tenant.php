@@ -200,6 +200,16 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         return $this->hasMany(Subscription::class, 'tenant_id');
     }
 
+    public function activeSubscription()
+    {
+        return $this->hasOne(Subscription::class, 'tenant_id')
+            ->whereIn('status', [
+                \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE,
+                \App\Enums\Admin\Subscriptions\SubscriptionStatus::TRIAL,
+            ])
+            ->latestOfMany('id');
+    }
+
     public function lastSubscription()
     {
         return $this->hasOne(Subscription::class, 'tenant_id')->latestOfMany('id');

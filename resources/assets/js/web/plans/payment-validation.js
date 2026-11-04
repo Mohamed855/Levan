@@ -57,25 +57,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             },
-            billing_password: {
-                validators: {
-                    notEmpty: { message: 'كلمة المرور مطلوبة' },
-                    stringLength: {
-                        min: 8,
-                        max: 50,
-                        message: 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل'
-                    }
-                }
-            },
-            billing_password_confirmation: {
-                validators: {
-                    notEmpty: { message: 'يرجى تأكيد كلمة المرور' },
-                    identical: {
-                        compare: () => paymentForm.querySelector('[name="billing_password"]').value,
-                        message: 'كلمة المرور غير متطابقة'
-                    }
-                }
-            },
             card_number: {
                 enabled: false, // غير مفعل افتراضياً
                 validators: {

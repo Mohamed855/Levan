@@ -17,7 +17,7 @@ final class SiteCheckoutComponentContractTest extends TestCase
 
         $this->assertStringContainsString('<x-form.controls.input', $view);
         $this->assertStringContainsString('<x-form.controls.select', $view);
-        $this->assertStringContainsString('<x-form.controls.password', $view);
+        $this->assertStringNotContainsString('<x-form.controls.password', $view);
         $this->assertStringContainsString('name="billing_city_id"', $view);
         $this->assertStringContainsString('name="billing_commercial_number"', $view);
         $this->assertStringContainsString('name="billing_tax_number"', $view);

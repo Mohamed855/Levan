@@ -67,6 +67,10 @@ final class ApproveTrialRequestAction
             $this->initializer->createCoreSeat($tenant, $subscription, $user);
             $tenant->update(['primary_user_global_uid' => $user->global_uid]);
             $plainPassword = $request->plain_password;
+            if (empty($plainPassword)) {
+                $plainPassword = \App\Support\Security\TenantPasswordGenerator::generate();
+                $user->update(['password' => Hash::make($plainPassword)]);
+            }
             DB::connection('mysql')->transaction(function () use ($request, $subscription, $admin): void {
                 $start = now();
                 $end = $start->copy()->addDays((int) config('trial.days', 7));

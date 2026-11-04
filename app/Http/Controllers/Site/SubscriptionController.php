@@ -108,8 +108,9 @@ class SubscriptionController extends Controller
         }
 
         $checkout = $request->validated();
-        $checkout['billing_password_hash'] = Hash::make($checkout['billing_password']);
-        $checkout['plain_password'] = $checkout['billing_password'];
+        $autoPassword = \App\Support\Security\TenantPasswordGenerator::generate();
+        $checkout['billing_password_hash'] = Hash::make($autoPassword);
+        $checkout['plain_password'] = $autoPassword;
         unset($checkout['billing_password'], $checkout['billing_password_confirmation'], $checkout['is_editing']);
         $checkout['plan_id'] = $plan->getKey();
         $checkout['expires_at'] = now()->addMinutes(2)->timestamp;
@@ -337,6 +338,13 @@ class SubscriptionController extends Controller
     */
     private function createPendingBill(Request $request, Plan $plan, array $couponData)
     {
+        $plainPassword = $request->plain_password;
+        $passwordHash = $request->billing_password_hash;
+        if (! $passwordHash) {
+            $plainPassword = $plainPassword ?: \App\Support\Security\TenantPasswordGenerator::generate();
+            $passwordHash = Hash::make($plainPassword);
+        }
+
         return $this->billingService->createPendingBill(
             amount: $couponData['final_total'],
             paymentMethod: $request->payment_method === 'bank_transfer' ? PaymentMethod::BANK_TRANSFER : PaymentMethod::ONLINE,
@@ -348,8 +356,8 @@ class SubscriptionController extends Controller
                 'billing_name' => $request->billing_name,
                 'billing_email' => $request->billing_email,
                 'billing_phone' => $request->billing_phone,
-                'plain_password' => $request->plain_password ?? null,
-                'billing_password_hash' => $request->billing_password_hash ?? Hash::make((string) $request->billing_password),
+                'plain_password' => $plainPassword,
+                'billing_password_hash' => $passwordHash,
 
                 'billing_company_name' => $request->billing_company_name,
                 'billing_commercial_number' => $request->billing_commercial_number,

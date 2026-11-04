@@ -23,7 +23,3 @@
     inputmode="numeric" maxlength="10" required data-phone-format="international" dir="ltr" class="text-end"
     :value="old('billing_phone', $checkoutData['billing_phone'] ?? '')" />
 
-<x-form.controls.password name="billing_password" label="كلمة المرور" placeholder="••••••••" required />
-
-<x-form.controls.password name="billing_password_confirmation" label="تأكيد كلمة المرور" placeholder="••••••••"
-    required />
