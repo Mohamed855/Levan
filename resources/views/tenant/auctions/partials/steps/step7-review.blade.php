@@ -7,7 +7,7 @@
     <div class="col-12 d-flex flex-column gap-4">
         <div class="alert alert-warning mb-0 d-flex align-items-center gap-2" role="alert">
             <i class="ti ti-alert-triangle fs-3" aria-hidden="true"></i>
-            <span>برجاء مراجعة بيانات المزاد والإسناد والعقارات والتقارير قبل الاعتماد النهائي.</span>
+            <span>برجاء مراجعة بيانات المزاد والإسناد والعقارات والتقارير والمرفقات قبل الاعتماد النهائي.</span>
         </div>
 
         <div class="row g-3">
@@ -89,9 +89,9 @@
                 </x-form.wizard.review-card>
             </div>
 
-            {{-- 4. التقارير والمرفقات --}}
+            {{-- 4. بيانات التقرير والتواصل --}}
             <div class="col-lg-6">
-                <x-form.wizard.review-card title="التقارير والمرفقات" step="4" col="" class="h-100 assignment-review__card">
+                <x-form.wizard.review-card title="بيانات التقرير والتواصل" step="4" col="" class="h-100 assignment-review__card">
                     <dl class="row mb-0 small">
                         <dt class="col-5 text-muted">مقدمة التقرير</dt>
                         <dd class="col-7 fw-semibold text-break" id="review-report-introduction">{{ !empty($marketing['introduction']) ? $marketing['introduction'] : '—' }}</dd>
@@ -107,16 +107,93 @@
 
                         <dt class="col-5 text-muted">تاريخ حملة الواتساب</dt>
                         <dd class="col-7 fw-semibold" id="review-whatsapp-date">{{ $marketing['whatsapp_date'] ?? '-' }}</dd>
-
-                        <dt class="col-5 text-muted">غلاف التقرير</dt>
-                        <dd class="col-7 fw-semibold" id="review-report-image">{{ $isEdit && $auction->report_image ? 'محفوظة' : 'صورة المثال الأصلية' }}</dd>
-
-                        <dt class="col-5 text-muted">غلاف المزاد</dt>
-                        <dd class="col-7 fw-semibold" id="review-cover-image">{{ $isEdit && $auction->cover_image ? 'محفوظة' : 'غير محددة' }}</dd>
-
-                        <dt class="col-5 text-muted">الملفات الإضافية</dt>
-                        <dd class="col-7 fw-semibold" id="review-attachments-count">{{ $isEdit ? $auction->attachments->where('category', 'auction_doc')->count() : 0 }} ملف</dd>
                     </dl>
+                </x-form.wizard.review-card>
+            </div>
+
+            {{-- 5. الملفات والمستندات --}}
+            <div class="col-12">
+                <x-form.wizard.review-card title="الملفات والمستندات" step="4" col="" class="h-100 assignment-review__card">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <section class="assignment-selection" aria-labelledby="review-covers-documents-title">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h6 id="review-covers-documents-title" class="mb-0">أغلفة المزاد والتقرير (غلاف التقرير وغلاف المزاد)</h6>
+                                    <span class="badge bg-primary">
+                                        <span id="review-covers-documents-count">{{ ($isEdit && ($auction->report_image || $auction->cover_image)) ? (($auction->report_image ? 1 : 0) + ($auction->cover_image ? 1 : 0)) : 0 }}</span> صورة
+                                    </span>
+                                </div>
+                                <div id="review-covers-documents" class="assignment-file-list">
+                                    @if ($isEdit && ($auction->report_image || $auction->cover_image))
+                                        @if ($auction->report_image)
+                                            <x-ui.file-card :url="tasset($auction->report_image)" name="غلاف التقرير" meta="صورة غلاف التقرير" />
+                                        @endif
+                                        @if ($auction->cover_image)
+                                            <x-ui.file-card :url="tasset($auction->cover_image)" name="غلاف المزاد" meta="صورة غلاف المزاد" />
+                                        @endif
+                                    @else
+                                        <p class="text-muted mb-0" data-empty>لم يتم إرفاق أغلفة بعد.</p>
+                                    @endif
+                                </div>
+                            </section>
+                        </div>
+
+                        <div class="col-md-6">
+                            <section class="assignment-selection" aria-labelledby="review-additional-attachments-title">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h6 id="review-additional-attachments-title" class="mb-0">مستندات وملفات إضافية</h6>
+                                    <span class="badge bg-primary">
+                                        <span id="review-additional-attachments-count">{{ $isEdit ? $auction->attachments->where('category', 'auction_doc')->count() : 0 }}</span> ملف
+                                    </span>
+                                </div>
+                                <div id="review-additional-attachments" class="assignment-file-list">
+                                    @if ($isEdit && $auction->attachments->where('category', 'auction_doc')->isNotEmpty())
+                                        @foreach ($auction->attachments->where('category', 'auction_doc') as $attachment)
+                                            <x-ui.file-card :file="$attachment" />
+                                        @endforeach
+                                    @else
+                                        <p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات إضافية بعد.</p>
+                                    @endif
+                                </div>
+                            </section>
+                        </div>
+
+                        @php
+                            $boardAttachments = $isEdit ? $auction->attachments->whereIn('report_section', ['board_before', 'board_after']) : collect();
+                            $marketingEvidenceAttachments = $isEdit ? $auction->attachments->where('report_section', 'marketing_evidence') : collect();
+                        @endphp
+                        <div class="col-md-6 {{ $boardAttachments->isEmpty() ? 'd-none' : '' }}" id="review-board-documents-wrapper">
+                            <section class="assignment-selection" aria-labelledby="review-board-documents-title">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h6 id="review-board-documents-title" class="mb-0">صور اللوحات الإعلانية الميدانية</h6>
+                                    <span class="badge bg-primary"><span id="review-board-documents-count">{{ $boardAttachments->count() }}</span> صورة</span>
+                                </div>
+                                <div id="review-board-documents" class="assignment-file-list">
+                                    @forelse ($boardAttachments as $attachment)
+                                        <x-ui.file-card :file="$attachment" />
+                                    @empty
+                                        <p class="text-muted mb-0" data-empty>لم يتم إرفاق صور لوحات بعد.</p>
+                                    @endforelse
+                                </div>
+                            </section>
+                        </div>
+
+                        <div class="col-md-6 {{ $marketingEvidenceAttachments->isEmpty() ? 'd-none' : '' }}" id="review-marketing-evidence-wrapper">
+                            <section class="assignment-selection" aria-labelledby="review-marketing-evidence-title">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h6 id="review-marketing-evidence-title" class="mb-0">أدلة ومواد الحملات التسويقية</h6>
+                                    <span class="badge bg-primary"><span id="review-marketing-evidence-count">{{ $marketingEvidenceAttachments->count() }}</span> ملف</span>
+                                </div>
+                                <div id="review-marketing-evidence" class="assignment-file-list">
+                                    @forelse ($marketingEvidenceAttachments as $attachment)
+                                        <x-ui.file-card :file="$attachment" />
+                                    @empty
+                                        <p class="text-muted mb-0" data-empty>لم يتم إرفاق أدلة تسويقية بعد.</p>
+                                    @endforelse
+                                </div>
+                            </section>
+                        </div>
+                    </div>
                 </x-form.wizard.review-card>
             </div>
 

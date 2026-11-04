@@ -82,7 +82,7 @@ class AdminRoleController extends Controller
     public function store(AdminStoreRoleRequest $request): RedirectResponse
     {
         try {
-            $this->roleService->createRole($request->validated());
+            $this->roleService->createRole($request->getValidatedData());
 
             return redirect()->route($this->route.'.index')->with('success', 'تم إضافة الدور بنجاح');
         } catch (\Exception $e) {
@@ -146,7 +146,7 @@ class AdminRoleController extends Controller
             }
 
             return redirect()->route($this->route.'.index')->with('success', 'تم حذف الدور بنجاح');
-        } catch (\Exception $e) {
+        } catch (\LogicException $e) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -155,6 +155,15 @@ class AdminRoleController extends Controller
             }
 
             return redirect()->route($this->route.'.index')->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ أثناء حذف الدور.',
+                ], 500);
+            }
+
+            return redirect()->route($this->route.'.index')->with('error', 'حدث خطأ أثناء حذف الدور.');
         }
     }
 

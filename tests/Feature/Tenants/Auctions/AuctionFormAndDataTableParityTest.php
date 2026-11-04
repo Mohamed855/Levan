@@ -103,4 +103,22 @@ class AuctionFormAndDataTableParityTest extends TestCase
         $this->assertStringContainsString('"00:00"', $jsContent);
         $this->assertStringContainsString('"23:59"', $jsContent);
     }
+
+    public function test_auction_review_step_contains_files_and_attachments_sections(): void
+    {
+        $reviewContent = file_get_contents(resource_path('views/tenant/auctions/partials/steps/step7-review.blade.php'));
+
+        $this->assertStringContainsString('title="الملفات والمستندات"', $reviewContent);
+        $this->assertStringContainsString('id="review-covers-documents"', $reviewContent);
+        $this->assertStringContainsString('id="review-covers-documents-count"', $reviewContent);
+        $this->assertStringContainsString('id="review-additional-attachments"', $reviewContent);
+        $this->assertStringContainsString('id="review-additional-attachments-count"', $reviewContent);
+        $this->assertStringContainsString('assignment-file-list', $reviewContent);
+
+        $jsContent = file_get_contents(resource_path('assets/js/tenant/auctions/create.js'));
+        $this->assertStringContainsString('renderReviewFiles', $jsContent);
+        $this->assertStringContainsString('renderFileCardHtml', $jsContent);
+        $this->assertStringContainsString('review-covers-documents', $jsContent);
+        $this->assertStringContainsString('review-additional-attachments', $jsContent);
+    }
 }

@@ -34,6 +34,15 @@ class AdminAuthController extends Controller
 
         $admin = Auth::guard('admin')->getLastAttempted();
 
+        $statusValue = $admin && $admin->status instanceof \BackedEnum ? $admin->status->value : (string) ($admin->status ?? '');
+        if ($statusValue !== 'active') {
+            $this->logFailedLogin($request, $admin, 'الحساب معطل');
+
+            return back()->withErrors([
+                'email' => 'هذا الحساب معطل. يرجى التواصل مع الإدارة.',
+            ])->onlyInput('email');
+        }
+
         // لو مفعّل عنده 2FA ومؤكد
         if ($admin->two_factor_secret && ! is_null($admin->two_factor_confirmed_at)) {
             $request->session()->forget(['login.id', 'login.guard', 'login.tenant_id', 'login.remember']);

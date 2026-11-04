@@ -1,0 +1,345 @@
+[
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "chartSetting/dashboard/chart-visibility",
+        "name":  "domain.charSetting.update",
+        "action":  "App\\Http\\Controllers\\Tenants\\ChartSetting\\ChartSettingController@updateChartVisibility",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "mass-delete",
+        "name":  "domain.mass-delete",
+        "action":  "App\\Http\\Controllers\\Tenants\\DeleteBulk\\MassDeleteController@massDelete",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/mass-delete",
+        "name":  "admin.mass-delete",
+        "action":  "App\\Http\\Controllers\\Admin\\DeleteBulk\\AdminMassDeleteController@massDelete",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/wizard-drafts",
+        "name":  "admin.wizard-drafts.index",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@show",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "superadmin/wizard-drafts",
+        "name":  "admin.wizard-drafts.destroy",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@destroy",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "POST|PUT|PATCH",
+        "domain":  "localhost",
+        "uri":  "superadmin/wizard-drafts",
+        "name":  "admin.wizard-drafts.store",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@store",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/wizard-drafts/file",
+        "name":  "admin.wizard-drafts.file.show",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@showFile",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "superadmin/wizard-drafts/file",
+        "name":  "admin.wizard-drafts.file.destroy",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@destroyFile",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "POST|PUT|PATCH",
+        "domain":  "localhost",
+        "uri":  "superadmin/wizard-drafts/validate-step",
+        "name":  "admin.wizard-drafts.validate-step",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@validateStep",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "wizard-drafts",
+        "name":  "domain.wizard-drafts.index",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "POST|PUT|PATCH",
+        "domain":  null,
+        "uri":  "wizard-drafts",
+        "name":  "domain.wizard-drafts.store",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@store",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  null,
+        "uri":  "wizard-drafts",
+        "name":  "domain.wizard-drafts.destroy",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@destroy",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "wizard-drafts/file",
+        "name":  "domain.wizard-drafts.file.show",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@showFile",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  null,
+        "uri":  "wizard-drafts/file",
+        "name":  "domain.wizard-drafts.file.destroy",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@destroyFile",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "POST|PUT|PATCH",
+        "domain":  null,
+        "uri":  "wizard-drafts/validate-step",
+        "name":  "domain.wizard-drafts.validate-step",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@validateStep",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/chartSetting/dashboard/chart-visibility",
+        "name":  "path.charSetting.update",
+        "action":  "App\\Http\\Controllers\\Tenants\\ChartSetting\\ChartSettingController@updateChartVisibility",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/mass-delete",
+        "name":  "path.mass-delete",
+        "action":  "App\\Http\\Controllers\\Tenants\\DeleteBulk\\MassDeleteController@massDelete",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/wizard-drafts",
+        "name":  "path.wizard-drafts.index",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "POST|PUT|PATCH",
+        "domain":  "localhost",
+        "uri":  "{tenant}/wizard-drafts",
+        "name":  "path.wizard-drafts.store",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@store",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "{tenant}/wizard-drafts",
+        "name":  "path.wizard-drafts.destroy",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@destroy",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/wizard-drafts/file",
+        "name":  "path.wizard-drafts.file.show",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@showFile",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "{tenant}/wizard-drafts/file",
+        "name":  "path.wizard-drafts.file.destroy",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@destroyFile",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "POST|PUT|PATCH",
+        "domain":  "localhost",
+        "uri":  "{tenant}/wizard-drafts/validate-step",
+        "name":  "path.wizard-drafts.validate-step",
+        "action":  "App\\Http\\Controllers\\Shared\\Wizard\\WizardDraftController@validateStep",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    }
+]

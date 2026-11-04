@@ -1,0 +1,3107 @@
+[
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "activity-logs",
+        "name":  "domain.activity-logs.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\activity_log\\ActivityLogController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:activity_log.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "activity-logs/archives",
+        "name":  "domain.activity-logs.archives",
+        "action":  "App\\Http\\Controllers\\Tenants\\activity_log\\ActivityLogController@archives",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:activity_log.view"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "activity-logs/export",
+        "name":  "domain.activity-logs.export",
+        "action":  "App\\Http\\Controllers\\Tenants\\activity_log\\ActivityLogController@export",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:activity_log.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "activity-logs/export-download/{file}",
+        "name":  "domain.activity-logs.export-download",
+        "action":  "App\\Http\\Controllers\\Tenants\\activity_log\\ActivityLogController@downloadExportFile",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:activity_log.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "activity-logs/get-all-ids",
+        "name":  "domain.activity-logs.get-all-ids",
+        "action":  "App\\Http\\Controllers\\Tenants\\activity_log\\ActivityLogController@getAllIds",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:activity_log.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "activity-logs/{id}",
+        "name":  "domain.activity-logs.show",
+        "action":  "App\\Http\\Controllers\\Tenants\\activity_log\\ActivityLogController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:activity_log.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "archive/assignments",
+        "name":  "domain.archive.assignments.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Assignment\\AssignmentArchiveController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:assignments_archive.view"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  null,
+        "uri":  "archive/assignments/{assignment}/force-delete",
+        "name":  "domain.archive.assignments.force-delete",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Assignment\\AssignmentArchiveController@forceDelete",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:assignments_archive.force_delete"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  null,
+        "uri":  "archive/assignments/{assignment}/restore",
+        "name":  "domain.archive.assignments.restore",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Assignment\\AssignmentArchiveController@restore",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:assignments_archive.restore"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "archive/auctions",
+        "name":  "domain.archive.auctions.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Auction\\AuctionArchiveController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:auctions_archive.view"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  null,
+        "uri":  "archive/auctions/{auction}/force-delete",
+        "name":  "domain.archive.auctions.force-delete",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Auction\\AuctionArchiveController@forceDelete",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:auctions_archive.force_delete"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  null,
+        "uri":  "archive/auctions/{auction}/restore",
+        "name":  "domain.archive.auctions.restore",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Auction\\AuctionArchiveController@restore",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:auctions_archive.restore"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "archive/properties",
+        "name":  "domain.archive.properties.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Property\\PropertyArchiveController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:properties_archive.view"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  null,
+        "uri":  "archive/properties/{property}/force-delete",
+        "name":  "domain.archive.properties.force-delete",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Property\\PropertyArchiveController@forceDelete",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:properties_archive.force_delete"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  null,
+        "uri":  "archive/properties/{property}/restore",
+        "name":  "domain.archive.properties.restore",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Property\\PropertyArchiveController@restore",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:properties_archive.restore"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "archive/users",
+        "name":  "domain.archive.users.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\User\\UserArchiveController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:user_archive.view"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  null,
+        "uri":  "archive/users/mass-force-delete",
+        "name":  "domain.archive.users.mass-force-delete",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\User\\UserArchiveController@massForceDelete",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:user_archive.force_delete"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "archive/users/mass-restore",
+        "name":  "domain.archive.users.mass-restore",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\User\\UserArchiveController@massRestore",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:user_archive.restore"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  null,
+        "uri":  "archive/users/{user}/force-delete",
+        "name":  "domain.archive.users.force-delete",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\User\\UserArchiveController@forceDelete",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:user_archive.force_delete"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  null,
+        "uri":  "archive/users/{user}/restore",
+        "name":  "domain.archive.users.restore",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\User\\UserArchiveController@restore",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:user_archive.restore"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "confirmed-two-factor-authentication",
+        "name":  "domain.tenants.two-factor.confirm",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorSettingsController@confirm",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "dashboard",
+        "name":  "domain.dashboard",
+        "action":  "App\\Http\\Controllers\\Tenants\\Dashboard\\DashboardController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\EnsureEmailIsVerified",
+                           "Illuminate\\Auth\\Middleware\\Authorize:dashboard.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "dashboard/auction-activity",
+        "name":  "domain.dashboard.auction-activity",
+        "action":  "App\\Http\\Controllers\\Tenants\\Dashboard\\DashboardController@auctionActivity",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\EnsureEmailIsVerified",
+                           "Illuminate\\Auth\\Middleware\\Authorize:dashboard.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "dashboard/statistics",
+        "name":  "domain.dashboard.statistics",
+        "action":  "App\\Http\\Controllers\\Tenants\\Dashboard\\DashboardController@getStatisticsData",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\EnsureEmailIsVerified",
+                           "Illuminate\\Auth\\Middleware\\Authorize:dashboard.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "profile",
+        "name":  "domain.profile.show",
+        "action":  "App\\Http\\Controllers\\Tenants\\Profile\\ProfileController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "PUT",
+        "domain":  null,
+        "uri":  "profile",
+        "name":  "domain.profile.update",
+        "action":  "App\\Http\\Controllers\\Tenants\\Profile\\ProfileController@update",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "profile/edit",
+        "name":  "domain.profile.edit",
+        "action":  "App\\Http\\Controllers\\Tenants\\Profile\\ProfileController@edit",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "roles",
+        "name":  "domain.roles.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:viewAny,Spatie\\Permission\\Models\\Role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.view"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "roles",
+        "name":  "domain.roles.store",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@store",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:create,Spatie\\Permission\\Models\\Role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.create"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "roles/create",
+        "name":  "domain.roles.create",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@create",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:create,Spatie\\Permission\\Models\\Role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.create"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "roles/users/{id}/get-roles",
+        "name":  "domain.roles.user.get",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@getUserRoles",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.assign"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "roles/users/{id}/update-roles",
+        "name":  "domain.roles.user.update",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@updateUserRoles",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.assign"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  null,
+        "uri":  "roles/users/{userId}/status",
+        "name":  "domain.roles.user.status",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@updateStatus",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.assign"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "roles/{role}",
+        "name":  "domain.roles.show",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:view,role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.view"
+                       ]
+    },
+    {
+        "method":  "PUT|PATCH",
+        "domain":  null,
+        "uri":  "roles/{role}",
+        "name":  "domain.roles.update",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@update",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:update,role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.edit"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  null,
+        "uri":  "roles/{role}",
+        "name":  "domain.roles.destroy",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@destroy",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:delete,role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.delete"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "roles/{role}/edit",
+        "name":  "domain.roles.edit",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@edit",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:update,role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.edit"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin",
+        "name":  "admin.dashboard",
+        "action":  "App\\Http\\Controllers\\Admin\\Dashboard\\DashboardController@dashboard",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:dashboard.main"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/activity-logs",
+        "name":  "admin.activity-logs.index",
+        "action":  "App\\Http\\Controllers\\Admin\\ActivityLog\\AdminActivityLogController@index",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:activity_log.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/activity-logs/{id}",
+        "name":  "admin.activity-logs.show",
+        "action":  "App\\Http\\Controllers\\Admin\\ActivityLog\\AdminActivityLogController@show",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:activity_log.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives",
+        "name":  "admin.archives.index",
+        "action":  "App\\Http\\Controllers\\Admin\\Archive\\AdminUser\\AdminUserController@index",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/bills",
+        "name":  "admin.archives.bills.index",
+        "action":  "App\\Http\\Controllers\\Admin\\Archive\\Bill\\BillArchiveController@index",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:financial_transactions.view"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/bills/force-delete/{id}",
+        "name":  "admin.archives.bills.force-delete",
+        "action":  "App\\Http\\Controllers\\Admin\\Archive\\Bill\\BillArchiveController@forceDelete",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:financial_transactions.view"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/bills/restore/{id}",
+        "name":  "admin.archives.bills.restore",
+        "action":  "App\\Http\\Controllers\\Admin\\Archive\\Bill\\BillArchiveController@restore",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:financial_transactions.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/bills/{bill}",
+        "name":  "admin.archives.bills.show",
+        "action":  "App\\Http\\Controllers\\Admin\\Bills\\AdminBillsController@show",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:view,bill",
+                           "Illuminate\\Auth\\Middleware\\Authorize:financial_transactions.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/coupons",
+        "name":  "admin.archives.coupons.index",
+        "action":  "App\\Http\\Controllers\\Admin\\Archive\\Coupon\\CouponArchiveController@index",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:coupons.view"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/coupons/force-delete/{id}",
+        "name":  "admin.archives.coupons.force-delete",
+        "action":  "App\\Http\\Controllers\\Admin\\Archive\\Coupon\\CouponArchiveController@forceDelete",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:coupons.delete"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/coupons/restore/{id}",
+        "name":  "admin.archives.coupons.restore",
+        "action":  "App\\Http\\Controllers\\Admin\\Archive\\Coupon\\CouponArchiveController@restore",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:coupons.delete"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/force-delete/{id}",
+        "name":  "admin.archives.force-delete",
+        "action":  "App\\Http\\Controllers\\Admin\\Archive\\AdminUser\\AdminUserController@forceDelete",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.force_delete"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/plans",
+        "name":  "admin.archives.plans.index",
+        "action":  "App\\Http\\Controllers\\Admin\\Archive\\Plan\\PlanArchiveController@index",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:plans.view"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/plans/force-delete/{id}",
+        "name":  "admin.archives.plans.force-delete",
+        "action":  "App\\Http\\Controllers\\Admin\\Archive\\Plan\\PlanArchiveController@forceDelete",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:plans.force_delete"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/plans/restore/{id}",
+        "name":  "admin.archives.plans.restore",
+        "action":  "App\\Http\\Controllers\\Admin\\Archive\\Plan\\PlanArchiveController@restore",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:plans.restore"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/restore/{id}",
+        "name":  "admin.archives.restore",
+        "action":  "App\\Http\\Controllers\\Admin\\Archive\\AdminUser\\AdminUserController@restore",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.restore"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/tenants",
+        "name":  "admin.archives.tenants.index",
+        "action":  "App\\Http\\Controllers\\Admin\\Archive\\Tenant\\TenantArchiveController@index",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:companies.view"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/tenants/force-delete/{id}",
+        "name":  "admin.archives.tenants.force-delete",
+        "action":  "App\\Http\\Controllers\\Admin\\Archive\\Tenant\\TenantArchiveController@forceDelete",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:companies.force_delete"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/tenants/restore/{id}",
+        "name":  "admin.archives.tenants.restore",
+        "action":  "App\\Http\\Controllers\\Admin\\Archive\\Tenant\\TenantArchiveController@restore",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:companies.restore"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  "localhost",
+        "uri":  "superadmin/archives/{user}/toggle-status",
+        "name":  "admin.archives.toggle-status",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController@toggleStatus",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.change_status"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/confirmed-two-factor-authentication",
+        "name":  "admin.two-factor.confirm",
+        "action":  "App\\Http\\Controllers\\Admin\\Auth\\AdminTwoFactorSettingsController@confirm",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/dashboard/platform-activity",
+        "name":  "admin.dashboard.platform-activity",
+        "action":  "App\\Http\\Controllers\\Admin\\Dashboard\\DashboardController@platformActivity",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:dashboard.main"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/profile",
+        "name":  "admin.profile.show",
+        "action":  "App\\Http\\Controllers\\Admin\\Profile\\ProfileController@show",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "PUT",
+        "domain":  "localhost",
+        "uri":  "superadmin/profile",
+        "name":  "admin.profile.update",
+        "action":  "App\\Http\\Controllers\\Admin\\Profile\\ProfileController@update",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/profile/edit",
+        "name":  "admin.profile.edit",
+        "action":  "App\\Http\\Controllers\\Admin\\Profile\\ProfileController@edit",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/roles",
+        "name":  "admin.roles.index",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Roles\\AdminRoleController@index",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:viewAny,Spatie\\Permission\\Models\\Role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.view"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/roles",
+        "name":  "admin.roles.store",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Roles\\AdminRoleController@store",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:create,Spatie\\Permission\\Models\\Role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.create"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/roles/create",
+        "name":  "admin.roles.create",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Roles\\AdminRoleController@create",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:create,Spatie\\Permission\\Models\\Role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.create"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/roles/get-user-roles/{id}",
+        "name":  "admin.roles.get-user-roles",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Roles\\AdminRoleController@getUserRoles",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.assign"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/roles/update-user-roles/{id}",
+        "name":  "admin.roles.update-user-role",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Roles\\AdminRoleController@updateUserRoles",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.assign"
+                       ]
+    },
+    {
+        "method":  "PUT|PATCH",
+        "domain":  "localhost",
+        "uri":  "superadmin/roles/{role}",
+        "name":  "admin.roles.update",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Roles\\AdminRoleController@update",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:update,role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.edit"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "superadmin/roles/{role}",
+        "name":  "admin.roles.destroy",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Roles\\AdminRoleController@destroy",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:delete,role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.delete"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/roles/{role}/edit",
+        "name":  "admin.roles.edit",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Roles\\AdminRoleController@edit",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:update,role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.edit"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/tickets",
+        "name":  "admin.tickets.index",
+        "action":  "App\\Http\\Controllers\\Admin\\Tickets\\AdminTicketController@index",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.view"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/tickets/toggle-service",
+        "name":  "admin.tickets.toggleService",
+        "action":  "App\\Http\\Controllers\\Admin\\Tickets\\AdminTicketController@toggleService",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:system.settings"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/tickets/{ticket}",
+        "name":  "admin.tickets.show",
+        "action":  "App\\Http\\Controllers\\Admin\\Tickets\\AdminTicketController@show",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.view"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/tickets/{ticket}/reply",
+        "name":  "admin.tickets.reply",
+        "action":  "App\\Http\\Controllers\\Admin\\Tickets\\AdminTicketController@reply",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.reply"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/tickets/{ticket}/status",
+        "name":  "admin.tickets.updateStatus",
+        "action":  "App\\Http\\Controllers\\Admin\\Tickets\\AdminTicketController@updateStatus",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.reply"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/two-factor-authentication",
+        "name":  "admin.two-factor.index",
+        "action":  "App\\Http\\Controllers\\Admin\\Auth\\AdminTwoFactorSettingsController@show",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/two-factor-authentication",
+        "name":  "admin.two-factor.enable",
+        "action":  "App\\Http\\Controllers\\Admin\\Auth\\AdminTwoFactorSettingsController@enable",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "superadmin/two-factor-authentication",
+        "name":  "admin.two-factor.disable",
+        "action":  "App\\Http\\Controllers\\Admin\\Auth\\AdminTwoFactorSettingsController@disable",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/two-factor-challenge",
+        "name":  "admin.two-factor.login",
+        "action":  "App\\Http\\Controllers\\Admin\\Auth\\AdminTwoFactorChallengeController@create",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\RedirectIfAuthenticated:admin"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/two-factor-challenge",
+        "name":  "admin.two-factor.store",
+        "action":  "App\\Http\\Controllers\\Admin\\Auth\\AdminTwoFactorChallengeController@store",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\RedirectIfAuthenticated:admin",
+                           "Illuminate\\Routing\\Middleware\\ThrottleRequests:5,1"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/two-factor-challenge/cancel",
+        "name":  "admin.two-factor.cancel",
+        "action":  "App\\Http\\Controllers\\Admin\\Auth\\AdminTwoFactorChallengeController@cancel",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\RedirectIfAuthenticated:admin"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/two-factor-qr-code",
+        "name":  "admin.two-factor.qr-code",
+        "action":  "App\\Http\\Controllers\\Admin\\Auth\\AdminTwoFactorSettingsController@qrCode",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/two-factor-recovery-codes",
+        "name":  "admin.two-factor.recovery-codes",
+        "action":  "App\\Http\\Controllers\\Admin\\Auth\\AdminTwoFactorSettingsController@recoveryCodes",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/users",
+        "name":  "admin.users.index",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController@index",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:viewAny,App\\Models\\Admin\\AdminMangment\\Users\\AdminUser",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.view"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/users",
+        "name":  "admin.users.store",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController@store",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:create,App\\Models\\Admin\\AdminMangment\\Users\\AdminUser",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.create"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/users/bulk-delete",
+        "name":  "admin.users.bulk-delete",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController@bulkDelete",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.delete"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/users/check-email-unique",
+        "name":  "admin.users.check-email-unique",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController@checkEmailUnique",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/users/check-name-unique",
+        "name":  "admin.users.check-name-unique",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController@checkNameUnique",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/users/check-phone-unique",
+        "name":  "admin.users.check-phone-unique",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController@checkPhoneUnique",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/users/create",
+        "name":  "admin.users.create",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController@create",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:create,App\\Models\\Admin\\AdminMangment\\Users\\AdminUser",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.create"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/users/password/change",
+        "name":  "admin.users.password.change",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController@showChangePasswordForm",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "superadmin/users/password/change",
+        "name":  "admin.users.password.update",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController@updatePassword",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/users/profile/{id}",
+        "name":  "admin.users.profile",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController@showProfile",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.view"
+                       ]
+    },
+    {
+        "method":  "PUT|PATCH",
+        "domain":  "localhost",
+        "uri":  "superadmin/users/{user}",
+        "name":  "admin.users.update",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController@update",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:update,user",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.edit"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "superadmin/users/{user}",
+        "name":  "admin.users.destroy",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController@destroy",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:delete,user",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.delete"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "superadmin/users/{user}/edit",
+        "name":  "admin.users.edit",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController@edit",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:update,user",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.edit"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  "localhost",
+        "uri":  "superadmin/users/{user}/toggle-status",
+        "name":  "admin.users.toggle-status",
+        "action":  "App\\Http\\Controllers\\Admin\\AdminMangment\\Users\\AdminUserController@toggleStatus",
+        "middleware":  [
+                           "web",
+                           "App\\Http\\Middleware\\Authenticate:admin",
+                           "App\\Http\\Middleware\\EnsureAuthenticatedAndActiveAdmin",
+                           "App\\Http\\Middleware\\EnsureAdminTwoFactorIsEnforced",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.change_status"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "tickets",
+        "name":  "domain.tickets.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\Tickets\\TicketController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.view",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "tickets",
+        "name":  "domain.tickets.store",
+        "action":  "App\\Http\\Controllers\\Tenants\\Tickets\\TicketController@store",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.create",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "tickets/create",
+        "name":  "domain.tickets.create",
+        "action":  "App\\Http\\Controllers\\Tenants\\Tickets\\TicketController@create",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.create",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "tickets/reply/{ticket}",
+        "name":  "domain.tickets.reply",
+        "action":  "App\\Http\\Controllers\\Tenants\\Tickets\\TicketController@reply",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.view",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "tickets/{ticket}",
+        "name":  "domain.tickets.show",
+        "action":  "App\\Http\\Controllers\\Tenants\\Tickets\\TicketController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.view",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "tickets/{ticket}/replies/{reply}/rate",
+        "name":  "domain.tickets.replies.rate",
+        "action":  "App\\Http\\Controllers\\Tenants\\Tickets\\TicketController@rateReply",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.view",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "tickets/{ticket}/survey",
+        "name":  "domain.tickets.survey.submit",
+        "action":  "App\\Http\\Controllers\\Tenants\\Tickets\\TicketController@submitSurvey",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.view",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "two-factor-authentication",
+        "name":  "domain.tenants.two-factor.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorSettingsController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "two-factor-authentication",
+        "name":  "domain.tenants.two-factor.enable",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorSettingsController@enable",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  null,
+        "uri":  "two-factor-authentication",
+        "name":  "domain.tenants.two-factor.disable",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorSettingsController@disable",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "two-factor-challenge",
+        "name":  "domain.tenants.two-factor.login",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorChallengeController@create",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\RedirectIfAuthenticated:tenant"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "two-factor-challenge",
+        "name":  "domain.tenants.two-factor.store",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorChallengeController@store",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\RedirectIfAuthenticated:tenant",
+                           "Illuminate\\Routing\\Middleware\\ThrottleRequests:5,1"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "two-factor-challenge/cancel",
+        "name":  "domain.tenants.two-factor.cancel",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorChallengeController@cancel",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\RedirectIfAuthenticated:tenant"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "two-factor-qr-code",
+        "name":  "domain.tenants.two-factor.qr-code",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorSettingsController@qrCode",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "two-factor-recovery-codes",
+        "name":  "domain.tenants.two-factor.recovery-codes",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorSettingsController@recoveryCodes",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "users",
+        "name":  "domain.users.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:viewAny,App\\Models\\Tenants\\UserMangment\\User\\User",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.view"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "users",
+        "name":  "domain.users.store",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@store",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:create,App\\Models\\Tenants\\UserMangment\\User\\User",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.create"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "users/create",
+        "name":  "domain.users.create",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@create",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:create,App\\Models\\Tenants\\UserMangment\\User\\User",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.create"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "users/password/change",
+        "name":  "domain.users.password.change",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@showChangePasswordForm",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "users/password/change",
+        "name":  "domain.users.password.update",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@updatePassword",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "users/profile",
+        "name":  "domain.users.profile",
+        "action":  "App\\Http\\Controllers\\Tenants\\Profile\\ProfileController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "users/{user}",
+        "name":  "domain.users.show",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:view,user",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.view"
+                       ]
+    },
+    {
+        "method":  "PUT|PATCH",
+        "domain":  null,
+        "uri":  "users/{user}",
+        "name":  "domain.users.update",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@update",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:update,user",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.edit"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  null,
+        "uri":  "users/{user}",
+        "name":  "domain.users.destroy",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@destroy",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:delete,user",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.delete"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "users/{user}/background",
+        "name":  "domain.users.update-background",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@updateBackgroundImage",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  null,
+        "uri":  "users/{user}/edit",
+        "name":  "domain.users.edit",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@edit",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:update,user",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.edit"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  null,
+        "uri":  "users/{user}/image",
+        "name":  "domain.users.update-image",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@updateImage",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  null,
+        "uri":  "users/{user}/toggle-status",
+        "name":  "domain.users.toggle-status",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@toggleStatus",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\PreventAccessFromCentralDomains",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByDomain",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.edit"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/activity-logs",
+        "name":  "path.activity-logs.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\activity_log\\ActivityLogController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:activity_log.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/activity-logs/archives",
+        "name":  "path.activity-logs.archives",
+        "action":  "App\\Http\\Controllers\\Tenants\\activity_log\\ActivityLogController@archives",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:activity_log.view"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/activity-logs/export",
+        "name":  "path.activity-logs.export",
+        "action":  "App\\Http\\Controllers\\Tenants\\activity_log\\ActivityLogController@export",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:activity_log.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/activity-logs/export-download/{file}",
+        "name":  "path.activity-logs.export-download",
+        "action":  "App\\Http\\Controllers\\Tenants\\activity_log\\ActivityLogController@downloadExportFile",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:activity_log.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/activity-logs/get-all-ids",
+        "name":  "path.activity-logs.get-all-ids",
+        "action":  "App\\Http\\Controllers\\Tenants\\activity_log\\ActivityLogController@getAllIds",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:activity_log.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/activity-logs/{id}",
+        "name":  "path.activity-logs.show",
+        "action":  "App\\Http\\Controllers\\Tenants\\activity_log\\ActivityLogController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:activity_log.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/archive/assignments",
+        "name":  "path.archive.assignments.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Assignment\\AssignmentArchiveController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:assignments_archive.view"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "{tenant}/archive/assignments/{assignment}/force-delete",
+        "name":  "path.archive.assignments.force-delete",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Assignment\\AssignmentArchiveController@forceDelete",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:assignments_archive.force_delete"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  "localhost",
+        "uri":  "{tenant}/archive/assignments/{assignment}/restore",
+        "name":  "path.archive.assignments.restore",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Assignment\\AssignmentArchiveController@restore",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:assignments_archive.restore"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/archive/auctions",
+        "name":  "path.archive.auctions.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Auction\\AuctionArchiveController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:auctions_archive.view"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "{tenant}/archive/auctions/{auction}/force-delete",
+        "name":  "path.archive.auctions.force-delete",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Auction\\AuctionArchiveController@forceDelete",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:auctions_archive.force_delete"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  "localhost",
+        "uri":  "{tenant}/archive/auctions/{auction}/restore",
+        "name":  "path.archive.auctions.restore",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Auction\\AuctionArchiveController@restore",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:auctions_archive.restore"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/archive/properties",
+        "name":  "path.archive.properties.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Property\\PropertyArchiveController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:properties_archive.view"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "{tenant}/archive/properties/{property}/force-delete",
+        "name":  "path.archive.properties.force-delete",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Property\\PropertyArchiveController@forceDelete",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:properties_archive.force_delete"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  "localhost",
+        "uri":  "{tenant}/archive/properties/{property}/restore",
+        "name":  "path.archive.properties.restore",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\Property\\PropertyArchiveController@restore",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:properties_archive.restore"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/archive/users",
+        "name":  "path.archive.users.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\User\\UserArchiveController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:user_archive.view"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "{tenant}/archive/users/mass-force-delete",
+        "name":  "path.archive.users.mass-force-delete",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\User\\UserArchiveController@massForceDelete",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:user_archive.force_delete"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/archive/users/mass-restore",
+        "name":  "path.archive.users.mass-restore",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\User\\UserArchiveController@massRestore",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:user_archive.restore"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "{tenant}/archive/users/{user}/force-delete",
+        "name":  "path.archive.users.force-delete",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\User\\UserArchiveController@forceDelete",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:user_archive.force_delete"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  "localhost",
+        "uri":  "{tenant}/archive/users/{user}/restore",
+        "name":  "path.archive.users.restore",
+        "action":  "App\\Http\\Controllers\\Tenants\\Archive\\User\\UserArchiveController@restore",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:user_archive.restore"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/confirmed-two-factor-authentication",
+        "name":  "path.tenants.two-factor.confirm",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorSettingsController@confirm",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/dashboard",
+        "name":  "path.dashboard",
+        "action":  "App\\Http\\Controllers\\Tenants\\Dashboard\\DashboardController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\EnsureEmailIsVerified",
+                           "Illuminate\\Auth\\Middleware\\Authorize:dashboard.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/dashboard/auction-activity",
+        "name":  "path.dashboard.auction-activity",
+        "action":  "App\\Http\\Controllers\\Tenants\\Dashboard\\DashboardController@auctionActivity",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\EnsureEmailIsVerified",
+                           "Illuminate\\Auth\\Middleware\\Authorize:dashboard.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/dashboard/statistics",
+        "name":  "path.dashboard.statistics",
+        "action":  "App\\Http\\Controllers\\Tenants\\Dashboard\\DashboardController@getStatisticsData",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\EnsureEmailIsVerified",
+                           "Illuminate\\Auth\\Middleware\\Authorize:dashboard.view"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/profile",
+        "name":  "path.profile.show",
+        "action":  "App\\Http\\Controllers\\Tenants\\Profile\\ProfileController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "PUT",
+        "domain":  "localhost",
+        "uri":  "{tenant}/profile",
+        "name":  "path.profile.update",
+        "action":  "App\\Http\\Controllers\\Tenants\\Profile\\ProfileController@update",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/profile/edit",
+        "name":  "path.profile.edit",
+        "action":  "App\\Http\\Controllers\\Tenants\\Profile\\ProfileController@edit",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/roles",
+        "name":  "path.roles.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:viewAny,Spatie\\Permission\\Models\\Role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.view"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/roles",
+        "name":  "path.roles.store",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@store",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:create,Spatie\\Permission\\Models\\Role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.create"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/roles/create",
+        "name":  "path.roles.create",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@create",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:create,Spatie\\Permission\\Models\\Role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.create"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/roles/users/{id}/get-roles",
+        "name":  "path.roles.user.get",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@getUserRoles",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.assign"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/roles/users/{id}/update-roles",
+        "name":  "path.roles.user.update",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@updateUserRoles",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.assign"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  "localhost",
+        "uri":  "{tenant}/roles/users/{userId}/status",
+        "name":  "path.roles.user.status",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@updateStatus",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.assign"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/roles/{role}",
+        "name":  "path.roles.show",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:view,role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.view"
+                       ]
+    },
+    {
+        "method":  "PUT|PATCH",
+        "domain":  "localhost",
+        "uri":  "{tenant}/roles/{role}",
+        "name":  "path.roles.update",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@update",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:update,role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.edit"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "{tenant}/roles/{role}",
+        "name":  "path.roles.destroy",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@destroy",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:delete,role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.delete"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/roles/{role}/edit",
+        "name":  "path.roles.edit",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController@edit",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:update,role",
+                           "Illuminate\\Auth\\Middleware\\Authorize:roles.edit"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/tickets",
+        "name":  "path.tickets.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\Tickets\\TicketController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.view",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/tickets",
+        "name":  "path.tickets.store",
+        "action":  "App\\Http\\Controllers\\Tenants\\Tickets\\TicketController@store",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.create",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/tickets/create",
+        "name":  "path.tickets.create",
+        "action":  "App\\Http\\Controllers\\Tenants\\Tickets\\TicketController@create",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.create",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/tickets/reply/{ticket}",
+        "name":  "path.tickets.reply",
+        "action":  "App\\Http\\Controllers\\Tenants\\Tickets\\TicketController@reply",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.view",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/tickets/{ticket}",
+        "name":  "path.tickets.show",
+        "action":  "App\\Http\\Controllers\\Tenants\\Tickets\\TicketController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.view",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/tickets/{ticket}/replies/{reply}/rate",
+        "name":  "path.tickets.replies.rate",
+        "action":  "App\\Http\\Controllers\\Tenants\\Tickets\\TicketController@rateReply",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.view",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/tickets/{ticket}/survey",
+        "name":  "path.tickets.survey.submit",
+        "action":  "App\\Http\\Controllers\\Tenants\\Tickets\\TicketController@submitSurvey",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:tickets.view",
+                           "Closure"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/two-factor-authentication",
+        "name":  "path.tenants.two-factor.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorSettingsController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/two-factor-authentication",
+        "name":  "path.tenants.two-factor.enable",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorSettingsController@enable",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "{tenant}/two-factor-authentication",
+        "name":  "path.tenants.two-factor.disable",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorSettingsController@disable",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/two-factor-challenge",
+        "name":  "path.tenants.two-factor.login",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorChallengeController@create",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\RedirectIfAuthenticated:tenant"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/two-factor-challenge",
+        "name":  "path.tenants.two-factor.store",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorChallengeController@store",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\RedirectIfAuthenticated:tenant",
+                           "Illuminate\\Routing\\Middleware\\ThrottleRequests:5,1"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/two-factor-challenge/cancel",
+        "name":  "path.tenants.two-factor.cancel",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorChallengeController@cancel",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\RedirectIfAuthenticated:tenant"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/two-factor-qr-code",
+        "name":  "path.tenants.two-factor.qr-code",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorSettingsController@qrCode",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/two-factor-recovery-codes",
+        "name":  "path.tenants.two-factor.recovery-codes",
+        "action":  "App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorSettingsController@recoveryCodes",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/users",
+        "name":  "path.users.index",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@index",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:viewAny,App\\Models\\Tenants\\UserMangment\\User\\User",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.view"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/users",
+        "name":  "path.users.store",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@store",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:create,App\\Models\\Tenants\\UserMangment\\User\\User",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.create"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/users/create",
+        "name":  "path.users.create",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@create",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:create,App\\Models\\Tenants\\UserMangment\\User\\User",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.create"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/users/password/change",
+        "name":  "path.users.password.change",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@showChangePasswordForm",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/users/password/change",
+        "name":  "path.users.password.update",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@updatePassword",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/users/profile",
+        "name":  "path.users.profile",
+        "action":  "App\\Http\\Controllers\\Tenants\\Profile\\ProfileController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/users/{user}",
+        "name":  "path.users.show",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@show",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:view,user",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.view"
+                       ]
+    },
+    {
+        "method":  "PUT|PATCH",
+        "domain":  "localhost",
+        "uri":  "{tenant}/users/{user}",
+        "name":  "path.users.update",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@update",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:update,user",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.edit"
+                       ]
+    },
+    {
+        "method":  "DELETE",
+        "domain":  "localhost",
+        "uri":  "{tenant}/users/{user}",
+        "name":  "path.users.destroy",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@destroy",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:delete,user",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.delete"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/users/{user}/background",
+        "name":  "path.users.update-background",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@updateBackgroundImage",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate"
+                       ]
+    },
+    {
+        "method":  "GET|HEAD",
+        "domain":  "localhost",
+        "uri":  "{tenant}/users/{user}/edit",
+        "name":  "path.users.edit",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@edit",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "Illuminate\\Auth\\Middleware\\Authorize:update,user",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.edit"
+                       ]
+    },
+    {
+        "method":  "POST",
+        "domain":  "localhost",
+        "uri":  "{tenant}/users/{user}/image",
+        "name":  "path.users.update-image",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@updateImage",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate"
+                       ]
+    },
+    {
+        "method":  "PATCH",
+        "domain":  "localhost",
+        "uri":  "{tenant}/users/{user}/toggle-status",
+        "name":  "path.users.toggle-status",
+        "action":  "App\\Http\\Controllers\\Tenants\\UserMangment\\User\\UserController@toggleStatus",
+        "middleware":  [
+                           "web",
+                           "Stancl\\Tenancy\\Middleware\\InitializeTenancyByPath",
+                           "App\\Http\\Middleware\\Tenancy\\InitializeTenancyBySession",
+                           "App\\Http\\Middleware\\Tenancy\\TenantDomainRedirect",
+                           "App\\Http\\Middleware\\Tenancy\\TenantMaintenance",
+                           "App\\Http\\Middleware\\Authenticate:tenant",
+                           "App\\Http\\Middleware\\Tenancy\\EnsureTenantTwoFactorIsEnforced",
+                           "App\\Http\\Middleware\\Tenancy\\CheckSubscription",
+                           "App\\Http\\Middleware\\Authenticate",
+                           "Illuminate\\Auth\\Middleware\\Authorize:users.edit"
+                       ]
+    }
+]

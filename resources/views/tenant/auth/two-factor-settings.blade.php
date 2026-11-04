@@ -252,27 +252,10 @@
                             xhr.responseJSON?.message ?? 'الكود غير صحيح';
                         window.SharedFormValidation?.setFieldError(form, 'code', message);
                         toastr.error(message);
-                        if (submitBtn) {
-                            submitBtn.disabled = false;
-                            delete submitBtn.dataset.buttonIsLoading;
-                            if (typeof submitBtn.removeAttribute === 'function') {
-                                submitBtn.removeAttribute('aria-busy');
-                            }
-                            if (window.SharedFormValidation?.resetButtonLoading) {
-                                window.SharedFormValidation.resetButtonLoading(submitBtn);
-                            }
-                        }
                     },
                     complete: function() {
                         if (submitBtn) {
-                            submitBtn.disabled = false;
-                            delete submitBtn.dataset.buttonIsLoading;
-                            if (typeof submitBtn.removeAttribute === 'function') {
-                                submitBtn.removeAttribute('aria-busy');
-                            }
-                            if (window.SharedFormValidation?.resetButtonLoading) {
-                                window.SharedFormValidation.resetButtonLoading(submitBtn);
-                            }
+                            window.SharedFormValidation?.resetButtonLoading(submitBtn);
                         }
                     }
                 });

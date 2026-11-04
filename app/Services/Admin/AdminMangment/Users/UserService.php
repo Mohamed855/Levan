@@ -132,12 +132,7 @@ class UserService
     public function deleteUser(AdminUser $user): bool
     {
         return DB::transaction(function () use ($user) {
-            // Delete user image
-            if ($user->image) {
-                $this->deleteImage($user->image);
-            }
-
-            // Delete user
+            // Preserve user image with soft-deleted record so it remains restorable
             return (bool) $user->delete();
         });
     }

@@ -23,6 +23,8 @@ class RoleService
 
     const ADMIN_PERMISSION_SECTIONS = [];
 
+    public const BASELINE_PERMISSION = 'dashboard.main';
+
     /*
     |--------------------------------------------------------------------------
     | Role Creation
@@ -31,13 +33,17 @@ class RoleService
     */
     public function createRole(array $data): Role
     {
-        return DB::transaction(function () use ($data) {
+        $permissions = $this->getPermissionsFromData($data);
+        if (empty($permissions)) {
+            throw new \InvalidArgumentException('يجب اختيار صلاحية واحدة على الأقل.');
+        }
+
+        return DB::transaction(function () use ($data, $permissions) {
             $role = Role::create([
                 'name' => $data['name'],
                 'guard_name' => 'admin',
             ]);
 
-            $permissions = $this->getPermissionsFromData($data);
             $role->syncPermissions($permissions);
 
             $this->clearPermissionsCache();
@@ -54,10 +60,14 @@ class RoleService
     */
     public function updateRole(Role $role, array $data): Role
     {
-        return DB::transaction(function () use ($role, $data) {
+        $permissions = $this->getPermissionsFromData($data);
+        if (empty($permissions)) {
+            throw new \InvalidArgumentException('يجب اختيار صلاحية واحدة على الأقل.');
+        }
+
+        return DB::transaction(function () use ($role, $data, $permissions) {
             $role->update(['name' => $data['name']]);
 
-            $permissions = $this->getPermissionsFromData($data);
             $role->syncPermissions($permissions);
 
             $this->clearPermissionsCache();
@@ -75,15 +85,24 @@ class RoleService
     public function deleteRole(Role $role): bool
     {
         if ($role->name === 'SuperAdmin') {
-            throw new \Exception('لا يمكن حذف هذا الدور');
+            throw new \LogicException('لا يمكن حذف دور السوبر أدمن.');
+        }
+
+        if ($role->users()->exists()) {
+            throw new \LogicException('لا يمكن حذف هذا الدور لأنه مرتبط بمستخدمين حاليين في النظام.');
         }
 
         return DB::transaction(function () use ($role) {
             $deleted = $role->delete();
             $this->clearPermissionsCache();
 
-            return $deleted;
+            return (bool) $deleted;
         });
+    }
+
+    public function canDeleteRole(Role $role): bool
+    {
+        return $role->name !== 'SuperAdmin' && ! $role->users()->exists();
     }
 
     /*
@@ -110,10 +129,16 @@ class RoleService
     private function getPermissionsFromData(array $data): array
     {
         if (! empty($data['select_all'])) {
-            return Permission::where('guard_name', 'admin')->pluck('name')->toArray();
+            $permissions = Permission::where('guard_name', 'admin')->pluck('name')->toArray();
+        } else {
+            $permissions = $data['permissions'] ?? [];
         }
 
-        return $data['permissions'] ?? [];
+        if (! empty($permissions) && ! in_array(self::BASELINE_PERMISSION, $permissions, true)) {
+            $permissions[] = self::BASELINE_PERMISSION;
+        }
+
+        return array_values(array_unique($permissions));
     }
 
     /*
@@ -232,16 +257,5 @@ class RoleService
             'permissions' => Permission::query()->where('guard_name', 'admin')->count(),
             'custom' => (clone $roles)->where('name', '!=', 'SuperAdmin')->count(),
         ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Validate Role Deletion
-    |--------------------------------------------------------------------------
-    | Check if role can be deleted.
-    */
-    public function canDeleteRole(Role $role): bool
-    {
-        return $role->name !== 'SuperAdmin';
     }
 }

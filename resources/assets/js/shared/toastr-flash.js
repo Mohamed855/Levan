@@ -29,8 +29,9 @@
             return;
         }
 
-        // Wait until toastr is loaded
-        if (typeof toastr === 'undefined') {
+        // Wait until toastr is loaded (check window.toastr first, then global toastr)
+        var toastrInstance = window.toastr || (typeof toastr !== 'undefined' ? toastr : null);
+        if (!toastrInstance) {
             if (attempts < maxAttempts) {
                 attempts++;
                 setTimeout(displayFlashes, 50);
@@ -40,19 +41,19 @@
 
         // Display and clean up attributes to prevent duplicate toasts
         if (success) {
-            toastr.success(success);
+            toastrInstance.success(success);
             body.removeAttribute('data-flash-success');
         }
         if (error) {
-            toastr.error(error);
+            toastrInstance.error(error);
             body.removeAttribute('data-flash-error');
         }
         if (info) {
-            toastr.info(info);
+            toastrInstance.info(info);
             body.removeAttribute('data-flash-info');
         }
         if (warning) {
-            toastr.warning(warning);
+            toastrInstance.warning(warning);
             body.removeAttribute('data-flash-warning');
         }
     }

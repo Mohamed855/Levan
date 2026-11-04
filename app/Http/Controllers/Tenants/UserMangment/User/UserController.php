@@ -246,6 +246,13 @@ class UserController extends Controller
             ], 422);
         }
 
+        if ((int) auth()->id() === (int) $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لا يمكنك تغيير حالة حسابك الشخصي.',
+            ], 422);
+        }
+
         try {
             $newStatus = $request->validated('status');
             $this->userService->updateStatus($user, $newStatus);

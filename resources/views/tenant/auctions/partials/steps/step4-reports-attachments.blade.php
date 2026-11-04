@@ -40,7 +40,7 @@
     {{-- 8. ملفات إضافية --}}
     <div class="col-12 border-top pt-3">
         @if ($isEdit && $auction->attachments->where('category', 'auction_doc')->isNotEmpty())
-            <div class="assignment-file-grid mb-3">
+            <div class="assignment-file-list mb-3">
                 @foreach ($auction->attachments->where('category', 'auction_doc') as $attachment)
                     <x-ui.file-card :file="$attachment" />
                 @endforeach

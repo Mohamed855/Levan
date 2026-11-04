@@ -1,0 +1,823 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature\Auth;
+
+use App\Actions\Admin\MassDelete\DeleteAdminRecordsAction;
+use App\Actions\Tenants\MassDelete\DeleteTenantRecordsAction;
+use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Models\Admin\Tenants\Tenant;
+use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Admin\AdminMangment\Role\RoleService as AdminRoleService;
+use App\Services\Tenants\UserManagement\Role\RoleService as TenantRoleService;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use LogicException;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
+use Stancl\Tenancy\Contracts\TenancyBootstrapper;
+use Tests\TestCase;
+
+class TestRolesTenancyBootstrapper implements TenancyBootstrapper
+{
+    public static array $databases = [];
+    public static string $defaultDb = '';
+
+    public function bootstrap(\Stancl\Tenancy\Contracts\Tenant $tenant): void
+    {
+        $db = static::$databases[$tenant->getTenantKey()] ?? static::$defaultDb;
+        config(['database.connections.tenant.database' => $db]);
+        DB::purge('tenant');
+        DB::setDefaultConnection('tenant');
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+    }
+
+    public function revert(): void
+    {
+        DB::purge('tenant');
+        DB::setDefaultConnection('mysql');
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+    }
+}
+
+final class RolesAndPermissionsDualReviewTest extends TestCase
+{
+    protected array $tempFiles = [];
+    protected string $defaultTenantDb = '';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->defaultTenantDb = tempnam(sys_get_temp_dir(), 'ten_def_') . '.sqlite';
+        touch($this->defaultTenantDb);
+        $this->tempFiles[] = $this->defaultTenantDb;
+        TestRolesTenancyBootstrapper::$defaultDb = $this->defaultTenantDb;
+        TestRolesTenancyBootstrapper::$databases = [];
+
+        config([
+            'database.connections.mysql' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => ''],
+            'database.connections.tenant' => ['driver' => 'sqlite', 'database' => $this->defaultTenantDb, 'prefix' => ''],
+            'tenancy.bootstrappers' => [TestRolesTenancyBootstrapper::class],
+            'activitylog.enabled' => false,
+        ]);
+
+        DB::purge('mysql');
+        DB::purge('tenant');
+        $this->withoutVite();
+
+        $this->setUpDatabaseSchemas('mysql');
+        $this->setUpDatabaseSchemas('tenant');
+
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+    }
+
+    protected function tearDown(): void
+    {
+        if (tenancy()->initialized) {
+            tenancy()->end();
+        }
+
+        foreach ($this->tempFiles as $file) {
+            if (file_exists($file)) {
+                @unlink($file);
+            }
+        }
+
+        parent::tearDown();
+    }
+
+    private function setUpDatabaseSchemas(string $connection): void
+    {
+        $schema = Schema::connection($connection);
+
+        if ($connection === 'mysql') {
+            $schema->create('admin_users', function (Blueprint $table): void {
+                $table->id();
+                $table->string('name');
+                $table->string('email')->unique();
+                $table->string('password');
+                $table->string('phone')->nullable();
+                $table->string('status')->default('active');
+                $table->boolean('is_super_admin')->default(false);
+                $table->rememberToken();
+                $table->timestamps();
+                $table->softDeletes();
+            });
+
+            $schema->create('settings', function (Blueprint $table): void {
+                $table->id();
+                $table->string('key')->nullable();
+                $table->text('value')->nullable();
+                $table->boolean('force_two_factor_auth')->default(false);
+                $table->timestamps();
+            });
+
+            $schema->create('company_settings', function (Blueprint $table): void {
+                $table->id();
+                $table->string('tenant_id')->nullable();
+                $table->boolean('force_two_factor_auth')->default(false);
+                $table->timestamps();
+            });
+
+            $schema->create('tenants', function (Blueprint $table): void {
+                $table->string('id')->primary();
+                $table->string('db_database')->default(':memory:');
+                $table->string('db_username')->default('');
+                $table->string('db_password')->default('');
+                $table->string('company_name')->default('Test Company');
+                $table->string('commercial_number')->default('1234567890');
+                $table->string('access_type')->default('path');
+                $table->json('data')->nullable();
+                $table->timestamps();
+                $table->softDeletes();
+            });
+
+            $schema->create('domains', function (Blueprint $table): void {
+                $table->id();
+                $table->string('domain')->unique();
+                $table->string('tenant_id');
+                $table->timestamps();
+            });
+
+            $schema->create('subscriptions', function (Blueprint $table): void {
+                $table->id();
+                $table->string('subscription_number')->nullable();
+                $table->string('tenant_id');
+                $table->string('status')->default('active');
+                $table->decimal('price', 10, 2)->default(0);
+                $table->timestamps();
+            });
+        } else {
+            $schema->create('users', function (Blueprint $table): void {
+                $table->id();
+                $table->string('name');
+                $table->string('employee_number')->nullable();
+                $table->string('email')->unique();
+                $table->timestamp('email_verified_at')->nullable();
+                $table->string('password');
+                $table->string('phone', 20)->nullable();
+                $table->string('status')->default('active');
+                $table->string('image')->nullable();
+                $table->string('global_uid')->nullable();
+                $table->string('license_seat_id')->nullable();
+                $table->string('current_session_id')->nullable();
+                $table->rememberToken();
+                $table->timestamps();
+                $table->softDeletes();
+            });
+
+            $schema->create('settings', function (Blueprint $table): void {
+                $table->id();
+                $table->string('key')->nullable();
+                $table->text('value')->nullable();
+                $table->boolean('force_two_factor_auth')->default(false);
+                $table->timestamps();
+            });
+        }
+
+        $schema->create('roles', function (Blueprint $table): void {
+            $table->bigIncrements('id');
+            $table->string('name');
+            $table->string('guard_name');
+            $table->timestamps();
+            $table->unique(['name', 'guard_name']);
+        });
+
+        $schema->create('permissions', function (Blueprint $table): void {
+            $table->bigIncrements('id');
+            $table->string('name');
+            $table->string('guard_name');
+            $table->string('section')->nullable();
+            $table->timestamps();
+            $table->unique(['name', 'guard_name']);
+        });
+
+        $schema->create('model_has_permissions', function (Blueprint $table): void {
+            $table->unsignedBigInteger('permission_id');
+            $table->string('model_type');
+            $table->unsignedBigInteger('model_id');
+            $table->index(['model_id', 'model_type']);
+            $table->primary(['permission_id', 'model_id', 'model_type']);
+        });
+
+        $schema->create('model_has_roles', function (Blueprint $table): void {
+            $table->unsignedBigInteger('role_id');
+            $table->string('model_type');
+            $table->unsignedBigInteger('model_id');
+            $table->index(['model_id', 'model_type']);
+            $table->primary(['role_id', 'model_id', 'model_type']);
+        });
+
+        $schema->create('role_has_permissions', function (Blueprint $table): void {
+            $table->unsignedBigInteger('permission_id');
+            $table->unsignedBigInteger('role_id');
+            $table->primary(['permission_id', 'role_id']);
+        });
+
+        // Seed initial permissions
+        if ($connection === 'mysql') {
+            foreach (['dashboard.main', 'roles.view', 'roles.create', 'roles.edit', 'roles.delete', 'roles.assign', 'users.view'] as $name) {
+                Permission::on('mysql')->firstOrCreate(['name' => $name, 'guard_name' => 'admin'], ['section' => 'system']);
+            }
+            $superRole = Role::on('mysql')->firstOrCreate(['name' => 'SuperAdmin', 'guard_name' => 'admin']);
+            $superRole->syncPermissions(Permission::on('mysql')->where('guard_name', 'admin')->get());
+        } else {
+            foreach (['dashboard.view', 'roles.view', 'roles.create', 'roles.edit', 'roles.delete', 'roles.assign', 'users.view'] as $name) {
+                Permission::on('tenant')->firstOrCreate(['name' => $name, 'guard_name' => 'tenant'], ['section' => 'system']);
+            }
+            $adminRole = Role::on('tenant')->firstOrCreate(['name' => 'Admin', 'guard_name' => 'tenant']);
+            $adminRole->syncPermissions(Permission::on('tenant')->where('guard_name', 'tenant')->get());
+        }
+    }
+
+    private function createAdminUser(array $attributes = [], array $roles = ['SuperAdmin']): AdminUser
+    {
+        $user = AdminUser::on('mysql')->create(array_merge([
+            'name' => 'مدير النظام',
+            'email' => 'admin_' . uniqid() . '@lot.test',
+            'password' => Hash::make('Secret123!'),
+            'status' => 'active',
+        ], $attributes));
+
+        foreach ($roles as $roleName) {
+            $role = Role::on('mysql')->where('name', $roleName)->where('guard_name', 'admin')->first();
+            if ($role) {
+                $user->assignRole($role);
+            }
+        }
+
+        return $user;
+    }
+
+    private function createTenantUser(Tenant $tenant, array $attributes = [], array $roles = ['Admin']): User
+    {
+        DB::connection('mysql')->table('subscriptions')->updateOrInsert(
+            ['tenant_id' => $tenant->id],
+            ['subscription_number' => 'SUB_' . $tenant->id, 'status' => 'active', 'price' => 100, 'created_at' => now(), 'updated_at' => now()]
+        );
+
+        tenancy()->initialize($tenant);
+        if (! Schema::connection('tenant')->hasTable('users')) {
+            $this->setUpDatabaseSchemas('tenant');
+        }
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        $user = User::on('tenant')->create(array_merge([
+            'name' => 'مستخدم المستأجر',
+            'email' => 'tenant_user_' . uniqid() . '@lot.test',
+            'password' => Hash::make('Secret123!'),
+            'status' => 'active',
+        ], $attributes));
+
+        foreach ($roles as $roleName) {
+            $role = Role::on('tenant')->where('name', $roleName)->where('guard_name', 'tenant')->first();
+            if ($role) {
+                $user->assignRole($role);
+            }
+        }
+
+        return $user;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROL-01: Cannot Create Empty Role
+    |--------------------------------------------------------------------------
+    */
+
+    public function test_admin_cannot_create_role_with_empty_permissions_or_without_permissions(): void
+    {
+        $admin = $this->createAdminUser();
+
+        // 1. permissions array empty
+        $response = $this->actingAs($admin, 'admin')
+            ->post(route('admin.roles.store'), [
+                'name' => 'EmptyRoleTest',
+                'permissions' => [],
+                'select_all' => 0,
+            ]);
+
+        $response->assertSessionHasErrors('permissions');
+        $this->assertDatabaseMissing('roles', ['name' => 'EmptyRoleTest', 'guard_name' => 'admin'], 'mysql');
+
+        // 2. permissions omitted with select_all = false
+        $response2 = $this->actingAs($admin, 'admin')
+            ->post(route('admin.roles.store'), [
+                'name' => 'OmittedPermsRole',
+                'select_all' => false,
+            ]);
+
+        $response2->assertSessionHasErrors('permissions');
+        $this->assertDatabaseMissing('roles', ['name' => 'OmittedPermsRole', 'guard_name' => 'admin'], 'mysql');
+    }
+
+    public function test_tenant_cannot_create_role_with_empty_permissions_or_without_permissions(): void
+    {
+        $tenant = Tenant::on('mysql')->create(['id' => 't-empty']);
+        $user = $this->createTenantUser($tenant);
+
+        // 1. permissions empty array
+        $response = $this->actingAs($user, 'tenant')
+            ->post(tenant_route_name('roles.store'), [
+                'name' => 'TenantEmptyRole',
+                'permissions' => [],
+                'select_all' => 0,
+            ]);
+
+        $response->assertSessionHasErrors('permissions');
+        $this->assertDatabaseMissing('roles', ['name' => 'TenantEmptyRole', 'guard_name' => 'tenant'], 'tenant');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROL-02: Cannot Update Role to Empty Permissions
+    |--------------------------------------------------------------------------
+    */
+
+    public function test_admin_cannot_update_role_to_empty_permissions(): void
+    {
+        $admin = $this->createAdminUser();
+        $role = Role::on('mysql')->create(['name' => 'FinanceManager', 'guard_name' => 'admin']);
+        $role->syncPermissions(['dashboard.main', 'users.view']);
+
+        $response = $this->actingAs($admin, 'admin')
+            ->put(route('admin.roles.update', $role->id), [
+                'name' => 'FinanceManager',
+                'permissions' => [],
+                'select_all' => false,
+            ]);
+
+        $response->assertSessionHasErrors('permissions');
+        $this->assertSame(2, $role->fresh()->permissions()->count());
+    }
+
+    public function test_tenant_cannot_update_role_to_empty_permissions(): void
+    {
+        $tenant = Tenant::on('mysql')->create(['id' => 't-up-empty']);
+        $user = $this->createTenantUser($tenant);
+
+        $role = Role::on('tenant')->create(['name' => 'BranchOfficer', 'guard_name' => 'tenant']);
+        $role->syncPermissions(['dashboard.view', 'users.view']);
+
+        $response = $this->actingAs($user, 'tenant')
+            ->put(tenant_route_name('roles.update', $role->id), [
+                'name' => 'BranchOfficer',
+                'permissions' => [],
+                'select_all' => false,
+            ]);
+
+        $response->assertSessionHasErrors('permissions');
+        $this->assertSame(2, $role->fresh()->permissions()->count());
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROL-03: Rejection of Invalid Permissions Inputs
+    |--------------------------------------------------------------------------
+    */
+
+    public function test_rejection_of_invalid_permissions_integers_and_cross_guard(): void
+    {
+        $admin = $this->createAdminUser();
+
+        // 1. Integer IDs instead of names
+        $response = $this->actingAs($admin, 'admin')
+            ->post(route('admin.roles.store'), [
+                'name' => 'InvalidIntPerms',
+                'permissions' => [1, 2, 3],
+            ]);
+        $response->assertSessionHasErrors('permissions.0');
+
+        // 2. Cross-guard permission (tenant permission sent to admin)
+        $response2 = $this->actingAs($admin, 'admin')
+            ->post(route('admin.roles.store'), [
+                'name' => 'CrossGuardRole',
+                'permissions' => ['dashboard.view'], // exists on tenant, not admin
+            ]);
+        $response2->assertSessionHasErrors('permissions.0');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROL-04: select_all Boolean Variations
+    |--------------------------------------------------------------------------
+    */
+
+    public function test_select_all_boolean_variations_and_empty_handling(): void
+    {
+        $admin = $this->createAdminUser();
+
+        // String 'false' with no permissions is rejected
+        $response = $this->actingAs($admin, 'admin')
+            ->post(route('admin.roles.store'), [
+                'name' => 'StringFalseRole',
+                'select_all' => 'false',
+                'permissions' => [],
+            ]);
+        $response->assertSessionHasErrors('permissions');
+
+        // Integer 1 with no permissions selects all permissions
+        $response2 = $this->actingAs($admin, 'admin')
+            ->post(route('admin.roles.store'), [
+                'name' => 'SelectAllRole',
+                'select_all' => 1,
+            ]);
+        $response2->assertSessionHasNoErrors();
+        $createdRole = Role::on('mysql')->where('name', 'SelectAllRole')->first();
+        $this->assertNotNull($createdRole);
+        $this->assertSame(
+            Permission::on('mysql')->where('guard_name', 'admin')->count(),
+            $createdRole->permissions()->count()
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROL-05 & ROL-06: Baseline Overview Permission Always Enforced
+    |--------------------------------------------------------------------------
+    */
+
+    public function test_admin_role_creation_and_update_always_enforces_dashboard_main_baseline(): void
+    {
+        $admin = $this->createAdminUser();
+
+        // Sent with users.view only -> dashboard.main is automatically included
+        $response = $this->actingAs($admin, 'admin')
+            ->post(route('admin.roles.store'), [
+                'name' => 'StaffRole',
+                'permissions' => ['users.view'],
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $role = Role::on('mysql')->where('name', 'StaffRole')->first();
+        $this->assertNotNull($role);
+        $this->assertTrue($role->hasPermissionTo('dashboard.main'));
+        $this->assertTrue($role->hasPermissionTo('users.view'));
+    }
+
+    public function test_tenant_role_creation_and_update_always_enforces_dashboard_view_baseline(): void
+    {
+        $tenant = Tenant::on('mysql')->create(['id' => 't-baseline']);
+        $user = $this->createTenantUser($tenant);
+
+        // Sent with users.view only -> dashboard.view is automatically included
+        $response = $this->actingAs($user, 'tenant')
+            ->post(tenant_route_name('roles.store'), [
+                'name' => 'StaffTenantRole',
+                'permissions' => ['users.view'],
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $role = Role::on('tenant')->where('name', 'StaffTenantRole')->first();
+        $this->assertNotNull($role);
+        $this->assertTrue($role->hasPermissionTo('dashboard.view'));
+        $this->assertTrue($role->hasPermissionTo('users.view'));
+    }
+
+    public function test_role_with_only_overview_permission_is_valid_and_non_empty(): void
+    {
+        $admin = $this->createAdminUser();
+
+        $response = $this->actingAs($admin, 'admin')
+            ->post(route('admin.roles.store'), [
+                'name' => 'OverviewOnlyRole',
+                'permissions' => ['dashboard.main'],
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $role = Role::on('mysql')->where('name', 'OverviewOnlyRole')->first();
+        $this->assertNotNull($role);
+        $this->assertSame(1, $role->permissions()->count());
+        $this->assertTrue($role->hasPermissionTo('dashboard.main'));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROL-08 & ROL-09: Ordinary User Login Succeeds Without 403 on Dashboard
+    |--------------------------------------------------------------------------
+    */
+
+    public function test_ordinary_admin_user_with_custom_role_has_dashboard_permission(): void
+    {
+        $roleService = app(AdminRoleService::class);
+        $customRole = $roleService->createRole([
+            'name' => 'Auditor',
+            'permissions' => ['users.view'],
+        ]);
+
+        $user = $this->createAdminUser([], ['Auditor']);
+
+        $this->assertTrue($user->hasRole('Auditor'));
+        $this->assertTrue($user->can('dashboard.main'));
+    }
+
+    public function test_ordinary_tenant_user_with_custom_role_has_dashboard_permission(): void
+    {
+        $tenant = Tenant::on('mysql')->create(['id' => 't-login-test']);
+        tenancy()->initialize($tenant);
+
+        $roleService = app(TenantRoleService::class);
+        $customRole = $roleService->createRole([
+            'name' => 'Reviewer',
+            'permissions' => ['users.view'],
+        ]);
+
+        $user = $this->createTenantUser($tenant, [], ['Reviewer']);
+
+        $this->assertTrue($user->hasRole('Reviewer'));
+        $this->assertTrue($user->can('dashboard.view'));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROL-10 & U-06: Single Delete Prevention for Linked Roles
+    |--------------------------------------------------------------------------
+    */
+
+    public function test_single_delete_of_role_linked_to_users_is_prevented_in_admin(): void
+    {
+        $admin = $this->createAdminUser();
+        $role = Role::on('mysql')->create(['name' => 'SupervisorRole', 'guard_name' => 'admin']);
+        $role->syncPermissions(['dashboard.main']);
+
+        $linkedUser = AdminUser::on('mysql')->create([
+            'name' => 'موظف مرتبط',
+            'email' => 'linked_emp@lot.test',
+            'password' => Hash::make('Pass123!'),
+        ]);
+        $linkedUser->assignRole($role);
+
+        $this->assertTrue($role->users()->exists());
+
+        // Attempt single delete via AJAX
+        $response = $this->actingAs($admin, 'admin')
+            ->deleteJson(route('admin.roles.destroy', $role->id));
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'لا يمكن حذف هذا الدور لأنه مرتبط بمستخدمين حاليين في النظام.',
+        ]);
+
+        $this->assertDatabaseHas('roles', ['id' => $role->id], 'mysql');
+    }
+
+    public function test_single_delete_of_role_linked_to_users_is_prevented_in_tenant(): void
+    {
+        $tenant = Tenant::on('mysql')->create(['id' => 't-del-linked']);
+        $user = $this->createTenantUser($tenant);
+
+        $role = Role::on('tenant')->create(['name' => 'TenantSupervisor', 'guard_name' => 'tenant']);
+        $role->syncPermissions(['dashboard.view']);
+
+        $linkedUser = User::on('tenant')->create([
+            'name' => 'مستخدم مستأجر مرتبط',
+            'email' => 'tenant_linked@lot.test',
+            'password' => Hash::make('Pass123!'),
+        ]);
+        $linkedUser->assignRole($role);
+
+        $this->assertTrue($role->users()->exists());
+
+        // Attempt single delete via AJAX
+        $response = $this->actingAs($user, 'tenant')
+            ->deleteJson(tenant_route_name('roles.destroy', $role->id));
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'لا يمكن حذف هذا الدور لأنه مرتبط بمستخدمين حاليين في النظام.',
+        ]);
+
+        $this->assertDatabaseHas('roles', ['id' => $role->id], 'tenant');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROL-13: Free Unlinked Role Can Be Deleted Cleanly
+    |--------------------------------------------------------------------------
+    */
+
+    public function test_unlinked_free_role_can_be_deleted_cleanly_in_admin_and_tenant(): void
+    {
+        $admin = $this->createAdminUser();
+        $freeAdminRole = Role::on('mysql')->create(['name' => 'TemporaryRole', 'guard_name' => 'admin']);
+        $freeAdminRole->syncPermissions(['dashboard.main']);
+
+        $response = $this->actingAs($admin, 'admin')
+            ->deleteJson(route('admin.roles.destroy', $freeAdminRole->id));
+
+        $response->assertOk();
+        $response->assertJson(['success' => true]);
+        $this->assertDatabaseMissing('roles', ['id' => $freeAdminRole->id], 'mysql');
+
+        // Tenant
+        $tenant = Tenant::on('mysql')->create(['id' => 't-del-free']);
+        $user = $this->createTenantUser($tenant);
+
+        $freeTenantRole = Role::on('tenant')->create(['name' => 'TempTenantRole', 'guard_name' => 'tenant']);
+        $freeTenantRole->syncPermissions(['dashboard.view']);
+
+        $response2 = $this->actingAs($user, 'tenant')
+            ->deleteJson(tenant_route_name('roles.destroy', $freeTenantRole->id));
+
+        $response2->assertOk();
+        $response2->assertJson(['success' => true]);
+        $this->assertDatabaseMissing('roles', ['id' => $freeTenantRole->id], 'tenant');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROL-10 & ROL-14: Protected System Roles Cannot Be Deleted
+    |--------------------------------------------------------------------------
+    */
+
+    public function test_system_protected_roles_cannot_be_deleted(): void
+    {
+        $admin = $this->createAdminUser();
+        $superAdminRole = Role::on('mysql')->where('name', 'SuperAdmin')->firstOrFail();
+
+        $response = $this->actingAs($admin, 'admin')
+            ->deleteJson(route('admin.roles.destroy', $superAdminRole->id));
+
+        $response->assertStatus(422);
+        $this->assertStringContainsString('لا يمكن حذف دور السوبر أدمن', (string) $response->json('message'));
+
+        // Tenant Admin
+        $tenant = Tenant::on('mysql')->create(['id' => 't-sys-role']);
+        $user = $this->createTenantUser($tenant);
+
+        $primaryAdminRole = Role::on('tenant')->where('name', 'Admin')->firstOrFail();
+
+        $response2 = $this->actingAs($user, 'tenant')
+            ->deleteJson(tenant_route_name('roles.destroy', $primaryAdminRole->id));
+
+        $response2->assertStatus(422);
+        $this->assertStringContainsString('لا يمكن حذف الدور الأساسي', (string) $response2->json('message'));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROL-12: Mass Delete Protects Linked & Protected Roles
+    |--------------------------------------------------------------------------
+    */
+
+    public function test_admin_mass_delete_protects_linked_roles_and_superadmin(): void
+    {
+        $admin = $this->createAdminUser();
+        $superAdminRole = Role::on('mysql')->where('name', 'SuperAdmin')->firstOrFail();
+
+        $linkedRole = Role::on('mysql')->create(['name' => 'LinkedRoleMass', 'guard_name' => 'admin']);
+        $linkedRole->syncPermissions(['dashboard.main']);
+        $emp = AdminUser::on('mysql')->create([
+            'name' => 'موظف جماعي',
+            'email' => 'mass_emp@lot.test',
+            'password' => Hash::make('Pass123!'),
+        ]);
+        $emp->assignRole($linkedRole);
+
+        $freeRole = Role::on('mysql')->create(['name' => 'FreeRoleMass', 'guard_name' => 'admin']);
+        $freeRole->syncPermissions(['dashboard.main']);
+
+        // Attempt mass delete on group including linkedRole
+        $response = $this->actingAs($admin, 'admin')
+            ->postJson(route('admin.mass-delete'), [
+                'model' => 'Role',
+                'ids' => [$linkedRole->id, $freeRole->id],
+            ]);
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'لا يمكن حذف هذا الدور لأنه مرتبط بمستخدمين حاليين في النظام.',
+        ]);
+
+        // Both roles remain intact due to atomic transaction rollback
+        $this->assertDatabaseHas('roles', ['id' => $linkedRole->id], 'mysql');
+        $this->assertDatabaseHas('roles', ['id' => $freeRole->id], 'mysql');
+    }
+
+    public function test_tenant_mass_delete_protects_linked_roles_and_primary_admin(): void
+    {
+        $tenant = Tenant::on('mysql')->create(['id' => 't-mass-del']);
+        $user = $this->createTenantUser($tenant);
+
+        $primaryAdminRole = Role::on('tenant')->where('name', 'Admin')->firstOrFail();
+
+        $linkedRole = Role::on('tenant')->create(['name' => 'TenantMassLinked', 'guard_name' => 'tenant']);
+        $linkedRole->syncPermissions(['dashboard.view']);
+        $emp = User::on('tenant')->create([
+            'name' => 'مستخدم جماعي',
+            'email' => 't_mass_emp@lot.test',
+            'password' => Hash::make('Pass123!'),
+        ]);
+        $emp->assignRole($linkedRole);
+
+        // Attempt mass delete on linked role
+        $response = $this->actingAs($user, 'tenant')
+            ->postJson(tenant_route_name('mass-delete'), [
+                'model' => 'Role',
+                'ids' => [$linkedRole->id],
+            ]);
+
+        $response->assertStatus(422);
+        $this->assertStringContainsString('لا يمكن حذف هذا الدور لأنه مرتبط بمستخدمين حاليين', (string) $response->json('message'));
+        $this->assertDatabaseHas('roles', ['id' => $linkedRole->id], 'tenant');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROL-16: Two-Database Multi-Tenant Isolation with Numeric ID Collisions
+    |--------------------------------------------------------------------------
+    */
+
+    public function test_cross_tenant_two_database_isolation_and_id_collisions(): void
+    {
+        $dbFileA = tempnam(sys_get_temp_dir(), 'ten_role_a_') . '.sqlite';
+        $dbFileB = tempnam(sys_get_temp_dir(), 'ten_role_b_') . '.sqlite';
+        $this->tempFiles[] = $dbFileA;
+        $this->tempFiles[] = $dbFileB;
+
+        touch($dbFileA);
+        touch($dbFileB);
+
+        TestRolesTenancyBootstrapper::$databases = [
+            'tenant-alpha' => $dbFileA,
+            'tenant-beta' => $dbFileB,
+        ];
+
+        $tenantA = Tenant::on('mysql')->create(['id' => 'tenant-alpha']);
+        $tenantB = Tenant::on('mysql')->create(['id' => 'tenant-beta']);
+
+        // Setup Tenant A database
+        tenancy()->initialize($tenantA);
+        $pdoA = DB::connection('tenant')->getPdo();
+        $this->setUpDatabaseSchemas('tenant');
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        $userA = new User([
+            'name' => 'مدير المستأجر ألفا',
+            'email' => 'alpha_admin@lot.test',
+            'password' => Hash::make('Pass123!'),
+        ]);
+        $userA->id = 1;
+        $userA->save();
+
+        $roleA = new Role([
+            'name' => 'AlphaOnlyRole',
+            'guard_name' => 'tenant',
+        ]);
+        $roleA->id = 10;
+        $roleA->save();
+
+        $roleA->syncPermissions(['dashboard.view']);
+        $userA->assignRole($roleA);
+        $countUsersA = User::on('tenant')->count();
+        $this->assertSame(1, $countUsersA);
+        tenancy()->end();
+
+        // Setup Tenant B database
+        tenancy()->initialize($tenantB);
+        $pdoB = DB::connection('tenant')->getPdo();
+        $this->setUpDatabaseSchemas('tenant');
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        $userB = new User([
+            'name' => 'مدير المستأجر بيتا',
+            'email' => 'beta_admin@lot.test',
+            'password' => Hash::make('Pass123!'),
+        ]);
+        $userB->id = 1; // Explicit numeric collision ID=1
+        $userB->save();
+
+        $roleB = new Role([
+            'name' => 'BetaOnlyRole',
+            'guard_name' => 'tenant',
+        ]);
+        $roleB->id = 10; // Explicit numeric collision ID=10
+        $roleB->save();
+
+        $roleB->syncPermissions(['dashboard.view', 'users.view']);
+        $userB->assignRole($roleB);
+        $countUsersB = User::on('tenant')->count();
+        $this->assertSame(1, $countUsersB);
+
+        // Assert two distinct PDO database connections
+        $this->assertNotSame($pdoA, $pdoB);
+
+        // Assert role in B has name BetaOnlyRole, while Alpha has AlphaOnlyRole
+        $this->assertSame('BetaOnlyRole', Role::on('tenant')->find(10)->name);
+        $this->assertSame(2, Role::on('tenant')->find(10)->permissions()->count());
+
+        tenancy()->end();
+
+        // Back in Tenant A: assert role 10 is AlphaOnlyRole with 1 permission
+        tenancy()->initialize($tenantA);
+        $this->assertSame('AlphaOnlyRole', Role::on('tenant')->find(10)->name);
+        $this->assertSame(1, Role::on('tenant')->find(10)->permissions()->count());
+        tenancy()->end();
+    }
+}

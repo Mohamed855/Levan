@@ -71,8 +71,8 @@ final class DeleteTenantRecordsAction
 
     private function deleteRole(Role $role): bool
     {
-        if ($role->guard_name !== 'tenant' || ! $this->roles->canDeleteRole($role)) {
-            throw new LogicException('لا يمكن حذف هذا الدور.');
+        if ($role->guard_name !== 'tenant') {
+            throw new LogicException('نوع الدور غير متوافق مع المستأجر.');
         }
 
         return $this->roles->deleteRole($role);

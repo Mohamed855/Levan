@@ -34,6 +34,9 @@ $badge-variants: palette.$theme-palette;
     transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out;
     vertical-align: middle;
     white-space: nowrap;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     // Harmonize nested icons to inherit the high-contrast text color
     i, svg, [class*="ti-"], [class*="bx-"], [class*="fa-"] {
@@ -41,6 +44,7 @@ $badge-variants: palette.$theme-palette;
         font-size: 0.9em;
         line-height: 1;
         vertical-align: middle;
+        flex-shrink: 0;
     }
 
     // Size variants

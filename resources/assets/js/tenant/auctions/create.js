@@ -73,11 +73,383 @@ document.addEventListener("DOMContentLoaded", () => {
         return form.elements.namedItem("attachments[]");
     }
 
+    function formatFileSize(bytes) {
+        if (!bytes || isNaN(bytes)) return "";
+        if (bytes < 1024) return bytes + " بايت";
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " ك.ب";
+        return (bytes / (1024 * 1024)).toFixed(1) + " م.ب";
+    }
+
+    function renderFileCardHtml({
+        name,
+        file = null,
+        url = null,
+        metaLabel = "",
+    }) {
+        const fileName = name || file?.name || "ملف مرفق";
+        const ext = (fileName.split(".").pop() || "").toLowerCase();
+        const isImage =
+            (file && file.type && file.type.startsWith("image/")) ||
+            ["jpg", "jpeg", "png", "webp", "gif", "svg"].includes(ext) ||
+            (typeof url === "string" &&
+                (url.startsWith("data:image/") ||
+                    url.includes("/storage/") ||
+                    url.includes("tasset") ||
+                    /\.(jpg|jpeg|png|webp|gif|svg)(\?.*)?$/i.test(url)));
+
+        let previewUrl = url;
+        if (
+            !previewUrl &&
+            file &&
+            isImage &&
+            window.URL &&
+            typeof window.URL.createObjectURL === "function"
+        ) {
+            try {
+                previewUrl = URL.createObjectURL(file);
+            } catch (e) {
+                previewUrl = null;
+            }
+        }
+
+        let typeCategory = "generic";
+        let iconClass = "ti-file";
+        let badgeColor = "secondary";
+        let typeName = "مستند";
+
+        if (isImage) {
+            typeName = "صورة";
+            badgeColor = "info";
+        } else if (ext === "pdf") {
+            typeCategory = "pdf";
+            iconClass = "ti-file-type-pdf";
+            badgeColor = "danger";
+            typeName = "مستند PDF";
+        } else if (["doc", "docx"].includes(ext)) {
+            typeCategory = "word";
+            iconClass = "ti-file-description";
+            badgeColor = "primary";
+            typeName = "مستند Word";
+        } else if (["xls", "xlsx", "csv"].includes(ext)) {
+            typeCategory = "excel";
+            iconClass = "ti-file-spreadsheet";
+            badgeColor = "success";
+            typeName = "جدول بيانات";
+        } else if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) {
+            typeCategory = "zip";
+            iconClass = "ti-file-zip";
+            badgeColor = "warning";
+            typeName = "أرشيف مضغوط";
+        }
+
+        const actionMarkup = previewUrl
+            ? `<a href="${escapeHtml(previewUrl)}" target="_blank" rel="noopener noreferrer" class="assignment-file-card__action" title="معاينة الملف" aria-label="معاينة"><i class="ti ti-eye"></i></a>`
+            : "";
+
+        const previewMarkup =
+            isImage && previewUrl
+                ? `<img src="${escapeHtml(previewUrl)}" alt="${escapeHtml(fileName)}" class="assignment-file-card__img" loading="lazy">
+           <span class="assignment-file-card__type-pill">${escapeHtml((ext || "IMG").toUpperCase())}</span>`
+                : `<div class="assignment-file-card__doc-wrap type-${typeCategory}">
+             <div class="assignment-file-card__icon-circle">
+               <i class="ti ${iconClass}"></i>
+             </div>
+             <span class="assignment-file-card__type-pill">${escapeHtml((ext || "FILE").toUpperCase())}</span>
+           </div>`;
+
+        const sizeFormatted = file?.size
+            ? formatFileSize(file.size)
+            : metaLabel || typeName;
+
+        return `
+      <article class="assignment-file-card" data-file-type="${escapeHtml(ext)}">
+        <div class="assignment-file-card__preview">
+          ${previewMarkup}
+          ${actionMarkup}
+        </div>
+        <div class="assignment-file-card__info">
+          <span class="assignment-file-card__name" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</span>
+          <div class="assignment-file-card__meta">
+            <span class="text-muted text-truncate me-1">${escapeHtml(sizeFormatted)}</span>
+            <span class="badge bg-label-${badgeColor}">${escapeHtml((ext || "FILE").toUpperCase())}</span>
+          </div>
+        </div>
+      </article>`;
+    }
+
+    function renderReviewFiles() {
+        // 1. Covers (Report image & Auction cover)
+        const reviewCovers = document.getElementById("review-covers-documents");
+        const reviewCoversCount = document.getElementById(
+            "review-covers-documents-count",
+        );
+        if (reviewCovers) {
+            const coverItems = [];
+            const coverFields = [
+                { name: "report_image", label: "غلاف التقرير" },
+                { name: "cover_image", label: "غلاف المزاد" },
+            ];
+
+            coverFields.forEach(({ name, label }) => {
+                const input = form.elements.namedItem(name);
+                const file = input?.files?.[0];
+                if (file) {
+                    coverItems.push({
+                        name: file.name,
+                        file,
+                        metaLabel: label,
+                    });
+                } else {
+                    const wrapper =
+                        input?.closest("[data-file-upload-wrapper]") ||
+                        input?.parentElement;
+                    const existingName = wrapper
+                        ?.querySelector(".file-item-name")
+                        ?.textContent?.trim();
+                    const existingImg = wrapper?.querySelector(
+                        "img.file-item-preview",
+                    )?.src;
+                    if (existingName || existingImg) {
+                        coverItems.push({
+                            name: existingName || label,
+                            url: existingImg || null,
+                            metaLabel: label,
+                        });
+                    }
+                }
+            });
+
+            if (reviewCoversCount) {
+                reviewCoversCount.textContent = String(coverItems.length);
+            }
+            if (!coverItems.length) {
+                reviewCovers.innerHTML =
+                    '<p class="text-muted mb-0" data-empty>لم يتم إرفاق أغلفة بعد.</p>';
+            } else {
+                reviewCovers.innerHTML = coverItems
+                    .map(renderFileCardHtml)
+                    .join("");
+            }
+        }
+
+        // 2. Additional Attachments
+        const reviewAddDocs = document.getElementById(
+            "review-additional-attachments",
+        );
+        const reviewAddCount = document.getElementById(
+            "review-additional-attachments-count",
+        );
+        if (reviewAddDocs) {
+            const addItems = [];
+            const addDocsInput = form.elements.namedItem("attachments[]");
+
+            // Existing attachments rendered in step 4
+            document
+                .querySelectorAll(
+                    "#step-reports-attachments .assignment-file-list .assignment-file-card",
+                )
+                .forEach((card) => {
+                    const name = card
+                        .querySelector(".assignment-file-card__name")
+                        ?.textContent?.trim();
+                    const url =
+                        card.querySelector("a.assignment-file-card__action")
+                            ?.href ||
+                        card.querySelector("img.assignment-file-card__img")
+                            ?.src;
+                    const meta =
+                        card
+                            .querySelector(".assignment-file-card__meta span")
+                            ?.textContent?.trim() || "مرفق محفوظ";
+                    if (name) {
+                        addItems.push({
+                            name,
+                            url: url || null,
+                            metaLabel: meta,
+                        });
+                    }
+                });
+
+            // Newly selected files in attachments[]
+            if (addDocsInput?.files?.length) {
+                Array.from(addDocsInput.files).forEach((file) => {
+                    addItems.push({
+                        name: file.name,
+                        file,
+                        metaLabel: "مرفق إضافي",
+                    });
+                });
+            }
+
+            // Draft archived files
+            const wrapper =
+                addDocsInput?.closest("[data-form-field]") ||
+                addDocsInput?.parentElement;
+            const archivedNames = Array.from(
+                wrapper?.querySelectorAll("[data-archived-draft-files] span") ||
+                    [],
+            ).map((el) => el.textContent.trim());
+            archivedNames.forEach((name) => {
+                if (name && !addItems.some((i) => i.name === name)) {
+                    addItems.push({
+                        name,
+                        metaLabel: "مسودة محفوظة",
+                    });
+                }
+            });
+
+            if (reviewAddCount) {
+                reviewAddCount.textContent = String(addItems.length);
+            }
+            const countText = `${addItems.length} ${addItems.length === 1 ? "ملف" : "ملفات"}`;
+            $("#review-attachments-count").text(countText);
+
+            if (!addItems.length) {
+                reviewAddDocs.innerHTML =
+                    '<p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات إضافية بعد.</p>';
+            } else {
+                reviewAddDocs.innerHTML = addItems
+                    .map(renderFileCardHtml)
+                    .join("");
+            }
+        }
+
+        // 3. Optional: Billboard images
+        const reviewBoard = document.getElementById("review-board-documents");
+        const reviewBoardCount = document.getElementById(
+            "review-board-documents-count",
+        );
+        const reviewBoardWrap = document.getElementById(
+            "review-board-documents-wrapper",
+        );
+        if (reviewBoard) {
+            const boardItems = [];
+            form.querySelectorAll(
+                'input[name^="board_images_before"], input[name^="board_images_after"]',
+            ).forEach((input) => {
+                if (input.files?.length) {
+                    Array.from(input.files).forEach((file) => {
+                        boardItems.push({
+                            name: file.name,
+                            file,
+                            metaLabel: "لوحة ميدانية",
+                        });
+                    });
+                }
+            });
+            document
+                .querySelectorAll(
+                    "#step-results-boards .assignment-file-card, [data-board-upload] [data-existing-file-card]",
+                )
+                .forEach((card) => {
+                    const name = card
+                        .querySelector(
+                            ".assignment-file-card__name, .file-item-name",
+                        )
+                        ?.textContent?.trim();
+                    const url =
+                        card.querySelector("a.assignment-file-card__action")
+                            ?.href ||
+                        card.querySelector("img")?.src;
+                    if (name) {
+                        boardItems.push({
+                            name,
+                            url: url || null,
+                            metaLabel: "لوحة محفوظة",
+                        });
+                    }
+                });
+
+            if (reviewBoardWrap) {
+                reviewBoardWrap.classList.toggle(
+                    "d-none",
+                    boardItems.length === 0,
+                );
+            }
+            if (reviewBoardCount) {
+                reviewBoardCount.textContent = String(boardItems.length);
+            }
+            if (!boardItems.length) {
+                reviewBoard.innerHTML =
+                    '<p class="text-muted mb-0" data-empty>لم يتم إرفاق صور لوحات بعد.</p>';
+            } else {
+                reviewBoard.innerHTML = boardItems
+                    .map(renderFileCardHtml)
+                    .join("");
+            }
+        }
+
+        // 4. Optional: Marketing Evidence
+        const reviewEvidence = document.getElementById(
+            "review-marketing-evidence",
+        );
+        const reviewEvidenceCount = document.getElementById(
+            "review-marketing-evidence-count",
+        );
+        const reviewEvidenceWrap = document.getElementById(
+            "review-marketing-evidence-wrapper",
+        );
+        if (reviewEvidence) {
+            const evidenceItems = [];
+            const evInput = form.elements.namedItem("marketing_evidence[]");
+            if (evInput?.files?.length) {
+                Array.from(evInput.files).forEach((file) => {
+                    evidenceItems.push({
+                        name: file.name,
+                        file,
+                        metaLabel: "دليل تسويقي",
+                    });
+                });
+            }
+            document
+                .querySelectorAll(
+                    "#step-campaigns .assignment-file-card, #step-campaigns [data-existing-file-card]",
+                )
+                .forEach((card) => {
+                    const name = card
+                        .querySelector(
+                            ".assignment-file-card__name, .file-item-name",
+                        )
+                        ?.textContent?.trim();
+                    const url =
+                        card.querySelector("a.assignment-file-card__action")
+                            ?.href ||
+                        card.querySelector("img")?.src;
+                    if (name) {
+                        evidenceItems.push({
+                            name,
+                            url: url || null,
+                            metaLabel: "دليل محفوظ",
+                        });
+                    }
+                });
+
+            if (reviewEvidenceWrap) {
+                reviewEvidenceWrap.classList.toggle(
+                    "d-none",
+                    evidenceItems.length === 0,
+                );
+            }
+            if (reviewEvidenceCount) {
+                reviewEvidenceCount.textContent = String(evidenceItems.length);
+            }
+            if (!evidenceItems.length) {
+                reviewEvidence.innerHTML =
+                    '<p class="text-muted mb-0" data-empty>لم يتم إرفاق أدلة تسويقية بعد.</p>';
+            } else {
+                reviewEvidence.innerHTML = evidenceItems
+                    .map(renderFileCardHtml)
+                    .join("");
+            }
+        }
+    }
+
     function updateAttachmentReviewCount() {
         const input = attachmentInput();
         const files = Array.from(input?.files || []);
         const countText = `${files.length} ${files.length === 1 ? "ملف" : "ملفات"}`;
         $("#review-attachments-count").text(countText);
+        renderReviewFiles();
     }
 
     function renderSelectedPropertyCards() {
@@ -720,6 +1092,8 @@ document.addEventListener("DOMContentLoaded", () => {
         )?.value;
         $("#review-whatsapp-date").text(whatsappDate || "-");
 
+        renderReviewFiles();
+
         /*
         // Step 5: Results & Boards (معطل مؤقتاً)
         const soldCount = form.querySelectorAll(
@@ -824,12 +1198,14 @@ document.addEventListener("DOMContentLoaded", () => {
         $("#review-report-image").text(
             this.files?.length ? "تم اختيار صورة" : retainedReportImageReview,
         );
+        renderReviewFiles();
     });
 
     $(form).on("change", 'input[name="cover_image"]', function () {
         $("#review-cover-image").text(
             this.files?.length ? "تم اختيار صورة" : "غير محددة",
         );
+        renderReviewFiles();
     });
 
     $(form).on("change", 'input[name="attachments[]"]', function () {
@@ -899,7 +1275,13 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
+    form.addEventListener("change", updateLivePreview);
+    form.addEventListener("input", updateLivePreview);
+    form.addEventListener("file:changed", updateLivePreview);
+    form.addEventListener("file:removed", updateLivePreview);
+    form.addEventListener("file:removed-existing", updateLivePreview);
     form.addEventListener("stepChanged", (e) => {
+        updateLivePreview();
         if (e.detail?.stepIndex === 2) {
             calculateSelectedProperties();
         }

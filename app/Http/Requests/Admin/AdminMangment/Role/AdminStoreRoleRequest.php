@@ -5,6 +5,7 @@ namespace App\Http\Requests\Admin\AdminMangment\Role;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Support\AccessLabels;
 use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Permission;
 
 class AdminStoreRoleRequest extends WizardFormRequest
 {
@@ -37,10 +38,12 @@ class AdminStoreRoleRequest extends WizardFormRequest
                 'regex:/^[A-Za-z][A-Za-z0-9_-]*$/',
             ],
             'permissions' => [
-                'required_if:select_all,0',
+                'required_unless:select_all,true',
                 'array',
+                'min:1',
             ],
             'permissions.*' => [
+                'string',
                 Rule::exists('permissions', 'name')->where('guard_name', 'admin'),
             ],
             'select_all' => [
@@ -66,8 +69,11 @@ class AdminStoreRoleRequest extends WizardFormRequest
             'name.unique' => 'اسم الدور مستخدم مسبقاً',
             'name.regex' => 'معرّف الدور يبدأ بحرف إنجليزي ويحتوي على أحرف وأرقام وشرطة أو شرطة سفلية فقط',
 
-            'permissions.required_if' => 'يجب اختيار صلاحية واحدة على الأقل',
+            'permissions.required' => 'يجب اختيار صلاحية واحدة على الأقل',
+            'permissions.required_unless' => 'يجب اختيار صلاحية واحدة على الأقل',
+            'permissions.min' => 'يجب اختيار صلاحية واحدة على الأقل',
             'permissions.array' => 'الصلاحيات يجب أن تكون مصفوفة',
+            'permissions.*.string' => 'الصلاحية المحددة غير صالحة',
             'permissions.*.exists' => 'الصلاحية المحددة غير موجودة',
 
             'select_all.boolean' => 'قيمة تحديد الكل يجب أن تكون صحيحة أو خاطئة',
@@ -98,9 +104,28 @@ class AdminStoreRoleRequest extends WizardFormRequest
     */
     protected function prepareForValidation(): void
     {
+        $selectAllRaw = $this->input('select_all');
+        $selectAll = filter_var($selectAllRaw, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
         $this->merge([
             'name' => AccessLabels::roleKey($this->input('name'), is_object($this->route('role')) ? $this->route('role')->name : null),
-            'select_all' => $this->has('select_all') ? (bool) $this->select_all : false,
+            'select_all' => $selectAll ?? false,
         ]);
+    }
+
+    public function getValidatedData(): array
+    {
+        $validated = $this->validated();
+
+        if (! empty($validated['select_all'])) {
+            $validated['permissions'] = Permission::query()
+                ->where('guard_name', 'admin')
+                ->pluck('name')
+                ->toArray();
+        } else {
+            $validated['permissions'] = $validated['permissions'] ?? [];
+        }
+
+        return $validated;
     }
 }

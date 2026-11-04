@@ -100,7 +100,7 @@ class RoleController extends Controller
     public function store(StoreRoleRequest $request): RedirectResponse
     {
         try {
-            $this->roleService->createRole($request->validated());
+            $this->roleService->createRole($request->getValidatedData());
 
             return redirect()->to(tenant_route_name('roles.index'))
                 ->with('success', 'تم إضافة الدور بنجاح');
@@ -187,7 +187,7 @@ class RoleController extends Controller
 
             return redirect()->to(tenant_route_name('roles.index'))
                 ->with('success', 'تم حذف الدور بنجاح');
-        } catch (\Exception $e) {
+        } catch (\LogicException $e) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -197,6 +197,16 @@ class RoleController extends Controller
 
             return redirect()->to(tenant_route_name('roles.index'))
                 ->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ أثناء حذف الدور.',
+                ], 500);
+            }
+
+            return redirect()->to(tenant_route_name('roles.index'))
+                ->with('error', 'حدث خطأ أثناء حذف الدور.');
         }
     }
 

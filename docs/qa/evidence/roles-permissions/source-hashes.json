@@ -1,0 +1,82 @@
+﻿[
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "BF91665D624EB8761132135EFD738A5114396849043C02510416F173F7C8B82C",
+        "Path":  "D:\\Levan\\app\\Http\\Requests\\Admin\\AdminMangment\\Role\\AdminStoreRoleRequest.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "447D98065D9B732427288A9E534701FA6755DD4517882B2BB22542EA892FC686",
+        "Path":  "D:\\Levan\\app\\Http\\Requests\\Admin\\AdminMangment\\Role\\AdminUpdateRoleRequest.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "5F29BF74059D66CD1A576593BAF3FC959F8FB3CA5C3BBA761172F0171247AA28",
+        "Path":  "D:\\Levan\\app\\Http\\Requests\\Tenants\\UserManagement\\Role\\StoreRoleRequest.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "2A9EB6CE7EB2CCA1ECE8648C516EFB6F345F3483BA2F854034E263B4BE9099C7",
+        "Path":  "D:\\Levan\\app\\Http\\Requests\\Tenants\\UserManagement\\Role\\UpdateRoleRequest.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "8EF65B10905F35FAAB63EAF48F11CDC2DCDCB55D29FD363BE651FBD97447D31C",
+        "Path":  "D:\\Levan\\app\\Services\\Admin\\AdminMangment\\Role\\RoleService.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "CF8455F28BD6EA451F3E0F04CAA948ED211C184414E5D32666FB7C0F0A86A9D6",
+        "Path":  "D:\\Levan\\app\\Services\\Tenants\\UserManagement\\Role\\RoleService.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "A155A6281ADF44917A5DB6BC8FE0E13A10819CF0F141EFA9CA8915B076A5F472",
+        "Path":  "D:\\Levan\\app\\Actions\\Admin\\MassDelete\\DeleteAdminRecordsAction.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "789340072E24DBCD75FB2947725309B010F7D88D3F1B22A3A32AE06BB9FE2CAE",
+        "Path":  "D:\\Levan\\app\\Actions\\Tenants\\MassDelete\\DeleteTenantRecordsAction.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "1557452E230756D0BE74CB7B43901A4FD95A941B716F6B01A687473DB1A12703",
+        "Path":  "D:\\Levan\\app\\Http\\Controllers\\Admin\\AdminMangment\\Roles\\AdminRoleController.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "6A4C2DB95629D28A17E4E7125270261B4DBCD59862AC78FACD51226763F560F6",
+        "Path":  "D:\\Levan\\app\\Http\\Controllers\\Tenants\\UserMangment\\Role\\RoleController.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "4DD1211B768B5809F030E6EC050BA88DCE8CED6D6FAB1E129D3F2EFD91402A9F",
+        "Path":  "D:\\Levan\\app\\Http\\Controllers\\Admin\\DeleteBulk\\AdminMassDeleteController.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "C1D94BB15A62FBA341DAB423A2465165F5EF4DE55141599D17DF3E184F07A895",
+        "Path":  "D:\\Levan\\resources\\views\\admin\\roles\\partials\\_form.blade.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "0874C508FB1AE750C0F945A37B1C12757CE3A483753CADD04CEB567B1F5A7D31",
+        "Path":  "D:\\Levan\\resources\\views\\tenant\\user-management\\roles\\partials\\_form.blade.php"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "30D43817142604D8D2873CDDCF99C76FB5D979C1E65D16E6A738066408FC1D90",
+        "Path":  "D:\\Levan\\resources\\assets\\css\\shared\\dataTable.css"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "05607D49148439E816A9123C6FB52CC75021B553FD288BC2B790DA4C62A9A1D9",
+        "Path":  "D:\\Levan\\resources\\assets\\scss\\shared\\_badges.scss"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "880355E723C581FD5C9ADC992E27321D4AA6980F13F0C13A5A47480E2709C6B5",
+        "Path":  "D:\\Levan\\tests\\Feature\\Auth\\RolesAndPermissionsDualReviewTest.php"
+    }
+]

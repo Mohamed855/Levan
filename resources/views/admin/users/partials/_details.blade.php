@@ -1,5 +1,4 @@
 <div class="row">
-    {{-- العمود الأيمن (معلومات المستخدم) --}}
     <div class="col-xl-4 col-lg-5 col-md-5 mb-4">
         <div class="card mb-4">
             <div class="card-body text-center">

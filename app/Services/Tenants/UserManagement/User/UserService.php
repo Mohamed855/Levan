@@ -139,13 +139,22 @@ class UserService
     public function deleteUser(User $user): bool
     {
         return DB::transaction(function () use ($user) {
-            // Delete user image
+            // Preserve user image with soft-deleted record so it remains restorable
+            return (bool) $user->delete();
+        });
+    }
+
+    public function forceDeleteUser(User $user): bool
+    {
+        return DB::transaction(function () use ($user) {
             if ($user->image) {
                 $this->deleteImage($user->image);
             }
+            if ($user->background_image) {
+                $this->deleteImage($user->background_image);
+            }
 
-            // Delete user
-            return $user->delete();
+            return (bool) $user->forceDelete();
         });
     }
 

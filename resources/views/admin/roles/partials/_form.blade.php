@@ -83,17 +83,28 @@
                                                                 style="max-height: 280px; overflow-y: auto;">
                                                                 @foreach ($perms as $permission)
                                                                     @if ($permission)
+                                                                        @php
+                                                                            $isBaseline = ($permission->name === \App\Services\Admin\AdminMangment\Role\RoleService::BASELINE_PERMISSION);
+                                                                        @endphp
                                                                         <div class="form-check mb-2">
                                                                             <input type="checkbox" name="permissions[]"
                                                                                 value="{{ $permission->name }}"
                                                                                 class="form-check-input permission-checkbox"
                                                                                 id="permission-{{ $permission->id }}"
                                                                                 data-section="{{ $loop->parent->index }}"
-                                                                                {{ $isEdit && $role->hasPermissionTo($permission->name) ? 'checked' : '' }}>
+                                                                                data-locked="{{ $isBaseline ? 'true' : 'false' }}"
+                                                                                {{ $isBaseline || ($isEdit && $role->hasPermissionTo($permission->name)) ? 'checked' : '' }}
+                                                                                {{ $isBaseline ? 'disabled' : '' }}>
+                                                                            @if ($isBaseline)
+                                                                                <input type="hidden" name="permissions[]" value="{{ $permission->name }}">
+                                                                            @endif
                                                                             <label
-                                                                                class="form-check-label cursor-pointer"
+                                                                                class="form-check-label {{ $isBaseline ? 'fw-bold text-primary' : 'cursor-pointer' }}"
                                                                                 for="permission-{{ $permission->id }}">
                                                                                 {{ \App\Support\AccessLabels::permission($permission->name) }}
+                                                                                @if ($isBaseline)
+                                                                                    <span class="badge bg-label-primary ms-1">أساسية</span>
+                                                                                @endif
                                                                             </label>
                                                                         </div>
                                                                     @endif
@@ -133,11 +144,22 @@
 
         if (!selectAllGlobal) return;
 
+        // Ensure baseline locked checkboxes are always checked
+        individualCheckboxes.forEach(cb => {
+            if (cb.dataset.locked === 'true' || cb.disabled) {
+                cb.checked = true;
+            }
+        });
+
         // تحديد الكل العام
         selectAllGlobal.addEventListener('change', function() {
             const isChecked = this.checked;
 
             individualCheckboxes.forEach(checkbox => {
+                if (checkbox.dataset.locked === 'true' || checkbox.disabled) {
+                    checkbox.checked = true;
+                    return;
+                }
                 checkbox.checked = isChecked;
             });
 
@@ -145,6 +167,7 @@
                 checkbox.checked = isChecked;
                 checkbox.indeterminate = false;
             });
+            updateGlobalSelectAll();
         });
 
         // تحديد الكل داخل القسم
@@ -156,6 +179,10 @@
                 const isChecked = this.checked;
 
                 childCheckboxes.forEach(child => {
+                    if (child.dataset.locked === 'true' || child.disabled) {
+                        child.checked = true;
+                        return;
+                    }
                     child.checked = isChecked;
                 });
 
@@ -167,6 +194,10 @@
         // تحديد الصلاحيات الفردية
         individualCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', function() {
+                if (this.dataset.locked === 'true' || this.disabled) {
+                    this.checked = true;
+                    return;
+                }
                 const sectionIndex = this.getAttribute('data-section');
                 updateSectionSelectAll(sectionIndex);
                 updateGlobalSelectAll();

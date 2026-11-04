@@ -131,6 +131,17 @@ class AdminUserController extends Controller
             return redirect()->route($this->route.'.index')->with('error', 'لا يمكن حذف السوبر أدمن');
         }
 
+        if ((int) auth('admin')->id() === (int) $user->id) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكنك حذف حسابك الشخصي.',
+                ], 422);
+            }
+
+            return redirect()->route($this->route.'.index')->with('error', 'لا يمكنك حذف حسابك الشخصي.');
+        }
+
         $this->userService->deleteUser($user);
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -164,6 +175,13 @@ class AdminUserController extends Controller
             ], 403);
         }
 
+        if ($users->contains(fn (AdminUser $user) => (int) $user->id === (int) auth('admin')->id())) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لا يمكنك حذف حسابك الشخصي.',
+            ], 422);
+        }
+
         $this->userService->bulkDelete($users->pluck('id')->all());
 
         return response()->json([
@@ -182,6 +200,14 @@ class AdminUserController extends Controller
                     'message' => 'لا يمكن تغيير حالة السوبر أدمن',
                 ], 403);
             }
+
+            if ((int) auth('admin')->id() === (int) $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكنك تغيير حالة حسابك الشخصي.',
+                ], 422);
+            }
+
             $newStatus = $this->userService->toggleStatus($user);
 
             $statusText = $newStatus === AdminUserStatus::ACTIVE ? 'نشط' : 'غير نشط';

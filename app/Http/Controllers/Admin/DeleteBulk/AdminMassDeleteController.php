@@ -121,6 +121,8 @@ class AdminMassDeleteController extends Controller
                 'success' => true,
                 'message' => "تم حذف {$deleted} عنصر بنجاح.",
             ]);
+        } catch (\LogicException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         } catch (\Throwable $e) {
             report($e);
 

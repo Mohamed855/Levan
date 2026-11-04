@@ -190,7 +190,6 @@ div.dataTables_processing > div:last-child > div {
 .dataTable tbody td .dropdown,
 .dataTable tbody td .dropdown-menu,
 .dataTable tbody td .dropdown-toggle,
-.dataTable tbody td .badge,
 .dataTable tbody td .form-switch,
 .dataTable tbody td .js-table-status-toggle,
 .dataTable tbody td .form-check,
@@ -204,6 +203,30 @@ div.dataTables_processing > div:last-child > div {
 .dataTable tbody td [class*="fa-"] {
     text-overflow: clip !important;
     overflow: visible !important;
+}
+
+.dataTable tbody td .badge,
+.table tbody td .badge {
+    max-width: 180px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
+}
+
+.dataTable tbody td .badge i,
+.dataTable tbody td .badge svg,
+.dataTable tbody td .badge [class*="ti-"],
+.dataTable tbody td .badge [class*="bx-"],
+.dataTable tbody td .badge [class*="fa-"],
+.dataTable tbody td .badge .badge-dot-indicator,
+.table tbody td .badge i,
+.table tbody td .badge svg,
+.table tbody td .badge [class*="ti-"],
+.table tbody td .badge [class*="bx-"],
+.table tbody td .badge [class*="fa-"],
+.table tbody td .badge .badge-dot-indicator {
+    flex-shrink: 0 !important;
 }
 
 /* Ensure dropdown menus (table actions, row dropdowns, toolbar buttons) always maintain elevated box shadow */
