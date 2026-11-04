@@ -120,6 +120,7 @@ async function runChallengeSuite() {
             console.log(`[SCOPE: ${scope.name}] - Challenge Submissions & Error Flows`);
             console.log(`------------------------------------------------------------`);
 
+            execSync('php artisan cache:clear');
             results[scope.name] = results[scope.name] || {};
 
             // ----------------------------------------------------
@@ -171,22 +172,47 @@ async function runChallengeSuite() {
             await p1.click('#toggleRecoveryLink');
             await sleep(200);
             await p1.type('#recovery_code', 'INVALID-RECOVERY-CODE-999');
-            await p1.click('button[type="submit"]');
 
-            await p1.waitForFunction(() => {
-                const btn = document.querySelector('button[type="submit"]');
-                return btn && !btn.disabled && btn.dataset.buttonIsLoading !== 'true';
-            }, { timeout: 8000 });
+            console.log('    Submitting invalid recovery code...');
+            let postUrl = '';
+            p1.on('request', req => {
+                if (req.method() === 'POST') console.log(`    [POST to]: ${req.url()} - Body: ${req.postData()}`);
+            });
+            p1.on('response', res => {
+                if (res.status() >= 300) console.log(`    [Response ${res.status()} from]: ${res.url()}`);
+            });
 
-            const recErrState = await p1.evaluate(() => {
+            await Promise.all([
+                p1.waitForNavigation({ waitUntil: 'networkidle0' }),
+                p1.click('button[type="submit"]')
+            ]);
+
+            console.log(`    After submit URL: ${p1.url()}`);
+            const formHtml = await p1.evaluate(() => {
+                const form = document.querySelector('#twoStepsForm');
                 const recWrapper = document.querySelector('#recoveryWrapper');
                 const codeWrapper = document.querySelector('#codeInputsWrapper');
-                const btn = document.querySelector('button[type="submit"]');
+                const recInput = document.querySelector('#recovery_code');
+                const codeInput = document.querySelector('#code');
+                const alertEl = document.querySelector('.alert-danger');
                 return {
-                    isStillRecovery: !recWrapper.classList.contains('d-none') && codeWrapper.classList.contains('d-none'),
-                    btnActive: !btn.disabled && btn.dataset.buttonIsLoading !== 'true'
+                    alertText: alertEl ? alertEl.textContent.trim() : null,
+                    codeWrapperClass: codeWrapper ? codeWrapper.className : null,
+                    recWrapperClass: recWrapper ? recWrapper.className : null,
+                    recInputDisabled: recInput ? recInput.disabled : null,
+                    codeInputDisabled: codeInput ? codeInput.disabled : null
                 };
             });
+            console.log('    Form state after invalid recovery code submit:', formHtml);
+
+            const isStillRecovery = !formHtml.recWrapperClass.includes('d-none') && formHtml.codeWrapperClass.includes('d-none');
+            const btnActive = await p1.evaluate(() => {
+                const btn = document.querySelector('button[type="submit"]');
+                return btn && !btn.disabled && btn.dataset.buttonIsLoading !== 'true';
+            });
+            console.log(`    Invalid recovery code: remainedInRecoveryMode=${isStillRecovery}, buttonActive=${btnActive}`);
+            assert(isStillRecovery, 'Form lost recovery mode after error');
+            assert(btnActive, 'Button stuck after recovery error');
             console.log(`    Invalid recovery code: remainedInRecoveryMode=${recErrState.isStillRecovery}, buttonActive=${recErrState.btnActive}`);
             assert(recErrState.isStillRecovery, 'Form lost recovery mode after error');
             assert(recErrState.btnActive, 'Button stuck after recovery error');

@@ -481,6 +481,57 @@ final class ArchivesDualReviewTest extends TestCase
             'data' => [],
         ]);
 
+        DB::connection('mysql')->table('plans')->insert([
+            'id' => 1,
+            'name' => 'Standard Plan',
+            'included_users' => 10,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::connection('mysql')->table('subscriptions')->insert([
+            [
+                'id' => 1,
+                'tenant_id' => 'tenant-a',
+                'plan_id' => 1,
+                'status' => 'active',
+                'starts_at' => now()->subMonth()->toDateString(),
+                'ends_at' => now()->addYear()->toDateString(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 2,
+                'tenant_id' => 'tenant-b',
+                'plan_id' => 1,
+                'status' => 'active',
+                'starts_at' => now()->subMonth()->toDateString(),
+                'ends_at' => now()->addYear()->toDateString(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        DB::connection('mysql')->table('subscription_periods')->insert([
+            [
+                'id' => 1,
+                'subscription_id' => 1,
+                'start_date' => now()->subMonth()->toDateString(),
+                'end_date' => now()->addYear()->toDateString(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'id' => 2,
+                'subscription_id' => 2,
+                'start_date' => now()->subMonth()->toDateString(),
+                'end_date' => now()->addYear()->toDateString(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
         TestArchiveTenancyBootstrapper::$databases['tenant-a'] = $this->tenantDbA;
         TestArchiveTenancyBootstrapper::$databases['tenant-b'] = $this->tenantDbB;
     }
@@ -563,8 +614,9 @@ final class ArchivesDualReviewTest extends TestCase
 
             $response->assertStatus(200);
             $content = $response->getContent();
-            $this->assertStringContainsString('archive-page', $content);
+            $this->assertStringContainsString('card', $content);
             $this->assertStringNotContainsString('btn-add', $content);
+            $this->assertStringNotContainsString('stat-card', $content);
         }
 
         // Central with unauthenticated user
@@ -591,7 +643,9 @@ final class ArchivesDualReviewTest extends TestCase
 
             $response->assertStatus(200);
             $content = $response->getContent();
-            $this->assertStringContainsString('archive-page', $content);
+            $this->assertStringContainsString('card', $content);
+            $this->assertStringNotContainsString('btn-add', $content);
+            $this->assertStringNotContainsString('stat-card', $content);
             $this->assertStringNotContainsString('btn-add', $content);
         }
     }

@@ -25,7 +25,7 @@ class UserArchiveController extends Controller
     public function __construct(UserArchiveService $userArchiveService)
     {
         $this->userArchiveService = $userArchiveService;
-        $this->middleware('auth');
+        $this->middleware('auth:tenant');
         $this->middleware('can:user_archive.view')->only(['index']);
         $this->middleware('can:user_archive.restore')->only(['restore', 'massRestore']);
         $this->middleware('can:user_archive.force_delete')->only(['forceDelete', 'massForceDelete']);
