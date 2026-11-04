@@ -74,6 +74,10 @@ class PropertyManagementFeatureTest extends TestCase
 
     public function test_administrative_region_renders_as_dropdown_with_options(): void
     {
+        $settings = \App\Models\Tenants\Settings\Settings::firstOrNew();
+        $settings->operational_regions = ['منطقة الرياض', 'منطقة مكة المكرمة', 'المنطقة الشرقية'];
+        $settings->save();
+
         $response = $this->actingAs($this->owner, 'tenant')
             ->get($this->tenantUrl('properties/create'));
 
@@ -88,6 +92,7 @@ class PropertyManagementFeatureTest extends TestCase
         $this->assertStringContainsString('منطقة الرياض', $content);
         $this->assertStringContainsString('منطقة مكة المكرمة', $content);
         $this->assertStringContainsString('المنطقة الشرقية', $content);
+        $this->assertStringNotContainsString('value="منطقة تبوك"', $content);
     }
 
     public function test_user_can_view_property_create_page(): void

@@ -55,13 +55,13 @@ class ArchivedUsersDataTable extends AbstractDataTable
                 'className' => 'custom-checkbox',
                 'titleAttr' => 'تحديد الكل',
             ],
-            ['data' => 'user_info', 'name' => 'name', 'title' => 'اسم المستخدم', 'width' => '200px', 'className' => 'text-start'],
-            ['data' => 'email', 'name' => 'email', 'title' => 'البريد الإلكتروني', 'width' => '180px'],
-            ['data' => 'phone', 'name' => 'phone', 'title' => 'رقم الهاتف', 'width' => '120px'],
-            ['data' => 'roles', 'name' => 'roles', 'title' => 'الأدوار', 'width' => '120px', 'orderable' => false],
-            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'width' => '100px'],
+            ['data' => 'user_info', 'name' => 'name', 'title' => 'اسم المستخدم', 'width' => '200px', 'className' => 'text-center'],
+            ['data' => 'email', 'name' => 'email', 'title' => 'البريد الإلكتروني', 'width' => '180px', 'className' => 'text-center'],
+            ['data' => 'phone', 'name' => 'phone', 'title' => 'رقم الهاتف', 'width' => '120px', 'className' => 'text-center'],
+            ['data' => 'roles', 'name' => 'roles', 'title' => 'الأدوار', 'width' => '120px', 'orderable' => false, 'className' => 'text-center'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'width' => '100px', 'className' => 'text-center'],
             ['data' => 'deleted_at', 'name' => 'deleted_at', 'title' => 'تاريخ الحذف', 'className' => 'text-center', 'width' => '130px'],
-            ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
+            ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px', 'className' => 'text-center'],
         ];
     }
 
@@ -173,14 +173,32 @@ class ArchivedUsersDataTable extends AbstractDataTable
     */
     private function getActionsDropdownButton(): array
     {
+        $buttons = [
+            ['extend' => 'copy', 'text' => 'نسخ'],
+            ['extend' => 'excel', 'text' => 'إكسل'],
+        ];
+
+        if (auth()->user()?->can('user_archive.restore')) {
+            $buttons[] = [
+                'text' => 'استعادة المحدد',
+                'className' => 'btn btn-default btn-restore-selected',
+                'action' => 'function() { handleMassRestore(); }',
+            ];
+        }
+
+        if (auth()->user()?->can('user_archive.force_delete')) {
+            $buttons[] = [
+                'text' => 'حذف نهائي للمحدد',
+                'className' => 'btn btn-default btn-delete-selected text-danger',
+                'action' => 'function() { handleMassForceDelete(); }',
+            ];
+        }
+
         return [
             'extend' => 'collection',
             'className' => 'btn btn-export',
             'text' => 'الإجراءات',
-            'buttons' => [
-                ['extend' => 'copy', 'text' => 'نسخ'],
-                ['extend' => 'excel', 'text' => 'إكسل'],
-            ],
+            'buttons' => $buttons,
         ];
     }
 }

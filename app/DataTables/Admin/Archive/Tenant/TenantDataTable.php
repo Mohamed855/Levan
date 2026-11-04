@@ -33,12 +33,12 @@ class TenantDataTable extends AbstractDataTable
                 'className' => 'custom-checkbox',
                 'titleAttr' => 'تحديد الكل',
             ],
-            ['data' => 'id',                   'name' => 'id',                 'title' => 'المعرف'],
-            ['data' => 'company_name',         'name' => 'company_name',       'title' => 'اسم الشركة'],
-            ['data' => 'commercial_number',    'name' => 'commercial_number',  'title' => 'السجل التجاري'],
+            ['data' => 'id',                   'name' => 'id',                 'title' => 'المعرف', 'className' => 'text-center'],
+            ['data' => 'company_name',         'name' => 'company_name',       'title' => 'اسم الشركة', 'className' => 'text-center'],
+            ['data' => 'commercial_number',    'name' => 'commercial_number',  'title' => 'السجل التجاري', 'className' => 'text-center'],
             ['data' => 'deleted_at',           'name' => 'deleted_at',         'title' => 'تاريخ الحذف', 'className' => 'text-center', 'width' => '130px'],
-            ['data' => 'subscription_status',  'name' => 'subscription_status', 'title' => 'حالة الاشتراك', 'orderable' => false],
-            ['data' => 'actions',              'name' => 'actions',            'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
+            ['data' => 'subscription_status',  'name' => 'subscription_status', 'title' => 'حالة الاشتراك', 'orderable' => false, 'className' => 'text-center'],
+            ['data' => 'actions',              'name' => 'actions',            'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px', 'className' => 'text-center'],
         ];
     }
 

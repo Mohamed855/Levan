@@ -32,12 +32,12 @@ class AssignmentArchiveDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'assignment_number', 'name' => 'assignment_number', 'title' => 'رقم الإسناد'],
-            ['data' => 'name', 'name' => 'name', 'title' => 'اسم الإسناد'],
-            ['data' => 'issuing_entity', 'name' => 'issuing_entity', 'title' => 'الجهة المسندة'],
-            ['data' => 'city', 'name' => 'city', 'title' => 'المدينة'],
+            ['data' => 'assignment_number', 'name' => 'assignment_number', 'title' => 'رقم الإسناد', 'className' => 'text-center'],
+            ['data' => 'name', 'name' => 'name', 'title' => 'اسم الإسناد', 'className' => 'text-center'],
+            ['data' => 'issuing_entity', 'name' => 'issuing_entity', 'title' => 'الجهة المسندة', 'className' => 'text-center'],
+            ['data' => 'city', 'name' => 'city', 'title' => 'المدينة', 'className' => 'text-center'],
             ['data' => 'deleted_at', 'name' => 'deleted_at', 'title' => 'تاريخ الحذف', 'className' => 'text-center', 'width' => '130px'],
-            ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
+            ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px', 'className' => 'text-center'],
         ];
     }
 

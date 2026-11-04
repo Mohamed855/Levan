@@ -19,6 +19,13 @@
     @vite(['resources/assets/css/shared/dataTable.css'])
 @endsection
 
+@section('page-script')
+    <script>
+        window.csrfToken = "{{ csrf_token() }}";
+    </script>
+    @vite(['resources/assets/js/tenant/archive/tenant-archive.js'])
+@endsection
+
 @section('content')
     <x-data-table.archive-page>
         <x-slot:filters>

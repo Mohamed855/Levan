@@ -27,15 +27,15 @@ class AdminUserDataTable extends AbstractDataTable
         return [
             ['data' => 'id',        'name' => 'id',         'title' => 'المعرف', 'visible' => false, 'className' => 'no-export'],
             ['data' => 'checkbox',  'name' => 'checkbox',   'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
-            ['data' => 'image',     'name' => 'image',  'className' => 'no-export',    'title' => 'الصورة',    'orderable' => false, 'searchable' => false],
-            ['data' => 'name',      'name' => 'name',       'title' => 'الاسم'],
-            ['data' => 'email',     'name' => 'email',      'title' => 'البريد الإلكتروني'],
-            ['data' => 'phone',     'name' => 'phone',      'title' => 'رقم الهاتف'],
-            ['data' => 'roles',     'name' => 'roles.name', 'title' => 'الأدوار',   'orderable' => false, 'searchable' => true],
-            ['data' => 'last_login_at', 'name' => 'last_login_at', 'title' => 'آخر دخول'],
+            ['data' => 'image',     'name' => 'image',  'className' => 'no-export text-center',    'title' => 'الصورة',    'orderable' => false, 'searchable' => false],
+            ['data' => 'name',      'name' => 'name',       'title' => 'الاسم', 'className' => 'text-center'],
+            ['data' => 'email',     'name' => 'email',      'title' => 'البريد الإلكتروني', 'className' => 'text-center'],
+            ['data' => 'phone',     'name' => 'phone',      'title' => 'رقم الهاتف', 'className' => 'text-center'],
+            ['data' => 'roles',     'name' => 'roles.name', 'title' => 'الأدوار',   'orderable' => false, 'searchable' => true, 'className' => 'text-center'],
+            ['data' => 'last_login_at', 'name' => 'last_login_at', 'title' => 'آخر دخول', 'className' => 'text-center'],
             ['data' => 'status',    'name' => 'status',     'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'deleted_at', 'name' => 'deleted_at', 'title' => 'تاريخ الحذف', 'className' => 'text-center', 'width' => '130px'],
-            ['data' => 'actions',        'name' => 'actions',            'title' => 'الإجراءات', 'className' => 'no-export',     'orderable' => false, 'searchable' => false, 'width' => '120px'],
+            ['data' => 'actions',        'name' => 'actions',            'title' => 'الإجراءات', 'className' => 'no-export text-center',     'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
 

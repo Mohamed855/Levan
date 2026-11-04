@@ -117,9 +117,15 @@ class UserArchiveService
     {
         return DB::transaction(function () use ($userIds) {
             $users = User::onlyTrashed()->whereIn('id', $userIds)->get();
-            
+            $baselineRole = \Spatie\Permission\Models\Role::where('name', 'User')->first()
+                ?? \Spatie\Permission\Models\Role::where('name', '!=', 'Admin')->first()
+                ?? \Spatie\Permission\Models\Role::first();
+
             foreach ($users as $user) {
                 $user->restore();
+                if ($user->roles()->count() === 0 && $baselineRole) {
+                    $user->assignRole($baselineRole);
+                }
             }
 
             return $users->count();

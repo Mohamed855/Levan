@@ -23,6 +23,10 @@ class PropertyRegionDropdownTest extends TestCase
         $this->tenant = Tenant::findOrFail('test');
         tenancy()->initialize($this->tenant);
         $this->owner = User::where('email', 'demo@lot.com')->firstOrFail();
+
+        $settings = \App\Models\Tenants\Settings\Settings::firstOrNew();
+        $settings->operational_regions = ['منطقة الرياض', 'منطقة مكة المكرمة', 'المنطقة الشرقية'];
+        $settings->save();
     }
 
     protected function tearDown(): void
@@ -45,9 +49,12 @@ class PropertyRegionDropdownTest extends TestCase
         $options = $gateway->regionOptionsByName();
 
         $this->assertNotEmpty($options);
+        $this->assertCount(3, $options);
         $this->assertArrayHasKey('منطقة الرياض', $options);
         $this->assertArrayHasKey('منطقة مكة المكرمة', $options);
         $this->assertArrayHasKey('المنطقة الشرقية', $options);
+        $this->assertArrayNotHasKey('منطقة تبوك', $options);
+        $this->assertArrayNotHasKey('منطقة نجران', $options);
         $this->assertSame('منطقة الرياض', $options['منطقة الرياض']);
     }
 
@@ -65,6 +72,8 @@ class PropertyRegionDropdownTest extends TestCase
         );
         $this->assertStringContainsString('اختر المنطقة الإدارية', $content);
         $this->assertStringContainsString('منطقة الرياض', $content);
+        $this->assertStringNotContainsString('value="منطقة تبوك"', $content);
+        $this->assertStringNotContainsString('value="منطقة نجران"', $content);
     }
 
     public function test_edit_form_renders_administrative_region_select_with_selected_value(): void

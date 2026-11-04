@@ -31,12 +31,12 @@ class PropertyArchiveDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'property_number', 'name' => 'property_number', 'title' => 'رقم العقار'],
-            ['data' => 'name', 'name' => 'name', 'title' => 'اسم العقار'],
-            ['data' => 'assignment_name', 'name' => 'assignment.name', 'title' => 'الإسناد التابع له'],
-            ['data' => 'city', 'name' => 'city', 'title' => 'المدينة'],
+            ['data' => 'property_number', 'name' => 'property_number', 'title' => 'رقم العقار', 'className' => 'text-center'],
+            ['data' => 'name', 'name' => 'name', 'title' => 'اسم العقار', 'className' => 'text-center'],
+            ['data' => 'assignment_name', 'name' => 'assignment.name', 'title' => 'الإسناد التابع له', 'className' => 'text-center'],
+            ['data' => 'city', 'name' => 'city', 'title' => 'المدينة', 'className' => 'text-center'],
             ['data' => 'deleted_at', 'name' => 'deleted_at', 'title' => 'تاريخ الحذف', 'className' => 'text-center', 'width' => '130px'],
-            ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
+            ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px', 'className' => 'text-center'],
         ];
     }
 

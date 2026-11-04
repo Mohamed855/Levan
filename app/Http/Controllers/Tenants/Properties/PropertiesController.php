@@ -63,9 +63,6 @@ class PropertiesController extends Controller
         }
 
         $regionOptions = $this->cityOptionsGateway->regionOptionsByName();
-        if (old('administrative_region') && ! isset($regionOptions[old('administrative_region')])) {
-            $regionOptions[old('administrative_region')] = old('administrative_region');
-        }
 
         return view('tenant.properties.create', [
             'assignments' => $assignments,
@@ -120,10 +117,6 @@ class PropertiesController extends Controller
         }
 
         $regionOptions = $this->cityOptionsGateway->regionOptionsByName();
-        $currentRegion = old('administrative_region', $property->administrative_region);
-        if ($currentRegion && ! isset($regionOptions[$currentRegion])) {
-            $regionOptions[$currentRegion] = $currentRegion;
-        }
 
         return view('tenant.properties.edit', [
             'property' => $property,

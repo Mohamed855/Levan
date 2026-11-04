@@ -103,7 +103,7 @@ class TenantRegionsSettingsTest extends TestCase
         $this->assertStringNotContainsString('value="منطقة الجوف"', $content);
     }
 
-    public function test_clearing_operational_regions_restores_all_regions(): void
+    public function test_clearing_operational_regions_makes_dropdown_options_empty(): void
     {
         $settings = Settings::firstOrNew();
         $settings->operational_regions = ['منطقة الرياض'];
@@ -125,10 +125,9 @@ class TenantRegionsSettingsTest extends TestCase
         $gateway = app(CentralCityOptionsGateway::class);
         $options = $gateway->regionOptionsByName();
 
-        $this->assertGreaterThan(5, count($options));
-        $this->assertArrayHasKey('منطقة الرياض', $options);
-        $this->assertArrayHasKey('منطقة مكة المكرمة', $options);
-        $this->assertArrayHasKey('منطقة تبوك', $options);
+        // When operational regions are cleared or empty, dropdown options are strictly empty
+        $this->assertCount(0, $options);
+        $this->assertSame([], $options);
     }
 
     public function test_operational_regions_does_not_affect_cities(): void

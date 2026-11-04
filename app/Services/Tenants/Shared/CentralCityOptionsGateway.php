@@ -66,34 +66,35 @@ final class CentralCityOptionsGateway
     /** @return array<string, string> */
     public function regionOptionsByName(): array
     {
-        $all = $this->allRegionOptionsByName();
-
-        if (tenancy()->initialized) {
-            try {
-                $configured = Settings::query()->value('operational_regions');
-                if (is_string($configured)) {
-                    $configured = json_decode($configured, true);
-                }
-
-                if (is_array($configured) && ! empty($configured)) {
-                    $filtered = [];
-                    foreach ($configured as $regionName) {
-                        if (is_string($regionName) && trim($regionName) !== '') {
-                            $name = trim($regionName);
-                            $filtered[$name] = $name;
-                        }
-                    }
-
-                    if (! empty($filtered)) {
-                        return $filtered;
-                    }
-                }
-            } catch (\Throwable) {
-                // Fall back to all if settings cannot be queried
-            }
+        if (! tenancy()->initialized) {
+            return [];
         }
 
-        return $all;
+        try {
+            $settings = Settings::first();
+            $configured = $settings?->operational_regions;
+            if (is_string($configured)) {
+                $configured = json_decode($configured, true);
+            }
+
+            if (! is_array($configured) || empty($configured)) {
+                return [];
+            }
+
+            $all = $this->allRegionOptionsByName();
+            $filtered = [];
+
+            foreach ($configured as $regionName) {
+                if (is_string($regionName) && trim($regionName) !== '') {
+                    $name = trim($regionName);
+                    $filtered[$name] = $all[$name] ?? $name;
+                }
+            }
+
+            return $filtered;
+        } catch (\Throwable) {
+            return [];
+        }
     }
 
     /** @return array<string, string> */
