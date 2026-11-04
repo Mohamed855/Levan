@@ -131,6 +131,6 @@ Gemini مسؤول التنفيذ والإصلاح. Codex مسؤول إعداد �
 | المحذوفات — كل الواجهات المتاحة بالنطاقين | [QA-005](dashboard-archives.md) | `prepared` | لا قبول لوظائف الإدارات الخاصة الأصلية ضمنًا |
 | سجل النشاطات — مراجعة مزدوجة | [QA-006](dashboard-activity-logs.md) | `prepared` | شكل show الموحد والتحقق من البيانات والعزل |
 | الدعم الفني — مراجعة مزدوجة | [QA-007](dashboard-support.md) | `prepared` | اختلاف عمليات اللوحتين موثق؛ التكامل في بيئة اختبار |
-| الموقع العام وصفحات auth — SuperAdmin وTenant | [QA-001: site-auth](site-auth.md) | `in_progress` | [قرار القبول: 38 متغيرًا verified؛ 14 حالة جزئية و10 معادة، دون pending review في الدفعة A](site-auth-batch-a-acceptance.md) |
+| الموقع العام وصفحات auth — SuperAdmin وTenant | [QA-001: site-auth](site-auth.md) | `in_progress` | [الدفعة A: 93 اختبارًا ناجحًا؛ حالتان خادميتان verified، وبقية المتصفح للمستخدم](site-auth-batch-a-backend-closure.md) — [خطوات الواجهة](site-auth-batch-a-manual-browser.md) |
 
 الإدارة الأولى محددة: الموقع العام وصفحاته بما فيها auth. الدفعة A راجعها Codex وأعادها إلى Gemini للتصحيح واستكمال الأدلة. الحالة العامة: `in_progress`، ولا توجد إدارة معتمدة للإنتاج بعد.

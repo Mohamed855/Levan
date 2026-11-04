@@ -26,7 +26,7 @@ class MainSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'active_tab' => 'nullable|string|in:#generalSettings,#printSettings,#SmsSettings,#twoFactorSettings',
+            'active_tab' => 'nullable|string|in:#generalSettings,#printSettings,#SmsSettings,#twoFactorSettings,#regionsSettings',
             // عامة
             'office_name' => 'nullable|string|max:255',
             'logo_text' => 'nullable|string|max:14',
@@ -62,6 +62,10 @@ class MainSettingsRequest extends FormRequest
             // دعم فني
             'support_emails' => 'nullable|array',
             'support_emails.*' => 'email|distinct',
+
+            // مناطق العمل
+            'operational_regions' => 'nullable|array',
+            'operational_regions.*' => 'string|max:100',
         ];
     }
 
@@ -138,6 +142,8 @@ class MainSettingsRequest extends FormRequest
             'sms_rate_limit' => 'الحد الأقصى لمعدل الإرسال',
             'support_emails' => 'عناوين بريد الدعم',
             'support_emails.*' => 'عناوين بريد الدعم',
+            'operational_regions' => 'مناطق العمل',
+            'operational_regions.*' => 'منطقة العمل',
         ];
     }
 

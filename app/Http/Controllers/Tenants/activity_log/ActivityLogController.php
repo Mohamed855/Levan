@@ -41,7 +41,7 @@ class ActivityLogController extends Controller
     {
         $this->authorize('viewAny', Activity::class);
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
             $query = Activity::with('causer', 'subject')
                 ->select([
                     'id',
@@ -119,14 +119,19 @@ class ActivityLogController extends Controller
     */
     public function show($id): View
     {
-        $activity = Activity::with('causer', 'subject')->findOrFail($id);
+        $activity = Activity::with('causer')->findOrFail($id);
+        if ($activity->subject_type && class_exists($activity->subject_type)) {
+            $activity->load('subject');
+        }
 
         // تحضير البيانات للعرض
         $activityData = $this->prepareActivityData($activity);
+        $changes = $this->prepareChangesData($activity);
 
         return view('tenant.activity-logs.show', [
             'activity' => $activity,
             'activityData' => $activityData,
+            'changes' => $changes,
         ]);
     }
 
@@ -137,54 +142,12 @@ class ActivityLogController extends Controller
     */
     private function prepareActivityData($activity): array
     {
-        $subjectType = class_basename($activity->subject_type ?? '');
-        $arabicSubjectType = $this->activitySubjectTypeMap()[$subjectType] ?? $subjectType;
-
-        $eventMap = [
-            'created' => 'إنشاء',
-            'updated' => 'تحديث',
-            'deleted' => 'حذف',
-            'restored' => 'استعادة',
-        ];
-        $arabicEvent = $eventMap[$activity->event] ?? ($activity->event ?? 'غير محدد');
-
-        $fieldTranslations = [
-            'name' => 'الاسم',
-            'email' => 'البريد الإلكتروني',
-            'phone' => 'الهاتف',
-            'position' => 'المنصب',
-            'status' => 'الحالة',
-            'logo_path' => 'الشعار',
-            'company_id' => 'الشركة',
-            'contract_number' => 'رقم العقد',
-            'start_date' => 'تاريخ البداية',
-            'duration_months' => 'المدة بالأشهر',
-            'end_date' => 'تاريخ النهاية',
-            'auto_renewal' => 'التجديد التلقائي',
-            'commission_type' => 'نوع العمولة',
-            'notes' => 'الملاحظات',
-            'created_at' => 'تاريخ الإنشاء',
-            'updated_at' => 'تاريخ التحديث',
-            'due_date' => 'تاريخ الاستحقاق',
-            'due_amount' => 'مبلغ الاستحقاق',
-            'contact_method_id' => 'طريقة التواصل',
-            'contact_result_id' => 'نتيجة الاتصال',
-            'customer_status_id' => 'حالة العميل',
-            'next_contact_datetime' => 'موعد التواصل القادم',
-            'contacted_person' => 'الشخص الذي تم التواصل معه',
-            'settlement_amount' => 'مبلغ التسوية',
-            'settlement_type' => 'نوع التسوية',
-            'settlement_date' => 'تاريخ التسوية',
-            'phone' => 'رقم الهاتف',
-            'is_primary' => 'رقم أساسي؟',
-
-        ];
+        $arabicEvent = $this->activityEventMap()[$activity->event] ?? ($activity->event ?? 'غير محدد');
 
         return [
-            'subject_type_arabic' => $arabicSubjectType,
             'event_arabic' => $arabicEvent,
+            'event_badge_class' => $this->activityEventBadgeClass($activity->event),
             'log_name_arabic' => $this->activityLogNameLabel($activity->log_name),
-            'field_translations' => $fieldTranslations,
             'subject_display' => $this->activitySubjectDisplay($activity),
             'user_name' => $activity->causer->name ?? 'النظام',
             'formatted_date' => $activity->created_at ? $activity->created_at->format('Y-m-d H:i:s') : 'غير محدد',
@@ -207,12 +170,14 @@ class ActivityLogController extends Controller
             $query->where('log_name', $request->log_name);
         }
 
-        if ($request->filled('date_from') || $request->filled('created_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from ?? $request->created_from);
+        $from = $request->date_from ?? $request->created_from;
+        if ($from) {
+            $query->whereDate('created_at', '>=', $from);
         }
 
-        if ($request->filled('date_to') || $request->filled('created_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to ?? $request->created_to);
+        $to = $request->date_to ?? $request->created_to;
+        if ($to) {
+            $query->whereDate('created_at', '<=', $to);
         }
 
         $search = $request->input('search.value', $request->input('search'));
@@ -325,13 +290,19 @@ class ActivityLogController extends Controller
     public function downloadExportFile(DownloadActivityLogExportRequest $request, string $file): BinaryFileResponse|RedirectResponse
     {
         $disk = Storage::disk('tenant_public');
-        $relative = 'exports/'.basename($file);
+        $fileName = basename($file);
+        $exportPath = 'exports/'.$fileName;
+        $archivePath = 'activity-logs/'.$fileName;
 
-        if (! $disk->exists($relative)) {
-            return redirect()->back()->with('error', 'الملف غير موجود أو تم حذفه.');
+        if ($disk->exists($exportPath)) {
+            return response()->download($disk->path($exportPath))->deleteFileAfterSend(true);
         }
 
-        return response()->download($disk->path($relative))->deleteFileAfterSend(true);
+        if ($disk->exists($archivePath)) {
+            return response()->download($disk->path($archivePath));
+        }
+
+        return redirect()->back()->with('error', 'الملف غير موجود أو تم حذفه.');
     }
 
     /*

@@ -31,17 +31,17 @@ class BillDataTable extends AbstractDataTable
                 'className' => 'custom-checkbox',
                 'width' => '10px',
             ],
-            ['data' => 'bill_number',       'title' => 'رقم الفاتورة',     'className' => 'text-start'],
+            ['data' => 'bill_number',       'title' => 'رقم الفاتورة',     'className' => 'text-center'],
 
-            ['data' => 'tenant_name',       'title' => 'العميل',     'className' => 'text-start'],
-            ['data' => 'tenant_id',         'title' => 'المعرف',     'className' => 'text-start'],
-            ['data' => 'type',              'title' => 'نوع العملية',      'className' => 'text-start'],
-            ['data' => 'amount',            'title' => 'المبلغ',           'className' => 'text-start'],
-            ['data' => 'settlement_amount', 'title' => 'التسوية',           'className' => 'text-start'],
-            ['data' => 'payment_method',    'title' => 'طريقة الدفع',   'className' => 'text-start'],
-            ['data' => 'status',            'title' => 'حالة العملية',   'className' => 'text-start'],
+            ['data' => 'tenant_name',       'title' => 'العميل',     'className' => 'text-center'],
+            ['data' => 'tenant_id',         'title' => 'المعرف',     'className' => 'text-center'],
+            ['data' => 'type',              'title' => 'نوع العملية',      'className' => 'text-center'],
+            ['data' => 'amount',            'title' => 'المبلغ',           'className' => 'text-center'],
+            ['data' => 'settlement_amount', 'title' => 'التسوية',           'className' => 'text-center'],
+            ['data' => 'payment_method',    'title' => 'طريقة الدفع',   'className' => 'text-center'],
+            ['data' => 'status',            'title' => 'حالة العملية',   'className' => 'text-center'],
             ['data' => 'deleted_at',        'name' => 'deleted_at',         'title' => 'تاريخ الحذف',   'className' => 'text-center', 'width' => '130px'],
-            ['data' => 'actions',           'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
+            ['data' => 'actions',           'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px', 'className' => 'text-center'],
 
         ];
     }
@@ -62,7 +62,7 @@ class BillDataTable extends AbstractDataTable
             })
 
             ->editColumn('bill_number', function ($row) {
-                return $this->routeName(tenant_route_name($this->route.'.show', $row->id), $row->bill_number);
+                return $this->routeName(route('admin.archives.bills.show', $row->id), $row->bill_number);
             })
 
             ->editColumn('amount', function ($row) {

@@ -15,6 +15,7 @@ class TenantArchiveController extends Controller
     public function __construct(
         private readonly CompanyService $companyService
     ) {
+        $this->middleware('auth:admin');
         $this->middleware('can:companies.view')->only(['index']);
         $this->middleware('can:companies.restore')->only(['restore']);
         $this->middleware('can:companies.force_delete')->only(['forceDelete']);
@@ -41,10 +42,24 @@ class TenantArchiveController extends Controller
         try {
             $company = $this->companyService->restoreCompany((string) $id);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => "تم استرجاع الشركة {$company->company_name} بنجاح."]);
+            }
+
             return redirect()->route('admin.archives.tenants.index')
                 ->with('success', "تم استرجاع الشركة {$company->company_name} بنجاح.");
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'الشركة غير موجودة في الأرشيف.'], 404);
+            }
+
+            return redirect()->route('admin.archives.tenants.index')->with('error', 'الشركة غير موجودة في الأرشيف.');
         } catch (\Throwable $e) {
             Log::error('Error restoring company: '.$e->getMessage());
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء استرجاع الشركة.'], 500);
+            }
 
             return redirect()->route('admin.archives.tenants.index')
                 ->with('error', 'حدث خطأ أثناء استرجاع الشركة.');
@@ -56,10 +71,24 @@ class TenantArchiveController extends Controller
         try {
             $this->companyService->forceDeleteCompany((string) $id);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم حذف الشركة نهائيًا بنجاح.']);
+            }
+
             return redirect()->route('admin.archives.tenants.index')
                 ->with('success', 'تم حذف الشركة نهائيًا بنجاح.');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'الشركة غير موجودة في الأرشيف.'], 404);
+            }
+
+            return redirect()->route('admin.archives.tenants.index')->with('error', 'الشركة غير موجودة في الأرشيف.');
         } catch (\Throwable $e) {
             Log::error('Error force deleting company: '.$e->getMessage());
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء الحذف النهائي للشركة.'], 500);
+            }
 
             return redirect()->route('admin.archives.tenants.index')
                 ->with('error', 'حدث خطأ أثناء الحذف النهائي للشركة.');

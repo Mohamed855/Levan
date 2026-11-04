@@ -49,6 +49,8 @@
     <x-data-table.filters table="#activity-logs-table">
         <x-filter.select id="filter-user" filterKey="user_id" label="المستخدم" placeholder="اختر المستخدم"
             :options="$filterOptions['users'] ?? []" />
+        <x-filter.select id="filter-log-name" filterKey="log_name" label="نوع النشاط" placeholder="اختر نوع النشاط"
+            :options="$filterOptions['log_names'] ?? []" />
         <x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />
         <x-filter.date id="filter-created-to" filterKey="created_to" label="تاريخ الإنشاء إلى" />
     </x-data-table.filters>

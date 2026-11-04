@@ -35,8 +35,8 @@ class CouponDataTable extends AbstractDataTable
                 'className' => 'custom-checkbox',
                 'titleAttr' => 'تحديد الكل',
             ],
-            ['data' => 'name',     'name' => 'name',   'title' => 'اسم الكوبون',   'className' => 'text-start'],
-            ['data' => 'code',     'name' => 'code',   'title' => 'الكود',          'className' => 'text-start'],
+            ['data' => 'name',     'name' => 'name',   'title' => 'اسم الكوبون',   'className' => 'text-center'],
+            ['data' => 'code',     'name' => 'code',   'title' => 'الكود',          'className' => 'text-center'],
 
             ['data' => 'discount_type',    'name' => 'discount_type',       'title' => 'نوع الخصم'],
             ['data' => 'discount_value',   'name' => 'discount_value',      'title' => 'قيمة الخصم'],

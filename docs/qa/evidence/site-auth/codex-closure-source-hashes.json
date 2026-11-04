@@ -1,0 +1,204 @@
+{
+    "reviewDate":  "2026-11-04",
+    "timezone":  "Africa/Cairo",
+    "headAtCapture":  "764fee1aed621cd77741d06cebd9140e32e0b4ca",
+    "tests":  "93 passed, 1154 assertions, exit 0",
+    "browser":  "Not executed. User explicitly chose manual browser testing.",
+    "sourceFilesNewerThanTestRun":  [
+
+                                    ],
+    "files":  [
+                  {
+                      "sha256":  "7478B412659EB1BCF814017019A99EBDEE3D26D25456429DCFD040BEDCEEB042",
+                      "path":  "app/Actions/Auth/PersistAuthenticationStateAction.php"
+                  },
+                  {
+                      "sha256":  "8AD20B8C302FFACBED582B80F98A9D3730A7EF46F411EC30F0137A41D162B674",
+                      "path":  "app/Actions/Auth/ResolveTwoFactorLogin.php"
+                  },
+                  {
+                      "sha256":  "F965EF5B2CD788D5978FE6B42101731E1A0839250DB2420B7E287106ECC53035",
+                      "path":  "app/Http/Controllers/Admin/Auth/AdminAuthController.php"
+                  },
+                  {
+                      "sha256":  "378900EC360787CEAFA49C5EA5183D47476E29B20B9B7216823C8B665BC00FB9",
+                      "path":  "app/Http/Controllers/Admin/Auth/AdminTwoFactorChallengeController.php"
+                  },
+                  {
+                      "sha256":  "D53CFDD4E3F869A1C485508E76FD084899D7F94B583ED3C54F32E730A1F4A8C2",
+                      "path":  "app/Http/Controllers/Admin/Auth/AdminTwoFactorSettingsController.php"
+                  },
+                  {
+                      "sha256":  "33E6F472E56A0372014D34A4076F4B572446727EEED4320C34EA88918EB10371",
+                      "path":  "app/Http/Controllers/Tenants/Auth/AuthenticatedSessionController.php"
+                  },
+                  {
+                      "sha256":  "1AD4CD8FF933D482763B8E2B261D9CE60CCB16D843FD99B05E217663EF0582DD",
+                      "path":  "app/Http/Controllers/Tenants/Auth/Fortify/TenantTwoFactorChallengeController.php"
+                  },
+                  {
+                      "sha256":  "A4B4CAD7FD2A71852B86C9490FB87835797F66599826161C63DB88246187A99F",
+                      "path":  "app/Http/Controllers/Tenants/Auth/Fortify/TenantTwoFactorSettingsController.php"
+                  },
+                  {
+                      "sha256":  "71598FA36311562493CEE6AE764365C8019BDDD616313A59898296F30B3651C9",
+                      "path":  "app/Http/Controllers/Tenants/Auth/NewPasswordController.php"
+                  },
+                  {
+                      "sha256":  "386D38FEDC679D93625AD227915CDB8ABD08906E3CEC34F549BB09BD56517978",
+                      "path":  "app/Http/Controllers/Tenants/Auth/PasswordResetLinkController.php"
+                  },
+                  {
+                      "sha256":  "A08F0262EC62812B539FCC5D3C4D2E7C906130C764F82EB15AF370B00AE6E1A5",
+                      "path":  "app/Http/Middleware/Tenancy/CheckSubscription.php"
+                  },
+                  {
+                      "sha256":  "1955B3964254E11CBBDA6639D88996EDA1382423886C9A719CE19FEC04D84E19",
+                      "path":  "app/Providers/FortifyServiceProvider.php"
+                  },
+                  {
+                      "sha256":  "EB78EA563A4068AA6C77CC007CD84DAD3BC40DAEC411C82BA7FBFC0319BA3280",
+                      "path":  "app/Services/Auth/ReplaySafeTwoFactorAuthenticationProvider.php"
+                  },
+                  {
+                      "sha256":  "CBF15EF9CA38B41608F973CF86AC9DBA36B1265D91B1180D3561BA5EE9747D91",
+                      "path":  "app/Services/Tenants/Shared/CentralTenantSecurityGateway.php"
+                  },
+                  {
+                      "sha256":  "F9DBB092051535EE82A420D47DA75EF23B98B7FE9CC2F266C14A71BAA388FF5C",
+                      "path":  "app/Support/Auth/TenantPasswordResetContext.php"
+                  },
+                  {
+                      "sha256":  "59A208838F903AC3A03C5C86881D772B0A3DAA4803D631FCBE8EA32A6BAA09CF",
+                      "path":  "composer.lock"
+                  },
+                  {
+                      "sha256":  "B9C1EEBA654B242C89E6295FE3E4379E75F4ED73EE0A2780AAE484B3FA8CE7C2",
+                      "path":  "docs/qa/evidence/site-auth/CodexBatchACriterionAcceptanceTest.php"
+                  },
+                  {
+                      "sha256":  "4B1FA1707121687D57F82B9E63B469B0BC401E9BACF9412E90EF3778E5212B15",
+                      "path":  "docs/qa/evidence/site-auth/CodexBatchAReviewTest.php"
+                  },
+                  {
+                      "sha256":  "451F0400F48C91707955A6A41F17A99438681C3C9EB53E1CA7022171A4E7CA07",
+                      "path":  "docs/qa/evidence/site-auth/CodexBatchARoundTwoReviewTest.php"
+                  },
+                  {
+                      "sha256":  "19E59024F479DF922F4DB0A953EB558EF80DD12414B7F839BE7DE3AE8DEFA7BF",
+                      "path":  "docs/qa/evidence/site-auth/codex-closure-admin-retry.txt"
+                  },
+                  {
+                      "sha256":  "C0459F5F6E7B8B3FD33947463B428C2B7E5F59FF3EF0F5FB56413512C57A67CF",
+                      "path":  "docs/qa/evidence/site-auth/codex-closure-build.txt"
+                  },
+                  {
+                      "sha256":  "FF5E89D89063FF67100C8D912B27DEE162339680F790C010EC2441E7420094FA",
+                      "path":  "docs/qa/evidence/site-auth/codex-closure-confirm-retry-probe.txt"
+                  },
+                  {
+                      "sha256":  "D72EF4B62BD957630F8984F7BF05681299FDA48DF5E70B375043D7682DFA84E4",
+                      "path":  "docs/qa/evidence/site-auth/codex-closure-final-tests.txt"
+                  },
+                  {
+                      "sha256":  "5AC170D3377BE671690C0697031A466835C69CBC9E9351C86BBDFFB1237215FC",
+                      "path":  "docs/qa/evidence/site-auth/codex-closure-lint.txt"
+                  },
+                  {
+                      "sha256":  "19E59024F479DF922F4DB0A953EB558EF80DD12414B7F839BE7DE3AE8DEFA7BF",
+                      "path":  "docs/qa/evidence/site-auth/codex-closure-tenant-retry.txt"
+                  },
+                  {
+                      "sha256":  "5D5065DFED54954E8E22FEF62E24FBA465036C4F8C7DCEC76B579DDA31458751",
+                      "path":  "docs/qa/README.md"
+                  },
+                  {
+                      "sha256":  "49961015330065CCFD535709425184211EB7BA8C4D087AF01A2E4DD36775113A",
+                      "path":  "docs/qa/site-auth.md"
+                  },
+                  {
+                      "sha256":  "0970BB9FF6D1D420F99F502786FD3A82FC5F4CCE5320D0962F6249CEE12392F9",
+                      "path":  "docs/qa/site-auth-batch-a-backend-closure.md"
+                  },
+                  {
+                      "sha256":  "31C3CBF931F7B00131F8B81ED68DC422844141F07C978FE86DE01719C59D5BFB",
+                      "path":  "docs/qa/site-auth-batch-a-manual-browser.md"
+                  },
+                  {
+                      "sha256":  "BFCFFE802E3E48BE586691C82D5A12C33CD99CEF93E0C7CE84FD0DA2AFCE5749",
+                      "path":  "phpunit.xml"
+                  },
+                  {
+                      "sha256":  "1724ED1D1188FDC345C5BAA53DA0E5E93390E941E2DEC70E3DAC334B5179AAB8",
+                      "path":  "public/build/manifest.json"
+                  },
+                  {
+                      "sha256":  "609B49CD2DDBCC397BF7BF3513E0210D11E1F368BAACC2EA880035647902F792",
+                      "path":  "resources/assets/css/shared/auth-layout.css"
+                  },
+                  {
+                      "sha256":  "08BE258E89B97AC7DCCD8761E555DF5C767970137CDDA6F530966CCE5C6346C9",
+                      "path":  "resources/assets/js/shared/auth-layout.js"
+                  },
+                  {
+                      "sha256":  "BEA8368CEB1126EE562070A8B9933CDFED83FB7F6D758C09DEC9D4656CEC9169",
+                      "path":  "resources/assets/js/shared/form-validation.js"
+                  },
+                  {
+                      "sha256":  "E2C3B38B6D1885D5F9218D85D76A59D3C1A063153F23197A29BD676B3BC34D21",
+                      "path":  "resources/views/admin/auth/two-factor-challenge.blade.php"
+                  },
+                  {
+                      "sha256":  "189EBC7713385A01709F6A1B8B7F83BF1B92A2A586EBACBDF7E06782318F1BC3",
+                      "path":  "resources/views/admin/auth/two-factor-settings.blade.php"
+                  },
+                  {
+                      "sha256":  "BADA2CE4D3CFB8C6CA80C9A477A1982247046EF1A3C09757D589637F6FFB5008",
+                      "path":  "resources/views/components/shared/form/controls/input.blade.php"
+                  },
+                  {
+                      "sha256":  "D5051D0F1336072E0814ACF02A995E3A9E96BF3B95887B5B2872DF4E9DE42AC7",
+                      "path":  "resources/views/tenant/auth/two-factor-challenge.blade.php"
+                  },
+                  {
+                      "sha256":  "2B35AA6629589925CB28F337BD8AA8858A352F9D9F41D22EB37565EA4D7CEBF9",
+                      "path":  "resources/views/tenant/auth/two-factor-settings.blade.php"
+                  },
+                  {
+                      "sha256":  "1158C1C693A107B1B00640575EAA9635A5E7673A1D7E59667CB2E5FEA26CF7A4",
+                      "path":  "routes/admin.php"
+                  },
+                  {
+                      "sha256":  "7435CE12A11BF65F777FD6AA493EFEA355A0C19BD72BD4E8991DFD3900EF1CCA",
+                      "path":  "routes/tenant.php"
+                  },
+                  {
+                      "sha256":  "815E27D7F8BC312E7D76DF31BC0E4697D3608D8AA1473578A96C59BEED82F81B",
+                      "path":  "tests/Feature/Auth/AdminLoginGuardIsolationTest.php"
+                  },
+                  {
+                      "sha256":  "5C8A6B25F3784FBA366242F18D2DCF3AC3845FEF0D1EB638F53706D05CC10F44",
+                      "path":  "tests/Feature/Auth/TwoFactorAuthenticationBatchATest.php"
+                  },
+                  {
+                      "sha256":  "839AE94B54D619856C1CC7D7CDF8A8D4461E7FB6CD0C702552913DCC3F160E4A",
+                      "path":  "tests/Feature/Auth/TwoFactorAuthenticationClosureTest.php"
+                  },
+                  {
+                      "sha256":  "AA746A85FA4DA9CF949181A26AF378DDC69862F7AB304C2B0D91DA720CB0472D",
+                      "path":  "tests/Feature/Auth/TwoFactorReplayProtectionTest.php"
+                  },
+                  {
+                      "sha256":  "7F99B9863DA2E8AEC188136229D48EC05DDD6CB9329AA4D7E1D5EF4ADC5C9583",
+                      "path":  "tests/Support/TwoFactorClosureTenancyBootstrapper.php"
+                  },
+                  {
+                      "sha256":  "4BF081549C88BA319873D20665792DFA4485272E6EFED62CDA46972E77AFF12A",
+                      "path":  "vendor/laravel/fortify/src/TwoFactorAuthenticationProvider.php"
+                  },
+                  {
+                      "sha256":  "DC03FE79988AF4EC8BFF6345BC4607C7D8670070B1BA6B4A51556BB4C1C88869",
+                      "path":  "vendor/pragmarx/google2fa/src/Google2FA.php"
+                  }
+              ]
+}

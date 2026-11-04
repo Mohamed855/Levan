@@ -91,14 +91,6 @@
                                 <span class="status-count">{{ number_format($item['count']) }}</span>
                             </div>
                         @endforeach
-                        <div class="status-list-row border-top pt-2 mt-1">
-                            <span class="status-name-wrap">
-                                <span class="status-dot status-dot-primary"></span>
-                                <span class="fw-bold status-label">إجمالي العقارات</span>
-                            </span>
-                            <span class="status-pct fw-bold">100%</span>
-                            <span class="status-count fw-bold">{{ number_format($kpis['total_properties']) }}</span>
-                        </div>
                     </div>
                     <div class="col-sm-6 col-lg-12 col-xxl-6 d-flex align-items-center justify-content-center">
                         <div class="property-status-chart-wrap">

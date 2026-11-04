@@ -6,6 +6,7 @@ use App\Actions\Tenants\Settings\UpdateTenantSettingsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Settings\MainSettingsRequest;
 use App\Models\Tenants\Settings\Settings;
+use App\Services\Tenants\Shared\CentralCityOptionsGateway;
 use Illuminate\Http\UploadedFile;
 
 class SettingsController extends Controller
@@ -20,11 +21,12 @@ class SettingsController extends Controller
     | Display the settings form.
     |--------------------------------------------------------------------------
     */
-    public function index()
+    public function index(CentralCityOptionsGateway $cityOptionsGateway)
     {
         $settings = Settings::firstOrNew();
+        $allRegions = $cityOptionsGateway->allRegionOptionsByName();
 
-        return view('tenant.settings.settings', compact('settings'));
+        return view('tenant.settings.settings', compact('settings', 'allRegions'));
     }
 
     /*

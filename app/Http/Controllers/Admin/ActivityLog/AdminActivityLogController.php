@@ -23,7 +23,7 @@ class AdminActivityLogController extends Controller
 
     public function index(AdminActivityLogIndexRequest $request): View|JsonResponse
     {
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
             $query = Activity::with('causer', 'subject')
                 ->select([
                     'id',
@@ -75,6 +75,10 @@ class AdminActivityLogController extends Controller
                 'value' => $user->id,
                 'label' => $user->name,
             ]),
+            'log_names' => collect($this->activityLogNameMap())->map(fn ($label, $value): array => [
+                'value' => $value,
+                'label' => $label,
+            ])->values()->all(),
         ];
 
         return view('admin.activity-logs.index', [
@@ -86,11 +90,15 @@ class AdminActivityLogController extends Controller
 
     public function show($id): View
     {
-        $activity = Activity::with('causer', 'subject')->findOrFail($id);
+        $activity = Activity::with('causer')->findOrFail($id);
+        if ($activity->subject_type && class_exists($activity->subject_type)) {
+            $activity->load('subject');
+        }
         $activityData = $this->prepareActivityData($activity);
         $arabicEvent = $activityData['event_arabic'];
+        $changes = $this->prepareChangesData($activity);
 
-        return view('admin.activity-logs.show', compact('activity', 'arabicEvent', 'activityData'));
+        return view('admin.activity-logs.show', compact('activity', 'arabicEvent', 'activityData', 'changes'));
     }
 
     /*
@@ -102,38 +110,37 @@ class AdminActivityLogController extends Controller
     */
     private function prepareActivityData($activity): array
     {
-        $eventMap = [
-            'created' => 'إضافة',
-            'updated' => 'تحديث',
-            'deleted' => 'حذف',
-            'restored' => 'استعادة',
-        ];
-        $arabicEvent = $eventMap[$activity->event] ?? ($activity->event ?? 'غير محدد');
+        $arabicEvent = $this->activityEventMap()[$activity->event] ?? ($activity->event ?? 'غير محدد');
 
         return [
             'event_arabic' => $arabicEvent,
+            'event_badge_class' => $this->activityEventBadgeClass($activity->event),
             'log_name_arabic' => $this->activityLogNameLabel($activity->log_name),
             'subject_display' => $this->activitySubjectDisplay($activity),
             'connection_info' => $this->getActivityConnectionInfo($activity),
+            'user_name' => $activity->causer->name ?? 'النظام',
+            'formatted_date' => $activity->created_at ? $activity->created_at->format('Y-m-d H:i:s') : 'غير محدد',
         ];
     }
 
     private function applyFilters($query, array $filters): void
     {
-        if (isset($filters['user_id'])) {
+        if (isset($filters['user_id']) && $filters['user_id'] !== '') {
             $query->where('causer_id', $filters['user_id']);
         }
 
-        if (isset($filters['log_name'])) {
+        if (isset($filters['log_name']) && $filters['log_name'] !== '') {
             $query->where('log_name', $filters['log_name']);
         }
 
-        if (isset($filters['date_from']) || isset($filters['created_from'])) {
-            $query->whereDate('created_at', '>=', $filters['date_from'] ?? $filters['created_from']);
+        $from = $filters['date_from'] ?? $filters['created_from'] ?? null;
+        if (! empty($from)) {
+            $query->whereDate('created_at', '>=', $from);
         }
 
-        if (isset($filters['date_to']) || isset($filters['created_to'])) {
-            $query->whereDate('created_at', '<=', $filters['date_to'] ?? $filters['created_to']);
+        $to = $filters['date_to'] ?? $filters['created_to'] ?? null;
+        if (! empty($to)) {
+            $query->whereDate('created_at', '<=', $to);
         }
 
         $search = $filters['search']['value'] ?? null;

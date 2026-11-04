@@ -7,6 +7,7 @@ namespace App\Services\Tenants\Shared;
 use App\Models\Admin\City;
 use App\Models\Admin\District;
 use App\Models\Admin\Region;
+use App\Models\Tenants\Settings\Settings;
 use Illuminate\Support\Facades\Schema;
 use Stancl\Tenancy\Facades\Tenancy;
 
@@ -24,7 +25,7 @@ final class CentralCityOptionsGateway
     }
 
     /** @return array<string, string> */
-    public function regionOptionsByName(): array
+    public function allRegionOptionsByName(): array
     {
         $dbOptions = Tenancy::central(
             function (): array {
@@ -60,6 +61,39 @@ final class CentralCityOptionsGateway
         ];
 
         return array_combine($defaultRegions, $defaultRegions);
+    }
+
+    /** @return array<string, string> */
+    public function regionOptionsByName(): array
+    {
+        $all = $this->allRegionOptionsByName();
+
+        if (tenancy()->initialized) {
+            try {
+                $configured = Settings::query()->value('operational_regions');
+                if (is_string($configured)) {
+                    $configured = json_decode($configured, true);
+                }
+
+                if (is_array($configured) && ! empty($configured)) {
+                    $filtered = [];
+                    foreach ($configured as $regionName) {
+                        if (is_string($regionName) && trim($regionName) !== '') {
+                            $name = trim($regionName);
+                            $filtered[$name] = $name;
+                        }
+                    }
+
+                    if (! empty($filtered)) {
+                        return $filtered;
+                    }
+                }
+            } catch (\Throwable) {
+                // Fall back to all if settings cannot be queried
+            }
+        }
+
+        return $all;
     }
 
     /** @return array<string, string> */

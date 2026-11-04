@@ -76,23 +76,24 @@ function getTableColumns() {
             name: 'checkbox',
             orderable: false,
             searchable: false,
-            className: 'custom-checkbox'
+            className: 'custom-checkbox text-center align-middle'
         },
         {
             data: 'log_name_formatted',
             name: 'log_name',
             orderable: false,
-            searchable: false
+            searchable: false,
+            className: 'text-center align-middle'
         },
         {
             data: 'description',
             name: 'description',
-            className: 'table-ellipsis'
+            className: 'table-ellipsis text-center align-middle'
         },
         {
             data: 'causer_name',
             name: 'causer_name',
-            className: 'table-ellipsis'
+            className: 'table-ellipsis text-center align-middle'
         },
         // {
         //     data: 'subject_info',
@@ -104,14 +105,15 @@ function getTableColumns() {
             data: 'created_at',
             name: 'created_at',
             orderable: true,
-            searchable: false
+            searchable: false,
+            className: 'text-center align-middle'
         },
         {
             data: 'action',
             name: 'action',
             orderable: false,
             searchable: false,
-            className: 'text-center'
+            className: 'text-center align-middle'
         },
         {
             data: 'id',

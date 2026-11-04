@@ -590,4 +590,48 @@ final class TwoFactorAuthenticationClosureTest extends TestCase
         self::assertSame($f['user']->id, Auth::guard('admin')->id());
         self::assertNull(session('url.intended'));
     }
+
+    public function test_authenticated_wrong_guard_cannot_use_any_settings_secret_endpoint(): void
+    {
+        foreach (['admin', 'path', 'domain'] as $mode) {
+            $f = $this->fixture($mode);
+            $this->actingAs($f['user'], $mode === 'admin' ? 'tenant' : 'admin');
+            foreach ([
+                ['postJson', '/two-factor-authentication'],
+                ['deleteJson', '/two-factor-authentication'],
+                ['postJson', '/confirmed-two-factor-authentication'],
+                ['getJson', '/two-factor-qr-code'],
+                ['postJson', '/two-factor-recovery-codes'],
+            ] as [$method, $endpoint]) {
+                $this->{$method}($f['root'].$endpoint, ['code' => '123456'])->assertStatus(401);
+            }
+            self::assertSame($f['codes'], $f['user']->fresh()->recoveryCodes());
+        }
+    }
+
+    public static function tenantBoundaryScopes(): array
+    {
+        return [['path'], ['domain']];
+    }
+
+    #[DataProvider('tenantBoundaryScopes')]
+    public function test_colliding_admin_and_tenant_ids_cannot_complete_opposite_guard_in_path_or_domain(string $mode): void
+    {
+        $f = $this->fixture($mode);
+        self::assertSame(1, $f['user']->id);
+        $adminSecret = app(Google2FA::class)->generateSecretKey();
+        $admin = AdminUser::firstOrCreate(['email' => 'guard-collision@example.test'], [
+            'name' => 'Guard collision', 'password' => bcrypt('SyntheticReview123!'), 'status' => 'active',
+        ]);
+        $admin->forceFill(['two_factor_secret' => encrypt($adminSecret), 'two_factor_confirmed_at' => now()])->save();
+        self::assertSame(1, $admin->id);
+        $code = app(Google2FA::class)->getCurrentOtp($adminSecret);
+        $this->withSession(['login.id' => $admin->id, 'login.guard' => 'admin'])
+            ->postJson($f['root'].'/two-factor-challenge', ['code' => $code])->assertStatus(403);
+        self::assertFalse(Auth::guard('tenant')->check());
+        $tenantCode = app(Google2FA::class)->getCurrentOtp($f['secret']);
+        $this->withSession($f['pending'])->postJson('http://localhost:8000/superadmin/two-factor-challenge', ['code' => $tenantCode])
+            ->assertStatus(403);
+        self::assertFalse(Auth::guard('admin')->check());
+    }
 }

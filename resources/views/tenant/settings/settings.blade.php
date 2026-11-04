@@ -70,6 +70,14 @@
                         </a>
                     </li>
 
+                    <li class="card rounded-0 mb-3 nav-item shadow-none">
+                        <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#regionsSettings">
+                            <!-- أيقونة مناطق العمل -->
+                            <i class="ti ti-map-pin ti-sm me-1_5"></i>
+                            <span class="align-middle">مناطق العمل</span>
+                        </a>
+                    </li>
+
                 </ul>
             </div>
         </div>
@@ -82,6 +90,7 @@
                 {{-- @include('tenant.settings.partials.whatsapp-settings') --}}
                 @include('tenant.settings.partials.sms-settings')
                 @include('tenant.settings.partials.two-factor-settings')
+                @include('tenant.settings.partials.regions-settings')
             </div>
         </div>
     </div>

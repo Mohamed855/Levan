@@ -252,7 +252,7 @@ Route::prefix('superadmin')->name('admin.')->middleware(['auth:admin', 'admin.ac
             Route::get('/', [BillArchiveController::class, 'index'])->name('index');
             Route::patch('/restore/{id}', [BillArchiveController::class, 'restore'])->name('restore');
             Route::delete('/force-delete/{id}', [BillArchiveController::class, 'forceDelete'])->name('force-delete');
-            Route::get('/{bill}', [AdminBillsController::class, 'show'])->name('show');
+            Route::get('/{bill}', [AdminBillsController::class, 'show'])->name('show')->withTrashed();
         });
     });
 

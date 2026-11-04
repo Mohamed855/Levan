@@ -21,7 +21,7 @@ class ActivityLogIndexRequest extends FormRequest
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
             'created_from' => ['nullable', 'date'],
-            'created_to' => ['nullable', 'date'],
+            'created_to' => ['nullable', 'date', 'after_or_equal:created_from'],
             'search' => ['nullable'],
             'search.value' => ['nullable', 'string', 'max:255'],
         ];

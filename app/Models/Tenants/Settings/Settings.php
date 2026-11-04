@@ -37,6 +37,7 @@ class Settings extends Model
         'sms_auto_reminders_enabled',
         'sms_rate_limit',
         'support_emails',
+        'operational_regions',
         'maintenance_mode',
         'breadcrumb_visibility',
         'force_two_factor_auth',
@@ -54,5 +55,6 @@ class Settings extends Model
         'breadcrumb_visibility' => 'boolean',
         'force_two_factor_auth' => 'boolean',
         'support_emails' => 'array',
+        'operational_regions' => 'array',
     ];
 }

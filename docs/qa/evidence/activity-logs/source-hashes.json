@@ -1,0 +1,16 @@
+{
+    "app/Traits/ActivityLogPresenterTrait.php": "4e2fe1f49f843f5486195c1065cf985f3a0655c8c0e144d60af67ec4f632f62a",
+    "app/Http/Controllers/Admin/ActivityLog/AdminActivityLogController.php": "077934300249b7e6bb49aed81d4ecd2b712ddd5231673b43f90796fa43f3a54e",
+    "app/Http/Controllers/Tenants/activity_log/ActivityLogController.php": "0aeed11f8bc9c3818ca4a80fa121de2d9ec0ceda89028b4b2aa0f2ea71e10906",
+    "app/Http/Requests/Admin/ActivityLog/AdminActivityLogIndexRequest.php": "c6b8ccf106ccf4bc663e6b3551fa774bacfd62f56ba97920103c53c087bae5af",
+    "app/Http/Requests/Tenants/ActivityLog/ActivityLogIndexRequest.php": "23e2f5d61283b245c071d32d3f86c0cf22ea1be9196a9953c9c2adc924e2facc",
+    "app/Http/Requests/Tenants/ActivityLog/DownloadActivityLogExportRequest.php": "7c70c51ca53c23e1e748ecc095651511ff42858eb42a36c7e5277877d22d86b7",
+    "resources/views/admin/activity-logs/index.blade.php": "75aceafa05ecfd71c51284906ecdee4b511c79cbf327024ee89e4b1409225364",
+    "resources/views/admin/activity-logs/show.blade.php": "cd55b72c1b586c6032786494e2656db16ba224136679f34c30333d277aeafad1",
+    "resources/views/tenant/activity-logs/index.blade.php": "28df65cee51725ce6805c1b893bdf142f2abcd7e2f374492f4649d5ab448631d",
+    "resources/views/tenant/activity-logs/show.blade.php": "f3dc6beb7bab0fc95098c660f0bbd515445a27d334655b1cd88da68c23980206",
+    "resources/views/tenant/activity-logs/archives.blade.php": "0343c63e00e38731ab6fc0f2fc63f5eb91913c1070fcb84b9dfc6106a56ba7f9",
+    "resources/assets/js/admin/activity-logs/activity-logs.js": "75bea923ecac245c6d78056c95252147db22c7f6119ada3e2066c27512b4d6ad",
+    "resources/assets/js/tenant/activity-logs/activity-logs.js": "520c8d26cb37f8ba62da2b534b5ad30c1e74d1053c7bb65553418d8a6fb61890",
+    "tests/Feature/Auth/ActivityLogsDualReviewTest.php": "805a10e07cad34a9ee3b8f2de89eee4a3badf033e980585ff17d1172c61771b0"
+}

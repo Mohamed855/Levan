@@ -194,6 +194,13 @@ class AdminUserController extends Controller
     public function toggleStatus(AdminAuthenticatedRequest $request, AdminUser $user)
     {
         try {
+            if ($user->trashed()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكن تغيير حالة مستخدم مؤرشف.',
+                ], 422);
+            }
+
             if ($user->isSuperAdmin()) {
                 return response()->json([
                     'success' => false,

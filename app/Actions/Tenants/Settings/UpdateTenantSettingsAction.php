@@ -57,6 +57,15 @@ class UpdateTenantSettingsAction
                     $settings->force_two_factor_auth = $flags['force_two_factor_auth'] ?? false;
                 }
 
+                if ($activeTab === '#regionsSettings') {
+                    $regions = (array) ($validated['operational_regions'] ?? []);
+                    $cleaned = array_values(array_filter(
+                        $regions,
+                        fn ($region) => is_string($region) && trim($region) !== ''
+                    ));
+                    $settings->operational_regions = ! empty($cleaned) ? $cleaned : null;
+                }
+
                 if (array_key_exists('support_emails', $validated)) {
                     $settings->support_emails = $validated['support_emails'];
                 }
@@ -72,6 +81,9 @@ class UpdateTenantSettingsAction
 
         Storage::disk('tenant_public')->delete(array_filter($replacedFiles));
         Cache::forget('app_settings');
+        if (function_exists('tenant') && tenant('id')) {
+            Cache::forget('app_settings_'.tenant('id'));
+        }
 
         return $settings;
     }

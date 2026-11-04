@@ -1,0 +1,51 @@
+﻿
+   PASS  Tests\Feature\Auth\OverviewAndSecurityDualReviewTest
+  ✓ central dashboard overview data and exclusive subscription distribution                                      0.27s  
+  ✓ dashboard baseline permission enforcement                                                                    0.22s  
+  ✓ tenant property status distribution exclusivity and completeness                                             0.26s  
+  ✓ password change enforcement and isolation                                                                    0.27s  
+  ✓ 2fa recovery codes rendering contract and copyable code wrapper                                              0.22s  
+  ✓ tenant dashboard kpis and auction activity ranges                                                            0.31s  
+  ✓ dual tenant dashboard isolation                                                                              0.30s  
+
+   PASS  Tests\Feature\AccountPasswordChangeTest
+  ✓ admin password page has an authenticated route                                                               0.05s  
+  ✓ admin password change rejects incorrect current password                                                     0.05s  
+  ✓ admin password change requires matching confirmation                                                         0.04s  
+  ✓ failed password change does not flash plaintext passwords                                                    0.04s  
+  ✓ admin can change only their own password and remains logged in with redirect to profile                      0.05s  
+  ✓ admin password form uses shared server validation without changing password                                  0.04s  
+  ✓ tenant password validation uses the tenant guard when both guards are signed in                              0.03s  
+  ✓ admin user edit can still update the password                                                                0.03s  
+  ✓ tenant user edit can still update the password                                                               0.04s  
+  ✓ tenant user password change remains logged in redirects to profile and creates notification                  0.04s  
+
+   PASS  Tests\Feature\Auth\TwoFactorAuthenticationBatchATest
+  ✓ admin challenge view renders single otp field and links row                                                  0.05s  
+  ✓ tenant challenge view renders single otp field and links row                                                 0.04s  
+  ✓ admin can authenticate with valid totp                                                                       0.04s  
+  ✓ tenant user can authenticate with valid totp                                                                 0.04s  
+  ✓ admin recovery code succeeds once and cannot be reused                                                       0.04s  
+  ✓ tenant recovery code succeeds and consumes                                                                   0.04s  
+  ✓ admin validation rejects malformed inputs without 500                                                        0.06s  
+  ✓ tenant validation rejects malformed inputs without 500                                                       0.04s  
+  ✓ cancel endpoint clears pending session and redirects to login                                                0.05s  
+  ✓ visiting challenge without login id redirects to login                                                       0.04s  
+  ✓ admin and tenant session isolation                                                                           0.05s  
+  ✓ cross tenant isolation rejected                                                                              0.14s  
+  ✓ domain tenant challenge renders and completes lifecycle                                                      0.07s  
+  ✓ totp window rejects expired and future codes                                                                 0.03s  
+  ✓ settings enable and confirm lifecycle admin and tenant                                                       0.06s  
+  ✓ settings endpoints require authentication and guard boundaries                                               0.04s  
+  ✓ recovery codes regeneration invalidates old codes                                                            0.05s  
+  ✓ disable 2fa flow and policy enforcement                                                                      0.04s  
+  ✓ deactivated admin and tenant user rejected during 2fa                                                        0.04s  
+  ✓ throttle is enforced on challenge store admin and tenant                                                     0.07s  
+  ✓ form validation endpoint accepts two factor challenge                                                        0.04s  
+
+   PASS  Tests\Unit\Admin\DashboardPlatformActivityContractTest
+  ✓ platform activity combines pending and active subscriptions with approved trials                             0.01s  
+
+  Tests:    39 passed (312 assertions)
+  Duration: 3.45s
+

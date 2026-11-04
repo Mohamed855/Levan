@@ -69,10 +69,19 @@ class PropertyRegionDropdownTest extends TestCase
 
     public function test_edit_form_renders_administrative_region_select_with_selected_value(): void
     {
-        $property = Property::query()->first();
-        if (! $property) {
-            $this->markTestSkipped('No properties in tenant database.');
-        }
+        $property = Property::query()->first() ?? Property::create([
+            'property_number' => 'PROP-TEST-001',
+            'name' => 'عقار تجريبي للاختبار',
+            'type' => 'residential_land',
+            'city' => 'الرياض',
+            'district' => 'النرجس',
+            'administrative_region' => 'منطقة مكة المكرمة',
+            'plan_number' => '100',
+            'parcel_number' => '200',
+            'area' => 500,
+            'short_description' => 'وصف تجريبي',
+            'created_by' => $this->owner->id,
+        ]);
 
         $property->update(['administrative_region' => 'منطقة مكة المكرمة']);
 

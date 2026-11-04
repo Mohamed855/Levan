@@ -28,7 +28,7 @@ class PlanDataTable extends AbstractDataTable
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             ['data' => 'checkbox',  'name' => 'checkbox',   'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
 
-            ['data' => 'name',               'name' => 'name',                      'title' => 'اسم الباقة',    'className' => 'text-start'],
+            ['data' => 'name',               'name' => 'name',                      'title' => 'اسم الباقة',    'className' => 'text-center'],
             ['data' => 'price',              'name' => 'price',                     'title' => 'السعر '],
             ['data' => 'discount_percentage', 'name' => 'discount_percentage',       'title' => 'نسبة الخصم'],
             ['data' => 'price_after_discount', 'name' => 'price',                     'title' => 'السعر بعد الخصم'],

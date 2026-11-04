@@ -6,6 +6,7 @@ namespace App\Http\Requests\Tenants\ActivityLog;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class DownloadActivityLogExportRequest extends ExportActivityLogsRequest
 {
@@ -17,7 +18,7 @@ class DownloadActivityLogExportRequest extends ExportActivityLogsRequest
     public function rules(): array
     {
         return [
-            'file' => ['required', 'string', 'regex:/^activity-logs-[0-9]{8}-[0-9]{6}\.xlsx$/'],
+            'file' => ['required', 'string', 'regex:/^activity[-_]logs[-_][0-9]{4,8}[-_]?[0-9]{0,6}\.xlsx$/'],
         ];
     }
 
@@ -30,8 +31,25 @@ class DownloadActivityLogExportRequest extends ExportActivityLogsRequest
     {
         $validator->after(function (Validator $validator): void {
             $file = (string) $this->route('file');
-            $owner = Cache::get(self::ownerKey($file));
+            $fileName = basename($file);
+            $disk = Storage::disk('tenant_public');
 
+            $isArchive = $disk->exists('activity-logs/' . $fileName);
+            $isExport = $disk->exists('exports/' . $fileName);
+
+            if (!$isArchive && !$isExport) {
+                $validator->errors()->add('file', 'ملف التصدير غير متاح أو تم حذفه.');
+                return;
+            }
+
+            if ($isArchive) {
+                if (! $this->user('tenant')?->can('activity_log.view')) {
+                    $validator->errors()->add('file', 'غير مصرح بتنزيل ملف الأرشيف.');
+                }
+                return;
+            }
+
+            $owner = Cache::get(self::ownerKey($fileName));
             if (! $owner || (int) $owner !== (int) $this->user('tenant')?->getKey()) {
                 $validator->errors()->add('file', 'ملف التصدير غير متاح لهذا المستخدم.');
             }
@@ -40,6 +58,6 @@ class DownloadActivityLogExportRequest extends ExportActivityLogsRequest
 
     public static function ownerKey(string $file): string
     {
-        return 'activity_log_export_owner:'.hash('sha256', $file);
+        return 'activity_log_export_owner:'.hash('sha256', basename($file));
     }
 }

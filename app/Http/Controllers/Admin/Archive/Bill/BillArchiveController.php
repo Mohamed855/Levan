@@ -14,7 +14,8 @@ class BillArchiveController extends Controller
     {
         $this->middleware('auth:admin');
         $this->middleware('can:financial_transactions.view')->only('index');
-        $this->middleware('can:financial_transactions.view')->only(['restore', 'forceDelete']);
+        $this->middleware('can:financial_transactions.restore')->only('restore');
+        $this->middleware('can:financial_transactions.force_delete')->only('forceDelete');
     }
 
     public function index(BillDataTable $dataTable)
@@ -44,19 +45,67 @@ class BillArchiveController extends Controller
 
     public function restore(AdminAuthenticatedRequest $request, $id)
     {
-        $bill = Bill::withTrashed()->findOrFail($id);
-        $this->authorize('restore', $bill);
-        $this->archive->restore($bill);
+        try {
+            $bill = Bill::onlyTrashed()->findOrFail($id);
+            $this->authorize('restore', $bill);
+            $this->archive->restore($bill);
 
-        return redirect()->route('admin.archives.bills.index')->with('success', 'تم استعادة الفاتورة بنجاح.');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم استعادة الفاتورة بنجاح.']);
+            }
+
+            return redirect()->route('admin.archives.bills.index')->with('success', 'تم استعادة الفاتورة بنجاح.');
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'ليس لديك صلاحية استعادة هذه الفاتورة.'], 403);
+            }
+
+            return redirect()->route('admin.archives.bills.index')->with('error', 'ليس لديك صلاحية استعادة هذه الفاتورة.');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'الفاتورة غير موجودة في الأرشيف.'], 404);
+            }
+
+            return redirect()->route('admin.archives.bills.index')->with('error', 'الفاتورة غير موجودة في الأرشيف.');
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء استعادة الفاتورة.'], 500);
+            }
+
+            return redirect()->route('admin.archives.bills.index')->with('error', 'حدث خطأ أثناء استعادة الفاتورة.');
+        }
     }
 
     public function forceDelete(AdminAuthenticatedRequest $request, $id)
     {
-        $bill = Bill::withTrashed()->findOrFail($id);
-        $this->authorize('forceDelete', $bill);
-        $this->archive->forceDelete($bill);
+        try {
+            $bill = Bill::onlyTrashed()->findOrFail($id);
+            $this->authorize('forceDelete', $bill);
+            $this->archive->forceDelete($bill);
 
-        return redirect()->route('admin.archives.bills.index')->with('success', 'تم حذف الفاتورة نهائيًا بنجاح.');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم حذف الفاتورة نهائيًا بنجاح.']);
+            }
+
+            return redirect()->route('admin.archives.bills.index')->with('success', 'تم حذف الفاتورة نهائيًا بنجاح.');
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'ليس لديك صلاحية الحذف النهائي لهذه الفاتورة.'], 403);
+            }
+
+            return redirect()->route('admin.archives.bills.index')->with('error', 'ليس لديك صلاحية الحذف النهائي لهذه الفاتورة.');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'الفاتورة غير موجودة في الأرشيف.'], 404);
+            }
+
+            return redirect()->route('admin.archives.bills.index')->with('error', 'الفاتورة غير موجودة في الأرشيف.');
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء الحذف النهائي للفاتورة.'], 500);
+            }
+
+            return redirect()->route('admin.archives.bills.index')->with('error', 'حدث خطأ أثناء الحذف النهائي للفاتورة.');
+        }
     }
 }

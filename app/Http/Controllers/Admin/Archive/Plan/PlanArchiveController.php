@@ -40,14 +40,34 @@ class PlanArchiveController extends Controller
     public function restore(AdminAuthenticatedRequest $request, int $id)
     {
         try {
-            $plan = Plan::withTrashed()->findOrFail($id);
+            $plan = Plan::onlyTrashed()->findOrFail($id);
             $this->authorize('restore', $plan);
             $this->archive->restore($plan);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم استرجاع الباقة بنجاح.']);
+            }
+
             return redirect()->route('admin.archives.plans.index')
                 ->with('success', 'تم استرجاع الباقة بنجاح.');
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'ليس لديك صلاحية استرجاع هذه الباقة.'], 403);
+            }
+
+            return redirect()->route('admin.archives.plans.index')->with('error', 'ليس لديك صلاحية استرجاع هذه الباقة.');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'الباقة غير موجودة في الأرشيف.'], 404);
+            }
+
+            return redirect()->route('admin.archives.plans.index')->with('error', 'الباقة غير موجودة في الأرشيف.');
         } catch (\Exception $e) {
             Log::error('Error restoring plan: '.$e->getMessage());
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء استرجاع الباقة.'], 500);
+            }
 
             return redirect()->route('admin.archives.plans.index')
                 ->with('error', 'حدث خطأ أثناء استرجاع الباقة.');
@@ -57,20 +77,45 @@ class PlanArchiveController extends Controller
     public function forceDelete(AdminAuthenticatedRequest $request, int $id)
     {
         try {
-            $plan = Plan::withTrashed()->findOrFail($id);
+            $plan = Plan::onlyTrashed()->findOrFail($id);
             $this->authorize('forceDelete', $plan);
 
             if ($plan->subscriptions()->exists()) {
+                $errorMsg = __('plans.errors.cannot_force_delete_used_plan');
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => $errorMsg], 422);
+                }
+
                 return redirect()->route('admin.archives.plans.index')
-                    ->with('error', __('plans.errors.cannot_force_delete_used_plan'));
+                    ->with('error', $errorMsg);
             }
 
             $this->archive->forceDelete($plan);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم حذف الباقة نهائيًا بنجاح.']);
+            }
+
             return redirect()->route('admin.archives.plans.index')
                 ->with('success', 'تم حذف الباقة نهائيًا بنجاح.');
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'ليس لديك صلاحية الحذف النهائي لهذه الباقة.'], 403);
+            }
+
+            return redirect()->route('admin.archives.plans.index')->with('error', 'ليس لديك صلاحية الحذف النهائي لهذه الباقة.');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'الباقة غير موجودة في الأرشيف.'], 404);
+            }
+
+            return redirect()->route('admin.archives.plans.index')->with('error', 'الباقة غير موجودة في الأرشيف.');
         } catch (\Exception $e) {
             Log::error('Error force deleting plan: '.$e->getMessage());
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء الحذف النهائي للباقة.'], 500);
+            }
 
             return redirect()->route('admin.archives.plans.index')
                 ->with('error', 'حدث خطأ أثناء الحذف النهائي للباقة.');

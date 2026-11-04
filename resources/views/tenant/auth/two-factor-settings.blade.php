@@ -358,6 +358,7 @@
 
             $('#recoveryCodesList').on('click', '.copyable-code-wrapper', function(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 const code = $(this).data('code') || $(this).find('.copyable-code').text().trim();
                 copyCodeToClipboard(code);
             });

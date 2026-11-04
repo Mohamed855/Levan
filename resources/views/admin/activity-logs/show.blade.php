@@ -2,326 +2,284 @@
 
 @section('title', 'تفاصيل النشاط')
 
-@section('vendor-style')
-    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/css/shared/tab.css'])
-@endsection
-
-@section('vendor-script')
-    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/js/tenant/settings/tab.js', 'resources/assets/js/tenant/settings/system-settings.js'])
+@section('toastr')
+    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
 @endsection
 
 @section('content')
-    <div class="row">
-        <div class="col-12 col-md-3 col-xl-3">
-            <div>
-                <ul class="nav nav-tabs flex-column border-bottom-0">
-                    <li class="card rounded-0 mb-3 nav-item shadow-none">
-                        <a class="py-3 nav-link fw-bold active m-0" data-bs-toggle="tab" href="#activityDetails">
-                            <i class="ti ti-activity ti-sm me-1"></i><span>تفاصيل النشاط</span>
-                        </a>
-                    </li>
-
-                    @if ($activity->properties && count($activity->properties) > 0)
-                        <li class="card rounded-0 mb-3 nav-item shadow-none">
-                            <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#dataDetails">
-                                <i class="ti ti-list-details ti-sm me-1"></i><span>البيانات التفصيلية</span>
-                            </a>
-                        </li>
-                    @endif
-                </ul>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <i class="ti ti-activity me-2 text-primary"></i>تفاصيل النشاط
+            </h4>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <code class="copyable-code fs-6"
+                    onclick="navigator.clipboard.writeText('#{{ $activity->id }}'); toastr.success('تم نسخ معرف النشاط');"
+                    style="cursor: pointer;">
+                    #{{ $activity->id }}
+                </code>
+                <span class="badge {{ $activityData['event_badge_class'] ?? 'bg-primary' }}">
+                    {{ $activityData['event_arabic'] ?? 'نشاط' }}
+                </span>
+                <span class="badge bg-primary">
+                    {{ $activityData['log_name_arabic'] ?? $activity->log_name }}
+                </span>
             </div>
         </div>
+        <div class="d-flex gap-2">
+            <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-secondary">
+                <i class="ti ti-arrow-right me-1"></i> العودة للسجل
+            </a>
+        </div>
+    </div>
 
-        <div class="col-12 col-md-9 col-xl-9 order-1 order-md-0 mb-5">
-            <div class="tab-content p-0">
-                {{-- تفاصيل النشاط --}}
-                <div class="tab-pane fade show active" id="activityDetails">
-                    <div class="card">
-                        <div class="card-header py-4">
-                            <h6 class="card-title mb-0">
-                                <i class="ti ti-activity text-primary me-2"></i>
-                                تفاصيل النشاط
-                            </h6>
+    <div class="row">
+        {{-- العمود الأيسر: بطاقة هوية الفاعل وبيانات السياق --}}
+        <div class="col-xl-4 col-lg-5 col-md-5 mb-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="mx-auto mb-3">
+                        @php
+                            $avatar = $activity->causer && method_exists($activity->causer, 'getProfilePhotoUrlAttribute')
+                                ? $activity->causer->profile_photo_url
+                                : asset('static/brand/logos/logo.svg');
+                        @endphp
+                        <img src="{{ $avatar }}" alt="{{ $activityData['user_name'] }}" class="rounded-circle"
+                            style="width: 100px; height: 100px; object-fit: cover;">
+                    </div>
+                    <h5 class="mb-1">{{ $activityData['user_name'] }}</h5>
+                    <span class="badge {{ $activityData['event_badge_class'] ?? 'bg-primary' }} mb-3">
+                        {{ $activityData['event_arabic'] }}
+                    </span>
+
+                    <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
+                        <div>
+                            <h5 class="mb-0">#{{ $activity->id }}</h5>
+                            <small class="text-muted">معرف النشاط</small>
                         </div>
+                        <div>
+                            <h5 class="mb-0">{{ count($changes['fields']) }}</h5>
+                            <small class="text-muted">الحقول المتأثرة</small>
+                        </div>
+                    </div>
 
-                        <div class="border-1 border-light border-dashed mb-2"></div>
-                        <div class="card-body">
-                            {{-- بطاقة المستخدم --}}
-                            <div class="card border mb-4">
-                                <div class="card-body d-flex align-items-center">
-                                    <div class="flex-shrink-0 me-3">
-                                        @php
-                                            $avatar =
-                                                $activity->causer &&
-                                                method_exists($activity->causer, 'getProfilePhotoUrlAttribute')
-                                                    ? $activity->causer->profile_photo_url
-                                                    : asset('static/brand/logos/logo.svg');
-                                        @endphp
-                                        <img src="{{ $avatar }}" class="rounded-circle" width="70" height="70">
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h5 class="fw-bold mb-0">{{ $activity->causer->name ?? 'تلقائيا من النظام' }}</h5>
-                                        <small>{{ $activity->created_at->locale('ar')->translatedFormat('d F Y - h:i A') }}</small>
-                                    </div>
-                                    <div class="flex-shrink-0">
-                                        <span class="badge bg-primary fs-6">{{ $activityData['log_name_arabic'] ?? $activity->log_name }}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- بيانات النشاط في بطاقات --}}
-                            <div class="row mb-4">
-                                <div class="col-md-4 mb-3">
-                                    <div class="card border h-100">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-start">
-                                                <i class="ti ti-activity me-2"></i>
-                                                <div>
-                                                    <h6 class="mb-2">نوع الحدث</h6>
-                                                    <span class="fw-bold">{{ $arabicEvent }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4 mb-3">
-                                    <div class="card border h-100">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-start">
-                                                <i class="ti ti-target me-2"></i>
-                                                <div>
-                                                    <h6 class="mb-2">الموضوع</h6>
-                                                    <span class="fw-bold">{{ $activityData['subject_display'] }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4 mb-3">
-                                    <div class="card border h-100">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-start">
-                                                <i class="ti ti-hash me-2"></i>
-                                                <div>
-                                                    <h6 class="mb-2">معرف النشاط</h6>
-                                                    <span class="fw-bold">#{{ $activity->id }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mb-4">
-                                <h6>وصف النشاط</h6>
-                                <div class="border rounded p-3">
-                                    <pre class="mb-0" style="white-space: pre-wrap; font-family: inherit;">{{ $activity->description }}</pre>
-                                </div>
-                            </div>
-
-                            {{-- معلومات الاتصال (الجهاز و IP) --}}
-                            @if ($activityData['connection_info'])
-                                <div>
-                                    <h6><i class="ti ti-device-desktop me-1"></i>معلومات الاتصال</h6>
-                                    <div class="row">
-                                        <div class="col-md-3 col-6 mb-3">
-                                            <div class="card border h-100">
-                                                <div class="card-body">
-                                                    <div class="d-flex align-items-start">
-                                                        <i class="ti ti-world me-2"></i>
-                                                        <div>
-                                                            <h6 class="mb-2">عنوان IP</h6>
-                                                            <span class="fw-bold">{{ $activityData['connection_info']['ip'] }}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 col-6 mb-3">
-                                            <div class="card border h-100">
-                                                <div class="card-body">
-                                                    <div class="d-flex align-items-start">
-                                                        <i class="ti ti-device-laptop me-2"></i>
-                                                        <div>
-                                                            <h6 class="mb-2">نوع الجهاز</h6>
-                                                            <span class="fw-bold">{{ $activityData['connection_info']['device'] }}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 col-6 mb-3">
-                                            <div class="card border h-100">
-                                                <div class="card-body">
-                                                    <div class="d-flex align-items-start">
-                                                        <i class="ti ti-brand-windows me-2"></i>
-                                                        <div>
-                                                            <h6 class="mb-2">نظام التشغيل</h6>
-                                                            <span class="fw-bold">{{ $activityData['connection_info']['os'] }}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 col-6 mb-3">
-                                            <div class="card border h-100">
-                                                <div class="card-body">
-                                                    <div class="d-flex align-items-start">
-                                                        <i class="ti ti-browser me-2"></i>
-                                                        <div>
-                                                            <h6 class="mb-2">المتصفح</h6>
-                                                            <span class="fw-bold">{{ $activityData['connection_info']['browser'] }}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        @if ($activityData['connection_info']['reason'])
-                                            <div class="col-md-6 mb-3">
-                                                <div class="card border h-100">
-                                                    <div class="card-body">
-                                                        <div class="d-flex align-items-start">
-                                                            <i class="ti ti-alert-triangle me-2"></i>
-                                                            <div>
-                                                                <h6 class="mb-2">سبب الفشل</h6>
-                                                                <span class="fw-bold">{{ $activityData['connection_info']['reason'] }}</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endif
-                                        <div class="col-md-6 mb-3">
-                                            <div class="card border h-100">
-                                                <div class="card-body">
-                                                    <div class="d-flex align-items-start">
-                                                        <i class="ti ti-file-info me-2"></i>
-                                                        <div class="w-100">
-                                                            <h6 class="mb-2">User Agent</h6>
-                                                            <span class="text-muted small text-break">{{ $activityData['connection_info']['user_agent'] ?? 'غير معروف' }}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="info-container text-start">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-muted">نوع النشاط:</span>
+                                <span class="badge bg-label-primary">{{ $activityData['log_name_arabic'] }}</span>
+                            </li>
+                            <li class="mb-2 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-muted">الموضوع:</span>
+                                <span class="fw-semibold text-break">{{ $activityData['subject_display'] }}</span>
+                            </li>
+                            <li class="mb-2 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-muted">نوع الكيان:</span>
+                                <span class="text-break">{{ class_basename($activity->subject_type ?? 'غير محدد') }}</span>
+                            </li>
+                            <li class="mb-2 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-muted">معرف الكيان:</span>
+                                <span>#{{ $activity->subject_id ?? '-' }}</span>
+                            </li>
+                            <li class="mb-2 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-muted">التاريخ:</span>
+                                <span>{{ $activityData['formatted_date'] }}</span>
+                            </li>
+                            <li class="mb-2 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-muted">الوقت النسبي:</span>
+                                <span class="badge bg-label-info">{{ $activity->created_at ? $activity->created_at->locale('ar')->diffForHumans() : '-' }}</span>
+                            </li>
+                            @if ($activity->batch_uuid)
+                                <li class="mb-2 d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-muted">معرف الدفعة:</span>
+                                    <code class="small text-break">{{ $activity->batch_uuid }}</code>
+                                </li>
                             @endif
-                        </div>
+                        </ul>
                     </div>
                 </div>
+            </div>
 
-                {{-- البيانات التفصيلية --}}
-                @if ($activity->properties && count($activity->properties) > 0)
-                    <div class="tab-pane fade" id="dataDetails">
-                        <div class="card">
-                            <div class="card-header py-4">
-                                <h6 class="card-title mb-0">
-                                    <i class="ti ti-list-details text-primary me-2"></i>
-                                    البيانات التفصيلية
-                                </h6>
-                            </div>
-
-                            <div class="border-1 border-light border-dashed mb-2"></div>
-                            <div class="card-body">
-                                @if (isset($activity->properties['old']) || isset($activity->properties['attributes']))
-                                    <div class="table-responsive">
-                                        <table class="table table-striped table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th width="200">الحقل</th>
-                                                    @if (isset($activity->properties['old']))
-                                                        <th>القيمة السابقة</th>
-                                                    @endif
-                                                    <th>القيمة الجديدة</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @php
-                                                    $oldData = $activity->properties['old'] ?? [];
-                                                    $newData =
-                                                        $activity->properties['attributes'] ?? $activity->properties;
-
-                                                    if ($oldData instanceof \Illuminate\Support\Collection) {
-                                                        $oldData = $oldData->toArray();
-                                                    }
-                                                    if ($newData instanceof \Illuminate\Support\Collection) {
-                                                        $newData = $newData->toArray();
-                                                    }
-
-                                                    $allFields = array_unique(
-                                                        array_merge(array_keys($oldData), array_keys($newData)),
-                                                    );
-                                                    $modelClass = $activity->subject_type;
-
-                                                    // حذف old من القائمة
-                                                    $allFields = array_filter(
-                                                        $allFields,
-                                                        fn($field) => !in_array($field, ['old', 'attributes']),
-                                                    );
-                                                @endphp
-
-                                                @foreach ($allFields as $field)
-                                                    <tr>
-                                                        <td class="fw-medium">
-                                                            {{ $modelClass::getFieldLabel($field) }}
-                                                        </td>
-
-                                                        @if (isset($activity->properties['old']))
-                                                            <td>
-                                                                @if (isset($oldData[$field]))
-                                                                    @php $oldValue = $oldData[$field]; @endphp
-
-                                                                    @if (is_array($oldValue))
-                                                                        <pre class="mb-0" style="white-space: pre-wrap; font-size: 0.875rem;">{{ json_encode($oldValue, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) }}</pre>
-                                                                    @elseif (is_bool($oldValue))
-                                                                        <span
-                                                                            class="badge bg-{{ $oldValue ? 'success' : 'danger' }}">
-                                                                            {{ $modelClass::getValueLabel($field, $oldValue) }}
-                                                                        </span>
-                                                                    @else
-                                                                        {{ $modelClass::getValueLabel($field, $oldValue) }}
-                                                                    @endif
-                                                                @else
-                                                                    <span class="text-muted">-</span>
-                                                                @endif
-                                                            </td>
-                                                        @endif
-
-                                                        <td>
-                                                            @if (isset($newData[$field]))
-                                                                @php $newValue = $newData[$field]; @endphp
-
-                                                                @if (is_array($newValue))
-                                                                    <pre class="mb-0" style="white-space: pre-wrap; font-size: 0.875rem;">{{ json_encode($newValue, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) }}</pre>
-                                                                @elseif (is_bool($newValue))
-                                                                    <span
-                                                                        class="badge bg-{{ $newValue ? 'success' : 'danger' }}">
-                                                                        {{ $modelClass::getValueLabel($field, $newValue) }}
-                                                                    </span>
-                                                                @else
-                                                                    {{ $modelClass::getValueLabel($field, $newValue) }}
-                                                                @endif
-                                                            @else
-                                                                <span class="text-muted">-</span>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                @else
-                                    <div class="alert alert-info mb-0">
-                                        <i class="ti ti-info-circle me-2"></i>لا توجد بيانات تفصيلية متاحة.
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
+            {{-- بطاقة معلومات الاتصال والبيئة --}}
+            @if ($activityData['connection_info'])
+                <div class="card mb-4">
+                    <div class="card-header pb-2">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-device-desktop text-primary me-2"></i>معلومات الاتصال
+                        </h5>
                     </div>
-                @endif
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-muted"><i class="ti ti-world me-1"></i>عنوان IP:</span>
+                                <code class="fs-6">{{ $activityData['connection_info']['ip'] }}</code>
+                            </li>
+                            <li class="mb-2 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-muted"><i class="ti ti-device-laptop me-1"></i>نوع الجهاز:</span>
+                                <span>{{ $activityData['connection_info']['device'] }}</span>
+                            </li>
+                            <li class="mb-2 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-muted"><i class="ti ti-brand-windows me-1"></i>نظام التشغيل:</span>
+                                <span>{{ $activityData['connection_info']['os'] }}</span>
+                            </li>
+                            <li class="mb-2 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-muted"><i class="ti ti-browser me-1"></i>المتصفح:</span>
+                                <span>{{ $activityData['connection_info']['browser'] }}</span>
+                            </li>
+                            @if (!empty($activityData['connection_info']['reason']))
+                                <li class="mb-2 d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-danger"><i class="ti ti-alert-triangle me-1"></i>السبب:</span>
+                                    <span class="text-danger fw-semibold">{{ $activityData['connection_info']['reason'] }}</span>
+                                </li>
+                            @endif
+                        </ul>
+
+                        @if (!empty($activityData['connection_info']['user_agent']))
+                            <div class="mt-3 pt-2 border-top">
+                                <small class="text-muted d-block mb-1">User Agent:</small>
+                                <div class="bg-light p-2 rounded text-break small font-monospace text-muted" style="font-size: 0.75rem;">
+                                    {{ $activityData['connection_info']['user_agent'] }}
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+        </div>
+
+        {{-- العمود الأيمن: وصف النشاط والتغييرات --}}
+        <div class="col-xl-8 col-lg-7 col-md-7">
+            {{-- وصف النشاط --}}
+            <div class="card mb-4">
+                <div class="card-header pb-2">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-file-description text-primary me-2"></i>وصف النشاط
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="border rounded p-3 bg-light">
+                        <p class="mb-0 text-break" style="white-space: pre-wrap; font-family: inherit;">{{ $activity->description ?: 'لا يوجد وصف مخصص لهذا النشاط.' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- تفاصيل التغييرات والبيانات --}}
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center pb-2">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-list-details text-primary me-2"></i>تفاصيل التغييرات والبيانات
+                    </h5>
+                    @if ($changes['has_changes'])
+                        <span class="badge bg-label-primary">{{ count($changes['fields']) }} حقل</span>
+                    @endif
+                </div>
+                <div class="card-body">
+                    @if ($changes['has_changes'])
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered text-center align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-center align-middle" style="width: 25%;">الحقل</th>
+                                        @if ($changes['has_old'])
+                                            <th class="text-center align-middle" style="width: 37.5%;">القيمة السابقة</th>
+                                        @endif
+                                        <th class="text-center align-middle" style="width: {{ $changes['has_old'] ? '37.5%' : '75%' }};">
+                                            {{ $changes['has_old'] ? 'القيمة الجديدة' : 'القيمة' }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($changes['fields'] as $field)
+                                        <tr>
+                                            <td class="fw-bold text-center align-middle">
+                                                <div>{{ $field['label'] }}</div>
+                                                <small class="text-muted font-monospace" style="font-size: 0.75rem;">{{ $field['key'] }}</small>
+                                            </td>
+
+                                            @if ($changes['has_old'])
+                                                <td class="text-center align-middle">
+                                                    @if (!$field['has_old'])
+                                                        <span class="text-muted">-</span>
+                                                    @elseif ($field['old']['type'] === 'sensitive')
+                                                        <span class="badge bg-danger text-truncate">{{ $field['old']['display'] }}</span>
+                                                    @elseif ($field['old']['type'] === 'file')
+                                                        @if ($field['old']['is_image'] && $field['old']['url'])
+                                                            <div class="d-flex justify-content-center">
+                                                                <x-ui.file-card :url="$field['old']['url']" :name="$field['old']['display']" :isImage="true" />
+                                                            </div>
+                                                        @else
+                                                            <div class="d-flex justify-content-center">
+                                                                <x-ui.file-card :url="$field['old']['url']" :name="$field['old']['display']" />
+                                                            </div>
+                                                        @endif
+                                                    @elseif ($field['old']['type'] === 'bool')
+                                                        <span class="badge {{ $field['old']['badge'] }}">{{ $field['old']['display'] }}</span>
+                                                    @elseif ($field['old']['type'] === 'array')
+                                                        <pre class="mb-0 text-start bg-light p-2 rounded small font-monospace" style="white-space: pre-wrap; font-size: 0.8rem; direction: ltr;">{{ $field['old']['display'] }}</pre>
+                                                    @elseif ($field['old']['type'] === 'null')
+                                                        <span class="text-muted">-</span>
+                                                    @else
+                                                        <span class="text-break">{{ $field['old']['display'] }}</span>
+                                                    @endif
+                                                </td>
+                                            @endif
+
+                                            <td class="text-center align-middle">
+                                                @if (!$field['has_new'])
+                                                    <span class="text-muted">-</span>
+                                                @elseif ($field['new']['type'] === 'sensitive')
+                                                    <span class="badge bg-danger text-truncate">{{ $field['new']['display'] }}</span>
+                                                @elseif ($field['new']['type'] === 'file')
+                                                    @if ($field['new']['is_image'] && $field['new']['url'])
+                                                        <div class="d-flex justify-content-center">
+                                                            <x-ui.file-card :url="$field['new']['url']" :name="$field['new']['display']" :isImage="true" />
+                                                        </div>
+                                                    @else
+                                                        <div class="d-flex justify-content-center">
+                                                            <x-ui.file-card :url="$field['new']['url']" :name="$field['new']['display']" />
+                                                        </div>
+                                                    @endif
+                                                @elseif ($field['new']['type'] === 'bool')
+                                                    <span class="badge {{ $field['new']['badge'] }}">{{ $field['new']['display'] }}</span>
+                                                @elseif ($field['new']['type'] === 'array')
+                                                    <pre class="mb-0 text-start bg-light p-2 rounded small font-monospace" style="white-space: pre-wrap; font-size: 0.8rem; direction: ltr;">{{ $field['new']['display'] }}</pre>
+                                                @elseif ($field['new']['type'] === 'null')
+                                                    <span class="text-muted">-</span>
+                                                @else
+                                                    <span class="text-break">{{ $field['new']['display'] }}</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="alert alert-info mb-0 d-flex align-items-center">
+                            <i class="ti ti-info-circle me-2 fs-5"></i>
+                            <div>لا توجد تغييرات حقول مسجلة في هذا النشاط.</div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- البيانات الخام (JSON) --}}
+            <div class="card mb-4">
+                <div class="card-header pb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-code text-secondary me-2"></i>البيانات الخام (JSON)
+                        </h5>
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#rawJsonCollapse" aria-expanded="false" aria-controls="rawJsonCollapse">
+                            <i class="ti ti-eye me-1"></i> إظهار / إخفاء
+                        </button>
+                    </div>
+                </div>
+                <div class="collapse" id="rawJsonCollapse">
+                    <div class="card-body pt-0">
+                        <pre class="bg-dark text-light p-3 rounded text-start mb-0 font-monospace" style="white-space: pre-wrap; font-size: 0.8rem; direction: ltr; max-height: 400px; overflow-y: auto;">{{ $changes['raw_json'] }}</pre>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
