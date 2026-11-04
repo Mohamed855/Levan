@@ -19,6 +19,16 @@ class UserArchiveService
     {
         return DB::transaction(function () use ($user) {
             $user->restore();
+
+            if ($user->roles()->count() === 0) {
+                $baselineRole = \Spatie\Permission\Models\Role::where('name', 'User')->first()
+                    ?? \Spatie\Permission\Models\Role::where('name', '!=', 'Admin')->first()
+                    ?? \Spatie\Permission\Models\Role::first();
+                if ($baselineRole) {
+                    $user->assignRole($baselineRole);
+                }
+            }
+
             return $user->fresh(['roles']);
         });
     }
