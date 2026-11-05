@@ -5,6 +5,33 @@
     $noticeRoute = fn($name, $parameters = []) => ($scope ?? 'admin') === 'admin'
         ? route('admin.dashboard-notifications.' . $name, $parameters)
         : tenant_route_name('dashboard-notifications.' . $name, $parameters);
+
+    $notificationTabs = [
+        [
+            'label' => 'الكل',
+            'icon' => 'ti ti-bell',
+            'url' => $noticeRoute('index', ['filter' => 'all']),
+            'active' => ($currentFilter ?? 'all') === 'all',
+            'count' => $totalCount ?? 0,
+            'countAttributes' => ['data-filter-all-count' => true, 'aria-live' => 'polite'],
+        ],
+        [
+            'label' => 'غير المقروءة',
+            'icon' => 'ti ti-mail',
+            'url' => $noticeRoute('index', ['filter' => 'unread']),
+            'active' => ($currentFilter ?? 'all') === 'unread',
+            'count' => $unreadCount ?? 0,
+            'countAttributes' => ['data-filter-unread-count' => true, 'aria-live' => 'polite'],
+        ],
+        [
+            'label' => 'المقروءة',
+            'icon' => 'ti ti-mail-opened',
+            'url' => $noticeRoute('index', ['filter' => 'read']),
+            'active' => ($currentFilter ?? 'all') === 'read',
+            'count' => $readCount ?? 0,
+            'countAttributes' => ['data-filter-read-count' => true, 'aria-live' => 'polite'],
+        ],
+    ];
 @endphp
 
 @section('content')
@@ -17,32 +44,7 @@
                 <h5 class="mb-0 fw-bold">كل الإشعارات</h5>
 
                 <div class="d-flex flex-wrap align-items-center gap-3">
-                    <div class="btn-group" role="group" aria-label="فلاتر الإشعارات">
-                        <a href="{{ $noticeRoute('index', ['filter' => 'all']) }}"
-                            class="btn d-inline-flex align-items-center gap-1 {{ ($currentFilter ?? 'all') === 'all' ? 'btn-primary' : 'btn-outline-primary' }}">
-                            <i class="ti ti-bell"></i>
-                            <span>الكل</span>
-                            <span class="notification-filter__count" data-filter-all-count aria-live="polite">
-                                {{ $totalCount ?? 0 }}
-                            </span>
-                        </a>
-                        <a href="{{ $noticeRoute('index', ['filter' => 'unread']) }}"
-                            class="btn d-inline-flex align-items-center gap-1 {{ ($currentFilter ?? 'all') === 'unread' ? 'btn-primary' : 'btn-outline-primary' }}">
-                            <i class="ti ti-mail"></i>
-                            <span>غير المقروءة</span>
-                            <span class="notification-filter__count" data-filter-unread-count aria-live="polite">
-                                {{ $unreadCount ?? 0 }}
-                            </span>
-                        </a>
-                        <a href="{{ $noticeRoute('index', ['filter' => 'read']) }}"
-                            class="btn d-inline-flex align-items-center gap-1 {{ ($currentFilter ?? 'all') === 'read' ? 'btn-primary' : 'btn-outline-primary' }}">
-                            <i class="ti ti-mail-opened"></i>
-                            <span>المقروءة</span>
-                            <span class="notification-filter__count" data-filter-read-count aria-live="polite">
-                                {{ $readCount ?? 0 }}
-                            </span>
-                        </a>
-                    </div>
+                    <x-shared.ui.tabs :items="$notificationTabs" aria-label="فلاتر الإشعارات" />
                     <button type="button" class="btn btn-label-primary d-flex align-items-center gap-1"
                         data-notification-read-all id="btn-mark-all-read" @if (($unreadCount ?? 0) === 0) disabled @endif>
                         <i class="ti ti-mail-opened"></i>

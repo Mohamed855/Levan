@@ -165,7 +165,6 @@
     </div>
 </div>
 
-{{-- مودال تعديل الصورة الشخصية --}}
 @if (auth('admin')->id() === $user->id || auth('admin')->user()?->can('users.edit'))
     <x-bootstrap.modal id="changeProfileImageModal">
         <form id="changeProfileImageForm" method="POST" enctype="multipart/form-data" novalidate data-form-validate
@@ -173,13 +172,15 @@
             data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}">
             @csrf
             <x-form.controls.file name="profile_image" id="profile_image" label="اختر صورة شخصية جديدة"
-                :value="$user->image && Storage::disk('public')->exists($user->image) ? asset('storage/' . $user->image) : null" accept="image/*" help="الصيغ المسموح بها: JPG, PNG, GIF. الحد الأقصى: 10MB"
+                :value="$user->image && Storage::disk('public')->exists($user->image)
+                    ? asset('storage/' . $user->image)
+                    : null" accept="image/*" help="الصيغ المسموح بها: JPG, PNG, GIF. الحد الأقصى: 10MB"
                 :max-size="10" col="col-12" />
             <x-slot:footer>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i
                         class="ti ti-x me-1"></i>إلغاء</button>
                 <button type="submit" form="changeProfileImageForm" class="btn btn-primary">
-                    <i class="ti ti-device-floppy me-1"></i> حفظ التغييرات
+                    <i class="ti ti-check me-1"></i> حفظ التغييرات
                 </button>
             </x-slot:footer>
         </form>

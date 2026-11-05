@@ -40,7 +40,7 @@ class TenantRegionsSettingsTest extends TestCase
         return 'http://test.localhost/'.ltrim($path, '/');
     }
 
-    public function test_tenant_can_view_regions_settings_tab(): void
+    public function test_tenant_can_view_regions_settings(): void
     {
         $response = $this->actingAs($this->owner, 'tenant')
             ->get($this->tenantUrl('settings'));
@@ -48,25 +48,43 @@ class TenantRegionsSettingsTest extends TestCase
         $response->assertOk();
         $content = $response->getContent();
 
-        $this->assertStringContainsString('href="#regionsSettings"', $content);
         $this->assertStringContainsString('مناطق العمل', $content);
-        $this->assertStringContainsString('id="regionsSettings"', $content);
         $this->assertStringContainsString('name="operational_regions[]"', $content);
+        $this->assertStringContainsString('id="btn-select-all-regions"', $content);
+        $this->assertStringContainsString('input-group-text cursor-pointer', $content);
+        $this->assertStringContainsString('تحديد الكل', $content);
+        $this->assertStringContainsString('ti ti-check-double', $content);
         $this->assertStringContainsString('منطقة الرياض', $content);
         $this->assertStringContainsString('المنطقة الشرقية', $content);
+    }
+
+    public function test_regions_input_group_renders_has_select2_and_validation_styles(): void
+    {
+        $response = $this->actingAs($this->owner, 'tenant')
+            ->get($this->tenantUrl('settings'));
+
+        $response->assertOk();
+        $content = $response->getContent();
+
+        $this->assertStringContainsString('input-group input-group-merge', $content);
+        $this->assertStringContainsString('has-select2', $content);
+        $this->assertStringContainsString('.input-group.has-select2.is-invalid', $content);
+        $this->assertStringContainsString('.input-group.has-select2.is-valid', $content);
+        $this->assertStringContainsString('border-color: var(--bs-danger, #ff3e1d)', $content);
+        $this->assertStringContainsString('border-color: var(--bs-success, #71dd37)', $content);
+        $this->assertStringContainsString('align-items: stretch', $content);
     }
 
     public function test_tenant_can_save_operational_regions(): void
     {
         $payload = [
-            'active_tab' => '#regionsSettings',
             'operational_regions' => ['منطقة الرياض', 'المنطقة الشرقية'],
         ];
 
         $response = $this->actingAs($this->owner, 'tenant')
             ->put($this->tenantUrl('settings'), $payload);
 
-        $response->assertRedirect('http://test.localhost/settings#regionsSettings');
+        $response->assertRedirect('http://test.localhost/settings');
         $response->assertSessionHas('success');
 
         $settings = Settings::first();
@@ -110,14 +128,13 @@ class TenantRegionsSettingsTest extends TestCase
         $settings->save();
 
         $payload = [
-            'active_tab' => '#regionsSettings',
             'operational_regions' => [],
         ];
 
         $response = $this->actingAs($this->owner, 'tenant')
             ->put($this->tenantUrl('settings'), $payload);
 
-        $response->assertRedirect('http://test.localhost/settings#regionsSettings');
+        $response->assertRedirect('http://test.localhost/settings');
 
         $settings->refresh();
         $this->assertNull($settings->operational_regions);

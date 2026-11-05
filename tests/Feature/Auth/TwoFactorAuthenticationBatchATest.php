@@ -1017,24 +1017,19 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
         $this->assertNull($admin->two_factor_secret);
         $this->assertNull($admin->two_factor_confirmed_at);
 
-        // When enforced by AdminSettings: Admin disable fails
-        AdminSettings::create(['force_two_factor_auth' => true]);
-        $enforcedAdmin = $this->createAdminFixture();
-
-        $this->actingAs($enforcedAdmin, 'admin')
-            ->deleteJson('/superadmin/two-factor-authentication')
-            ->assertStatus(422)
-            ->assertJsonPath('message', 'المصادقة الثنائية مفروضة بموجب سياسة النظام ولا يمكن تعطيلها.');
-
-        // When enforced by TenantSettings: Tenant disable fails
+        // Tenant disable succeeds freely without forced 2FA blocking
         $tenant = Tenant::create(['id' => 'enforced-t']);
         tenancy()->initialize($tenant);
-        TenantSettings::create(['force_two_factor_auth' => true]);
         $enforcedTenantUser = $this->createTenantUserFixture('enforced-t');
 
         $this->actingAs($enforcedTenantUser, 'tenant')
             ->deleteJson('/enforced-t/two-factor-authentication')
-            ->assertStatus(422);
+            ->assertOk()
+            ->assertJson(['status' => 'disabled']);
+
+        $enforcedTenantUser->refresh();
+        $this->assertNull($enforcedTenantUser->two_factor_secret);
+        $this->assertNull($enforcedTenantUser->two_factor_confirmed_at);
     }
 
     // --------------------------------------------------------------------------

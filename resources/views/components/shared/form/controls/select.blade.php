@@ -14,6 +14,7 @@
     'append' => null,
     'controlName' => null,
     'wrapperId' => null,
+    'inputGroup' => false,
 ])
 
 @php
@@ -36,50 +37,105 @@
 @endphp
 
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help" :col="$col" :wrapper-id="$wrapperId">
-    <select
-        id="{{ $fieldId }}"
-        @if ($controlName !== false) name="{{ $controlName ?? $fieldName }}" @endif
-        @if ($multiple) multiple @endif
-        data-form-control
-        data-placeholder="{{ $placeholder }}"
-        aria-describedby="{{ $errorId }}"
-        aria-invalid="{{ $hasError ? 'true' : 'false' }}"
-        {{ $attributes->class(['form-select', 'select2' => $select2, 'is-invalid' => $hasError]) }}
-    >
-        @if (! $multiple && empty($slot->toHtml()))
-            <option value=""></option>
-        @endif
-        @foreach ($options as $key => $option)
-            @php
-                if ($enum) {
-                    $optionValue = $key;
-                    $optionLabel = $option;
-                    $optionDisabled = false;
-                } elseif (is_object($option)) {
-                    $optionValue = $option->id ?? $option->value ?? $key;
-                    $optionLabel = $option instanceof \Spatie\Permission\Models\Role
-                        ? \App\Support\AccessLabels::role($option->name)
-                        : ($option->name ?? $option->label ?? $option->title ?? (string) $optionValue);
-                    $optionDisabled = (bool) ($option->disabled ?? false);
-                } elseif (is_array($option)) {
-                    $optionValue = $option['value'] ?? $option['id'] ?? $key;
-                    $optionLabel = $option['label'] ?? $option['name'] ?? $option['title'] ?? (string) $optionValue;
-                    $optionDisabled = (bool) ($option['disabled'] ?? false);
-                } elseif (is_array($options) && array_is_list($options)) {
-                    $optionValue = $option;
-                    $optionLabel = $option;
-                    $optionDisabled = false;
-                } else {
-                    $optionValue = $key;
-                    $optionLabel = $option;
-                    $optionDisabled = false;
-                }
-            @endphp
-            <option value="{{ $optionValue }}" @selected($selectedValues->contains((string) $optionValue)) @disabled($optionDisabled)>
-                {{ $optionLabel }}
-            </option>
-        @endforeach
-        {{ $slot ?? '' }}
-    </select>
-    {!! $append ?? '' !!}
+    @if ($inputGroup)
+        <div @class([
+            'input-group input-group-merge',
+            'has-select2' => $select2,
+            'is-invalid' => $hasError,
+        ])>
+            <select
+                id="{{ $fieldId }}"
+                @if ($controlName !== false) name="{{ $controlName ?? $fieldName }}" @endif
+                @if ($multiple) multiple @endif
+                data-form-control
+                data-placeholder="{{ $placeholder }}"
+                aria-describedby="{{ $errorId }}"
+                aria-invalid="{{ $hasError ? 'true' : 'false' }}"
+                {{ $attributes->class(['form-select', 'select2' => $select2, 'is-invalid' => $hasError]) }}
+            >
+                @if (! $multiple)
+                    <option value=""></option>
+                @endif
+                @foreach ($options as $key => $option)
+                    @php
+                        if ($enum) {
+                            $optionValue = $key;
+                            $optionLabel = $option;
+                            $optionDisabled = false;
+                        } elseif (is_object($option)) {
+                            $optionValue = $option->id ?? $option->value ?? $key;
+                            $optionLabel = $option instanceof \Spatie\Permission\Models\Role
+                                ? \App\Support\AccessLabels::role($option->name)
+                                : ($option->name ?? $option->label ?? $option->title ?? (string) $optionValue);
+                            $optionDisabled = (bool) ($option->disabled ?? false);
+                        } elseif (is_array($option)) {
+                            $optionValue = $option['value'] ?? $option['id'] ?? $key;
+                            $optionLabel = $option['label'] ?? $option['name'] ?? $option['title'] ?? (string) $optionValue;
+                            $optionDisabled = (bool) ($option['disabled'] ?? false);
+                        } elseif (is_array($options) && array_is_list($options)) {
+                            $optionValue = $option;
+                            $optionLabel = $option;
+                            $optionDisabled = false;
+                        } else {
+                            $optionValue = $key;
+                            $optionLabel = $option;
+                            $optionDisabled = false;
+                        }
+                    @endphp
+                    <option value="{{ $optionValue }}" @selected($selectedValues->contains((string) $optionValue)) @disabled($optionDisabled)>
+                        {{ $optionLabel }}
+                    </option>
+                @endforeach
+            </select>
+            {{ $slot }}
+        </div>
+        {!! $append ?? '' !!}
+    @else
+        <select
+            id="{{ $fieldId }}"
+            @if ($controlName !== false) name="{{ $controlName ?? $fieldName }}" @endif
+            @if ($multiple) multiple @endif
+            data-form-control
+            data-placeholder="{{ $placeholder }}"
+            aria-describedby="{{ $errorId }}"
+            aria-invalid="{{ $hasError ? 'true' : 'false' }}"
+            {{ $attributes->class(['form-select', 'select2' => $select2, 'is-invalid' => $hasError]) }}
+        >
+            @if (! $multiple && empty($slot->toHtml()))
+                <option value=""></option>
+            @endif
+            @foreach ($options as $key => $option)
+                @php
+                    if ($enum) {
+                        $optionValue = $key;
+                        $optionLabel = $option;
+                        $optionDisabled = false;
+                    } elseif (is_object($option)) {
+                        $optionValue = $option->id ?? $option->value ?? $key;
+                        $optionLabel = $option instanceof \Spatie\Permission\Models\Role
+                            ? \App\Support\AccessLabels::role($option->name)
+                            : ($option->name ?? $option->label ?? $option->title ?? (string) $optionValue);
+                        $optionDisabled = (bool) ($option->disabled ?? false);
+                    } elseif (is_array($option)) {
+                        $optionValue = $option['value'] ?? $option['id'] ?? $key;
+                        $optionLabel = $option['label'] ?? $option['name'] ?? $option['title'] ?? (string) $optionValue;
+                        $optionDisabled = (bool) ($option['disabled'] ?? false);
+                    } elseif (is_array($options) && array_is_list($options)) {
+                        $optionValue = $option;
+                        $optionLabel = $option;
+                        $optionDisabled = false;
+                    } else {
+                        $optionValue = $key;
+                        $optionLabel = $option;
+                        $optionDisabled = false;
+                    }
+                @endphp
+                <option value="{{ $optionValue }}" @selected($selectedValues->contains((string) $optionValue)) @disabled($optionDisabled)>
+                    {{ $optionLabel }}
+                </option>
+            @endforeach
+            {{ $slot ?? '' }}
+        </select>
+        {!! $append ?? '' !!}
+    @endif
 </x-form.layout.field>

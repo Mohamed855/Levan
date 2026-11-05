@@ -30,19 +30,19 @@
 @section('content')
     <x-ui.validation-errors />
 
+    @php
+        $isExpiring = !empty($isExpiringPage) || request()->routeIs('admin.subscriptionManage.expiring');
+    @endphp
+
     <x-data-table.page table-id="subscriptions-table">
         <x-slot:stats>
-            <x-ui.stat-card title="إجمالي الاشتراكات" :value="$totalSubscriptions ?? 0" subtitle="جميع اشتراكات الشركات" icon="ti-packages"
-                color="primary" col="col-sm-6 col-xl-3" />
-
-            <x-ui.stat-card title="الاشتراكات النشطة" :value="$activeSubscriptions ?? 0" subtitle="اشتراكات سارية حالياً" icon="ti-circle-check"
-                color="success" col="col-sm-6 col-xl-3" />
-
-            <x-ui.stat-card title="تقارب على الانتهاء" :value="$expiringSubscriptions ?? 0" subtitle="خلال 30 يوماً" icon="ti-alert-triangle"
-                color="info" col="col-sm-6 col-xl-3" />
-
-            <x-ui.stat-card title="الاشتراكات المنتهية" :value="$expiredSubscriptions ?? 0" subtitle="انتهت صلاحيتها" icon="ti-clock-x"
-                color="danger" col="col-sm-6 col-xl-3" />
+            <x-ui.stat-card
+                :title="$isExpiring ? 'إجمالي تقارب على الانتهاء' : 'إجمالي الاشتراكات المنتهية'"
+                :value="($isExpiring ? $expiringSubscriptions : $expiredSubscriptions) ?? 0"
+                :subtitle="$isExpiring ? 'اشتراكات تنتهي خلال 30 يوماً' : 'جميع اشتراكات الشركات المنتهية'"
+                :icon="$isExpiring ? 'ti-alert-triangle' : 'ti-clock-x'"
+                :color="$isExpiring ? 'info' : 'danger'"
+                col="col-sm-6 col-xl-3" />
         </x-slot:stats>
 
         <x-slot:filters>

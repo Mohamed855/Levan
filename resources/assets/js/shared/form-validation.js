@@ -100,9 +100,10 @@ function stateTargets(control) {
     }
 
     if (control.tagName === "SELECT") {
-        const select2Container = control.nextElementSibling?.matches(".select2")
-            ? control.nextElementSibling
-            : null;
+        const select2Container =
+            control.nextElementSibling?.matches(".select2, .select2-container")
+                ? control.nextElementSibling
+                : control.parentElement?.querySelector(".select2-container");
 
         if (select2Container) {
             targets.push(select2Container);
@@ -795,9 +796,9 @@ async function restoreDraft(form) {
                 text: "توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟",
                 variant: "primary",
                 icon: "ti-file",
-                confirmButtonText: "تأكيد الاستعادة",
+                confirmButtonText: "نعم، استعادة المسودة",
                 confirmClass: "btn btn-primary px-4",
-                cancelText: "تجاهل",
+                cancelButtonText: "تجاهل والبدء من جديد",
             });
         } else {
             shouldRestore = Boolean(
@@ -867,7 +868,19 @@ async function restoreDraft(form) {
                 targetControl.focus?.();
             }, 300);
         }
-        window.toastr?.success?.("تمت استعادة المسودة بنجاح.");
+        const restoreSuccessMsg = "تمت استعادة المسودة بنجاح.";
+        if (window.toastr?.success) {
+            window.toastr.success(restoreSuccessMsg);
+        } else if (window.Swal) {
+            window.Swal.fire({
+                icon: "success",
+                title: restoreSuccessMsg,
+                timer: 3000,
+                showConfirmButton: false,
+                toast: true,
+                position: "top-start",
+            });
+        }
         resolved = true;
     } catch (_) {
         window.toastr?.error?.(

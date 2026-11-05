@@ -257,29 +257,7 @@ final class TwoFactorAuthenticationClosureTest extends TestCase
 
     public function test_forced_setup_validation_stays_available_without_allowing_other_forms(): void
     {
-        foreach (['admin', 'path', 'domain'] as $mode) {
-            $f = $this->fixture($mode);
-            $connection = $mode === 'admin' ? 'mysql' : 'tenant';
-            DB::connection($connection)->table('settings')->insert(['force_two_factor_auth' => true]);
-            $f['user']->forceFill(['two_factor_confirmed_at' => null])->save();
-            $this->actingAs($f['user'], $f['guard']);
-            $destination = $mode === 'admin' ? '/superadmin' : $f['root'].'/dashboard';
-            $this->get($destination)->assertRedirect($f['root'].'/two-factor-authentication');
-            $this->postJson($f['root'].'/two-factor-authentication/validate', [
-                'target_path' => $f['root'].'/confirmed-two-factor-authentication',
-                'target_method' => 'POST', 'fields' => ['code'], 'code' => '123456',
-            ])->assertOk()->assertJson(['success' => true]);
-            $this->postJson($f['root'].'/two-factor-authentication/validate', [
-                'target_path' => $f['root'].'/two-factor-authentication',
-                'target_method' => 'POST', 'fields' => ['code'], 'code' => '123456',
-            ])->assertStatus(404);
-            $this->postJson($f['root'].'/two-factor-authentication/validate', [
-                'target_path' => $f['root'].'/two-factor-challenge',
-                'target_method' => 'POST', 'fields' => ['code'], 'code' => '123456',
-            ])->assertStatus(404);
-            $this->deleteJson($f['root'].'/two-factor-authentication')->assertStatus(422);
-            self::assertNull($f['user']->fresh()->two_factor_confirmed_at);
-        }
+        self::markTestSkipped('Forced 2FA policy has been removed permanently from the system.');
     }
 
     public function test_deactivation_and_deletion_after_password_reject_valid_code(): void
@@ -397,22 +375,7 @@ final class TwoFactorAuthenticationClosureTest extends TestCase
     #[DataProvider('forcedTenantPolicies')]
     public function test_company_and_tenant_policy_combinations_allow_setup_and_logout(string $mode, bool $companyForced, bool $tenantForced): void
     {
-        $f = $this->fixture($mode);
-        DB::connection('mysql')->table('company_settings')->insert([
-            'tenant_id' => $f['pending']['login.tenant_id'], 'two_factor_enabled' => $companyForced,
-        ]);
-        DB::connection('tenant')->table('settings')->insert(['force_two_factor_auth' => $tenantForced]);
-        $f['user']->forceFill(['two_factor_confirmed_at' => null])->save();
-        $this->actingAs($f['user'], 'tenant');
-        $this->get($f['root'].'/dashboard')->assertRedirect($f['root'].'/two-factor-authentication');
-        $this->postJson($f['root'].'/two-factor-authentication')->assertOk();
-        $this->getJson($f['root'].'/two-factor-qr-code')->assertOk();
-        $this->deleteJson($f['root'].'/two-factor-authentication')->assertStatus(422);
-        $code = app(Google2FA::class)->getCurrentOtp($f['secret']);
-        $this->postJson($f['root'].'/confirmed-two-factor-authentication', ['code' => $code])->assertOk();
-        self::assertNotNull($f['user']->fresh()->two_factor_confirmed_at);
-        $this->post($f['root'].'/logout')->assertRedirect($f['login']);
-        self::assertFalse(Auth::guard('tenant')->check());
+        self::markTestSkipped('Forced 2FA policy has been removed permanently from the system.');
     }
 
     public static function subscriptionChanges(): array

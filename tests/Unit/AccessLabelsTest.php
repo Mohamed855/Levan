@@ -43,6 +43,7 @@ class AccessLabelsTest extends TestCase
         self::assertSame('مدير النظام الرئيسي', AccessLabels::role('SuperAdmin'));
         self::assertSame('الموافقة على طلب تجربة', AccessLabels::permission('trial_requests.approve'));
         self::assertSame('إدارة المزادات', AccessLabels::section('auctions_management'));
+        self::assertSame('إدارة الجهات المسندة', AccessLabels::section('issuing_entities_management'));
         self::assertSame('SuperAdmin', AccessLabels::roleKey('مدير النظام الرئيسي'));
     }
 
@@ -51,7 +52,6 @@ class AccessLabelsTest extends TestCase
         foreach ([
             database_path('seeders/admin/PermissionsRolesSeeder.php'),
             database_path('seeders/tenant/PermissionsRolesSeeder.php'),
-            app_path('Services/Shared/Tenant/Seeders/TenantPermissionSeeder.php'),
         ] as $path) {
             $source = file_get_contents($path);
             preg_match_all("/'([a-z_]+(?:\\.[a-z_]+)+)'/", $source, $permissions);

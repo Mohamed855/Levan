@@ -15,49 +15,31 @@ class UpdateTenantSettingsAction
 {
     /**
      * @param  array<string, mixed>  $validated
-     * @param  array<string, bool>  $flags
-     * @param  array<string, UploadedFile>  $files
+     * @param  UploadedFile|null  $image
      */
-    public function execute(string $activeTab, array $validated, array $flags, array $files): Settings
+    public function execute(array $validated, ?UploadedFile $image = null): Settings
     {
-        $storedFiles = [];
-        $replacedFiles = [];
+        $storedFile = null;
+        $replacedFile = null;
 
         try {
-            $settings = DB::transaction(function () use ($activeTab, $validated, $flags, $files, &$storedFiles, &$replacedFiles): Settings {
+            $settings = DB::transaction(function () use ($validated, $image, &$storedFile, &$replacedFile): Settings {
                 $settings = Settings::query()->lockForUpdate()->first() ?? new Settings;
 
-                if ($activeTab === '#generalSettings') {
+                if (array_key_exists('office_name', $validated)) {
                     $settings->office_name = $validated['office_name'];
+                }
+                if (array_key_exists('logo_text', $validated)) {
                     $settings->logo_text = $validated['logo_text'];
-                    $settings->maintenance_mode = $flags['maintenance_mode'] ?? false;
-                    $settings->breadcrumb_visibility = $flags['breadcrumb_visibility'] ?? false;
-                    $this->replaceFile($settings, 'image', $files, 'image', $storedFiles, $replacedFiles);
                 }
 
-                if ($activeTab === '#printSettings') {
-                    foreach (['horizontal_header_image', 'vertical_header_image', 'horizontal_footer_image', 'vertical_footer_image', 'signature'] as $field) {
-                        $this->replaceFile($settings, $field, $files, 'settings/print', $storedFiles, $replacedFiles);
-                    }
+                if ($image !== null) {
+                    $replacedFile = $settings->image;
+                    $storedFile = $image->store('image', 'tenant_public');
+                    $settings->image = $storedFile;
                 }
 
-                if ($activeTab === '#SmsSettings') {
-                    foreach (['sms_provider', 'sms_api_key', 'sms_api_secret', 'sms_api_endpoint', 'sms_sender_id', 'sms_from_number', 'sms_callback_url', 'sms_rate_limit'] as $field) {
-                        if (array_key_exists($field, $validated)) {
-                            $settings->{$field} = $validated[$field];
-                        }
-                    }
-
-                    $smsEnabled = $flags['sms_enabled'] ?? false;
-                    $settings->sms_enabled = $smsEnabled;
-                    $settings->sms_auto_reminders_enabled = $smsEnabled && ($flags['sms_auto_reminders_enabled'] ?? false);
-                }
-
-                if ($activeTab === '#twoFactorSettings') {
-                    $settings->force_two_factor_auth = $flags['force_two_factor_auth'] ?? false;
-                }
-
-                if ($activeTab === '#regionsSettings') {
+                if (array_key_exists('operational_regions', $validated)) {
                     $regions = (array) ($validated['operational_regions'] ?? []);
                     $cleaned = array_values(array_filter(
                         $regions,
@@ -66,42 +48,25 @@ class UpdateTenantSettingsAction
                     $settings->operational_regions = ! empty($cleaned) ? $cleaned : null;
                 }
 
-                if (array_key_exists('support_emails', $validated)) {
-                    $settings->support_emails = $validated['support_emails'];
-                }
-
                 $settings->save();
 
                 return $settings;
             });
         } catch (Throwable $exception) {
-            Storage::disk('tenant_public')->delete($storedFiles);
+            if ($storedFile !== null) {
+                Storage::disk('tenant_public')->delete($storedFile);
+            }
             throw $exception;
         }
 
-        Storage::disk('tenant_public')->delete(array_filter($replacedFiles));
+        if ($replacedFile !== null) {
+            Storage::disk('tenant_public')->delete($replacedFile);
+        }
         Cache::forget('app_settings');
         if (function_exists('tenant') && tenant('id')) {
             Cache::forget('app_settings_'.tenant('id'));
         }
 
         return $settings;
-    }
-
-    /**
-     * @param  array<string, UploadedFile>  $files
-     * @param  list<string>  $storedFiles
-     * @param  list<string|null>  $replacedFiles
-     */
-    private function replaceFile(Settings $settings, string $field, array $files, string $directory, array &$storedFiles, array &$replacedFiles): void
-    {
-        if (! isset($files[$field])) {
-            return;
-        }
-
-        $replacedFiles[] = $settings->{$field};
-        $path = $files[$field]->store($directory, 'tenant_public');
-        $storedFiles[] = $path;
-        $settings->{$field} = $path;
     }
 }

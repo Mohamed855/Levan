@@ -55,7 +55,7 @@ class TenantDashboardComprehensiveTest extends TestCase
     public function test_settings_and_center_endpoints(): void
     {
         $this->get($this->tenantUrl('settings'))->assertStatus(200);
-        $this->get($this->tenantUrl('settings/center'))->assertStatus(200);
+        $this->get($this->tenantUrl('settings/center'))->assertStatus(404);
         $this->get($this->tenantUrl('api-token-settings'))->assertStatus(200);
     }
 

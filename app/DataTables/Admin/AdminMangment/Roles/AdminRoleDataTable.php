@@ -41,7 +41,16 @@ final class AdminRoleDataTable extends AbstractDataTable
     protected function addCustomColumns($dataTable): void
     {
         $dataTable
-            ->addColumn('checkbox', fn (Role $role): string => '<input type="checkbox" class="row-checkbox" value="'.$role->id.'">')
+            ->addColumn('checkbox', function (Role $role): string {
+                if ($role->name === 'SuperAdmin') {
+                    return '<input type="checkbox" class="row-checkbox" value="'.$role->id.'" disabled title="لا يمكن حذف دور السوبر أدمن">';
+                }
+                if (($role->users_count ?? 0) > 0) {
+                    return '<input type="checkbox" class="row-checkbox" value="'.$role->id.'" disabled title="لا يمكن حذف دور مرتبط بمستخدمين">';
+                }
+
+                return '<input type="checkbox" class="row-checkbox" value="'.$role->id.'">';
+            })
             ->editColumn('name', fn (Role $role): string => '<span class="fw-medium text-heading">'.e(AccessLabels::role($role->name)).'</span>')
             ->editColumn('users_count', fn (Role $role): string => '<span class="badge bg-primary">'.number_format($role->users_count).'</span>')
             ->editColumn('permissions_count', fn (Role $role): string => '<span class="badge bg-info">'.number_format($role->permissions_count).'</span>')

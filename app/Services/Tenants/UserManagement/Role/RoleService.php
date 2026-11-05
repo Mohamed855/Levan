@@ -21,13 +21,20 @@ class RoleService
     | Define the permission sections used in the system.
     */
 
-    const PERMISSION_SECTIONS = [
-        'لوحة القيادة',
-        'مركز العمليات',
-        'إدارة المهام',
-        'إدارة التحصيل',
-        'إدارة النظام',
-        'التفارير والأرشيف',
+    public const PERMISSION_SECTIONS = [
+        'dashboard',
+        'subscriptions_management',
+        'domain_management',
+        'bills_management',
+        'users_management',
+        'business_center',
+        'system_management',
+        'archive_management',
+        'issuing_entities_management',
+        'assignments_management',
+        'properties_management',
+        'auctions_management',
+        'tickets_management',
     ];
 
     public const BASELINE_PERMISSION = 'dashboard.view';
@@ -159,7 +166,11 @@ class RoleService
             ->get()
             ->groupBy('section');
 
-        return $permissions;
+        return $permissions->sortBy(function ($items, $section) {
+            $index = array_search($section, self::PERMISSION_SECTIONS, true);
+
+            return $index === false ? 999 : $index;
+        });
     }
 
     /*

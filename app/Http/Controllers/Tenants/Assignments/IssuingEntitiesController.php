@@ -137,9 +137,11 @@ class IssuingEntitiesController extends Controller
                 'status' => $status,
             ]);
         } catch (LogicException $e) {
+            $message = $e->getMessage();
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => $message,
             ], 422);
         } catch (\Exception $e) {
             return response()->json([

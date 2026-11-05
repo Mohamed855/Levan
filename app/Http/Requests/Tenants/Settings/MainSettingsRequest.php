@@ -26,42 +26,10 @@ class MainSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'active_tab' => 'nullable|string|in:#generalSettings,#printSettings,#SmsSettings,#twoFactorSettings,#regionsSettings',
             // عامة
             'office_name' => 'nullable|string|max:255',
             'logo_text' => 'nullable|string|max:14',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
-            'maintenance_mode' => 'nullable',
-            'breadcrumb_visibility' => 'nullable',
-            'force_two_factor_auth' => 'nullable',
-
-            // طباعة
-            'horizontal_header_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
-            'vertical_header_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
-            'horizontal_footer_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
-            'vertical_footer_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
-            'signature' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
-
-            // WhatsApp (Twilio)
-            // 'twilio_account_sid'        => 'nullable|string',
-            // 'twilio_auth_token'         => 'nullable|string',
-            // 'twilio_whatsapp_from'      => 'nullable|string',
-            // 'whatsapp_enabled'          => 'boolean',
-
-            // SMS
-            'sms_provider' => 'nullable|string|max:255',
-            'sms_api_key' => 'nullable|string|max:255',
-            'sms_api_secret' => 'nullable|string|max:255',
-            'sms_api_endpoint' => 'nullable|url',
-            'sms_sender_id' => 'nullable|string|max:255',
-            'sms_from_number' => 'nullable|string|max:255',
-            'sms_callback_url' => 'nullable|url',
-            'sms_enabled' => 'nullable',
-            'sms_rate_limit' => 'nullable|integer|min:0',
-
-            // دعم فني
-            'support_emails' => 'nullable|array',
-            'support_emails.*' => 'email|distinct',
 
             // مناطق العمل
             'operational_regions' => 'nullable|array',
@@ -84,64 +52,18 @@ class MainSettingsRequest extends FormRequest
             'image.mimes' => 'الصورة يجب أن تكون من نوع jpeg، png، jpg، gif.',
             'image.max' => 'حجم الصورة لا يجب أن يتجاوز 10 ميجابايت.',
 
-            'horizontal_header_image.image' => 'الترويسة يجب أن تكون صورة.',
-            'horizontal_header_image.max' => 'حجم الترويسة لا يجب أن يتجاوز 10 ميجابايت.',
-            'vertical_header_image.image' => 'الترويسة العمودية يجب أن تكون صورة.',
-            'vertical_header_image.max' => 'حجم الترويسة العمودية لا يجب أن يتجاوز 10 ميجابايت.',
-            'horizontal_footer_image.image' => 'الفوتر يجب أن يكون صورة.',
-            'horizontal_footer_image.max' => 'حجم الفوتر لا يجب أن يتجاوز 10 ميجابايت.',
-            'vertical_footer_image.image' => 'الفوتر العمودي يجب أن يكون صورة.',
-            'vertical_footer_image.max' => 'حجم الفوتر العمودي لا يجب أن يتجاوز 10 ميجابايت.',
-            'signature.image' => 'الختم يجب أن يكون صورة.',
-            'signature.max' => 'حجم الختم لا يجب أن يتجاوز 10 ميجابايت.',
-
-            // 'twilio_account_sid.string'     => 'معرّف حساب Twilio يجب أن يكون نصًا.',
-            // 'twilio_auth_token.string'      => 'رمز توثيق Twilio يجب أن يكون نصًا.',
-            // 'twilio_whatsapp_from.string'   => 'Twilio WhatsApp from يجب أن يكون نصًا.',
-            // 'whatsapp_enabled.boolean'      => 'تمكين WhatsApp يجب أن يكون قيمة منطقية.',
-
-            'sms_provider.max' => 'مزود SMS لا يجب أن يتجاوز 255 حرفًا.',
-            'sms_api_key.max' => 'مفتاح API لا يجب أن يتجاوز 255 حرفًا.',
-            'sms_api_secret.max' => 'سر API لا يجب أن يتجاوز 255 حرفًا.',
-            'sms_api_endpoint.url' => 'نقطة نهاية SMS يجب أن تكون رابطًا صالحًا.',
-            'sms_sender_id.max' => 'معرّف المرسل لا يجب أن يتجاوز 255 حرفًا.',
-            'sms_from_number.max' => 'رقم المرسل لا يجب أن يتجاوز 255 حرفًا.',
-            'sms_callback_url.url' => 'رابط رد الاتصال يجب أن يكون رابطًا صالحًا.',
-            'sms_rate_limit.integer' => 'معدل الرسائل يجب أن يكون عددًا صحيحًا.',
-            'sms_rate_limit.min' => 'معدل الرسائل لا يمكن أن يكون سالبًا.',
-
-            'support_emails.array' => 'حقل عناوين الدعم يجب أن يكون مصفوفة.',
-            'support_emails.*.email' => 'كل بريد إلكتروني في الدعم يجب أن يكون صالحًا.',
-            'support_emails.*.distinct' => 'لا يمكن تكرار البريد الإلكتروني في الدعم.',
+            'operational_regions.array' => 'حقل مناطق العمل يجب أن يكون مصفوفة.',
+            'operational_regions.*.string' => 'منطقة العمل يجب أن تكون نصاً.',
+            'operational_regions.*.max' => 'منطقة العمل لا يجب أن تتجاوز 100 حرف.',
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'active_tab' => 'تبويب الإعدادات',
             'office_name' => 'إسم الشركة',
             'logo_text' => 'النص بجانب الشعار',
             'image' => 'شعار الشركة',
-            'maintenance_mode' => 'وضع الصيانة',
-            'breadcrumb_visibility' => 'إظهار قائمة التنقل',
-            'force_two_factor_auth' => 'إجبارية المصادقة الثنائية',
-            'horizontal_header_image' => 'الترويسة الأفقية',
-            'vertical_header_image' => 'الترويسة الرأسية',
-            'horizontal_footer_image' => 'الفوتر الأفقي',
-            'vertical_footer_image' => 'الفوتر الرأسي',
-            'signature' => 'الختم الخاص بالمؤسسة',
-            'sms_provider' => 'مزود الخدمة',
-            'sms_api_key' => 'Api Key',
-            'sms_api_secret' => 'Api Secret',
-            'sms_api_endpoint' => 'رابط واجهة الرسائل',
-            'sms_sender_id' => 'معرف المرسل',
-            'sms_from_number' => 'رقم الإرسال',
-            'sms_callback_url' => 'رابط الاستدعاء الراجع',
-            'sms_enabled' => 'حالة الرسائل',
-            'sms_rate_limit' => 'الحد الأقصى لمعدل الإرسال',
-            'support_emails' => 'عناوين بريد الدعم',
-            'support_emails.*' => 'عناوين بريد الدعم',
             'operational_regions' => 'مناطق العمل',
             'operational_regions.*' => 'منطقة العمل',
         ];
@@ -154,11 +76,9 @@ class MainSettingsRequest extends FormRequest
     */
     protected function failedValidation(Validator $validator)
     {
-        $fragment = $this->input('active_tab', null);
         throw new HttpResponseException(
             redirect()->back()
                 ->withInput()
-                ->withFragment($fragment)
                 ->withErrors($validator)
         );
     }

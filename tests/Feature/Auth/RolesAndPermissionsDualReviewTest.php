@@ -835,4 +835,89 @@ final class RolesAndPermissionsDualReviewTest extends TestCase
         $this->assertSame(1, Role::on('tenant')->find(10)->permissions()->count());
         tenancy()->end();
     }
+
+    public function test_tenant_grouped_permissions_orders_issuing_entities_before_assignments_and_after_dashboard(): void
+    {
+        $tenant = Tenant::on('mysql')->create(['id' => 't-order-' . uniqid()]);
+        tenancy()->initialize($tenant);
+
+        // Delete existing seeded permissions to control ordering explicitly
+        Permission::on('tenant')->where('guard_name', 'tenant')->delete();
+
+        // Seed with issuing entities having lower IDs (to simulate arbitrary DB insertion order)
+        foreach (['issuing_entities.view', 'issuing_entities.create', 'issuing_entities.edit'] as $perm) {
+            Permission::on('tenant')->create(['name' => $perm, 'guard_name' => 'tenant', 'section' => 'issuing_entities_management']);
+        }
+        Permission::on('tenant')->create(['name' => 'dashboard.view', 'guard_name' => 'tenant', 'section' => 'dashboard']);
+        Permission::on('tenant')->create(['name' => 'assignments.view', 'guard_name' => 'tenant', 'section' => 'assignments_management']);
+
+        $service = app(TenantRoleService::class);
+        $grouped = $service->getGroupedPermissions();
+        $sections = array_keys($grouped->all());
+
+        $dashboardIndex = array_search('dashboard', $sections, true);
+        $issuingIndex = array_search('issuing_entities_management', $sections, true);
+        $assignmentsIndex = array_search('assignments_management', $sections, true);
+
+        $this->assertNotFalse($dashboardIndex);
+        $this->assertNotFalse($issuingIndex);
+        $this->assertNotFalse($assignmentsIndex);
+        $this->assertLessThan($issuingIndex, $dashboardIndex);
+        $this->assertLessThan($assignmentsIndex, $issuingIndex);
+        $this->assertSame('إدارة الجهات المسندة', \App\Support\AccessLabels::section('issuing_entities_management'));
+
+        tenancy()->end();
+    }
+
+    public function test_role_actions_and_datatable_checkbox_hide_or_disable_delete_for_roles_with_users_in_admin_and_tenant(): void
+    {
+        $admin = $this->createAdminUser();
+        $this->actingAs($admin, 'admin');
+
+        // 1. Admin Role with users
+        $adminRoleWithUsers = (new Role)->forceFill(['id' => 91, 'name' => 'AdminSupervisor', 'guard_name' => 'admin']);
+        $adminRoleWithUsers->users_count = 3;
+
+        $adminActionWithUsers = view('admin.roles.action', ['role' => $adminRoleWithUsers])->render();
+        $this->assertStringNotContainsString('js-delete-btn', $adminActionWithUsers);
+
+        $adminRoleWithoutUsers = (new Role)->forceFill(['id' => 92, 'name' => 'AdminFree', 'guard_name' => 'admin']);
+        $adminRoleWithoutUsers->users_count = 0;
+
+        $adminActionWithoutUsers = view('admin.roles.action', ['role' => $adminRoleWithoutUsers])->render();
+        $this->assertStringContainsString('js-delete-btn', $adminActionWithoutUsers);
+
+        // 2. Tenant Role with users
+        $tenant = Tenant::on('mysql')->create(['id' => 't-act-' . uniqid()]);
+        $tenantUser = $this->createTenantUser($tenant);
+        $this->actingAs($tenantUser, 'tenant');
+
+        $tenantRoleWithUsers = (new Role)->forceFill(['id' => 93, 'name' => 'TenantSupervisor', 'guard_name' => 'tenant']);
+        $tenantRoleWithUsers->users_count = 2;
+
+        $tenantActionWithUsers = view('tenant.user-management.roles.action', ['role' => $tenantRoleWithUsers])->render();
+        $this->assertStringNotContainsString('js-delete-btn', $tenantActionWithUsers);
+
+        $tenantRoleWithoutUsers = (new Role)->forceFill(['id' => 94, 'name' => 'TenantFree', 'guard_name' => 'tenant']);
+        $tenantRoleWithoutUsers->users_count = 0;
+
+        $tenantActionWithoutUsers = view('tenant.user-management.roles.action', ['role' => $tenantRoleWithoutUsers])->render();
+        $this->assertStringContainsString('js-delete-btn', $tenantActionWithoutUsers);
+
+        tenancy()->end();
+    }
+
+    public function test_roles_create_and_edit_views_in_admin_and_tenant_load_toastr(): void
+    {
+        $adminCreate = file_get_contents(resource_path('views/admin/roles/create.blade.php'));
+        $adminEdit = file_get_contents(resource_path('views/admin/roles/edit.blade.php'));
+        $tenantCreate = file_get_contents(resource_path('views/tenant/user-management/roles/create.blade.php'));
+        $tenantEdit = file_get_contents(resource_path('views/tenant/user-management/roles/edit.blade.php'));
+
+        foreach ([$adminCreate, $adminEdit, $tenantCreate, $tenantEdit] as $content) {
+            $this->assertStringContainsString("@section('toastr')", $content);
+            $this->assertStringContainsString('resources/assets/js/shared/toastr.js', $content);
+            $this->assertStringContainsString('resources/assets/css/shared/toastr.css', $content);
+        }
+    }
 }

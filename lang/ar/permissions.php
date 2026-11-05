@@ -4,6 +4,7 @@ return [
     // الأقسام الرئيسية
     'sections' => [
         'dashboard' => 'لوحة القيادة',
+        'issuing_entities_management' => 'إدارة الجهات المسندة',
         'assignments_management' => 'إدارة الإسنادات',
         'properties_management' => 'إدارة العقارات',
         'auctions_management' => 'إدارة المزادات',

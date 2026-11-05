@@ -32,24 +32,14 @@
 
                     {{-- حالة: غير مفعّلة --}}
                     <div id="disabledActions" class="{{ $enabled ? 'd-none' : '' }}">
-                        @if ($enforced ?? false)
-                            <div class="alert alert-warning d-flex align-items-start mb-4" role="alert">
-                                <i class="ti ti-alert-triangle ti-md me-2 mt-1"></i>
-                                <div>
-                                    <strong>تنبيه إلزامي:</strong> المصادقة الثنائية مفروضة بموجب سياسة النظام. يرجى إعدادها
-                                    فوراً للمتابعة.
-                                </div>
-                            </div>
-                        @else
-                            <div class="alert alert-primary d-flex align-items-center mb-4" role="alert">
-                                <i class="ti ti-info-circle ti-md me-1 mt-1"></i>
-                                <span>
-                                    فعّل المصادقة الثنائية لإضافة خطوة تحقق عبر تطبيق مثل
-                                    <strong>Microsoft Authenticator</strong> أو <strong>Google Authenticator</strong>
-                                    بجانب كلمة المرور، لحماية أقوى لحسابك.
-                                </span>
-                            </div>
-                        @endif
+                        <div class="alert alert-primary d-flex align-items-center mb-4" role="alert">
+                            <i class="ti ti-info-circle ti-md me-1 mt-1"></i>
+                            <span>
+                                فعّل المصادقة الثنائية لإضافة خطوة تحقق عبر تطبيق مثل
+                                <strong>Microsoft Authenticator</strong> أو <strong>Google Authenticator</strong>
+                                بجانب كلمة المرور، لحماية أقوى لحسابك.
+                            </span>
+                        </div>
                         <button type="button" id="enable2faBtn" class="btn btn-primary">
                             <i class="ti ti-shield-plus me-1"></i>
                             تفعيل المصادقة الثنائية
@@ -92,16 +82,9 @@
                                     <p class="text-muted small mb-3">
                                         سيتم تعطيل خطوة التحقق الإضافية، وسيصبح الدخول بكلمة المرور فقط.
                                     </p>
-                                    @if ($enforced ?? false)
-                                        <div class="alert alert-warning py-2 px-3 mb-0 small">
-                                            <i class="ti ti-lock me-1"></i>
-                                            المصادقة الثنائية مفروضة بموجب سياسة النظام ولا يمكن إلغاؤها.
-                                        </div>
-                                    @else
-                                        <button type="button" id="disable2faBtn" class="btn btn-danger btn-sm">
-                                            <i class="ti ti-shield-x me-1"></i>إلغاء التفعيل
-                                        </button>
-                                    @endif
+                                    <button type="button" id="disable2faBtn" class="btn btn-danger btn-sm">
+                                        <i class="ti ti-shield-x me-1"></i>إلغاء التفعيل
+                                    </button>
                                 </div>
                             </div>
                         </div>

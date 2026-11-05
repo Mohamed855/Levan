@@ -432,6 +432,8 @@ final class OverviewAndSecurityDualReviewTest extends TestCase
             'status' => 'active',
             'is_super_admin' => true,
         ]);
+        $superAdminRole = Role::firstOrCreate(['name' => 'SuperAdmin', 'guard_name' => 'admin']);
+        $this->superAdmin->assignRole($superAdminRole);
 
         $this->limitedAdmin = AdminUser::create([
             'name' => 'Limited Admin',

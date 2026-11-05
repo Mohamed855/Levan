@@ -398,7 +398,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::name('index')->get('/', [SettingsController::class, 'index']);
             Route::name('update')->put('/', [SettingsController::class, 'update']);
-            Route::name('center')->get('/center', [SettingsController::class, 'center']);
+            // Route::name('center')->get('/center', [SettingsController::class, 'center']);
         });
 
         Route::prefix('api-token-settings')->name('api-token-settings.')->group(function () {

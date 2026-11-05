@@ -37,7 +37,7 @@
         </li>
 
         {{-- الإسنادات والعقارات --}}
-        @canany(['issuing_entities.view', 'properties.view', 'assignments.view', 'auctions.view'])
+        @canany(['issuing_entities.view', 'properties.view', 'assignments.view'])
             <li class="menu-header small">
                 <span class="menu-header-text">الإسنادات والعقارات</span>
             </li>
@@ -68,21 +68,12 @@
                     </a>
                 </li>
             @endcan
-
-            @can('auctions.view')
-                <li class="menu-item @if (Helpers::isActiveRoute('auctions.*')) active @endif">
-                    <a href="{{ tenant_route_name('auctions.index') }}" class="menu-link">
-                        <i class="menu-icon tf-icons ti ti-gavel"></i>
-                        <div>المزادات</div>
-                    </a>
-                </li>
-            @endcan
         @endcanany
 
         {{-- المزادات والإعلانات --}}
-        {{-- @canany(['auctions.view'])
+        @canany(['auctions.view'])
             <li class="menu-header small">
-                <span class="menu-header-text">المزادات والإعلانات</span>
+                <span class="menu-header-text">المزادات والتقارير</span>
             </li>
 
             @can('auctions.view')
@@ -94,15 +85,15 @@
                 </li>
             @endcan
 
-            @canany(['auctions.view', 'auctions.create'])
+            {{-- @canany(['auctions.view', 'auctions.create'])
                 <li class="menu-item @if (Helpers::isActiveRoute('promotional-advertisements.*')) active @endif">
                     <a href="{{ tenant_route_name('promotional-advertisements.create') }}" class="menu-link">
                         <i class="menu-icon tf-icons ti ti-speakerphone"></i>
                         <div>الإعلانات الترويجية</div>
                     </a>
                 </li>
-            @endcanany
-        @endcanany --}}
+            @endcanany --}}
+        @endcanany
 
         {{-- الاشتراكات والفوترة --}}
         @canany(['subscriptions.view', 'bills.view'])

@@ -226,7 +226,7 @@ function bindEvents() {
     // تحديد الكل
     tableWrapper.on('click', '#select-all', function () {
         const rows = usersTable.rows({ 'search': 'applied' }).nodes();
-        $('input[type="checkbox"]', rows).prop('checked', this.checked);
+        $('input[type="checkbox"]:not(:disabled)', rows).prop('checked', this.checked);
     });
 
     tableWrapper.on('change', '.row-checkbox', function () {

@@ -91,7 +91,7 @@
                                             <i class="ti ti-shield-lock ti-lg"></i>
                                         </span>
                                     </div>
-                                    <small class="text-muted fw-medium">إدارة الصلاحيات</small>
+                                    <small class="text-muted fw-medium">الأدوار والصلاحيات</small>
                                 </a>
                             </div>
                         @endcan
@@ -105,7 +105,7 @@
                                             <i class="ti ti-settings ti-lg"></i>
                                         </span>
                                     </div>
-                                    <small class="text-muted fw-medium">إعدادات الشركة</small>
+                                    <small class="text-muted fw-medium">إعدادات النظام</small>
                                 </a>
                             </div>
                         @endcan
@@ -134,20 +134,6 @@
                                         </span>
                                     </div>
                                     <small class="text-muted fw-medium">إدارة النطاقات</small>
-                                </a>
-                            </div>
-                        @endcan
-
-                        @can('system.settings')
-                            <div class="col-6">
-                                <a href="{{ tenant_route_name('settings.center') }}"
-                                    class="d-block p-3 text-center border rounded text-decoration-none">
-                                    <div class="avatar avatar-md mx-auto mb-2">
-                                        <span class="avatar-initial rounded bg-label-dark">
-                                            <i class="ti ti-adjustments ti-lg"></i>
-                                        </span>
-                                    </div>
-                                    <small class="text-muted fw-medium">الإعدادات التفصيلية</small>
                                 </a>
                             </div>
                         @endcan

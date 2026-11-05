@@ -94,7 +94,7 @@
                                         <i class="ti ti-shield-lock ti-lg"></i>
                                     </span>
                                 </div>
-                                <small class="text-muted fw-medium">إدارة الصلاحيات</small>
+                                <small class="text-muted fw-medium">الأدوار والصلاحيات</small>
                             </a>
                         </div>
                     @endcan
@@ -172,6 +172,12 @@
                                     </a>
                                 </div>
                                 <div class="col-6">
+                                    <a href="{{ route('admin.archives.tenants.index') }}"
+                                        class="d-block p-2 text-center border rounded text-decoration-none">
+                                        <small>العملاء</small>
+                                    </a>
+                                </div>
+                                <div class="col-6">
                                     <a href="{{ route('admin.archives.plans.index') }}"
                                         class="d-block p-2 text-center border rounded text-decoration-none">
                                         <small>الباقات</small>
@@ -181,12 +187,6 @@
                                     <a href="{{ route('admin.archives.coupons.index') }}"
                                         class="d-block p-2 text-center border rounded text-decoration-none">
                                         <small>الكوبونات</small>
-                                    </a>
-                                </div>
-                                <div class="col-6">
-                                    <a href="{{ route('admin.archives.tenants.index') }}"
-                                        class="d-block p-2 text-center border rounded text-decoration-none">
-                                        <small>الشركات</small>
                                     </a>
                                 </div>
                                 <div class="col-6">

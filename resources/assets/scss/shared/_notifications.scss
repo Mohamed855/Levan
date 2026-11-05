@@ -1,4 +1,5 @@
-.notification-filter__count {
+.notification-filter__count,
+.ui-tab__count {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -17,6 +18,15 @@
 }
 
 .btn:hover .notification-filter__count,
-.btn-primary > .notification-filter__count{
+.btn:hover .ui-tab__count,
+.btn-primary > .notification-filter__count,
+.btn-primary > .ui-tab__count,
+.btn.active > .notification-filter__count,
+.btn.active > .ui-tab__count {
     background-color: rgba(var(--bs-white-rgb), 0.2) !important;
+}
+
+.btn-group-vertical.gap-2 > .btn,
+.btn-group-vertical.gap-2 > .btn-group {
+    border-radius: var(--bs-border-radius) !important;
 }
