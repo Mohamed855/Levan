@@ -143,6 +143,7 @@ Route::prefix('superadmin')->name('admin.')->middleware(['auth:admin', 'admin.ac
         Route::post('bulk-delete', [AdminUserController::class, 'bulkDelete'])->name('bulk-delete');
         Route::patch('{user}/toggle-status', [AdminUserController::class, 'toggleStatus'])->name('toggle-status');
         Route::get('profile/{id}', [AdminUserController::class, 'showProfile'])->name('profile');
+        Route::name('update-image')->post('{user}/image', [AdminUserController::class, 'updateImage'])->defaults('shared_form_validation', true);
         Route::resource('/', AdminUserController::class)->except('show')->parameters(['' => 'user']);
 
         // check if email is unique via ajax

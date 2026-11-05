@@ -316,7 +316,7 @@ function parseDependencies(control) {
 
 function passwordConfirmationDependencies(control) {
     const name = String(control.name || "");
-    const suffix = "_confirmation";
+    const suffix = '_confirmation';
 
     return name.endsWith(suffix) ? [name.slice(0, -suffix.length)] : [];
 }
@@ -743,7 +743,10 @@ async function resolveDraftNavigation(form, defaultStep) {
 
     for (let index = 0; index < savedStep - 1; index += 1) {
         const fields = validationFieldsFromStep(steps[index]);
-        if (fields.length && !(await validateFields(form, fields, { force: true }))) {
+        if (
+            fields.length &&
+            !(await validateFields(form, fields, { force: true }))
+        ) {
             return { targetStep: index + 1, targetControl: null };
         }
     }
@@ -791,7 +794,7 @@ async function restoreDraft(form) {
                 title: "مسودة محفوظة",
                 text: "توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟",
                 variant: "primary",
-                icon: "ti-file-pencil",
+                icon: "ti-file",
                 confirmButtonText: "تأكيد الاستعادة",
                 confirmClass: "btn btn-primary px-4",
                 cancelText: "تجاهل",
@@ -1372,8 +1375,12 @@ function syncAllPropertyStepButtons(form) {
     if (!form) return;
     const stepperElement = form.closest("[data-form-stepper]") || form;
     const steps = [
-        ...form.querySelectorAll("[data-form-step], .content, .bs-stepper-pane"),
-        ...stepperElement.querySelectorAll("[data-form-step], .content, .bs-stepper-pane"),
+        ...form.querySelectorAll(
+            "[data-form-step], .content, .bs-stepper-pane",
+        ),
+        ...stepperElement.querySelectorAll(
+            "[data-form-step], .content, .bs-stepper-pane",
+        ),
     ];
 
     const propertyInputs = Array.from(
@@ -1825,7 +1832,7 @@ function initStepper(form) {
                 }
 
                 const steps = getSteps();
-                const currentStep = nextButton.closest("[data-form-step]");
+                const currentStep = nextButton.closest('[data-form-step]');
                 const currentIndex = steps.indexOf(currentStep);
                 if (!currentStep || currentIndex < 0) {
                     return;
@@ -1859,7 +1866,7 @@ function initStepper(form) {
                 }
 
                 state.isValidatingStep = true;
-                nextButton.setAttribute("aria-busy", "true");
+                nextButton.setAttribute('aria-busy', 'true');
                 nextButton.dataset.buttonIsLoading = "true";
                 const nextSpinner = nextButton.querySelector(".btn-spinner");
                 const nextIcon = nextButton.querySelector(
@@ -1869,9 +1876,7 @@ function initStepper(form) {
                 if (nextIcon) nextIcon.classList.add("d-none");
 
                 try {
-                    const isValid = await validateFields(form, stepFields, {
-                        force: true,
-                    });
+                    const isValid = await validateFields(form, stepFields, { force: true });
                     if (isValid) {
                         moveTo(currentIndex + 1);
                     } else {
@@ -2258,7 +2263,12 @@ function initForm(form) {
             event.submitter ||
             form.querySelector(
                 '[data-save-button], .btn-submit, button[type="submit"]:not([data-wizard-prev]):not([data-wizard-next]):not([data-wizard-draft])',
-            );
+            ) ||
+            (form.id
+                ? document.querySelector(
+                      `button[type="submit"][form="${form.id}"]`,
+                  )
+                : null);
 
         event.preventDefault();
 
@@ -2266,14 +2276,40 @@ function initForm(form) {
             setButtonLoading(submitButton);
         }
 
+        const resetSubmitButtons = () => {
+            if (submitButton) {
+                resetButtonLoading(submitButton);
+            }
+            form.querySelectorAll(
+                '[data-save-button], .btn-submit, button[type="submit"], [data-button-is-loading="true"]',
+            ).forEach((btn) => resetButtonLoading(btn));
+            if (form.id) {
+                document
+                    .querySelectorAll(
+                        `button[form="${form.id}"], [data-button-is-loading="true"]`,
+                    )
+                    .forEach((btn) => resetButtonLoading(btn));
+            }
+        };
+
         const fields = Array.from(form.querySelectorAll("[name]"))
             .filter((control) => !control.matches("[data-validation-skip]"))
             .map((control) => control.name);
-        const valid = await validateFields(form, fields);
+
+        let valid = false;
+        try {
+            valid = await validateFields(form, fields);
+        } catch (error) {
+            valid = false;
+            resetSubmitButtons();
+            if (window.toastr?.error) {
+                window.toastr.error(VALIDATION_ERROR_TOAST_MESSAGE);
+            }
+            return;
+        }
+
         if (!valid) {
-            form.querySelectorAll(
-                '[data-save-button], .btn-submit, button[type="submit"]',
-            ).forEach((btn) => resetButtonLoading(btn));
+            resetSubmitButtons();
 
             if (window.toastr?.error) {
                 window.toastr.error(VALIDATION_ERROR_TOAST_MESSAGE);
@@ -2573,7 +2609,12 @@ function boot() {
             event.submitter ||
             form.querySelector(
                 '[data-save-button], .btn-submit, button[type="submit"]',
-            );
+            ) ||
+            (form.id
+                ? document.querySelector(
+                      `button[type="submit"][form="${form.id}"]`,
+                  )
+                : null);
 
         if (submitButton && !submitButton.matches("[data-no-loading]")) {
             setButtonLoading(submitButton);
@@ -2616,12 +2657,10 @@ if (document.readyState === "loading") {
 }
 
 window.addEventListener("load", () => {
-    document
-        .querySelectorAll("form[data-form-validate]")
-        .forEach((form) => {
-            initSelect2Controls(form);
-            syncAllPropertyStepButtons(form);
-        });
+    document.querySelectorAll("form[data-form-validate]").forEach((form) => {
+        initSelect2Controls(form);
+        syncAllPropertyStepButtons(form);
+    });
 });
 
 window.SharedFormValidation = {

@@ -231,7 +231,7 @@ class UserService
                 $this->deleteImage($user->image);
             }
 
-            $imagePath = $this->handleImageUpload($image);
+            $imagePath = $image instanceof \Illuminate\Http\UploadedFile ? $this->handleImageUpload($image) : null;
             $user->update(['image' => $imagePath]);
 
             return $user->fresh();

@@ -8,11 +8,12 @@
                         alt="صورة المستخدم" class="rounded-circle border shadow-sm w-100 h-100 object-fit-cover"
                         onerror="this.onerror=null;this.src='{{ asset('static/brand/logos/logo.svg') }}';">
                     @if (auth('admin')->id() === $user->id || auth('admin')->user()?->can('users.edit'))
-                        <a href="{{ auth('admin')->id() === $user->id ? route('admin.profile.edit') : route('admin.users.edit', $user->id) }}"
+                        <button type="button"
                             class="btn btn-sm btn-icon btn-primary rounded-circle position-absolute bottom-0 end-0"
-                            title="تعديل الصورة الشخصية">
+                            data-bs-toggle="modal" data-bs-target="#changeProfileImageModal"
+                            title="تغيير الصورة الشخصية">
                             <i class="ti ti-edit ti-14px"></i>
-                        </a>
+                        </button>
                     @endif
                 </div>
                 <h5 class="mb-1 fw-bold">{{ $user->name }}</h5>
@@ -163,3 +164,24 @@
         </div>
     </div>
 </div>
+
+{{-- مودال تعديل الصورة الشخصية --}}
+@if (auth('admin')->id() === $user->id || auth('admin')->user()?->can('users.edit'))
+    <x-bootstrap.modal id="changeProfileImageModal">
+        <form id="changeProfileImageForm" method="POST" enctype="multipart/form-data" novalidate data-form-validate
+            action="{{ route('admin.users.update-image', $user->id) }}"
+            data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}">
+            @csrf
+            <x-form.controls.file name="profile_image" id="profile_image" label="اختر صورة شخصية جديدة"
+                :value="$user->image && Storage::disk('public')->exists($user->image) ? asset('storage/' . $user->image) : null" accept="image/*" help="الصيغ المسموح بها: JPG, PNG, GIF. الحد الأقصى: 10MB"
+                :max-size="10" col="col-12" />
+            <x-slot:footer>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i
+                        class="ti ti-x me-1"></i>إلغاء</button>
+                <button type="submit" form="changeProfileImageForm" class="btn btn-primary">
+                    <i class="ti ti-device-floppy me-1"></i> حفظ التغييرات
+                </button>
+            </x-slot:footer>
+        </form>
+    </x-bootstrap.modal>
+@endif

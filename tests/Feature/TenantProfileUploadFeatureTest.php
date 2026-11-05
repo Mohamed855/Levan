@@ -128,6 +128,32 @@ class TenantProfileUploadFeatureTest extends TestCase
         }
     }
 
+    public function test_owner_can_remove_existing_profile_image(): void
+    {
+        Storage::fake('tenant_public');
+        $connection = $this->owner->getConnection();
+        $connection->beginTransaction();
+
+        try {
+            // First set an image on the user
+            $imagePath = UploadedFile::fake()->image('existing-avatar.jpg')->storeAs('users', 'existing-avatar.jpg', 'tenant_public');
+            $this->owner->update(['image' => $imagePath]);
+            Storage::disk('tenant_public')->assertExists($imagePath);
+
+            $profileUrl = $this->tenantUrl('users/profile');
+            $response = $this->actingAs($this->owner, 'tenant')->from($profileUrl)
+                ->post($this->tenantUrl("users/{$this->owner->id}/image"), [
+                    'remove_profile_image' => '1',
+                ]);
+
+            $response->assertRedirect($profileUrl)->assertSessionHas('success', 'تم حذف الصورة بنجاح');
+            self::assertNull($this->owner->fresh()->image);
+            Storage::disk('tenant_public')->assertMissing($imagePath);
+        } finally {
+            $connection->rollBack();
+        }
+    }
+
     private function tenantUrl(string $path): string
     {
         return 'http://test.localhost/' . ltrim($path, '/');

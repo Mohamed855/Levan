@@ -354,16 +354,24 @@ class UserController extends Controller
     public function updateImage(UpdateUserProfileImageRequest $request, User $user): JsonResponse|RedirectResponse
     {
         try {
-            $this->userService->updateUserImage($user, $request->file('profile_image'));
+            $isRemoving = $request->boolean('remove_profile_image') || $request->input('remove_profile_image') === '1';
+            $file = $request->file('profile_image');
+
+            if ($isRemoving || $file) {
+                $this->userService->updateUserImage($user, $file);
+            }
+
+            $freshUser = $user->fresh();
+            $msg = $isRemoving && ! $file ? 'تم حذف الصورة بنجاح' : 'تم تحديث الصورة بنجاح';
 
             if (! $request->expectsJson()) {
-                return redirect()->back()->with('success', 'تم تحديث الصورة بنجاح');
+                return redirect()->back()->with('success', $msg);
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم تحديث الصورة بنجاح',
-                'image_url' => tasset($user->fresh()->image),
+                'message' => $msg,
+                'image_url' => $freshUser->image ? tasset($freshUser->image) : asset('static/brand/logos/logo.svg'),
             ]);
         } catch (\Exception $e) {
             if (! $request->expectsJson()) {

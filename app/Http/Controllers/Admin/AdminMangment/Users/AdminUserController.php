@@ -12,15 +12,18 @@ use App\Http\Requests\Admin\AdminMangment\Users\ChangeCurrentAdminPasswordReques
 use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserEmailUniqueRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserNameUniqueRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserPhoneUniqueRequest;
+use App\Http\Requests\Admin\AdminMangment\Users\UpdateAdminUserProfileImageRequest;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Coupons\Coupon;
 use App\Services\Admin\AdminMangment\Users\UserService;
 use App\Services\Shared\Notifications\DashboardNotificationService;
 use App\Support\AccessLabels;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Spatie\Activitylog\Models\Activity;
@@ -367,5 +370,41 @@ class AdminUserController extends Controller
             'available' => true,
             'message' => 'رقم الهاتف متاح',
         ]);
+    }
+
+    public function updateImage(UpdateAdminUserProfileImageRequest $request, AdminUser $user): JsonResponse|RedirectResponse
+    {
+        try {
+            $isRemoving = $request->boolean('remove_profile_image') || $request->input('remove_profile_image') === '1';
+            $file = $request->file('profile_image');
+
+            if ($isRemoving || $file) {
+                $this->userService->updateUserImage($user, $file);
+            }
+
+            $freshUser = $user->fresh();
+            $msg = $isRemoving && ! $file ? 'تم حذف الصورة بنجاح' : 'تم تحديث الصورة بنجاح';
+
+            if (! $request->expectsJson()) {
+                return redirect()->back()->with('success', $msg);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $msg,
+                'image_url' => $freshUser->image && Storage::disk('public')->exists($freshUser->image)
+                    ? asset('storage/'.$freshUser->image)
+                    : asset('static/brand/logos/logo.svg'),
+            ]);
+        } catch (\Exception $e) {
+            if (! $request->expectsJson()) {
+                return redirect()->back()->with('error', 'حدث خطأ أثناء تحديث الصورة');
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء تحديث الصورة: '.$e->getMessage(),
+            ], 500);
+        }
     }
 }

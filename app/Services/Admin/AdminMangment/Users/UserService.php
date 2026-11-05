@@ -186,6 +186,20 @@ class UserService
         ];
     }
 
+    public function updateUserImage(AdminUser $user, $image): AdminUser
+    {
+        return DB::transaction(function () use ($user, $image) {
+            if ($user->image) {
+                $this->deleteImage($user->image);
+            }
+
+            $imagePath = $image instanceof UploadedFile ? $this->handleImageUpload($image) : null;
+            $user->update(['image' => $imagePath]);
+
+            return $user->fresh();
+        });
+    }
+
     /*
     |============================================================================
     |============================================================================
