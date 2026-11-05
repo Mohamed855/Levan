@@ -7,24 +7,7 @@
 @endsection
 
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-1">
-                <i class="ti ti-gavel me-2 text-primary"></i>تفاصيل المزاد: {{ $auction->name }}
-            </h4>
-            <div class="d-flex align-items-center gap-2">
-                <code class="copyable-code fs-6"
-                    onclick="navigator.clipboard.writeText('AUC-{{ str_pad((string) $auction->id, 5, '0', STR_PAD_LEFT) }}'); toastr.success('تم نسخ رقم المزاد');">
-                    AUC-{{ str_pad((string) $auction->id, 5, '0', STR_PAD_LEFT) }}
-                </code>
-                <span
-                    class="badge {{ $auction->status_badge_class }}">{{ $auction->status_label }}</span>
-                <span class="badge bg-info">{{ $auction->type_label }}</span>
-                @if ($auction->city)
-                    <span class="badge bg-secondary"><i class="ti ti-map-pin me-1"></i>{{ $auction->city }}</span>
-                @endif
-            </div>
-        </div>
+    <div class="d-flex justify-content-end align-items-center mb-4">
         <div class="d-flex gap-2">
             <a href="{{ tenant_route_name('auctions.index') }}" class="btn btn-secondary">
                 <i class="ti ti-arrow-right me-1"></i> العودة

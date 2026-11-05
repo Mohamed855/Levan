@@ -100,10 +100,11 @@ function stateTargets(control) {
     }
 
     if (control.tagName === "SELECT") {
-        const select2Container =
-            control.nextElementSibling?.matches(".select2, .select2-container")
-                ? control.nextElementSibling
-                : control.parentElement?.querySelector(".select2-container");
+        const select2Container = control.nextElementSibling?.matches(
+            ".select2, .select2-container",
+        )
+            ? control.nextElementSibling
+            : control.parentElement?.querySelector(".select2-container");
 
         if (select2Container) {
             targets.push(select2Container);
@@ -317,7 +318,7 @@ function parseDependencies(control) {
 
 function passwordConfirmationDependencies(control) {
     const name = String(control.name || "");
-    const suffix = '_confirmation';
+    const suffix = "_confirmation";
 
     return name.endsWith(suffix) ? [name.slice(0, -suffix.length)] : [];
 }
@@ -796,9 +797,9 @@ async function restoreDraft(form) {
                 text: "توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟",
                 variant: "primary",
                 icon: "ti-file",
-                confirmButtonText: "نعم، استعادة المسودة",
+                confirmButtonText: "تأكيد الاستعادة",
                 confirmClass: "btn btn-primary px-4",
-                cancelButtonText: "تجاهل والبدء من جديد",
+                cancelButtonText: "تجاهل",
             });
         } else {
             shouldRestore = Boolean(
@@ -1845,7 +1846,7 @@ function initStepper(form) {
                 }
 
                 const steps = getSteps();
-                const currentStep = nextButton.closest('[data-form-step]');
+                const currentStep = nextButton.closest("[data-form-step]");
                 const currentIndex = steps.indexOf(currentStep);
                 if (!currentStep || currentIndex < 0) {
                     return;
@@ -1879,7 +1880,7 @@ function initStepper(form) {
                 }
 
                 state.isValidatingStep = true;
-                nextButton.setAttribute('aria-busy', 'true');
+                nextButton.setAttribute("aria-busy", "true");
                 nextButton.dataset.buttonIsLoading = "true";
                 const nextSpinner = nextButton.querySelector(".btn-spinner");
                 const nextIcon = nextButton.querySelector(
@@ -1889,7 +1890,9 @@ function initStepper(form) {
                 if (nextIcon) nextIcon.classList.add("d-none");
 
                 try {
-                    const isValid = await validateFields(form, stepFields, { force: true });
+                    const isValid = await validateFields(form, stepFields, {
+                        force: true,
+                    });
                     if (isValid) {
                         moveTo(currentIndex + 1);
                     } else {
