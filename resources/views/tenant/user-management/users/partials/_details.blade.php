@@ -73,13 +73,12 @@
 
     {{-- العمود الأيسر (النشاطات) --}}
     <div class="col-xl-8 col-lg-7 col-md-7">
-        {{-- كارت آخر النشاطات --}}
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center py-3">
                 <h6 class="card-title mb-0">
-                    <i class="ti ti-activity text-warning me-2"></i> آخر النشاطات
+                    <i class="ti ti-activity text-warning me-2"></i> سجل النشاطات
                 </h6>
-                <span class="badge bg-label-secondary">سجل العمليات</span>
+                <span class="badge bg-label-secondary">آخر 5 نشاطات</span>
             </div>
             <div class="card-body">
                 <ul class="timeline mt-4 mb-0">

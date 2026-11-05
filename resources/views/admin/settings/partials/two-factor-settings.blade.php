@@ -14,7 +14,7 @@
                             <input class="form-check-input" type="checkbox" id="force_two_factor_auth"
                                 name="force_two_factor_auth" {{ $settings->force_two_factor_auth ? 'checked' : '' }}>
                             <label class="form-check-label" for="force_two_factor_auth">
-                                فرض تفعيل المصادقة الثنائية إجباريًا على جميع حسابات السوبر أدمن
+                                فرض تفعيل المصادقة الثنائية إجباريًا على جميع حسابات المستخدمين
                             </label>
                         </div>
                         <small class="text-muted d-block mt-2">

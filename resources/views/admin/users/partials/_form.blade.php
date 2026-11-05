@@ -1,14 +1,6 @@
 @php
     $is_profile = $is_profile ?? false;
-    $isEdit = isset($user) && $user->exists;
-    $currentRoleId = $isEdit ? $user->roles->first()?->id : null;
-    $roles = $roles ?? collect();
-    $steps = [
-        [
-            'id' => 'user-info-validation',
-            'title' => 'بيانات المستخدم',
-        ],
-    ];
+    $steps = [['id' => 'user-info-validation', 'title' => 'بيانات المستخدم']];
 @endphp
 
 <div class="row">
@@ -18,16 +10,10 @@
 
             <form id="user-wizard-form"
                 action="{{ $is_profile ? route('admin.profile.update') : ($is_edit ? route('admin.users.update', $user) : route('admin.users.store')) }}"
-                method="POST"
-                enctype="multipart/form-data"
-                autocomplete="off"
-                data-form-validate
+                method="POST" enctype="multipart/form-data" autocomplete="off" data-form-validate
                 data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
-                @if (!$is_edit)
-                    data-draft-url="{{ route('admin.wizard-drafts.store') }}"
-                    data-draft-resource-key="admin.user-create"
-                @endif
-            >
+                @if (!$is_edit) data-draft-url="{{ route('admin.wizard-drafts.store') }}"
+                    data-draft-resource-key="admin.user-create" @endif>
                 @csrf
                 @if ($is_edit)
                     @method('PUT')
@@ -36,40 +22,7 @@
                 <x-form.wizard.step id="user-info-validation" :fields="$is_profile
                     ? ['name', 'email', 'phone', 'image']
                     : ['name', 'email', 'phone', 'role_id', 'password', 'password_confirmation', 'image']">
-                    <div class="row g-4">
-                        <x-form.controls.input name="name" label="الاسم الكامل" :value="old('name', $user->name ?? '')"
-                            placeholder="ادخل الاسم الكامل" required col="col-md-6" />
-
-                        <x-form.controls.input name="email" type="email" label="البريد الإلكتروني" :value="old('email', $user->email ?? '')"
-                            placeholder="ادخل البريد الإلكتروني" autocomplete="off" required col="col-md-6" />
-
-                        <x-form.controls.input name="phone" label="رقم الهاتف" :value="old('phone', $user->phone ?? '')"
-                            placeholder="05xxxxxxxx" maxlength="10" inputmode="numeric" required col="col-md-6" />
-
-                        <x-form.controls.select name="role_id" label="الدور" :options="$roles"
-                            :value="$is_profile ? $currentRoleId : old('role_id', $currentRoleId)" placeholder="اختر الدور"
-                            :required="!$is_profile" :disabled="$is_profile" col="col-md-6" />
-                        @if ($is_profile)
-                            <input type="hidden" name="role_id" value="{{ $currentRoleId }}">
-                        @endif
-
-                        @if (!$is_profile)
-                            <x-form.controls.password name="password"
-                                :label="$is_edit ? 'كلمة المرور الجديدة' : 'كلمة المرور'"
-                                :placeholder="$is_edit ? 'اتركه فارغاً إذا لم ترغب بالتعديل' : 'ادخل كلمة المرور'"
-                                data-validation-dependents="password_confirmation"
-                                :required="!$is_edit" col="col-md-6" />
-
-                            <x-form.controls.password name="password_confirmation"
-                                :label="$is_edit ? 'تأكيد كلمة المرور الجديدة' : 'تأكيد كلمة المرور'"
-                                :placeholder="$is_edit ? 'أعد إدخال كلمة المرور' : 'أعد إدخال كلمة المرور'"
-                                :required="!$is_edit" col="col-md-6" />
-                        @endif
-
-                        <x-form.controls.file name="image" label="الصورة الشخصية"
-                            :value="!empty($user?->image) ? asset('storage/' . $user->image) : null"
-                            accept="image/*" col="col-12" />
-                    </div>
+                    @include('admin.users.partials.steps.user-info', ['user' => $user])
 
                     <x-form.wizard.actions>
                         <x-form.wizard.previous-button :href="$is_profile ? route('admin.profile.show') : route('admin.users.index')" />
@@ -85,4 +38,3 @@
         </x-form.wizard.stepper>
     </div>
 </div>
-

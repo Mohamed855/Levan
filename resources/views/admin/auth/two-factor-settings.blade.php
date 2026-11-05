@@ -141,15 +141,15 @@
                                     <div>أدخل الكود المكوّن من 6 أرقام الظاهر في التطبيق</div>
                                 </div>
 
-                                <form id="twoFactorConfirmForm" method="POST" novalidate
-                                    action="{{ route('admin.two-factor.confirm') }}" class="w-100 d-flex flex-column gap-2"
+                                <form id="twoFactorConfirmForm" class="w-100 d-flex flex-column gap-2"
+                                    action="{{ route('admin.two-factor.confirm') }}" method="POST" novalidate
                                     data-form-validate data-validation-submit="ajax"
                                     data-validation-url="{{ route('admin.two-factor.validate') }}">
                                     @csrf
                                     <x-form.controls.input name="code" id="twoFactorCode" label="كود التحقق"
                                         col="col-12" type="text" placeholder="XXXXXX" required
                                         autocomplete="one-time-code" maxlength="6" inputmode="numeric" />
-                                    <button type="submit" id="confirm2faBtn" class="btn btn-success w-100">
+                                    <button type="submit" class="btn btn-success w-100">
                                         <i class="ti ti-check me-1"></i>تأكيد التفعيل
                                     </button>
                                 </form>
@@ -224,12 +224,12 @@
 
             $('#twoFactorConfirmForm').on('formValidationPassed', function() {
                 const form = this;
-                const submitBtn = form.querySelector('[type="submit"]');
+                const submitBtn = form.querySelector('[type="submit"]') || form.querySelector('button');
 
                 $.ajax({
                     url: routes.confirm,
                     method: 'POST',
-                    data: $(form).serialize(),
+                    data: $(this).serialize(),
                     success: function() {
                         toastr.success('تم تفعيل المصادقة الثنائية بنجاح');
                         markEnabled();
@@ -268,6 +268,7 @@
                     icon: 'ti-shield-off',
                     confirmText: 'إلغاء التفعيل',
                     confirmClass: 'btn btn-danger px-4',
+                    confirmIcon: 'ti-shield-off',
                     cancelText: 'تراجع',
                     onConfirm: function() {
                         $.ajax({
