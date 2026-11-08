@@ -23,6 +23,7 @@ final class WizardDraftUploads
         'tenant.assignment-create' => 'assignments.store', 'tenant.property-create' => 'properties.store',
         'tenant.auction-create' => 'auctions.store', 'tenant.ticket-create' => 'tickets.store',
         'tenant.issuing-entity-create' => 'issuing-entities.store',
+        'tenant.marketing-campaign-create' => 'marketing-campaigns.store',
     ];
 
     public function __construct(private readonly WizardDraftContext $context) {}

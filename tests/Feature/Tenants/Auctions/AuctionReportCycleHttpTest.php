@@ -32,7 +32,8 @@ final class AuctionReportCycleHttpTest extends TenantAuctionReportTestCase
         self::assertTrue($user->can('marketing_campaigns.create'), 'permission before index');
         $this->get(tenant_route_name('marketing-campaigns.index'))->assertOk();
         self::assertTrue($user->can('marketing_campaigns.create'), 'permission after index');
-        $form = $this->get(tenant_route_name('marketing-campaigns.create'))->assertOk()->assertSee('نوع الحملة');
+        $form = $this->get(tenant_route_name('marketing-campaigns.create'))->assertOk()
+            ->assertSee('id="campaign-channels-select"', false)->assertSee('name="channels[]"', false);
         if (getenv('AUCTION_REPORT_UI_PROOF')) {
             file_put_contents(base_path('output/cycle-review/campaign-form.html'), $form->getContent());
         }

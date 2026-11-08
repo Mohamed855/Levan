@@ -20,7 +20,7 @@ class AuctionsDataTable extends AbstractDataTable
     protected function resource()
     {
         return Auction::query()
-            ->with(['assignment', 'latestReportGeneration'])
+            ->with(['assignment.issuingEntity', 'latestReportGeneration'])
             ->withCount('properties');
     }
 
@@ -30,7 +30,7 @@ class AuctionsDataTable extends AbstractDataTable
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'image', 'name' => 'image', 'title' => 'الصورة', 'orderable' => false, 'searchable' => false, 'width' => '60px', 'className' => 'text-center'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم المزاد', 'width' => '200px'],
-            ['data' => 'assignment', 'name' => 'assignment_id', 'title' => 'الإسناد', 'width' => '150px'],
+            ['data' => 'issuing_entity', 'name' => 'assignment_id', 'title' => 'الجهة المسندة', 'width' => '150px'],
             ['data' => 'start_date', 'name' => 'start_date', 'title' => 'تاريخ البداية', 'width' => '130px'],
             ['data' => 'end_date', 'name' => 'end_date', 'title' => 'تاريخ النهاية', 'width' => '130px'],
             ['data' => 'properties_count', 'name' => 'properties_count', 'title' => 'عدد العقارات', 'width' => '90px', 'className' => 'text-center'],
@@ -61,12 +61,35 @@ class AuctionsDataTable extends AbstractDataTable
                     <small class="text-muted">'.e($row->type_label).' - '.e($row->city).'</small>
                 </div>';
             })
+            ->addColumn('issuing_entity', function ($row) {
+                if (! $row->assignment) {
+                    return '-';
+                }
+
+                $entityName = $row->assignment->issuingEntity?->name
+                    ?? $row->assignment->issuing_entity
+                    ?? $row->assignment->name;
+
+                if (blank($entityName)) {
+                    return '-';
+                }
+
+                return '<a href="'.tenant_route_name('assignments.show', $row->assignment_id).'" class="text-body fw-medium" title="'.e((string) $row->assignment->name).'">'.e((string) $entityName).'</a>';
+            })
             ->addColumn('assignment', function ($row) {
                 if (! $row->assignment) {
                     return '-';
                 }
 
-                return '<a href="'.tenant_route_name('assignments.show', $row->assignment_id).'" class="text-body fw-medium">'.e($row->assignment->name).'</a>';
+                $entityName = $row->assignment->issuingEntity?->name
+                    ?? $row->assignment->issuing_entity
+                    ?? $row->assignment->name;
+
+                if (blank($entityName)) {
+                    return '-';
+                }
+
+                return '<a href="'.tenant_route_name('assignments.show', $row->assignment_id).'" class="text-body fw-medium" title="'.e((string) $row->assignment->name).'">'.e((string) $entityName).'</a>';
             })
             ->editColumn('start_date', function ($row) {
                 $date = Carbon::parse($row->start_date)->format('Y/m/d');
@@ -136,7 +159,12 @@ class AuctionsDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'image', 'name', 'assignment', 'start_date', 'end_date', 'properties_count', 'outputs', 'status_badge', 'is_active', 'actions'];
+        return ['checkbox', 'image', 'name', 'assignment', 'issuing_entity', 'start_date', 'end_date', 'properties_count', 'outputs', 'status_badge', 'is_active', 'actions'];
+    }
+
+    protected function filterableColumns(): array
+    {
+        return ['name', 'city', 'assignment.name', 'assignment.issuing_entity'];
     }
 
     protected function applyCustomFilters($query)

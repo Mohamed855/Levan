@@ -16,6 +16,8 @@
 @php
     $fieldId = $id ?: str_replace(['[', ']'], '-', $name);
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
+    $isRequired = filter_var($required, FILTER_VALIDATE_BOOLEAN);
+    $attributes = $attributes->merge(['aria-required' => $isRequired ? 'true' : 'false']);
 
     if ($placeholder === null) {
         if ($type === 'date') {
@@ -46,6 +48,7 @@
             'is-invalid' => $errorsBag->has($name),
         ])>
             <input id="{{ $fieldId }}" name="{{ $name }}" type="{{ $type }}" value="{{ old($name, $value) }}"
+                @required($isRequired)
                 @if ($placeholder) placeholder="{{ $placeholder }}" @endif data-form-control
                 aria-describedby="{{ $errorId }}" aria-invalid="{{ $errorsBag->has($name) ? 'true' : 'false' }}"
                 {{ $attributes->class(['form-control', 'is-invalid' => $errorsBag->has($name)]) }}>
@@ -53,6 +56,7 @@
         </div>
     @else
         <input id="{{ $fieldId }}" name="{{ $name }}" type="{{ $type }}" value="{{ old($name, $value) }}"
+            @required($isRequired)
                 @if ($placeholder) placeholder="{{ $placeholder }}" @endif data-form-control
             aria-describedby="{{ $errorId }}" aria-invalid="{{ $errorsBag->has($name) ? 'true' : 'false' }}"
             {{ $attributes->class(['form-control', 'is-invalid' => $errorsBag->has($name)]) }}>

@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 return [
     'text' => [
-        'city_context' => 'نطاق الحملة الجغرافي',
         'planning_methodology' => 'منهجية التخطيط',
-        'name_context' => 'اختيار اسم المزاد والهوية',
+        'city_context' => 'نطاق الحملة الجغرافي',
         'brochure_methodology' => 'إعداد الكتيب والهوية البصرية',
         'audience_methodology' => 'الفئات المستهدفة',
         'messages_methodology' => 'الرسائل والتواصل مع العملاء',
@@ -24,7 +23,6 @@ return [
     'positions' => [
         'city_context' => [['asir', 3, 'city_context']],
         'planning_methodology' => [['asir', 4, 'planning_methodology']],
-        'name_context' => [['asir', 5, 'name_context']],
         'brochure_methodology' => [['asir', 5, 'brochure_methodology']],
         'audience_methodology' => [['asir', 6, 'audience_methodology']],
         'messages_methodology' => [['asir', 6, 'messages_methodology']],

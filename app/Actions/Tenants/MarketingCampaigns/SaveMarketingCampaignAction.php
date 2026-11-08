@@ -17,6 +17,13 @@ final class SaveMarketingCampaignAction
 {
     public function execute(?MarketingCampaign $campaign, array $data, ?int $actorId, array $files = [], array $removeEvidenceIds = []): MarketingCampaign
     {
+        if (isset($data['channels']) || isset($data['campaigns'])) {
+            $auction = Auction::findOrFail((int) $data['auction_id']);
+            $saved = $this->executeBatch($auction, $data, $actorId, $files);
+
+            return $saved[0] ?? new MarketingCampaign(['auction_id' => $auction->id]);
+        }
+
         $stored = [];
         $removedPaths = [];
         $affected = array_filter([$campaign?->auction_id, (int) $data['auction_id']]);
@@ -83,6 +90,110 @@ final class SaveMarketingCampaignAction
         }
 
         return $saved;
+    }
+
+    /**
+     * Save multiple marketing campaigns for an auction.
+     *
+     * @return array<MarketingCampaign>
+     */
+    public function executeBatch(Auction $auction, array $data, ?int $actorId, array $filesByChannel = []): array
+    {
+        $stored = [];
+        $removedPaths = [];
+        $auctionId = (int) $auction->id;
+
+        try {
+            $savedCampaigns = DB::transaction(function () use ($auction, $data, $actorId, $filesByChannel, &$stored, &$removedPaths): array {
+                app(AuctionReportLock::class)->assertEditable($auction);
+
+                $channels = (array) ($data['channels'] ?? array_keys($data['campaigns'] ?? []));
+                $campaignsData = (array) ($data['campaigns'] ?? []);
+                $results = [];
+
+                foreach ($channels as $channel) {
+                    if (! is_string($channel) || ! array_key_exists($channel, config('auction-marketing-campaigns'))) {
+                        continue;
+                    }
+
+                    $chData = (array) ($campaignsData[$channel] ?? []);
+                    if (($channel === 'board_before') && ! empty($chData['metrics']['property_id'])) {
+                        if (! $auction->properties()->whereKey($chData['metrics']['property_id'])->exists()) {
+                            throw ValidationException::withMessages(["campaigns.{$channel}.metrics.property_id" => 'اختر عقارًا مرتبطًا بالمزاد.']);
+                        }
+                    }
+
+                    $record = MarketingCampaign::where('auction_id', $auction->id)->where('channel', $channel)->first();
+                    $record ??= new MarketingCampaign;
+                    $record->auction_id = $auction->id;
+                    $record->channel = $channel;
+                    $record->campaign_date = ($channel === 'whatsapp') ? ($chData['campaign_date'] ?? null) : null;
+                    $record->url = in_array($channel, config('auction-marketing-fields.links'), true) ? ($chData['url'] ?? null) : null;
+                    $record->link_role = match ($channel) {
+                        'brochure' => 'brochure', 'youtube' => 'video', 'board_before' => 'boards', 'marketing_evidence' => 'marketing_evidence', default => null,
+                    };
+                    $record->metrics = $chData['metrics'] ?? [];
+                    if (! $record->exists) {
+                        $record->created_by = $actorId;
+                    }
+                    $record->save();
+
+                    // Remove selected evidence files if any
+                    $removeIds = (array) ($chData['remove_evidence'] ?? []);
+                    if ($removeIds !== []) {
+                        $evidence = $record->evidence()->whereKey($removeIds)->get();
+                        $removedPaths = array_merge($removedPaths, $evidence->pluck('file_path')->all());
+                        $record->evidence()->whereKey($removeIds)->delete();
+                    }
+
+                    $record->evidence()->update([
+                        'auction_id' => $record->auction_id,
+                        'property_id' => $record->channel === 'board_before' ? ($record->metrics['property_id'] ?? null) : null,
+                    ]);
+
+                    $section = $this->section($record->channel);
+                    $chFiles = $filesByChannel[$channel]['evidence'] ?? [];
+                    if (! is_array($chFiles) && $chFiles) {
+                        $chFiles = [$chFiles];
+                    }
+
+                    foreach ($chFiles as $index => $file) {
+                        if (! $file) {
+                            continue;
+                        }
+                        $path = $file->store('auctions/report-evidence', 'tenant_public');
+                        $stored[] = $path;
+                        $record->evidence()->create([
+                            'auction_id' => $record->auction_id,
+                            'property_id' => $record->channel === 'board_before' ? ($record->metrics['property_id'] ?? null) : null,
+                            'file_path' => $path,
+                            'file_name' => $file->getClientOriginalName(),
+                            'file_type' => $file->getClientOriginalExtension(),
+                            'file_size' => $file->getSize(),
+                            'category' => 'marketing',
+                            'report_section' => $section,
+                            'report_metadata' => ['channel' => $record->channel, 'kind' => $file->getMimeType() === 'application/pdf' ? 'document' : 'screenshot'],
+                            'display_order' => $index,
+                            'channels' => ['report'],
+                        ]);
+                    }
+
+                    $results[] = $record;
+                }
+
+                return $results;
+            });
+        } catch (Throwable $error) {
+            Storage::disk('tenant_public')->delete($stored);
+            throw $error;
+        }
+
+        app(AuctionReportRefreshService::class)->afterMutation([$auctionId]);
+        if ($removedPaths !== []) {
+            DB::afterCommit(fn () => Storage::disk('tenant_public')->delete($removedPaths));
+        }
+
+        return $savedCampaigns;
     }
 
     private function section(string $channel): string

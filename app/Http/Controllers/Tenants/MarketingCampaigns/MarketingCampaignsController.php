@@ -9,9 +9,11 @@ use App\Actions\Tenants\MarketingCampaigns\SaveMarketingCampaignAction;
 use App\DataTables\Tenants\MarketingCampaigns\MarketingCampaignsDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\MarketingCampaigns\SaveMarketingCampaignRequest;
+use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\MarketingCampaigns\MarketingCampaign;
 use App\Services\Tenants\Auctions\Reports\AuctionReportLock;
 use App\Services\Tenants\Auctions\Reports\AuctionReportManagementService;
+use Illuminate\Http\Request;
 
 final class MarketingCampaignsController extends Controller
 {
@@ -26,44 +28,147 @@ final class MarketingCampaignsController extends Controller
 
     public function index(MarketingCampaignsDataTable $table, AuctionReportManagementService $options)
     {
-        return $table->render('tenant.marketing-campaigns.index', ['statistics' => $options->campaignStatistics(), 'auctionOptions' => $options->auctionOptions()]);
+        return $table->render('tenant.marketing-campaigns.index', [
+            'statistics' => $options->campaignStatistics(),
+            'auctionOptions' => $options->auctionOptions(),
+        ]);
     }
 
-    public function create(AuctionReportManagementService $options)
+    public function create(Request $request, AuctionReportManagementService $options)
     {
-        return view('tenant.marketing-campaigns.form', ['campaign' => new MarketingCampaign, 'auctionOptions' => $options->editableAuctions(), 'propertyOptions' => $options->campaignPropertyOptions()]);
+        $selectedAuction = $request->filled('auction_id')
+            ? Auction::with('marketingCampaigns')->find((int) $request->input('auction_id'))
+            : null;
+
+        return view('tenant.marketing-campaigns.form', [
+            'auction' => $selectedAuction ?? new Auction,
+            'is_edit' => false,
+            'auctionOptions' => $options->editableAuctions(),
+            'propertyOptions' => $options->campaignPropertyOptions(),
+            'existingCampaigns' => $selectedAuction ? $selectedAuction->marketingCampaigns->keyBy('channel') : collect(),
+            'selectedChannels' => $selectedAuction ? $selectedAuction->marketingCampaigns->pluck('channel')->all() : [],
+        ]);
     }
 
-    public function edit(MarketingCampaign $campaign, AuctionReportManagementService $options)
+    public function edit($target, AuctionReportManagementService $options)
     {
-        app(AuctionReportLock::class)->assertEditable($campaign->auction);
+        $auction = $this->resolveAuction($target);
+        app(AuctionReportLock::class)->assertEditable($auction);
 
-        return view('tenant.marketing-campaigns.form', ['campaign' => $campaign->load('evidence'), 'auctionOptions' => $options->editableAuctions(), 'propertyOptions' => $options->campaignPropertyOptions()]);
+        $auction->load(['marketingCampaigns.evidence', 'properties']);
+
+        return view('tenant.marketing-campaigns.form', [
+            'auction' => $auction,
+            'is_edit' => true,
+            'auctionOptions' => $options->editableAuctions(),
+            'propertyOptions' => $options->campaignPropertyOptions(),
+            'existingCampaigns' => $auction->marketingCampaigns->keyBy('channel'),
+            'selectedChannels' => $auction->marketingCampaigns->pluck('channel')->all(),
+        ]);
     }
 
     public function store(SaveMarketingCampaignRequest $request, SaveMarketingCampaignAction $action)
     {
-        $campaign = $action->execute(null, $request->validated(), $request->user('tenant')->id, $request->file('evidence', []));
+        $validated = $request->validated();
+        $auctionId = (int) $validated['auction_id'];
+        $auction = Auction::findOrFail($auctionId);
 
-        return redirect(tenant_route_name('auctions.show', $campaign->auction_id))->with('success', 'تم حفظ الحملة وطلب تحديث التقريرين.');
-    }
-
-    public function update(SaveMarketingCampaignRequest $request, MarketingCampaign $campaign, SaveMarketingCampaignAction $action)
-    {
-        $campaign = $action->execute($campaign, $request->validated(), $request->user('tenant')->id, $request->file('evidence', []), $request->validated('remove_evidence', []));
-
-        return redirect(tenant_route_name('auctions.show', $campaign->auction_id))->with('success', 'تم تحديث الحملة وطلب تحديث التقريرين.');
-    }
-
-    public function destroy(MarketingCampaign $campaign, DeleteMarketingCampaignAction $action)
-    {
-        $auctionId = $campaign->auction_id;
-        $action->execute($campaign);
-
-        if (request()->ajax() || request()->wantsJson()) {
-            return response()->json(['success' => true, 'message' => 'تم حذف الحملة وطلب تحديث التقريرين.']);
+        if ($request->has('channels') || $request->has('campaigns')) {
+            $action->executeBatch(
+                $auction,
+                $validated,
+                $request->user('tenant')?->id,
+                $request->file('campaigns', [])
+            );
+        } else {
+            $action->execute(
+                null,
+                $validated,
+                $request->user('tenant')?->id,
+                $request->file('evidence', [])
+            );
         }
 
-        return redirect(tenant_route_name('auctions.show', $auctionId))->with('success', 'تم حذف الحملة وطلب تحديث التقريرين.');
+        return redirect(tenant_route_name('auctions.show', $auctionId))
+            ->with('success', 'تم حفظ الحملات التسويقية وطلب تحديث التقريرين.');
+    }
+
+    public function update(SaveMarketingCampaignRequest $request, $target, SaveMarketingCampaignAction $action)
+    {
+        $auction = $this->resolveAuction($target);
+        app(AuctionReportLock::class)->assertEditable($auction);
+
+        $validated = $request->validated();
+        $validated['auction_id'] = $auction->id;
+
+        if ($request->has('channels') || $request->has('campaigns')) {
+            $action->executeBatch(
+                $auction,
+                $validated,
+                $request->user('tenant')?->id,
+                $request->file('campaigns', [])
+            );
+        } else {
+            $existingCampaign = $auction->marketingCampaigns()->where('channel', $validated['channel'] ?? '')->first()
+                ?? $auction->marketingCampaigns()->first();
+
+            $action->execute(
+                $existingCampaign,
+                $validated,
+                $request->user('tenant')?->id,
+                $request->file('evidence', []),
+                $validated['remove_evidence'] ?? []
+            );
+        }
+
+        return redirect(tenant_route_name('auctions.show', $auction->id))
+            ->with('success', 'تم تحديث الحملات التسويقية وطلب تحديث التقريرين.');
+    }
+
+    public function destroy($target, DeleteMarketingCampaignAction $action)
+    {
+        if ($target instanceof MarketingCampaign) {
+            $auctionId = $target->auction_id;
+            $action->execute($target);
+        } else {
+            $auction = $this->resolveAuction($target);
+            $auctionId = $auction->id;
+            $action->executeForAuction($auction);
+        }
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حذف الحملات التسويقية للمزاد وطلب تحديث التقريرين.',
+            ]);
+        }
+
+        return redirect(tenant_route_name('auctions.show', $auctionId))
+            ->with('success', 'تم حذف الحملات التسويقية للمزاد وطلب تحديث التقريرين.');
+    }
+
+    private function resolveAuction($target): Auction
+    {
+        if ($target instanceof Auction) {
+            return $target;
+        }
+
+        if ($target instanceof MarketingCampaign) {
+            return $target->auction ?? Auction::findOrFail($target->auction_id);
+        }
+
+        if (is_numeric($target)) {
+            $auction = Auction::find((int) $target);
+            if ($auction) {
+                return $auction;
+            }
+
+            $campaign = MarketingCampaign::find((int) $target);
+            if ($campaign) {
+                return $campaign->auction ?? Auction::findOrFail($campaign->auction_id);
+            }
+        }
+
+        return Auction::findOrFail($target);
     }
 }

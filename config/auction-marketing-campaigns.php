@@ -3,9 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'summary' => ['city_context'],
-    'planning' => ['planning_methodology'],
-    'design' => ['name_context', 'brochure_methodology'],
+    'planning' => ['planning_methodology', 'city_context', 'brochure_methodology'],
     'promotion' => ['audience_methodology', 'messages_methodology'],
     'brochure' => ['brochure_context'],
     'platform' => ['platform_context'],

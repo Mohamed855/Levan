@@ -42,6 +42,13 @@ class StoreWizardDraftRequest extends AuthenticatedWizardDraftRequest
                 'board_images_before.*.*' => 'إثبات تركيب اللوحة', 'board_images_after.*.*' => 'إثبات فك اللوحة',
             ],
             'tenant.ticket-create' => ['attachments' => 'المرفقات', 'attachments.*' => 'المرفقات'],
+            'tenant.marketing-campaign-create' => [
+                'evidence' => 'أدلة الحملة',
+                'evidence.*' => 'أدلة الحملة',
+                'campaigns' => 'أدلة الحملات',
+                'campaigns.*.evidence' => 'أدلة الحملة',
+                'campaigns.*.evidence.*' => 'أدلة الحملة',
+            ],
             default => [],
         };
 

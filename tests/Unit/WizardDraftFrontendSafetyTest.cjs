@@ -38,3 +38,35 @@ test('a failed discard leaves the form locked and offers retry', async () => {
     assert.equal(form.inert, true);
     assert.ok(context.retry);
 });
+
+test('a failed draft lookup keeps the form locked until a successful retry', async () => {
+    const restore = source.slice(source.indexOf('async function restoreDraft(form)'), source.indexOf('\nfunction initDrafts(form)'));
+    const controls = [];
+    let attempts = 0;
+    let errorCount = 0;
+    const form = {
+        dataset: { draftUrl: '/wizard-drafts' },
+        setAttribute() {}, removeAttribute() {},
+        insertAdjacentElement: (_, control) => controls.push(control),
+    };
+    const context = {
+        form, hasVisibleServerErrors: () => false, draftResourceKey: () => 'fixture',
+        fetch: async () => ++attempts === 1
+            ? { ok: false, status: 500 }
+            : { ok: true, json: async () => ({ draft_id: null }) },
+        window: { toastr: { error: () => errorCount++ } },
+        document: { createElement: () => ({
+            removed: false,
+            addEventListener(_, callback) { this.click = callback; },
+            remove() { this.removed = true; },
+        }) },
+    };
+    await vm.runInNewContext(restore + '\nrestoreDraft(form)', context);
+    assert.equal(form.inert, true);
+    assert.equal(errorCount, 1);
+    assert.equal(controls.length, 1);
+    await controls[0].click();
+    assert.equal(attempts, 2);
+    assert.equal(form.inert, false);
+    assert.equal(controls[0].removed, true);
+});

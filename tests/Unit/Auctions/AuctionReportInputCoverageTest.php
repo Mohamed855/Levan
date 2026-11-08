@@ -15,9 +15,12 @@ final class AuctionReportInputCoverageTest extends TestCase
     {
         $catalog = config('auction-marketing-campaigns');
         self::assertSame(['views'], $catalog['google']);
+        self::assertSame(['planning_methodology', 'city_context', 'brochure_methodology'], $catalog['planning']);
         self::assertArrayNotHasKey('other', $catalog);
+        self::assertArrayNotHasKey('summary', $catalog);
+        self::assertArrayNotHasKey('design', $catalog);
         self::assertNotContains('clicks', $catalog['x']);
-        foreach (['planning', 'design', 'promotion', 'brochure', 'platform', 'board_before', 'brokers'] as $type) {
+        foreach (['planning', 'promotion', 'brochure', 'platform', 'board_before', 'brokers'] as $type) {
             self::assertArrayHasKey($type, $catalog);
         }
     }
@@ -27,8 +30,8 @@ final class AuctionReportInputCoverageTest extends TestCase
         $snapshot = require base_path('tests/Fixtures/AuctionReports/haram.php');
         $snapshot['cycle_version'] = 1;
         $snapshot['marketing'] = ['campaigns' => [
-            ['id' => 1, 'platform' => 'design', 'name_context' => 'اختيار الاسم الأول'],
-            ['id' => 2, 'platform' => 'design', 'brochure_methodology' => 'تفاصيل الكتيب الثاني'],
+            ['id' => 1, 'platform' => 'planning', 'brochure_methodology' => 'تفاصيل الكتيب الأول'],
+            ['id' => 2, 'platform' => 'planning', 'brochure_methodology' => 'تفاصيل الكتيب الثاني'],
             ['id' => 3, 'platform' => 'promotion', 'audience_methodology' => 'الفئة المستهدفة'],
         ]];
         $pages = app(AuctionReportPaginator::class)->paginate($snapshot, 'report');
@@ -37,9 +40,9 @@ final class AuctionReportInputCoverageTest extends TestCase
         $binder = new AsirReportData(new AuctionReportFormat);
         $first = $binder->page($snapshot, $design[0]);
         $second = $binder->page($snapshot, $design[1]);
-        self::assertSame('اختيار الاسم الأول', $first['values']['name_context']);
-        self::assertSame('', $first['values']['brochure_methodology']);
-        self::assertSame('', $second['values']['name_context']);
+        self::assertSame('اختيار اسم المزاد وإعداد الهوية البصرية - '.$snapshot['auction']['name'], $first['values']['name_context']);
+        self::assertSame('تفاصيل الكتيب الأول', $first['values']['brochure_methodology']);
+        self::assertSame('اختيار اسم المزاد وإعداد الهوية البصرية - '.$snapshot['auction']['name'], $second['values']['name_context']);
         self::assertSame('تفاصيل الكتيب الثاني', $second['values']['brochure_methodology']);
         self::assertCount(1, array_filter($pages, fn ($page) => $page['page_type'] === 'asir-promotion'));
     }

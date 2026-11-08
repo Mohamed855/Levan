@@ -34,6 +34,8 @@
         ->map(static fn ($item) => (string) $item);
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
     $hasError = $errorsBag->has($name);
+    $isRequired = filter_var($required, FILTER_VALIDATE_BOOLEAN);
+    $attributes = $attributes->merge(['aria-required' => $isRequired ? 'true' : 'false']);
 @endphp
 
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help" :col="$col" :wrapper-id="$wrapperId">
@@ -47,6 +49,7 @@
                 id="{{ $fieldId }}"
                 @if ($controlName !== false) name="{{ $controlName ?? $fieldName }}" @endif
                 @if ($multiple) multiple @endif
+                @required($isRequired)
                 data-form-control
                 data-placeholder="{{ $placeholder }}"
                 aria-describedby="{{ $errorId }}"
@@ -95,6 +98,7 @@
             id="{{ $fieldId }}"
             @if ($controlName !== false) name="{{ $controlName ?? $fieldName }}" @endif
             @if ($multiple) multiple @endif
+            @required($isRequired)
             data-form-control
             data-placeholder="{{ $placeholder }}"
             aria-describedby="{{ $errorId }}"

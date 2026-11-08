@@ -12,6 +12,8 @@
 @php
     $fieldId = $id ?: str_replace(['[', ']'], '-', $name);
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
+    $isRequired = filter_var($required, FILTER_VALIDATE_BOOLEAN);
+    $attributes = $attributes->merge(['aria-required' => $isRequired ? 'true' : 'false']);
 
     if ($placeholder === null && $label) {
         $cleanedLabel = trim(preg_replace(['/\s*\(?\s*(اختياري|اختباري)\s*\)?\s*/u', '/\s*\*+\s*$/u'], ['', ''], (string) $label));
@@ -24,6 +26,7 @@
     <textarea
         id="{{ $fieldId }}"
         name="{{ $name }}"
+        @required($isRequired)
         @if ($placeholder) placeholder="{{ $placeholder }}" @endif
         data-form-control
         aria-describedby="{{ $errorId }}"

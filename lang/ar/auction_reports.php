@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'channels' => ['summary' => 'ملخص خطة التسويق', 'planning' => 'التخطيط للحملة', 'design' => 'الاسم والهوية وإعداد الكتيب', 'promotion' => 'الترويج والتواصل', 'brochure' => 'الكتيب التسويقي', 'platform' => 'العرض على منصة المزاد', 'board_before' => 'تركيب اللوحات', 'brokers' => 'عقود الوسطاء', 'x' => 'X', 'tiktok' => 'تيك توك', 'snapchat' => 'سناب شات', 'youtube' => 'يوتيوب', 'whatsapp' => 'واتساب', 'google' => 'مشاهدات حملة جوجل', 'marketing_evidence' => 'رابط أدلة التسويق'],
+    'channels' => ['planning' => 'التخطيط للحملة', 'promotion' => 'الترويج والتواصل', 'brochure' => 'الكتيب التسويقي', 'platform' => 'العرض على منصة المزاد', 'board_before' => 'تركيب اللوحات', 'brokers' => 'عقود الوسطاء', 'x' => 'X', 'tiktok' => 'تيك توك', 'snapchat' => 'سناب شات', 'youtube' => 'يوتيوب', 'whatsapp' => 'واتساب', 'google' => 'مشاهدات حملة جوجل', 'marketing_evidence' => 'رابط أدلة التسويق'],
     'sections' => ['brochure' => 'الكتيب التسويقي', 'platform' => 'منصة المزاد', 'video' => 'الفيديو التسويقي', 'x' => 'حملة X', 'whatsapp' => 'حملة الواتساب', 'social' => 'حملات التواصل الاجتماعي', 'board_before' => 'تركيب اللوحات', 'board_after' => 'فك اللوحات', 'brokers' => 'عقود الوسطاء', 'marketing_evidence' => 'الأدلة التسويقية', 'campaigns' => 'تفاصيل الحملات', 'design_asset' => 'مواد التصميم'],
     'evidence_appendix' => 'ملحق الأدلة',
     'attachment' => 'مرفق',

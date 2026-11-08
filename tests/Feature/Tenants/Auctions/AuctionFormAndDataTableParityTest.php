@@ -22,6 +22,10 @@ class AuctionFormAndDataTableParityTest extends TestCase
         $this->assertContains('image', $columnNames);
         $this->assertContains('is_active', $columnNames);
         $this->assertNotContains('status', $columnNames);
+
+        $issuingEntityCol = collect($columns)->firstWhere('data', 'issuing_entity');
+        $this->assertNotNull($issuingEntityCol);
+        $this->assertSame('الجهة المسندة', $issuingEntityCol['title'] ?? null);
     }
 
     public function test_auction_shared_form_partial_exists_and_contains_seven_steps(): void
@@ -156,6 +160,27 @@ class AuctionFormAndDataTableParityTest extends TestCase
             $response->assertSee('auction-edit-form');
             $response->assertSee('step-basic-info');
             $response->assertSee('category');
+        } finally {
+            tenancy()->end();
+        }
+    }
+
+    public function test_auctions_index_table_returns_issuing_entity(): void
+    {
+        tenancy()->initialize('test');
+        try {
+            $user = \App\Models\Tenants\UserMangment\User\User::where('email', 'demo@lot.com')->first();
+            $response = $this->actingAs($user, 'tenant')->getJson('http://test.localhost/auctions', [
+                'X-Requested-With' => 'XMLHttpRequest',
+            ]);
+
+            $response->assertOk();
+            $json = $response->json();
+            $this->assertArrayHasKey('data', $json);
+            if (! empty($json['data'])) {
+                $firstRow = $json['data'][0];
+                $this->assertArrayHasKey('issuing_entity', $firstRow);
+            }
         } finally {
             tenancy()->end();
         }

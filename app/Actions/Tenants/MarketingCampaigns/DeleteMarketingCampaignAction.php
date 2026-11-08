@@ -34,4 +34,29 @@ final class DeleteMarketingCampaignAction
             DB::afterCommit(fn () => Storage::disk('tenant_public')->delete($paths));
         }
     }
+
+    public function executeForAuction(Auction $auction): void
+    {
+        $paths = DB::transaction(function () use ($auction): array {
+            $locked = Auction::query()->lockForUpdate()->findOrFail($auction->id);
+            app(AuctionReportLock::class)->assertEditable($locked);
+
+            $campaigns = $locked->marketingCampaigns()->with('evidence')->get();
+            $allPaths = [];
+
+            foreach ($campaigns as $campaign) {
+                $paths = $campaign->evidence()->pluck('file_path')->all();
+                $allPaths = array_merge($allPaths, $paths);
+                $campaign->evidence()->delete();
+                $campaign->delete();
+            }
+
+            return $allPaths;
+        });
+
+        app(AuctionReportRefreshService::class)->afterMutation([$auction->id]);
+        if ($paths !== []) {
+            DB::afterCommit(fn () => Storage::disk('tenant_public')->delete($paths));
+        }
+    }
 }

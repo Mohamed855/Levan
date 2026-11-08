@@ -141,14 +141,21 @@ final class AuctionReportPaginator
         if (! empty($snapshot['marketing']['introduction']) || ! empty($snapshot['auction']['description'])) {
             $pages[] = $this->page('asir-introduction');
         }
-        foreach (['summary' => ['city_context'], 'planning' => ['planning_methodology'], 'design' => ['name_context', 'brochure_methodology'], 'promotion' => ['audience_methodology', 'messages_methodology']] as $type => $fields) {
+        $asirTextPages = [
+            'asir-summary' => ['city_context'],
+            'asir-planning' => ['planning_methodology'],
+            'asir-design' => ['brochure_methodology', 'name_context'],
+            'asir-promotion' => ['audience_methodology', 'messages_methodology'],
+        ];
+
+        foreach ($asirTextPages as $pageType => $fields) {
             foreach ($campaigns as $campaign) {
-                if (($campaign['platform'] ?? '') === $type && array_filter(array_intersect_key($campaign, array_flip($fields)), fn ($value) => $value !== null && $value !== '') !== []) {
-                    $pages[] = $this->page('asir-'.$type, ['campaigns' => [$campaign]]);
+                if (array_filter(array_intersect_key($campaign, array_flip($fields)), fn ($value) => $value !== null && $value !== '') !== []) {
+                    $pages[] = $this->page($pageType, ['campaigns' => [$campaign]]);
                 }
             }
             if (array_filter(array_intersect_key($snapshot['marketing'] ?? [], array_flip($fields))) !== []) {
-                $pages[] = $this->page('asir-'.$type, ['campaigns' => []]);
+                $pages[] = $this->page($pageType, ['campaigns' => []]);
             }
         }
         foreach ($campaigns as $campaign) {

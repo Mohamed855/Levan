@@ -707,7 +707,19 @@ function restoreDraftValues(form, values, prefix = "") {
             return;
         }
 
-        const field = form.elements.namedItem(name);
+        let field = form.elements.namedItem(name);
+        if (!field && !name.endsWith("[]")) {
+            field = form.elements.namedItem(name + "[]");
+        }
+        if (!field) {
+            try {
+                field = form.querySelector(
+                    `[name="${CSS.escape(name)}"], [name="${CSS.escape(name)}[]"]`,
+                );
+            } catch (e) {
+                // Ignore querySelector syntax error if any
+            }
+        }
         if (!field) {
             return;
         }
@@ -725,15 +737,35 @@ function restoreDraftValues(form, values, prefix = "") {
                     value === true ||
                     value === 1 ||
                     value === "1";
+            } else if (control.tagName === "SELECT") {
+                if (control.multiple) {
+                    const valArray = Array.isArray(value)
+                        ? value.map(String)
+                        : value !== null && value !== undefined && value !== ""
+                          ? [String(value)]
+                          : [];
+                    Array.from(control.options).forEach((opt) => {
+                        opt.selected = valArray.includes(String(opt.value));
+                    });
+                    if (window.jQuery) {
+                        window.jQuery(control)
+                            .val(valArray)
+                            .trigger("change.select2");
+                    }
+                } else {
+                    control.value = String(value ?? "");
+                    if (window.jQuery) {
+                        window.jQuery(control)
+                            .val(control.value)
+                            .trigger("change.select2");
+                    }
+                }
             } else {
                 control.value = Array.isArray(value)
                     ? value
                     : String(value ?? "");
             }
 
-            if (window.jQuery && control.tagName === "SELECT") {
-                window.jQuery(control).trigger("change.select2");
-            }
             control.dispatchEvent(new Event("change", { bubbles: true }));
         });
     });
@@ -923,7 +955,7 @@ async function restoreDraft(form) {
         resolved = true;
     } catch (_) {
         window.toastr?.error?.(
-            "تعذر التعامل مع المسودة. أعد تحميل الصفحة للمحاولة مرة أخرى قبل إدخال بيانات جديدة.",
+            "تعذر التعامل مع المسودة. أعد المحاولة قبل إدخال بيانات جديدة.",
         );
         const retry = document.createElement("button");
         retry.type = "button";
@@ -933,7 +965,7 @@ async function restoreDraft(form) {
             "click",
             () => {
                 retry.remove();
-                restoreDraft(form);
+                return restoreDraft(form);
             },
             { once: true },
         );
