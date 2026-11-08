@@ -7,8 +7,10 @@ namespace App\Actions\Tenants\Auctions;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
+use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Auctions\AuctionReportInputService;
+use App\Services\Tenants\Auctions\Reports\AuctionReportLock;
 use App\Services\Tenants\Auctions\Reports\AuctionReportService;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
@@ -25,12 +27,12 @@ final class UpdateAuctionAction
     ) {}
 
     /**
-     * @param array<string, mixed>|User $userOrData
-     * @param array<string, mixed>|null $dataOrNull
-     * @param array<int, UploadedFile> $attachments
-     * @param array<int, UploadedFile> $marketingEvidence
-     * @param array<int|string, array<int, UploadedFile>> $boardImagesBefore
-     * @param array<int|string, array<int, UploadedFile>> $boardImagesAfter
+     * @param  array<string, mixed>|User  $userOrData
+     * @param  array<string, mixed>|null  $dataOrNull
+     * @param  array<int, UploadedFile>  $attachments
+     * @param  array<int, UploadedFile>  $marketingEvidence
+     * @param  array<int|string, array<int, UploadedFile>>  $boardImagesBefore
+     * @param  array<int|string, array<int, UploadedFile>>  $boardImagesAfter
      */
     public function execute(
         Auction $auction,
@@ -54,12 +56,17 @@ final class UpdateAuctionAction
         }
 
         // Only an actual replacement upload changes an existing image path.
+        if (! empty($data['property_results']) || isset($data['marketing']['campaigns']) || isset($data['marketing']['contacts'])) {
+            throw ValidationException::withMessages(['auction' => 'تُحدّث الحملات ونتائج الإقفال من الإدارات المخصصة، وبيانات التواصل من إعدادات الشركة.']);
+        }
         unset($data['report_image'], $data['cover_image']);
         $storedPaths = [];
         $pathsToDelete = [];
 
         try {
             $updated = DB::transaction(function () use ($auction, $data, $cover, $files, $reportImage, $marketingEvidence, $boardImagesBefore, $boardImagesAfter, &$storedPaths, &$pathsToDelete): Auction {
+                $auction = Auction::query()->whereKey($auction->id)->lockForUpdate()->firstOrFail();
+                app(AuctionReportLock::class)->assertEditable($auction);
                 $targetAssignmentId = (int) ($data['assignment_id'] ?? $auction->assignment_id);
                 $assignment = Assignment::query()
                     ->whereKey($targetAssignmentId)
@@ -112,7 +119,7 @@ final class UpdateAuctionAction
                                 'end_time' => 'وقت نهاية المزاد يجب أن يكون بعد وقت البداية عندما يكون المزاد في نفس اليوم.',
                             ]);
                         }
-                    } catch (\Throwable $e) {
+                    } catch (Throwable $e) {
                         if ($e instanceof ValidationException) {
                             throw $e;
                         }
@@ -158,7 +165,7 @@ final class UpdateAuctionAction
                 }
 
                 if (array_key_exists('marketing', $data)) {
-                    $data['marketing_data'] = $data['marketing'];
+                    $data['marketing_data'] = array_replace($auction->marketing_data ?? [], ['introduction' => $data['marketing']['introduction'] ?? null]);
                 }
                 $evidenceMetadata = (array) ($data['marketing_evidence_meta'] ?? []);
                 $retainedEvidenceMetadata = (array) ($data['report_attachments'] ?? []);
@@ -186,17 +193,17 @@ final class UpdateAuctionAction
                 $auction->properties()->sync($syncData);
 
                 if ($removedPropertyIds !== []) {
-                    \App\Models\Tenants\Properties\Property::query()->whereIn('id', $removedPropertyIds)->where('status', 'assigned_to_auction')->update(['status' => 'available']);
+                    Property::query()->whereIn('id', $removedPropertyIds)->where('status', 'assigned_to_auction')->update(['status' => 'available']);
                 }
 
                 foreach ($syncData as $pId => $pData) {
                     $resultStatus = $pData['result_status'] ?? 'pending';
                     if ($resultStatus === 'sold') {
-                        \App\Models\Tenants\Properties\Property::query()->where('id', $pId)->update(['status' => 'sold']);
+                        Property::query()->where('id', $pId)->update(['status' => 'sold']);
                     } elseif ($resultStatus === 'unsold') {
-                        \App\Models\Tenants\Properties\Property::query()->where('id', $pId)->update(['status' => 'available']);
+                        Property::query()->where('id', $pId)->update(['status' => 'available']);
                     } else {
-                        \App\Models\Tenants\Properties\Property::query()->where('id', $pId)->where('status', '!=', 'sold')->update(['status' => 'assigned_to_auction']);
+                        Property::query()->where('id', $pId)->where('status', '!=', 'sold')->update(['status' => 'assigned_to_auction']);
                     }
                 }
 

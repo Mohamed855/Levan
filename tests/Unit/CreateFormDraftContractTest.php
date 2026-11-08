@@ -61,11 +61,11 @@ final class CreateFormDraftContractTest extends TestCase
             "form-validation.js must set confirmation text"
         );
         $this->assertTrue(
-            str_contains($script, "confirmButtonText: 'نعم، استعادة المسودة'") || str_contains($script, 'confirmButtonText: "نعم، استعادة المسودة"'),
+            str_contains($script, "confirmButtonText: 'تأكيد الاستعادة'") || str_contains($script, 'confirmButtonText: "تأكيد الاستعادة"'),
             "form-validation.js must set confirmButtonText"
         );
         $this->assertTrue(
-            str_contains($script, "cancelButtonText: 'تجاهل والبدء من جديد'") || str_contains($script, 'cancelButtonText: "تجاهل والبدء من جديد"'),
+            str_contains($script, "cancelButtonText: 'تجاهل'") || str_contains($script, 'cancelButtonText: "تجاهل"'),
             "form-validation.js must set cancelButtonText"
         );
         $this->assertStringNotContainsString('data-draft-auto-restore', $script);

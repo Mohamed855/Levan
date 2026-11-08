@@ -34,7 +34,16 @@ final class AuctionReportRenderer
         $pageData = $type === 'outputs' ? $this->haramData : $this->asirData;
         $pages = [];
         foreach ($this->paginator->paginate($snapshot, $type) as $page) {
-            $content = $pageData->page($snapshot, $page);
+            $pageSnapshot = $snapshot;
+            if (array_key_exists('campaigns', $page['payload'])) {
+                $pageSnapshot['marketing']['campaigns'] = $page['payload']['campaigns'];
+                $whatsapp = AuctionReportChannels::campaign($page['payload']['campaigns'], 'whatsapp');
+                $pageSnapshot['marketing']['whatsapp_date'] = $whatsapp['campaign_date'] ?? null;
+            }
+            $content = $pageData->page($pageSnapshot, $page);
+            if (array_key_exists('branding', $snapshot)) {
+                $content['artwork_overrides']['branding'] = $snapshot['branding'];
+            }
             $definition = array_replace($this->artwork->page($design, $content['index']), $content['artwork_overrides'] ?? []);
             foreach ($this->textLayout->flow($content, $definition) as $index => $part) {
                 $partDefinition = $definition;
@@ -45,7 +54,7 @@ final class AuctionReportRenderer
                     $partDefinition = array_replace($definition, $part['artwork_overrides']);
                     $part = $this->textLayout->flow($part, $partDefinition)[0];
                 }
-                $part['links'] = (new AuctionReportLinks)->forPage($snapshot, $partDefinition, $part['field_layouts'] ?? [], $part['link_destinations'] ?? []);
+                $part['links'] = (new AuctionReportLinks)->forPage($pageSnapshot, $partDefinition, $part['field_layouts'] ?? [], $part['link_destinations'] ?? []);
                 $pages[] = [
                     'page_type' => $page['page_type'].($index > 0 && ! str_ends_with($page['page_type'], '-continuation') ? '-continuation' : ''),
                     'page_number' => count($pages) + 1,

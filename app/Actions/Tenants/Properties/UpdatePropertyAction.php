@@ -6,6 +6,7 @@ namespace App\Actions\Tenants\Properties;
 
 use App\Enums\Tenants\Properties\PropertyAttachmentCategory;
 use App\Models\Tenants\Properties\Property;
+use App\Services\Tenants\Auctions\Reports\AuctionReportRefreshService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -248,6 +249,9 @@ final class UpdatePropertyAction
 
         // A cleanup failure cannot roll back a committed replacement or delete its new bytes.
         DB::afterCommit(fn () => $this->deleteReplacedFiles($pathsToDelete, (int) $property->getKey()));
+
+        app(AuctionReportRefreshService::class)
+            ->afterMutation($property->auctions()->pluck('auctions.id')->all());
 
         return $updated;
     }

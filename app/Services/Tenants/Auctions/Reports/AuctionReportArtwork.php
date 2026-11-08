@@ -184,7 +184,7 @@ final class AuctionReportArtwork
 
         $emptySections = [];
         foreach ($page['image_defs'] as $id => $frame) {
-            if (in_array($id, $page['hidden_image_defs'] ?? [], true) || $frame['section'] === 'report_image' || !empty($images[$frame['section']]) || in_array($frame['section'], $page['hide_sections'] ?? [], true)) {
+            if (in_array($id, $page['hidden_image_defs'] ?? [], true) || $frame['section'] === 'report_image' || ! empty($images[$frame['section']]) || in_array($frame['section'], $page['hide_sections'] ?? [], true)) {
                 continue;
             }
             foreach ($page['fallback_frames'][$id] ?? [] as $bounds) {
@@ -208,7 +208,9 @@ final class AuctionReportArtwork
                 }
                 $svg->appendChild($rect);
             }
-            $this->text($document, $svg, ['x' => $left, 'y' => ($top + $bottom) / 2, 'width' => $right - $left, 'max_width' => $right - $left, 'size' => 9, 'sy' => 9, 'font' => 'NotoSansArabic-Regular', 'color' => $design === 'haram' || $background !== null ? '#214570' : '#ffffff', 'rtl' => true], 'لا توجد مرفقات مضافة', ['data-report-empty-evidence' => $section], true);
+            if (empty($page['omit_empty_notices'])) {
+                $this->text($document, $svg, ['x' => $left, 'y' => ($top + $bottom) / 2, 'width' => $right - $left, 'max_width' => $right - $left, 'size' => 9, 'sy' => 9, 'font' => 'NotoSansArabic-Regular', 'color' => $design === 'haram' || $background !== null ? '#214570' : '#ffffff', 'rtl' => true], 'لا توجد مرفقات مضافة', ['data-report-empty-evidence' => $section], true);
+            }
         }
 
         foreach ($page['empty_regions'] ?? [] as $box) {
@@ -218,7 +220,9 @@ final class AuctionReportArtwork
                 $rect->setAttribute($key, (string) $value);
             }
             $svg->appendChild($rect);
-            $this->text($document, $svg, ['x' => $left, 'y' => ($top + $bottom) / 2, 'width' => $right - $left, 'max_width' => $right - $left, 'size' => 10, 'sy' => 10, 'font' => 'NotoSansArabic-Regular', 'color' => '#757575', 'rtl' => true], 'لا تتوفر إحصاءات', ['data-report-empty-statistics' => 'true'], true);
+            if (empty($page['omit_empty_notices'])) {
+                $this->text($document, $svg, ['x' => $left, 'y' => ($top + $bottom) / 2, 'width' => $right - $left, 'max_width' => $right - $left, 'size' => 10, 'sy' => 10, 'font' => 'NotoSansArabic-Regular', 'color' => '#757575', 'rtl' => true], 'لا تتوفر إحصاءات', ['data-report-empty-statistics' => 'true'], true);
+            }
         }
         foreach ($page['charts'] ?? [] as $chart) {
             $chartDocument = new DOMDocument;
@@ -284,7 +288,136 @@ final class AuctionReportArtwork
             }
         }
 
+        if (isset($page['branding'])) {
+            $this->brand($document, $design, $index, $page['branding']);
+        }
+
         return $document->saveXML($svg);
+    }
+
+    private function brand(DOMDocument $document, string $design, int $index, array $branding): void
+    {
+        $svg = $document->documentElement;
+        $boxes = [];
+        if ($design === 'asir' && ! in_array($index, [0, 2, 20], true)) {
+            $this->brandAssetLogos($document, $branding);
+            foreach ((new DOMXPath($document))->query('//*[@data-template-branding="company_logo"]') as $node) {
+                $node->parentNode?->removeChild($node);
+            }
+            if ($index === 10) {
+                $boxes[] = ['company_logo', [140, 698, 235, 727], null];
+            }
+        }
+        if ($design === 'haram') {
+            foreach ($this->page($design, $index)['fields'] as $id => $field) {
+                if ($field['y'] > 780 && $field['x'] > 380) {
+                    foreach ((new DOMXPath($document))->query('//*[@data-field="'.$id.'"]') as $node) {
+                        $node->parentNode?->removeChild($node);
+                    }
+                }
+            }
+            $boxes = match ($index) {
+                0 => [['issuing_entity_logo', [38, 43, 110, 100], '#221b29'], ['company_logo', [495, 44, 555, 105], '#2b2630']],
+                6 => [['issuing_entity_logo', [38, 43, 110, 100], '#221b29'], ['company_logo', [205, 170, 390, 360], '#221b29']],
+                default => [['issuing_entity_logo', [23, 5, 72, 48], '#2c2130'], ['company_logo', [100, 5, 145, 48], '#2c2130']],
+            };
+        } elseif ($index === 0) {
+            $boxes = [['issuing_entity_logo', [475, 5, 580, 110], '#ffffff'], ['company_logo', [30, 605, 570, 725], '#ffffff']];
+        } elseif ($index === 2) {
+            foreach ((new DOMXPath($document))->query('//*[@data-template-branding="company_logo"]') as $node) {
+                $node->parentNode?->removeChild($node);
+            }
+            $boxes = [['company_logo', [355, 113, 570, 330], null]];
+        } elseif ($index === 20) {
+            // The source contains both a vector logo and a large branded watermark.
+            // Keep the original thank-you lettering above the replacement backdrop.
+            $thanks = [];
+            foreach ((new DOMXPath($document))->query('//*[@data-field="f0"]') as $node) {
+                $thanks[] = $node->cloneNode(true);
+            }
+            $this->brandingBox($document, [0, 115, 595.276, 475], '#1a1a1a');
+            foreach ($thanks as $node) {
+                $svg->appendChild($node);
+            }
+            $boxes = [['company_logo', [170, 125, 425, 355], null]];
+        }
+        foreach ($boxes as [$key, $box, $background]) {
+            if ($background !== null) {
+                $this->brandingBox($document, $box, $background);
+            }
+            $uri = $branding[$key] ?? null;
+            if (! $this->isImage($uri)) {
+                continue;
+            }
+            [$left, $top, $right, $bottom] = $box;
+            $image = $document->createElementNS(self::SVG, 'image');
+            foreach (['x' => $left + 3, 'y' => $top + 3, 'width' => $right - $left - 6, 'height' => $bottom - $top - 6, 'preserveAspectRatio' => 'xMidYMid meet', 'data-report-branding' => $key] as $attribute => $value) {
+                $image->setAttribute($attribute, (string) $value);
+            }
+            $image->setAttributeNS(self::XLINK, 'xlink:href', $uri);
+            $svg->appendChild($image);
+        }
+    }
+
+    private function brandAssetLogos(DOMDocument $document, array $branding): void
+    {
+        $assets = [
+            'static-036cb103d5db17fb7bae.png' => 'issuing_entity_logo',
+            'static-ebbe1f2e0fdcb1dceaaf.png' => 'issuing_entity_logo',
+            'static-34ca993ed038eb0ed154.png' => 'company_logo',
+            'static-3ba2f8c81664a1845f61.png' => 'company_logo',
+            'static-596e6cfc0b2857cef974.png' => 'company_logo',
+        ];
+        $uris = [];
+        foreach ($assets as $asset => $role) {
+            $uris[$this->uri('asir/'.$asset, 'image/png')] = $role;
+        }
+        $xpath = new DOMXPath($document);
+        $images = iterator_to_array($xpath->query('//*[local-name()="image"]'));
+        foreach ($images as $image) {
+            $role = $uris[$image->getAttributeNS(self::XLINK, 'href')] ?? null;
+            if ($role === null) {
+                continue;
+            }
+            $uri = $branding[$role] ?? null;
+            $mask = $image->parentNode;
+            while ($mask instanceof DOMElement && $mask->localName !== 'mask' && $mask !== $document->documentElement) {
+                $mask = $mask->parentNode;
+            }
+            if ($mask instanceof DOMElement && $mask->localName === 'mask') {
+                foreach ($xpath->query('//*[@mask="url(#'.$mask->getAttribute('id').')"]') as $usage) {
+                    if (! $this->isImage($uri)) {
+                        $usage->parentNode?->removeChild($usage);
+
+                        continue;
+                    }
+                    $replacement = $image->parentNode->cloneNode(false);
+                    $logo = $image->cloneNode(false);
+                    $logo->removeAttribute('id');
+                    $logo->setAttributeNS(self::XLINK, 'xlink:href', $uri);
+                    $logo->setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                    $logo->setAttribute('data-report-branding', $role);
+                    $replacement->appendChild($logo);
+                    $usage->parentNode?->replaceChild($replacement, $usage);
+                }
+            } elseif ($this->isImage($uri)) {
+                $image->setAttributeNS(self::XLINK, 'xlink:href', $uri);
+                $image->setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                $image->setAttribute('data-report-branding', $role);
+            } else {
+                $image->setAttribute('visibility', 'hidden');
+            }
+        }
+    }
+
+    private function brandingBox(DOMDocument $document, array $box, string $color): void
+    {
+        [$left, $top, $right, $bottom] = $box;
+        $rect = $document->createElementNS(self::SVG, 'rect');
+        foreach (['x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top, 'fill' => $color, 'data-report-branding-mask' => 'true'] as $key => $value) {
+            $rect->setAttribute($key, (string) $value);
+        }
+        $document->documentElement->appendChild($rect);
     }
 
     private function imageFit(array $item, string $section): string
@@ -343,6 +476,7 @@ final class AuctionReportArtwork
         $size = $bytes === false ? false : @getimagesizefromstring($bytes);
         if ($size === false) {
             $image->setAttribute('preserveAspectRatio', 'xMidYMid slice');
+
             return;
         }
         [$left, $top, $right, $bottom] = $box;

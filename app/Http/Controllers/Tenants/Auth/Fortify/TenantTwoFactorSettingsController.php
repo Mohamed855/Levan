@@ -30,7 +30,7 @@ class TenantTwoFactorSettingsController extends Controller
 
         return view('tenant.auth.two-factor-settings', [
             'enabled' => (bool) ($user->two_factor_secret && ! is_null($user->two_factor_confirmed_at)),
-            'enforced' => $this->isEnforced(),
+            'enforced' => false,
         ]);
     }
 
@@ -57,12 +57,6 @@ class TenantTwoFactorSettingsController extends Controller
 
     public function disable(TenantAuthenticatedRequest $request, DisableTwoFactorAuthentication $disable): JsonResponse
     {
-        if ($this->isEnforced()) {
-            return response()->json([
-                'message' => 'المصادقة الثنائية مفروضة بموجب سياسة النظام ولا يمكن تعطيلها.',
-            ], 422);
-        }
-
         $disable(Auth::guard('tenant')->user());
 
         return response()->json(['status' => 'disabled']);
@@ -70,10 +64,7 @@ class TenantTwoFactorSettingsController extends Controller
 
     protected function isEnforced(): bool
     {
-        $companyForced = $this->securityGateway->isTwoFactorRequired();
-        $tenantSettingsForced = (bool) (Settings::first()?->force_two_factor_auth ?? false);
-
-        return $companyForced || $tenantSettingsForced;
+        return false;
     }
 
     public function recoveryCodes(TenantAuthenticatedRequest $request, PersistAuthenticationStateAction $authenticationState): JsonResponse

@@ -22,11 +22,10 @@ class AdminTwoFactorSettingsController extends Controller
     public function show(Request $request): View
     {
         $user = Auth::guard('admin')->user();
-        $enforced = (bool) (Settings::first()?->force_two_factor_auth ?? false);
 
         return view('admin.auth.two-factor-settings', [
             'enabled' => (bool) ($user->two_factor_secret && ! is_null($user->two_factor_confirmed_at)),
-            'enforced' => $enforced,
+            'enforced' => false,
         ]);
     }
 
@@ -53,12 +52,6 @@ class AdminTwoFactorSettingsController extends Controller
 
     public function disable(AdminAuthenticatedRequest $request, DisableTwoFactorAuthentication $disable): JsonResponse
     {
-        if (Settings::first()?->force_two_factor_auth) {
-            return response()->json([
-                'message' => 'المصادقة الثنائية مفروضة بموجب سياسة النظام ولا يمكن تعطيلها.',
-            ], 422);
-        }
-
         $disable(Auth::guard('admin')->user());
 
         return response()->json(['status' => 'disabled']);

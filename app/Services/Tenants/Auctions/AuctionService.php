@@ -2,9 +2,12 @@
 
 namespace App\Services\Tenants\Auctions;
 
+use App\Actions\Tenants\Auctions\CreateAuctionAction;
+use App\Actions\Tenants\Auctions\UpdateAuctionAction;
 use App\Models\Tenants\Auctions\Auction;
-use App\Models\Tenants\Auctions\AuctionAttachment;
 use App\Models\Tenants\Properties\Property;
+use App\Services\Tenants\Auctions\Reports\AuctionReportLock;
+use App\Services\Tenants\Auctions\Reports\AuctionReportRefreshService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -28,7 +31,7 @@ class AuctionService
 
     public function createAuction(array $data, ?UploadedFile $coverImage = null, array $attachments = []): Auction
     {
-        return app(\App\Actions\Tenants\Auctions\CreateAuctionAction::class)->execute(
+        return app(CreateAuctionAction::class)->execute(
             $data,
             auth('tenant')->id() ? (int) auth('tenant')->id() : null,
             $coverImage,
@@ -38,7 +41,7 @@ class AuctionService
 
     public function updateAuction(Auction $auction, array $data, ?UploadedFile $coverImage = null, array $attachments = []): Auction
     {
-        return app(\App\Actions\Tenants\Auctions\UpdateAuctionAction::class)->execute(
+        return app(UpdateAuctionAction::class)->execute(
             $auction,
             $data,
             $coverImage,
@@ -48,21 +51,30 @@ class AuctionService
 
     public function toggleStatus(Auction $auction, ?bool $isActive = null): bool
     {
-        $newStatus = $isActive ?? ! $auction->is_active;
-        $auction->update([
-            'is_active' => $newStatus,
-        ]);
+        return DB::transaction(function () use ($auction, $isActive): bool {
+            $auction = Auction::query()->whereKey($auction->id)->lockForUpdate()->firstOrFail();
+            app(AuctionReportLock::class)->assertEditable($auction);
+            $newStatus = $isActive ?? ! $auction->is_active;
+            $auction->update(['is_active' => $newStatus]);
+            app(AuctionReportRefreshService::class)->afterMutation([$auction->id]);
 
-        return $newStatus;
+            return $newStatus;
+        });
     }
 
     public function deleteAuction(Auction $auction): bool
     {
-        return (bool) $auction->delete();
+        return DB::transaction(function () use ($auction): bool {
+            $auction = Auction::query()->whereKey($auction->id)->lockForUpdate()->firstOrFail();
+            app(AuctionReportLock::class)->assertEditable($auction);
+
+            return (bool) $auction->delete();
+        });
     }
 
     public function forceDeleteAuction(Auction $auction): bool
     {
+        app(AuctionReportLock::class)->assertEditable($auction);
         $attachmentPaths = $auction->attachments()->pluck('file_path')->filter()->all();
 
         $coverImage = $auction->cover_image;

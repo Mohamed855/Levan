@@ -8,8 +8,8 @@
         ['id' => 'assignment-review-validation', 'title' => 'المراجعة والحفظ'],
     ];
     $categoryMapping = array_combine(
-        array_map(fn ($c) => $c->value, \App\Enums\Tenants\Assignments\AssignmentCategory::cases()),
-        array_map(fn ($c) => $c->allowedPropertyTypes(), \App\Enums\Tenants\Assignments\AssignmentCategory::cases())
+        array_map(fn($c) => $c->value, \App\Enums\Tenants\Assignments\AssignmentCategory::cases()),
+        array_map(fn($c) => $c->allowedPropertyTypes(), \App\Enums\Tenants\Assignments\AssignmentCategory::cases()),
     );
 @endphp
 
@@ -26,16 +26,11 @@
 
     <form id="{{ $is_edit ? 'assignment-edit-form' : 'assignment-create-form' }}"
         action="{{ $is_edit ? tenant_route_name('assignments.update', $assignment->id) : tenant_route_name('assignments.store') }}"
-        method="POST"
-        enctype="multipart/form-data"
-        autocomplete="off"
-        data-form-validate
+        method="POST" enctype="multipart/form-data" autocomplete="off" data-form-validate
         data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
-        @if(!$is_edit)
-            data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
+        @if (!$is_edit) data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
             data-draft-file-url="{{ tenant_route_name('wizard-drafts.file.destroy') }}"
-            data-draft-resource-key="tenant.assignment-create"
-        @endif
+            data-draft-resource-key="tenant.assignment-create" @endif
         data-selected-properties-url="{{ tenant_route_name('assignments.selected-properties') }}"
         data-property-image-fallback="{{ $propertyImageFallback }}"
         data-category-mapping="{{ json_encode($categoryMapping) }}">
@@ -59,63 +54,56 @@
         ]">
             <div class="row g-4">
                 <!-- رقم الإسناد -->
-                @if($is_edit)
+                @if ($is_edit)
                     <x-form.controls.input name="assignment_number" id="assignment_number" label="رقم الإسناد"
-                        help="رقم الإسناد ثابت ولا يمكن تعديله بعد إنشائه."
-                        :value="$assignment->assignment_number" readonly required
+                        help="رقم الإسناد ثابت ولا يمكن تعديله بعد إنشائه." :value="$assignment->assignment_number" readonly required
                         col="col-md-6" style="text-transform: uppercase;" />
                 @else
                     <x-form.controls.input name="assignment_number" id="assignment_number" label="رقم الإسناد"
-                        help="سيتم تحويل رقم الإسناد إلى أحرف كبيرة تلقائيًا"
-                        :value="$generatedAssignmentNumber ?? ''" required col="col-md-6"
+                        help="سيتم تحويل رقم الإسناد إلى أحرف كبيرة تلقائيًا" :value="$generatedAssignmentNumber ?? ''" required col="col-md-6"
                         :input-group="true" style="text-transform: uppercase;">
-                        <button type="button" class="input-group-text cursor-pointer btn-generate-code" id="btn-generate-code" title="توليد رقم إسناد تلقائي">
+                        <button type="button" class="input-group-text cursor-pointer btn-generate-code"
+                            id="btn-generate-code" title="توليد رقم إسناد تلقائي">
                             <i class="ti ti-wand me-1"></i> توليد
                         </button>
                     </x-form.controls.input>
                 @endif
 
-                <x-form.controls.input name="name" label="اسم الإسناد"
-                    :value="$is_edit ? $assignment->name : old('name')"
+                <x-form.controls.input name="name" label="اسم الإسناد" :value="$is_edit ? $assignment->name : old('name')"
                     placeholder="أدخل اسم الإسناد (مثال: إسناد بيع عقارات المحمدية)" required col="col-md-6" />
 
-                <x-form.controls.select name="category" id="assignment_category" label="تصنيف الإسناد" required col="col-md-6"
-                    :value="$is_edit ? $assignment->category : old('category', \App\Enums\Tenants\Assignments\AssignmentCategory::LANDS->value)"
-                    :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
+                <x-form.controls.select name="category" id="assignment_category" label="تصنيف الإسناد" required
+                    col="col-md-6" :value="$is_edit
+                        ? $assignment->category
+                        : old('category', \App\Enums\Tenants\Assignments\AssignmentCategory::LANDS->value)" :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
 
                 <x-form.controls.select name="issuing_entity_id" id="assignment_issuing_entity" label="الجهة المسندة"
-                    :value="$is_edit ? ($assignment->issuing_entity_id ?? old('issuing_entity_id')) : old('issuing_entity_id')"
-                    :options="$issuingEntityOptions ?? []"
-                    placeholder="اختر الجهة المسندة" required col="col-md-6" />
+                    :value="$is_edit
+                        ? $assignment->issuing_entity_id ?? old('issuing_entity_id')
+                        : old('issuing_entity_id')" :options="$issuingEntityOptions ?? []" placeholder="اختر الجهة المسندة" required col="col-md-6" />
 
                 <x-form.controls.select name="city" id="assignment-city" label="المدينة" required col="col-md-6"
-                    :value="$is_edit ? $assignment->city : old('city')"
-                    :options="$cityOptions" />
+                    :value="$is_edit ? $assignment->city : old('city')" :options="$cityOptions" />
 
-                <x-form.controls.select name="district" id="assignment-district" label="النطاق/الحي"
-                    :value="$is_edit ? $assignment->district : old('district')"
-                    :options="$districtOptions ?? []"
-                    placeholder="اختر النطاق أو الحي أو اكتب حياً جديداً"
-                    data-tags="true"
+                <x-form.controls.select name="district" id="assignment-district" label="النطاق/الحي" :value="$is_edit ? $assignment->district : old('district')"
+                    :options="$districtOptions ?? []" placeholder="اختر النطاق أو الحي أو اكتب حياً جديداً" data-tags="true"
                     col="col-md-6" />
 
-                <x-form.controls.input name="start_date" type="date" label="تاريخ البداية"
-                    :value="$is_edit ? $assignment->start_date?->format('Y-m-d') : old('start_date')"
+                <x-form.controls.input name="start_date" type="date" label="تاريخ البداية" :value="$is_edit ? $assignment->start_date?->format('Y-m-d') : old('start_date')"
                     placeholder="اختر تاريخ البداية" required col="col-md-6" />
 
-                <x-form.controls.input name="end_date" type="date" label="تاريخ النهاية"
-                    :value="$is_edit ? $assignment->end_date?->format('Y-m-d') : old('end_date')"
+                <x-form.controls.input name="end_date" type="date" label="تاريخ النهاية" :value="$is_edit ? $assignment->end_date?->format('Y-m-d') : old('end_date')"
                     placeholder="اختر تاريخ النهاية" required col="col-md-6" />
 
                 <x-form.controls.textarea name="notes" label="وصف الإسناد"
-                    placeholder="أدخل وصفاً تفصيلياً للإسناد..." required col="col-md-6" rows="4">
+                    placeholder="أدخل وصفاً تفصيلياً للإسناد..." required col="col-12" rows="4">
                     {{ $is_edit ? $assignment->notes : old('notes') }}
                 </x-form.controls.textarea>
 
                 <x-form.wizard.actions>
                     <x-form.wizard.previous-button :href="tenant_route_name('assignments.index')" />
                     <div class="d-flex gap-2">
-                        @if (! $is_edit)
+                        @if (!$is_edit)
                             <x-form.wizard.draft-button />
                         @endif
                         <x-form.wizard.next-button />
@@ -130,7 +118,8 @@
                 <div id="selected-property-inputs">
                     @if ($is_edit && $assignment->properties)
                         @foreach ($assignment->properties as $prop)
-                            <input type="hidden" name="property_ids[]" value="{{ $prop->id }}" data-property-input="{{ $prop->id }}">
+                            <input type="hidden" name="property_ids[]" value="{{ $prop->id }}"
+                                data-property-input="{{ $prop->id }}">
                         @endforeach
                     @endif
                 </div>
@@ -154,15 +143,11 @@
                 <div id="property_ids-error" class="invalid-feedback d-block" data-form-error role="alert" hidden>
                 </div>
             </div>
-            <x-tenants.properties.selected-properties-box
-                :count="$is_edit && $assignment->properties ? $assignment->properties->count() : 0"
-                :properties="$is_edit && $assignment->properties ? $assignment->properties : collect([])"
-                :fallbackImage="$propertyImageFallback"
-            />
+            <x-tenants.properties.selected-properties-box :count="$is_edit && $assignment->properties ? $assignment->properties->count() : 0" :properties="$is_edit && $assignment->properties ? $assignment->properties : collect([])" :fallbackImage="$propertyImageFallback" />
             <x-form.wizard.actions>
                 <x-form.wizard.previous-button />
                 <div class="d-flex gap-2">
-                    @if (! $is_edit)
+                    @if (!$is_edit)
                         <x-form.wizard.draft-button />
                     @endif
                     <x-form.wizard.next-button :disabled="!($is_edit && $assignment->properties && $assignment->properties->isNotEmpty())" />
@@ -186,11 +171,14 @@
                 </div>
 
                 <div class="col-md-6">
-                    <x-form.controls.file name="assignment_letter" label="خطاب الإسناد" :required="!$is_edit" accept="application/pdf"
-                        help="PDF فقط، بحد أقصى 10MB" col="col-12" />
+                    <x-form.controls.file name="assignment_letter" label="خطاب الإسناد" :required="!$is_edit"
+                        accept="application/pdf" help="PDF فقط، بحد أقصى 10MB" col="col-12" />
                     @if ($is_edit)
                         @php
-                            $letter = $assignment->attachments->firstWhere('category', \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::LETTER->value);
+                            $letter = $assignment->attachments->firstWhere(
+                                'category',
+                                \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::LETTER->value,
+                            );
                         @endphp
                         @if ($letter)
                             <div class="mt-2">
@@ -202,11 +190,14 @@
                 </div>
 
                 <div class="col-md-6">
-                    <x-form.controls.file name="general_documents[]" id="general_documents" label="مستندات عامة" :required="!$is_edit"
-                        multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-12" />
+                    <x-form.controls.file name="general_documents[]" id="general_documents" label="مستندات عامة"
+                        :required="!$is_edit" multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-12" />
                     @if ($is_edit)
                         @php
-                            $generalDocs = $assignment->attachments->where('category', \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::GENERAL_DOCUMENT->value);
+                            $generalDocs = $assignment->attachments->where(
+                                'category',
+                                \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::GENERAL_DOCUMENT->value,
+                            );
                         @endphp
                         @if ($generalDocs->isNotEmpty())
                             <div class="mt-2 d-flex flex-wrap gap-2">
@@ -219,11 +210,15 @@
                 </div>
 
                 <div class="col-md-6">
-                    <x-form.controls.file name="additional_attachments[]" id="additional_attachments" label="مرفقات إضافية"
-                        multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-12" />
+                    <x-form.controls.file name="additional_attachments[]" id="additional_attachments"
+                        label="مرفقات إضافية" multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-12" />
                     @if ($is_edit)
                         @php
-                            $addDocs = $assignment->attachments->where('category', \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::ADDITIONAL_ATTACHMENT->value);
+                            $addDocs = $assignment->attachments->where(
+                                'category',
+                                \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::ADDITIONAL_ATTACHMENT
+                                    ->value,
+                            );
                         @endphp
                         @if ($addDocs->isNotEmpty())
                             <div class="mt-2 d-flex flex-wrap gap-2">
@@ -238,7 +233,7 @@
             <x-form.wizard.actions>
                 <x-form.wizard.previous-button />
                 <div class="d-flex gap-2">
-                    @if (! $is_edit)
+                    @if (!$is_edit)
                         <x-form.wizard.draft-button />
                     @endif
                     <x-form.wizard.next-button />
@@ -273,13 +268,15 @@
                                         <section class="assignment-selection"
                                             aria-labelledby="review-primary-documents-title">
                                             <div class="w-100 d-flex align-items-center justify-content-between mb-3">
-                                                <h6 id="review-primary-documents-title" class="mb-0">مستندات الإسناد الأساسية (صورة وخطاب الإسناد)</h6>
+                                                <h6 id="review-primary-documents-title" class="mb-0">مستندات الإسناد
+                                                    الأساسية (صورة وخطاب الإسناد)</h6>
                                                 <span class="badge bg-primary">
                                                     <span id="review-primary-documents-count">0</span> ملف
                                                 </span>
                                             </div>
                                             <div id="review-primary-documents" class="assignment-file-list">
-                                                <p class="text-muted mb-0" data-empty>لم يتم إرفاق مستندات أساسية بعد.</p>
+                                                <p class="text-muted mb-0" data-empty>لم يتم إرفاق مستندات أساسية بعد.
+                                                </p>
                                             </div>
                                         </section>
                                     </div>
@@ -287,7 +284,8 @@
                                         <section class="assignment-selection"
                                             aria-labelledby="review-general-documents-title">
                                             <div class="d-flex align-items-center justify-content-between mb-3">
-                                                <h6 id="review-general-documents-title" class="mb-0">مستندات عامة</h6>
+                                                <h6 id="review-general-documents-title" class="mb-0">مستندات عامة
+                                                </h6>
                                                 <span class="badge bg-primary">
                                                     <span id="review-general-documents-count">0</span> ملف
                                                 </span>
@@ -301,7 +299,8 @@
                                         <section class="assignment-selection"
                                             aria-labelledby="review-additional-attachments-title">
                                             <div class="d-flex align-items-center justify-content-between mb-3">
-                                                <h6 id="review-additional-attachments-title" class="mb-0">مرفقات إضافية</h6>
+                                                <h6 id="review-additional-attachments-title" class="mb-0">مرفقات
+                                                    إضافية</h6>
                                                 <span class="badge bg-primary">
                                                     <span id="review-additional-attachments-count">0</span> ملف
                                                 </span>
@@ -320,7 +319,7 @@
             <x-form.wizard.actions>
                 <x-form.wizard.previous-button />
                 <div class="d-flex gap-2">
-                    @if (! $is_edit)
+                    @if (!$is_edit)
                         <x-form.wizard.draft-button />
                     @endif
                     <x-form.wizard.save-button />
@@ -329,4 +328,3 @@
         </x-form.wizard.step>
     </form>
 </x-form.wizard.stepper>
-

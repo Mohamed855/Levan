@@ -3,7 +3,7 @@
 // Primary dark background (#1D4F44) with seamless inverted border radius on active & hover
 // =============================================================================
 
-@use 'variables';
+@use "variables";
 
 // -----------------------------------------------------------------------------
 // 1. Sidebar Container & Shell
@@ -11,7 +11,7 @@
 #layout-menu.menu-vertical,
 .layout-menu.menu-vertical,
 .bg-menu-theme.menu-vertical {
-    background-color: var(--primary-color, #1D4F44) !important;
+    background-color: var(--primary-color, #1d4f44) !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
@@ -78,7 +78,8 @@
         text-decoration: none !important;
 
         .app-brand-logo,
-        img, svg {
+        img,
+        svg {
             max-height: 38px !important;
             height: 38px !important;
             width: auto !important;
@@ -124,18 +125,17 @@
         }
 
         .menu-toggle-icon {
-            display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
 
             &::before {
-                content: '\ea1f' !important; // Right arrow to collapse in RTL
+                content: "\ea1f" !important; // Right arrow to collapse in RTL
                 display: inline-block !important;
                 transition: transform 0.25s ease-in-out !important;
 
                 :root:not([dir="rtl"]) &,
                 [dir="ltr"] & {
-                    content: '\ea19' !important; // Left arrow to collapse in LTR
+                    content: "\ea19" !important; // Left arrow to collapse in LTR
                 }
             }
         }
@@ -199,7 +199,9 @@ $menu-sub-link-height: 3rem;
     align-items: center !important;
 
     // Snappy, instant transition without delay or layout shifting (strictly 0.1s)
-    transition: background-color 0.1s ease, color 0.1s ease !important;
+    transition:
+        background-color 0.1s ease,
+        color 0.1s ease !important;
     transition-duration: 0.1s !important;
 
     * {
@@ -225,21 +227,31 @@ $menu-sub-link-height: 3rem;
 
         &::after {
             color: rgba(255, 255, 255, 0.6) !important;
-            transition: transform 0.2s ease, color 0.1s ease !important;
+            transition:
+                transform 0.2s ease,
+                color 0.1s ease !important;
             transition-duration: 0.1s !important;
         }
     }
 }
 
 // Unified margins for ALL top-level links: identical in inactive, hover, and active states
-:root[dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item > .menu-link,
+:root[dir="rtl"]
+    .bg-menu-theme.menu-vertical
+    .menu-inner
+    > .menu-item
+    > .menu-link,
 [dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item > .menu-link {
     margin-left: 0 !important;
     margin-right: 0.875rem !important;
     border-radius: 0 1.5rem 1.5rem 0 !important;
 }
 
-:root:not([dir="rtl"]) .bg-menu-theme.menu-vertical .menu-inner > .menu-item > .menu-link,
+:root:not([dir="rtl"])
+    .bg-menu-theme.menu-vertical
+    .menu-inner
+    > .menu-item
+    > .menu-link,
 [dir="ltr"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item > .menu-link {
     margin-right: 0 !important;
     margin-left: 0.875rem !important;
@@ -262,7 +274,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
 
     &::before,
     &::after {
-        content: '' !important;
+        content: "" !important;
         display: block !important;
         position: absolute !important;
         width: 1.5rem !important;
@@ -277,7 +289,6 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
     }
 }
 
-
 // RTL Geometry (cutouts face the page at the sidebar's inline end)
 :root[dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::before,
 [dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::before,
@@ -286,7 +297,11 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
     top: -24px !important;
     inset-inline-start: auto !important;
     inset-inline-end: 0 !important;
-    background: radial-gradient(circle 1.5rem at 100% 0%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 1.5rem) !important;
+    background: radial-gradient(
+        circle 1.5rem at 100% 0%,
+        transparent 23.5px,
+        var(--menu-cutout-bg, #f8f7fa) 1.5rem
+    ) !important;
 }
 
 :root[dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::after,
@@ -297,7 +312,11 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
     bottom: auto !important;
     inset-inline-start: auto !important;
     inset-inline-end: 0 !important;
-    background: radial-gradient(circle 1.5rem at 100% 100%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 1.5rem) !important;
+    background: radial-gradient(
+        circle 1.5rem at 100% 100%,
+        transparent 23.5px,
+        var(--menu-cutout-bg, #f8f7fa) 1.5rem
+    ) !important;
 }
 
 // LTR Geometry (cutouts face the page at the sidebar's inline end)
@@ -308,7 +327,11 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
     top: -24px !important;
     inset-inline-start: auto !important;
     inset-inline-end: 0 !important;
-    background: radial-gradient(circle 1.5rem at 0% 0%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 1.5rem) !important;
+    background: radial-gradient(
+        circle 1.5rem at 0% 0%,
+        transparent 23.5px,
+        var(--menu-cutout-bg, #f8f7fa) 1.5rem
+    ) !important;
 }
 
 :root[dir="ltr"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::after,
@@ -319,7 +342,11 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
     bottom: auto !important;
     inset-inline-start: auto !important;
     inset-inline-end: 0 !important;
-    background: radial-gradient(circle 1.5rem at 0% 100%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 1.5rem) !important;
+    background: radial-gradient(
+        circle 1.5rem at 0% 100%,
+        transparent 23.5px,
+        var(--menu-cutout-bg, #f8f7fa) 1.5rem
+    ) !important;
 }
 
 .bg-menu-theme.menu-vertical .menu-inner > .menu-item,
@@ -334,7 +361,10 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
 .bg-menu-theme.menu-vertical .menu-inner > .menu-item.active,
 .layout-wrapper .bg-menu-theme.menu-vertical .menu-inner > .menu-item.open,
 .bg-menu-theme.menu-vertical .menu-inner > .menu-item.open,
-.layout-wrapper .bg-menu-theme.menu-vertical .menu-inner > .menu-item.menu-item-closing,
+.layout-wrapper
+    .bg-menu-theme.menu-vertical
+    .menu-inner
+    > .menu-item.menu-item-closing,
 .bg-menu-theme.menu-vertical .menu-inner > .menu-item.menu-item-closing,
 .layout-wrapper .bg-menu-theme.menu-vertical .menu-inner > .menu-item:hover,
 .bg-menu-theme.menu-vertical .menu-inner > .menu-item:hover {
@@ -353,34 +383,36 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
         position: relative !important;
         z-index: 2 !important;
 
-        color: var(--primary-color, #1D4F44) !important;
+        color: var(--primary-color, #1d4f44) !important;
         font-weight: 600 !important;
-        transition: background-color 0.1s ease, color 0.1s ease !important;
+        transition:
+            background-color 0.1s ease,
+            color 0.1s ease !important;
         transition-duration: 0.1s !important;
 
         > div:not(.badge):not([data-sidebar-counter]),
         span,
         .menu-text {
-            color: var(--primary-color, #1D4F44) !important;
+            color: var(--primary-color, #1d4f44) !important;
             font-weight: 600 !important;
         }
 
         .menu-icon,
         .tf-icons,
         i {
-            color: var(--primary-color, #1D4F44) !important;
+            color: var(--primary-color, #1d4f44) !important;
         }
 
         &.menu-toggle::after {
-            color: var(--primary-color, #1D4F44) !important;
+            color: var(--primary-color, #1d4f44) !important;
         }
 
         .badge,
         .badge.bg-light,
         .badge.text-primary,
         [data-sidebar-counter] {
-            background-color: var(--primary-color, #1D4F44) !important;
-            background: var(--primary-color, #1D4F44) !important;
+            background-color: var(--primary-color, #1d4f44) !important;
+            background: var(--primary-color, #1d4f44) !important;
             color: #ffffff !important;
             border-color: transparent !important;
         }
@@ -388,7 +420,10 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
 }
 
 // Neutralize vendor theme overrides on closed, inactive togglers.
-.bg-menu-theme.menu-vertical .menu-inner > .menu-item:not(.active):not(.open):not(:hover) > .menu-link.menu-toggle {
+.bg-menu-theme.menu-vertical
+    .menu-inner
+    > .menu-item:not(.active):not(.open):not(:hover)
+    > .menu-link.menu-toggle {
     background: transparent !important;
     color: rgba(255, 255, 255, 0.82) !important;
 }
@@ -396,7 +431,12 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
 // -----------------------------------------------------------------------------
 // 6. Submenu & Inner Menu Items (Identical Tab Design with Nested Indentation)
 // -----------------------------------------------------------------------------
-.bg-menu-theme.menu-vertical .menu-inner > .menu-item > .menu-sub > .menu-item.active > .menu-link:not(.menu-toggle) {
+.bg-menu-theme.menu-vertical
+    .menu-inner
+    > .menu-item
+    > .menu-sub
+    > .menu-item.active
+    > .menu-link:not(.menu-toggle) {
     background: $menu-tab-bg !important;
     background-image: none !important;
     box-shadow: none !important;
@@ -435,7 +475,9 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
             font-weight: 600 !important; // Strictly constant font-weight
             color: rgba(255, 255, 255, 0.75) !important;
             background: transparent !important;
-            transition: background-color 0.1s ease, color 0.1s ease !important;
+            transition:
+                background-color 0.1s ease,
+                color 0.1s ease !important;
             transition-duration: 0.1s !important;
             display: flex !important;
             align-items: center !important;
@@ -443,7 +485,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
 
             // Stable bullet dot (strictly 6px, NO transform/scale)
             &::before {
-                content: '' !important;
+                content: "" !important;
                 display: inline-block !important;
                 position: static !important;
                 width: 6px !important;
@@ -489,19 +531,19 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
         .menu-link.active {
             background: $menu-tab-bg !important;
             background-image: none !important;
-            color: var(--primary-color, #1D4F44) !important;
+            color: var(--primary-color, #1d4f44) !important;
             font-weight: 600 !important; // Stays 600, NO jumping
             box-shadow: none !important;
             transform: none !important;
 
             > div:not(.badge):not([data-sidebar-counter]),
             span {
-                color: var(--primary-color, #1D4F44) !important;
+                color: var(--primary-color, #1d4f44) !important;
                 font-weight: 600 !important;
             }
 
             &::before {
-                background-color: var(--primary-color, #1D4F44) !important;
+                background-color: var(--primary-color, #1d4f44) !important;
                 transform: none !important; // Stays 6px, ZERO movement
             }
 
@@ -509,8 +551,8 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
             .badge.bg-light,
             .badge.text-primary,
             [data-sidebar-counter] {
-                background-color: var(--primary-color, #1D4F44) !important;
-                background: var(--primary-color, #1D4F44) !important;
+                background-color: var(--primary-color, #1d4f44) !important;
+                background: var(--primary-color, #1d4f44) !important;
                 color: #ffffff !important;
                 border-color: transparent !important;
             }
@@ -531,13 +573,17 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
         [data-sidebar-counter] {
             background-color: #ffffff !important;
             background: #ffffff !important;
-            color: var(--primary-color, #1D4F44) !important;
+            color: var(--primary-color, #1d4f44) !important;
             border-color: transparent !important;
             font-weight: 700 !important;
             font-size: 0.75rem !important;
             line-height: 1.1 !important;
             padding: 0.25rem 0.5rem !important;
-            transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.2s ease !important;
+            transition:
+                background-color 0.15s ease,
+                color 0.15s ease,
+                border-color 0.15s ease,
+                transform 0.2s ease !important;
         }
     }
 
@@ -554,8 +600,8 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
         .badge.bg-light,
         .badge.text-primary,
         [data-sidebar-counter] {
-            background-color: var(--primary-color, #1D4F44) !important;
-            background: var(--primary-color, #1D4F44) !important;
+            background-color: var(--primary-color, #1d4f44) !important;
+            background: var(--primary-color, #1d4f44) !important;
             color: #ffffff !important;
             border-color: transparent !important;
         }
@@ -567,7 +613,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
 html[dir="rtl"],
 html[dir="rtl"] body {
     direction: rtl !important;
-    scrollbar-color: #1D4F44 #F7F3EC !important;
+    scrollbar-color: #1d4f44 #f7f3ec !important;
     scrollbar-width: thin !important;
 }
 
@@ -590,7 +636,7 @@ html.layout-menu-fixed {
     overflow-y: auto !important;
     overflow-x: hidden !important;
     direction: rtl !important;
-    scrollbar-color: #1D4F44 #F7F3EC !important;
+    scrollbar-color: #1d4f44 #f7f3ec !important;
     scrollbar-width: thin !important;
 }
 

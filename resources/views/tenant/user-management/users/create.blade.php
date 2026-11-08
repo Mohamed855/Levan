@@ -15,7 +15,7 @@
 @endsection
 
 @section('page-script')
-    @vite('resources/assets/js/shared/form-validation.js')
+    @vite(['resources/assets/js/shared/form-validation.js'])
 @endsection
 
 @section('content')

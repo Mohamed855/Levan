@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Services\Tenants\Assignments;
 
 use App\Models\Tenants\Assignments\IssuingEntity;
+use App\Models\Tenants\Auctions\Auction;
+use App\Services\Tenants\Auctions\Reports\AuctionReportRefreshService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -68,6 +70,11 @@ class IssuingEntityService
             }
 
             $entity->update($updateData);
+            if ($entity->wasChanged('image')) {
+                app(AuctionReportRefreshService::class)->afterMutation(
+                    Auction::query()->whereIn('assignment_id', $entity->assignments()->select('id'))->pluck('id')->all()
+                );
+            }
 
             // Keep assigned assignments text field in sync if name changed
             if ($oldName !== $newName) {

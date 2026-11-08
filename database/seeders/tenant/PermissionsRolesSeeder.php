@@ -71,19 +71,19 @@ class PermissionsRolesSeeder extends Seeder
                 'auctions_archive.restore',
                 'auctions_archive.force_delete',
             ],
-            'assignments_management' => [
-                'assignments.view',
-                'assignments.create',
-                'assignments.edit',
-                'assignments.delete',
-                'assignments.toggle_status',
-            ],
             'issuing_entities_management' => [
                 'issuing_entities.view',
                 'issuing_entities.create',
                 'issuing_entities.edit',
                 'issuing_entities.delete',
                 'issuing_entities.toggle_status',
+            ],
+            'assignments_management' => [
+                'assignments.view',
+                'assignments.create',
+                'assignments.edit',
+                'assignments.delete',
+                'assignments.toggle_status',
             ],
             'properties_management' => [
                 'properties.view',
@@ -105,6 +105,7 @@ class PermissionsRolesSeeder extends Seeder
             ],
         ];
 
+        $permissions = array_merge($permissions, config('auction-report-permissions'));
         foreach ($permissions as $section => $perms) {
             foreach ($perms as $perm) {
                 Permission::firstOrCreate(

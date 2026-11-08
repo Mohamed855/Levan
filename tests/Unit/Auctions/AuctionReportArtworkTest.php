@@ -5,12 +5,32 @@ declare(strict_types=1);
 namespace Tests\Unit\Auctions;
 
 use App\Services\Tenants\Auctions\Reports\AuctionReportArtwork;
+use App\Services\Tenants\Auctions\Reports\AuctionReportTextLayout;
 use DOMDocument;
 use DOMXPath;
 use PHPUnit\Framework\TestCase;
 
 final class AuctionReportArtworkTest extends TestCase
 {
+    public function test_tenant_and_issuing_entity_logos_replace_template_branding(): void
+    {
+        $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
+        $branding = ['company_logo' => 'data:image/png;base64,'.base64_encode('company'), 'issuing_entity_logo' => 'data:image/png;base64,'.base64_encode('issuer')];
+        foreach ([['haram', 0], ['haram', 1], ['haram', 6], ['asir', 0]] as [$design, $index]) {
+            $document = new DOMDocument;
+            $document->loadXML($artwork->render($design, $index, [], [], [], 1, [], [], ['branding' => $branding]));
+            $xpath = new DOMXPath($document);
+            if ($design === 'haram' && $index === 0) {
+                self::assertSame(0, $xpath->query('//*[@data-field="f15"]')->length);
+            }
+            foreach ($branding as $key => $uri) {
+                $nodes = $xpath->query('//*[@data-report-branding="'.$key.'"]');
+                self::assertGreaterThan(0, $nodes->length, $design.':'.$index.':'.$key);
+                self::assertSame($uri, $nodes->item(0)->getAttributeNS('http://www.w3.org/1999/xlink', 'href'));
+            }
+        }
+    }
+
     public function test_empty_platform_and_video_frames_cover_source_placeholder_colors_with_a_neutral_notice(): void
     {
         $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
@@ -38,6 +58,7 @@ final class AuctionReportArtworkTest extends TestCase
         self::assertEqualsWithDelta(635.937, (float) $nodes->item(0)->getAttribute('y'), .01);
         self::assertGreaterThan(300, (float) $nodes->item(0)->getAttribute('width'));
     }
+
     public function test_runtime_replacement_removes_the_original_static_claim_and_marks_empty_evidence_once(): void
     {
         $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
@@ -59,6 +80,7 @@ final class AuctionReportArtworkTest extends TestCase
         $node = (new DOMXPath($document))->query('//*[@data-report-field="name"]')->item(0);
         self::assertSame('525', $node->getAttribute('data-report-width'));
     }
+
     public function test_dynamic_text_is_escaped_and_reference_business_values_are_removed_from_the_artwork(): void
     {
         $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
@@ -131,7 +153,7 @@ final class AuctionReportArtworkTest extends TestCase
         $artwork = new AuctionReportArtwork($root);
         $definition = $artwork->page('haram', 1);
         $definition['groups'] = [];
-        $parts = (new \App\Services\Tenants\Auctions\Reports\AuctionReportTextLayout($root))->flow(['values' => [], 'tables' => ['properties' => [['-', str_repeat("123456\n", 8), 'DEED', 'أرض', '1']]], 'images' => []], $definition);
+        $parts = (new AuctionReportTextLayout($root))->flow(['values' => [], 'tables' => ['properties' => [['-', str_repeat("123456\n", 8), 'DEED', 'أرض', '1']]], 'images' => []], $definition);
         self::assertCount(1, $parts);
         $svg = $artwork->render('haram', 1, [], $parts[0]['tables'], [], 3, $parts[0]['table_layouts']);
         self::assertTrue(str_contains($svg, 'data-reflowed-table="properties"'));
@@ -142,7 +164,10 @@ final class AuctionReportArtworkTest extends TestCase
     {
         $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
         $image = imagecreatetruecolor(346, 1107);
-        ob_start(); imagepng($image); $uri = 'data:image/png;base64,'.base64_encode(ob_get_clean()); imagedestroy($image);
+        ob_start();
+        imagepng($image);
+        $uri = 'data:image/png;base64,'.base64_encode(ob_get_clean());
+        imagedestroy($image);
         $document = new DOMDocument;
         $document->loadXML($artwork->render('asir', 8, [], [], ['board_before' => [['uri' => $uri, 'kind' => 'screenshot']]], 9));
         $node = (new DOMXPath($document))->query('//*[@data-report-contained="board_before:0"]')->item(0);

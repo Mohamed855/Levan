@@ -40,12 +40,12 @@ $(function () {
 
             if (tableId && $.fn.DataTable.isDataTable("#" + tableId)) {
                 const dt = $("#" + tableId).DataTable();
-                $(".row-checkbox", dt.rows({ search: "applied" }).nodes()).prop(
+                $(".row-checkbox:not(:disabled)", dt.rows({ search: "applied" }).nodes()).prop(
                     "checked",
                     isChecked,
                 );
             } else {
-                $wrapper.find(".row-checkbox").prop("checked", isChecked);
+                $wrapper.find(".row-checkbox:not(:disabled)").prop("checked", isChecked);
             }
         },
     );

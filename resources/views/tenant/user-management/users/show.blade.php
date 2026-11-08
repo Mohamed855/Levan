@@ -11,7 +11,23 @@
 @endsection
 
 @section('content')
-    <div class="d-flex justify-content-end align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <i class="ti ti-user me-2 text-primary"></i>الملف الشخصي: {{ $user->name }}
+            </h4>
+            <div class="d-flex align-items-center gap-2">
+                @php
+                    $isActive = ($user->status?->value ?? $user->status) === 'active';
+                @endphp
+                <span class="badge bg-{{ $isActive ? 'success' : 'danger' }}">
+                    {{ $isActive ? 'نشط' : 'غير نشط' }}
+                </span>
+                @if ($user->isAdmin())
+                    <span class="badge bg-primary">مدير النظام</span>
+                @endif
+            </div>
+        </div>
         <div class="d-flex gap-2">
             <a href="{{ tenant_route_name('users.index') }}" class="btn btn-secondary">
                 <i class="ti ti-arrow-right me-1"></i> العودة

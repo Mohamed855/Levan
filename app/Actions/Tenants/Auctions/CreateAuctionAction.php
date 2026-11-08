@@ -7,6 +7,7 @@ namespace App\Actions\Tenants\Auctions;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
+use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Auctions\AuctionReportInputService;
 use App\Services\Tenants\Auctions\Reports\AuctionReportService;
@@ -25,12 +26,12 @@ final class CreateAuctionAction
     ) {}
 
     /**
-     * @param array<string, mixed>|User $userOrData
-     * @param array<string, mixed>|int|null $dataOrCreatorId
-     * @param array<int, UploadedFile> $attachments
-     * @param array<int, UploadedFile> $marketingEvidence
-     * @param array<int|string, array<int, UploadedFile>> $boardImagesBefore
-     * @param array<int|string, array<int, UploadedFile>> $boardImagesAfter
+     * @param  array<string, mixed>|User  $userOrData
+     * @param  array<string, mixed>|int|null  $dataOrCreatorId
+     * @param  array<int, UploadedFile>  $attachments
+     * @param  array<int, UploadedFile>  $marketingEvidence
+     * @param  array<int|string, array<int, UploadedFile>>  $boardImagesBefore
+     * @param  array<int|string, array<int, UploadedFile>>  $boardImagesAfter
      */
     public function execute(
         mixed $userOrData,
@@ -51,6 +52,9 @@ final class CreateAuctionAction
             $creatorId = is_int($dataOrCreatorId) ? $dataOrCreatorId : null;
         }
 
+        if (! empty($data['property_results']) || isset($data['marketing']['campaigns']) || isset($data['marketing']['contacts'])) {
+            throw ValidationException::withMessages(['auction' => 'تُضاف الحملات ونتائج الإقفال بعد إنشاء المزاد من الإدارات المخصصة.']);
+        }
         $storedPaths = [];
 
         try {
@@ -104,7 +108,7 @@ final class CreateAuctionAction
                                 'end_time' => 'وقت نهاية المزاد يجب أن يكون بعد وقت البداية عندما يكون المزاد في نفس اليوم.',
                             ]);
                         }
-                    } catch (\Throwable $e) {
+                    } catch (Throwable $e) {
                         if ($e instanceof ValidationException) {
                             throw $e;
                         }
@@ -157,11 +161,11 @@ final class CreateAuctionAction
                 foreach ($pivotData as $pId => $pData) {
                     $resultStatus = $pData['result_status'] ?? 'pending';
                     if ($resultStatus === 'sold') {
-                        \App\Models\Tenants\Properties\Property::query()->where('id', $pId)->update(['status' => 'sold']);
+                        Property::query()->where('id', $pId)->update(['status' => 'sold']);
                     } elseif ($resultStatus === 'unsold') {
-                        \App\Models\Tenants\Properties\Property::query()->where('id', $pId)->update(['status' => 'available']);
+                        Property::query()->where('id', $pId)->update(['status' => 'available']);
                     } else {
-                        \App\Models\Tenants\Properties\Property::query()->where('id', $pId)->where('status', '!=', 'sold')->update(['status' => 'assigned_to_auction']);
+                        Property::query()->where('id', $pId)->where('status', '!=', 'sold')->update(['status' => 'assigned_to_auction']);
                     }
                 }
 
@@ -206,5 +210,4 @@ final class CreateAuctionAction
 
         return $auction;
     }
-
 }

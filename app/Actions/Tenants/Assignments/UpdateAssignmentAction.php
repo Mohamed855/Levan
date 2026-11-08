@@ -6,8 +6,11 @@ namespace App\Actions\Tenants\Assignments;
 
 use App\Enums\Tenants\Assignments\AssignmentAttachmentCategory;
 use App\Models\Tenants\Assignments\Assignment;
+use App\Models\Tenants\Assignments\IssuingEntity;
+use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Assignments\AssignmentService;
+use App\Services\Tenants\Auctions\Reports\AuctionReportRefreshService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -96,10 +99,14 @@ final class UpdateAssignmentAction
                 );
 
                 if (! empty($data['issuing_entity_id']) && empty($data['issuing_entity'])) {
-                    $data['issuing_entity'] = (string) \App\Models\Tenants\Assignments\IssuingEntity::whereKey($data['issuing_entity_id'])->value('name');
+                    $data['issuing_entity'] = (string) IssuingEntity::whereKey($data['issuing_entity_id'])->value('name');
                 }
 
-                return $this->assignmentService->updateAssignment($assignment, $data, $image);
+                $updated = $this->assignmentService->updateAssignment($assignment, $data, $image);
+                app(AuctionReportRefreshService::class)
+                    ->afterMutation(Auction::query()->where('assignment_id', $assignment->id)->pluck('id')->all());
+
+                return $updated;
             });
         } catch (Throwable $e) {
             if (! empty($storedPaths)) {

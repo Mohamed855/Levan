@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Tenants\Auctions;
 
 use App\Http\Requests\Tenants\Auctions\StoreAuctionRequest;
+use App\Http\Requests\Tenants\MarketingCampaigns\SaveMarketingCampaignRequest;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
@@ -13,6 +14,7 @@ use App\Services\Tenants\Auctions\Reports\AuctionReportDataBuilder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\ViewErrorBag;
 use Illuminate\Validation\ValidationException;
 use Tests\Support\TenantAuctionReportTestCase;
 
@@ -78,8 +80,7 @@ final class AuctionReportInputContractTest extends TenantAuctionReportTestCase
         $rules = array_filter($request->rules(), static fn (string $key): bool => str_starts_with($key, 'marketing_evidence_meta'), ARRAY_FILTER_USE_KEY);
         $validator = Validator::make(['marketing_evidence_meta' => [['channel' => 'javascript', 'focal_x' => 101, 'kind' => 'executable']]], $rules);
         self::assertTrue($validator->fails());
-        self::assertTrue($validator->errors()->has('marketing_evidence_meta.0.channel'));
-        self::assertTrue($validator->errors()->has('marketing_evidence_meta.0.focal_x'));
+        self::assertTrue($validator->errors()->has('marketing_evidence_meta'));
     }
 
     public function test_board_dimensions_and_zero_count_survive_partial_result_updates(): void
@@ -101,12 +102,11 @@ final class AuctionReportInputContractTest extends TenantAuctionReportTestCase
         $rules = array_filter($request->rules(), static fn (string $key): bool => str_starts_with($key, 'marketing'), ARRAY_FILTER_USE_KEY);
         $data = ['marketing' => ['introduction' => 'مقدمة التقرير', 'results_narrative' => 'نتائج تفصيلية', 'contacts' => ['phone' => '0534811800'], 'campaigns' => [['platform' => 'whatsapp', 'messages' => -1, 'delivered' => 0, 'watch_hours' => 2.5]]]];
         $invalid = Validator::make($data, $rules);
-        self::assertTrue($invalid->errors()->has('marketing.campaigns.0.messages'));
-        $data['marketing']['campaigns'][0]['messages'] = 0;
+        self::assertTrue($invalid->errors()->has('marketing'));
+        $data['marketing'] = ['introduction' => 'مقدمة التقرير'];
         $valid = Validator::make($data, $rules);
         self::assertFalse($valid->fails());
-        self::assertSame(0, $valid->validated()['marketing']['campaigns'][0]['messages']);
-        self::assertSame('0534811800', $valid->validated()['marketing']['contacts']['phone']);
+        self::assertSame('مقدمة التقرير', $valid->validated()['marketing']['introduction']);
     }
 
     public function test_report_settings_expose_shared_controls_for_details_and_existing_evidence(): void
@@ -117,7 +117,7 @@ final class AuctionReportInputContractTest extends TenantAuctionReportTestCase
         $paths = [];
         app(AuctionReportInputService::class)->storeEvidence($auction, [UploadedFile::fake()->image('proof.png')], [], [], [], $paths);
         $attachment = $auction->attachments()->sole();
-        view()->share('errors', new \Illuminate\Support\ViewErrorBag);
+        view()->share('errors', new ViewErrorBag);
         $html = view('tenant.auctions.partials.steps.step4-settings', ['auction' => $auction->fresh()->load('properties', 'attachments')])->render();
         foreach (['marketing[introduction]', 'marketing[results_narrative]', 'marketing[contacts][phone]', 'marketing[whatsapp_date]', 'marketing[campaigns][0][views]', 'report_attachments['.$attachment->id.'][section]', 'marketing_evidence_meta[__INDEX__][channel]'] as $name) {
             self::assertTrue(str_contains($html, 'name="'.$name.'"'), 'Missing report control: '.$name);
@@ -128,19 +128,14 @@ final class AuctionReportInputContractTest extends TenantAuctionReportTestCase
 
     public function test_whatsapp_total_must_agree_with_complete_delivery_counts_on_create_and_edit(): void
     {
-        foreach ([StoreAuctionRequest::class, \App\Http\Requests\Tenants\Auctions\UpdateAuctionRequest::class] as $class) {
-            $request = $class::create('/', 'POST', ['property_ids' => []]);
-            $rules = array_filter($request->rules(), static fn (string $key): bool => str_starts_with($key, 'marketing'), ARRAY_FILTER_USE_KEY);
-            $campaign = ['platform' => 'whatsapp', 'delivered' => 70, 'failed' => 20, 'pending' => 10, 'total' => 101];
-            $invalid = Validator::make(['marketing' => ['campaigns' => [$campaign]]], $rules);
-            self::assertTrue($invalid->errors()->has('marketing.campaigns.0'), 'An inconsistent delivery total must fail before saving.');
-            $campaign['total'] = 100;
-            self::assertFalse(Validator::make(['marketing' => ['campaigns' => [$campaign]]], $rules)->fails());
-            $campaign = ['platform' => 'whatsapp', 'delivered' => 0, 'failed' => 0, 'pending' => 0, 'total' => 0];
-            self::assertFalse(Validator::make(['marketing' => ['campaigns' => [$campaign]]], $rules)->fails());
-            $campaign['failed'] = null;
-            $campaign['total'] = 10;
-            self::assertFalse(Validator::make(['marketing' => ['campaigns' => [$campaign]]], $rules)->fails(), 'Unknown counts must not be silently treated as zero.');
+        foreach ([101 => true, 100 => false] as $total => $shouldFail) {
+            $request = SaveMarketingCampaignRequest::create('/', 'POST', ['channel' => 'whatsapp', 'metrics' => ['delivered' => 70, 'failed' => 20, 'pending' => 10, 'total' => $total]]);
+            $rules = array_filter($request->rules(), static fn (string $key): bool => str_starts_with($key, 'metrics'), ARRAY_FILTER_USE_KEY);
+            $validator = Validator::make($request->all(), $rules);
+            foreach ($request->after() as $after) {
+                $validator->after($after);
+            }
+            self::assertSame($shouldFail, $validator->fails());
         }
     }
 

@@ -33,13 +33,10 @@ class SettingsController extends Controller
             [
                 'maintenance_mode' => $request->boolean('maintenance_mode'),
                 'trial_days_mode' => $request->boolean('trial_days_mode'),
-                'etmam_enabled' => $request->boolean('etmam_enabled'),
-                'two_factor_settings_submit' => $request->has('two_factor_settings_submit'),
-                'force_two_factor_auth' => $request->boolean('force_two_factor_auth'),
             ],
             $request->file('image'),
         );
 
-        return redirect()->route('admin.settings.index')->withFragment($request->input('active_tab', null))->with('success', 'تم تحديث الإعدادات بنجاح');
+        return redirect()->route('admin.settings.index')->with('success', 'تم تحديث الإعدادات بنجاح');
     }
 }

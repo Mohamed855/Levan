@@ -33,7 +33,7 @@ $(function () {
         // ==============================
         $('#select-all').on('click', function () {
             const rows = usersTable.rows({ 'search': 'applied' }).nodes();
-            $('input[type="checkbox"]', rows).prop('checked', this.checked);
+            $('input[type="checkbox"]:not(:disabled)', rows).prop('checked', this.checked);
         });
 
         // ==============================

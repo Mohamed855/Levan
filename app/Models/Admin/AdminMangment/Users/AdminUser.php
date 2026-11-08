@@ -117,7 +117,11 @@ class AdminUser extends Authenticatable
     */
     public function isSuperAdmin(): bool
     {
-        return (bool) $this->is_super_admin || $this->hasRole('SuperAdmin');
+        if ($this->relationLoaded('roles')) {
+            return $this->roles->contains(fn ($role) => in_array(strtolower((string) $role->name), ['superadmin', 'super_admin'], true));
+        }
+
+        return $this->hasRole(['SuperAdmin', 'super_admin'], 'admin');
     }
 
     public function coupons()

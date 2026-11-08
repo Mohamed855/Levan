@@ -12,7 +12,7 @@ class RetryAuctionReportsRequest extends FormRequest
     {
         $auction = $this->route('auction');
 
-        return $this->user('tenant')?->can('update', $auction) ?? false;
+        return tenancy()->initialized && ($this->user('tenant')?->can('auctions.edit') ?? false);
     }
 
     public function rules(): array
@@ -20,4 +20,3 @@ class RetryAuctionReportsRequest extends FormRequest
         return [];
     }
 }
-

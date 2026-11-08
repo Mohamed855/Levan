@@ -100,9 +100,11 @@ function stateTargets(control) {
     }
 
     if (control.tagName === "SELECT") {
-        const select2Container = control.nextElementSibling?.matches(".select2")
+        const select2Container = control.nextElementSibling?.matches(
+            ".select2, .select2-container",
+        )
             ? control.nextElementSibling
-            : null;
+            : control.parentElement?.querySelector(".select2-container");
 
         if (select2Container) {
             targets.push(select2Container);
@@ -743,7 +745,10 @@ async function resolveDraftNavigation(form, defaultStep) {
 
     for (let index = 0; index < savedStep - 1; index += 1) {
         const fields = validationFieldsFromStep(steps[index]);
-        if (fields.length && !(await validateFields(form, fields, { force: true }))) {
+        if (
+            fields.length &&
+            !(await validateFields(form, fields, { force: true }))
+        ) {
             return { targetStep: index + 1, targetControl: null };
         }
     }
@@ -791,10 +796,10 @@ async function restoreDraft(form) {
                 title: "مسودة محفوظة",
                 text: "توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟",
                 variant: "primary",
-                icon: "ti-file-pencil",
+                icon: "ti-file",
                 confirmButtonText: "تأكيد الاستعادة",
                 confirmClass: "btn btn-primary px-4",
-                cancelText: "تجاهل",
+                cancelButtonText: "تجاهل",
             });
         } else {
             shouldRestore = Boolean(
@@ -864,7 +869,19 @@ async function restoreDraft(form) {
                 targetControl.focus?.();
             }, 300);
         }
-        window.toastr?.success?.("تمت استعادة المسودة بنجاح.");
+        const restoreSuccessMsg = "تمت استعادة المسودة بنجاح.";
+        if (window.toastr?.success) {
+            window.toastr.success(restoreSuccessMsg);
+        } else if (window.Swal) {
+            window.Swal.fire({
+                icon: "success",
+                title: restoreSuccessMsg,
+                timer: 3000,
+                showConfirmButton: false,
+                toast: true,
+                position: "top-start",
+            });
+        }
         resolved = true;
     } catch (_) {
         window.toastr?.error?.(
@@ -1372,8 +1389,12 @@ function syncAllPropertyStepButtons(form) {
     if (!form) return;
     const stepperElement = form.closest("[data-form-stepper]") || form;
     const steps = [
-        ...form.querySelectorAll("[data-form-step], .content, .bs-stepper-pane"),
-        ...stepperElement.querySelectorAll("[data-form-step], .content, .bs-stepper-pane"),
+        ...form.querySelectorAll(
+            "[data-form-step], .content, .bs-stepper-pane",
+        ),
+        ...stepperElement.querySelectorAll(
+            "[data-form-step], .content, .bs-stepper-pane",
+        ),
     ];
 
     const propertyInputs = Array.from(
@@ -2258,7 +2279,12 @@ function initForm(form) {
             event.submitter ||
             form.querySelector(
                 '[data-save-button], .btn-submit, button[type="submit"]:not([data-wizard-prev]):not([data-wizard-next]):not([data-wizard-draft])',
-            );
+            ) ||
+            (form.id
+                ? document.querySelector(
+                      `button[type="submit"][form="${form.id}"]`,
+                  )
+                : null);
 
         event.preventDefault();
 
@@ -2266,14 +2292,40 @@ function initForm(form) {
             setButtonLoading(submitButton);
         }
 
+        const resetSubmitButtons = () => {
+            if (submitButton) {
+                resetButtonLoading(submitButton);
+            }
+            form.querySelectorAll(
+                '[data-save-button], .btn-submit, button[type="submit"], [data-button-is-loading="true"]',
+            ).forEach((btn) => resetButtonLoading(btn));
+            if (form.id) {
+                document
+                    .querySelectorAll(
+                        `button[form="${form.id}"], [data-button-is-loading="true"]`,
+                    )
+                    .forEach((btn) => resetButtonLoading(btn));
+            }
+        };
+
         const fields = Array.from(form.querySelectorAll("[name]"))
             .filter((control) => !control.matches("[data-validation-skip]"))
             .map((control) => control.name);
-        const valid = await validateFields(form, fields);
+
+        let valid = false;
+        try {
+            valid = await validateFields(form, fields);
+        } catch (error) {
+            valid = false;
+            resetSubmitButtons();
+            if (window.toastr?.error) {
+                window.toastr.error(VALIDATION_ERROR_TOAST_MESSAGE);
+            }
+            return;
+        }
+
         if (!valid) {
-            form.querySelectorAll(
-                '[data-save-button], .btn-submit, button[type="submit"]',
-            ).forEach((btn) => resetButtonLoading(btn));
+            resetSubmitButtons();
 
             if (window.toastr?.error) {
                 window.toastr.error(VALIDATION_ERROR_TOAST_MESSAGE);
@@ -2573,7 +2625,12 @@ function boot() {
             event.submitter ||
             form.querySelector(
                 '[data-save-button], .btn-submit, button[type="submit"]',
-            );
+            ) ||
+            (form.id
+                ? document.querySelector(
+                      `button[type="submit"][form="${form.id}"]`,
+                  )
+                : null);
 
         if (submitButton && !submitButton.matches("[data-no-loading]")) {
             setButtonLoading(submitButton);
@@ -2616,12 +2673,10 @@ if (document.readyState === "loading") {
 }
 
 window.addEventListener("load", () => {
-    document
-        .querySelectorAll("form[data-form-validate]")
-        .forEach((form) => {
-            initSelect2Controls(form);
-            syncAllPropertyStepButtons(form);
-        });
+    document.querySelectorAll("form[data-form-validate]").forEach((form) => {
+        initSelect2Controls(form);
+        syncAllPropertyStepButtons(form);
+    });
 });
 
 window.SharedFormValidation = {

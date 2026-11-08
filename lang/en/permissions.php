@@ -1,9 +1,24 @@
 <?php
 
 return [
+    'marketing_campaigns.view' => 'View marketing campaigns',
+    'marketing_campaigns.create' => 'Create marketing campaigns',
+    'marketing_campaigns.edit' => 'Edit marketing campaigns',
+    'marketing_campaigns.delete' => 'Delete marketing campaigns',
+    'auction_closings.view' => 'View auction closings',
+    'auction_closings.create' => 'Create auction closings',
+    'auction_closings.edit' => 'Edit auction closings',
+    'auction_reports.view' => 'View auction reports',
     // Sections
     'sections' => [
         'dashboard' => 'Dashboard',
+        'issuing_entities_management' => 'Issuing Entities Management',
+        'assignments_management' => 'Assignments Management',
+        'properties_management' => 'Properties Management',
+        'auctions_management' => 'Auctions Management',
+        'marketing_campaigns_management' => 'Marketing Campaigns',
+        'auction_closings_management' => 'Auction Closings',
+        'auction_reports_management' => 'Auction Reports',
         'users_management' => 'Users Management',
         'plans_management' => 'Plans Management',
         'coupons_management' => 'Coupons Management',
@@ -225,4 +240,11 @@ return [
     'archives.portfolios' => 'Portfolios Archive',
     'archives.clients' => 'Clients Archive',
     'archives.contracts' => 'Contracts Archive',
+
+    // Issuing Entities
+    'issuing_entities.view' => 'View Issuing Entities',
+    'issuing_entities.create' => 'Create Issuing Entity',
+    'issuing_entities.edit' => 'Edit Issuing Entity',
+    'issuing_entities.delete' => 'Delete Issuing Entity',
+    'issuing_entities.toggle_status' => 'Toggle Issuing Entity Status',
 ];

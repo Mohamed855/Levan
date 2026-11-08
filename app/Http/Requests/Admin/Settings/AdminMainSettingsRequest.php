@@ -31,7 +31,6 @@ class AdminMainSettingsRequest extends FormRequest
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240'],
             'maintenance_mode' => ['nullable'],
             'trial_days_mode' => ['nullable'],
-            'force_two_factor_auth' => ['nullable'],
 
             //
             'office_address' => ['nullable', 'string', 'max:255'],
@@ -40,19 +39,6 @@ class AdminMainSettingsRequest extends FormRequest
             'phone_number' => ['nullable', 'string', 'between:7,15', 'regex:/^[0-9]+$/'],
             'email' => ['nullable', 'email', 'max:255'],
             'facebook_url' => ['nullable', 'url', 'max:255'], 'x_url' => ['nullable', 'url', 'max:255'], 'linkedin_url' => ['nullable', 'url', 'max:255'], 'google_maps_embed_url' => ['nullable', 'url', 'max:2000'],
-
-            'etmam_base_url' => ['nullable', 'string', 'max:255'],
-            'etmam_system_code' => ['nullable', 'string', 'max:255'],
-            'etmam_api_token' => ['nullable', 'string', 'max:255'],
-            'etmam_hmac_secret' => ['nullable', 'string', 'max:255'],
-            'etmam_enabled' => ['nullable'],
-
-            'microsoft_client_id' => ['sometimes', 'required', 'string'],
-            'microsoft_client_secret' => ['sometimes', 'nullable', 'string'],
-            'microsoft_redirect_uri' => ['sometimes', 'required', 'url'],
-            'microsoft_tenant_id' => ['sometimes', 'required', 'string'],
-            'main_email' => ['sometimes', 'required', 'email'],
-
         ];
     }
 
@@ -79,24 +65,18 @@ class AdminMainSettingsRequest extends FormRequest
     {
         return [
             'office_name' => 'إسم الشركة', 'logo_text' => 'النص بجانب الشعار', 'image' => 'شعار الموقع / الشعار العام',
-            'maintenance_mode' => 'وضع الصيانة', 'trial_days_mode' => 'فترة التجربة', 'force_two_factor_auth' => 'إجبارية المصادقة الثنائية',
+            'maintenance_mode' => 'وضع الصيانة', 'trial_days_mode' => 'فترة التجربة',
             'office_address' => 'عنوان المكتب', 'commercial_register' => 'السجل التجاري', 'tax_number' => 'الرقم الضريبي',
             'phone_number' => 'رقم الهاتف', 'email' => 'البريد الإلكتروني', 'facebook_url' => 'رابط Facebook', 'x_url' => 'رابط X',
             'linkedin_url' => 'رابط LinkedIn', 'google_maps_embed_url' => 'رابط Google Maps Embed',
-            'etmam_base_url' => 'الرابط الاساسي (API URL)', 'etmam_system_code' => 'رمز التكامل (System Code)',
-            'etmam_api_token' => 'API Key', 'etmam_hmac_secret' => 'API Secret', 'etmam_enabled' => 'حالة التكامل',
-            'microsoft_client_id' => 'Client ID', 'microsoft_client_secret' => 'Client Secret', 'microsoft_redirect_uri' => 'Redirect URI',
-            'microsoft_tenant_id' => 'Tenant ID', 'main_email' => 'البريد الالكتروني الخاص بالرسائل',
         ];
     }
 
     protected function failedValidation(Validator $validator)
     {
-        $fragment = $this->input('active_tab', null);
         throw new HttpResponseException(
             redirect()->back()
                 ->withInput()
-                ->withFragment($fragment)
                 ->withErrors($validator)
         );
     }

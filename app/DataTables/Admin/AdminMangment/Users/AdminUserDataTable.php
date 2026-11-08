@@ -50,10 +50,12 @@ class AdminUserDataTable extends AbstractDataTable
 
                 return $this->renderTableImage($profilePicture, (string) $user->name, 40);
             })
-            // ->editColumn('name', function (AdminUser $user) {
-            //     $url = route('admin.users.show', $user->id);
-            //     return '<a href="' . $url . '" class="text-primary fw-bold">' . e($user->name) . '</a>';
-            // })
+            ->editColumn('name', function (AdminUser $user) {
+                $url = route('admin.users.profile', $user->id);
+
+                return '<a href="'.$url.'" class="text-primary fw-bold">'.e($user->name).'</a>';
+            })
+            ->editColumn('email', fn (AdminUser $user) => '<a href="mailto:'.$user->email.'">'.$user->email.'</a>')
 
             ->addColumn('roles', function (AdminUser $user) {
                 $roleBadges = $user->roles->isEmpty()
@@ -68,9 +70,25 @@ class AdminUserDataTable extends AbstractDataTable
             })
 
             ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
-            ->editColumn('status', function ($row) {
+            ->editColumn('status', function (AdminUser $row) {
+                $isActive = ($row->status === AdminUserStatus::ACTIVE || ($row->status?->value ?? $row->status) === 'active');
+                $checked = $isActive ? 'checked' : '';
+
                 if ($row->isSuperAdmin()) {
-                    return '<div class="d-flex justify-content-center"><span class="badge bg-primary">سوبر أدمن</span></div>';
+                    return '
+                        <div class="d-flex justify-content-center" data-bs-toggle="tooltip" title="لا يمكن تغيير حالة مدير النظام">
+                            <div class="form-check form-switch mb-0">
+                                <input
+                                    type="checkbox"
+                                    class="form-check-input"
+                                    id="status_'.$row->id.'"
+                                    '.$checked.'
+                                    disabled
+                                    aria-label="لا يمكن تغيير حالة مدير النظام"
+                                >
+                            </div>
+                        </div>
+                    ';
                 }
 
                 return $this->UserStatusBadge($row);
@@ -183,7 +201,7 @@ class AdminUserDataTable extends AbstractDataTable
         $isActive = ($row->status === AdminUserStatus::ACTIVE || ($row->status?->value ?? $row->status) === 'active');
         $checked = $isActive ? 'checked' : '';
 
-        if (auth()->user()?->can('users.change_status')) {
+        if (auth()->user()?->can('users.change_status') || auth('admin')->user()?->can('users.change_status')) {
             $url = route('admin.users.toggle-status', $row->id);
 
             return '
@@ -194,6 +212,8 @@ class AdminUserDataTable extends AbstractDataTable
                             class="form-check-input js-table-status-toggle"
                             id="status_'.$row->id.'"
                             data-url="'.$url.'"
+                            data-active-value="active"
+                            data-inactive-value="inactive"
                             '.$checked.'
                             aria-label="تبديل حالة المستخدم"
                         >
@@ -201,10 +221,13 @@ class AdminUserDataTable extends AbstractDataTable
                 </div>
             ';
         } else {
+            $color = $row->status instanceof AdminUserStatus ? $row->status->color() : ($isActive ? 'success' : 'danger');
+            $label = $row->status instanceof AdminUserStatus ? $row->status->label() : ($isActive ? 'نشط' : 'غير نشط');
+
             return sprintf(
                 '<div class="d-flex justify-content-center"><span class="badge bg-%s">%s</span></div>',
-                $row->status->color(),
-                $row->status->label()
+                $color,
+                $label
             );
         }
     }

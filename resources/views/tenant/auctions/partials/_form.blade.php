@@ -101,7 +101,7 @@
         </x-form.wizard.step>
 
         {{-- الخطوة 4: التقارير والمرفقات --}}
-        <x-form.wizard.step id="step-reports-attachments" :fields="['marketing.introduction', 'marketing.contacts.phone', 'marketing.contacts.unified_phone', 'marketing.contacts.social', 'marketing.whatsapp_date', 'report_image', 'cover_image', 'attachments']">
+        <x-form.wizard.step id="step-reports-attachments" :fields="['marketing.introduction', 'report_image', 'cover_image', 'attachments']">
             @include('tenant.auctions.partials.steps.step4-reports-attachments', ['auction' => $auction])
 
             <x-form.wizard.actions>

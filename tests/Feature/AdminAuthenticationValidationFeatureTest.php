@@ -42,6 +42,12 @@ class AdminAuthenticationValidationFeatureTest extends TestCase
         $this->get('/superadmin/login')->assertOk();
     }
 
+    public function test_guest_visiting_superadmin_redirects_to_login(): void
+    {
+        $response = $this->get('/superadmin');
+        $response->assertRedirect('/superadmin/login');
+    }
+
     public function test_admin_path_without_tenant_context_returns_404(): void
     {
         $this->get('/admin')->assertNotFound();

@@ -60,7 +60,7 @@
             <div class="auth-challenge-links-row d-flex justify-content-between align-items-center gap-2 mt-4">
                 <a href="{{ route('admin.two-factor.cancel') }}" class="auth-back-link">
                     <i class="ti ti-arrow-right me-1"></i>
-                    <span>الرجوع لتسجيل الدخول</span>
+                    <span>الرجوع لتسجيل الدخول بحساب آخر</span>
                 </a>
 
                 <a href="javascript:void(0);" id="toggleRecoveryLink" class="auth-back-link auth-toggle-link">

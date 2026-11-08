@@ -4,35 +4,22 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Tenants\Auctions;
 
-use App\Models\Tenants\Auctions\Auction;
 use App\Services\Tenants\Auctions\AuctionService;
-use Tests\TestCase;
+use Illuminate\Support\Facades\Queue;
+use Tests\Support\AuctionReportCycleFixtures;
+use Tests\Support\TenantAuctionReportTestCase;
 
-class AuctionPropertyLifecycleIntegrationTest extends TestCase
+final class AuctionPropertyLifecycleIntegrationTest extends TenantAuctionReportTestCase
 {
-    public function test_toggle_status_only_updates_is_active(): void
+    use AuctionReportCycleFixtures;
+
+    public function test_toggle_status_updates_is_active_and_refreshes_reports(): void
     {
-        $service = new AuctionService();
-
-        $auction = new Auction([
-            'is_active' => true,
-        ]);
-
-        // Mock update method
-        $mockAuction = $this->getMockBuilder(Auction::class)
-            ->onlyMethods(['update'])
-            ->getMock();
-
-        $mockAuction->is_active = true;
-
-        $mockAuction->expects($this->once())
-            ->method('update')
-            ->with(['is_active' => false])
-            ->willReturn(true);
-
-        $result = $service->toggleStatus($mockAuction, false);
-        $this->assertFalse($result);
+        Queue::fake();
+        $auction = $this->cycleAuction();
+        self::assertFalse(app(AuctionService::class)->toggleStatus($auction, false));
+        self::assertFalse($auction->fresh()->is_active);
+        self::assertSame('pending', $auction->fresh()->properties()->first()->pivot->result_status);
+        self::assertSame(false, $auction->latestReportGeneration()->first()->snapshot['auction']['is_active']);
     }
 }
-
-

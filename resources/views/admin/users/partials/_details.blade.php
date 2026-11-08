@@ -1,25 +1,41 @@
 <div class="row">
+    {{-- العمود الأيمن (بطاقة المستخدم ومعلوماته) --}}
     <div class="col-xl-4 col-lg-5 col-md-5 mb-4">
         <div class="card mb-4">
             <div class="card-body text-center">
-                <div class="mx-auto mb-3">
+                <div class="mx-auto mb-3 position-relative" style="width: 100px; height: 100px;">
                     <img src="{{ $user->image && Storage::disk('public')->exists($user->image) ? asset('storage/' . $user->image) : asset('static/brand/logos/logo.svg') }}"
-                        alt="صورة المستخدم" class="rounded-circle border shadow-sm"
-                        style="width: 100px; height: 100px; object-fit: cover;"
+                        alt="صورة المستخدم" class="rounded-circle border shadow-sm w-100 h-100 object-fit-cover"
                         onerror="this.onerror=null;this.src='{{ asset('static/brand/logos/logo.svg') }}';">
+                    @if (auth('admin')->id() === $user->id || auth('admin')->user()?->can('users.edit'))
+                        <button type="button"
+                            class="btn btn-sm btn-icon btn-primary rounded-circle position-absolute bottom-0 end-0"
+                            data-bs-toggle="modal" data-bs-target="#changeProfileImageModal"
+                            title="تغيير الصورة الشخصية">
+                            <i class="ti ti-edit ti-14px"></i>
+                        </button>
+                    @endif
                 </div>
                 <h5 class="mb-1 fw-bold">{{ $user->name }}</h5>
-                <span class="badge bg-info mb-3">
-                    {{ $role ? \App\Support\AccessLabels::role($role->name) : 'بدون دور' }}
-                </span>
+                <div class="mb-3">
+                    @if ($user->roles->isNotEmpty())
+                        @foreach ($user->roles as $roleItem)
+                            <span
+                                class="badge bg-primary me-1">{{ \App\Support\AccessLabels::role($roleItem->name) }}</span>
+                        @endforeach
+                    @else
+                        <span class="badge bg-label-secondary">بدون دور</span>
+                    @endif
+                </div>
 
                 <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
                     <div>
-                        <h6 class="mb-0 text-muted small">تاريخ الإنشاء</h6>
-                        <span class="fw-semibold">{{ optional($user->created_at)->format('Y-m-d') ?? '-' }}</span>
+                        <p class="mb-2 small">تاريخ التسجيل</p>
+                        <span
+                            class="fw-semibold">{{ optional($user->created_at)?->locale('ar')->translatedFormat('d F Y') ?? '-' }}</span>
                     </div>
                     <div>
-                        <h6 class="mb-0 text-muted small">آخر دخول</h6>
+                        <p class="mb-2 small">آخر دخول</p>
                         <span
                             class="fw-semibold">{{ $user->last_login_at ? $user->last_login_at->locale('ar')->diffForHumans() : 'لم يسجل' }}</span>
                     </div>
@@ -28,9 +44,9 @@
                 <div class="info-container text-start">
                     <ul class="list-unstyled mb-0">
                         <li class="mb-3 d-flex align-items-center">
-                            <i class="ti ti-user-circle text-primary me-2 fs-5"></i>
+                            <i class="ti ti-user text-primary me-2 fs-5"></i>
                             <span class="fw-bold me-2">الاسم:</span>
-                            <span class="text-muted">{{ $user->name }}</span>
+                            <span>{{ $user->name }}</span>
                         </li>
                         <li class="mb-3 d-flex align-items-center">
                             <i class="ti ti-mail text-primary me-2 fs-5"></i>
@@ -40,13 +56,17 @@
                         <li class="mb-3 d-flex align-items-center">
                             <i class="ti ti-phone text-primary me-2 fs-5"></i>
                             <span class="fw-bold me-2">الهاتف:</span>
-                            <span class="text-muted" dir="ltr">{{ $user->phone ?? 'غير محدد' }}</span>
+                            <span dir="ltr">{{ $user->phone ?? 'غير محدد' }}</span>
                         </li>
+                        @php
+                            $isActive = ($user->status?->value ?? $user->status) === 'active';
+                        @endphp
                         <li class="mb-2 d-flex align-items-center">
-                            <i class="ti ti-id-badge text-primary me-2 fs-5"></i>
-                            <span class="fw-bold me-2">الدور:</span>
-                            <span
-                                class="badge bg-label-primary">{{ $role ? \App\Support\AccessLabels::role($role->name) : 'غير متوفر' }}</span>
+                            <i class="ti ti-shield-check text-primary me-2 fs-5"></i>
+                            <span class="fw-bold me-2">الحالة:</span>
+                            <span class="badge bg-{{ $isActive ? 'success' : 'danger' }}">
+                                {{ $isActive ? 'نشط' : 'غير نشط' }}
+                            </span>
                         </li>
                     </ul>
                 </div>
@@ -65,7 +85,7 @@
                 <span class="badge bg-label-secondary">آخر 5 نشاطات</span>
             </div>
             <div class="card-body">
-                <ul class="timeline mb-0">
+                <ul class="timeline mt-4 mb-0">
                     @forelse ($recentActivities as $activity)
                         <li class="timeline-item timeline-item-transparent">
                             <span class="timeline-point timeline-point-primary"></span>
@@ -144,3 +164,25 @@
         </div>
     </div>
 </div>
+
+@if (auth('admin')->id() === $user->id || auth('admin')->user()?->can('users.edit'))
+    <x-bootstrap.modal id="changeProfileImageModal">
+        <form id="changeProfileImageForm" method="POST" enctype="multipart/form-data" novalidate data-form-validate
+            action="{{ route('admin.users.update-image', $user->id) }}"
+            data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}">
+            @csrf
+            <x-form.controls.file name="profile_image" id="profile_image" label="اختر صورة شخصية جديدة"
+                :value="$user->image && Storage::disk('public')->exists($user->image)
+                    ? asset('storage/' . $user->image)
+                    : null" accept="image/*" help="الصيغ المسموح بها: JPG, PNG, GIF. الحد الأقصى: 10MB"
+                :max-size="10" col="col-12" />
+            <x-slot:footer>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i
+                        class="ti ti-x me-1"></i>إلغاء</button>
+                <button type="submit" form="changeProfileImageForm" class="btn btn-primary">
+                    <i class="ti ti-check me-1"></i> حفظ التغييرات
+                </button>
+            </x-slot:footer>
+        </form>
+    </x-bootstrap.modal>
+@endif

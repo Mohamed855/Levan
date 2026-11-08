@@ -6,6 +6,7 @@ namespace App\Services\Tenants\Properties;
 
 use App\Enums\Tenants\Properties\PropertyDataStatus;
 use App\Models\Tenants\Properties\Property;
+use App\Services\Tenants\Auctions\Reports\AuctionReportRefreshService;
 use Illuminate\Support\Facades\Storage;
 
 class PropertyService
@@ -45,7 +46,13 @@ class PropertyService
             throw new \LogicException('لا يمكن نقل العقار إلى المحذوفات قبل فك ارتباطه بالمزادات النشطة.');
         }
 
-        return (bool) $property->delete();
+        $auctionIds = $property->auctions()->pluck('auctions.id')->all();
+        $deleted = (bool) $property->delete();
+        if ($deleted) {
+            app(AuctionReportRefreshService::class)->afterMutation($auctionIds);
+        }
+
+        return $deleted;
     }
 
     public function forceDeleteProperty(Property $property): bool

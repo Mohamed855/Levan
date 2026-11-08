@@ -30,6 +30,7 @@ final class AuctionReportController extends Controller
         $this->authorize('view', $auction);
 
         $generation = $auction->latestReportGeneration;
+        $published = $auction->publishedReportGeneration;
 
         if (! $generation) {
             return response()->json(['status' => 'none']);
@@ -43,8 +44,8 @@ final class AuctionReportController extends Controller
             'status' => $generation->status,
             'progress' => (int) ($generation->progress ?? 0),
             'generation_id' => $generation->id,
-            'has_outputs' => filled($generation->outputs_path),
-            'has_report' => filled($generation->report_path),
+            'has_outputs' => $published?->isReady() && filled($published->outputs_path),
+            'has_report' => $published?->isReady() && filled($published->report_path),
             'error_message' => $generation->publicErrorMessage(),
             'updated_at' => $generation->updated_at?->toIso8601String(),
         ]);
@@ -69,7 +70,7 @@ final class AuctionReportController extends Controller
     {
         $this->authorize('view', $auction);
 
-        $generation = $auction->latestReportGeneration;
+        $generation = $auction->publishedReportGeneration;
 
         abort_unless(
             $generation?->isReady() && filled($generation->outputs_path),
@@ -83,7 +84,7 @@ final class AuctionReportController extends Controller
             'الملف غير موجود على القرص.',
         );
 
-        $fileName = 'مخرجات-مزاد-' . $auction->id . '.pdf';
+        $fileName = 'مخرجات-مزاد-'.$auction->id.'.pdf';
 
         return Storage::disk('tenant_private')->download($generation->outputs_path, $fileName);
     }
@@ -95,7 +96,7 @@ final class AuctionReportController extends Controller
     {
         $this->authorize('view', $auction);
 
-        $generation = $auction->latestReportGeneration;
+        $generation = $auction->publishedReportGeneration;
 
         abort_unless(
             $generation?->isReady() && filled($generation->report_path),
@@ -109,7 +110,7 @@ final class AuctionReportController extends Controller
             'الملف غير موجود على القرص.',
         );
 
-        $fileName = 'تقرير-مزاد-' . $auction->id . '.pdf';
+        $fileName = 'تقرير-مزاد-'.$auction->id.'.pdf';
 
         return Storage::disk('tenant_private')->download($generation->report_path, $fileName);
     }

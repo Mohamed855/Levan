@@ -11,6 +11,7 @@ use App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense;
 use App\Http\Requests\Tenants\Auctions\StoreAuctionRequest;
 use App\Http\Requests\Tenants\Auctions\UpdateAuctionRequest;
 use App\Jobs\Tenants\Auctions\GenerateAuctionReportsJob;
+use App\Models\Shared\WizardDraft;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Route as RouteFacade;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
 use Tests\Support\TenantAuctionReportTestCase;
 
@@ -42,31 +44,26 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
         $payload = array_replace($this->validPayload($assignment), [
             'resource_key' => $resource, 'step' => 4, 'name' => $name,
             'property_ids' => [$property->id],
-            'property_results' => [$property->id => ['status' => 'pending', 'board_count' => 0, 'board_dimensions' => '3×6']],
-            'marketing' => ['introduction' => 'مقدمة محفوظة', 'contacts' => ['phone' => '0534811800'], 'campaigns' => [['platform' => 'youtube', 'views' => 0]]],
-            'marketing_evidence_meta' => [['section' => 'video', 'channel' => 'youtube', 'kind' => 'screenshot', 'display_name' => 'فيديو محفوظ']],
+            'marketing' => ['introduction' => 'مقدمة محفوظة'],
             'report_image' => UploadedFile::fake()->image('draft-report.png'),
-            'marketing_evidence' => [UploadedFile::fake()->image('draft-video.png')],
+            'attachments' => [UploadedFile::fake()->image('draft-document.png')],
         ]);
         $this->post('http://test.localhost/wizard-drafts', $payload, ['Accept' => 'application/json'])->assertOk();
         $restored = $this->getJson('http://test.localhost/wizard-drafts?resource_key='.urlencode($resource))->assertOk()->json();
         self::assertSame($first['draft_id'], $restored['draft_id']);
-        self::assertSame(0, $restored['data']['marketing']['campaigns'][0]['views']);
-        self::assertSame('youtube', $restored['data']['marketing_evidence_meta'][0]['channel']);
+        self::assertSame('مقدمة محفوظة', $restored['data']['marketing']['introduction']);
         self::assertSame('draft-report.png', $restored['files']['report_image']['name']);
-        self::assertSame('draft-video.png', $restored['files']['marketing_evidence'][0]['name']);
+        self::assertSame('draft-document.png', $restored['files']['attachments'][0]['name']);
         $response = $this->post('http://test.localhost/auctions', ['_wizard_draft_id' => $first['draft_id'], '_wizard_resource_key' => $resource, 'assignment_id' => $assignment->id, 'property_ids' => [$property->id]]);
         $response->assertSessionHasNoErrors();
         $auction = Auction::query()->where('name', $name)->sole();
         $response->assertRedirect('http://test.localhost/auctions/'.$auction->id);
         $snapshot = $auction->latestReportGeneration()->sole()->snapshot;
-        self::assertSame('0534811800', $snapshot['marketing']['contacts']['phone']);
-        self::assertSame(0, $snapshot['marketing']['campaigns'][0]['views']);
-        self::assertSame(0, $snapshot['properties'][0]['board']['count']);
-        self::assertSame('youtube', $snapshot['evidence']['video'][0]['channel']);
-        self::assertNotNull($snapshot['evidence']['video'][0]['uri']);
-        self::assertNull(\App\Models\Shared\WizardDraft::query()->find($first['draft_id']));
+        self::assertSame('مقدمة محفوظة', $snapshot['marketing']['introduction']);
+        self::assertSame([], $snapshot['marketing']['campaigns']);
+        self::assertNull(WizardDraft::query()->find($first['draft_id']));
     }
+
     public function test_final_create_and_update_dispatch_report_generation_automatically(): void
     {
         Storage::fake('tenant_public');
@@ -128,7 +125,9 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
     public function test_template_selection_is_not_part_of_the_active_auction_payload(): void
     {
         $assignment = $this->assignment('NO-TEMPLATES');
-        $payload = $this->validPayload($assignment) + [
+        $property = $this->property($assignment, 'NO-TEMPLATES');
+        $basePayload = array_replace($this->validPayload($assignment), ['property_ids' => [$property->id]]);
+        $payload = $basePayload + [
             'report_image' => UploadedFile::fake()->image('report.webp'),
             'template_versions' => ['brochure' => 10],
             'brochure_template_id' => 10,
@@ -184,74 +183,16 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
         self::assertTrue(RouteFacade::has('path.auctions.reports.retry'));
     }
 
-    public function test_create_action_persists_report_inputs_and_scoped_evidence(): void
+    public function test_create_action_rejects_closing_results_and_campaigns_before_auction_creation(): void
     {
-        Storage::fake('tenant_public');
-
         $assignment = $this->assignment('PERSIST');
         $property = $this->property($assignment, 'PERSIST');
-        $payload = $this->validPayload($assignment) + [
+        $this->expectException(ValidationException::class);
+        app(CreateAuctionAction::class)->execute(array_replace($this->validPayload($assignment), [
             'property_ids' => [$property->id],
-            'property_results' => [
-                $property->id => [
-                    'status' => 'sold',
-                    'opening_price' => 100000,
-                    'sale_price' => 125000,
-                    'participants_count' => 4,
-                    'bids_count' => 9,
-                    'board_location' => 'واجهة العقار',
-                    'board_notes' => 'لوحة رئيسية',
-                ],
-            ],
-            'marketing' => [
-                'campaigns' => [[
-                    'platform' => 'instagram',
-                    'reach' => 1200,
-                    'impressions' => 2400,
-                    'engagements' => 130,
-                    'clicks' => 45,
-                    'url' => 'https://example.com/campaign',
-                ]],
-                'links' => [[
-                    'label' => 'صفحة الحملة',
-                    'url' => 'https://example.com/landing',
-                ]],
-            ],
-        ];
-
-        try {
-            $auction = app(CreateAuctionAction::class)->execute(
-                $payload,
-                null,
-                null,
-                [],
-                UploadedFile::fake()->image('report.webp'),
-                [UploadedFile::fake()->image('marketing.webp')],
-                [$property->id => [UploadedFile::fake()->image('before.webp')]],
-                [$property->id => [UploadedFile::fake()->image('after.webp')]],
-            );
-        } catch (\Throwable $exception) {
-            self::fail('The create action did not accept the report input contract: '.$exception->getMessage());
-        }
-
-        self::assertNotNull($auction->report_image);
-        Storage::disk('tenant_public')->assertExists($auction->report_image);
-        self::assertSame('instagram', $auction->marketing_data['campaigns'][0]['platform']);
-
-        $pivot = $auction->properties()->whereKey($property->id)->firstOrFail()->pivot;
-        self::assertSame('sold', $pivot->result_status);
-        self::assertSame('125000.00', $pivot->sale_price);
-        self::assertSame('واجهة العقار', json_decode((string) $pivot->board_data, true)['location']);
-
-        self::assertSame(
-            ['board_after', 'board_before', 'marketing_evidence'],
-            $auction->attachments()->orderBy('report_section')->pluck('report_section')->all(),
-        );
-        self::assertSame(
-            [$property->id, $property->id],
-            $auction->attachments()->whereIn('report_section', ['board_before', 'board_after'])
-                ->orderBy('report_section')->pluck('property_id')->all(),
-        );
+            'property_results' => [$property->id => ['status' => 'sold', 'sale_price' => 125000]],
+            'marketing' => ['campaigns' => [['platform' => 'x', 'views' => 1200]]],
+        ]));
     }
 
     public function test_http_create_stores_an_uploaded_report_image(): void

@@ -22,7 +22,12 @@ class UpdateUserProfileImageRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['profile_image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240']];
+        $isRemoving = $this->boolean('remove_profile_image') || $this->input('remove_profile_image') === '1';
+
+        return [
+            'profile_image' => [$isRemoving ? 'nullable' : 'required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240'],
+            'remove_profile_image' => ['nullable'],
+        ];
     }
 
     public function attributes(): array

@@ -41,11 +41,9 @@
             <x-ui.stat-card col="col-sm-6 col-xl" title="أدوار مستخدمة" :value="$statistics['assigned']"
                 subtitle="مرتبطة بمستخدم واحد أو أكثر" icon="ti-users" color="success" />
             <x-ui.stat-card col="col-sm-6 col-xl" title="أدوار غير مستخدمة" :value="$statistics['unassigned']" subtitle="جاهزة للإسناد"
-                icon="ti-user-question" color="info" />
+                icon="ti-user-question" color="warning" />
             <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي الصلاحيات" :value="$statistics['permissions']" subtitle="صلاحيات حارس الإدارة"
-                icon="ti-key" color="warning" />
-            <x-ui.stat-card col="col-sm-6 col-xl" title="أدوار مخصصة" :value="$statistics['custom']" subtitle="أدوار تم إنشاؤها"
-                icon="ti-settings" color="danger" />
+                icon="ti-key" color="info" />
         </x-slot:stats>
 
         <x-slot:filters>

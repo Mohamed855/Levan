@@ -73,13 +73,12 @@
 
     {{-- العمود الأيسر (النشاطات) --}}
     <div class="col-xl-8 col-lg-7 col-md-7">
-        {{-- كارت آخر النشاطات --}}
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center py-3">
                 <h6 class="card-title mb-0">
-                    <i class="ti ti-activity text-warning me-2"></i> آخر النشاطات
+                    <i class="ti ti-activity text-warning me-2"></i> سجل النشاطات
                 </h6>
-                <span class="badge bg-label-secondary">سجل العمليات</span>
+                <span class="badge bg-label-secondary">آخر النشاطات</span>
             </div>
             <div class="card-body">
                 <ul class="timeline mt-4 mb-0">
@@ -115,11 +114,11 @@
             <x-form.controls.file name="profile_image" id="profile_image" label="اختر صورة شخصية جديدة"
                 :value="$user->image ? tasset($user->image) : null" accept="image/*" help="الصيغ المسموح بها: JPG, PNG, GIF. الحد الأقصى: 10MB"
                 :max-size="10" col="col-12" />
-            <x-slot:footer>
+            <x-slot:footer class="border-0">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i
                         class="ti ti-x me-1"></i>إلغاء</button>
                 <button type="submit" form="changeProfileImageForm" class="btn btn-primary">
-                    <i class="ti ti-device-floppy me-1"></i> حفظ التغييرات
+                    <i class="ti ti-check me-1"></i> حفظ التغييرات
                 </button>
             </x-slot:footer>
         </form>

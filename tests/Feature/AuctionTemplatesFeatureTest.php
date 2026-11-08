@@ -44,7 +44,7 @@ class AuctionTemplatesFeatureTest extends TestCase
                 'password' => bcrypt('password'),
                 'phone' => '0500000099',
                 'status' => 'active',
-                'is_super_admin' => true,
+                'is_super_admin' => false,
             ]
         );
 

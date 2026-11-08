@@ -20,7 +20,11 @@
 @vite(['resources/assets/js/shared/basic-tamplate/main.js'])
 
 <!-- BEGIN: toastr -->
-@yield('toastr')
+@hasSection('toastr')
+    @yield('toastr')
+@else
+    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
+@endif
 <!-- END: toastr-->
 
 <!-- BEGIN: Shared JS (extracted from layoutMaster) -->

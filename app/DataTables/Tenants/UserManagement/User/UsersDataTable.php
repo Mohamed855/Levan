@@ -136,7 +136,13 @@ class UsersDataTable extends AbstractDataTable
                     ? $user->last_login_at->locale('ar')->diffForHumans()
                     : 'لم يسجل دخول';
             })
-            ->addColumn('actions', fn ($row) => view('tenant.user-management.users.action', ['id' => $row->id, 'route' => $this->route])->render());
+            ->addColumn('actions', function (User $row) {
+                if ($row->isAdmin()) {
+                    return '<span class="text-muted">محمي</span>';
+                }
+
+                return view('tenant.user-management.users.action', ['id' => $row->id, 'row' => $row, 'route' => $this->route])->render();
+            });
     }
 
     /*

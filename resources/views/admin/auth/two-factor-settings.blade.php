@@ -32,24 +32,14 @@
 
                     {{-- حالة: غير مفعّلة --}}
                     <div id="disabledActions" class="{{ $enabled ? 'd-none' : '' }}">
-                        @if ($enforced ?? false)
-                            <div class="alert alert-warning d-flex align-items-start mb-4" role="alert">
-                                <i class="ti ti-alert-triangle ti-md me-2 mt-1"></i>
-                                <div>
-                                    <strong>تنبيه إلزامي:</strong> المصادقة الثنائية مفروضة بموجب سياسة النظام. يرجى إعدادها
-                                    فوراً للمتابعة.
-                                </div>
-                            </div>
-                        @else
-                            <div class="alert alert-primary d-flex align-items-center mb-4" role="alert">
-                                <i class="ti ti-info-circle ti-md me-1 mt-1"></i>
-                                <span>
-                                    فعّل المصادقة الثنائية لإضافة خطوة تحقق عبر تطبيق مثل
-                                    <strong>Microsoft Authenticator</strong> أو <strong>Google Authenticator</strong>
-                                    بجانب كلمة المرور، لحماية أقوى لحسابك.
-                                </span>
-                            </div>
-                        @endif
+                        <div class="alert alert-primary d-flex align-items-center mb-4" role="alert">
+                            <i class="ti ti-info-circle ti-md me-1 mt-1"></i>
+                            <span>
+                                فعّل المصادقة الثنائية لإضافة خطوة تحقق عبر تطبيق مثل
+                                <strong>Microsoft Authenticator</strong> أو <strong>Google Authenticator</strong>
+                                بجانب كلمة المرور، لحماية أقوى لحسابك.
+                            </span>
+                        </div>
                         <button type="button" id="enable2faBtn" class="btn btn-primary">
                             <i class="ti ti-shield-plus me-1"></i>
                             تفعيل المصادقة الثنائية
@@ -92,16 +82,9 @@
                                     <p class="text-muted small mb-3">
                                         سيتم تعطيل خطوة التحقق الإضافية، وسيصبح الدخول بكلمة المرور فقط.
                                     </p>
-                                    @if ($enforced ?? false)
-                                        <div class="alert alert-warning py-2 px-3 mb-0 small">
-                                            <i class="ti ti-lock me-1"></i>
-                                            المصادقة الثنائية مفروضة بموجب سياسة النظام ولا يمكن إلغاؤها.
-                                        </div>
-                                    @else
-                                        <button type="button" id="disable2faBtn" class="btn btn-danger btn-sm">
-                                            <i class="ti ti-shield-x me-1"></i>إلغاء التفعيل
-                                        </button>
-                                    @endif
+                                    <button type="button" id="disable2faBtn" class="btn btn-danger btn-sm">
+                                        <i class="ti ti-shield-x me-1"></i>إلغاء التفعيل
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -141,15 +124,15 @@
                                     <div>أدخل الكود المكوّن من 6 أرقام الظاهر في التطبيق</div>
                                 </div>
 
-                                <form id="twoFactorConfirmForm" method="POST" novalidate
-                                    action="{{ route('admin.two-factor.confirm') }}" class="w-100 d-flex flex-column gap-2"
+                                <form id="twoFactorConfirmForm" class="w-100 d-flex flex-column gap-2"
+                                    action="{{ route('admin.two-factor.confirm') }}" method="POST" novalidate
                                     data-form-validate data-validation-submit="ajax"
                                     data-validation-url="{{ route('admin.two-factor.validate') }}">
                                     @csrf
                                     <x-form.controls.input name="code" id="twoFactorCode" label="كود التحقق"
                                         col="col-12" type="text" placeholder="XXXXXX" required
                                         autocomplete="one-time-code" maxlength="6" inputmode="numeric" />
-                                    <button type="submit" id="confirm2faBtn" class="btn btn-success w-100">
+                                    <button type="submit" class="btn btn-success w-100">
                                         <i class="ti ti-check me-1"></i>تأكيد التفعيل
                                     </button>
                                 </form>
@@ -224,12 +207,12 @@
 
             $('#twoFactorConfirmForm').on('formValidationPassed', function() {
                 const form = this;
-                const submitBtn = form.querySelector('[type="submit"]');
+                const submitBtn = form.querySelector('[type="submit"]') || form.querySelector('button');
 
                 $.ajax({
                     url: routes.confirm,
                     method: 'POST',
-                    data: $(form).serialize(),
+                    data: $(this).serialize(),
                     success: function() {
                         toastr.success('تم تفعيل المصادقة الثنائية بنجاح');
                         markEnabled();
@@ -268,6 +251,7 @@
                     icon: 'ti-shield-off',
                     confirmText: 'إلغاء التفعيل',
                     confirmClass: 'btn btn-danger px-4',
+                    confirmIcon: 'ti-shield-off',
                     cancelText: 'تراجع',
                     onConfirm: function() {
                         $.ajax({

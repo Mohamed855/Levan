@@ -96,7 +96,7 @@ class AuctionsController extends Controller
 
     public function show(Auction $auction): View
     {
-        $auction->load(['assignment', 'properties', 'attachments', 'latestReportGeneration']);
+        $auction->load(['assignment', 'properties', 'attachments', 'latestReportGeneration', 'publishedReportGeneration', 'marketingCampaigns.evidence', 'closing']);
 
         return view('tenant.auctions.show', [
             'auction' => $auction,

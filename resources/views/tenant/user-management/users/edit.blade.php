@@ -1,6 +1,6 @@
 @extends('tenant.layouts.layoutMaster')
 
-@section('title', 'تعديل المستخدم')
+@section('title', 'تعديل بيانات المستخدم — ' . $user->name)
 
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
@@ -15,7 +15,7 @@
 @endsection
 
 @section('page-script')
-    @vite('resources/assets/js/shared/form-validation.js')
+    @vite(['resources/assets/js/shared/form-validation.js'])
 @endsection
 
 @section('content')
