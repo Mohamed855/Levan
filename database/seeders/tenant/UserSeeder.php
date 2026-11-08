@@ -5,6 +5,7 @@ namespace Database\Seeders\tenant;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
 
 class UserSeeder extends Seeder
 {
@@ -24,6 +25,7 @@ class UserSeeder extends Seeder
             ]
         );
         $admin->syncRoles(['Admin']);
+        $admin->syncPermissions(Permission::where('guard_name', 'tenant')->get());
 
         // 2. Agents / Relationship Managers
         $agents = [

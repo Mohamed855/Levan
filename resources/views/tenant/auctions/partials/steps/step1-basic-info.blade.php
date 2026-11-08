@@ -60,10 +60,10 @@
     <x-form.controls.input name="end_time" id="end_time" type="time" label="وقت النهاية" :value="old('end_time', $auction->end_time ?? '')" required
         col="col-md-6" />
 
-    <x-form.controls.select name="type" id="type" label="نوع المزاد" :value="old('type', $auction->type ?? \App\Enums\Tenants\Auctions\AuctionType::ELECTRONIC->value)" required col="col-md-6"
+    <x-form.controls.select name="type" id="type" label="نوع المزاد" :value="old('type', ($auction?->type instanceof \App\Enums\Tenants\Auctions\AuctionType ? $auction->type->value : $auction?->type) ?? \App\Enums\Tenants\Auctions\AuctionType::ELECTRONIC->value)" required col="col-md-6"
         :enum="\App\Enums\Tenants\Auctions\AuctionType::class" />
 
-    <x-form.controls.select name="category" id="category" label="تصنيف المزاد" :value="old('category', ($auction?->category instanceof \App\Enums\Tenants\Auctions\AuctionCategory ? $auction->category->value : $auction->category) ?? \App\Enums\Tenants\Auctions\AuctionCategory::RESIDENTIAL->value)" required col="col-md-6"
+    <x-form.controls.select name="category" id="category" label="تصنيف المزاد" :value="old('category', ($auction?->category instanceof \App\Enums\Tenants\Auctions\AuctionCategory ? $auction->category->value : $auction?->category) ?? \App\Enums\Tenants\Auctions\AuctionCategory::RESIDENTIAL->value)" required col="col-md-6"
         :enum="\App\Enums\Tenants\Auctions\AuctionCategory::class" />
 
     <x-form.controls.select name="city" id="city" label="المدينة الرئيسية" :value="old('city', $auction->city ?? '')" required col="col-md-6"

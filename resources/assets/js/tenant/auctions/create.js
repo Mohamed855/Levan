@@ -197,18 +197,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     coverItems.push({
                         name: file.name,
                         file,
-                        metaLabel: label,
+                        metaLabel: `${label} (جديد)`,
                     });
                 } else {
                     const wrapper =
                         input?.closest("[data-file-upload-wrapper]") ||
                         input?.parentElement;
-                    const existingName = wrapper
-                        ?.querySelector(".file-item-name")
-                        ?.textContent?.trim();
-                    const existingImg = wrapper?.querySelector(
-                        "img.file-item-preview",
-                    )?.src;
+                    const existingCard = wrapper?.querySelector("[data-existing-file-card]");
+                    const existingName = existingCard?.querySelector(".file-item-name")?.textContent?.trim()
+                        || wrapper?.querySelector(".file-item-name")?.textContent?.trim();
+                    const existingImg = existingCard?.querySelector("img.file-item-preview")?.src
+                        || existingCard?.querySelector("a.btn-view-file")?.href
+                        || wrapper?.querySelector("img.file-item-preview")?.src;
                     if (existingName || existingImg) {
                         coverItems.push({
                             name: existingName || label,

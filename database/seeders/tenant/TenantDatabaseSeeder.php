@@ -17,7 +17,6 @@ class TenantDatabaseSeeder extends Seeder
             PermissionsRolesSeeder::class,
             SettingsTableSeeder::class,
             UserSeeder::class,
-            // AuctionsAndPropertiesSeeder::class,
         ]);
     }
 }

@@ -113,14 +113,16 @@ export function mountReportInputs(form) {
                 }
             }
         });
-        evidenceContainer.replaceChildren();
-        const indices = new Set([...Object.keys(data.marketing_evidence_meta || {}), ...Object.keys(files.marketing_evidence || {})]);
-        indices.forEach((index) => {
-            const element = cloneRow('report-evidence-template', index);
-            if (!element) return;
-            element.querySelector('[data-evidence-name]').textContent = files.marketing_evidence?.[index]?.name || `مرفق المسودة ${Number(index) + 1}`;
-            evidenceContainer.append(element);
-        });
+        if (evidenceContainer) {
+            evidenceContainer.replaceChildren();
+            const indices = new Set([...Object.keys(data.marketing_evidence_meta || {}), ...Object.keys(files.marketing_evidence || {})]);
+            indices.forEach((index) => {
+                const element = cloneRow('report-evidence-template', index);
+                if (!element) return;
+                element.querySelector('[data-evidence-name]').textContent = files.marketing_evidence?.[index]?.name || `مرفق المسودة ${Number(index) + 1}`;
+                evidenceContainer.append(element);
+            });
+        }
         fill(data);
         emptyStates();
     }

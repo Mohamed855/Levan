@@ -57,13 +57,13 @@
                                 placeholder="أدخل البريد الإلكتروني" col="col-md-6" />
 
                             <x-form.controls.input name="facebook_url" type="url" label="رابط Facebook"
-                                :value="old('facebook_url', $settings->facebook_url ?? '')" placeholder="https://facebook.com/..." col="col-md-4" />
+                                :value="old('facebook_url', $settings->facebook_url ?? '')" placeholder="https://facebook.com/..." col="col-md-6" />
 
                             <x-form.controls.input name="x_url" type="url" label="رابط X" :value="old('x_url', $settings->x_url ?? '')"
-                                placeholder="https://x.com/..." col="col-md-4" />
+                                placeholder="https://x.com/..." col="col-md-6" />
 
                             <x-form.controls.input name="linkedin_url" type="url" label="رابط LinkedIn"
-                                :value="old('linkedin_url', $settings->linkedin_url ?? '')" placeholder="https://linkedin.com/..." col="col-md-4" />
+                                :value="old('linkedin_url', $settings->linkedin_url ?? '')" placeholder="https://linkedin.com/..." col="col-md-6" />
 
                             <x-form.controls.input name="google_maps_embed_url" label="رابط Google Maps Embed"
                                 :value="old('google_maps_embed_url', $settings->google_maps_embed_url ?? '')" placeholder="https://www.google.com/maps/embed?pb=..." col="col-12"

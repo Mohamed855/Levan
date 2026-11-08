@@ -121,4 +121,43 @@ class AuctionFormAndDataTableParityTest extends TestCase
         $this->assertStringContainsString('review-covers-documents', $jsContent);
         $this->assertStringContainsString('review-additional-attachments', $jsContent);
     }
+
+    public function test_auction_create_view_renders_without_errors(): void
+    {
+        \Illuminate\Support\Facades\View::share('errors', new \Illuminate\Support\ViewErrorBag());
+
+        tenancy()->initialize('test');
+        try {
+            $user = \App\Models\Tenants\UserMangment\User\User::where('email', 'demo@lot.com')->first();
+            $response = $this->actingAs($user, 'tenant')->get('http://test.localhost/auctions/create');
+
+            $response->assertOk();
+            $response->assertSee('wizard-validation-form');
+            $response->assertSee('step-basic-info');
+            $response->assertSee('category');
+        } finally {
+            tenancy()->end();
+        }
+    }
+
+    public function test_auction_edit_view_renders_without_errors(): void
+    {
+        \Illuminate\Support\Facades\View::share('errors', new \Illuminate\Support\ViewErrorBag());
+
+        tenancy()->initialize('test');
+        try {
+            $user = \App\Models\Tenants\UserMangment\User\User::where('email', 'demo@lot.com')->first();
+            $auction = Auction::first();
+            $this->assertNotNull($auction);
+
+            $response = $this->actingAs($user, 'tenant')->get("http://test.localhost/auctions/{$auction->id}/edit");
+
+            $response->assertOk();
+            $response->assertSee('auction-edit-form');
+            $response->assertSee('step-basic-info');
+            $response->assertSee('category');
+        } finally {
+            tenancy()->end();
+        }
+    }
 }

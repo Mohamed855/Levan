@@ -1388,18 +1388,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     legalItems.push({
                         name: file.name,
                         file,
-                        metaLabel: label,
+                        metaLabel: `${label} (جديد)`,
                     });
                 } else {
                     const wrapper =
                         input?.closest("[data-file-upload-wrapper]") ||
                         input?.parentElement;
-                    const existingName = wrapper
-                        ?.querySelector(".file-item-name")
-                        ?.textContent?.trim();
-                    const existingImg = wrapper?.querySelector(
-                        "img.file-item-preview",
-                    )?.src;
+                    const existingCard = wrapper?.querySelector("[data-existing-file-card]");
+                    const existingName = existingCard?.querySelector(".file-item-name")?.textContent?.trim()
+                        || wrapper?.querySelector(".file-item-name")?.textContent?.trim();
+                    const existingImg = existingCard?.querySelector("img.file-item-preview")?.src
+                        || existingCard?.querySelector("a.btn-view-file")?.href
+                        || wrapper?.querySelector("img.file-item-preview")?.src;
                     if (existingName) {
                         legalItems.push({
                             name: existingName,
@@ -1436,18 +1436,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 galleryItems.push({
                     name: mainFile.name,
                     file: mainFile,
-                    metaLabel: "الصورة الرئيسية",
+                    metaLabel: "الصورة الرئيسية (جديدة)",
                 });
             } else {
                 const wrapper =
                     mainImgInput?.closest("[data-file-upload-wrapper]") ||
                     mainImgInput?.parentElement;
-                const existingName = wrapper
-                    ?.querySelector(".file-item-name")
-                    ?.textContent?.trim();
-                const existingImg = wrapper?.querySelector(
-                    "img.file-item-preview",
-                )?.src;
+                const existingCard = wrapper?.querySelector("[data-existing-file-card]");
+                const existingName = existingCard?.querySelector(".file-item-name")?.textContent?.trim()
+                    || wrapper?.querySelector(".file-item-name")?.textContent?.trim();
+                const existingImg = existingCard?.querySelector("img.file-item-preview")?.src
+                    || existingCard?.querySelector("a.btn-view-file")?.href
+                    || wrapper?.querySelector("img.file-item-preview")?.src;
                 if (existingName) {
                     galleryItems.push({
                         name: existingName,
@@ -1459,34 +1459,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const propImagesInput =
                 form.elements.namedItem("property_images[]");
+            const propImagesWrapper = propImagesInput?.closest(
+                "[data-file-upload-wrapper]",
+            );
+            propImagesWrapper
+                ?.querySelectorAll("[data-existing-file-card]")
+                .forEach((card) => {
+                    const name = card
+                        .querySelector(".file-item-name")
+                        ?.textContent?.trim();
+                    const url = card.querySelector(
+                        "img.file-item-preview",
+                    )?.src || card.querySelector("a.btn-view-file")?.href;
+                    if (name)
+                        galleryItems.push({
+                            name,
+                            url: url || null,
+                            metaLabel: "معرض الصور (محفوظ)",
+                        });
+                });
+
             if (propImagesInput?.files?.length) {
                 Array.from(propImagesInput.files).forEach((file) => {
                     galleryItems.push({
                         name: file.name,
                         file,
-                        metaLabel: "معرض الصور",
+                        metaLabel: "معرض الصور (جديد)",
                     });
                 });
-            } else {
-                const wrapper = propImagesInput?.closest(
-                    "[data-file-upload-wrapper]",
-                );
-                wrapper
-                    ?.querySelectorAll("[data-existing-file-card]")
-                    .forEach((card) => {
-                        const name = card
-                            .querySelector(".file-item-name")
-                            ?.textContent?.trim();
-                        const url = card.querySelector(
-                            "img.file-item-preview",
-                        )?.src;
-                        if (name)
-                            galleryItems.push({
-                                name,
-                                url: url || null,
-                                metaLabel: "معرض الصور",
-                            });
-                    });
             }
 
             if (reviewGalleryCount)
@@ -1512,34 +1512,34 @@ document.addEventListener("DOMContentLoaded", () => {
             const addDocsInput = form.elements.namedItem(
                 "additional_documents[]",
             );
+            const addDocsWrapper = addDocsInput?.closest(
+                "[data-file-upload-wrapper]",
+            );
+            addDocsWrapper
+                ?.querySelectorAll("[data-existing-file-card]")
+                .forEach((card) => {
+                    const name = card
+                        .querySelector(".file-item-name")
+                        ?.textContent?.trim();
+                    const url = card.querySelector(
+                        "img.file-item-preview",
+                    )?.src || card.querySelector("a.btn-view-file")?.href;
+                    if (name)
+                        addItems.push({
+                            name,
+                            url: url || null,
+                            metaLabel: "مستند إضافي (محفوظ)",
+                        });
+                });
+
             if (addDocsInput?.files?.length) {
                 Array.from(addDocsInput.files).forEach((file) => {
                     addItems.push({
                         name: file.name,
                         file,
-                        metaLabel: "مستند إضافي",
+                        metaLabel: "مستند إضافي (جديد)",
                     });
                 });
-            } else {
-                const wrapper = addDocsInput?.closest(
-                    "[data-file-upload-wrapper]",
-                );
-                wrapper
-                    ?.querySelectorAll("[data-existing-file-card]")
-                    .forEach((card) => {
-                        const name = card
-                            .querySelector(".file-item-name")
-                            ?.textContent?.trim();
-                        const url = card.querySelector(
-                            "img.file-item-preview",
-                        )?.src;
-                        if (name)
-                            addItems.push({
-                                name,
-                                url: url || null,
-                                metaLabel: "مستند إضافي",
-                            });
-                    });
             }
 
             const draftChips = Array.from(

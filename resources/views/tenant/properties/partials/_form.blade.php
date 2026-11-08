@@ -384,21 +384,29 @@
         <x-form.wizard.step id="property-files-validation" :fields="['main_image', 'deed_document', 'cadastral_plan', 'coordinates_statement', 'building_permit']">
             <div class="row g-4">
                 <x-form.controls.file name="main_image" label="الصورة الرئيسية للعقار" :required="!$is_edit"
+                    :value="$is_edit && $property->main_image ? $property->main_image : null"
                     accept="image/jpeg,image/png,image/webp" help="JPG أو PNG أو WebP، بحد أقصى 10MB"
                     col="col-md-6" />
                 <x-form.controls.file name="deed_document" label="صك الملكية" :required="!$is_edit"
+                    :value="$is_edit && $property->deedAttachment ? $property->deedAttachment->file_path : null"
                     accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
                 <x-form.controls.file name="cadastral_plan" label="مخطط العقار" :required="!$is_edit"
+                    :value="$is_edit && $property->cadastralPlanAttachment ? $property->cadastralPlanAttachment->file_path : null"
                     accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
                 <x-form.controls.file name="coordinates_statement" label="كشف الإحداثيات" :required="!$is_edit"
+                    :value="$is_edit && $property->coordinatesAttachment ? $property->coordinatesAttachment->file_path : null"
                     accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
                 <x-form.controls.file name="building_permit" label="رخصة البناء" accept=".pdf,image/*"
+                    :value="$is_edit && $property->buildingPermitAttachment ? $property->buildingPermitAttachment->file_path : null"
                     help="PDF أو صورة، بحد أقصى 10MB" :required="false" col="col-md-6" />
                 <x-form.controls.file name="assignment_letter_image" label="صورة الإسناد" accept="image/*"
+                    :value="$is_edit && $property->assignmentLetterAttachment ? $property->assignmentLetterAttachment->file_path : null"
                     help="صورة فقط بحد أقصى 10MB" :required="false" col="col-md-6" />
                 <x-form.controls.file name="property_images[]" label="صور إضافية للمعرض" multiple accept="image/*"
+                    :value="$is_edit && $property->galleryAttachments ? $property->galleryAttachments->pluck('file_path')->all() : null"
                     help="يمكن اختيار عدة صور للمعرض (بحد أقصى 10MB لكل صورة)" :required="false" col="col-md-6" />
                 <x-form.controls.file name="additional_documents[]" label="مستندات إضافية" multiple
+                    :value="$is_edit && $property->additionalDocuments ? $property->additionalDocuments->pluck('file_path')->all() : null"
                     accept=".pdf,image/*" help="يمكن اختيار عدة ملفات (بحد أقصى 10MB لكل ملف)" :required="false"
                     col="col-md-6" />
 

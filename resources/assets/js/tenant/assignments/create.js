@@ -372,19 +372,44 @@ document.addEventListener("DOMContentLoaded", () => {
         const imgInput = form.elements.namedItem("assignment_image");
         const letterInput = form.elements.namedItem("assignment_letter");
 
+        // 1. Assignment Image: newly selected file, or existing file if unchanged
         if (imgInput?.files?.[0]) {
             items.push({
                 name: imgInput.files[0].name,
                 file: imgInput.files[0],
-                metaLabel: "صورة الإسناد",
+                metaLabel: "صورة الإسناد (جديدة)",
             });
+        } else {
+            const existingImgCard = document.querySelector('[data-existing-card-field="assignment_image"] .assignment-file-card');
+            if (existingImgCard) {
+                const name = existingImgCard.querySelector(".assignment-file-card__name")?.textContent?.trim() || "صورة الإسناد";
+                const url = existingImgCard.querySelector("a.assignment-file-card__action")?.href || existingImgCard.querySelector("img.assignment-file-card__img")?.src;
+                items.push({
+                    name,
+                    url: url || null,
+                    metaLabel: "صورة الإسناد (الحالية)",
+                });
+            }
         }
+
+        // 2. Assignment Letter: newly selected file, or existing file if unchanged
         if (letterInput?.files?.[0]) {
             items.push({
                 name: letterInput.files[0].name,
                 file: letterInput.files[0],
-                metaLabel: "خطاب الإسناد",
+                metaLabel: "خطاب الإسناد (جديد)",
             });
+        } else {
+            const existingLetterCard = document.querySelector('[data-existing-card-field="assignment_letter"] .assignment-file-card');
+            if (existingLetterCard) {
+                const name = existingLetterCard.querySelector(".assignment-file-card__name")?.textContent?.trim() || "خطاب الإسناد";
+                const url = existingLetterCard.querySelector("a.assignment-file-card__action")?.href;
+                items.push({
+                    name,
+                    url: url || null,
+                    metaLabel: "خطاب الإسناد (الحالي)",
+                });
+            }
         }
 
         if (count) count.textContent = String(items.length);
@@ -398,23 +423,51 @@ document.addEventListener("DOMContentLoaded", () => {
         list.innerHTML = items.map(renderFileCardHtml).join("");
     }
 
-    function renderReviewFileList(containerId, countId, inputId) {
+    function renderReviewFileList(containerId, countId, inputId, existingFieldKey) {
         const list = document.getElementById(containerId);
         const count = document.getElementById(countId);
         if (!list) return;
 
+        const items = [];
+
+        // 1. Existing cards preserved in edit mode
+        const fieldKey = existingFieldKey || inputId;
+        document.querySelectorAll(`[data-existing-card-field="${fieldKey}"] .assignment-file-card`).forEach((card) => {
+            const name = card.querySelector(".assignment-file-card__name")?.textContent?.trim();
+            const url = card.querySelector("a.assignment-file-card__action")?.href || card.querySelector("img.assignment-file-card__img")?.src;
+            const meta = card.querySelector(".assignment-file-card__meta span")?.textContent?.trim() || "ملف محفوظ";
+            if (name) {
+                items.push({
+                    name,
+                    url: url || null,
+                    metaLabel: meta,
+                });
+            }
+        });
+
+        // 2. Newly selected files from file input
         const input = document.getElementById(inputId);
         const files = Array.from(input?.files || []);
+        files.forEach((file) => {
+            items.push({
+                name: file.name,
+                file,
+                metaLabel: "ملف جديد",
+            });
+        });
+
+        // 3. Draft archived files
         const wrapper =
             input?.closest("[data-form-field]") || input?.parentElement;
         const archivedNames = Array.from(
             wrapper?.querySelectorAll("[data-archived-draft-files] span") || [],
         ).map((el) => el.textContent.trim());
 
-        const items = [
-            ...files.map((file) => ({ name: file.name, file })),
-            ...archivedNames.map((name) => ({ name })),
-        ];
+        archivedNames.forEach((name) => {
+            if (name && !items.some((i) => i.name === name)) {
+                items.push({ name, metaLabel: "مسودة محفوظة" });
+            }
+        });
 
         if (count) count.textContent = String(items.length);
 
@@ -457,10 +510,12 @@ document.addEventListener("DOMContentLoaded", () => {
             "review-general-documents",
             "review-general-documents-count",
             "general_documents",
+            "general_documents",
         );
         renderReviewFileList(
             "review-additional-attachments",
             "review-additional-attachments-count",
+            "additional_attachments",
             "additional_attachments",
         );
         const reviewName = document.getElementById("review-name");

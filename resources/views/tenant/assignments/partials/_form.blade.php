@@ -167,7 +167,7 @@
                         accept="image/jpeg,image/png,image/webp,image/svg+xml"
                         help="JPG أو PNG أو WebP أو SVG، بحد أقصى 10MB" col="col-12" />
                     @if ($is_edit && $assignment->assignmentImage)
-                        <div class="mt-2">
+                        <div class="mt-2" data-existing-card-field="assignment_image">
                             <span class="text-muted small d-block mb-1">الصورة الحالية:</span>
                             <x-ui.file-card :file="$assignment->assignmentImage" layout="card" />
                         </div>
@@ -185,7 +185,7 @@
                             );
                         @endphp
                         @if ($letter)
-                            <div class="mt-2">
+                            <div class="mt-2" data-existing-card-field="assignment_letter">
                                 <span class="text-muted small d-block mb-1">الخطاب الحالي:</span>
                                 <x-ui.file-card :file="$letter" layout="card" />
                             </div>
@@ -204,7 +204,7 @@
                             );
                         @endphp
                         @if ($generalDocs->isNotEmpty())
-                            <div class="mt-2 d-flex flex-wrap gap-2">
+                            <div class="mt-2 d-flex flex-wrap gap-2" data-existing-card-field="general_documents">
                                 @foreach ($generalDocs as $doc)
                                     <x-ui.file-card :file="$doc" layout="card" />
                                 @endforeach
@@ -225,7 +225,7 @@
                             );
                         @endphp
                         @if ($addDocs->isNotEmpty())
-                            <div class="mt-2 d-flex flex-wrap gap-2">
+                            <div class="mt-2 d-flex flex-wrap gap-2" data-existing-card-field="additional_attachments">
                                 @foreach ($addDocs as $doc)
                                     <x-ui.file-card :file="$doc" layout="card" />
                                 @endforeach
