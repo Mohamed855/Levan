@@ -164,7 +164,7 @@ function addNotificationToList(notification) {
                 </div>
                 <div class="flex-shrink-0 dropdown-notifications-actions">
                     <span class="badge badge-dot bg-primary"></span>
-                    <a href="javascript:void(0)" onclick="deleteNotification('${notification.id}')"
+                    <a href="javascript:void(0)" data-notification-id="${notification.id}"
                        class="dropdown-notifications-archive ms-2">
                         <span class="ti ti-x"></span>
                     </a>
@@ -248,6 +248,16 @@ window.deleteNotification = function (id) {
         },
     });
 };
+
+document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".dropdown-notifications-archive");
+    if (!btn) return;
+    e.preventDefault();
+    const id = btn.dataset.notificationId || btn.closest("[data-notification-id]")?.dataset.notificationId;
+    if (id && typeof window.deleteNotification === "function") {
+        window.deleteNotification(id);
+    }
+});
 
 // window.showToast = function(title, message) {
 //     console.log(`🔔 ${title}: ${message}`);

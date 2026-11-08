@@ -45,9 +45,27 @@ function bindTableEvents(table) {
     });
 }
 
+document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".js-restore-btn");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (!id) return;
+
+    confirmRestore(id);
+});
+
+document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".js-force-btn");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (!id) return;
+
+    confirmForceDelete(id);
+});
+
 function confirmRestore(id) {
     if (!id || !validateCompanyId(id)) {
-        showError("معرف المستخدم غير صحيح");
+        showError("معرف الفاتورة غير صحيح");
         return;
     }
 
@@ -74,7 +92,7 @@ function executeRestore(id) {
 
 function confirmForceDelete(userId) {
     if (!userId || !validateCompanyId(userId)) {
-        showError("معرف المستخدم غير صحيح");
+        showError("معرف الفاتورة غير صحيح");
         return;
     }
 
@@ -155,7 +173,7 @@ function getSelectedCompanyIds() {
 
 function validateSelectedIds(selectedIds) {
     if (selectedIds.length < 1) {
-        showWarning("يرجى تحديد شركة واحدة على الأقل");
+        showWarning("يرجى تحديد فاتورة واحدة على الأقل");
         return false;
     }
     return true;

@@ -13,6 +13,7 @@ use App\Models\Admin\Bank\Bank;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\ControlDomain\ControlDomain;
 use App\Models\Admin\Coupons\Coupon;
+use App\Models\Admin\Faq;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
@@ -38,6 +39,10 @@ class AdminMassDeleteController extends Controller
         'Coupon' => [
             'class' => Coupon::class,
             'permission' => 'coupons.delete',
+        ],
+        'Faq' => [
+            'class' => Faq::class,
+            'permission' => 'faqs.delete',
         ],
         'Tenant' => [
             'class' => Tenant::class,

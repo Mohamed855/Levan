@@ -46,7 +46,11 @@ const mountCycleForm = () => {
         });
     };
     form.addEventListener("change", updateFields);
-    if (window.jQuery) window.jQuery(form).on("change", "select", updateFields);
+    form.addEventListener("wizardDraftRestored", updateFields);
+    if (window.jQuery) {
+        window.jQuery(form).on("change", "select", updateFields);
+        window.jQuery(form).on("wizardDraftRestored", updateFields);
+    }
     updateFields();
 };
 

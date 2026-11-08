@@ -45,6 +45,24 @@ function bindTableEvents(table) {
     });
 }
 
+document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".js-restore-btn");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (!id) return;
+
+    confirmRestore(id);
+});
+
+document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".js-force-btn");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (!id) return;
+
+    confirmForceDelete(id);
+});
+
 function confirmRestore(userId) {
     if (!userId || !validateUserId(userId)) {
         showError("معرف المستخدم غير صحيح");

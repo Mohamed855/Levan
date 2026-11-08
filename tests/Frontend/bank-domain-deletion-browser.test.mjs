@@ -15,7 +15,11 @@ before(async () => {
 after(async () => { await browser?.close(); });
 
 function render(module) {
-    const model = module === 'banks' ? 'App\\Models\\Admin\\Bank\\Bank' : 'App\\Models\\Admin\\ControlDomain\\ControlDomain';
+    const model = module === 'banks'
+        ? 'App\\Models\\Admin\\Bank\\Bank'
+        : (module === 'faqs' ? 'App\\Models\\Admin\\Faq' : 'App\\Models\\Admin\\ControlDomain\\ControlDomain');
+    const viewName = module === 'faqs' ? 'admin.faqs.action' : `admin.settings.${module}.action`;
+    const routeName = module === 'faqs' ? 'admin.faqs' : `admin.settings.${module}`;
     return JSON.parse(execFileSync('php', ['-r', `
         require 'vendor/autoload.php';
         $app = require 'bootstrap/app.php';
@@ -25,13 +29,13 @@ function render(module) {
         Illuminate\\Support\\Facades\\Gate::before(fn () => true);
         $row = (new ${model})->forceFill(['id' => 7]);
         echo json_encode([
-            'actions' => view('admin.settings.${module}.action', ['row' => $row, 'route' => 'admin.settings.${module}'])->render(),
+            'actions' => view('${viewName}', ['row' => $row, 'route' => '${routeName}'])->render(),
             'modal' => Illuminate\\Support\\Facades\\Blade::render('<x-bootstrap.confirm-modal />'),
         ]);
     `], { cwd: root, encoding: 'utf8' }));
 }
 
-for (const module of ['banks', 'domains']) {
+for (const module of ['banks', 'domains', 'faqs']) {
     test(`${module}: the rendered delete button opens the shared modal under the application's strict CSP`, async () => {
         const page = await browser.newPage();
         const fixture = render(module);
@@ -44,7 +48,8 @@ for (const module of ['banks', 'domains']) {
             body: `<html><head><meta charset="utf-8"><meta name="csrf-token" content="test"></head><body>${fixture.actions}${fixture.modal}</body></html>`,
         }));
         try {
-            await page.goto(`http://localhost:8000/superadmin/settings/${module}`);
+            const pagePath = module === 'faqs' ? 'superadmin/faqs' : `superadmin/settings/${module}`;
+            await page.goto(`http://localhost:8000/${pagePath}`);
             for (const path of ['node_modules/jquery/dist/jquery.js', 'node_modules/bootstrap/dist/js/bootstrap.bundle.js']) {
                 const text = await readFile(new URL(path, root), 'utf8');
                 await page.evaluate((text) => {
@@ -63,14 +68,14 @@ for (const module of ['banks', 'domains']) {
                 script.textContent = source;
                 document.head.appendChild(script);
             }, source);
-            await page.click('button');
+            await page.click('button.js-delete-btn');
             await page.waitForFunction(() => document.getElementById('globalConfirmationModal').classList.contains('show'), { timeout: 1000 });
             assert.equal(await page.evaluate(() => window.deleteRequests.length), 0);
             await page.waitForFunction(() => !bootstrap.Modal.getInstance(document.getElementById('globalConfirmationModal'))._isTransitioning);
             await page.click('#globalConfirmationModalSubmitBtn');
             assert.equal(await page.evaluate(() => window.deleteRequests.length), 1);
             assert.equal(await page.evaluate(() => window.deleteRequests[0].method), 'DELETE');
-            assert.equal(await page.evaluate(() => window.deleteRequests[0].url), `http://localhost:8000/superadmin/settings/${module}/7`);
+            assert.equal(await page.evaluate(() => window.deleteRequests[0].url), `http://localhost:8000/${pagePath}/7`);
             assert.deepEqual(failures.filter((message) => message.includes('inline event handler')), []);
         } finally { await page.close(); }
     });

@@ -16,16 +16,18 @@
 
 <div class="btn-group gap-1">
     @if (!$notification || !$notification->read_at)
-        <button type="button" class="btn btn-icon btn-primary bg-primary" 
-                onclick="markAsRead('{{ $id }}')" 
-                title="تحديد كمقروء">
+        <button type="button" class="btn btn-icon btn-primary bg-primary js-mark-read-btn" 
+                data-id="{{ $id }}" 
+                title="تحديد كمقروء"
+                aria-label="تحديد كمقروء">
             <i class="ti ti-check"></i>
         </button>
     @endif
     
-    <button type="button" class="btn btn-icon btn-primary bg-primary" 
-            onclick="deleteNotification('{{ $id }}')" 
-            title="حذف">
+    <button type="button" class="btn btn-icon btn-primary bg-primary js-delete-notification-btn" 
+            data-id="{{ $id }}" 
+            title="حذف"
+            aria-label="حذف">
         <i class="ti ti-trash"></i>
     </button>
 </div>

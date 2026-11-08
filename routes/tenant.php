@@ -99,6 +99,8 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 AuctionsController::class.'@update',
                 IssuingEntitiesController::class.'@store',
                 IssuingEntitiesController::class.'@update',
+                MarketingCampaignsController::class.'@store',
+                MarketingCampaignsController::class.'@update',
                 TicketController::class.'@store',
                 TicketController::class.'@reply',
                 TicketController::class.'@rateReply',

@@ -6,14 +6,7 @@
     @endcan
 
     @can('faqs.delete')
-        <button type="button" class="btn btn-icon btn-primary bg-primary" onclick="confirmDelete({{ $row->id }})" title="حذف السؤال" aria-label="حذف السؤال">
-            <i class="ti ti-trash"></i>
-        </button>
-
-        <form id="delete-form-{{ $row->id }}" action="{{ route($route . '.destroy', $row->id) }}" method="POST"
-            style="display: none;">
-            @csrf
-            @method('DELETE')
-        </form>
+        <x-shared.actions.delete :id="$row->id" :url="route($route . '.destroy', $row->id)" title="حذف السؤال"
+            class="btn-icon btn-primary bg-primary" />
     @endcan
 </div>

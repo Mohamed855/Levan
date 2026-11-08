@@ -4,7 +4,7 @@
         <i class="ti ti-edit"></i>
     </a> 
 
-  <button type="button" class="btn btn-icon btn-primary" onclick="confirmDelete({{ $row->id }})">
+  <button type="button" class="btn btn-icon btn-primary js-delete-btn" data-id="{{ $row->id }}">
         <i class="ti ti-trash"></i>
     </button> 
 

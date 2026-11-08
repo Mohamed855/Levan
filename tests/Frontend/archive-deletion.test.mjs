@@ -17,6 +17,7 @@ async function archive(relativePath, ids = ['4', '7']) {
     const source = await readFile(new URL(`../../resources/assets/js/${relativePath}`, import.meta.url), 'utf8');
     const calls = [];
     const errors = [];
+    const docListeners = [];
     const window = {
         routes: { forceDelete: '/archive/:id/force-delete', massForceDelete: '/archive/mass-force-delete' },
         confirmRecordDelete: (options) => calls.push(options),
@@ -27,11 +28,11 @@ async function archive(relativePath, ids = ['4', '7']) {
         prop() {},
     });
     const context = {
-        window, $, document: { addEventListener() {} },
+        window, $, document: { addEventListener(event, callback) { docListeners.push({ event, callback }); } },
         toastr: { error: (message) => errors.push(message), warning: (message) => errors.push(message) },
     };
     vm.runInNewContext(source, context);
-    return { window, calls, errors };
+    return { window, calls, errors, docListeners };
 }
 
 for (const [path, table] of archives) {
@@ -95,4 +96,55 @@ test('tenant property, assignment and auction archive buttons delegate their URL
     assert.equal(calls[0].url, button.url);
     assert.equal(calls[0].table, table);
     assert.match(calls[0].text, /نهائ/);
+});
+
+test('bills and tenant users archives delegate click on .js-force-btn to confirmForceDelete', async () => {
+    for (const [path, table] of [
+        ['admin/archive/bills/index.js', '#bill-archive-table'],
+        ['tenant/archive/users/index.js', '#archived-users-table'],
+    ]) {
+        const { calls, docListeners } = await archive(path);
+        const clickListeners = docListeners.filter((l) => l.event === 'click');
+        assert.ok(clickListeners.length >= 2, `Expected at least two click listeners on document for ${path}`);
+        const fakeButton = {
+            dataset: { id: '42' },
+            closest: (sel) => (sel === '.js-force-btn' ? fakeButton : null),
+        };
+        for (const { callback } of clickListeners) {
+            callback({ target: fakeButton });
+        }
+        assert.equal(calls.length, 1, `Expected 1 call for ${path}`);
+        assert.equal(calls[0].url, '/archive/42/force-delete');
+        assert.equal(calls[0].table, table);
+    }
+});
+
+test('tenant notifications all.js delegates click on .js-delete-notification-btn to confirmRecordDelete', async () => {
+    const source = await readFile(new URL('../../resources/assets/js/tenant/notifications/all.js', import.meta.url), 'utf8');
+    const calls = [];
+    const docListeners = [];
+    const window = {
+        routes: { deleteNotification: '/notifications/__ID__' },
+        confirmRecordDelete: (options) => calls.push(options),
+    };
+    const $ = () => ({
+        select2() {},
+        on() {},
+    });
+    const document = {
+        addEventListener(event, callback) { docListeners.push({ event, callback }); },
+    };
+    vm.runInNewContext(source, { window, $, document, console });
+    const clickListener = docListeners.find((l) => l.event === 'click');
+    assert.ok(clickListener, 'Expected click listener in notifications all.js');
+    let prevented = false;
+    const fakeButton = {
+        dataset: { id: 'notif-77' },
+        closest: (sel) => (sel === '.js-delete-notification-btn' ? fakeButton : null),
+    };
+    clickListener.callback({ target: fakeButton, preventDefault() { prevented = true; } });
+    assert.equal(prevented, true);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].url, '/notifications/notif-77');
+    assert.equal(calls[0].table, '#notifications-table');
 });

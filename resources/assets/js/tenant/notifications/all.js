@@ -59,6 +59,28 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+document.addEventListener("click", function (e) {
+    const deleteBtn = e.target.closest(".js-delete-notification-btn");
+    if (deleteBtn) {
+        e.preventDefault();
+        const id = deleteBtn.dataset.id;
+        if (id) {
+            deleteNotification(id);
+        }
+        return;
+    }
+
+    const markReadBtn = e.target.closest(".js-mark-read-btn");
+    if (markReadBtn) {
+        e.preventDefault();
+        const id = markReadBtn.dataset.id;
+        if (id) {
+            markAsRead(id);
+        }
+        return;
+    }
+});
+
 // تحديد إشعار كمقروء
 function markAsRead(notificationId) {
     if (!notificationId) {

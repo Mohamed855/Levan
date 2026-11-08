@@ -456,6 +456,18 @@ function installDraftButton(container, beforeButton) {
         return;
     }
 
+    if (
+        container.classList.contains("justify-content-between") ||
+        container.matches?.('[class*="justify-content-between"]')
+    ) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "d-flex gap-2";
+        container.insertBefore(wrapper, beforeButton);
+        wrapper.appendChild(draftButton);
+        wrapper.appendChild(beforeButton);
+        return;
+    }
+
     container.insertBefore(draftButton, beforeButton);
 }
 
