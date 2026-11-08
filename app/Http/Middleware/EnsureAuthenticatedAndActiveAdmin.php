@@ -10,6 +10,8 @@ class EnsureAuthenticatedAndActiveAdmin
 {
     public function handle(Request $request, Closure $next)
     {
+        Auth::shouldUse('admin');
+
         if (! Auth::guard('admin')->check()) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'غير مصرح. يجب تسجيل الدخول.'], 401);

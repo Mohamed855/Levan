@@ -50,6 +50,42 @@ function fieldMatches(fieldName, requestedName) {
     });
 }
 
+function hasFileValue(control) {
+    if (!control) return false;
+    if (control.files && control.files.length > 0) {
+        return true;
+    }
+    const wrapper =
+        control.closest("[data-file-upload-wrapper]") || control.parentElement;
+    if (wrapper) {
+        const hasVisibleExisting = Boolean(
+            wrapper.querySelector("[data-existing-file-card]:not(.d-none)"),
+        );
+        if (hasVisibleExisting) return true;
+
+        const hasActiveExistingInput = Boolean(
+            wrapper.querySelector("[data-existing-file-input]:not([disabled])"),
+        );
+        if (hasActiveExistingInput) return true;
+
+        const rootName = String(control.name || "")
+            .replace(/\[\]$/, "")
+            .split(".")[0];
+        const hasDraftFile = Boolean(
+            wrapper.querySelector(
+                "[data-archived-draft-files] [data-draft-file-key]",
+            ) ||
+                (control.form &&
+                    rootName &&
+                    control.form.querySelector(
+                        `[data-archived-draft-files] [data-draft-file-key^="${CSS.escape(rootName)}"]`,
+                    )),
+        );
+        if (hasDraftFile) return true;
+    }
+    return false;
+}
+
 function findFieldWrappers(form, fieldName) {
     return Array.from(form.querySelectorAll("[data-form-field]")).filter(
         (wrapper) => fieldMatches(wrapper.dataset.fieldName, fieldName),
@@ -71,11 +107,22 @@ function validationSignature(form, fields) {
             const controls = findControls(form, fieldName);
             const fieldValues = controls.map((control) => {
                 if (control.type === "file") {
-                    return Array.from(control.files || []).map((file) => [
+                    const filesData = Array.from(control.files || []).map((file) => [
                         file.name,
                         file.size,
                         file.lastModified,
                     ]);
+                    const wrapper =
+                        control.closest("[data-file-upload-wrapper]") ||
+                        control.parentElement;
+                    const existingInputs = wrapper
+                        ? Array.from(
+                              wrapper.querySelectorAll(
+                                  "[data-existing-file-input]:not([disabled])",
+                              ),
+                          ).map((inp) => inp.value)
+                        : [];
+                    return [filesData, existingInputs];
                 }
 
                 if (control.type === "checkbox" || control.type === "radio") {
@@ -120,7 +167,7 @@ function shouldShowValidState(control) {
     }
 
     if (control.type === "file") {
-        return Boolean(control.files?.length);
+        return hasFileValue(control);
     }
 
     return String(control.value || "").trim() !== "";
@@ -1087,23 +1134,12 @@ function validateControlClientSide(form, control) {
             setFieldError(form, name, "يرجى تحديد هذا الخيار");
             return false;
         }
-        if (
-            control.type === "file" &&
-            (!control.files || control.files.length === 0)
-        ) {
-            const rootName = String(name).replace(/\[\]$/, "").split(".")[0];
-            const hasArchivedDraftFile = Boolean(
-                control.parentElement?.querySelector(
-                    "[data-archived-draft-files] [data-draft-file-key]",
-                ) ||
-                    form.querySelector(
-                        `[data-archived-draft-files] [data-draft-file-key^="${CSS.escape(rootName)}"]`,
-                    ),
-            );
-            if (!hasArchivedDraftFile) {
+        if (control.type === "file") {
+            if (!hasFileValue(control)) {
                 setFieldError(form, name, "يرجى اختيار ملف");
                 return false;
             }
+            return true;
         }
         if (!value || value.trim() === "") {
             setFieldError(form, name, "هذا الحقل مطلوب");
@@ -1278,11 +1314,11 @@ function isStepValid(form, step) {
             if (control.type === "checkbox" && !control.checked) {
                 return false;
             }
-            if (
-                control.type === "file" &&
-                (!control.files || control.files.length === 0)
-            ) {
-                return false;
+            if (control.type === "file") {
+                if (!hasFileValue(control)) {
+                    return false;
+                }
+                continue;
             }
             if (!control.value || control.value.trim() === "") {
                 return false;
@@ -2100,7 +2136,7 @@ function initForm(form) {
         }
 
         if (control.type === "file") {
-            return (control.files?.length || 0) > 0;
+            return hasFileValue(control);
         }
 
         if (control.tagName === "SELECT" && control.multiple) {

@@ -15,6 +15,13 @@ class UpdateIssuingEntityRequest extends WizardFormRequest
         return $this->user('tenant')?->can('issuing_entities.edit') ?? false;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if (! $this->hasFile('image') && $this->filled('existing_image')) {
+            $this->merge(['image' => $this->input('existing_image')]);
+        }
+    }
+
     public function rules(): array
     {
         $entityId = $this->route('issuing_entity') instanceof IssuingEntity
@@ -32,7 +39,7 @@ class UpdateIssuingEntityRequest extends WizardFormRequest
                     ->whereNull('deleted_at'),
             ],
             'image' => [
-                'required',
+                'nullable',
                 Rule::when(
                     $this->hasFile('image'),
                     ['image', 'mimes:jpg,jpeg,png,webp,svg', 'max:10240'],

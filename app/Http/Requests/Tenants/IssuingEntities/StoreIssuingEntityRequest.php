@@ -25,7 +25,7 @@ class StoreIssuingEntityRequest extends WizardFormRequest
                 Rule::unique('issuing_entities', 'name')->whereNull('deleted_at'),
             ],
             'image' => [
-                'required',
+                'nullable',
                 Rule::when(
                     $this->hasFile('image'),
                     ['image', 'mimes:jpg,jpeg,png,webp,svg', 'max:10240'],

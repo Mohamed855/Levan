@@ -2,11 +2,30 @@
 
 namespace App\Http\Middleware;
 
+use Closure;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use Illuminate\Http\Request;
 
 class Authenticate extends Middleware
 {
+    public function handle($request, Closure $next, ...$guards)
+    {
+        if (in_array('admin', $guards, true) || $request->is('superadmin*')) {
+            $this->auth->shouldUse('admin');
+        }
+
+        return parent::handle($request, $next, ...$guards);
+    }
+
+    protected function unauthenticated($request, array $guards)
+    {
+        if (in_array('admin', $guards, true) || $request->is('superadmin*')) {
+            $this->auth->shouldUse('admin');
+        }
+
+        parent::unauthenticated($request, $guards);
+    }
+
     protected function redirectTo(Request $request): ?string
     {
         if ($request->expectsJson()) {

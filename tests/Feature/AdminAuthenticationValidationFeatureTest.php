@@ -44,7 +44,19 @@ class AdminAuthenticationValidationFeatureTest extends TestCase
 
     public function test_guest_visiting_superadmin_redirects_to_login(): void
     {
+        config(['session.driver' => 'database']);
         $response = $this->get('/superadmin');
+        $response->assertRedirect('/superadmin/login');
+    }
+
+    public function test_guest_with_tenant_session_visiting_superadmin_redirects_to_login(): void
+    {
+        config(['session.driver' => 'database']);
+        $guard = Auth::guard('tenant');
+        $response = $this->withSession([
+            $guard->getName() => 1,
+        ])->get('/superadmin');
+
         $response->assertRedirect('/superadmin/login');
     }
 

@@ -52,31 +52,46 @@ export function initFileUploadZone(zone) {
 
   if (!input) return null;
 
-  const isMultiple = input.hasAttribute('multiple');
+  const isMultiple = input.hasAttribute('multiple') || controlWrapper.dataset.isMultiple === 'true';
+  const wasRequired = input.dataset.wasRequired === 'true' || controlWrapper.dataset.wasRequired === 'true' || input.hasAttribute('required');
+  input.dataset.wasRequired = wasRequired ? 'true' : 'false';
   const maxMb = Number(zone.dataset.maxSizeMb || input.dataset.maxSizeMb || 10);
   let currentFiles = [];
 
-  // Handle clicking on existing file remove buttons
+  // Handle clicking on existing file remove buttons via delegation
   if (previewContainer) {
-    previewContainer.querySelectorAll('[data-remove-existing-file]').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const existingCard = btn.closest('[data-existing-file-card]');
-        const removeInputName = btn.dataset.removeExistingFile;
-        if (removeInputName) {
-          let hiddenInput = controlWrapper.querySelector(`input[name="${removeInputName}"]`);
-          if (!hiddenInput) {
-            hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = removeInputName;
-            controlWrapper.appendChild(hiddenInput);
-          }
-          hiddenInput.value = '1';
+    previewContainer.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-remove-existing-file]');
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const existingCard = btn.closest('[data-existing-file-card]');
+      const removeInputName = btn.dataset.removeExistingFile;
+      if (removeInputName) {
+        let hiddenInput = controlWrapper.querySelector(`input[name="${removeInputName}"]`);
+        if (!hiddenInput) {
+          hiddenInput = document.createElement('input');
+          hiddenInput.type = 'hidden';
+          hiddenInput.name = removeInputName;
+          controlWrapper.appendChild(hiddenInput);
         }
-        if (existingCard) existingCard.remove();
-        zone.dispatchEvent(new CustomEvent('file:removed-existing', { bubbles: true, detail: { input } }));
-      });
+        hiddenInput.value = '1';
+      }
+      if (existingCard) existingCard.remove();
+
+      const remainingExisting = previewContainer.querySelectorAll('[data-existing-file-card]');
+      if (remainingExisting.length === 0) {
+        controlWrapper.dataset.hasExisting = 'false';
+        input.dataset.hasExisting = 'false';
+        if (input.dataset.wasRequired === 'true' && currentFiles.length === 0) {
+          input.required = true;
+          input.setAttribute('required', '');
+        }
+      }
+
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      zone.dispatchEvent(new CustomEvent('file:removed-existing', { bubbles: true, detail: { input } }));
     });
   }
 
@@ -91,8 +106,20 @@ export function initFileUploadZone(zone) {
 
     if (currentFiles.length > 0) {
       zone.classList.add('has-files');
+      if (input.required) {
+        input.required = false;
+        input.removeAttribute('required');
+      }
     } else {
       zone.classList.remove('has-files');
+      const hasRemainingExisting = Boolean(previewContainer?.querySelector('[data-existing-file-card]'));
+      if (hasRemainingExisting) {
+        input.required = false;
+        input.removeAttribute('required');
+      } else if (input.dataset.wasRequired === 'true') {
+        input.required = true;
+        input.setAttribute('required', '');
+      }
     }
 
     input.dispatchEvent(new Event('input', { bubbles: true }));
@@ -107,7 +134,34 @@ export function initFileUploadZone(zone) {
     // Retain any existing cards that are not dynamically uploaded
     const existingCards = previewContainer.querySelectorAll('[data-existing-file-card]');
     previewContainer.innerHTML = '';
-    existingCards.forEach((c) => previewContainer.appendChild(c));
+
+    if (!isMultiple) {
+      if (currentFiles.length > 0) {
+        // Hide existing cards and disable their hidden inputs when a new replacement file is chosen
+        existingCards.forEach((c) => {
+          c.classList.add('d-none');
+          const existingInput = c.querySelector('[data-existing-file-input]');
+          if (existingInput) existingInput.disabled = true;
+          previewContainer.appendChild(c);
+        });
+      } else {
+        // Restore existing cards and re-enable their hidden inputs when no new file is active
+        existingCards.forEach((c) => {
+          c.classList.remove('d-none');
+          const existingInput = c.querySelector('[data-existing-file-input]');
+          if (existingInput) existingInput.disabled = false;
+          previewContainer.appendChild(c);
+        });
+      }
+    } else {
+      // In multiple mode, retain all existing cards visible and enabled
+      existingCards.forEach((c) => {
+        c.classList.remove('d-none');
+        const existingInput = c.querySelector('[data-existing-file-input]');
+        if (existingInput) existingInput.disabled = false;
+        previewContainer.appendChild(c);
+      });
+    }
 
     currentFiles.forEach((file, index) => {
       const item = document.createElement('div');

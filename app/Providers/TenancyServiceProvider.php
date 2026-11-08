@@ -110,6 +110,11 @@ class TenancyServiceProvider extends ServiceProvider
 
         //  عند تهيئة الـ tenant
         Event::listen(TenancyInitialized::class, function (TenancyInitialized $event) {
+            Config::set('auth.defaults.guard', 'tenant');
+            if (app()->bound('auth')) {
+                auth()->shouldUse('tenant');
+            }
+
             $tenantId = $event->tenancy->tenant->getTenantKey();
 
             Config::set(
@@ -129,6 +134,11 @@ class TenancyServiceProvider extends ServiceProvider
         });
 
         Event::listen(TenancyEnded::class, function () {
+            Config::set('auth.defaults.guard', 'admin');
+            if (app()->bound('auth')) {
+                auth()->shouldUse('admin');
+            }
+
             Storage::forgetDisk('tenant_public');
             Storage::forgetDisk('tenant_private');
         });

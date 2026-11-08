@@ -75,4 +75,26 @@ final class CrossPanelLoginTest extends TestCase
     {
         $this->get('http://localhost/superadmin/login')->assertOk();
     }
+
+    public function test_guest_visiting_superadmin_dashboard_redirects_to_superadmin_login(): void
+    {
+        $response = $this->get('http://localhost/superadmin');
+        $response->assertRedirect('/superadmin/login');
+        $this->assertFalse(Auth::guard('admin')->check());
+        $this->assertFalse(tenancy()->initialized);
+    }
+
+    public function test_persisted_tenant_session_visiting_superadmin_dashboard_redirects_to_superadmin_login(): void
+    {
+        config(['session.driver' => 'database']);
+
+        $response = $this->withSession([
+            'auth_tenant_id' => 'test',
+            Auth::guard('tenant')->getName() => 7,
+        ])->get('http://localhost/superadmin');
+
+        $response->assertRedirect('/superadmin/login');
+        $this->assertFalse(Auth::guard('admin')->check());
+        $this->assertFalse(tenancy()->initialized);
+    }
 }
