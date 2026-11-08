@@ -6,9 +6,6 @@
     @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/scss/pages/app-invoice.scss'])
 @endsection
 
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endsection
 
 @section('content')
 

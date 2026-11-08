@@ -10,9 +10,6 @@
     @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/shepherd/shepherd.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/cleavejs/cleave.js', 'resources/assets/vendor/libs/cleavejs/cleave-phone.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
 @endsection
 
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endsection
 
 @section('page-style')
     @vite(['resources/assets/css/shared/dataTable.css'])

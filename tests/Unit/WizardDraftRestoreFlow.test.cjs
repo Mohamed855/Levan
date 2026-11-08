@@ -13,6 +13,70 @@ const cityDistrictSource = readFileSync(
     "utf8",
 ).replace("export function initCityDistrictSelector", "function initCityDistrictSelector");
 
+for (const [scenario, invalidField, expectedIndex] of [
+    ["all previous steps valid", null, 3],
+    ["required password missing", "password", 1],
+    ["property now in another active auction", "property_ids", 2],
+]) {
+    test(`draft uses guarded navigation once: ${scenario}`, async () => {
+        const restore = formValidationSource.slice(formValidationSource.indexOf("async function restoreDraft(form)"), formValidationSource.indexOf("\nfunction initDrafts(form)"));
+        const navigation = formValidationSource.slice(formValidationSource.indexOf("async function resolveDraftNavigation(form, defaultStep)"), formValidationSource.indexOf("\nasync function resolveDraftTargetStep"));
+        const steps = ["name", "password", "property_ids", "notes"].map(field => ({ fields: [field] }));
+        const moves = [];
+        const directMoves = [];
+        const changes = [];
+        const validations = [];
+        const state = { stepper: { to: index => directMoves.push(index) } };
+        const form = {
+            dataset: { draftUrl: "/drafts" },
+            setAttribute() {}, removeAttribute() {}, insertAdjacentElement() {},
+            closest: () => ({ querySelectorAll: () => steps }),
+            querySelectorAll: () => steps,
+            dispatchEvent(event) { if (event.type === "stepChanged") changes.push(event.detail.stepIndex); },
+        };
+        state.moveTo = index => {
+            moves.push(index);
+            form.dispatchEvent({ type: "stepChanged", detail: { stepIndex: index } });
+        };
+        const context = {
+            form, hasVisibleServerErrors: () => false, draftResourceKey: () => "fixture",
+            fetch: async () => ({ ok: true, json: async () => ({ draft_id: "saved", step: 4, data: {}, files: {} }) }),
+            window: { confirmActionAsync: async () => true, toastr: { success() {}, error() {} } },
+            document: { createElement: () => ({ addEventListener() {} }) },
+            CustomEvent: class { constructor(type, options) { this.type = type; this.detail = options.detail; } },
+            getFormState: () => state,
+            addHiddenField() {}, restoreDraftValues() {}, restoreDraftFiles: async () => {}, updateStepNextButton() {},
+            validationFieldsFromStep: step => step.fields,
+            validateFields: async (_form, fields, options) => {
+                assert.equal(options.force, true);
+                validations.push(fields[0]);
+                return !fields.includes(invalidField);
+            },
+            setTimeout,
+        };
+        await vm.runInNewContext(`${navigation}\n${restore}\nrestoreDraft(form)`, context);
+        assert.deepEqual(moves, [expectedIndex]);
+        assert.deepEqual(directMoves, []);
+        assert.deepEqual(changes, [expectedIndex]);
+        assert.deepEqual(validations, ["name", "password", "property_ids"].slice(0, invalidField ? expectedIndex + 1 : 3));
+        assert.equal(form.inert, false);
+    });
+}
+
+test("draft values never restore password controls", () => {
+    const restore = formValidationSource.slice(formValidationSource.indexOf("function restoreDraftValues(form, values, prefix"), formValidationSource.indexOf("\nasync function discardDraft(form)"));
+    const controls = {
+        name: { type: "text", value: "", dispatchEvent() {} },
+        password: { type: "password", value: "", dispatchEvent() {} },
+        password_confirmation: { type: "password", value: "", dispatchEvent() {} },
+    };
+    const context = { form: { elements: { namedItem: name => controls[name] } }, window: {}, RadioNodeList: class {}, Event: class {} };
+    vm.runInNewContext(`${restore}\nrestoreDraftValues(form, {name:'Saved name', password:'secret', password_confirmation:'secret'});`, context);
+    assert.equal(controls.name.value, "Saved name");
+    assert.equal(controls.password.value, "");
+    assert.equal(controls.password_confirmation.value, "");
+});
+
 test("draft restoration waits for registered dependent fields before resolving its destination", async () => {
     const restore = formValidationSource.slice(
         formValidationSource.indexOf("async function restoreDraft(form)"),

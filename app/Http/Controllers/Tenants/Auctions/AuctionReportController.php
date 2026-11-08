@@ -37,7 +37,7 @@ final class AuctionReportController extends Controller
         }
 
         if ($generation->status === 'queued') {
-            $this->reportService->ensureQueueWorkerIsRunning();
+            $generation = $this->reportService->startPendingGeneration($auction, (string) tenant('id')) ?? $generation;
         }
 
         return response()->json([

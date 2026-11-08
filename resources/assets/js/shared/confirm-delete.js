@@ -11,6 +11,8 @@
  *   - window.confirmDeleteSelectedmss(selectedIds, deleteUrl, modelName) [NO PASSWORD]
  */
 
+import './toastr.js';
+
 const VARIANT_CONFIGS = {
     danger: {
         wrapperClass:
@@ -67,6 +69,7 @@ window.confirmAction = function (options = {}) {
     } = options;
 
     const modalEl = document.getElementById("globalConfirmationModal");
+    if (modalEl?.dataset.submitting === 'true') return;
     if (!modalEl) {
         if (window.confirm(`${title}\n${text}`)) {
             if (typeof onConfirm === "function") onConfirm(inputValue);
@@ -183,12 +186,24 @@ window.confirmAction = function (options = {}) {
     const newSubmitBtn = submitBtn.cloneNode(true);
     submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
 
-    newSubmitBtn.addEventListener("click", function () {
+    newSubmitBtn.addEventListener("click", async function () {
+        if (newSubmitBtn.disabled) return;
         const val = inputEl ? inputEl.value : "";
-        isConfirmed = true;
-        bsModal.hide();
-        if (typeof onConfirm === "function") {
-            onConfirm(val);
+        newSubmitBtn.disabled = true;
+        cancelBtn.disabled = true;
+        modalEl.dataset.submitting = 'true';
+        try {
+            const result = typeof onConfirm === "function" ? await onConfirm(val) : undefined;
+            if (result !== false) {
+                isConfirmed = true;
+                bsModal.hide();
+            }
+        } catch {
+            window.toastr.error('تعذر إتمام العملية. يرجى المحاولة مرة أخرى.');
+        } finally {
+            newSubmitBtn.disabled = false;
+            cancelBtn.disabled = false;
+            delete modalEl.dataset.submitting;
         }
     });
 
@@ -199,8 +214,19 @@ window.confirmAction = function (options = {}) {
         );
     }
 
+    if (modalEl._confirmHideHandler) {
+        modalEl.removeEventListener('hide.bs.modal', modalEl._confirmHideHandler);
+    }
+    const handleHide = function (event) {
+        if (!isConfirmed && modalEl.dataset.submitting === 'true') event.preventDefault();
+    };
+    modalEl._confirmHideHandler = handleHide;
+    modalEl.addEventListener('hide.bs.modal', handleHide);
+
     const handleHidden = function () {
         modalEl.removeEventListener("hidden.bs.modal", handleHidden);
+        modalEl.removeEventListener('hide.bs.modal', handleHide);
+        modalEl._confirmHideHandler = null;
         modalEl._confirmCancelHandler = null;
         if (!isConfirmed && typeof onCancel === "function") {
             onCancel();
@@ -223,22 +249,17 @@ window.confirmActionAsync = function (options = {}) {
 };
 
 /* --------------------------------------------------------------------------
- | confirmDelete — single item via hidden form submit
+ | confirmDelete — compatibility adapter for existing row action forms
  -------------------------------------------------------------------------- */
-window.confirmDelete = function (id) {
-    window.confirmAction({
-        title: "تأكيد الحذف",
-        text: "هل أنت متأكد من عملية الحذف؟ لا يمكن التراجع عن هذا الإجراء!",
-        variant: "danger",
-        icon: "ti-trash",
-        confirmText: "تأكيد الحذف",
-        confirmClass: "btn btn-danger px-4",
-        onConfirm: function () {
-            const form = document.getElementById("delete-form-" + id);
-            if (form) {
-                form.submit();
-            }
-        },
+window.confirmDelete = function (id, options = {}) {
+    const form = document.getElementById("delete-form-" + id);
+    if (!form && !options.url) return;
+
+    return window.confirmRecordDelete({
+        url: form?.action,
+        method: form?.querySelector('[name="_method"]')?.value || 'DELETE',
+        table: form?.closest('table'),
+        ...options,
     });
 };
 
@@ -283,118 +304,153 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-/* --------------------------------------------------------------------------
- | confirmDeleteSelected — bulk delete via AJAX (no password)
- -------------------------------------------------------------------------- */
+/** Submit every regular and permanent deletion through the same AJAX action. */
+let deletionPending = false;
+
+function refreshDeletedRecords(options) {
+    const jq = window.jQuery || window.$;
+    if (jq?.fn?.dataTable) {
+        const tables = options.table
+            ? [options.table]
+            : Array.from(jq.fn.dataTable.tables());
+        let refreshed = false;
+        for (const table of tables) {
+            if (!jq.fn.dataTable.isDataTable(table)) continue;
+            const api = jq(table).DataTable();
+            if (api.ajax?.reload && (!api.ajax.url || api.ajax.url())) {
+                api.ajax.reload(null, false);
+                refreshed = true;
+            }
+        }
+        if (refreshed) return true;
+    }
+    return false;
+}
+
+window.confirmRecordDelete = function (options = {}) {
+    if (deletionPending) return;
+    let target;
+    try {
+        target = new URL(options.url, window.location.href);
+        if (!options.url || target.origin !== window.location.origin) throw new Error('Invalid delete URL');
+    } catch {
+        window.toastr.error('تعذر تحديد رابط الحذف.');
+        return;
+    }
+
+    return window.confirmAction({
+        title: options.title || 'تأكيد الحذف',
+        text: options.text || 'هل أنت متأكد من عملية الحذف؟ لا يمكن التراجع عن هذا الإجراء!',
+        variant: 'danger',
+        icon: 'ti-trash',
+        confirmText: options.confirmText || 'تأكيد الحذف',
+        onConfirm: async function () {
+            if (deletionPending) return false;
+            deletionPending = true;
+            let wasDeleted = false;
+            try {
+                const jq = window.jQuery || window.$;
+                const response = await new Promise((resolve, reject) => jq.ajax({
+                    url: target.href,
+                    method: options.method || 'DELETE',
+                    dataType: 'json',
+                    timeout: 60000,
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    },
+                    data: options.data || {},
+                    success: resolve,
+                    error: reject,
+                }));
+                if (!response || response.success === false || response.status === 'error') {
+                    throw { responseJSON: response };
+                }
+                wasDeleted = true;
+
+                const message = response.message || options.successMessage || 'تم الحذف بنجاح.';
+                const redirect = options.redirect || response.redirect;
+                if (typeof options.onSuccess === 'function') await options.onSuccess(response);
+                const refreshed = !redirect && (options.refresh === false || refreshDeletedRecords(options));
+                if (refreshed) {
+                    window.toastr.success(message);
+                    return true;
+                }
+
+                // Carry the toast once across navigation from a detail/static page.
+                const destination = new URL(redirect || window.location.href, window.location.href);
+                if (destination.origin !== window.location.origin) {
+                    throw new Error('تعذر تحديد صفحة العودة.');
+                }
+                try {
+                    window.sessionStorage.setItem('delete-feedback:' + destination.pathname, message);
+                } catch {
+                    window.toastr.success(message);
+                }
+                if (redirect) window.location.assign(destination.href);
+                else window.location.reload();
+                return true;
+            } catch (error) {
+                const errors = error.responseJSON?.errors;
+                const validationMessage = errors && Object.values(errors).flat()[0];
+                const message = wasDeleted
+                    ? 'تم الحذف، لكن تعذر تحديث الصفحة. يرجى تحديثها.'
+                    : validationMessage || error.responseJSON?.message || (error.status === 419
+                        ? 'انتهت صلاحية الجلسة. حدّث الصفحة وحاول مرة أخرى.' : 'حدث خطأ أثناء الحذف.');
+                window.toastr.error(message);
+                return wasDeleted;
+            } finally {
+                deletionPending = false;
+            }
+        },
+    });
+};
+
 window.confirmDeleteSelected = function (selectedIds, deleteUrl) {
-    if (!selectedIds || selectedIds.length === 0) {
-        if (typeof toastr !== "undefined")
-            toastr.warning("لم تقم بتحديد أي صفوف.");
+    if (!selectedIds?.length) {
+        window.toastr.warning('لم تقم بتحديد أي صفوف.');
         return;
     }
-
-    window.confirmAction({
-        title: "تأكيد الحذف",
-        text: `هل أنت متأكد من رغبتك في حذف ${selectedIds.length} عنصر محدد؟ لن تتمكن من التراجع!`,
-        variant: "danger",
-        icon: "ti-trash",
-        confirmText: "نعم، حذف المحدد",
-        confirmClass: "btn btn-danger px-4",
-        onConfirm: function () {
-            $.ajax({
-                url: deleteUrl,
-                method: "POST",
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr("content"),
-                    ids: selectedIds,
-                },
-                success: function (response) {
-                    if (response.success) {
-                        if (typeof toastr !== "undefined")
-                            toastr.success("تم حذف المحدد بنجاح.");
-                        location.reload();
-                    } else {
-                        if (typeof toastr !== "undefined")
-                            toastr.error(
-                                response.message || "فشل في حذف المحدد.",
-                            );
-                    }
-                },
-                error: function (xhr) {
-                    if (typeof toastr !== "undefined")
-                        toastr.error(
-                            xhr.responseJSON?.message ||
-                                "حدث خطأ أثناء حذف المحدد.",
-                        );
-                },
-            });
-        },
+    return window.confirmRecordDelete({
+        url: deleteUrl,
+        method: 'POST',
+        data: { ids: [...selectedIds] },
+        text: 'هل أنت متأكد من رغبتك في حذف ' + selectedIds.length + ' عنصر محدد؟ لن تتمكن من التراجع!',
+        confirmText: 'نعم، حذف المحدد',
+        successMessage: 'تم حذف المحدد بنجاح.',
     });
 };
 
-/* --------------------------------------------------------------------------
- | confirmDeleteSelectedmss — bulk delete via AJAX without password
- -------------------------------------------------------------------------- */
 window.confirmDeleteSelectedmss = function (selectedIds, deleteUrl, modelName) {
-    if (!selectedIds || selectedIds.length === 0) {
-        if (typeof toastr !== "undefined")
-            toastr.warning("لم تقم بتحديد أي صفوف.");
+    if (!selectedIds?.length) {
+        window.toastr.warning('لم تقم بتحديد أي صفوف.');
         return;
     }
-
-    window.confirmAction({
-        title: "تأكيد الحذف المحدد",
-        text: `هل أنت متأكد من رغبتك في حذف ${selectedIds.length} عنصر؟ لن تتمكن من التراجع عن هذا الإجراء!`,
-        variant: "danger",
-        icon: "ti-trash",
-        confirmText: "نعم، حذف المحدد",
-        confirmClass: "btn btn-danger px-4",
-        onConfirm: function () {
-            if (typeof toastr !== "undefined")
-                toastr.info("جاري تنفيذ الحذف...");
-            $.ajax({
-                url: deleteUrl,
-                method: "POST",
-                timeout: 60000,
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr("content"),
-                    ids: selectedIds.join(","),
-                    model: modelName,
-                },
-                success: function (response) {
-                    if (response.success) {
-                        if (typeof toastr !== "undefined")
-                            toastr.success(
-                                response.message || "تم حذف المحدد بنجاح.",
-                            );
-                        setTimeout(function () {
-                            location.reload();
-                        }, 1200);
-                    } else {
-                        if (typeof toastr !== "undefined")
-                            toastr.error(
-                                response.message || "فشل في حذف المحدد.",
-                            );
-                    }
-                },
-                error: function (xhr) {
-                    if (typeof toastr !== "undefined")
-                        toastr.error(
-                            xhr.responseJSON?.message || "حدث خطأ أثناء الحذف.",
-                        );
-                },
-            });
-        },
+    return window.confirmRecordDelete({
+        url: deleteUrl,
+        method: 'POST',
+        data: { ids: selectedIds.join(','), model: modelName },
+        text: 'هل أنت متأكد من رغبتك في حذف ' + selectedIds.length + ' عنصر محدد؟ لن تتمكن من التراجع!',
+        confirmText: 'نعم، حذف المحدد',
+        successMessage: 'تم حذف المحدد بنجاح.',
     });
 };
 
-/* --------------------------------------------------------------------------
- | Delete button — delegated click handler
- -------------------------------------------------------------------------- */
-document.addEventListener("click", function (e) {
-    var btn = e.target.closest(".js-delete-btn");
-    if (!btn) return;
-    var id = btn.dataset.id;
-    if (!id) return;
-    window.confirmDelete(id);
+// Delegation also covers rows inserted by a DataTable redraw.
+document.addEventListener('click', function (event) {
+    const button = event.target.closest('.js-delete-btn, .btn-delete');
+    if (!button) return;
+    event.preventDefault();
+    const options = {
+        table: button.closest('table'),
+        title: button.dataset.deleteTitle,
+        text: button.dataset.deleteMessage,
+        confirmText: button.dataset.deleteConfirmText,
+    };
+    if (button.dataset.deleteUrl) {
+        window.confirmRecordDelete({ ...options, url: button.dataset.deleteUrl });
+    } else if (button.dataset.id) {
+        window.confirmDelete(button.dataset.id, options);
+    }
 });

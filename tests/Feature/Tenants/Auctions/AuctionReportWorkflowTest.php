@@ -16,6 +16,7 @@ use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Tenants\Auctions\Reports\AuctionReportService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Bus;
@@ -64,7 +65,7 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
         self::assertNull(WizardDraft::query()->find($first['draft_id']));
     }
 
-    public function test_final_create_and_update_dispatch_report_generation_automatically(): void
+    public function test_final_create_and_update_wait_for_details_before_dispatching_the_latest_generation(): void
     {
         Storage::fake('tenant_public');
         Bus::fake([GenerateAuctionReportsJob::class]);
@@ -74,17 +75,21 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
             array_replace($this->validPayload($assignment), ['property_ids' => [$property->id]]),
             null, null, [], UploadedFile::fake()->image('auto-report.webp'),
         );
-        Bus::assertDispatchedTimes(GenerateAuctionReportsJob::class, 1);
+        Bus::assertNotDispatched(GenerateAuctionReportsJob::class);
         $createdGeneration = $auction->latestReportGeneration()->firstOrFail();
         self::assertSame('queued', $createdGeneration->status);
         self::assertSame($auction->name, $createdGeneration->snapshot['auction']['name']);
 
         $updated = app(UpdateAuctionAction::class)->execute($auction, ['description' => 'تحديث لاختبار الاستخراج التلقائي']);
-        Bus::assertDispatchedTimes(GenerateAuctionReportsJob::class, 2);
+        Bus::assertNotDispatched(GenerateAuctionReportsJob::class);
         $updatedGeneration = $updated->latestReportGeneration()->firstOrFail();
         self::assertGreaterThan($createdGeneration->id, $updatedGeneration->id);
         self::assertSame('queued', $updatedGeneration->status);
         self::assertSame('تحديث لاختبار الاستخراج التلقائي', $updatedGeneration->snapshot['auction']['description']);
+        app(AuctionReportService::class)->startPendingGeneration($updated, (string) tenant('id'));
+        Bus::assertDispatchedTimes(GenerateAuctionReportsJob::class, 1);
+        self::assertSame(0, $createdGeneration->fresh()->progress);
+        self::assertSame(5, $updatedGeneration->fresh()->progress);
     }
 
     public function test_final_create_accepts_missing_optional_cover_images(): void
@@ -347,7 +352,7 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
             'end_date' => now()->addDays(2)->toDateString(),
             'end_time' => '18:00',
             'type' => 'electronic',
-            'category' => 'lands',
+            'category' => 'residential',
             'city' => 'الرياض',
             'expected_properties_count' => 1,
             'assignment_id' => $assignment->id,

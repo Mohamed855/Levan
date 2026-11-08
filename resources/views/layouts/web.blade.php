@@ -34,8 +34,11 @@
     @yield('page-style')
 </head>
 
-<body class="site-shell">
-    <x-shared.toastr />
+<body class="site-shell"
+    data-flash-success="{{ Session::get('success') }}"
+    data-flash-error="{{ Session::get('error') }}"
+    data-flash-info="{{ Session::get('info') }}"
+    data-flash-warning="{{ Session::get('warning') }}">
 
     @unless (($hidePreloader ?? false) || ($hideLoader ?? false) || isset($exception))
         <div class="page-loading" role="status" aria-live="polite" aria-atomic="true" aria-label="Loading...">
@@ -69,7 +72,7 @@
 
     @include('web.partials.script')
 
-    @yield('toastr')
+    <x-shared.layout.feedback />
 
     @yield('page-script')
 </body>

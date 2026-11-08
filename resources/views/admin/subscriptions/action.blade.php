@@ -1,14 +1,11 @@
 @can('subscriptions.delete')
     <div class="d-flex justify-content-center gap-2">
-        <button type="button" class="btn btn-icon btn-primary bg-primary js-delete-subscription-btn" title="حذف نهائي للاشتراك"
-            data-id="{{ $row->id }}" data-number="{{ $row->subscription_number }}">
+        <button type="button" class="btn btn-icon btn-primary bg-primary js-delete-btn" title="حذف نهائي للاشتراك"
+            data-id="{{ $row->id }}" data-delete-url="{{ route('admin.subscriptions.destroy', $row->id) }}"
+            data-delete-title="حذف نهائي للاشتراك؟"
+            data-delete-message="سيتم حذف الاشتراك رقم ({{ $row->subscription_number }}) نهائياً مع كافة فتراته ومقاعده."
+            data-delete-confirm-text="نعم، حذف نهائي">
             <i class="ti ti-trash"></i>
         </button>
-
-        <form id="delete-subscription-form-{{ $row->id }}" action="{{ route('admin.subscriptions.destroy', $row->id) }}"
-            method="POST" style="display: none;">
-            @csrf
-            @method('DELETE')
-        </form>
     </div>
 @endcan

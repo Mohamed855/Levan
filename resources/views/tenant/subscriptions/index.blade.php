@@ -14,9 +14,6 @@
     @vite(['resources/assets/css/tenant/subscriptions/index.css'])
 @endsection
 
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endsection
 
 @section('content')
 

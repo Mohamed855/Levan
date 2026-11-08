@@ -84,7 +84,9 @@ final class CreateFormDraftContractTest extends TestCase
     {
         $root = dirname(__DIR__, 2);
         $scripts = file_get_contents($root.'/resources/views/components/shared/layout/scripts.blade.php');
-        $this->assertStringContainsString('<x-bootstrap.confirm-modal />', $scripts);
+        $feedback = file_get_contents($root.'/resources/views/components/shared/layout/feedback.blade.php');
+        $this->assertStringContainsString('<x-shared.layout.feedback />', $scripts);
+        $this->assertStringContainsString('<x-bootstrap.confirm-modal />', $feedback);
     }
 
     public function test_step_one_previous_button_navigates_to_index_in_all_wizards(): void

@@ -12,9 +12,6 @@
     @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
 @endsection
 
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endsection
 
 @section('page-style')
     <style>

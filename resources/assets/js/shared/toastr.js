@@ -7,6 +7,7 @@ toastr.options = {
     "progressBar": true,
     "positionClass": "toast-top-left", // تغيير الموقع إلى اليسار العلوي
     "timeOut": "5000",
+    "escapeHtml": true,
 };
 
 ['success', 'info', 'warning', 'error'].forEach((type) => {

@@ -6,9 +6,6 @@
     @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endsection
 
 @section('page-script')
     <script>
@@ -29,14 +26,6 @@
                 @foreach ($errors->all() as $error)
                     toastr.error(@json($error));
                 @endforeach
-            });
-        </script>
-    @endif
-
-    @if (session('error'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                toastr.error(@json(session('error')));
             });
         </script>
     @endif

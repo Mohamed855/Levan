@@ -22,7 +22,10 @@
 
     @canany(['clients.delete', 'companies.delete'])
         <button type="button" class="btn btn-icon btn-primary bg-primary js-delete-btn" title="حذف"
-            data-id="{{ $row->id }}">
+            data-id="{{ $row->id }}" data-delete-url="{{ route($route . '.destroy', $row->id) }}"
+            data-delete-title="هل أنت متأكد من حذف هذا العميل؟"
+            data-delete-message="سيتم نقل العميل للأرشيف وحذف جميع اشتراكاته نهائياً."
+            data-delete-confirm-text="نعم، حذف العميل">
             <i class="ti ti-trash"></i>
         </button>
     @endcanany

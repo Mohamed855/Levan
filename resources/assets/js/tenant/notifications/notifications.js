@@ -217,33 +217,21 @@ window.markAllAsRead = function () {
 
 // حذف إشعار
 window.deleteNotification = function (id) {
-    if (!confirm("هل أنت متأكد من حذف هذا الإشعار؟")) return;
-
-    const csrfToken = document.querySelector(
-        'meta[name="csrf-token"]',
-    )?.content;
-
     // 👇 استخدم الـ base route من window.routes
     const baseUrl = window.routes?.notificationsDelete || "/notifications";
     const url = `${baseUrl}/${id}`;
 
-    fetch(url, {
-        method: "DELETE",
-        headers: {
-            "X-CSRF-TOKEN": csrfToken,
-            "X-Requested-With": "XMLHttpRequest",
-            Accept: "application/json",
-        },
-    })
-        .then((response) => response.json())
-        .then((data) => {
+    window.confirmRecordDelete({
+        url: url,
+        refresh: false,
+        title: "تأكيد حذف الإشعار",
+        text: "هل أنت متأكد من حذف هذا الإشعار؟",
+        onSuccess: function () {
             const item = document.querySelector(
                 `[data-notification-id="${id}"]`,
             );
             if (item) {
-                item.style.transition = "opacity 0.3s";
-                item.style.opacity = "0";
-                setTimeout(() => item.remove(), 300);
+                item.remove();
             }
 
             updateNotificationCount();
@@ -257,8 +245,8 @@ window.deleteNotification = function (id) {
                 </li>
             `;
             }
-        });
-    // .catch(error => console.error('❌ Error deleting notification:', error));
+        },
+    });
 };
 
 // window.showToast = function(title, message) {

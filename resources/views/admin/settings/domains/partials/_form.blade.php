@@ -37,6 +37,10 @@
                             label="الامتداد"
                             :value="old('domain_extension', $is_edit ? $domain->domain_extension : '')" 
                             placeholder=".com" 
+                            aria-required="true"
+                            maxlength="255"
+                            pattern="\.[A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])?)*"
+                            title="أدخل امتدادًا صحيحًا مثل .com أو .com.sa"
                             :readonly="$is_edit" 
                             required 
                             col="col-md-6" 
@@ -46,6 +50,9 @@
                         <x-form.controls.input 
                             type="number" 
                             step="0.01" 
+                            min="0"
+                            max="999999.99"
+                            aria-required="true"
                             name="price" 
                             id="price"
                             label="السعر" 

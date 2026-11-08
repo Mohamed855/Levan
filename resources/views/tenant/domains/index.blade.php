@@ -1,9 +1,6 @@
 @extends('tenant.layouts.layoutMaster')
 @section('title', 'حجز دومين جديد')
 
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endsection
 
 @section('page-style')
     @vite(['resources/assets/css/tenant/domains/register/search.css'])

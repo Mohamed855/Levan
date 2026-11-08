@@ -134,16 +134,28 @@ class PlanController extends Controller
         return redirect()->route($this->route.'.index')->with('success', __('plans.success.updated'));
     }
 
-    public function destroy(AdminAuthenticatedRequest $request, Plan $plan): RedirectResponse
+    public function destroy(AdminAuthenticatedRequest $request, Plan $plan): JsonResponse|RedirectResponse
     {
         try {
             $this->planService->delete($plan);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => __('plans.success.deleted')]);
+            }
+
             return redirect()->route($this->route.'.index')->with('success', __('plans.success.deleted'));
         } catch (\DomainException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            }
+
             return redirect()->route($this->route.'.index')->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             report($e);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ غير متوقع أثناء حذف الباقة.'], 500);
+            }
 
             return redirect()->route($this->route.'.index')->with('error', 'حدث خطأ غير متوقع أثناء حذف الباقة.');
         }

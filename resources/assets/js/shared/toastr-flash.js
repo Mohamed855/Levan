@@ -1,66 +1,33 @@
-/**
- * Toastr Flash Messages
- *
- * Replaces the inline <script> block in:
- *   - admin/layouts/layoutMaster.blade.php
- *   - tenants/layouts/layoutMaster.blade.php
- *
- * Reads flash data from <body> data-* attributes set by the layout:
- *   data-flash-success, data-flash-error, data-flash-info, data-flash-warning
- *
- * The layout sets these via:
- *   <body data-flash-success="{{ Session::get('success') }}" ...>
- */
-(function initToastrFlash() {
-    var maxAttempts = 60; // 3 seconds maximum wait time
-    var attempts = 0;
+import './toastr.js';
 
-    function displayFlashes() {
-        var body = document.body;
-        if (!body) return;
-
-        var success = body.getAttribute('data-flash-success');
-        var error   = body.getAttribute('data-flash-error');
-        var info    = body.getAttribute('data-flash-info');
-        var warning = body.getAttribute('data-flash-warning');
-
-        // Exit early if there are no flash messages to display
-        if (!success && !error && !info && !warning) {
-            return;
-        }
-
-        // Wait until toastr is loaded (check window.toastr first, then global toastr)
-        var toastrInstance = window.toastr || (typeof toastr !== 'undefined' ? toastr : null);
-        if (!toastrInstance) {
-            if (attempts < maxAttempts) {
-                attempts++;
-                setTimeout(displayFlashes, 50);
-            }
-            return;
-        }
-
-        // Display and clean up attributes to prevent duplicate toasts
-        if (success) {
-            toastrInstance.success(success);
-            body.removeAttribute('data-flash-success');
-        }
-        if (error) {
-            toastrInstance.error(error);
-            body.removeAttribute('data-flash-error');
-        }
-        if (info) {
-            toastrInstance.info(info);
-            body.removeAttribute('data-flash-info');
-        }
-        if (warning) {
-            toastrInstance.warning(warning);
-            body.removeAttribute('data-flash-warning');
-        }
+function displayFlashes() {
+    const body = document.body;
+    if (!body) return;
+    const messages = [];
+    for (const type of ['success', 'error', 'info', 'warning']) {
+        const attribute = 'data-flash-' + type;
+        const message = body.getAttribute(attribute);
+        body.removeAttribute(attribute);
+        if (message) messages.push({ type, message });
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', displayFlashes);
-    } else {
-        displayFlashes();
+    // A delete from a detail/static page needs navigation; carry its toast once.
+    try {
+        const key = 'delete-feedback:' + window.location.pathname;
+        const message = window.sessionStorage.getItem(key);
+        window.sessionStorage.removeItem(key);
+        if (message && !messages.some((item) => item.type === 'success' && item.message === message)) {
+            messages.push({ type: 'success', message });
+        }
+    } catch {
+        // Session flashes still work when browser storage is disabled.
     }
-})();
+
+    for (const { type, message } of messages) window.toastr[type](message);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', displayFlashes, { once: true });
+} else {
+    displayFlashes();
+}

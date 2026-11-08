@@ -11,9 +11,6 @@
     {!! $dataTable->scripts() !!}
 @endsection
 
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endsection
 
 @section('page-style')
     @vite(['resources/assets/css/shared/dataTable.css'])
@@ -72,29 +69,3 @@
         </x-slot:table>
     </x-data-table.page>
 @endsection
-
-@push('scripts')
-    <script>
-        $(function() {
-            // Delete client confirmation
-            $(document).on('click', '.js-delete-btn', function(e) {
-                e.preventDefault();
-                const id = $(this).data('id');
-                const form = document.getElementById('delete-form-' + id);
-
-                if (!form) return;
-
-                window.confirmAction({
-                    title: 'هل أنت متأكد من حذف هذا العميل؟',
-                    text: 'سيتم نقل العميل للأرشيف وحذف جميع اشتراكاته نهائياً.',
-                    confirmButtonText: 'نعم، حذف العميل',
-                    confirmButtonClass: 'btn btn-danger',
-                    icon: 'ti ti-alert-triangle text-danger',
-                    onConfirm: function() {
-                        form.submit();
-                    }
-                });
-            });
-        });
-    </script>
-@endpush

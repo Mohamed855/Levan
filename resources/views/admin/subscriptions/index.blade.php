@@ -11,9 +11,6 @@
     {!! $dataTable->scripts() !!}
 @endsection
 
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endsection
 
 @section('page-style')
     @vite(['resources/assets/css/shared/dataTable.css'])
@@ -69,29 +66,3 @@
         </x-slot:table>
     </x-data-table.page>
 @endsection
-
-@push('scripts')
-    <script>
-        $(function() {
-            // Delete subscription confirmation
-            $(document).on('click', '.js-delete-subscription-btn', function(e) {
-                e.preventDefault();
-                const id = $(this).data('id');
-                const number = $(this).data('number');
-                const form = document.getElementById('delete-subscription-form-' + id);
-
-                window.confirmAction({
-                    title: 'حذف نهائي للاشتراك؟',
-                    text: 'سيتم حذف الاشتراك رقم (' + number + ') نهائياً مع كافة فتراته ومقاعده.',
-                    variant: 'danger',
-                    icon: 'ti-trash',
-                    confirmText: 'نعم، حذف نهائي',
-                    confirmClass: 'btn btn-danger px-4',
-                    onConfirm: function() {
-                        if (form) form.submit();
-                    }
-                });
-            });
-        });
-    </script>
-@endpush

@@ -198,6 +198,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (page && page.dataset.notificationFilter !== 'all') window.location.reload();
     };
 
+    const confirmNotificationDelete = (id, row = null) => {
+        const url = getEndpoint('deleteUrl', id);
+        if (!url) return;
+        return window.confirmRecordDelete({
+            url,
+            refresh: false,
+            title: 'تأكيد حذف الإشعار',
+            text: 'هل أنت متأكد من حذف هذا الإشعار؟',
+            onSuccess: async () => {
+                await refresh();
+                row?.remove();
+                refreshFilteredPage();
+            },
+        });
+    };
+
     document.addEventListener('click', async (event) => {
         const remove = event.target.closest('[data-dashboard-notification-delete]');
         const all = event.target.closest('[data-notification-read-all]');
@@ -209,16 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
             event.stopPropagation();
             const noticeId = remove.dataset.dashboardNotificationDelete;
-            const deleteUrl = getEndpoint('deleteUrl', noticeId);
-            if (deleteUrl) {
-                try {
-                    await mutate(deleteUrl, 'DELETE');
-                    remove.closest('[data-notification-id]')?.remove();
-                    refreshFilteredPage();
-                } catch {
-                    window.toastr?.error('تعذر حذف الإشعار. يرجى المحاولة مرة أخرى.');
-                }
-            }
+            confirmNotificationDelete(noticeId, remove.closest('[data-notification-id]'));
             return;
         }
 
@@ -302,10 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = getEndpoint('readAllUrl');
         return url ? mutate(url) : Promise.resolve();
     };
-    window.deleteNotification = (id) => {
-        const url = getEndpoint('deleteUrl', id);
-        return url ? mutate(url, 'DELETE') : Promise.resolve();
-    };
+    window.deleteNotification = (id) => confirmNotificationDelete(id);
 
     if (root) {
         root.addEventListener('show.bs.dropdown', refresh);

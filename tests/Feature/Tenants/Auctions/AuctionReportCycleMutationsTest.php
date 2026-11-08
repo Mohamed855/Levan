@@ -11,7 +11,6 @@ use App\Actions\Tenants\MarketingCampaigns\SaveMarketingCampaignAction;
 use App\Actions\Tenants\MassDelete\DeleteTenantRecordsAction;
 use App\Actions\Tenants\Properties\UpdatePropertyAction;
 use App\Actions\Tenants\Settings\UpdateTenantSettingsAction;
-use App\Jobs\Tenants\Auctions\GenerateAuctionReportsJob;
 use App\Services\Tenants\Auctions\AuctionService;
 use App\Services\Tenants\Auctions\Reports\AuctionReportLock;
 use App\Services\Tenants\Auctions\Reports\AuctionReportRefreshService;
@@ -137,14 +136,14 @@ final class AuctionReportCycleMutationsTest extends TenantAuctionReportTestCase
         self::assertSame(2, $second->latestReportGeneration()->first()->snapshot['marketing']['campaigns'][0]['views']);
     }
 
-    public function test_sync_connection_still_dispatches_outside_testing_environment(): void
+    public function test_sync_connection_does_not_dispatch_during_the_save_request(): void
     {
         Queue::fake();
         $auction = $this->cycleAuction();
         config(['auction-renderer.queue_connection' => 'sync']);
         $this->app['env'] = 'local';
         app(AuctionReportService::class)->requestGeneration($auction, (string) tenant('id'));
-        Queue::assertPushed(GenerateAuctionReportsJob::class);
+        Queue::assertNothingPushed();
     }
 
     public function test_mutation_snapshot_sources_are_read_after_auction_lock(): void

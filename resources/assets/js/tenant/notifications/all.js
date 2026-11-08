@@ -137,49 +137,13 @@ function deleteNotification(notificationId) {
         return;
     }
 
-    window.confirmAction({
+    window.confirmRecordDelete({
+        url: window.routes.deleteNotification.replace("__ID__", notificationId),
+        table: "#notifications-table",
         title: "تأكيد حذف الإشعار",
         text: "هل أنت متأكد من عملية الحذف؟ لا يمكن التراجع عن هذا الإجراء!",
-        variant: "danger",
-        icon: "ti-trash",
         confirmText: "تأكيد الحذف",
-        confirmClass: "btn btn-danger px-4",
-        cancelText: "إلغاء",
-        onConfirm: function () {
-            const url = window.routes.deleteNotification.replace(
-                "__ID__",
-                notificationId,
-            );
-
-            $.ajax({
-                url: url,
-                type: "DELETE",
-                data: {
-                    _token: window.csrfToken,
-                },
-                success: function (response) {
-                    if (response.message) {
-                        $("#notifications-table").DataTable().draw(false);
-                        updateNotificationCount();
-                        if (typeof toastr !== "undefined") {
-                            toastr.success(response.message);
-                        }
-                    }
-                },
-                error: function (xhr) {
-                    let errorMessage = "حدث خطأ أثناء حذف الإشعار";
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    }
-
-                    if (typeof toastr !== "undefined") {
-                        toastr.error(errorMessage);
-                    }
-
-                    console.error("خطأ في حذف الإشعار:", xhr);
-                },
-            });
-        },
+        onSuccess: updateNotificationCount,
     });
 }
 
@@ -198,37 +162,18 @@ function handleMassDelete() {
         return;
     }
 
-    if (!confirm("هل أنت متأكد من حذف الإشعارات المحددة؟")) {
-        return;
-    }
-
-    $.ajax({
+    window.confirmRecordDelete({
         url: window.routes.massDelete,
-        type: "POST",
+        method: "POST",
+        table: "#notifications-table",
+        title: "تأكيد حذف الإشعارات",
+        text: "هل أنت متأكد من حذف الإشعارات المحددة؟",
         data: {
-            _token: window.csrfToken,
             ids: selectedIds,
         },
-        success: function (response) {
-            if (response.message) {
-                $("#notifications-table").DataTable().draw(false);
-                updateNotificationCount();
-                if (typeof toastr !== "undefined") {
-                    toastr.success(response.message);
-                }
-            }
-        },
-        error: function (xhr) {
-            let errorMessage = "حدث خطأ أثناء حذف الإشعارات";
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                errorMessage = xhr.responseJSON.message;
-            }
-
-            if (typeof toastr !== "undefined") {
-                toastr.error(errorMessage);
-            }
-
-            console.error("خطأ في حذف الإشعارات:", xhr);
+        onSuccess: function () {
+            $("#select-all").prop("checked", false);
+            updateNotificationCount();
         },
     });
 }

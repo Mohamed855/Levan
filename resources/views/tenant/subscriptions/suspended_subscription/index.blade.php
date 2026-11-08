@@ -14,9 +14,6 @@
     @vite(['resources/assets/js/web/basic-tamplate/pricing.js'])
 @endsection
 
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endsection
 
 @section('content')
     <section class="section-py bg-body-secondary">

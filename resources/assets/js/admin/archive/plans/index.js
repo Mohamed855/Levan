@@ -97,25 +97,13 @@ function confirmForceDelete(userId) {
         return;
     }
 
-    window.confirmAction({
+    window.confirmRecordDelete({
+        url: window.routes.forceDelete.replace(":id", encodeURIComponent(userId)),
+        table: "#paln-archive-table",
         title: "تحذير!",
         text: "سيتم حذف هذه الخطة نهائياً ولا يمكن استرجاعها",
-        confirmButtonText: "تأكيد الحذف نهائياً",
-        confirmButtonClass: "btn btn-danger",
-        icon: "ti ti-trash text-white",
-        onConfirm: function () {
-            executeForceDelete(userId);
-        },
+        confirmText: "تأكيد الحذف نهائياً",
     });
-}
-
-function executeForceDelete(userId) {
-    const form = createFormForAction(
-        "DELETE",
-        window.routes.forceDelete.replace(":id", userId),
-    );
-    document.body.appendChild(form);
-    form.submit();
 }
 
 function handleMassRestore() {
@@ -165,36 +153,14 @@ function handleMassForceDelete() {
         return;
     }
 
-    window.confirmAction({
+    window.confirmRecordDelete({
+        url: window.routes.massForceDelete,
+        method: "DELETE",
+        data: { ids: selectedIds },
+        table: "#paln-archive-table",
         title: "تحذير خطير!",
         text: `سيتم حذف ${selectedIds.length} خطة نهائياً ولا يمكن استرجاعها. هل أنت متأكد؟`,
-        confirmButtonText: "تأكيد الحذف الكل نهائياً",
-        confirmButtonClass: "btn btn-danger",
-        icon: "ti ti-trash text-white",
-        onConfirm: function () {
-            executeMassForceDelete(selectedIds);
-        },
-    });
-}
-
-function executeMassForceDelete(selectedIds) {
-    showLoadingSpinner("جاري الحذف النهائي...");
-
-    $.ajax({
-        url: window.routes.massForceDelete,
-        type: "DELETE",
-        data: {
-            _token: window.csrfToken,
-            ids: selectedIds,
-        },
-        success: function (response) {
-            hideLoadingSpinner();
-            handleMassForceDeleteSuccess(response);
-        },
-        error: function (xhr) {
-            hideLoadingSpinner();
-            handleMassForceDeleteError(xhr);
-        },
+        confirmText: "تأكيد الحذف الكل نهائياً",
     });
 }
 
@@ -259,21 +225,6 @@ function handleMassRestoreSuccess(response) {
 function handleMassRestoreError(xhr) {
     const message =
         xhr.responseJSON?.message || "حدث خطأ أثناء الاستعادة الجماعية";
-    showError(message);
-}
-
-function handleMassForceDeleteSuccess(response) {
-    if (response.success) {
-        showSuccess(response.message);
-        refreshTableAndResetSelection();
-    } else {
-        showError(response.message || "حدث خطأ غير متوقع");
-    }
-}
-
-function handleMassForceDeleteError(xhr) {
-    const message =
-        xhr.responseJSON?.message || "حدث خطأ أثناء الحذف النهائي الجماعي";
     showError(message);
 }
 

@@ -1,5 +1,3 @@
-<x-bootstrap.confirm-modal />
-
 <!-- BEGIN: Vendor JS-->
 @vite([
     'resources/assets/vendor/libs/jquery/jquery.js',
@@ -13,25 +11,17 @@
     'resources/assets/js/shared/app.js',
 ])
 
+<x-shared.layout.feedback />
+
 @yield('vendor-script')
 <!-- END: Page Vendor JS-->
 
 <!-- BEGIN: Theme JS-->
 @vite(['resources/assets/js/shared/basic-tamplate/main.js'])
 
-<!-- BEGIN: toastr -->
-@hasSection('toastr')
-    @yield('toastr')
-@else
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endif
-<!-- END: toastr-->
-
 <!-- BEGIN: Shared JS (extracted from layoutMaster) -->
 @vite([
     'resources/assets/js/shared/csrf-setup.js',
-    'resources/assets/js/shared/toastr-flash.js',
-    'resources/assets/js/shared/confirm-delete.js',
     'resources/assets/js/shared/modal-close-controls.js',
     'resources/assets/js/shared/input-guards.js',
     'resources/assets/js/shared/datatable-primary-actions.js',

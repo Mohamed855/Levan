@@ -60,6 +60,10 @@ final class MarketingCampaignsController extends Controller
         $auctionId = $campaign->auction_id;
         $action->execute($campaign);
 
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'تم حذف الحملة وطلب تحديث التقريرين.']);
+        }
+
         return redirect(tenant_route_name('auctions.show', $auctionId))->with('success', 'تم حذف الحملة وطلب تحديث التقريرين.');
     }
 }

@@ -33,19 +33,6 @@ final class AuctionReportService
                 ]);
             });
 
-            $connection = (string) config('auction-renderer.queue_connection', 'auction_reports');
-
-            GenerateAuctionReportsJob::dispatch(
-                $tenantId,
-                (int) $auction->id,
-                (int) $generation->id,
-                $generation->revision_token,
-            )->onConnection($connection)->afterCommit();
-
-            DB::afterCommit(function () {
-                $this->ensureQueueWorkerIsRunning();
-            });
-
             return $generation->fresh();
         } catch (Throwable $exception) {
             Log::error('Auction report generation could not be queued.', [
@@ -64,16 +51,65 @@ final class AuctionReportService
             ?? throw new \RuntimeException('تعذر جدولة إعادة توليد التقارير.');
     }
 
+    public function startPendingGeneration(Auction $auction, string $tenantId): ?AuctionReportGeneration
+    {
+        $generation = null;
+        try {
+            $generation = DB::transaction(function () use ($auction, $tenantId, &$generation): ?AuctionReportGeneration {
+                $auction = Auction::query()->whereKey($auction->id)->lockForUpdate()->firstOrFail();
+                $generation = $auction->latestReportGeneration()->lockForUpdate()->first();
+                if (! $generation || $generation->status !== 'queued') {
+                    return null;
+                }
+
+                // Zero progress means the details page has not started this revision yet.
+                if ((int) $generation->progress === 0) {
+                    $generation->update(['progress' => 5]);
+                    GenerateAuctionReportsJob::dispatch(
+                        $tenantId,
+                        (int) $auction->id,
+                        (int) $generation->id,
+                        $generation->revision_token,
+                    )->onConnection($this->backgroundConnection())->onQueue('auction-reports')->afterCommit();
+                }
+
+                return $generation;
+            });
+
+            if ($generation) {
+                DB::afterCommit(fn () => $this->ensureQueueWorkerIsRunning());
+            }
+
+            return $generation?->fresh();
+        } catch (Throwable $exception) {
+            Log::error('Auction report generation could not be started.', [
+                'tenant_id' => $tenantId, 'auction_id' => $auction->id, 'exception' => $exception,
+            ]);
+            if ($generation) {
+                AuctionReportGeneration::query()->whereKey($generation->id)->where('status', 'queued')->update([
+                    'status' => 'failed', 'error_message' => $exception->getMessage(), 'completed_at' => now(),
+                ]);
+            }
+
+            return $generation?->fresh();
+        }
+    }
+
+    private function backgroundConnection(): string
+    {
+        $connection = (string) config('auction-renderer.queue_connection', 'auction_reports');
+
+        return in_array(config('queue.connections.'.$connection.'.driver'), ['database', 'redis', 'beanstalkd', 'sqs'], true)
+            ? $connection : 'auction_reports';
+    }
+
     /**
      * تشغيل عامل المعالجة في الخلفية تلقائياً إذا كانت الطوابير تستخدم قاعدة البيانات،
      * لضمان تنفيذ تقارير المزاد دون الحاجة لتشغيل أمر queue:work يدوياً.
      */
     public function ensureQueueWorkerIsRunning(): void
     {
-        $connection = (string) config('auction-renderer.queue_connection', 'auction_reports');
-        if ($connection === 'sync') {
-            return;
-        }
+        $connection = $this->backgroundConnection();
 
         // تفادي تكرار إطلاق عدة عمال متزامنين في نافذة 3 ثوانٍ
         if (! Cache::add('auction_reports_worker_spawn_lock', 1, 3)) {
@@ -86,7 +122,7 @@ final class AuctionReportService
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             $php = PHP_BINARY;
             $cmd = sprintf(
-                'start "" /B "%s" "%s" queue:work %s --queue=%s --stop-when-empty --tries=3',
+                'start "" /B "%s" "%s" queue:work %s --queue=%s --stop-when-empty --tries=3 > NUL 2>&1',
                 $php,
                 $artisan,
                 escapeshellarg($connection),

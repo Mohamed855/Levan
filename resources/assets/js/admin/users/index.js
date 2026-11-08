@@ -50,15 +50,6 @@ $(document).ready(function () {
     });
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.btn-delete').forEach(button => {
-        button.addEventListener('click', function () {
-            const id = this.dataset.id;
-            confirmDelete(id);
-        });
-    });
-});
-
 function initializeComponents() {
     $('.filters .select2').each(function () {
         $(this).select2({

@@ -27,20 +27,13 @@ $(function () {
         const url = $(this).data("url");
         if (!url) return;
 
-        if (typeof window.confirmAction === "function") {
-            window.confirmAction({
-                title: "تحذير!",
-                text: "سيتم حذف هذا السجل نهائياً ولا يمكن استرجاعه. هل أنت متأكد؟",
-                confirmButtonText: "تأكيد الحذف نهائياً",
-                confirmButtonClass: "btn btn-danger",
-                icon: "ti ti-trash text-white",
-                onConfirm: function () {
-                    submitArchiveForm("DELETE", url);
-                },
-            });
-        } else {
-            submitArchiveForm("DELETE", url);
-        }
+        window.confirmRecordDelete({
+            url,
+            table: this.closest("table"),
+            title: "تحذير!",
+            text: "سيتم حذف هذا السجل نهائياً ولا يمكن استرجاعه. هل أنت متأكد؟",
+            confirmText: "تأكيد الحذف نهائياً",
+        });
     });
 });
 

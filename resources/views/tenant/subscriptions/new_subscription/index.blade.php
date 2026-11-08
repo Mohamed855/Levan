@@ -6,9 +6,6 @@
     @vite(['resources/assets/css/components/icons.css', 'resources/assets/scss/tenant/pages/subscription-plans.scss'])
 @endsection
 
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endsection
 
 @section('content')
     <section class="section-py bg-body-secondary">

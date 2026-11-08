@@ -886,30 +886,9 @@ async function restoreDraft(form) {
             form,
             draft.step,
         );
-        const stepper =
-            getFormState(form).stepper ||
-            form.closest("[data-form-stepper]")?.bsStepper;
-        if (stepper) {
-            stepper.to(targetStep);
-            const stepperElement = form.closest("[data-form-stepper]");
-            const steps = stepperElement
-                ? Array.from(
-                      stepperElement.querySelectorAll("[data-form-step]"),
-                  )
-                : Array.from(form.querySelectorAll("[data-form-step]"));
-            const targetIndex = targetStep - 1;
-            const currentStep = steps[targetIndex];
-            if (currentStep) {
-                form.dispatchEvent(
-                    new CustomEvent("stepChanged", {
-                        detail: {
-                            stepIndex: targetIndex,
-                            step: currentStep,
-                        },
-                    }),
-                );
-                updateStepNextButton(form, currentStep);
-            }
+        const state = getFormState(form);
+        if (typeof state.moveTo === "function") {
+            state.moveTo(targetStep - 1);
         }
         if (targetControl) {
             setTimeout(() => {

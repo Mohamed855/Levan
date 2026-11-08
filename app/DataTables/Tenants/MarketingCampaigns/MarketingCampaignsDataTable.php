@@ -31,7 +31,7 @@ final class MarketingCampaignsDataTable extends AbstractDataTable
 
     protected function getColumns(): array
     {
-        return [['data' => 'id', 'name' => 'id', 'title' => '#'], ['data' => 'auction_name', 'name' => 'auction.name', 'title' => 'المزاد'], ['data' => 'channel_label', 'name' => 'channel', 'title' => 'نوع الحملة'], ['data' => 'evidence_count', 'name' => 'evidence_count', 'title' => 'الأدلة', 'searchable' => false], ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإضافة'], ['data' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false]];
+        return [['data' => 'id', 'name' => 'id', 'title' => '#'], ['data' => 'auction_name', 'name' => 'auction.name', 'title' => 'المزاد'], ['data' => 'channel_label', 'name' => 'channel', 'title' => 'نوع الحملة'], ['data' => 'evidence_count', 'name' => 'evidence_count', 'title' => 'الأدلة', 'searchable' => false], ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء'], ['data' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false]];
     }
 
     protected function addCustomColumns($datatable): void

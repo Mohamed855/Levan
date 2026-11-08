@@ -19,8 +19,8 @@ class StoreBankRequest extends WizardFormRequest
             'bank_name' => ['required', 'string', 'max:255'],
             'icon' => ['required', 'image', 'mimes:jpeg,png,jpg,svg', 'max:10240'],
             'account_name' => ['required', 'string', 'max:255'],
-            'iban' => ['required', 'string', 'max:255'],
-            'account_number' => ['required', 'string', 'max:255'],
+            'iban' => ['required', 'string', 'regex:/^SA[0-9]{22}$/D'],
+            'account_number' => ['required', 'string', 'max:255', 'regex:/^[0-9]+$/D'],
         ];
     }
 
@@ -34,7 +34,9 @@ class StoreBankRequest extends WizardFormRequest
             'icon.max' => 'حجم الصورة يجب ألا يتجاوز 10 ميجابايت',
             'account_name.required' => 'اسم الحساب مطلوب',
             'iban.required' => 'رقم الآيبان مطلوب',
+            'iban.regex' => 'رقم الآيبان يجب أن يبدأ بـ SA ويتبعه 22 رقماً.',
             'account_number.required' => 'رقم الحساب مطلوب',
+            'account_number.regex' => 'رقم الحساب يجب أن يحتوي على أرقام فقط.',
         ];
     }
 

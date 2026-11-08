@@ -1,6 +1,7 @@
 @php
     $isEdit = isset($auction) && $auction->exists;
     $marketing = old('marketing', $isEdit ? ($auction->marketing_data ?? []) : []);
+    $fallbackImage = asset('static/brand/logos/logo.svg');
 @endphp
 
 <div class="row g-4 assignment-review">
@@ -76,16 +77,32 @@
 
                         <dt class="col-5 text-muted">إجمالي القيمة التقديرية</dt>
                         <dd class="col-7 fw-semibold" id="review-selected-props-val">{{ $isEdit ? number_format((float) $auction->properties->sum('estimated_value')) . ' ر.س' : '0 ر.س' }}</dd>
-
-                        <dt class="col-5 text-muted">قائمة العقارات</dt>
-                        <dd class="col-7 fw-semibold" id="review-selected-props-names">
-                            @if ($isEdit && $auction->properties->isNotEmpty())
-                                {{ $auction->properties->pluck('name')->join('، ') }}
-                            @else
-                                -
-                            @endif
-                        </dd>
                     </dl>
+
+                    <div id="review-properties" class="assignment-selection__items">
+                        @if ($isEdit && $auction->properties->isNotEmpty())
+                            @foreach ($auction->properties as $prop)
+                                <article class="assignment-property-card" data-property-card="{{ $prop->id }}">
+                                    <img class="assignment-property-card__image"
+                                        src="{{ $prop->main_image ? tasset($prop->main_image) : $fallbackImage }}"
+                                        alt="{{ $prop->name }}"
+                                        onerror="this.onerror=null;this.src='{{ $fallbackImage }}';">
+                                    <div class="assignment-property-card__content">
+                                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                            <code class="copyable-code">{{ $prop->property_number ?? '-' }}</code>
+                                            @if (!empty($prop->type_label))
+                                                <span class="badge bg-info">{{ $prop->type_label }}</span>
+                                            @endif
+                                        </div>
+                                        <h6 class="mb-1 text-body text-truncate" title="{{ $prop->name }}">{{ $prop->name }}</h6>
+                                        <p class="mb-0 text-muted small"><i class="ti ti-map-pin me-1"></i>{{ $prop->city ?? '-' }}</p>
+                                    </div>
+                                </article>
+                            @endforeach
+                        @else
+                            <p class="text-muted mb-0" data-empty>لم يتم اختيار عقارات بعد.</p>
+                        @endif
+                    </div>
                 </x-form.wizard.review-card>
             </div>
 

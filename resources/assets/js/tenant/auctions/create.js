@@ -455,10 +455,39 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderSelectedPropertyCards() {
         const cards = document.getElementById("selected-properties-cards");
         const count = document.getElementById("selected-properties-count");
-        if (!cards || !count) return;
+        if (cards && count) {
+            const properties = [...selectedProperties.values()];
+            count.textContent = String(properties.length);
+            cards.innerHTML = properties.length
+                ? properties
+                      .map(
+                          (property) => `
+                    <article class="assignment-property-card" data-property-card="${escapeHtml(property.id)}">
+                        <img class="assignment-property-card__image" src="${escapeHtml(property.image || propertyImageFallback)}" alt="" onerror="this.onerror=null;this.src='${escapeHtml(propertyImageFallback)}';">
+                        <div class="assignment-property-card__content">
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                <code class="copyable-code">${escapeHtml(property.number || "-")}</code>
+                                ${property.type ? `<span class="badge bg-info">${escapeHtml(property.type)}</span>` : ""}
+                            </div>
+                            <h6 class="mb-1 text-body text-truncate" title="${escapeHtml(property.name)}">${escapeHtml(property.name)}</h6>
+                            <p class="mb-0 text-muted small"><i class="ti ti-map-pin me-1"></i>${escapeHtml(property.city || "-")}</p>
+                        </div>
+                        <button type="button" class="btn btn-sm remove-property-card-btn" data-remove-auction-property="${escapeHtml(property.id)}" aria-label="إزالة ${escapeHtml(property.name)}"><i class="ti ti-x" aria-hidden="true"></i></button>
+                    </article>`,
+                      )
+                      .join("")
+                : '<p class="text-muted mb-0" data-empty>لم يتم اختيار عقارات بعد.</p>';
+        }
+        renderReviewPropertyCards();
+    }
+
+    function renderReviewPropertyCards() {
+        const reviewCards =
+            document.getElementById("review-properties") ||
+            document.getElementById("review-selected-properties");
+        if (!reviewCards) return;
         const properties = [...selectedProperties.values()];
-        count.textContent = String(properties.length);
-        cards.innerHTML = properties.length
+        reviewCards.innerHTML = properties.length
             ? properties
                   .map(
                       (property) => `
@@ -472,7 +501,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         <h6 class="mb-1 text-body text-truncate" title="${escapeHtml(property.name)}">${escapeHtml(property.name)}</h6>
                         <p class="mb-0 text-muted small"><i class="ti ti-map-pin me-1"></i>${escapeHtml(property.city || "-")}</p>
                     </div>
-                    <button type="button" class="btn btn-sm remove-property-card-btn" data-remove-auction-property="${escapeHtml(property.id)}" aria-label="إزالة ${escapeHtml(property.name)}"><i class="ti ti-x" aria-hidden="true"></i></button>
                 </article>`,
                   )
                   .join("")
@@ -1078,6 +1106,9 @@ document.addEventListener("DOMContentLoaded", () => {
         $("#review-platform").text($("#platform_name").val() || "-");
         $("#review-platform-url").text($("#platform_url").val() || "-");
         $("#review-notes").text($("#notes").val() || "-");
+
+        // Step 3: Properties Review Cards
+        renderReviewPropertyCards();
 
         // Step 4: Reports & Attachments
         const intro = form.elements.namedItem("marketing[introduction]")?.value;

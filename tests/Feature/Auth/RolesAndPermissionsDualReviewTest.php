@@ -907,7 +907,7 @@ final class RolesAndPermissionsDualReviewTest extends TestCase
         tenancy()->end();
     }
 
-    public function test_roles_create_and_edit_views_in_admin_and_tenant_load_toastr(): void
+    public function test_roles_create_and_edit_views_use_the_global_toastr_assets(): void
     {
         $adminCreate = file_get_contents(resource_path('views/admin/roles/create.blade.php'));
         $adminEdit = file_get_contents(resource_path('views/admin/roles/edit.blade.php'));
@@ -915,9 +915,13 @@ final class RolesAndPermissionsDualReviewTest extends TestCase
         $tenantEdit = file_get_contents(resource_path('views/tenant/user-management/roles/edit.blade.php'));
 
         foreach ([$adminCreate, $adminEdit, $tenantCreate, $tenantEdit] as $content) {
-            $this->assertStringContainsString("@section('toastr')", $content);
-            $this->assertStringContainsString('resources/assets/js/shared/toastr.js', $content);
-            $this->assertStringContainsString('resources/assets/css/shared/toastr.css', $content);
+            $this->assertStringNotContainsString("@section('toastr')", $content);
+            $this->assertStringContainsString('layouts.layoutMaster', $content);
         }
+
+        $feedback = file_get_contents(resource_path('views/components/shared/layout/feedback.blade.php'));
+        $this->assertStringContainsString('resources/assets/js/shared/toastr.js', $feedback);
+        $this->assertStringContainsString('resources/assets/css/shared/toastr.css', $feedback);
+        $this->assertStringContainsString('<x-shared.layout.feedback', file_get_contents(resource_path('views/components/shared/layout/scripts.blade.php')));
     }
 }

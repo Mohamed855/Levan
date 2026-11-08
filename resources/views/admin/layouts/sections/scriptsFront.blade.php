@@ -1,6 +1,8 @@
 <!-- BEGIN: Vendor JS-->
 @vite(['resources/assets/vendor/js/dropdown-hover.js', 'resources/assets/vendor/js/mega-dropdown.js', 'resources/assets/vendor/libs/popper/popper.js', 'resources/assets/vendor/js/bootstrap.js', 'resources/assets/vendor/libs/node-waves/node-waves.js'])
 
+<x-shared.layout.feedback />
+
 @yield('vendor-script')
 <!-- END: Page Vendor JS-->
 <!-- BEGIN: Theme JS-->
@@ -9,8 +11,6 @@
 <!-- END: Theme JS-->
 <!-- Pricing Modal JS-->
 @stack('pricing-script')
-
-@yield('toastr')
 
 <!-- END: Pricing Modal JS-->
 <!-- BEGIN: Page JS-->

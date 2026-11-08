@@ -7,9 +7,6 @@
 
 @section('title', 'تفاصيل العميل — ' . $target->company_name)
 
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endsection
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
@@ -214,16 +211,10 @@
                                             @can('subscriptions.delete')
                                                 <button type="button"
                                                     class="btn btn-icon btn-danger js-sub-delete-btn"
-                                                    data-id="{{ $sub->id }}"
+                                                    data-url="{{ route('admin.subscriptions.destroy', $sub->id) }}"
                                                     data-number="{{ $sub->subscription_number }}">
                                                     <i class="ti ti-trash"></i>
                                                 </button>
-                                                <form id="delete-sub-form-{{ $sub->id }}"
-                                                    action="{{ route('admin.subscriptions.destroy', $sub->id) }}"
-                                                    method="POST" style="display:none;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                </form>
                                             @endcan
                                         </td>
                                     </tr>
@@ -313,20 +304,14 @@
             // Delete subscription confirmation
             $(document).on('click', '.js-sub-delete-btn', function(e) {
                 e.preventDefault();
-                const id = $(this).data('id');
                 const number = $(this).data('number');
-                const form = document.getElementById('delete-sub-form-' + id);
 
-                window.confirmAction({
+                window.confirmRecordDelete({
+                    url: $(this).data('url'),
                     title: 'حذف نهائي للاشتراك؟',
                     text: 'سيتم حذف الاشتراك رقم (' + number + ') نهائياً مع كافة فتراته ومقاعده.',
-                    variant: 'danger',
-                    icon: 'ti-trash',
                     confirmText: 'نعم، حذف نهائي',
-                    confirmClass: 'btn btn-danger px-4',
-                    onConfirm: function() {
-                        if (form) form.submit();
-                    }
+                    redirect: @json(route('admin.subscriptions.index'))
                 });
             });
         });

@@ -8,7 +8,7 @@
 ])
 
 @if (!$permission)
-    <button type="button" data-id="{{ $id }}"
+    <button type="button" data-id="{{ $id }}" data-delete-url="{{ $url }}"
         {{ $attributes->merge(['class' => 'btn ' . $class . ' js-delete-btn', 'title' => $title, 'aria-label' => $title]) }}>
         <i class="{{ $icon }}" aria-hidden="true"></i>
     </button>
@@ -19,7 +19,7 @@
     </form>
 @else
     @can($permission)
-        <button type="button" data-id="{{ $id }}"
+        <button type="button" data-id="{{ $id }}" data-delete-url="{{ $url }}"
             {{ $attributes->merge(['class' => 'btn ' . $class . ' js-delete-btn', 'title' => $title, 'aria-label' => $title]) }}>
             <i class="{{ $icon }}" aria-hidden="true"></i>
         </button>

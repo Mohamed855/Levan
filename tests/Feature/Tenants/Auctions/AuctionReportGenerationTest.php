@@ -17,6 +17,30 @@ use Tests\Support\TenantAuctionReportTestCase;
 
 final class AuctionReportGenerationTest extends TenantAuctionReportTestCase
 {
+    public function test_background_failure_is_rethrown_even_when_the_old_setting_is_sync(): void
+    {
+        config(['auction-renderer.queue_connection' => 'sync']);
+        Storage::fake('tenant_private');
+        [$auction, $generation] = $this->generation('async-with-sync-setting');
+        $pdf = new class implements BrowserDocumentRenderer
+        {
+            public function pdf(string $html, string $outputPath): string
+            {
+                throw new RuntimeException('Background failure must reach the worker');
+            }
+
+            public function png(string $html, string $outputPath): string
+            {
+                return $outputPath;
+            }
+        };
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Background failure must reach the worker');
+        $this->job($auction, $generation)->onConnection('auction_reports')->handle(
+            app(AuctionReportDataBuilder::class), app(AuctionReportRenderer::class), $pdf,
+        );
+    }
+
     public function test_terminal_worker_failure_marks_a_processing_generation_as_failed(): void
     {
         [$auction, $generation] = $this->generation('worker-timeout');

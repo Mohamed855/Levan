@@ -122,41 +122,13 @@ $(function () {
             $btn.data("message") ||
             "لن تتمكن من استرجاع " + entityTitle + " مجدداً!";
 
-        window.confirmAction({
+        window.confirmRecordDelete({
+            url: url,
+            table: $btn.closest("table")[0],
             title: "تأكيد الحذف النهائي",
             text: confirmMessage,
-            variant: "danger",
-            icon: "ti-trash",
             confirmText: "تأكيد الحذف نهائياً",
-            confirmClass: "btn btn-danger px-4",
-            onConfirm: function () {
-                $.ajax({
-                    url: url,
-                    type: "DELETE",
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr("content"),
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            if (typeof toastr !== "undefined") {
-                                toastr.success(
-                                    response.message ||
-                                        "تم الحذف النهائي بنجاح",
-                                );
-                            }
-                            reloadClosestDataTable($btn);
-                        }
-                    },
-                    error: function (xhr) {
-                        const errorMsg =
-                            xhr.responseJSON?.message ||
-                            "حدث خطأ أثناء الحذف النهائي";
-                        if (typeof toastr !== "undefined") {
-                            toastr.error(errorMsg);
-                        }
-                    },
-                });
-            },
+            successMessage: "تم الحذف النهائي بنجاح",
         });
     });
 

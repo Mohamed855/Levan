@@ -197,10 +197,7 @@ class GenerateAuctionReportsJob implements ShouldQueue
                 'exception' => $e,
             ]);
 
-            $isSync = $this->connection === 'sync' || config('auction-renderer.queue_connection') === 'sync';
-            if (! $isSync) {
-                throw $e; // أعد الرمي لكي يُعاد تشغيل الـ Job بعد backoff في الـ Queue
-            }
+            throw $e; // مهام التقارير خلفية دائمًا؛ اترك العامل يطبق المحاولات ومدة backoff.
         } finally {
             @unlink($outputsTmp);
             @unlink($reportTmp);

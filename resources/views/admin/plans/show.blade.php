@@ -2,9 +2,6 @@
 
 @section('title', 'تفاصيل الباقة - ' . $plan->name)
 
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endsection
 
 @section('content')
     <div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-2">

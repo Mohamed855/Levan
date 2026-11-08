@@ -13,9 +13,6 @@
     {!! $dataTable->scripts() !!}
 @endsection
 
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endsection
 
 @section('page-style')
     @vite(['resources/assets/css/shared/dataTable.css'])
@@ -68,12 +65,6 @@
                 }
             });
         });
-
-        function confirmDelete(id) {
-            if (confirm('هل أنت متأكد من الحذف؟')) {
-                document.getElementById('delete-form-' + id).submit();
-            }
-        }
 
         // دالة بديلة للنسخ (للمتصفحات القديمة)
         function fallbackCopyTextToClipboard(text, $icon) {

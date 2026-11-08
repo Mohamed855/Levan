@@ -2,9 +2,6 @@
 
 @section('title', 'تفاصيل المزاد - ' . $auction->name)
 
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endsection
 
 @section('content')
     <div class="d-flex justify-content-end align-items-center mb-4">
@@ -552,9 +549,9 @@
                 retryBtn.addEventListener('click', startReportGeneration);
             }
 
-            // إذا كان المزاد قيد الانتظار أو الإعداد، نبدأ التوليد التلقائي فور فتح الصفحة ليشاهد المستخدم شريط التقدم مباشرة
+            // متابعة الإصدار الموجود بعد ظهور التفاصيل؛ طلب الحالة يبدأ الإصدار المنتظر دون إنشاء نسخة إضافية.
             @if ($auction->latestReportGeneration && in_array($auction->latestReportGeneration->status, ['queued', 'processing']))
-                startReportGeneration();
+                startPolling(AUTO_TIMEOUT_MS);
             @endif
 
             // متابعة حالة الإعلانات الترويجية للمزاد

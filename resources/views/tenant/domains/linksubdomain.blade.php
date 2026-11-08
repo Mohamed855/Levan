@@ -6,9 +6,6 @@
     @vite(['resources/assets/css/components/icons.css', 'resources/assets/scss/tenant/pages/domain-subdomain.scss'])
 @endsection
 
-@section('toastr')
-    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
-@endsection
 
 @section('vendor-script')
     @vite(['resources/assets/vendor/libs/cleavejs/cleave.js'])

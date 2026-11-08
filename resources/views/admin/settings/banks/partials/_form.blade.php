@@ -36,23 +36,25 @@
                         <!-- اسم البنك -->
                         <x-form.controls.input name="bank_name" id="bank_name" label="اسم البنك"
                             :value="old('bank_name', $is_edit ? $bank->bank_name : '')"
-                            placeholder="مثال: البنك الأهلي السعودي" required col="col-md-6" />
+                            placeholder="مثال: البنك الأهلي السعودي" required aria-required="true" maxlength="255" col="col-md-6" />
 
                         <!-- اسم الحساب -->
                         <x-form.controls.input name="account_name" id="account_name" label="اسم الحساب"
                             :value="old('account_name', $is_edit ? $bank->account_name : '')"
-                            placeholder="مثال: شركة لوت للمزادات" required col="col-md-6" />
+                            placeholder="مثال: شركة لوت للمزادات" required aria-required="true" maxlength="255" col="col-md-6" />
 
                         <!-- رقم الآيبان -->
                         <x-form.controls.input name="iban" id="iban" label="رقم الآيبان (IBAN)"
                             :value="old('iban', $is_edit ? $bank->iban : '')"
-                            placeholder="SA0000000000000000000000" maxlength="24"
-                            help="يجب أن يبدأ بـ SA ويتكون من 24 رقم" required col="col-md-6" />
+                            placeholder="SA0000000000000000000000" minlength="24" maxlength="24" pattern="SA[0-9]{22}"
+                            title="يجب أن يبدأ رقم الآيبان بـ SA ويتبعه 22 رقمًا"
+                            help="يبدأ بـ SA ويتبعه 22 رقمًا (24 خانة إجمالًا)" required aria-required="true" col="col-md-6" />
 
                         <!-- رقم الحساب -->
                         <x-form.controls.input name="account_number" id="account_number" label="رقم الحساب"
                             :value="old('account_number', $is_edit ? $bank->account_number : '')"
-                            placeholder="مثال: 1234567890" required col="col-md-6" />
+                            placeholder="مثال: 1234567890" required aria-required="true" maxlength="255" inputmode="numeric"
+                            pattern="[0-9]+" title="رقم الحساب يجب أن يحتوي على أرقام فقط" col="col-md-6" />
 
                         <!-- أيقونة البنك -->
                         <x-form.controls.image-upload name="icon" id="icon" label="أيقونة البنك"

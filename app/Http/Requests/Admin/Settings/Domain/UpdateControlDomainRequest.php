@@ -15,8 +15,12 @@ class UpdateControlDomainRequest extends StoreControlDomainRequest
         $domain = $this->route('domain');
 
         return [
-            'domain_extension' => ['required', 'string', Rule::unique('control_domains', 'domain_extension')->ignore($domain)],
-            'price' => ['required', 'numeric', 'min:0'],
+            ...parent::rules(),
+            'domain_extension' => [
+                'bail', 'required', 'string', 'max:255', 'regex:'.self::EXTENSION_PATTERN,
+                Rule::unique('control_domains', 'domain_extension')->ignore($domain),
+                Rule::in($domain instanceof ControlDomain ? [$domain->domain_extension] : []),
+            ],
         ];
     }
 }
