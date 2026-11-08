@@ -136,17 +136,22 @@ class Auction extends Model
 
     public function getCategoryLabelAttribute(): string
     {
+        if ($this->category instanceof \App\Enums\Tenants\Auctions\AuctionCategory) {
+            return $this->category->label();
+        }
+
+        $enum = \App\Enums\Tenants\Auctions\AuctionCategory::tryFrom((string) $this->category);
+        if ($enum) {
+            return $enum->label();
+        }
+
         return match ($this->category) {
-            'lands' => 'أراضي',
-            'villas' => 'فلل سكنية',
-            'commercial_buildings' => 'عمائر تجارية',
-            'educational' => 'مباني تعليمية',
-            'industrial' => 'أراضي صناعية',
-            'residential' => 'سكني',
-            'commercial' => 'تجاري',
-            'investment' => 'استثماري',
-            'mixed_use' => 'متعدد الاستخدام',
-            default => $this->category ?? 'أراضي',
+            'residential', 'lands', 'villas' => 'سكنية',
+            'commercial', 'commercial_buildings' => 'تجارية',
+            'agricultural' => 'زراعية',
+            'industrial' => 'صناعية',
+            'mixed_use', 'educational' => 'متعدد الأستخدامات',
+            default => (string) ($this->category ?? 'سكنية'),
         };
     }
 

@@ -20,7 +20,7 @@ enum PropertyUsageClassification: string
             self::COMMERCIAL => 'تجاري',
             self::AGRICULTURAL => 'زراعي',
             self::INDUSTRIAL => 'صناعي',
-            self::MIXED_USE => 'متعدد الاستخدام',
+            self::MIXED_USE => 'متعدد الأستخدامات',
             self::OTHER => 'أخرى',
         };
     }

@@ -78,13 +78,22 @@ class Assignment extends Model
 
     public function getCategoryLabelAttribute(): string
     {
+        if ($this->category instanceof \App\Enums\Tenants\Assignments\AssignmentCategory) {
+            return $this->category->label();
+        }
+
+        $enum = \App\Enums\Tenants\Assignments\AssignmentCategory::tryFrom((string) $this->category);
+        if ($enum) {
+            return $enum->label();
+        }
+
         return match ($this->category) {
-            'lands' => 'أراضي',
-            'villas' => 'فلل سكنية',
-            'commercial_buildings' => 'عمائر تجارية',
-            'educational' => 'مباني تعليمية',
-            'industrial' => 'أراضي صناعية',
-            default => $this->category ?? 'أراضي',
+            'residential', 'lands', 'villas' => 'سكنية',
+            'commercial', 'commercial_buildings' => 'تجارية',
+            'agricultural' => 'زراعية',
+            'industrial' => 'صناعية',
+            'mixed_use', 'educational' => 'متعدد الأستخدامات',
+            default => (string) ($this->category ?? 'سكنية'),
         };
     }
 

@@ -9,7 +9,7 @@
     ];
     $categoryMapping = array_combine(
         array_map(fn($c) => $c->value, \App\Enums\Tenants\Assignments\AssignmentCategory::cases()),
-        array_map(fn($c) => $c->allowedPropertyTypes(), \App\Enums\Tenants\Assignments\AssignmentCategory::cases()),
+        array_map(fn($c) => $c->allowedUsageClassifications(), \App\Enums\Tenants\Assignments\AssignmentCategory::cases()),
     );
 @endphp
 
@@ -74,8 +74,12 @@
 
                 <x-form.controls.select name="category" id="assignment_category" label="تصنيف الإسناد" required
                     col="col-md-6" :value="$is_edit
-                        ? $assignment->category
-                        : old('category', \App\Enums\Tenants\Assignments\AssignmentCategory::LANDS->value)" :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
+                        ? ($assignment->category instanceof \App\Enums\Tenants\Assignments\AssignmentCategory ? $assignment->category->value : $assignment->category)
+                        : old('category', \App\Enums\Tenants\Assignments\AssignmentCategory::RESIDENTIAL->value)"
+                    :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class"
+                    data-datatable-filter="true"
+                    data-datatable-target="#assignment-properties-table"
+                    data-filter-key="category" />
 
                 <x-form.controls.select name="issuing_entity_id" id="assignment_issuing_entity" label="الجهة المسندة"
                     :value="$is_edit

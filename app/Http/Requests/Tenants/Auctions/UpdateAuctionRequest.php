@@ -171,8 +171,8 @@ class UpdateAuctionRequest extends WizardFormRequest
                         $categoryValue = is_object($auctionParam) ? $auctionParam->category : null;
                     }
                     $category = AssignmentCategory::tryFrom((string) $categoryValue);
-                    if ($category && ! $category->allowsPropertyType($property->type)) {
-                        $fail("العقار ({$property->name}) نوعه ({$property->type_label}) لا يتطابق مع تصنيف المزاد المختار ({$category->label()}).");
+                    if ($category && ! $category->allowsUsageClassification($property->usage_classification)) {
+                        $fail("العقار ({$property->name}) تصنيفه ({$property->usage_classification_label}) لا يتطابق مع تصنيف المزاد المختار ({$category->label()}).");
 
                         return;
                     }

@@ -69,8 +69,11 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
                 $tenantImage = SettingsHelper::get('image');
                 $fallbackImage = $tenantImage ? tasset($tenantImage) : asset('static/brand/logos/logo.svg');
                 $image = $property->main_image ? tasset($property->main_image) : $fallbackImage;
+                $classification = $property->usage_classification instanceof \App\Enums\Tenants\Properties\PropertyUsageClassification
+                    ? $property->usage_classification->value
+                    : (string) ($property->usage_classification ?? '');
 
-                return '<input type="checkbox" class="row-checkbox property-selector" value="'.(int) $property->id.'" data-name="'.e($property->name).'" data-number="'.e($property->property_number).'" data-type="'.e($property->type_label).'" data-city="'.e($property->city).'" data-image="'.e($image).'" aria-label="اختيار '.e($property->name).'">';
+                return '<input type="checkbox" class="row-checkbox property-selector" value="'.(int) $property->id.'" data-name="'.e($property->name).'" data-number="'.e($property->property_number).'" data-type="'.e($property->type_label).'" data-classification="'.e($classification).'" data-city="'.e($property->city).'" data-image="'.e($image).'" aria-label="اختيار '.e($property->name).'">';
             })
             ->addColumn('image', function (Property $property): string {
                 $image = $property->main_image ? tasset($property->main_image) : null;
@@ -92,6 +95,13 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
 
     protected function applyCustomFilters($query)
     {
+        $categoryValue = request('category') ?? request('assignment_category') ?? $this->assignmentCategory;
+        $category = $categoryValue ? AssignmentCategory::tryFrom((string) $categoryValue) : null;
+
+        if ($category) {
+            $query->whereIn('usage_classification', $category->allowedUsageClassifications());
+        }
+
         return $query
             ->when(request()->filled('type'), fn ($builder) => $builder->where('type', request('type')))
             ->when(request()->filled('city'), fn ($builder) => $builder->where('city', request('city')))

@@ -13,6 +13,7 @@ use App\Models\Shared\Attachment;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\UserMangment\User\User;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -70,11 +71,39 @@ class Property extends Model
         'is_active' => 'boolean',
         'deed_date' => 'date',
         'agency_date' => 'date',
-        'type' => PropertyType::class,
         'usage_classification' => PropertyUsageClassification::class,
         'ownership_type' => PropertyOwnershipType::class,
         'data_status' => PropertyDataStatus::class,
     ];
+
+    protected function type(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                if ($value instanceof PropertyType) {
+                    return $value;
+                }
+                if (! $value) {
+                    return null;
+                }
+                $enum = PropertyType::tryFrom((string) $value);
+                if ($enum) {
+                    return $enum;
+                }
+
+                return match ($value) {
+                    'apartment' => PropertyType::APARTMENT,
+                    'villa' => PropertyType::VILLA,
+                    'palace' => PropertyType::PALACE,
+                    'building', 'residential_building', 'commercial_building' => PropertyType::BUILDING,
+                    'warehouse' => PropertyType::WAREHOUSE,
+                    'land', 'residential_land', 'commercial_land', 'agricultural_land', 'industrial_land' => PropertyType::LAND,
+                    default => PropertyType::OTHER,
+                };
+            },
+            set: fn ($value) => $value instanceof PropertyType ? $value->value : $value,
+        );
+    }
 
     public function assignment(): BelongsTo
     {
@@ -176,13 +205,14 @@ class Property extends Model
         }
 
         return match ($this->type) {
-            'residential_land' => 'أرض سكنية',
+            'apartment' => 'شقة',
             'villa' => 'فيلا',
-            'residential_building' => 'عمارة سكنية',
-            'commercial_building' => 'مبنى تجاري',
-            'commercial_land' => 'أرض تجارية',
-            'mixed_use' => 'متعدد الاستخدام',
-            default => (string) ($this->type ?? 'أرض سكنية'),
+            'palace' => 'قصر',
+            'building', 'residential_building', 'commercial_building' => 'مبنى',
+            'warehouse' => 'مستودع/هنجر',
+            'land', 'residential_land', 'commercial_land', 'agricultural_land', 'industrial_land' => 'أرض',
+            'other' => 'أخرى',
+            default => (string) ($this->type ?? 'أرض'),
         };
     }
 
@@ -197,9 +227,9 @@ class Property extends Model
             'commercial' => 'تجاري',
             'agricultural' => 'زراعي',
             'industrial' => 'صناعي',
-            'mixed_use' => 'متعدد الاستخدام',
+            'mixed_use' => 'متعدد الأستخدامات',
             'other' => 'أخرى',
-            default => (string) ($this->usage_classification ?? '-'),
+            default => (string) ($this->usage_classification ?? 'سكني'),
         };
     }
 

@@ -142,9 +142,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const asgPropStep = document.getElementById("assignment-properties-validation");
-        const propNextBtn = asgPropStep?.querySelector("[data-wizard-next], .btn-next");
+        const propNextBtn = asgPropStep?.querySelector("[data-wizard-next], .btn-next:not(.btn-submit)");
         if (propNextBtn) {
-            if (selectedProperties.size === 0) {
+            const propertyInputsList = Array.from(
+                form.querySelectorAll('input[name="property_ids[]"], input[name="property_ids"]')
+            ).filter(
+                (input) => input.value && String(input.value).trim() !== "" && String(input.value) !== "0"
+            );
+            const isEmpty = propertyInputsList.length === 0;
+
+            if (isEmpty) {
                 propNextBtn.disabled = true;
                 propNextBtn.setAttribute("disabled", "disabled");
                 propNextBtn.classList.add("disabled");
@@ -167,6 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
             name: checkbox.dataset.name || "",
             number: checkbox.dataset.number || "",
             type: checkbox.dataset.type || "",
+            classification: checkbox.dataset.classification || "",
             city: checkbox.dataset.city || "",
             image: checkbox.dataset.image || propertyImageFallback,
         };
@@ -546,6 +554,65 @@ document.addEventListener("DOMContentLoaded", () => {
             syncProperties();
         }
     });
+
+    // Guard against moving to next step without selecting at least 1 property
+    const asgPropStepEl = document.getElementById("assignment-properties-validation");
+    if (asgPropStepEl) {
+        const nextBtn = asgPropStepEl.querySelector("[data-wizard-next], .btn-next");
+        if (nextBtn) {
+            nextBtn.addEventListener(
+                "click",
+                function (e) {
+                    const inputs = form.querySelectorAll('input[name="property_ids[]"], input[name="property_ids"]');
+                    const hasValid = Array.from(inputs).some(
+                        (input) => input.value && String(input.value).trim() !== "" && String(input.value) !== "0"
+                    );
+                    if (!hasValid) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        const errorEl = document.getElementById("property_ids-error");
+                        if (errorEl) {
+                            errorEl.textContent = "يجب اختيار عقار واحد على الأقل للإسناد.";
+                            errorEl.removeAttribute("hidden");
+                            errorEl.classList.remove("hidden");
+                            errorEl.style.display = "block";
+                        }
+                        return false;
+                    }
+                },
+                true,
+            );
+        }
+    }
+
+    // Filter properties in table and clear mismatched selections when category changes
+    const categorySelect = document.getElementById("assignment_category");
+    if (categorySelect) {
+        const handleCategoryChange = function () {
+            const newCat = categorySelect.value;
+            if (newCat) {
+                let removedAny = false;
+                selectedProperties.forEach((property, id) => {
+                    if (property.classification && property.classification !== newCat && property.classification !== "other") {
+                        selectedProperties.delete(id);
+                        removedAny = true;
+                    }
+                });
+                if (removedAny) {
+                    syncProperties();
+                }
+            }
+            if (window.jQuery && window.jQuery.fn.DataTable.isDataTable("#assignment-properties-table")) {
+                window.jQuery("#assignment-properties-table").DataTable().ajax.reload(null, false);
+            }
+        };
+
+        categorySelect.addEventListener("change", handleCategoryChange);
+        if (window.jQuery) {
+            window.jQuery(categorySelect).on("select2:select", handleCategoryChange);
+        }
+    }
 
     syncProperties();
     buildReview();

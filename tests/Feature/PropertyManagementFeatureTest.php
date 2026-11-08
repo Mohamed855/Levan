@@ -227,7 +227,7 @@ class PropertyManagementFeatureTest extends TestCase
 
         $payload = [
             'name' => 'عقار بتحديد صورة مدمجة',
-            'type' => PropertyType::COMMERCIAL_LAND->value,
+            'type' => PropertyType::LAND->value,
             'usage_classification' => PropertyUsageClassification::COMMERCIAL->value,
             'area' => 1200.00,
             'is_active' => '1',
@@ -285,7 +285,7 @@ class PropertyManagementFeatureTest extends TestCase
 
         $payload = [
             'name' => 'عقار بصورة كبيرة جدا',
-            'type' => PropertyType::COMMERCIAL_LAND->value,
+            'type' => PropertyType::LAND->value,
             'usage_classification' => PropertyUsageClassification::COMMERCIAL->value,
             'area' => 500.00,
             'is_active' => '1',
@@ -333,7 +333,7 @@ class PropertyManagementFeatureTest extends TestCase
 
         $payload = [
             'name' => 'عقار بصورة بيز64 كبيرة جدا',
-            'type' => PropertyType::COMMERCIAL_LAND->value,
+            'type' => PropertyType::LAND->value,
             'usage_classification' => PropertyUsageClassification::COMMERCIAL->value,
             'area' => 500.00,
             'is_active' => '1',
@@ -415,7 +415,7 @@ class PropertyManagementFeatureTest extends TestCase
 
         $payload = [
             'name' => 'عقار اختبار تطبيع الحالة',
-            'type' => PropertyType::COMMERCIAL_LAND->value,
+            'type' => PropertyType::LAND->value,
             'usage_classification' => PropertyUsageClassification::COMMERCIAL->value,
             'area' => 500,
             'is_active' => 'نشط',

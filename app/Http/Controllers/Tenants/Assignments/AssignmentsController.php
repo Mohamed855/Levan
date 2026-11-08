@@ -61,6 +61,7 @@ class AssignmentsController extends Controller
 
     public function create(AssignmentPropertySelectionDataTable $dataTable)
     {
+        $dataTable->forCategory(old('category', AssignmentCategory::RESIDENTIAL->value));
         $generatedAssignmentNumber = $this->assignmentService->generateAssignmentNumber();
         $tenantImage = SettingsHelper::get('image');
 
@@ -113,12 +114,13 @@ class AssignmentsController extends Controller
         $fallbackImage = $tenantImage ? tasset($tenantImage) : asset('static/brand/logos/logo.svg');
         $properties = Property::query()
             ->whereKey($request->validated('ids'))
-            ->get(['id', 'property_number', 'name', 'type', 'city', 'main_image'])
+            ->get(['id', 'property_number', 'name', 'type', 'usage_classification', 'city', 'main_image'])
             ->map(fn (Property $property): array => [
                 'id' => (string) $property->id,
                 'number' => $property->property_number,
                 'name' => $property->name,
                 'type' => $property->type_label,
+                'classification' => $property->usage_classification instanceof \App\Enums\Tenants\Properties\PropertyUsageClassification ? $property->usage_classification->value : (string) $property->usage_classification,
                 'city' => $property->city,
                 'image' => $property->main_image ? tasset($property->main_image) : $fallbackImage,
             ]);
@@ -141,6 +143,7 @@ class AssignmentsController extends Controller
         $fallbackImage = $tenantImage ? tasset($tenantImage) : asset('static/brand/logos/logo.svg');
 
         $dataTable->forAssignment($assignment->id);
+        $dataTable->forCategory(old('category', $assignment->category instanceof AssignmentCategory ? $assignment->category->value : (string) $assignment->category));
 
         $city = old('city', $assignment->city);
         $districtOptions = $city ? $this->cityOptionsGateway->districtsByCityName($city) : [];

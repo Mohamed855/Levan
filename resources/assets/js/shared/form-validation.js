@@ -1384,27 +1384,33 @@ function isStepValid(form, step) {
 
 /**
  * Updates the disabled state of the Next button in a given step.
- * "زر الnext يبقى disabled لحد م الcurrent step تبقى valid بالكامل"
+ * Disabled ONLY for the linked properties step if no properties are selected.
  */
 function updateStepNextButton(form, step) {
     if (!step) return;
+    const stepFields = validationFieldsFromStep(step);
+    const hasPropertyIds =
+        stepFields.includes("property_ids") ||
+        step.id === "assignment-properties-validation" ||
+        step.id === "step-properties";
+
+    if (!hasPropertyIds) {
+        return;
+    }
+
     const nextButtons = step.querySelectorAll(
         "[data-wizard-next], .btn-next:not(.btn-submit)",
     );
 
-    const stepFields = validationFieldsFromStep(step);
-    const hasPropertyIds = stepFields.includes("property_ids");
-    const propertyInputs = hasPropertyIds
-        ? Array.from(
-              form.querySelectorAll('input[name="property_ids[]"]'),
-          ).filter(
-              (input) =>
-                  input.value &&
-                  String(input.value).trim() !== "" &&
-                  String(input.value) !== "0",
-          )
-        : [];
-    const isPropertyStepEmpty = hasPropertyIds && propertyInputs.length === 0;
+    const propertyInputs = Array.from(
+        form.querySelectorAll('input[name="property_ids[]"], input[name="property_ids"]'),
+    ).filter(
+        (input) =>
+            input.value &&
+            String(input.value).trim() !== "" &&
+            String(input.value) !== "0",
+    );
+    const isPropertyStepEmpty = propertyInputs.length === 0;
 
     nextButtons.forEach((btn) => {
         if (isPropertyStepEmpty) {
@@ -1434,7 +1440,7 @@ function syncAllPropertyStepButtons(form) {
     ];
 
     const propertyInputs = Array.from(
-        form.querySelectorAll('input[name="property_ids[]"]'),
+        form.querySelectorAll('input[name="property_ids[]"], input[name="property_ids"]'),
     ).filter(
         (input) =>
             input.value &&
@@ -1445,7 +1451,11 @@ function syncAllPropertyStepButtons(form) {
 
     steps.forEach((step) => {
         const fields = validationFieldsFromStep(step);
-        if (fields.includes("property_ids")) {
+        if (
+            fields.includes("property_ids") ||
+            step.id === "assignment-properties-validation" ||
+            step.id === "step-properties"
+        ) {
             const nextButtons = step.querySelectorAll(
                 "[data-wizard-next], .btn-next:not(.btn-submit)",
             );

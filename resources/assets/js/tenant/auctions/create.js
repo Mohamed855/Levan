@@ -923,9 +923,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const stepProps = document.getElementById("step-properties");
-        const propNextBtn = stepProps?.querySelector("[data-wizard-next], .btn-next");
+        const propNextBtn = stepProps?.querySelector("[data-wizard-next], .btn-next:not(.btn-submit)");
         if (propNextBtn) {
-            if (count === 0) {
+            const propertyInputsList = Array.from(
+                form.querySelectorAll('input[name="property_ids[]"], input[name="property_ids"]')
+            ).filter(
+                (input) => input.value && String(input.value).trim() !== "" && String(input.value) !== "0"
+            );
+            const isEmpty = propertyInputsList.length === 0;
+
+            if (isEmpty) {
                 propNextBtn.disabled = true;
                 propNextBtn.setAttribute("disabled", "disabled");
                 propNextBtn.classList.add("disabled");
@@ -986,7 +993,11 @@ document.addEventListener("DOMContentLoaded", () => {
             nextBtn.addEventListener(
                 "click",
                 function (e) {
-                    if (selectedProperties.size === 0) {
+                    const inputs = form.querySelectorAll('input[name="property_ids[]"], input[name="property_ids"]');
+                    const hasValid = Array.from(inputs).some(
+                        (input) => input.value && String(input.value).trim() !== "" && String(input.value) !== "0"
+                    );
+                    if (!hasValid || selectedProperties.size === 0) {
                         e.preventDefault();
                         e.stopPropagation();
                         e.stopImmediatePropagation();
