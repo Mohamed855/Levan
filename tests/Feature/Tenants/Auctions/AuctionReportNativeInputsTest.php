@@ -39,7 +39,7 @@ final class AuctionReportNativeInputsTest extends TenantAuctionReportTestCase
         $auction = $this->cycleAuction();
         $property = $auction->properties()->first();
         $store = tenant_route_name('marketing-campaigns.store');
-        $this->post($store, ['auction_id' => $auction->id, 'channel' => 'design', 'metrics' => ['name_context' => 'هوية أصلية']])->assertRedirect();
+        $this->post($store, ['auction_id' => $auction->id, 'channel' => 'planning', 'metrics' => ['brochure_methodology' => 'هوية أصلية']])->assertRedirect();
         $this->post($store, ['auction_id' => $auction->id, 'channel' => 'brochure', 'url' => 'https://example.com/book', 'evidence' => [UploadedFile::fake()->image('book.png')]])->assertRedirect();
         $this->post($store, ['auction_id' => $auction->id, 'channel' => 'board_before', 'metrics' => ['property_id' => $property->id, 'board_count' => 0, 'board_dimensions' => '3 × 2'], 'evidence' => [UploadedFile::fake()->image('board.png')]])->assertRedirect();
         $snapshot = app(AuctionReportDataBuilder::class)->build($auction->fresh());

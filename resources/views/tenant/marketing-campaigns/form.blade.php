@@ -101,19 +101,27 @@
                                     <h6 class="fw-bold mb-4">{{ $channelLabel }}</h6>
 
                                     <div class="row g-4">
+                                        {{-- URL Field (if applicable) --}}
+                                        @if ($hasLink)
+                                            @php
+                                                $urlCol = in_array($channel, ['youtube', 'x', 'snapchat', 'tiktok', 'whatsapp', 'marketing_evidence'], true)
+                                                    ? 'col-12'
+                                                    : 'col-md-6';
+                                            @endphp
+                                            <x-form.controls.input :name="'campaigns[' . $channel . '][url]'" type="url" label="رابط الحملة"
+                                                :value="old('campaigns.' . $channel . '.url', $campaign?->url)" :col="$urlCol" />
+                                        @endif
+
                                         {{-- Date Field (if applicable) --}}
                                         @if ($hasDate)
+                                            @php
+                                                $dateCol = $channel === 'whatsapp' ? 'col-md-4' : 'col-md-6';
+                                            @endphp
                                             <x-form.controls.input :name="'campaigns[' . $channel . '][campaign_date]'" label="تاريخ الحملة" type="date"
                                                 :value="old(
                                                     'campaigns.' . $channel . '.campaign_date',
                                                     $campaign?->campaign_date?->format('Y-m-d'),
-                                                )" col="col-md-6" />
-                                        @endif
-
-                                        {{-- URL Field (if applicable) --}}
-                                        @if ($hasLink)
-                                            <x-form.controls.input :name="'campaigns[' . $channel . '][url]'" type="url" label="رابط الحملة"
-                                                :value="old('campaigns.' . $channel . '.url', $campaign?->url)" col="col-md-6" />
+                                                )" :col="$dateCol" />
                                         @endif
 
                                         {{-- Property Select (if applicable) --}}
@@ -130,12 +138,29 @@
                                         @foreach ($metrics as $metric)
                                             @continue($metric === 'property_id')
 
-                                            @if (array_key_exists($metric, $textFields))
+                                            @php
+                                                $metricCol = match (true) {
+                                                    $channel === 'google' && $metric === 'views' => 'col-12',
+                                                    $channel === 'youtube' && in_array($metric, ['views', 'subscribers', 'watch_hours'], true) => 'col-md-4',
+                                                    $channel === 'x' && in_array($metric, ['views', 'impressions', 'posts'], true) => 'col-md-4',
+                                                    $channel === 'tiktok' && in_array($metric, ['views', 'impressions', 'reach', 'profile_views', 'profile_change', 'reach_change', 'views_change'], true) => 'col-md-4',
+                                                    $channel === 'whatsapp' && in_array($metric, ['messages', 'delivered', 'failed', 'pending', 'total', 'views'], true) => 'col-md-4',
+                                                    default => 'col-md-6',
+                                                };
+                                            @endphp
+
+                                            @if ($channel === 'brokers' && in_array($metric, ['display_name', 'broker_second_name'], true))
+                                                <x-form.controls.input :name="'campaigns[' . $channel . '][metrics][' . $metric . ']'" :label="$textFields[$metric] ?? ($metric === 'display_name' ? 'اسم الوسيط' : 'اسم الوسيط الثاني')"
+                                                    type="text" :value="old(
+                                                        'campaigns.' . $channel . '.metrics.' . $metric,
+                                                        $campaign?->metrics[$metric] ?? null,
+                                                    )" :data-campaign-metric="$metric" :col="$metricCol" />
+                                            @elseif (array_key_exists($metric, $textFields))
                                                 <x-form.controls.textarea :name="'campaigns[' . $channel . '][metrics][' . $metric . ']'" :label="$textFields[$metric]"
                                                     :value="old(
                                                         'campaigns.' . $channel . '.metrics.' . $metric,
                                                         $campaign?->metrics[$metric] ?? null,
-                                                    )" :data-campaign-metric="$metric" rows="3" col="col-md-6" />
+                                                    )" :data-campaign-metric="$metric" rows="3" :col="$metricCol" />
                                             @else
                                                 @php
                                                     $metricTitle =
@@ -149,7 +174,7 @@
                                                         'campaigns.' . $channel . '.metrics.' . $metric,
                                                         $campaign?->metrics[$metric] ?? null,
                                                     )" :data-campaign-metric="$metric" :step="in_array($metric, $integerMetrics, true) ? '1' : 'any'"
-                                                    :min="in_array($metric, $signedMetrics, true) ? null : 0" col="col-md-6" />
+                                                    :min="in_array($metric, $signedMetrics, true) ? null : 0" :col="$metricCol" />
                                             @endif
                                         @endforeach
 
