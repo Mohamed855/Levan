@@ -71,7 +71,7 @@
         @endcanany
 
         {{-- المزادات والإعلانات --}}
-        @canany(['auctions.view'])
+        @canany(['auctions.view', 'marketing_campaigns.view', 'auction_closings.view', 'auction_reports.view'])
             <li class="menu-header small">
                 <span class="menu-header-text">المزادات والتقارير</span>
             </li>
@@ -84,6 +84,16 @@
                     </a>
                 </li>
             @endcan
+
+            @foreach ([['marketing_campaigns.view', 'marketing-campaigns', 'ti-speakerphone', 'الحملات التسويقية'], ['auction_closings.view', 'auction-closings', 'ti-lock', 'إقفال المزاد'], ['auction_reports.view', 'auction-reports', 'ti-file-analytics', 'تقارير المزادات']] as [$permission, $resource, $icon, $label])
+                @can($permission)
+                    <li class="menu-item @if (Helpers::isActiveRoute($resource.'.*')) active @endif">
+                        <a href="{{ tenant_route_name($resource.'.index') }}" class="menu-link">
+                            <i class="menu-icon tf-icons ti {{ $icon }}"></i><div>{{ $label }}</div>
+                        </a>
+                    </li>
+                @endcan
+            @endforeach
 
             {{-- @canany(['auctions.view', 'auctions.create'])
                 <li class="menu-item @if (Helpers::isActiveRoute('promotional-advertisements.*')) active @endif">

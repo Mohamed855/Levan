@@ -17,35 +17,36 @@ final class AuctionReportService
 {
     public function __construct(private readonly AuctionReportDataBuilder $dataBuilder) {}
 
-    public function requestGeneration(Auction $auction, string $tenantId): ?AuctionReportGeneration
+    public function requestGeneration(Auction $auction, string $tenantId, bool $refreshBranding = false): ?AuctionReportGeneration
     {
         try {
-            $generation = $auction->reportGenerations()->create([
-                'revision_token' => (string) Str::uuid(),
-                'status' => 'queued',
-                'progress' => 0,
-                'snapshot' => $this->dataBuilder->build($auction),
-            ]);
+            $generation = DB::transaction(function () use ($auction, $refreshBranding): AuctionReportGeneration {
+                $auction = Auction::query()->whereKey($auction->id)->lockForUpdate()->firstOrFail();
+                $snapshot = $auction->closing?->finalized_snapshot ?? $this->dataBuilder->build($auction);
+                if ($refreshBranding) {
+                    $snapshot = (new AuctionReportBranding)->apply($snapshot);
+                }
+
+                return $auction->reportGenerations()->create([
+                    'revision_token' => (string) Str::uuid(), 'status' => 'queued', 'progress' => 0,
+                    'snapshot' => $snapshot,
+                ]);
+            });
 
             $connection = (string) config('auction-renderer.queue_connection', 'auction_reports');
 
-            // إذا كان الاتصال غير متزامن أو كنا داخل الاختبارات، نرسل المهمة للطابور فوراً
-            // أما في الطلبات المتزامنة (sync) عبر الويب فنكتفي بحفظ السجل كـ queued ليتم تحويل المستخدم
-            // فوراً لصفحة show ويبدأ التوليد عبر AJAX ليشاهد شريط التقدم بنفسه دون انتظار
-            if ($connection !== 'sync' || app()->runningUnitTests()) {
-                GenerateAuctionReportsJob::dispatch(
-                    $tenantId,
-                    (int) $auction->id,
-                    (int) $generation->id,
-                    $generation->revision_token,
-                )->onConnection($connection)->afterCommit();
+            GenerateAuctionReportsJob::dispatch(
+                $tenantId,
+                (int) $auction->id,
+                (int) $generation->id,
+                $generation->revision_token,
+            )->onConnection($connection)->afterCommit();
 
-                DB::afterCommit(function () {
-                    $this->ensureQueueWorkerIsRunning();
-                });
-            }
+            DB::afterCommit(function () {
+                $this->ensureQueueWorkerIsRunning();
+            });
 
-            return $generation;
+            return $generation->fresh();
         } catch (Throwable $exception) {
             Log::error('Auction report generation could not be queued.', [
                 'tenant_id' => $tenantId,
@@ -59,40 +60,8 @@ final class AuctionReportService
 
     public function retryLatest(Auction $auction, string $tenantId): AuctionReportGeneration
     {
-        $generation = $auction->latestReportGeneration()->first();
-        if (! $generation) {
-            $generation = $auction->reportGenerations()->create([
-                'revision_token' => (string) Str::uuid(),
-                'status' => 'queued',
-                'progress' => 0,
-                'snapshot' => $this->dataBuilder->build($auction),
-            ]);
-        } else {
-            $generation->update([
-                'status' => 'queued',
-                'progress' => 0,
-                'outputs_path' => null,
-                'report_path' => null,
-                'error_message' => null,
-                'started_at' => null,
-                'completed_at' => null,
-            ]);
-        }
-
-        $connection = (string) config('auction-renderer.queue_connection', 'auction_reports');
-
-        GenerateAuctionReportsJob::dispatch(
-            $tenantId,
-            (int) $auction->id,
-            (int) $generation->id,
-            $generation->revision_token,
-        )->onConnection($connection)->afterCommit();
-
-        DB::afterCommit(function () {
-            $this->ensureQueueWorkerIsRunning();
-        });
-
-        return $generation->fresh();
+        return $this->requestGeneration($auction, $tenantId, refreshBranding: true)
+            ?? throw new \RuntimeException('تعذر جدولة إعادة توليد التقارير.');
     }
 
     /**
@@ -123,10 +92,11 @@ final class AuctionReportService
                 escapeshellarg($connection),
                 escapeshellarg($queue)
             );
-            pclose(popen('cmd /c ' . $cmd, 'r'));
+            pclose(popen('cmd /c '.$cmd, 'r'));
         } else {
             if (! function_exists('exec')) {
                 Log::warning('AuctionReportService: exec() is disabled in php.ini; cannot spawn background queue worker.');
+
                 return;
             }
 

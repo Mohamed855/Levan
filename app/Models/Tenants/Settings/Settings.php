@@ -19,6 +19,9 @@ class Settings extends Model
         'office_name',
         'logo_text',
         'operational_regions',
+        'report_phone',
+        'report_unified_phone',
+        'report_social',
     ];
 
     /**

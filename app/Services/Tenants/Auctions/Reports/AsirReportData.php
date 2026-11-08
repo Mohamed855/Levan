@@ -29,6 +29,9 @@ final class AsirReportData
         }
         $auction = $snapshot['auction'];
         $payload = $page['payload'];
+        if (array_key_exists('campaigns', $payload)) {
+            $snapshot['marketing']['campaigns'] = $payload['campaigns'];
+        }
         $name = (string) $auction['name'];
         $start = $this->format->dateParts($auction['start_date'] ?? null);
         $end = $this->format->dateParts($auction['end_date'] ?? null);
@@ -62,7 +65,10 @@ final class AsirReportData
             'platform_url' => empty($destinations['platform']) ? '-' : 'رابط المزاد على '.($auction['platform_name'] ?? 'المنصة'),
             'auction_type' => (string) ($auction['type'] ?? '-'),
             'duration' => $this->format->duration($auction),
-            'status' => ($auction['is_active'] ?? true) ? 'مزاد نشط' : 'مزاد متوقف',
+            'status' => match ($auction['status'] ?? null) {
+                'active' => 'مزاد نشط', 'upcoming' => 'مزاد قادم', 'closed' => 'مزاد مغلق', 'suspended' => 'مزاد متوقف',
+                default => array_key_exists('is_active', $auction) ? ($auction['is_active'] ? 'مزاد نشط' : 'مزاد متوقف') : 'غير متوفر',
+            },
             'start_mark' => '', 'duplicate_header' => '', 'contract_text' => '',
             'phone' => (string) ($contacts['phone'] ?? '-'), 'unified_phone' => (string) ($contacts['unified_phone'] ?? '-'),
             'social' => (string) ($contacts['social'] ?? '-'),
@@ -85,6 +91,7 @@ final class AsirReportData
                 $values[$channel.'_'.$metric.'_2'] = $values[$channel.'_'.$metric];
             }
         }
+        $values['google_caption'] = $values['google_views'] === '-' ? '' : 'مشاهدات عبر حملة جوجل';
         $values['whatsapp_date'] = $this->format->date($marketing['whatsapp_date'] ?? null);
         $values['whatsapp_summary'] = $values['whatsapp_messages'] === '-' ? 'لا تتوفر بيانات عن عدد الرسائل' : 'عدد الرسائل المسجلة: '.$values['whatsapp_messages'];
         $values['whatsapp_views_summary'] = $values['whatsapp_views'] === '-' ? 'لا تتوفر بيانات عن المشاهدات' : 'المشاهدات المسجلة: '.$values['whatsapp_views'];
@@ -144,7 +151,7 @@ final class AsirReportData
             $overrides['empty_regions'] = [[144.445, 635.937, 464.458, 732.191]];
         }
 
-        return ['index' => $index, 'values' => $values, 'tables' => $tables, 'images' => $images, 'artwork_overrides' => $overrides];
+        return (new AuctionReportNativeContent)->apply(['index' => $index, 'values' => $values, 'tables' => $tables, 'images' => $images, 'artwork_overrides' => $overrides], $snapshot);
     }
 
     private function position(array $snapshot, array $property): string
@@ -157,5 +164,4 @@ final class AsirReportData
 
         return '-';
     }
-
 }

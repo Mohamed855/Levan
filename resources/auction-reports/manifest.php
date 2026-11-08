@@ -10,12 +10,12 @@ return array (
   ),
   'files' => 
   array (
-    'asir/bindings.php' => '892e59e45dec33e747537238b61d6a5c41045cd43f134357905158e8134ec82e',
+    'asir/bindings.php' => 'ce635feb60ef48d219e943a9889a3bc8b763d36274626dc4f13dcb62dae2b48b',
     'asir/default-report-image.jpg' => 'f3d9171a96a6b1635ceb6976da9a53824184bca7ddb45aa7dbed602a9d0c0fb4',
     'asir/image-frames.php' => '4870fb4d70da76f5d169c54b1f930adfaa35c7c73b652c828697900ca81b467e',
     'asir/page-1.svg' => '8f16b52c3d583adb757d304ed00d3fb675764ff0883daebd5f57404a7d8756cc',
     'asir/page-10.svg' => '06cb53a3b22cb08f2e3739fbd5332c02109617820b9ff169dca0b31612839c42',
-    'asir/page-11.svg' => '27cbd05ced541f2291045e1871bd88c75d87474e172836a15a8d826386b1c20d',
+    'asir/page-11.svg' => '5b7b91f03f7ee37a63a5866766004a4fb14b8b867539d0516cab6b5f51aea259',
     'asir/page-12.svg' => 'd38286a66e4db1cf312db9a0c939671e530cfee15a5e29dbc8176a835eeeedc6',
     'asir/page-13.svg' => '6fab07b2bc43ed9713e97888c436b50028053176c1581a50a314898bcc6224d0',
     'asir/page-14.svg' => '4a22f3ff8c74e44f2664e327be58635dec00ee39ba2e9ecb1ed79d7be489e707',
@@ -27,7 +27,7 @@ return array (
     'asir/page-2.svg' => '9775f25bed05ab72e2189060b911aba59781e006bc514a5e32bb409d3d65663b',
     'asir/page-20.svg' => '2c5738e2b4d514359a2615a4d170eaad3a4143e1c2b09d9c26b3fde58d6b0496',
     'asir/page-21.svg' => 'd75ca423c12d663c9987f896ed1299a52557053daeefa71c26b0a04dd02c4f02',
-    'asir/page-3.svg' => '9985d1cf08311814ac9f819e850dfd8e8501b75caf95b2c77722e77b3d220e67',
+    'asir/page-3.svg' => 'e0b13827296bf86c603b4ae2e095029ca6c49b9d07e95835c9d89f162d4e4b86',
     'asir/page-4.svg' => 'bd077d0b0b786670e19d94bc5711d1b19e8853b4cffa0fef9c28d308b54e31b1',
     'asir/page-5.svg' => 'd17aaf57864fadd3c21985914479c0137bc9849c75315a2012f0070eeea4aec8',
     'asir/page-6.svg' => 'd912821f8a46f498324299da1a71a087cde2517620a4ec615fe43a820d01e064',

@@ -13,7 +13,7 @@ final class AuctionReportLinks
         }
         $parts = parse_url($url);
 
-        return ($parts['scheme'] ?? '') === 'https' && !empty($parts['host']) && !isset($parts['user']) && !isset($parts['pass']) ? $url : null;
+        return ($parts['scheme'] ?? '') === 'https' && ! empty($parts['host']) && ! isset($parts['user']) && ! isset($parts['pass']) ? $url : null;
     }
 
     public function destinations(array $snapshot): array
@@ -32,6 +32,15 @@ final class AuctionReportLinks
             $channel = AuctionReportChannels::key($campaign['platform'] ?? null);
             if ($channel !== 'other' && empty($destinations[$channel])) {
                 $destinations[$channel] = $campaign['url'] ?? null;
+            }
+            if (($snapshot['cycle_version'] ?? 0) >= 1 && $this->safeUrl($campaign['url'] ?? null) !== null) {
+                $role = $campaign['link_role'] ?? null;
+                if (is_string($role) && in_array($role, ['brochure', 'video', 'marketing_evidence', 'boards', 'platform'], true)) {
+                    $destinations[$role] = $campaign['url'];
+                }
+                if ($channel === 'youtube') {
+                    $destinations['video'] = $campaign['url'];
+                }
             }
         }
         $destinations['social'] = $marketing['contacts']['social'] ?? null;

@@ -8,22 +8,6 @@
     <x-form.controls.textarea name="marketing[introduction]" id="marketing_introduction" label="مقدمة التقرير"
         placeholder="أدخل مقدمة تعريفية وموجزة للتقرير..." :value="$marketing['introduction'] ?? null" col="col-12" rows="3" />
 
-    {{-- 2. رقم التواصل --}}
-    <x-form.controls.input name="marketing[contacts][phone]" id="marketing_contacts_phone" label="رقم التواصل"
-        placeholder="مثال: 0500000000" :value="$marketing['contacts']['phone'] ?? null" col="col-md-6" />
-
-    {{-- 3. الرقم الموحد --}}
-    <x-form.controls.input name="marketing[contacts][unified_phone]" id="marketing_contacts_unified_phone"
-        label="الرقم الموحد" placeholder="مثال: 920000000" :value="$marketing['contacts']['unified_phone'] ?? null" col="col-md-6" />
-
-    {{-- 4. حساب التواصل الاجتماعي --}}
-    <x-form.controls.input name="marketing[contacts][social]" id="marketing_contacts_social"
-        label="حساب التواصل الاجتماعي" placeholder="مثال: @lot_sa" :value="$marketing['contacts']['social'] ?? null" col="col-md-6" />
-
-    {{-- 5. تاريخ حملة الواتساب --}}
-    <x-form.controls.input name="marketing[whatsapp_date]" id="marketing_whatsapp_date" label="تاريخ حملة الواتساب"
-        type="date" :value="$marketing['whatsapp_date'] ?? null" col="col-md-6" />
-
     <div class="col-12 border-top pt-2"></div>
 
     {{-- 6. صورة غلاف التقرير --}}

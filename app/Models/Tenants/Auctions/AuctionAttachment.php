@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models\Tenants\Auctions;
 
+use App\Models\Tenants\Properties\Property;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\Tenants\Properties\Property;
 
 class AuctionAttachment extends Model
 {
@@ -25,6 +25,7 @@ class AuctionAttachment extends Model
         'property_id',
         'display_order',
         'channels',
+        'marketing_campaign_id',
     ];
 
     protected $casts = [

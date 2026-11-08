@@ -89,24 +89,13 @@
                 </x-form.wizard.review-card>
             </div>
 
-            {{-- 4. بيانات التقرير والتواصل --}}
+            {{-- 4. بيانات التقرير --}}
             <div class="col-lg-6">
-                <x-form.wizard.review-card title="بيانات التقرير والتواصل" step="4" col="" class="h-100 assignment-review__card">
+                <x-form.wizard.review-card title="بيانات التقرير" step="4" col="" class="h-100 assignment-review__card">
                     <dl class="row mb-0 small">
                         <dt class="col-5 text-muted">مقدمة التقرير</dt>
                         <dd class="col-7 fw-semibold text-break" id="review-report-introduction">{{ !empty($marketing['introduction']) ? $marketing['introduction'] : '—' }}</dd>
 
-                        <dt class="col-5 text-muted">رقم التواصل</dt>
-                        <dd class="col-7 fw-semibold" id="review-phone">{{ $marketing['contacts']['phone'] ?? '-' }}</dd>
-
-                        <dt class="col-5 text-muted">الرقم الموحد</dt>
-                        <dd class="col-7 fw-semibold" id="review-unified-phone">{{ $marketing['contacts']['unified_phone'] ?? '-' }}</dd>
-
-                        <dt class="col-5 text-muted">التواصل الاجتماعي</dt>
-                        <dd class="col-7 fw-semibold" id="review-social">{{ $marketing['contacts']['social'] ?? '-' }}</dd>
-
-                        <dt class="col-5 text-muted">تاريخ حملة الواتساب</dt>
-                        <dd class="col-7 fw-semibold" id="review-whatsapp-date">{{ $marketing['whatsapp_date'] ?? '-' }}</dd>
                     </dl>
                 </x-form.wizard.review-card>
             </div>

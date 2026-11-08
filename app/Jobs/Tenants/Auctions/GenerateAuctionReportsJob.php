@@ -15,6 +15,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
@@ -24,8 +26,11 @@ class GenerateAuctionReportsJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $timeout = 420;
+
     public int $tries = 3;
+
     public int $backoff = 60;
+
     public bool $failOnTimeout = true;
 
     public function __construct(
@@ -73,7 +78,7 @@ class GenerateAuctionReportsJob implements ShouldQueue
             ->where('revision_token', $this->revisionToken)
             ->first();
 
-        if (! $generation) {
+        if (! $generation || $generation->isReady()) {
             return; // إصدار أُلغي أو استُبدل بإصدار أحدث
         }
 
@@ -84,6 +89,7 @@ class GenerateAuctionReportsJob implements ShouldQueue
 
         if ($latestId > $this->generationId) {
             $generation->update(['status' => 'superseded', 'completed_at' => now()]);
+
             return;
         }
 
@@ -123,6 +129,7 @@ class GenerateAuctionReportsJob implements ShouldQueue
 
             if (! $this->isLatestGeneration()) {
                 $generation->update(['status' => 'superseded', 'completed_at' => now()]);
+
                 return;
             }
 
@@ -136,18 +143,42 @@ class GenerateAuctionReportsJob implements ShouldQueue
             if (! $this->isLatestGeneration()) {
                 $disk->delete([$outputsPath, $reportPath]);
                 $generation->update(['status' => 'superseded', 'completed_at' => now()]);
+
                 return;
             }
 
-            $generation->update([
-                'status' => 'ready',
-                'progress' => 100,
-                'snapshot' => $snapshot,
-                'outputs_path' => $outputsPath,
-                'report_path' => $reportPath,
-                'completed_at' => now(),
-                'error_message' => null,
-            ]);
+            $published = DB::transaction(function () use ($generation, $snapshot, $outputsPath, $reportPath): bool {
+                $auction = Auction::query()->whereKey($this->auctionId)->lockForUpdate()->first();
+                if (! $auction || ! $this->isLatestGeneration()) {
+                    $generation->update(['status' => 'superseded', 'completed_at' => now()]);
+
+                    return false;
+                }
+                $previous = $auction->publishedReportGeneration;
+                $generation->update([
+                    'status' => 'ready', 'progress' => 100, 'snapshot' => $snapshot,
+                    'outputs_path' => $outputsPath, 'report_path' => $reportPath,
+                    'completed_at' => now(), 'error_message' => null,
+                ]);
+                $auction->update(['published_report_generation_id' => $generation->id]);
+                if ($previous && $previous->id !== $generation->id) {
+                    $disk = Storage::disk('tenant_private');
+                    $paths = array_filter([$previous->outputs_path, $previous->report_path]);
+                    DB::afterCommit(function () use ($disk, $paths, $previous): void {
+                        try {
+                            $disk->delete($paths);
+                            $previous->update(['status' => 'superseded', 'outputs_path' => null, 'report_path' => null]);
+                        } catch (Throwable $exception) {
+                            Log::warning('Previous auction report cleanup failed.', ['generation_id' => $previous->id, 'exception' => $exception]);
+                        }
+                    });
+                }
+
+                return true;
+            });
+            if (! $published) {
+                $disk->delete([$outputsPath, $reportPath]);
+            }
         } catch (Throwable $e) {
             Storage::disk('tenant_private')->delete([$outputsPath, $reportPath]);
             $generation->update([
@@ -159,7 +190,7 @@ class GenerateAuctionReportsJob implements ShouldQueue
                 'completed_at' => now(),
             ]);
 
-            \Illuminate\Support\Facades\Log::error('GenerateAuctionReportsJob failed: ' . $e->getMessage(), [
+            Log::error('GenerateAuctionReportsJob failed: '.$e->getMessage(), [
                 'tenant_id' => $this->tenantId,
                 'auction_id' => $this->auctionId,
                 'generation_id' => $this->generationId,

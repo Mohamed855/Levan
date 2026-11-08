@@ -29,6 +29,9 @@ class MainSettingsRequest extends FormRequest
             // عامة
             'office_name' => 'nullable|string|max:255',
             'logo_text' => 'nullable|string|max:14',
+            'report_phone' => ['nullable', 'string', 'max:30', 'regex:/^[+\p{N} ()-]+$/u'],
+            'report_unified_phone' => ['nullable', 'string', 'max:30', 'regex:/^[+\p{N} ()-]+$/u'],
+            'report_social' => ['nullable', 'string', 'max:255'],
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
 
             // مناطق العمل

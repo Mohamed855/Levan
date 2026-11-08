@@ -91,7 +91,8 @@
             {{-- كارت ملفات وتقارير المزاد --}}
             @php
                 $gen = $auction->latestReportGeneration;
-                $isReady = $gen?->isReady();
+                $published = $auction->publishedReportGeneration;
+                $isReady = $published?->isReady();
                 $isProcessing = $gen?->isProcessing();
                 $isFailed = $gen?->isFailed();
                 $initialProgress = $gen ? (int) ($gen->progress ?? 0) : 0;
@@ -148,18 +149,18 @@
                     </div>
 
                     <div class="d-grid gap-2" id="reports-actions-group">
-                        <a href="{{ $isReady && filled($gen->outputs_path) ? tenant_route_name('auctions.reports.download', ['auction' => $auction->id, 'type' => 'outputs']) : 'javascript:void(0)' }}"
+                        <a href="{{ $isReady && filled($published->outputs_path) ? tenant_route_name('auctions.reports.download', ['auction' => $auction->id, 'type' => 'outputs']) : 'javascript:void(0)' }}"
                             id="btn-download-outputs"
-                            class="btn btn-primary d-flex align-items-center justify-content-between {{ !$isReady || blank($gen->outputs_path) ? 'disabled' : '' }}"
-                            @if (!$isReady || blank($gen->outputs_path)) disabled aria-disabled="true" @endif>
+                            class="btn btn-primary d-flex align-items-center justify-content-between {{ !$isReady || blank($published->outputs_path) ? 'disabled' : '' }}"
+                            @if (!$isReady || blank($published->outputs_path)) disabled aria-disabled="true" @endif>
                             <span><i class="ti ti-file-text me-2"></i>تحميل مخرجات المزاد</span>
                             <i class="ti ti-download"></i>
                         </a>
 
-                        <a href="{{ $isReady && filled($gen->report_path) ? tenant_route_name('auctions.reports.download', ['auction' => $auction->id, 'type' => 'report']) : 'javascript:void(0)' }}"
+                        <a href="{{ $isReady && filled($published->report_path) ? tenant_route_name('auctions.reports.download', ['auction' => $auction->id, 'type' => 'report']) : 'javascript:void(0)' }}"
                             id="btn-download-report"
-                            class="btn btn-success d-flex align-items-center justify-content-between {{ !$isReady || blank($gen->report_path) ? 'disabled' : '' }}"
-                            @if (!$isReady || blank($gen->report_path)) disabled aria-disabled="true" @endif>
+                            class="btn btn-success d-flex align-items-center justify-content-between {{ !$isReady || blank($published->report_path) ? 'disabled' : '' }}"
+                            @if (!$isReady || blank($published->report_path)) disabled aria-disabled="true" @endif>
                             <span><i class="ti ti-file-analytics me-2"></i>تحميل تقرير المزاد</span>
                             <i class="ti ti-download"></i>
                         </a>
@@ -239,6 +240,8 @@
                     </table>
                 </div>
             </div>
+
+            @include('tenant.auctions.partials.cycle-details')
 
             {{-- الإعلانات الترويجية للمزاد --}}
             {{-- <div class="card mb-4" id="promotional-advertisements-card">

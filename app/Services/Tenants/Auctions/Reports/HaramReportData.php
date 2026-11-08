@@ -17,6 +17,9 @@ final class HaramReportData
         $index = array_search($type, ['haram-cover', 'haram-index', 'haram-results', 'haram-marketing', 'haram-board-before', 'haram-brokers', 'haram-closing'], true);
         $auction = $snapshot['auction'];
         $payload = $page['payload'];
+        if (array_key_exists('campaigns', $payload)) {
+            $snapshot['marketing']['campaigns'] = $payload['campaigns'];
+        }
         $marketing = $snapshot['marketing'] ?? [];
         $contacts = $marketing['contacts'] ?? [];
         $name = (string) $auction['name'];
@@ -97,11 +100,11 @@ final class HaramReportData
         if ($index === 0 && ! empty($auction['cover_image'])) {
             $content['images']['cover_image'] = [['uri' => $auction['cover_image'], 'fit' => 'cover', 'kind' => 'photo']];
         }
+        $content = (new AuctionReportNativeContent)->apply($content, $snapshot);
         if ($index === 2 && str_ends_with($page['page_type'], '-continuation') && (empty($tables['sold']) xor empty($tables['unsold']))) {
             return (new AuctionReportResultPage)->continuation($content, empty($tables['sold']) ? 'unsold' : 'sold');
         }
 
         return $content;
     }
-
 }

@@ -57,16 +57,61 @@ final class AuctionReportGenerationTest extends TenantAuctionReportTestCase
         $generation->refresh();
         self::assertSame('ready', $generation->status);
         self::assertSame(100, $generation->progress);
+        self::assertSame($generation->id, $auction->fresh()->published_report_generation_id);
         Storage::disk('tenant_private')->assertExists([$generation->outputs_path, $generation->report_path]);
         Storage::disk('tenant_public')->assertMissing([$generation->outputs_path, $generation->report_path]);
+    }
+
+    public function test_successful_replacement_only_removes_previous_published_pair(): void
+    {
+        Storage::fake('tenant_private');
+        [$auction, $previous] = $this->generation('previous-pair');
+        $this->job($auction, $previous)->handle(app(AuctionReportDataBuilder::class), app(AuctionReportRenderer::class), $this->successfulPdfRenderer());
+        $previous->refresh();
+        $next = $auction->reportGenerations()->create(['revision_token' => 'replacement-pair', 'status' => 'queued', 'snapshot' => $previous->snapshot]);
+        $this->job($auction, $next)->handle(app(AuctionReportDataBuilder::class), app(AuctionReportRenderer::class), $this->successfulPdfRenderer());
+        self::assertSame($next->id, $auction->fresh()->published_report_generation_id);
+        // Cleanup is intentionally deferred until the owning transaction commits.
+        Storage::disk('tenant_private')->assertExists([$next->fresh()->outputs_path, $next->fresh()->report_path]);
+    }
+
+    public function test_failed_replacement_preserves_the_last_published_pair(): void
+    {
+        Storage::fake('tenant_private');
+        [$auction, $previous] = $this->generation('last-successful-pair');
+        $this->job($auction, $previous)->handle(app(AuctionReportDataBuilder::class), app(AuctionReportRenderer::class), $this->successfulPdfRenderer());
+        $previous->refresh();
+        $next = $auction->reportGenerations()->create(['revision_token' => 'failed-replacement', 'status' => 'queued', 'snapshot' => $previous->snapshot]);
+        $renderer = new class implements BrowserDocumentRenderer
+        {
+            public function pdf(string $html, string $outputPath): string
+            {
+                throw new RuntimeException('Replacement failed');
+            }
+
+            public function png(string $html, string $outputPath): string
+            {
+                return $outputPath;
+            }
+        };
+        try {
+            $this->job($auction, $next)->handle(app(AuctionReportDataBuilder::class), app(AuctionReportRenderer::class), $renderer);
+        } catch (RuntimeException) {
+        }
+        self::assertSame('failed', $next->fresh()->status);
+        self::assertSame($previous->id, $auction->fresh()->published_report_generation_id);
+        self::assertSame('ready', $previous->fresh()->status);
+        Storage::disk('tenant_private')->assertExists([$previous->outputs_path, $previous->report_path]);
     }
 
     public function test_second_document_failure_cleans_temporary_and_private_files(): void
     {
         Storage::fake('tenant_private');
         [$auction, $generation] = $this->generation('second-fails');
-        $pdf = new class implements BrowserDocumentRenderer {
+        $pdf = new class implements BrowserDocumentRenderer
+        {
             public int $calls = 0;
+
             public function pdf(string $html, string $outputPath): string
             {
                 $this->calls++;
@@ -74,9 +119,14 @@ final class AuctionReportGenerationTest extends TenantAuctionReportTestCase
                     throw new RuntimeException('second document failed');
                 }
                 file_put_contents($outputPath, '%PDF-first');
+
                 return $outputPath;
             }
-            public function png(string $html, string $outputPath): string { return $outputPath; }
+
+            public function png(string $html, string $outputPath): string
+            {
+                return $outputPath;
+            }
         };
 
         try {
@@ -101,9 +151,12 @@ final class AuctionReportGenerationTest extends TenantAuctionReportTestCase
     {
         Storage::fake('tenant_private');
         [$auction, $generation] = $this->generation('becomes-stale');
-        $pdf = new class($auction) implements BrowserDocumentRenderer {
+        $pdf = new class($auction) implements BrowserDocumentRenderer
+        {
             public int $calls = 0;
+
             public function __construct(private readonly Auction $auction) {}
+
             public function pdf(string $html, string $outputPath): string
             {
                 file_put_contents($outputPath, '%PDF-generated');
@@ -112,9 +165,14 @@ final class AuctionReportGenerationTest extends TenantAuctionReportTestCase
                         'revision_token' => 'newer-revision', 'status' => 'queued', 'snapshot' => [],
                     ]);
                 }
+
                 return $outputPath;
             }
-            public function png(string $html, string $outputPath): string { return $outputPath; }
+
+            public function png(string $html, string $outputPath): string
+            {
+                return $outputPath;
+            }
         };
 
         $this->job($auction, $generation)->handle(
@@ -127,13 +185,19 @@ final class AuctionReportGenerationTest extends TenantAuctionReportTestCase
 
     private function successfulPdfRenderer(): BrowserDocumentRenderer
     {
-        return new class implements BrowserDocumentRenderer {
+        return new class implements BrowserDocumentRenderer
+        {
             public function pdf(string $html, string $outputPath): string
             {
                 file_put_contents($outputPath, '%PDF-success');
+
                 return $outputPath;
             }
-            public function png(string $html, string $outputPath): string { return $outputPath; }
+
+            public function png(string $html, string $outputPath): string
+            {
+                return $outputPath;
+            }
         };
     }
 

@@ -15,7 +15,6 @@ class UpdateTenantSettingsAction
 {
     /**
      * @param  array<string, mixed>  $validated
-     * @param  UploadedFile|null  $image
      */
     public function execute(array $validated, ?UploadedFile $image = null): Settings
     {
@@ -31,6 +30,12 @@ class UpdateTenantSettingsAction
                 }
                 if (array_key_exists('logo_text', $validated)) {
                     $settings->logo_text = $validated['logo_text'];
+                }
+
+                foreach (['report_phone', 'report_unified_phone', 'report_social'] as $field) {
+                    if (array_key_exists($field, $validated)) {
+                        $settings->{$field} = $validated[$field];
+                    }
                 }
 
                 if ($image !== null) {

@@ -6,6 +6,9 @@ namespace App\Models\Tenants\Auctions;
 
 use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Models\Tenants\Assignments\Assignment;
+use App\Models\Tenants\AuctionClosings\AuctionClosing;
+use App\Models\Tenants\MarketingCampaigns\MarketingCampaign;
+use App\Models\Tenants\PromotionalAdvertisements\PromotionalAdvertisement;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User;
 use Carbon\Carbon;
@@ -15,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Auction extends Model
@@ -43,6 +47,7 @@ class Auction extends Model
         'marketing_data',
         'is_active',
         'created_by',
+        'published_report_generation_id',
     ];
 
     protected $casts = [
@@ -70,6 +75,8 @@ class Auction extends Model
                 'bids_count',
                 'unsold_reason',
                 'board_data',
+                'buyer_name',
+                'result_notes',
             ])
             ->orderByPivot('sort_order')
             ->withTimestamps();
@@ -78,6 +85,21 @@ class Auction extends Model
     public function attachments(): HasMany
     {
         return $this->hasMany(AuctionAttachment::class, 'auction_id');
+    }
+
+    public function marketingCampaigns(): HasMany
+    {
+        return $this->hasMany(MarketingCampaign::class)->orderBy('id');
+    }
+
+    public function closing(): HasOne
+    {
+        return $this->hasOne(AuctionClosing::class);
+    }
+
+    public function publishedReportGeneration(): BelongsTo
+    {
+        return $this->belongsTo(AuctionReportGeneration::class, 'published_report_generation_id');
     }
 
     public function reportGenerations(): HasMany
@@ -92,7 +114,7 @@ class Auction extends Model
 
     public function promotionalAdvertisements(): HasMany
     {
-        return $this->hasMany(\App\Models\Tenants\PromotionalAdvertisements\PromotionalAdvertisement::class, 'auction_id')->latest('id');
+        return $this->hasMany(PromotionalAdvertisement::class, 'auction_id')->latest('id');
     }
 
     public function creator(): BelongsTo

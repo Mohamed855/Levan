@@ -33,10 +33,11 @@ final class AuctionReportIsolationTest extends TenantAuctionReportTestCase
             'end_date' => now()->addDay()->toDateString(), 'type' => 'electronic', 'category' => 'lands',
             'city' => 'الرياض', 'is_active' => false,
         ]);
-        $auction->reportGenerations()->create([
+        $published = $auction->reportGenerations()->create([
             'revision_token' => 'download-'.uniqid(), 'status' => 'ready', 'snapshot' => [],
             'outputs_path' => 'auction-reports/download/outputs.pdf', 'report_path' => 'auction-reports/download/report.pdf',
         ]);
+        $auction->update(['published_report_generation_id' => $published->id]);
         $owner = User::query()->where('email', 'demo@lot.com')->firstOrFail();
         self::assertTrue($auction->fresh()->latestReportGeneration->isReady());
         foreach (['outputs' => 'مخرجات', 'report' => 'تقرير'] as $type => $label) {

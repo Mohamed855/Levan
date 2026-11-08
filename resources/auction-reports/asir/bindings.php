@@ -68,7 +68,7 @@ return [
     ], 'static_images' => ['i7', 'i11', 'i12'], 'images' => [
         ['section' => 'brokers', 'slot' => 0, 'box' => [135.5, 325.8, 491.6, 789.4]],
     ]],
-    16 => ['hide_fills' => ['#4a6810'], 'groups' => ['board_2' => ['f4'], 'board_1' => ['f5'], 'board_4' => ['f6'], 'board_3' => ['f7'], 'board_6' => ['f8'], 'board_5' => ['f9'], 'google_views' => ['f10']]],
+    16 => ['hide_fills' => ['#4a6810'], 'groups' => ['board_2' => ['f4'], 'board_1' => ['f5'], 'board_4' => ['f6'], 'board_3' => ['f7'], 'board_6' => ['f8'], 'board_5' => ['f9'], 'google_views' => ['f10'], 'google_caption' => ['f11']]],
     17 => ['hide_fills' => ['#4a6810'], 'groups' => ['board_8' => ['f4'], 'board_7' => ['f5'], 'board_10' => ['f6'], 'board_9' => ['f7'], 'board_12' => ['f8'], 'board_11' => ['f9'], 'board_13' => ['f10']],
         'image_slots' => ['i8' => 0, 'i9' => 1, 'i2' => 2, 'i3' => 3, 'i4' => 4, 'i5' => 5, 'i6' => 5, 'i7' => 6]],
     18 => ['groups' => ['sales_total' => ['f4'], 'sold_count' => ['f5'], 'sold_position_1' => ['f7'], 'sold_position_2' => ['f20'], 'sold_position_3' => ['f34']], 'layouts' => [

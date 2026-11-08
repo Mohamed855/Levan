@@ -8,19 +8,18 @@ use App\Enums\Tenants\Assignments\AssignmentCategory;
 use App\Enums\Tenants\Auctions\AuctionCategory;
 use App\Enums\Tenants\Auctions\AuctionType;
 use App\Http\Requests\Concerns\WizardFormRequest;
-use App\Http\Requests\Concerns\AuctionReportEvidenceRules;
-use App\Http\Requests\Concerns\AuctionReportDetailRules;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
+use App\Models\Tenants\Properties\Property;
 use Carbon\Carbon;
 use Closure;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class UpdateAuctionRequest extends WizardFormRequest
 {
-    use AuctionReportEvidenceRules;
-    use AuctionReportDetailRules;
     private ?Assignment $resolvedAssignment = null;
+
     private bool $assignmentResolved = false;
 
     public function authorize(): bool
@@ -30,7 +29,7 @@ class UpdateAuctionRequest extends WizardFormRequest
 
     public function rules(): array
     {
-        return $this->reportEvidenceRules() + $this->reportDetailRules() + [
+        return [
             // Step 1: Basic Info
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:500'],
@@ -78,7 +77,8 @@ class UpdateAuctionRequest extends WizardFormRequest
                             if ($end->lessThanOrEqualTo($start)) {
                                 $fail('وقت نهاية المزاد يجب أن يكون بعد وقت البداية عندما يكون المزاد في نفس اليوم.');
                             }
-                        } catch (\Throwable) {}
+                        } catch (\Throwable) {
+                        }
                     }
                 },
             ],
@@ -161,7 +161,7 @@ class UpdateAuctionRequest extends WizardFormRequest
                     $auctionParam = $this->route('auction');
                     $currentAuctionId = is_object($auctionParam) ? (int) $auctionParam->id : (int) $auctionParam;
 
-                    $property = \App\Models\Tenants\Properties\Property::query()->find($value);
+                    $property = Property::query()->find($value);
                     if (! $property) {
                         return;
                     }
@@ -173,18 +173,20 @@ class UpdateAuctionRequest extends WizardFormRequest
                     $category = AssignmentCategory::tryFrom((string) $categoryValue);
                     if ($category && ! $category->allowsPropertyType($property->type)) {
                         $fail("العقار ({$property->name}) نوعه ({$property->type_label}) لا يتطابق مع تصنيف المزاد المختار ({$category->label()}).");
+
                         return;
                     }
-                    $isSoldInAnotherAuction = \Illuminate\Support\Facades\DB::table('auction_properties')
+                    $isSoldInAnotherAuction = DB::table('auction_properties')
                         ->where('property_id', $value)
                         ->where('result_status', 'sold')
                         ->where('auction_id', '!=', $currentAuctionId)
                         ->exists();
                     if ($isSoldInAnotherAuction) {
                         $fail("العقار ({$property->name}) تم بيعه بالفعل في مزاد سابق ولا يمكن إدراجه في هذا المزاد.");
+
                         return;
                     }
-                    $isInAnotherActiveAuction = \Illuminate\Support\Facades\DB::table('auction_properties')
+                    $isInAnotherActiveAuction = DB::table('auction_properties')
                         ->join('auctions', 'auctions.id', '=', 'auction_properties.auction_id')
                         ->where('auction_properties.property_id', $value)
                         ->where('auctions.id', '!=', $currentAuctionId)
@@ -197,44 +199,18 @@ class UpdateAuctionRequest extends WizardFormRequest
                 },
             ],
 
-            // Step 4, 5, 6: Results, marketing and files
-            'property_results' => ['nullable', Rule::array($this->selectedPropertyKeys())],
-            'property_results.*' => ['array'],
-            'property_results.*.status' => ['required', Rule::in(['pending', 'sold', 'unsold'])],
-            'property_results.*.opening_price' => ['nullable', 'numeric', 'min:0'],
-            'property_results.*.sale_price' => ['nullable', 'required_if:property_results.*.status,sold', 'numeric', 'min:0'],
-            'property_results.*.participants_count' => ['nullable', 'integer', 'min:0'],
-            'property_results.*.bids_count' => ['nullable', 'integer', 'min:0'],
-            'property_results.*.unsold_reason' => ['nullable', 'required_if:property_results.*.status,unsold', 'string', 'max:2000'],
-            'property_results.*.board_location' => ['nullable', 'string', 'max:255'],
-            'property_results.*.board_notes' => ['nullable', 'string', 'max:1000'],
-            'marketing' => ['nullable', 'array'],
-            'marketing.campaigns' => ['nullable', 'array', 'max:50'],
-            'marketing.campaigns.*.platform' => ['nullable', 'string', 'max:100'],
-            'marketing.campaigns.*.platform_label' => ['nullable', 'string', 'max:100'],
-            'marketing.campaigns.*.reach' => ['nullable', 'integer', 'min:0'],
-            'marketing.campaigns.*.impressions' => ['nullable', 'integer', 'min:0'],
-            'marketing.campaigns.*.engagements' => ['nullable', 'integer', 'min:0'],
-            'marketing.campaigns.*.clicks' => ['nullable', 'integer', 'min:0'],
-            'marketing.campaigns.*.url' => ['nullable', 'url', 'max:2048'],
-            'marketing.campaigns.*.link_label' => ['nullable', 'string', 'max:255'],
-            'marketing.campaigns.*.link_role' => ['nullable', Rule::in(config('auction-report-inputs.link_roles', ['brochure', 'video', 'marketing_evidence', 'boards', 'platform', 'other']))],
-            'marketing.links' => ['nullable', 'array', 'max:50'],
-            'marketing.links.*.label' => ['nullable', 'string', 'max:255'],
-            'marketing.links.*.url' => ['nullable', 'url', 'max:2048'],
-            'marketing.links.*.role' => ['nullable', Rule::in(config('auction-report-inputs.link_roles', ['brochure', 'video', 'marketing_evidence', 'boards', 'platform', 'other']))],
+            'property_results' => ['prohibited'],
+            'marketing_evidence_meta' => ['prohibited'],
+            'marketing_evidence' => ['prohibited'],
+            'report_attachments' => ['prohibited'],
+            'board_images_before' => ['prohibited'],
+            'board_images_after' => ['prohibited'],
+            'marketing' => ['nullable', 'array:introduction'],
+            'marketing.introduction' => ['nullable', 'string', 'max:10000'],
             'cover_image' => ['nullable', 'image', 'max:10240'],
             'report_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             'attachments' => ['nullable', 'array'],
             'attachments.*' => ['file', 'max:10240', 'mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx'],
-            'marketing_evidence' => ['nullable', 'array'],
-            'marketing_evidence.*' => ['file', 'max:10240', 'mimes:pdf,png,jpg,jpeg,webp'],
-            'board_images_before' => ['nullable', Rule::array($this->selectedPropertyKeys())],
-            'board_images_before.*' => ['array'],
-            'board_images_before.*.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
-            'board_images_after' => ['nullable', Rule::array($this->selectedPropertyKeys())],
-            'board_images_after.*' => ['array'],
-            'board_images_after.*.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
         ];
     }
 

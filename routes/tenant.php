@@ -11,7 +11,9 @@ use App\Http\Controllers\Tenants\Archive\Property\PropertyArchiveController;
 use App\Http\Controllers\Tenants\Archive\User\UserArchiveController;
 use App\Http\Controllers\Tenants\Assignments\AssignmentsController;
 use App\Http\Controllers\Tenants\Assignments\IssuingEntitiesController;
+use App\Http\Controllers\Tenants\AuctionClosings\AuctionClosingsController;
 use App\Http\Controllers\Tenants\Auctions\AuctionReportController;
+use App\Http\Controllers\Tenants\Auctions\AuctionReportsController;
 use App\Http\Controllers\Tenants\Auctions\AuctionsController;
 use App\Http\Controllers\Tenants\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Tenants\Auth\ConfirmablePasswordController;
@@ -37,6 +39,7 @@ use App\Http\Controllers\Tenants\Domains\GetDomainInfoController;
 use App\Http\Controllers\Tenants\Domains\RenewalDomainController;
 use App\Http\Controllers\Tenants\License\LicenseController;
 use App\Http\Controllers\Tenants\Locations\LocationController;
+use App\Http\Controllers\Tenants\MarketingCampaigns\MarketingCampaignsController;
 use App\Http\Controllers\Tenants\Notification\NotificationController;
 use App\Http\Controllers\Tenants\Profile\ProfileController;
 use App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController;
@@ -366,6 +369,11 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             });
             // Route::name('promotional-advertisements.status')->get('{auction}/promotional-advertisements/status', [\App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController::class, 'status']);
         });
+        Route::resource('marketing-campaigns', MarketingCampaignsController::class)->except('show')->parameters(['marketing-campaigns' => 'campaign']);
+        Route::get('auction-closings', [AuctionClosingsController::class, 'index'])->name('auction-closings.index');
+        Route::get('auction-closings/{auction}/edit', [AuctionClosingsController::class, 'edit'])->name('auction-closings.edit');
+        Route::put('auction-closings/{auction}', [AuctionClosingsController::class, 'update'])->name('auction-closings.update');
+        Route::get('auction-reports', [AuctionReportsController::class, 'index'])->name('auction-reports.index');
         Route::resource('auctions', AuctionsController::class)
             ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
 

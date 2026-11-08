@@ -211,6 +211,15 @@
                                 help="الحد الأقصى لعدد الأحرف: 14." />
 
                             <div class="col-12 mt-4 pt-3 border-top">
+                                <h6 class="fw-bold mb-3">بيانات التواصل في تقارير المزادات</h6>
+                                <div class="row g-4">
+                                    <x-form.controls.input name="report_phone" label="هاتف التواصل" :value="old('report_phone', $settings->report_phone)" col="col-md-4" />
+                                    <x-form.controls.input name="report_unified_phone" label="الرقم الموحد" :value="old('report_unified_phone', $settings->report_unified_phone)" col="col-md-4" />
+                                    <x-form.controls.input name="report_social" label="حساب التواصل الاجتماعي" :value="old('report_social', $settings->report_social)" col="col-md-4" />
+                                </div>
+                                <div class="form-text mt-2">تُستخدم أحدث بيانات التواصل والشعار عند إعادة توليد التقارير؛ تحديث الإعدادات وحده لا يعيد توليدها.</div>
+                            </div>
+                            <div class="col-12 mt-4 pt-3 border-top">
                                 <h6 class="fw-bold mb-3 d-flex align-items-center">
                                     <i class="ti ti-map-pin text-primary me-2"></i>مناطق العمل المعتمدة
                                 </h6>

@@ -26,12 +26,12 @@ class AuctionPolicy
 
     public function update(User $user, Auction $auction): bool
     {
-        return $user->can('auctions.edit') && tenancy()->initialized;
+        return $user->can('auctions.edit') && tenancy()->initialized && ! $this->isFinalized($auction);
     }
 
     public function delete(User $user, Auction $auction): bool
     {
-        return $user->can('auctions.delete') && tenancy()->initialized;
+        return $user->can('auctions.delete') && tenancy()->initialized && ! $this->isFinalized($auction);
     }
 
     public function restore(User $user, Auction $auction): bool
@@ -41,6 +41,11 @@ class AuctionPolicy
 
     public function forceDelete(User $user, Auction $auction): bool
     {
-        return $user->can('auctions_archive.force_delete') && tenancy()->initialized;
+        return $user->can('auctions_archive.force_delete') && tenancy()->initialized && ! $this->isFinalized($auction);
+    }
+
+    private function isFinalized(Auction $auction): bool
+    {
+        return $auction->closing()->whereNotNull('finalized_snapshot')->exists();
     }
 }
