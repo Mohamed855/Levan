@@ -42,6 +42,7 @@ class TestTenantSeeder extends Seeder
         if (! preg_match('/^[A-Za-z0-9_]+$/D', $tenantDatabase) || strcasecmp($tenantDatabase, (string) ($central['database'] ?? '')) === 0) {
             throw new \RuntimeException('TEST_TENANT_DATABASE must name a separate, valid test database.');
         }
+        $this->prepareTestDatabase($central, $tenantDatabase);
 
         $adminUser = AdminUser::first();
         if (! $adminUser) {
@@ -109,9 +110,6 @@ class TestTenantSeeder extends Seeder
 
             return;
         }
-
-        $tenantDbName = $tenantDatabase;
-        DB::statement("CREATE DATABASE IF NOT EXISTS `{$tenantDbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 
         $migrationExitCode = Artisan::call('tenants:migrate-fresh', [
             '--tenants' => [$tenant->id],
@@ -194,5 +192,38 @@ class TestTenantSeeder extends Seeder
         }
 
         $this->command?->info('Test tenant [test] created, migrated, seeded, and activated successfully.');
+    }
+
+    private function prepareTestDatabase(array $central, string $database): void
+    {
+        $probeName = 'test_tenant_seed_probe';
+        $configuration = array_replace($central, ['name' => $probeName, 'database' => $database]);
+        // A cached URL or read/write override must never redirect the probe to central.
+        unset($configuration['url'], $configuration['read'], $configuration['write']);
+
+        try {
+            $probe = DB::build($configuration);
+            try {
+                $probe->getPdo();
+
+                return;
+            } catch (\PDOException $exception) {
+                // Only an unknown database justifies attempting CREATE DATABASE.
+                if ((int) ($exception->errorInfo[1] ?? 0) !== 1049) {
+                    throw $exception;
+                }
+            }
+            DB::connection('mysql')->statement("CREATE DATABASE IF NOT EXISTS `{$database}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+            $probe->getPdo();
+        } catch (\PDOException $exception) {
+            throw new \RuntimeException(
+                "Unable to access test database [{$database}]. Check TEST_TENANT_DATABASE and the MySQL connection settings. "
+                .'On managed hosting, create the database in your hosting control panel and grant the configured MySQL user access.',
+                0,
+                $exception,
+            );
+        } finally {
+            DB::purge($probeName);
+        }
     }
 }

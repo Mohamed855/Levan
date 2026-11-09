@@ -11,13 +11,18 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Process\Process;
 use Tests\TestCase;
 
 final class TestSeederOptInTest extends TestCase
 {
     public function test_test_seeders_are_disabled_by_default_and_declared_in_environment_example(): void
     {
-        self::assertSame(false, config('seeding.test_seeders_enabled'));
+        // Verify the absent-variable default independently of the developer's .env opt-in.
+        $script = 'require '.var_export(base_path('vendor/autoload.php'), true).'; echo json_encode(require '.var_export(config_path('seeding.php'), true).');';
+        $process = new Process([PHP_BINARY, '-r', $script], base_path(), ['TEST_SEEDERS_ENABLED' => false]);
+        $process->mustRun();
+        self::assertSame(false, json_decode($process->getOutput(), true, flags: JSON_THROW_ON_ERROR)['test_seeders_enabled']);
         self::assertStringContainsString('TEST_SEEDERS_ENABLED=false', file_get_contents(base_path('.env.example')));
     }
 
