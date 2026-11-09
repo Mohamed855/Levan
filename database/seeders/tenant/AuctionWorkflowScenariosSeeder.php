@@ -15,6 +15,7 @@ use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\AuctionEstablishments\AuctionEstablishmentRequestData;
 use App\Services\Tenants\Auctions\Reports\AuctionReportService;
+use Database\Seeders\tenant\Support\SeededAuctionDocuments;
 use Illuminate\Database\Seeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -42,9 +43,15 @@ final class AuctionWorkflowScenariosSeeder extends Seeder
             'city' => 'الرياض', 'start_date' => now()->subMonths(2), 'end_date' => now()->addYear(), 'is_active' => true,
         ]);
         foreach ($this->scenarios() as $number => $scenario) {
-            $name = '[WF-'.$number.'] '.$scenario['label'];
+            $name = '[WF-'.$number.'] '.$scenario['title'];
             // Re-running seeders must preserve the tester's edits and approved snapshots.
-            if (Auction::withTrashed()->where('marketing_data->demo_scenario', 'WF-'.$number)->exists()) {
+            $existing = Auction::withTrashed()->where('marketing_data->demo_scenario', 'WF-'.$number)->first();
+            if ($existing) {
+                if (! $existing->trashed() && $existing->name === '[WF-'.$number.'] '.$scenario['label']) {
+                    $this->upgradeDefaultTitle($existing, $name);
+                }
+                app(SeededAuctionDocuments::class)->generate($existing);
+
                 continue;
             }
             $paths = [];
@@ -102,6 +109,9 @@ final class AuctionWorkflowScenariosSeeder extends Seeder
                 Storage::disk('tenant_private')->delete($paths);
                 throw $exception;
             }
+            $auction = Auction::where('marketing_data->demo_scenario', 'WF-'.$number)->firstOrFail();
+            $this->command?->info('Generating auction documents: '.$auction->name);
+            app(SeededAuctionDocuments::class)->generate($auction);
         }
         $this->seedExistingMixedClosing((int) $actorId);
     }
@@ -109,17 +119,37 @@ final class AuctionWorkflowScenariosSeeder extends Seeder
     private function scenarios(): array
     {
         return [
-            '01' => ['label' => 'قيد الانتظار بدون طلب إقامة', 'request' => false, 'approved' => false, 'marketing' => 'none', 'properties' => 2, 'results' => []],
-            '02' => ['label' => 'طلب قيد المراجعة وتسويق جزئي', 'request' => true, 'approved' => false, 'marketing' => 'partial', 'properties' => 2, 'results' => []],
-            '03' => ['label' => 'طلب قيد المراجعة وتسويق مكتمل', 'request' => true, 'approved' => false, 'marketing' => 'complete', 'properties' => 2, 'results' => []],
-            '04' => ['label' => 'معتمد وتسويق غير مكتمل', 'request' => true, 'approved' => true, 'marketing' => 'partial', 'properties' => 2, 'results' => []],
-            '05' => ['label' => 'معتمد ومكتمل وجاهز للإقفال', 'request' => true, 'approved' => true, 'marketing' => 'complete', 'properties' => 2, 'results' => []],
-            '06' => ['label' => 'إقفال جزئي بمباع وغير مباع', 'request' => true, 'approved' => true, 'marketing' => 'complete', 'properties' => 2, 'results' => ['sold', 'unsold']],
-            '07' => ['label' => 'تم الإقفال والتسويق مكتمل', 'request' => true, 'approved' => true, 'marketing' => 'complete', 'properties' => 2, 'results' => ['sold', 'sold']],
-            '08' => ['label' => 'تم الإقفال والتسويق غير مكتمل', 'request' => true, 'approved' => true, 'marketing' => 'partial', 'properties' => 2, 'results' => ['sold', 'sold']],
-            '09' => ['label' => 'إقفال بلا مبيعات وقابل للتحديث', 'request' => true, 'approved' => true, 'marketing' => 'none', 'properties' => 2, 'results' => ['unsold', 'unsold']],
-            '10' => ['label' => 'مزاد بدون عقارات لا يقبل طلب إقامة', 'request' => false, 'approved' => false, 'marketing' => 'none', 'properties' => 0, 'results' => []],
+            '01' => ['title' => 'بدون طلب', 'label' => 'قيد الانتظار بدون طلب إقامة', 'request' => false, 'approved' => false, 'marketing' => 'none', 'properties' => 2, 'results' => []],
+            '02' => ['title' => 'قيد المراجعة', 'label' => 'طلب قيد المراجعة وتسويق جزئي', 'request' => true, 'approved' => false, 'marketing' => 'partial', 'properties' => 2, 'results' => []],
+            '03' => ['title' => 'مراجعة مكتملة', 'label' => 'طلب قيد المراجعة وتسويق مكتمل', 'request' => true, 'approved' => false, 'marketing' => 'complete', 'properties' => 2, 'results' => []],
+            '04' => ['title' => 'معتمد جزئي', 'label' => 'معتمد وتسويق غير مكتمل', 'request' => true, 'approved' => true, 'marketing' => 'partial', 'properties' => 2, 'results' => []],
+            '05' => ['title' => 'معتمد مكتمل', 'label' => 'معتمد ومكتمل وجاهز للإقفال', 'request' => true, 'approved' => true, 'marketing' => 'complete', 'properties' => 2, 'results' => []],
+            '06' => ['title' => 'بيع جزئي', 'label' => 'إقفال جزئي بمباع وغير مباع', 'request' => true, 'approved' => true, 'marketing' => 'complete', 'properties' => 2, 'results' => ['sold', 'unsold']],
+            '07' => ['title' => 'مقفل مكتمل', 'label' => 'تم الإقفال والتسويق مكتمل', 'request' => true, 'approved' => true, 'marketing' => 'complete', 'properties' => 2, 'results' => ['sold', 'sold']],
+            '08' => ['title' => 'مقفل جزئي', 'label' => 'تم الإقفال والتسويق غير مكتمل', 'request' => true, 'approved' => true, 'marketing' => 'partial', 'properties' => 2, 'results' => ['sold', 'sold']],
+            '09' => ['title' => 'بلا مبيعات', 'label' => 'إقفال بلا مبيعات وقابل للتحديث', 'request' => true, 'approved' => true, 'marketing' => 'none', 'properties' => 2, 'results' => ['unsold', 'unsold']],
+            '10' => ['title' => 'بلا عقارات', 'label' => 'مزاد بدون عقارات لا يقبل طلب إقامة', 'request' => false, 'approved' => false, 'marketing' => 'none', 'properties' => 0, 'results' => []],
         ];
+    }
+
+    private function upgradeDefaultTitle(Auction $auction, string $name): void
+    {
+        DB::transaction(function () use ($auction, $name): void {
+            $locked = Auction::query()->lockForUpdate()->findOrFail($auction->id);
+            if ($locked->name !== $auction->name) {
+                return;
+            }
+            // Migrate only the known demo title; retain every approved request field.
+            $closing = $locked->closing;
+            $snapshot = $closing?->finalized_snapshot;
+            if (is_array($snapshot) && data_get($snapshot, 'auction.name') === $locked->name) {
+                $snapshot['auction']['name'] = $name;
+                $closing->update(['finalized_snapshot' => $snapshot]);
+            }
+            $locked->update(['name' => $name]);
+            $this->requireReportGeneration($locked->fresh());
+        });
+        $auction->refresh();
     }
 
     private function saveRequest(Auction $auction, int $actorId, array &$paths): void
@@ -197,8 +227,12 @@ final class AuctionWorkflowScenariosSeeder extends Seeder
 
     private function seedExistingMixedClosing(int $actorId): void
     {
-        $auction = Auction::where('name', 'مزاد مساهمات الشرقية الصناعية المنتهي')->first();
+        $auction = Auction::where('name', 'مزاد الشرقية الصناعي')->first();
         if (! $auction || $auction->establishmentRequest) {
+            if ($auction) {
+                app(SeededAuctionDocuments::class)->generate($auction);
+            }
+
             return;
         }
         $paths = [];
@@ -220,5 +254,6 @@ final class AuctionWorkflowScenariosSeeder extends Seeder
             Storage::disk('tenant_private')->delete($paths);
             throw $exception;
         }
+        app(SeededAuctionDocuments::class)->generate($auction);
     }
 }

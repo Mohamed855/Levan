@@ -41,6 +41,7 @@ final class TrialRequestsDataTable extends AbstractDataTable
                 $color = match ($row->status->value) {
                     'pending' => 'warning',
                     'approved' => 'success',
+                    'already_subscribed' => 'info',
                     default => 'danger',
                 };
 

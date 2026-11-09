@@ -17,6 +17,6 @@ class PublicRequestsStatusTest extends TestCase
 
     public function test_trial_request_statuses_are_english_workflow_keys(): void
     {
-        self::assertSame(['pending', 'approved', 'rejected'], array_column(TrialRequestStatus::cases(), 'value'));
+        self::assertSame(['pending', 'approved', 'rejected', 'already_subscribed'], array_column(TrialRequestStatus::cases(), 'value'));
     }
 }

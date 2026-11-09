@@ -5,36 +5,59 @@ declare(strict_types=1);
 namespace App\Actions\Admin\PublicRequests;
 
 use App\Enums\Admin\PublicRequests\TrialRequestStatus;
+use App\Exceptions\Admin\PublicRequests\ClientAlreadySubscribedException;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\PublicRequests\TrialRequest;
 use App\Models\Admin\Tenants\Tenant;
 use App\Rules\SystemEmailAvailable;
 use App\Rules\SystemPhoneAvailable;
+use App\Services\Shared\PublicRequests\TrialRequestMatcherService;
 use App\Services\Shared\Subscription\SubscriptionManager;
 use App\Services\Shared\Tenant\TenantCreator;
 use App\Services\Shared\Tenant\TenantInitializer;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
 final class ApproveTrialRequestAction
 {
+    private readonly TrialRequestMatcherService $matcher;
+
     public function __construct(
         private readonly TenantCreator $creator,
         private readonly TenantInitializer $initializer,
         private readonly SubscriptionManager $subscriptions,
-    ) {}
+        ?TrialRequestMatcherService $matcher = null,
+    ) {
+        $this->matcher = $matcher ?? app(TrialRequestMatcherService::class);
+    }
 
     public function execute(TrialRequest $request, AdminUser $admin): TrialRequest
     {
+        if ($request->status === TrialRequestStatus::ALREADY_SUBSCRIBED) {
+            throw new ClientAlreadySubscribedException('بيانات العميل مسجلة بالفعل.');
+        }
+
+        // Check if matching tenant already exists before locking and transaction
+        $matchingTenant = $this->matcher->findMatchingTenant($request);
+        if ($matchingTenant) {
+            $this->matcher->markAsAlreadySubscribed($request, $matchingTenant->id, $admin->getKey());
+            throw new ClientAlreadySubscribedException('بيانات العميل مسجلة بالفعل.');
+        }
+
         $request = DB::connection('mysql')->transaction(function () use ($request): TrialRequest {
             $locked = TrialRequest::lockForUpdate()->findOrFail($request->id);
+            if ($locked->status === TrialRequestStatus::ALREADY_SUBSCRIBED) {
+                throw new ClientAlreadySubscribedException('بيانات العميل مسجلة بالفعل.');
+            }
             abort_unless($locked->status === TrialRequestStatus::PENDING, 409, 'Request already processed.');
             abort_if($locked->provisioning_status === 'processing' && $locked->provisioning_started_at?->gt(now()->subMinutes(15)), 409, 'يجري إنشاء حساب هذا الطلب بالفعل.');
             if (! $locked->password_hash || ! $locked->email_verified_at || ! $locked->company_name || ! $locked->commercial_number || ! $locked->tax_number || ! $locked->city_id || ! $locked->address) {
                 throw ValidationException::withMessages(['trial_request' => 'هذا طلب قديم أو غير مكتمل. يجب تقديم البيانات الكاملة وتأكيد البريد قبل إنشاء الحساب.']);
             }
+
             $locked->update(['provisioning_status' => 'processing', 'provisioning_error' => null, 'provisioning_started_at' => now()]);
 
             return $locked;
@@ -42,6 +65,7 @@ final class ApproveTrialRequestAction
 
         try {
             $metadata = [
+                'trial_request_id' => $request->id,
                 'billing_name' => $request->customer_name, 'billing_email' => $request->customer_email,
                 'billing_phone' => $request->customer_phone, 'billing_password_hash' => $request->password_hash,
                 'billing_company_name' => $request->company_name, 'billing_commercial_number' => $request->commercial_number,
@@ -93,6 +117,19 @@ final class ApproveTrialRequestAction
                 trialEndDate: isset($end) ? $end->toDateString() : null,
                 temporaryPassword: $plainPassword
             );
+        } catch (ClientAlreadySubscribedException $exception) {
+            throw $exception;
+        } catch (ValidationException $exception) {
+            $errors = $exception->errors();
+            $uniqueKeys = ['billing_company_name', 'billing_commercial_number', 'billing_tax_number', 'billing_email', 'billing_phone'];
+            if (array_intersect(array_keys($errors), $uniqueKeys)) {
+                $matchingTenant = $this->matcher->findMatchingTenant($request);
+                $this->matcher->markAsAlreadySubscribed($request, $matchingTenant?->id, $admin->getKey());
+                throw new ClientAlreadySubscribedException('بيانات العميل مسجلة بالفعل.');
+            }
+
+            $request->update(['provisioning_status' => 'failed', 'provisioning_error' => 'تعذر إكمال إنشاء الحساب. يرجى إعادة المحاولة أو مراجعة سجل الأخطاء.']);
+            throw $exception;
         } catch (Throwable $exception) {
             $request->update(['provisioning_status' => 'failed', 'provisioning_error' => 'تعذر إكمال إنشاء الحساب. يرجى إعادة المحاولة أو مراجعة سجل الأخطاء.']);
             throw $exception;

@@ -125,7 +125,7 @@ class DemoDataAndProductionSafetyTest extends TestCase
             $this->assertContains('hybrid', $types);
 
             // Completed auction with sold and unsold properties
-            $completedAuction = $auctions->firstWhere('name', 'مزاد مساهمات الشرقية الصناعية المنتهي');
+            $completedAuction = $auctions->firstWhere('name', 'مزاد الشرقية الصناعي');
             $this->assertNotNull($completedAuction);
 
             $soldProp = $completedAuction->properties()->wherePivot('result_status', 'sold')->first();

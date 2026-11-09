@@ -5,11 +5,20 @@ namespace App\Services\Shared\Tenant;
 use App\Models\Admin\Settings\Settings;
 use App\Models\Admin\Tenants\Tenant;
 use App\Services\Shared\Cpanel\CpanelService;
+use App\Services\Shared\PublicRequests\TrialRequestMatcherService;
 use Illuminate\Support\Facades\DB;
 
 class TenantCreator
 {
-    public function __construct(private CpanelService $cpanelService, private TenantInitializer $tenantInitializer) {}
+    private TrialRequestMatcherService $trialRequestMatcher;
+
+    public function __construct(
+        private CpanelService $cpanelService,
+        private TenantInitializer $tenantInitializer,
+        ?TrialRequestMatcherService $trialRequestMatcher = null,
+    ) {
+        $this->trialRequestMatcher = $trialRequestMatcher ?? app(TrialRequestMatcherService::class);
+    }
 
     public function createTenantEnvironment(array $metadata, ?callable $onRegistered = null): array
     {
@@ -32,6 +41,9 @@ class TenantCreator
         if ($user && isset($user->global_uid)) {
             $tenant->update(['primary_user_global_uid' => $user->global_uid]);
         }
+
+        $currentTrialRequestId = isset($metadata['trial_request_id']) ? (int) $metadata['trial_request_id'] : null;
+        $this->trialRequestMatcher->syncTrialRequestsForTenant($tenant, $currentTrialRequestId);
 
         return [$tenant, $user];
     }

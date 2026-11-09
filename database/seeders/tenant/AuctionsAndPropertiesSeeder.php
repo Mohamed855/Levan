@@ -13,7 +13,9 @@ use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Tenants\Auctions\Reports\AuctionReportService;
 use Carbon\Carbon;
+use Database\Seeders\tenant\Support\SeededAuctionDocuments;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -730,7 +732,8 @@ class AuctionsAndPropertiesSeeder extends Seeder
             // Auction 1: Electronic, Upcoming/Active, Residential
             [
                 'assignment_id'            => $assignment1->id,
-                'name'                     => 'مزاد درة الرياض العقاري الإلكتروني',
+                'name'                     => 'مزاد درة الرياض',
+                'legacy_name'              => 'مزاد درة الرياض العقاري الإلكتروني',
                 'description'              => 'فرص عقارية سكنية كبرى في أرقى أحياء العاصمة الرياض تحت إشراف مركز الإسناد والتصفية (إنفاذ).',
                 'start_date'               => Carbon::now()->addDays(5)->format('Y-m-d'),
                 'start_time'               => '16:00:00',
@@ -764,7 +767,8 @@ class AuctionsAndPropertiesSeeder extends Seeder
             // Auction 2: In-Person, Commercial
             [
                 'assignment_id'            => $assignment2->id,
-                'name'                     => 'مزاد جوهرة الغربية الحضوري',
+                'name'                     => 'مزاد جوهرة الغربية',
+                'legacy_name'              => 'مزاد جوهرة الغربية الحضوري',
                 'description'              => 'مزاد علني حضوري لبيع مبانٍ وأراضٍ تجارية واستثمارية بارزة بمدينة جدة.',
                 'start_date'               => Carbon::now()->addDays(15)->format('Y-m-d'),
                 'start_time'               => '18:30:00',
@@ -794,7 +798,8 @@ class AuctionsAndPropertiesSeeder extends Seeder
             // Auction 3: Hybrid, Residential
             [
                 'assignment_id'            => $assignment4->id,
-                'name'                     => 'مزاد فلل النرجس الهجين',
+                'name'                     => 'مزاد فلل النرجس',
+                'legacy_name'              => 'مزاد فلل النرجس الهجين',
                 'description'              => 'مزاد هجين يجمع بين الحضور الشخصي والمزايدة الإلكترونية المتزامنة.',
                 'start_date'               => Carbon::now()->addDays(25)->format('Y-m-d'),
                 'start_time'               => '17:00:00',
@@ -824,7 +829,8 @@ class AuctionsAndPropertiesSeeder extends Seeder
             // Auction 4: Completed / Closed Auction with Sold & Unsold properties
             [
                 'assignment_id'            => $assignment3->id,
-                'name'                     => 'مزاد مساهمات الشرقية الصناعية المنتهي',
+                'name'                     => 'مزاد الشرقية الصناعي',
+                'legacy_name'              => 'مزاد مساهمات الشرقية الصناعية المنتهي',
                 'description'              => 'مزاد صناعي مكتمل تم إغلاقه وتوثيق نتائج الترسية والمزايدات.',
                 'start_date'               => Carbon::now()->subMonths(2)->format('Y-m-d'),
                 'start_time'               => '16:00:00',
@@ -891,15 +897,16 @@ class AuctionsAndPropertiesSeeder extends Seeder
             ],
         ];
 
+        $seededAuctionIds = [];
         foreach ($auctionsData as $aucData) {
             $isArchived = ($aucData['name'] === 'مزاد مؤرشف تجريبي للاختبار');
             $propsToSync = $aucData['properties_to_sync'];
-            unset($aucData['properties_to_sync']);
+            $names = array_filter([$aucData['name'], $aucData['legacy_name'] ?? null]);
+            unset($aucData['properties_to_sync'], $aucData['legacy_name']);
 
-            $auction = Auction::withTrashed()->updateOrCreate(
-                ['name' => $aucData['name']],
-                array_merge($aucData, ['created_by' => $userId])
-            );
+            $auction = Auction::withTrashed()->whereIn('name', $names)->first() ?? new Auction;
+            $auction->fill(array_merge($aucData, ['created_by' => $userId]));
+            $auction->save();
 
             // Sync properties to auction with results and ordering
             if (! empty($propsToSync)) {
@@ -935,9 +942,11 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 ]
             );
 
-            // The details screen starts rendering after the seed has finished.
             if (! $isArchived) {
-                app(\App\Services\Tenants\Auctions\Reports\AuctionReportService::class)->requestGeneration($auction, (string) tenant('id'));
+                if (! app(AuctionReportService::class)->requestGeneration($auction, (string) tenant('id'))) {
+                    throw new \RuntimeException('Could not prepare seeded auction reports for auction '.$auction->id.'.');
+                }
+                $seededAuctionIds[] = $auction->id;
             }
 
             if ($isArchived && ! $auction->trashed()) {
@@ -945,5 +954,9 @@ class AuctionsAndPropertiesSeeder extends Seeder
             }
         }
         $this->call(AuctionWorkflowScenariosSeeder::class);
+        foreach (Auction::whereKey($seededAuctionIds)->get() as $auction) {
+            $this->command?->info('Generating auction documents: '.$auction->name);
+            app(SeededAuctionDocuments::class)->generate($auction);
+        }
     }
 }

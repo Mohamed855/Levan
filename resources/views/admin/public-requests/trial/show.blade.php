@@ -2,15 +2,8 @@
 
 @section('title', 'تفاصيل طلب التجربة')
 
-
-
-
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="mb-1">تفاصيل طلب التجربة</h4>
-            <p class="text-muted mb-0">مراجعة الطلب واتخاذ الإجراء المناسب</p>
-        </div>
+    <div class="d-flex justify-content-end align-items-center mb-4">
         <a href="{{ route('admin.trial-requests.index') }}" class="btn btn-secondary">
             <i class="ti ti-arrow-right me-1"></i> العودة
         </a>
@@ -19,12 +12,13 @@
     <div class="row g-4">
         <div class="col-xl-4 col-lg-5">
             <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">بيانات المتقدم</h5>
                     <span
                         class="badge bg-{{ match ($trialRequest->status->value) {
                             'pending' => 'warning',
                             'approved' => 'success',
+                            'already_subscribed' => 'info',
                             default => 'danger',
                         } }}">{{ $trialRequest->status->label() }}</span>
                 </div>
@@ -49,7 +43,7 @@
                         <dt class="col-sm-5 text-muted">تأكيد البريد</dt>
                         <dd class="col-sm-7">{{ $trialRequest->email_verified_at?->format('Y-m-d H:i') ?? 'غير مؤكد' }}
                         </dd>
-                        @if ($trialRequest->provisioning_error)
+                        @if ($trialRequest->provisioning_error && $trialRequest->status->value !== 'already_subscribed')
                             <dd class="col-12 text-danger">{{ $trialRequest->provisioning_error }}</dd>
                         @endif
                         @if ($trialRequest->status->value === 'approved' && $trialRequest->tenant)
@@ -61,6 +55,12 @@
                             <dt class="col-sm-5 text-muted">نهاية التجربة</dt>
                             <dd class="col-sm-7">{{ $trialRequest->subscription?->ends_at?->format('Y-m-d H:i') }}</dd>
                             <dd class="col-12">بدون باقة — مستخدم واحد (المدير الأساسي)</dd>
+                        @elseif ($trialRequest->status->value === 'already_subscribed' && $trialRequest->tenant)
+                            <dd class="col-12">
+                                <a class="btn btn-outline-primary" href="{{ route('admin.clients.show', $trialRequest->tenant_id) }}">
+                                    <i class="ti ti-building me-1"></i> عرض ملف الشركة المشتركة
+                                </a>
+                            </dd>
                         @endif
                         <dt class="col-sm-5 text-muted">التاريخ</dt>
                         <dd class="col-sm-7">{{ $trialRequest->created_at?->format('Y-m-d H:i') ?? '-' }}</dd>
@@ -75,7 +75,7 @@
 
         <div class="col-xl-8 col-lg-7">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header mb-3">
                     <h5 class="mb-0">إجراءات الطلب</h5>
                 </div>
                 <div class="card-body">
@@ -90,7 +90,7 @@
                                 action="{{ route('admin.trial-requests.approve', $trialRequest) }}"
                                 class="m-0 d-inline-flex">
                                 @csrf
-                                <button type="button" class="btn btn-sm btn-success js-approve-trial-btn"
+                                <button type="button" class="btn btn-success js-approve-trial-btn"
                                     @disabled(
                                         !$trialRequest->password_hash ||
                                             !$trialRequest->email_verified_at ||
@@ -99,10 +99,14 @@
                                     <i class="ti ti-check me-1"></i> موافقة وإنشاء شركة
                                 </button>
                             </form>
-                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal"
                                 data-bs-target="#rejectTrialModal">
                                 <i class="ti ti-x me-1"></i> رفض الطلب
                             </button>
+                        </div>
+                    @elseif ($trialRequest->status->value === 'already_subscribed')
+                        <div class="alert alert-info mb-0">
+                            بيانات العميل مسجلة بالفعل كشركة في النظام (مشترك بالفعل)، ولا توجد إجراءات متاحة لهذا الطلب.
                         </div>
                     @else
                         <div class="alert alert-success mb-0">

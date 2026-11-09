@@ -8,16 +8,21 @@ use App\Actions\Admin\PublicRequests\ApproveTrialRequestAction;
 use App\Actions\Admin\PublicRequests\RejectTrialRequestAction;
 use App\DataTables\Admin\PublicRequests\TrialRequestsDataTable;
 use App\Enums\Admin\PublicRequests\TrialRequestStatus;
+use App\Exceptions\Admin\PublicRequests\ClientAlreadySubscribedException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PublicRequests\ApproveTrialRequest;
 use App\Http\Requests\Admin\PublicRequests\RejectTrialRequest;
 use App\Models\Admin\PublicRequests\TrialRequest;
+use App\Services\Shared\PublicRequests\TrialRequestMatcherService;
 use Illuminate\Validation\ValidationException;
 
 final class TrialRequestController extends Controller
 {
-    public function __construct(private readonly ApproveTrialRequestAction $approveAction, private readonly RejectTrialRequestAction $rejectAction)
-    {
+    public function __construct(
+        private readonly ApproveTrialRequestAction $approveAction,
+        private readonly RejectTrialRequestAction $rejectAction,
+        private readonly TrialRequestMatcherService $matcherService,
+    ) {
         $this->middleware('can:trial_requests.view')->only(['index', 'show']);
         $this->middleware('can:trial_requests.approve')->only('approve');
         $this->middleware('can:trial_requests.reject')->only('reject');
@@ -31,6 +36,7 @@ final class TrialRequestController extends Controller
             'pending' => (clone $query)->where('status', TrialRequestStatus::PENDING)->count(),
             'approved' => (clone $query)->where('status', TrialRequestStatus::APPROVED)->count(),
             'rejected' => (clone $query)->where('status', TrialRequestStatus::REJECTED)->count(),
+            'already_subscribed' => (clone $query)->where('status', TrialRequestStatus::ALREADY_SUBSCRIBED)->count(),
         ];
         $filterOptions = ['statuses' => collect(TrialRequestStatus::cases())->map(fn ($status) => [
             'value' => $status->value,
@@ -44,6 +50,14 @@ final class TrialRequestController extends Controller
     {
         $this->authorize('view', $trialRequest);
 
+        if ($trialRequest->status === TrialRequestStatus::PENDING) {
+            $matchingTenant = $this->matcherService->findMatchingTenant($trialRequest);
+            if ($matchingTenant) {
+                $this->matcherService->markAsAlreadySubscribed($trialRequest, $matchingTenant->id);
+                $trialRequest->refresh();
+            }
+        }
+
         return view('admin.public-requests.trial.show', compact('trialRequest'));
     }
 
@@ -52,6 +66,10 @@ final class TrialRequestController extends Controller
         $this->authorize('approve', $trialRequest);
         try {
             $this->approveAction->execute($trialRequest, $request->user('admin'));
+        } catch (ClientAlreadySubscribedException $exception) {
+            return redirect()
+                ->route('admin.trial-requests.show', $trialRequest)
+                ->with('error', 'بيانات العميل مسجلة بالفعل.');
         } catch (ValidationException $exception) {
             throw $exception;
         } catch (\Throwable $exception) {

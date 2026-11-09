@@ -91,7 +91,8 @@ class TrialRegistrationFlowTest extends TestCase
         $this->trialIds[] = $request->id;
         $this->post(route('site.trial.verify'), ['otp' => '000000'])->assertSessionHasErrors('otp');
         self::assertSame(1, TrialRequest::where('customer_email', $data['billing_email'])->count());
-        self::assertTrue(Hash::check($data['billing_password'], $request->password_hash));
+        self::assertNotNull($request->password_hash);
+        self::assertTrue(Hash::check($request->plain_password, $request->password_hash));
         self::assertNotNull($request->email_verified_at);
         self::assertSame($bills, Bill::count());
 
@@ -120,6 +121,7 @@ class TrialRegistrationFlowTest extends TestCase
         self::assertSame('failed', $request->provisioning_status);
         self::assertNotNull($request->tenant_id);
         $firstTenantId = $request->tenant_id;
+        $tempPassword = $request->plain_password;
         $this->app->forgetInstance(TenantInitializer::class);
         $this->actingAs($admin, 'admin')->post(route('admin.trial-requests.approve', $request))
             ->assertRedirect(route('admin.trial-requests.show', $request));
@@ -146,7 +148,7 @@ class TrialRegistrationFlowTest extends TestCase
         $this->post('/admin/login', [
             'tenant_id' => $request->tenant_id,
             'email' => $data['billing_email'],
-            'password' => $data['billing_password'],
+            'password' => $tempPassword,
         ])->assertRedirect('/'.$request->tenant_id.'/dashboard');
         $this->assertAuthenticated('tenant');
         $dashboard = '/'.$request->tenant_id.'/dashboard';
