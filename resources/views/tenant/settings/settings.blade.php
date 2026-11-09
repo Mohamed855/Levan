@@ -125,62 +125,6 @@
 
 @section('page-script')
     @vite('resources/assets/js/shared/form-validation.js')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const btn = document.getElementById('btn-select-all-regions');
-            const select = document.getElementById('operational_regions');
-            if (!btn || !select) return;
-
-            function updateButtonState() {
-                const totalOptions = select.options.length;
-                const selectedCount = Array.from(select.selectedOptions).length;
-                const textSpan = document.getElementById('select-all-regions-text');
-
-                if (totalOptions > 0 && selectedCount === totalOptions) {
-                    if (textSpan) textSpan.textContent = 'إلغاء التحديد';
-                    btn.setAttribute('title', 'إلغاء تحديد جميع مناطق العمل');
-                } else {
-                    if (textSpan) textSpan.textContent = 'تحديد الكل';
-                    btn.setAttribute('title', 'تحديد جميع مناطق العمل');
-                }
-            }
-
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const totalOptions = select.options.length;
-                const selectedCount = Array.from(select.selectedOptions).length;
-                const shouldSelectAll = !(totalOptions > 0 && selectedCount === totalOptions);
-
-                for (let i = 0; i < select.options.length; i++) {
-                    select.options[i].selected = shouldSelectAll;
-                }
-
-                if (window.jQuery) {
-                    window.jQuery(select).trigger('change');
-                } else {
-                    select.dispatchEvent(new Event('change', {
-                        bubbles: true
-                    }));
-                }
-
-                const icon = btn.querySelector('i');
-                if (icon) {
-                    icon.classList.add('ti-spin');
-                    setTimeout(() => icon.classList.remove('ti-spin'), 500);
-                }
-
-                updateButtonState();
-            });
-
-            if (window.jQuery) {
-                window.jQuery(select).on('change', updateButtonState);
-            } else {
-                select.addEventListener('change', updateButtonState);
-            }
-
-            updateButtonState();
-        });
-    </script>
 @endsection
 
 @section('content')
@@ -234,12 +178,7 @@
 
                                 <x-form.controls.select name="operational_regions" id="operational_regions"
                                     label="مناطق العمل المتاحة" :options="$allRegions ?? []" :value="old('operational_regions', $settings->operational_regions ?? [])" multiple
-                                    placeholder="اختر المناطق التي تعمل بها..." col="col-12" :input-group="true">
-                                    <button type="button" class="input-group-text cursor-pointer btn-select-all-regions"
-                                        id="btn-select-all-regions" title="تحديد جميع مناطق العمل">
-                                        <i class="ti ti-check-double me-1 text-primary"></i> <span id="select-all-regions-text">تحديد الكل</span>
-                                    </button>
-                                </x-form.controls.select>
+                                    placeholder="اختر المناطق التي تعمل بها..." col="col-12" />
                             </div>
                         </div>
 

@@ -33,6 +33,7 @@
     'resources/assets/js/shared/datatable-page-defaults.js',
     'resources/assets/js/shared/form-validation.js',
     'resources/assets/js/shared/dashboard-notifications.js',
+    'resources/assets/js/shared/select2-select-all.js',
 ])
 <!-- END: Shared JS -->
 

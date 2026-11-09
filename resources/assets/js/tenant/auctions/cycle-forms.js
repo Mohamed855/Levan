@@ -11,6 +11,46 @@ const mountCycleForm = () => {
         });
     };
 
+    const activateTab = (tabBtn) => {
+        if (!tabBtn) return;
+        if (window.bootstrap && window.bootstrap.Tab) {
+            window.bootstrap.Tab.getOrCreateInstance(tabBtn).show();
+        } else {
+            const tabsList = tabBtn.closest('[role="tablist"]');
+            if (tabsList) {
+                tabsList.querySelectorAll(".nav-link").forEach((btn) => {
+                    btn.classList.remove("active");
+                    btn.setAttribute("aria-selected", "false");
+                });
+            }
+            tabBtn.classList.add("active");
+            tabBtn.setAttribute("aria-selected", "true");
+            const targetSelector =
+                tabBtn.getAttribute("data-bs-target") ||
+                tabBtn.getAttribute("href");
+            if (targetSelector) {
+                const targetPane = form.querySelector(targetSelector);
+                if (targetPane) {
+                    const contentContainer = targetPane.closest(".tab-content");
+                    if (contentContainer) {
+                        contentContainer
+                            .querySelectorAll(".tab-pane")
+                            .forEach((pane) => {
+                                pane.classList.remove("show", "active");
+                            });
+                    }
+                    targetPane.classList.add("show", "active");
+                }
+            }
+        }
+        try {
+            tabBtn.scrollIntoView({
+                inline: "nearest",
+                block: "nearest",
+            });
+        } catch (_) {}
+    };
+
     const updateMarketingBoxes = () => {
         const channelsSelect =
             form.querySelector("#campaign-channels-select") ||
@@ -35,25 +75,98 @@ const mountCycleForm = () => {
         }
         selected = selected.map(String);
 
+        // Toggle tabs container vs empty state
+        const tabsWrapper = form.querySelector("#campaign-tabs-wrapper");
+        const emptyState = form.querySelector("#campaign-tabs-empty");
+        if (tabsWrapper && emptyState) {
+            if (selected.length === 0) {
+                tabsWrapper.classList.add("d-none");
+                emptyState.classList.remove("d-none");
+            } else {
+                tabsWrapper.classList.remove("d-none");
+                emptyState.classList.add("d-none");
+            }
+        }
+
+        // Toggle each tab item button
+        const tabItems = form.querySelectorAll(".campaign-channel-tab");
+        tabItems.forEach((tabItem) => {
+            const ch = String(tabItem.dataset.channel || "");
+            const isSelected = selected.includes(ch);
+            if (isSelected) {
+                tabItem.classList.remove("d-none");
+            } else {
+                tabItem.classList.add("d-none");
+                const btn = tabItem.querySelector(".nav-link");
+                if (btn) {
+                    btn.classList.remove("active");
+                    btn.setAttribute("aria-selected", "false");
+                }
+            }
+        });
+
+        // Toggle each tab pane & enable/disable inputs
         const boxes = form.querySelectorAll(".campaign-channel-box");
         boxes.forEach((box) => {
             const ch = String(box.dataset.channel || "");
             const isSelected = selected.includes(ch);
 
-            if (isSelected) {
-                box.classList.remove("d-none");
-                box.style.display = "";
-                box.hidden = false;
-            } else {
-                box.classList.add("d-none");
-                box.style.display = "none";
-                box.hidden = true;
-            }
-
             box.querySelectorAll("input, select, textarea").forEach((input) => {
                 input.disabled = !isSelected;
             });
+
+            if (!isSelected) {
+                box.classList.remove("show", "active");
+                box.classList.add("d-none");
+                box.style.display = "none";
+                box.hidden = true;
+            } else {
+                box.classList.remove("d-none");
+                box.style.display = "";
+                box.hidden = false;
+            }
         });
+
+        // Ensure one visible tab is active if any channels are selected
+        if (selected.length > 0) {
+            const currentActiveTab = form.querySelector(
+                ".campaign-channel-tab:not(.d-none) .nav-link.active"
+            );
+            if (!currentActiveTab) {
+                // Prefer tab with validation errors
+                const errorPane = form.querySelector(
+                    '.campaign-channel-pane:not(.d-none):has(.is-invalid, [data-field-error]), .campaign-channel-box:not(.d-none):has(.is-invalid, [data-field-error])'
+                );
+                let targetTabBtn = null;
+                if (errorPane) {
+                    const errCh = errorPane.dataset.channel;
+                    const errTabItem = form.querySelector(
+                        `.campaign-channel-tab[data-channel="${errCh}"]:not(.d-none)`
+                    );
+                    if (errTabItem) targetTabBtn = errTabItem.querySelector(".nav-link");
+                }
+                if (!targetTabBtn) {
+                    const firstVisibleTab = form.querySelector(
+                        ".campaign-channel-tab:not(.d-none) .nav-link"
+                    );
+                    targetTabBtn = firstVisibleTab;
+                }
+                if (targetTabBtn) {
+                    activateTab(targetTabBtn);
+                }
+            } else {
+                // Ensure active pane matches active tab
+                const targetSelector =
+                    currentActiveTab.getAttribute("data-bs-target") ||
+                    currentActiveTab.getAttribute("href");
+                if (targetSelector) {
+                    const activePane = form.querySelector(targetSelector);
+                    if (activePane && !activePane.classList.contains("active")) {
+                        activateTab(currentActiveTab);
+                    }
+                }
+            }
+        }
 
         // Update properties dropdown for board_before based on selected auction
         const auctionInput = form.querySelector('[name="auction_id"]');
@@ -238,6 +351,12 @@ const mountCycleForm = () => {
 
     form.addEventListener("change", updateAll);
     form.addEventListener("wizardDraftRestored", handleDraftRestored);
+    form.addEventListener("click", (e) => {
+        const tabBtn = e.target.closest(".campaign-scrolled-tabs .nav-link");
+        if (tabBtn) {
+            activateTab(tabBtn);
+        }
+    });
 
     if (window.jQuery) {
         const $ = window.jQuery;
@@ -251,6 +370,16 @@ const mountCycleForm = () => {
             "#campaign-channels-select",
             updateAll,
         );
+        $(form).on("select2:select", "#campaign-channels-select", function (e) {
+            const newlySelected = e.params?.data?.id;
+            updateAll();
+            if (newlySelected) {
+                const newTabBtn = form.querySelector(`#tab-btn-${newlySelected}`);
+                if (newTabBtn) {
+                    activateTab(newTabBtn);
+                }
+            }
+        });
         $(form).on("wizardDraftRestored", handleDraftRestored);
     }
 

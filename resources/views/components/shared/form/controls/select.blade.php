@@ -15,6 +15,7 @@
     'controlName' => null,
     'wrapperId' => null,
     'inputGroup' => false,
+    'selectAll' => null,
 ])
 
 @php
@@ -36,10 +37,33 @@
     $hasError = $errorsBag->has($name);
     $isRequired = filter_var($required, FILTER_VALIDATE_BOOLEAN);
     $attributes = $attributes->merge(['aria-required' => $isRequired ? 'true' : 'false']);
+
+    $hasSelectAll = $multiple && $select2 && ($selectAll !== false);
+    $useInputGroup = $inputGroup || $hasSelectAll;
+
+    $slotContent = isset($slot) ? $slot->toHtml() : '';
+    $slotHasOptions = str_contains($slotContent, '<option');
+    $slotHasSelectAll = str_contains($slotContent, 'btn-select-all') || str_contains($slotContent, 'js-select-all-trigger');
+
+    $isAllSelected = false;
+    if ($hasSelectAll && ! empty($options) && is_iterable($options)) {
+        $optionKeys = collect($options)->map(function ($opt, $k) use ($enum, $options) {
+            if ($enum) return (string) $k;
+            if (is_object($opt)) return (string) ($opt->id ?? $opt->value ?? $k);
+            if (is_array($opt)) return (string) ($opt['value'] ?? $opt['id'] ?? $k);
+            return (string) (is_array($options) && array_is_list($options) ? $opt : $k);
+        });
+        $isAllSelected = $optionKeys->isNotEmpty() && $optionKeys->diff($selectedValues)->isEmpty();
+    }
+
+    $isCustomRegions = ($fieldId === 'operational_regions');
+    $btnId = $isCustomRegions ? 'btn-select-all-regions' : 'btn-select-all-' . $fieldId;
+    $spanId = $isCustomRegions ? 'select-all-regions-text' : 'select-all-text-' . $fieldId;
+    $btnClasses = 'input-group-text cursor-pointer js-select-all-trigger btn-select-all' . ($isCustomRegions ? ' btn-select-all-regions' : '');
 @endphp
 
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help" :col="$col" :wrapper-id="$wrapperId">
-    @if ($inputGroup)
+    @if ($useInputGroup)
         <div @class([
             'input-group input-group-merge',
             'has-select2' => $select2,
@@ -56,7 +80,7 @@
                 aria-invalid="{{ $hasError ? 'true' : 'false' }}"
                 {{ $attributes->class(['form-select', 'select2' => $select2, 'is-invalid' => $hasError]) }}
             >
-                @if (! $multiple)
+                @if (! $multiple && empty($slotContent))
                     <option value=""></option>
                 @endif
                 @foreach ($options as $key => $option)
@@ -89,8 +113,23 @@
                         {{ $optionLabel }}
                     </option>
                 @endforeach
+                @if ($slotHasOptions)
+                    {!! $slotContent !!}
+                @endif
             </select>
-            {{ $slot }}
+            @if ($hasSelectAll && ! $slotHasSelectAll)
+                <button type="button"
+                    class="{{ $btnClasses }}"
+                    id="{{ $btnId }}"
+                    data-select-all-for="{{ $fieldId }}"
+                    title="{{ $isAllSelected ? 'إلغاء تحديد الكل' : 'تحديد الكل' }}">
+                    <i class="ti ti-check-double me-1 text-primary"></i>
+                    <span id="{{ $spanId }}" class="js-select-all-label">{{ $isAllSelected ? 'إلغاء التحديد' : 'تحديد الكل' }}</span>
+                </button>
+            @endif
+            @if (! $slotHasOptions)
+                {!! $slotContent !!}
+            @endif
         </div>
         {!! $append ?? '' !!}
     @else
@@ -105,7 +144,7 @@
             aria-invalid="{{ $hasError ? 'true' : 'false' }}"
             {{ $attributes->class(['form-select', 'select2' => $select2, 'is-invalid' => $hasError]) }}
         >
-            @if (! $multiple && empty($slot->toHtml()))
+            @if (! $multiple && empty($slotContent))
                 <option value=""></option>
             @endif
             @foreach ($options as $key => $option)
@@ -138,7 +177,7 @@
                     {{ $optionLabel }}
                 </option>
             @endforeach
-            {{ $slot ?? '' }}
+            {!! $slotContent !!}
         </select>
         {!! $append ?? '' !!}
     @endif

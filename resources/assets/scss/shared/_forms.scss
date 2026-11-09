@@ -317,7 +317,9 @@ textarea.form-control {
         }
 
         > .input-group-text,
-        > button.input-group-text {
+        > button.input-group-text,
+        > .btn-select-all,
+        > .btn-select-all-regions {
             align-self: stretch !important;
             display: inline-flex !important;
             align-items: center !important;
@@ -332,20 +334,27 @@ textarea.form-control {
             box-sizing: border-box !important;
             margin: 0 !important;
             padding: 0.55rem 0.85rem !important;
+            user-select: none;
         }
 
         &.is-invalid,
         &:has(.is-invalid),
         &:has(.select2-container.is-invalid),
-        &:has(.form-select.is-invalid) {
+        &:has(.form-select.is-invalid),
+        [data-form-field].is-invalid &,
+        [data-form-field].has-error & {
+            border-color: var(--bs-danger, #ff3e1d) !important;
+
             .select2-container .select2-selection {
-                border-color: var(--bs-danger) !important;
+                border-color: var(--bs-danger, #ff3e1d) !important;
                 border-inline-end: 0 !important;
             }
 
             > .input-group-text,
-            > button.input-group-text {
-                border-color: var(--bs-danger) !important;
+            > button.input-group-text,
+            > .btn-select-all,
+            > .btn-select-all-regions {
+                border-color: var(--bs-danger, #ff3e1d) !important;
                 border-inline-start: 0 !important;
             }
         }
@@ -353,18 +362,147 @@ textarea.form-control {
         &.is-valid,
         &:has(.is-valid),
         &:has(.select2-container.is-valid),
-        &:has(.form-select.is-valid) {
+        &:has(.form-select.is-valid),
+        [data-form-field].is-valid & {
+            border-color: var(--bs-success, #71dd37) !important;
+
             .select2-container .select2-selection {
-                border-color: var(--bs-success) !important;
+                border-color: var(--bs-success, #71dd37) !important;
                 border-inline-end: 0 !important;
             }
 
             > .input-group-text,
-            > button.input-group-text {
-                border-color: var(--bs-success) !important;
+            > button.input-group-text,
+            > .btn-select-all,
+            > .btn-select-all-regions {
+                border-color: var(--bs-success, #71dd37) !important;
                 border-inline-start: 0 !important;
             }
         }
+    }
+}
+
+// Standalone .input-group.has-select2 support (in case .input-group-merge is omitted)
+.input-group.has-select2,
+.input-group:has(.select2-container) {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+
+    > .select2-container {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: stretch !important;
+        flex: 1 1 auto !important;
+        width: 1% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+
+        > .selection {
+            display: flex !important;
+            flex: 1 1 auto !important;
+            width: 100% !important;
+            height: 100% !important;
+
+            > .select2-selection {
+                display: flex !important;
+                flex: 1 1 auto !important;
+                width: 100% !important;
+                height: 100% !important;
+                min-height: 42px !important;
+                border-inline-end: 0 !important;
+                border-start-end-radius: 0 !important;
+                border-end-end-radius: 0 !important;
+                box-sizing: border-box !important;
+            }
+        }
+    }
+
+    > .input-group-text,
+    > button.input-group-text,
+    > .btn-select-all,
+    > .btn-select-all-regions {
+        align-self: stretch !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: auto !important;
+        min-height: 42px !important;
+        max-height: none !important;
+        border-inline-start: 0 !important;
+        border-start-start-radius: 0 !important;
+        border-end-start-radius: 0 !important;
+        white-space: nowrap !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        padding: 0.55rem 0.85rem !important;
+        user-select: none;
+    }
+
+    &.is-invalid,
+    &:has(.is-invalid),
+    &:has(.select2-container.is-invalid),
+    &:has(.form-select.is-invalid),
+    [data-form-field].is-invalid &,
+    [data-form-field].has-error & {
+        border-color: var(--bs-danger, #ff3e1d) !important;
+
+        > .select2-container .select2-selection {
+            border-color: var(--bs-danger, #ff3e1d) !important;
+            border-inline-end: 0 !important;
+        }
+
+        > .input-group-text,
+        > button.input-group-text,
+        > .btn-select-all,
+        > .btn-select-all-regions {
+            border-color: var(--bs-danger, #ff3e1d) !important;
+            border-inline-start: 0 !important;
+        }
+    }
+
+    &.is-valid,
+    &:has(.is-valid),
+    &:has(.select2-container.is-valid),
+    &:has(.form-select.is-valid),
+    [data-form-field].is-valid & {
+        border-color: var(--bs-success, #71dd37) !important;
+
+        > .select2-container .select2-selection {
+            border-color: var(--bs-success, #71dd37) !important;
+            border-inline-end: 0 !important;
+        }
+
+        > .input-group-text,
+        > button.input-group-text,
+        > .btn-select-all,
+        > .btn-select-all-regions {
+            border-color: var(--bs-success, #71dd37) !important;
+            border-inline-start: 0 !important;
+        }
+    }
+}
+
+// Global Select All / Deselect All Trigger Button
+.btn-select-all,
+.js-select-all-trigger {
+    cursor: pointer !important;
+    user-select: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+
+    &:hover {
+        color: var(--primary-color, #1d4f44) !important;
+        background-color: rgba(29, 79, 68, 0.04);
+    }
+
+    &:active {
+        background-color: rgba(29, 79, 68, 0.08);
+    }
+
+    i {
+        transition: transform 0.3s ease;
     }
 }
 
