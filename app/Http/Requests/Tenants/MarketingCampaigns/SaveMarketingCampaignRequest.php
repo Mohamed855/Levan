@@ -41,11 +41,14 @@ final class SaveMarketingCampaignRequest extends FormRequest
 
                 $prefix = "campaigns.{$channel}";
                 $metrics = config("auction-marketing-campaigns.{$channel}", []);
-                $rules["{$prefix}"] = ['nullable', 'array'];
-                $rules["{$prefix}.campaign_date"] = ['nullable', 'date'];
+                $rules["{$prefix}"] = ['required', 'array'];
+                $rules["{$prefix}.campaign_date"] = [
+                    $channel === 'whatsapp' ? 'required' : 'nullable',
+                    'date',
+                ];
                 $rules["{$prefix}.url"] = [
                     Rule::excludeIf(! in_array($channel, config('auction-marketing-fields.links'), true)),
-                    'nullable',
+                    'required',
                     'url:https',
                     'max:2048',
                 ];
@@ -60,11 +63,11 @@ final class SaveMarketingCampaignRequest extends FormRequest
                 $rules["{$prefix}.remove_evidence.*"] = ['integer', 'distinct'];
 
                 if ($metrics !== []) {
-                    $rules["{$prefix}.metrics"] = ['nullable', 'array'];
+                    $rules["{$prefix}.metrics"] = ['required', 'array'];
                     foreach ($metrics as $metric) {
                         $metricKey = "{$prefix}.metrics.{$metric}";
                         if (array_key_exists($metric, config('auction-marketing-fields.text'))) {
-                            $rules[$metricKey] = ['nullable', 'string', 'max:10000'];
+                            $rules[$metricKey] = ['required', 'string', 'max:10000'];
                             continue;
                         }
                         if ($metric === 'property_id') {
@@ -76,9 +79,9 @@ final class SaveMarketingCampaignRequest extends FormRequest
                             ];
                             continue;
                         }
-                        $rules[$metricKey] = ['nullable', in_array($metric, config('auction-report-inputs.integer_metrics')) ? 'integer' : 'numeric'];
+                        $rules[$metricKey] = ['required', in_array($metric, config('auction-report-inputs.integer_metrics')) ? 'integer' : 'numeric'];
                         if ($metric === 'board_count') {
-                            $rules[$metricKey] = ['nullable', 'integer'];
+                            $rules[$metricKey] = ['required', 'integer'];
                         }
                         if (! in_array($metric, config('auction-report-inputs.signed_metrics'))) {
                             $rules[$metricKey][] = 'min:0';
@@ -96,9 +99,9 @@ final class SaveMarketingCampaignRequest extends FormRequest
         $rules = [
             'auction_id' => ['required', 'integer', Rule::exists('auctions', 'id')->whereNull('deleted_at')],
             'channel' => ['required', Rule::in(array_keys(config('auction-marketing-campaigns')))],
-            'campaign_date' => ['exclude_unless:channel,whatsapp', 'nullable', 'date'],
-            'metrics' => ['nullable', Rule::array($metrics)],
-            'url' => [Rule::excludeIf(! in_array($channel, config('auction-marketing-fields.links'), true)), 'nullable', 'url:https', 'max:2048'],
+            'campaign_date' => ['exclude_unless:channel,whatsapp', 'required', 'date'],
+            'metrics' => [$metrics !== [] ? 'required' : 'prohibited', Rule::array($metrics)],
+            'url' => [Rule::excludeIf(! in_array($channel, config('auction-marketing-fields.links'), true)), 'required', 'url:https', 'max:2048'],
             'evidence' => [Rule::excludeIf(! in_array($channel, config('auction-marketing-fields.evidence'), true)), 'nullable', 'array', 'max:50'],
             'evidence.*' => ['file', 'mimes:pdf,png,jpg,jpeg,webp', 'max:10240'],
             'remove_evidence' => ['nullable', 'array'],
@@ -107,7 +110,7 @@ final class SaveMarketingCampaignRequest extends FormRequest
 
         foreach ($metrics as $metric) {
             if (array_key_exists($metric, config('auction-marketing-fields.text'))) {
-                $rules['metrics.'.$metric] = ['nullable', 'string', 'max:10000'];
+                $rules['metrics.'.$metric] = ['required', 'string', 'max:10000'];
                 continue;
             }
             if ($metric === 'property_id') {
@@ -118,9 +121,9 @@ final class SaveMarketingCampaignRequest extends FormRequest
                 ];
                 continue;
             }
-            $rules['metrics.'.$metric] = ['nullable', in_array($metric, config('auction-report-inputs.integer_metrics')) ? 'integer' : 'numeric'];
+            $rules['metrics.'.$metric] = ['required', in_array($metric, config('auction-report-inputs.integer_metrics')) ? 'integer' : 'numeric'];
             if ($metric === 'board_count') {
-                $rules['metrics.'.$metric] = ['nullable', 'integer'];
+                $rules['metrics.'.$metric] = ['required', 'integer'];
             }
             if (! in_array($metric, config('auction-report-inputs.signed_metrics'))) {
                 $rules['metrics.'.$metric][] = 'min:0';

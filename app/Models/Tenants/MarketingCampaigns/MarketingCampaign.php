@@ -28,6 +28,18 @@ final class MarketingCampaign extends Model
         return $this->hasMany(AuctionAttachment::class, 'marketing_campaign_id')->orderBy('display_order')->orderBy('id');
     }
 
+    public function getChannelLabelAttribute(): string
+    {
+        if ($this->platform_label) {
+            return $this->platform_label;
+        }
+
+        $labels = __('auction_reports.channels', [], 'ar');
+
+        return (is_array($labels) ? ($labels[$this->channel] ?? null) : null)
+            ?: $this->channel;
+    }
+
     public function reportData(): array
     {
         return ['id' => (int) $this->id, 'platform' => $this->channel, 'campaign_date' => $this->campaign_date?->format('Y-m-d'), 'platform_label' => $this->platform_label, 'url' => $this->url, 'link_label' => $this->link_label, 'link_role' => $this->link_role] + ($this->metrics ?? []);

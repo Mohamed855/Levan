@@ -197,7 +197,7 @@
                         <div id="campaign-tabs-empty"
                             class="alert alert-warning d-flex align-items-center mb-5 {{ $hasActiveSelection ? 'd-none' : '' }}">
                             <i class="ti ti-alert-triangle ti-md me-1 mt-1"></i>
-                            <span>قم باختيار نوع أو أكثر من أنواع الحملات التسويقية لعرض وتعديل بياناتها.</span>
+                            <span>يجب اختيار نوع أو أكثر من أنواع الحملات التسويقية لعرض وتعديل بياناتها.</span>
                         </div>
 
                         {{-- Top Controls: Auction & Channel Multi-Select --}}
@@ -219,7 +219,7 @@
                         {{-- Scrolled Tabs Wrapper --}}
                         <div id="campaign-tabs-wrapper" class="{{ $hasActiveSelection ? '' : 'd-none' }}">
                             {{-- Horizontal Scrollable Tabs Header --}}
-                            <div class="campaign-tabs-scroll-container mb-3">
+                            <div class="campaign-tabs-scroll-container">
                                 <ul class="nav nav-pills flex-nowrap campaign-scrolled-tabs" id="campaign-nav-pills"
                                     role="tablist">
                                     @foreach ($channelDefinitions as $channel => $metrics)
@@ -285,7 +285,7 @@
                                                         : 'col-md-6';
                                                 @endphp
                                                 <x-form.controls.input :name="'campaigns[' . $channel . '][url]'" type="url" label="رابط الحملة"
-                                                    :value="old('campaigns.' . $channel . '.url', $campaign?->url)" :col="$urlCol" />
+                                                    :value="old('campaigns.' . $channel . '.url', $campaign?->url)" :col="$urlCol" required />
                                             @endif
 
                                             {{-- Date Field (if applicable) --}}
@@ -294,7 +294,7 @@
                                                     :value="old(
                                                         'campaigns.' . $channel . '.campaign_date',
                                                         $campaign?->campaign_date?->format('Y-m-d'),
-                                                    )" col="col-md-6" />
+                                                    )" col="col-md-6" required />
                                             @endif
 
                                             {{-- Property Select (if applicable) --}}
@@ -364,14 +364,14 @@
                                                             'campaigns.' . $channel . '.metrics.' . $metric,
                                                             $campaign?->metrics[$metric] ?? null,
                                                         )" :data-campaign-metric="$metric"
-                                                        :col="$metricCol" />
+                                                        :col="$metricCol" required />
                                                 @elseif (array_key_exists($metric, $textFields))
                                                     <x-form.controls.textarea :name="'campaigns[' . $channel . '][metrics][' . $metric . ']'" :label="$textFields[$metric]"
                                                         :value="old(
                                                             'campaigns.' . $channel . '.metrics.' . $metric,
                                                             $campaign?->metrics[$metric] ?? null,
                                                         )" :data-campaign-metric="$metric" rows="3"
-                                                        :col="$metricCol" />
+                                                        :col="$metricCol" required />
                                                 @else
                                                     @php
                                                         $metricTitle =
@@ -387,7 +387,7 @@
                                                         )" :data-campaign-metric="$metric"
                                                         :step="in_array($metric, $integerMetrics, true)
                                                             ? '1'
-                                                            : 'any'" :min="in_array($metric, $signedMetrics, true) ? null : 0" :col="$metricCol" />
+                                                            : 'any'" :min="in_array($metric, $signedMetrics, true) ? null : 0" :col="$metricCol" required />
                                                 @endif
                                             @endforeach
 

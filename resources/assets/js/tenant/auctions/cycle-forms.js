@@ -349,7 +349,45 @@ const mountCycleForm = () => {
         setTimeout(updateAll, 200);
     };
 
-    form.addEventListener("change", updateAll);
+    const syncTabErrorStates = () => {
+        const tabItems = form.querySelectorAll(".campaign-channel-tab");
+        tabItems.forEach((tabItem) => {
+            const ch = String(tabItem.dataset.channel || "");
+            const pane = form.querySelector(`#channel-pane-${ch}`);
+            const btn = tabItem.querySelector(".nav-link");
+            if (!pane || !btn) return;
+            const hasError =
+                pane.querySelector(
+                    ".is-invalid, [aria-invalid='true'], [data-form-error]:not([hidden]):not([style*='display: none'])"
+                ) !== null;
+            if (hasError) {
+                btn.classList.add("border-danger", "text-danger");
+            } else {
+                btn.classList.remove("border-danger", "text-danger");
+            }
+        });
+    };
+
+    form.addEventListener("change", () => {
+        updateAll();
+        syncTabErrorStates();
+    });
+    form.addEventListener("input", syncTabErrorStates);
+    form.addEventListener(
+        "invalid",
+        (e) => {
+            const pane = e.target.closest(".campaign-channel-pane");
+            if (pane) {
+                const ch = pane.dataset.channel;
+                const tabBtn = form.querySelector(`#tab-btn-${ch}`);
+                if (tabBtn) {
+                    activateTab(tabBtn);
+                }
+            }
+            syncTabErrorStates();
+        },
+        true
+    );
     form.addEventListener("wizardDraftRestored", handleDraftRestored);
     form.addEventListener("click", (e) => {
         const tabBtn = e.target.closest(".campaign-scrolled-tabs .nav-link");

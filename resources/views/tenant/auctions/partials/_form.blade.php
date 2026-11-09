@@ -25,16 +25,11 @@
 
     <form id="{{ $is_edit ? 'auction-edit-form' : 'wizard-validation-form' }}"
         action="{{ $is_edit ? tenant_route_name('auctions.update', $auction->id) : tenant_route_name('auctions.store') }}"
-        method="POST"
-        enctype="multipart/form-data"
-        autocomplete="off"
-        data-form-validate
+        method="POST" enctype="multipart/form-data" autocomplete="off" data-form-validate
         data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
-        @if (! $is_edit)
-            data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
+        @if (!$is_edit) data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
             data-draft-file-url="{{ tenant_route_name('wizard-drafts.file.destroy') }}"
-            data-draft-resource-key="tenant.auction-create"
-        @endif
+            data-draft-resource-key="tenant.auction-create" @endif
         data-assignment-properties-url="{{ tenant_route_name('assignments.properties', ':id') }}"
         data-property-image-fallback="{{ asset('static/brand/logos/logo.svg') }}">
         @csrf
@@ -62,7 +57,7 @@
             <x-form.wizard.actions>
                 <x-form.wizard.previous-button :href="tenant_route_name('auctions.index')" />
                 <div class="d-flex gap-2">
-                    @if (! $is_edit)
+                    @if (!$is_edit)
                         <x-form.wizard.draft-button />
                     @endif
                     <x-form.wizard.next-button />
@@ -77,7 +72,7 @@
             <x-form.wizard.actions>
                 <x-form.wizard.previous-button />
                 <div class="d-flex gap-2">
-                    @if (! $is_edit)
+                    @if (!$is_edit)
                         <x-form.wizard.draft-button />
                     @endif
                     <x-form.wizard.next-button />
@@ -92,7 +87,7 @@
             <x-form.wizard.actions>
                 <x-form.wizard.previous-button />
                 <div class="d-flex gap-2">
-                    @if (! $is_edit)
+                    @if (!$is_edit)
                         <x-form.wizard.draft-button />
                     @endif
                     <x-form.wizard.next-button :disabled="!($is_edit && $auction->properties && $auction->properties->isNotEmpty())" />
@@ -107,47 +102,13 @@
             <x-form.wizard.actions>
                 <x-form.wizard.previous-button />
                 <div class="d-flex gap-2">
-                    @if (! $is_edit)
+                    @if (!$is_edit)
                         <x-form.wizard.draft-button />
                     @endif
                     <x-form.wizard.next-button />
                 </div>
             </x-form.wizard.actions>
         </x-form.wizard.step>
-
-        {{-- الخطوة 5: النتائج واللوحات (معطلة مؤقتاً) --}}
-        {{--
-        <x-form.wizard.step id="step-results-boards" :fields="['property_results', 'board_images_before', 'board_images_after']">
-            @include('tenant.auctions.partials.steps.step5-results-boards', ['auction' => $auction])
-
-            <x-form.wizard.actions>
-                <x-form.wizard.previous-button />
-                <div class="d-flex gap-2">
-                    @if (! $is_edit)
-                        <x-form.wizard.draft-button />
-                    @endif
-                    <x-form.wizard.next-button />
-                </div>
-            </x-form.wizard.actions>
-        </x-form.wizard.step>
-        --}}
-
-        {{-- الخطوة 6: الحملات التسويقية (معطلة مؤقتاً) --}}
-        {{--
-        <x-form.wizard.step id="step-campaigns" :fields="['marketing.campaigns', 'marketing.links', 'marketing_evidence']">
-            @include('tenant.auctions.partials.steps.step6-campaigns', ['auction' => $auction])
-
-            <x-form.wizard.actions>
-                <x-form.wizard.previous-button />
-                <div class="d-flex gap-2">
-                    @if (! $is_edit)
-                        <x-form.wizard.draft-button />
-                    @endif
-                    <x-form.wizard.next-button />
-                </div>
-            </x-form.wizard.actions>
-        </x-form.wizard.step>
-        --}}
 
         {{-- الخطوة 5: المراجعة والإرسال --}}
         <x-form.wizard.step id="step-review" :fields="[]">
@@ -156,7 +117,7 @@
             <x-form.wizard.actions>
                 <x-form.wizard.previous-button />
                 <div class="d-flex gap-2">
-                    @if (! $is_edit)
+                    @if (!$is_edit)
                         <x-form.wizard.draft-button />
                     @endif
                     <x-form.wizard.save-button />
