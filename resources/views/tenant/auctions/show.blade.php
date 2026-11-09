@@ -89,9 +89,9 @@
             @php
                 $gen = $auction->latestReportGeneration;
                 $published = $auction->publishedReportGeneration;
-                $isReady = $published?->isReady();
-                $isProcessing = $gen?->isProcessing();
-                $isFailed = $gen?->isFailed();
+                $isProcessing = (bool) $gen?->isProcessing();
+                $isReady = ! $isProcessing && (bool) $published?->isReady();
+                $isFailed = ! $isProcessing && (bool) $gen?->isFailed();
                 $initialProgress = $gen ? (int) ($gen->progress ?? 0) : 0;
             @endphp
             <div class="card mb-4 shadow-sm border-primary" id="auction-reports-card">
@@ -100,12 +100,11 @@
                         <i class="ti ti-file-analytics me-1"></i>ملفات وتقارير المزاد
                     </h6>
                     <div id="reports-header-badge">
-                        @if ($isReady)
+                        @if ($isProcessing)
+                            <span class="badge bg-info"><i class="ti ti-loader ti-spin me-1"></i>قيد التوليد</span>
+                        @elseif ($isReady)
                             <span class="badge bg-success">جاهز للتحميل</span>
-                        @elseif($isProcessing)
-                            <span class="badge bg-info"><i class="ti ti-loader ti-spin me-1"></i>قيد
-                                الإعداد</span>
-                        @elseif($isFailed)
+                        @elseif ($isFailed)
                             <span class="badge bg-danger">فشل الإعداد</span>
                         @else
                             <span class="badge bg-secondary">غير مجهز بعد</span>
@@ -146,18 +145,18 @@
                     </div>
 
                     <div class="d-grid gap-2" id="reports-actions-group">
-                        <a href="{{ $isReady && filled($published->outputs_path) ? tenant_route_name('auctions.reports.download', ['auction' => $auction->id, 'type' => 'outputs']) : 'javascript:void(0)' }}"
+                        <a href="{{ $isReady && filled($published?->outputs_path) ? tenant_route_name('auctions.reports.download', ['auction' => $auction->id, 'type' => 'outputs']) : 'javascript:void(0)' }}"
                             id="btn-download-outputs"
-                            class="btn btn-primary d-flex align-items-center justify-content-between {{ !$isReady || blank($published->outputs_path) ? 'disabled' : '' }}"
-                            @if (!$isReady || blank($published->outputs_path)) disabled aria-disabled="true" @endif>
+                            class="btn btn-primary d-flex align-items-center justify-content-between {{ !$isReady || blank($published?->outputs_path) ? 'disabled' : '' }}"
+                            @if (!$isReady || blank($published?->outputs_path)) disabled aria-disabled="true" @endif>
                             <span><i class="ti ti-file-text me-2"></i>تحميل مخرجات المزاد</span>
                             <i class="ti ti-download"></i>
                         </a>
 
-                        <a href="{{ $isReady && filled($published->report_path) ? tenant_route_name('auctions.reports.download', ['auction' => $auction->id, 'type' => 'report']) : 'javascript:void(0)' }}"
+                        <a href="{{ $isReady && filled($published?->report_path) ? tenant_route_name('auctions.reports.download', ['auction' => $auction->id, 'type' => 'report']) : 'javascript:void(0)' }}"
                             id="btn-download-report"
-                            class="btn btn-success d-flex align-items-center justify-content-between {{ !$isReady || blank($published->report_path) ? 'disabled' : '' }}"
-                            @if (!$isReady || blank($published->report_path)) disabled aria-disabled="true" @endif>
+                            class="btn btn-success d-flex align-items-center justify-content-between {{ !$isReady || blank($published?->report_path) ? 'disabled' : '' }}"
+                            @if (!$isReady || blank($published?->report_path)) disabled aria-disabled="true" @endif>
                             <span><i class="ti ti-file-analytics me-2"></i>تحميل تقرير المزاد</span>
                             <i class="ti ti-download"></i>
                         </a>
@@ -266,6 +265,44 @@
             const retryIcon = document.getElementById('btn-retry-icon');
             const retryText = document.getElementById('btn-retry-text');
 
+            function disableDownloadButtons() {
+                const btnOutputs = document.getElementById('btn-download-outputs');
+                const btnReport = document.getElementById('btn-download-report');
+                if (btnOutputs) {
+                    btnOutputs.classList.add('disabled');
+                    btnOutputs.setAttribute('disabled', 'disabled');
+                    btnOutputs.setAttribute('aria-disabled', 'true');
+                    btnOutputs.href = 'javascript:void(0)';
+                }
+                if (btnReport) {
+                    btnReport.classList.add('disabled');
+                    btnReport.setAttribute('disabled', 'disabled');
+                    btnReport.setAttribute('aria-disabled', 'true');
+                    btnReport.href = 'javascript:void(0)';
+                }
+            }
+
+            function setProcessingUI() {
+                if (retryBtn) {
+                    retryBtn.disabled = true;
+                    retryBtn.classList.add('d-none');
+                }
+                if (timeoutAlert) {
+                    timeoutAlert.classList.add('d-none');
+                }
+                if (errorAlert) {
+                    errorAlert.classList.add('d-none');
+                }
+                if (loadingBox) {
+                    loadingBox.classList.remove('d-none');
+                }
+                if (headerBadge) {
+                    headerBadge.innerHTML =
+                        '<span class="badge bg-info"><i class="ti ti-loader ti-spin me-1"></i>قيد التوليد</span>';
+                }
+                disableDownloadButtons();
+            }
+
             function resetRetryButton(text = 'إعادة المحاولة') {
                 if (retryBtn) {
                     retryBtn.disabled = false;
@@ -296,6 +333,8 @@
                 if (pollInterval) {
                     clearInterval(pollInterval);
                 }
+
+                setProcessingUI();
 
                 const startTime = Date.now();
 
@@ -338,6 +377,7 @@
                         .then(res => res.json())
                         .then(data => {
                             if (data.status === 'processing' || data.status === 'queued') {
+                                setProcessingUI();
                                 if (data.progress !== undefined && data.progress !== null) {
                                     updateProgressUI(data.progress);
                                 }
@@ -345,6 +385,11 @@
                                 clearInterval(pollInterval);
                                 pollInterval = null;
                                 updateProgressUI(100);
+
+                                if (headerBadge) {
+                                    headerBadge.innerHTML =
+                                        '<span class="badge bg-success">جاهز للتحميل</span>';
+                                }
 
                                 if (window.toastr) {
                                     toastr.success('تم تحضير وتجهيز تقارير المزاد بنجاح!');
@@ -379,29 +424,12 @@
             }
 
             function startReportGeneration() {
-                if (retryBtn) {
-                    retryBtn.disabled = true;
-                    retryBtn.classList.add('d-none');
-                }
+                setProcessingUI();
                 if (retryIcon) {
                     retryIcon.className = 'ti ti-loader ti-spin me-1';
                 }
                 if (retryText) {
                     retryText.textContent = 'جارٍ بدء التوليد...';
-                }
-
-                if (timeoutAlert) {
-                    timeoutAlert.classList.add('d-none');
-                }
-                if (errorAlert) {
-                    errorAlert.classList.add('d-none');
-                }
-                if (loadingBox) {
-                    loadingBox.classList.remove('d-none');
-                }
-                if (headerBadge) {
-                    headerBadge.innerHTML =
-                        '<span class="badge bg-info"><i class="ti ti-loader ti-spin me-1"></i>قيد الإعداد</span>';
                 }
                 updateProgressUI(10);
 
@@ -482,7 +510,7 @@
             }
 
             // متابعة الإصدار الموجود بعد ظهور التفاصيل؛ طلب الحالة يبدأ الإصدار المنتظر دون إنشاء نسخة إضافية.
-            @if ($auction->latestReportGeneration && in_array($auction->latestReportGeneration->status, ['queued', 'processing']))
+            @if ($isProcessing)
                 startPolling(AUTO_TIMEOUT_MS);
             @endif
 

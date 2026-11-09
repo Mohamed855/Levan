@@ -20,9 +20,9 @@ final class SaveAuctionClosingRequest extends FormRequest
     {
         return [
             'closing_date' => ['required', 'date'],
-            'approval_number' => ['nullable', 'string', 'max:255'],
+            'approval_number' => ['required', 'string', 'max:255'],
             'results_narrative' => ['nullable', 'string', 'max:10000'],
-            'board_removal_date' => ['nullable', 'date'],
+            'board_removal_date' => ['required', 'date'],
             'board_images_after' => ['nullable', 'array'],
             'board_images_after.*' => ['array', 'max:50'],
             'board_images_after.*.*' => ['file', 'mimes:png,jpg,jpeg,webp', 'max:10240'],
