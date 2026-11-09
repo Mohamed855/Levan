@@ -58,7 +58,7 @@
 
         <x-ui.stat-card title="إجمالي المزادات" :value="number_format($kpis['total_auctions'])" icon="ti-gavel" color="info" />
 
-        <x-ui.stat-card title="المزادات القادمة" :value="number_format($kpis['upcoming_auctions'])" icon="ti-calendar-event" color="label-dark text-dark" />
+        <x-ui.stat-card title="مزادات قيد الانتظار" :value="number_format($kpis['pending_auctions'])" icon="ti-calendar-event" color="label-dark text-dark" />
     </div>
 
     <div class="row g-4 mb-4">
@@ -263,7 +263,7 @@
         </div>
 
         <div class="col-lg-6">
-            <x-ui.dashboard-panel class="h-100" title="المزادات الحالية والقادمة" icon="ti-gavel" body-class="p-0">
+            <x-ui.dashboard-panel class="h-100" title="أحدث المزادات" icon="ti-gavel" body-class="p-0">
                 <x-slot:headerAction>
                     @can('auctions.view')
                         <a href="{{ tenant_route_name('auctions.index') }}" class="btn btn-sm btn-primary">

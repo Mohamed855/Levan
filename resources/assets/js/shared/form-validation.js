@@ -1414,8 +1414,8 @@ function updateStepNextButton(form, step) {
     const stepFields = validationFieldsFromStep(step);
     const hasPropertyIds =
         stepFields.includes("property_ids") ||
-        step.id === "assignment-properties-validation" ||
-        step.id === "step-properties";
+        (step.id === "step-properties" && stepFields.includes("property_ids")) ||
+        step.id === "assignment-properties-validation";
 
     if (!hasPropertyIds) {
         return;
@@ -1426,7 +1426,9 @@ function updateStepNextButton(form, step) {
     );
 
     const propertyInputs = Array.from(
-        form.querySelectorAll('input[name="property_ids[]"], input[name="property_ids"]'),
+        form.querySelectorAll(
+            'input[name="property_ids[]"], input[name="property_ids"], input[name^="data[properties]"][name$="[property_id]"]'
+        ),
     ).filter(
         (input) =>
             input.value &&
@@ -1463,7 +1465,9 @@ function syncAllPropertyStepButtons(form) {
     ];
 
     const propertyInputs = Array.from(
-        form.querySelectorAll('input[name="property_ids[]"], input[name="property_ids"]'),
+        form.querySelectorAll(
+            'input[name="property_ids[]"], input[name="property_ids"], input[name^="data[properties]"][name$="[property_id]"]'
+        ),
     ).filter(
         (input) =>
             input.value &&
@@ -1476,8 +1480,8 @@ function syncAllPropertyStepButtons(form) {
         const fields = validationFieldsFromStep(step);
         if (
             fields.includes("property_ids") ||
-            step.id === "assignment-properties-validation" ||
-            step.id === "step-properties"
+            (step.id === "step-properties" && fields.includes("property_ids")) ||
+            step.id === "assignment-properties-validation"
         ) {
             const nextButtons = step.querySelectorAll(
                 "[data-wizard-next], .btn-next:not(.btn-submit)",

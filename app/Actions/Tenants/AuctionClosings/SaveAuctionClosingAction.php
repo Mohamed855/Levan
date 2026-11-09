@@ -8,6 +8,7 @@ use App\Models\Tenants\AuctionClosings\AuctionClosing;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Auctions\AuctionReportInputService;
+use App\Services\Tenants\Auctions\Forms\AuctionRegulatoryFormService;
 use App\Services\Tenants\Auctions\Reports\AuctionReportDataBuilder;
 use App\Services\Tenants\Auctions\Reports\AuctionReportLock;
 use App\Services\Tenants\Auctions\Reports\AuctionReportRefreshService;
@@ -25,7 +26,7 @@ final class SaveAuctionClosingAction
         try {
             $closing = DB::transaction(function () use ($auction, $data, $actorId, &$storedPaths, &$removedPaths): AuctionClosing {
                 $auction = Auction::query()->lockForUpdate()->findOrFail($auction->id);
-                app(AuctionReportLock::class)->assertEditable($auction);
+                app(AuctionReportLock::class)->assertClosingAllowed($auction);
                 $properties = $auction->properties()->get();
                 $ids = $properties->modelKeys();
                 $results = $data['results'];
@@ -77,7 +78,7 @@ final class SaveAuctionClosingAction
                 if (! $closing->exists) {
                     $closing->created_by = $actorId;
                 }
-                $closing->fill(['closing_date' => $data['closing_date'], 'approval_number' => $data['approval_number'] ?? null, 'saved_at' => now(), 'updated_by' => $actorId]);
+                $closing->fill(['closing_date' => $data['closing_date'], 'approval_number' => $auction->establishmentRequest->approval_number, 'saved_at' => now(), 'updated_by' => $actorId]);
                 $closing->save();
                 if (count(array_filter($results, fn ($result) => $result['status'] === 'sold')) === count($ids)) {
                     $closing->update(['finalized_snapshot' => app(AuctionReportDataBuilder::class)->build($auction->fresh())]);
@@ -93,6 +94,7 @@ final class SaveAuctionClosingAction
             DB::afterCommit(fn () => Storage::disk('tenant_public')->delete($removedPaths));
         }
         app(AuctionReportRefreshService::class)->afterMutation([$auction->id], true);
+        app(AuctionRegulatoryFormService::class)->requestGeneration($auction->fresh(), 'closing');
 
         return $closing;
     }

@@ -16,7 +16,9 @@ class AuctionPolicy
 
     public function view(User $user, Auction $auction): bool
     {
-        return $user->can('auctions.view') && tenancy()->initialized;
+        return tenancy()->initialized && $user->hasAnyPermission([
+            'auctions.view', 'auction_establishment_requests.view', 'auction_closings.view',
+        ]);
     }
 
     public function create(User $user): bool
@@ -36,7 +38,7 @@ class AuctionPolicy
 
     public function restore(User $user, Auction $auction): bool
     {
-        return $user->can('auctions_archive.restore') && tenancy()->initialized;
+        return $user->can('auctions_archive.restore') && tenancy()->initialized && ! $this->isFinalized($auction);
     }
 
     public function forceDelete(User $user, Auction $auction): bool
@@ -46,6 +48,6 @@ class AuctionPolicy
 
     private function isFinalized(Auction $auction): bool
     {
-        return $auction->closing()->whereNotNull('finalized_snapshot')->exists();
+        return $auction->isClosed() || $auction->closing()->whereNotNull('finalized_snapshot')->exists();
     }
 }

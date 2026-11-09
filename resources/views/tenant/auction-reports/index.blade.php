@@ -21,9 +21,8 @@
     <x-data-table.page table-id="auction-reports-table">
         <x-slot:stats>
             <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي التقارير" :value="number_format($statistics['total'] ?? 0)" subtitle="تقريران لكل مزاد" icon="ti-file-analytics" color="primary" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="تقارير غير مكتملة" :value="number_format($statistics['incomplete'] ?? 0)" subtitle="لم تسجل بيانات الحملات" icon="ti-file-alert" color="warning" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="تقارير مكتملة" :value="number_format($statistics['complete'] ?? 0)" subtitle="حملات مسجلة ومزاد قابل للتحديث" icon="ti-file-check" color="info" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="تقارير منتهية" :value="number_format($statistics['ended'] ?? 0)" subtitle="مزادات بيعت جميع عقاراتها" icon="ti-lock" color="success" />
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="تقارير غير مكتملة" :value="number_format($statistics['incomplete'] ?? 0)" subtitle="بعض أقسام الحملات أو حقولها غير مكتملة" icon="ti-file-alert" color="warning" />
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="تقارير مكتملة" :value="number_format($statistics['complete'] ?? 0)" subtitle="اكتملت جميع أقسام الحملات والحقول المطلوبة" icon="ti-file-check" color="info" />
         </x-slot:stats>
 
         <x-slot:filters>

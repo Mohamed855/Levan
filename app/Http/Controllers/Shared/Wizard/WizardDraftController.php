@@ -231,14 +231,39 @@ class WizardDraftController extends Controller
 
     private function rulesForFields(array $rules, array $fields): array
     {
-        $roots = array_unique(array_map(
-            static fn (string $field): string => preg_split('/[.\[]/', $field)[0],
+        $normalizedFields = array_map(
+            static fn (string $field): string => str_replace(['[', ']'], ['.', ''], trim($field, '.[]')),
             $fields,
-        ));
+        );
 
         return array_filter(
             $rules,
-            static fn (string $ruleKey): bool => in_array(strtok($ruleKey, '.'), $roots, true),
+            function (string $ruleKey) use ($normalizedFields): bool {
+                foreach ($normalizedFields as $field) {
+                    if ($ruleKey === $field || str_starts_with($ruleKey, $field.'.') || str_starts_with($field, $ruleKey.'.')) {
+                        return true;
+                    }
+
+                    // Check pattern matching for wildcard rules like data.properties.*.property_id
+                    $pattern = '#^'.preg_replace('/\\\.\\\*\\\./', '\.[^\.]+\.', preg_quote($ruleKey, '#')).'#';
+                    if (preg_match($pattern, $field)) {
+                        return true;
+                    }
+
+                    $fieldPattern = '#^'.preg_replace('/\\\.\\\*\\\./', '\.[^\.]+\.', preg_quote($field, '#')).'#';
+                    if (preg_match($fieldPattern, $ruleKey)) {
+                        return true;
+                    }
+
+                    $root = explode('.', $field)[0];
+                    $ruleRoot = explode('.', $ruleKey)[0];
+                    if ($root === $ruleRoot && ! str_contains($field, '.') && ! str_contains($ruleKey, '.')) {
+                        return true;
+                    }
+                }
+
+                return false;
+            },
             ARRAY_FILTER_USE_KEY,
         );
     }

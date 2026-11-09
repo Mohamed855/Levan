@@ -13,13 +13,17 @@ final class AuctionPropertyLifecycleIntegrationTest extends TenantAuctionReportT
 {
     use AuctionReportCycleFixtures;
 
-    public function test_toggle_status_updates_is_active_and_refreshes_reports(): void
+    public function test_manual_status_toggle_is_rejected_without_refreshing_reports(): void
     {
         Queue::fake();
         $auction = $this->cycleAuction();
-        self::assertFalse(app(AuctionService::class)->toggleStatus($auction, false));
-        self::assertFalse($auction->fresh()->is_active);
+        try {
+            app(AuctionService::class)->toggleStatus($auction, false);
+            self::fail('Manual auction status accepted.');
+        } catch (\Illuminate\Validation\ValidationException) {
+            self::assertTrue($auction->fresh()->is_active);
+        }
         self::assertSame('pending', $auction->fresh()->properties()->first()->pivot->result_status);
-        self::assertSame(false, $auction->latestReportGeneration()->first()->snapshot['auction']['is_active']);
+        self::assertNull($auction->latestReportGeneration()->first());
     }
 }

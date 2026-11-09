@@ -19,7 +19,15 @@ class StoreWizardDraftRequest extends AuthenticatedWizardDraftRequest
 
     public function attributes(): array
     {
-        $uploads = match ($this->input('resource_key')) {
+        $key = (string) $this->input('resource_key');
+        if (str_starts_with($key, 'tenant.marketing-campaign.')) {
+            $key = 'tenant.marketing-campaign';
+        }
+        if (str_starts_with($key, 'tenant.auction-establishment-request.')) {
+            $key = 'tenant.auction-establishment-request';
+        }
+
+        $uploads = match ($key) {
             'admin.user-create', 'tenant.user-create' => ['image' => 'الصورة الشخصية'],
             'admin.bank-create' => ['icon' => 'أيقونة البنك'],
             'admin.subscription-create' => ['receipt_upload' => 'إيصال الدفع / الحوالة (مستند)', 'payment_proof' => 'إثبات الدفع'],
@@ -42,12 +50,21 @@ class StoreWizardDraftRequest extends AuthenticatedWizardDraftRequest
                 'board_images_before.*.*' => 'إثبات تركيب اللوحة', 'board_images_after.*.*' => 'إثبات فك اللوحة',
             ],
             'tenant.ticket-create' => ['attachments' => 'المرفقات', 'attachments.*' => 'المرفقات'],
-            'tenant.marketing-campaign-create' => [
+            'tenant.marketing-campaign', 'tenant.marketing-campaign-create' => [
                 'evidence' => 'أدلة الحملة',
                 'evidence.*' => 'أدلة الحملة',
                 'campaigns' => 'أدلة الحملات',
                 'campaigns.*.evidence' => 'أدلة الحملة',
                 'campaigns.*.evidence.*' => 'أدلة الحملة',
+            ],
+            'tenant.auction-establishment-request' => [
+                'attachments' => 'المرفقات',
+                'attachments.*' => 'المرفقات',
+                'attachments.manager_certificate' => 'شهادة دورة مدير المزاد',
+                'attachments.auctioneer_certificate' => 'شهادة دورة محرّج المزاد',
+                'attachments.deed.*' => 'وثيقة الملكية',
+                'attachments.valuation.*' => 'نموذج التقييم العقاري',
+                'attachments.representative_authority.*' => 'مستند صفة الوكيل / معتمد العقد',
             ],
             default => [],
         };

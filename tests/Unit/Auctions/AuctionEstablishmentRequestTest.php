@@ -1,0 +1,88 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Unit\Auctions;
+
+use App\Http\Requests\Tenants\AuctionEstablishments\ApproveAuctionEstablishmentRequest;
+use App\Http\Requests\Tenants\AuctionEstablishments\SaveAuctionEstablishmentRequest;
+use App\Models\Tenants\AuctionEstablishments\AuctionEstablishmentRequest;
+use Illuminate\Support\Facades\Validator;
+use Tests\TestCase;
+
+final class AuctionEstablishmentRequestTest extends TestCase
+{
+    public function test_approval_requires_both_timestamp_and_nonblank_number(): void
+    {
+        self::assertTrue(class_exists(AuctionEstablishmentRequest::class));
+        $request = new AuctionEstablishmentRequest;
+        self::assertFalse($request->isApproved());
+        $request->approved_at = now();
+        $request->approval_number = '  ';
+        self::assertFalse($request->isApproved());
+        $request->approval_number = '000123';
+        self::assertTrue($request->isApproved());
+        self::assertSame('approved', $request->status);
+    }
+
+    public function test_save_cannot_supply_approval_metadata(): void
+    {
+        self::assertTrue(class_exists(SaveAuctionEstablishmentRequest::class));
+        $validator = Validator::make(['approval_number' => '123', 'approved_at' => '2026-11-09', 'approved_by' => 1], (new SaveAuctionEstablishmentRequest)->rules());
+        self::assertTrue($validator->fails());
+        foreach (['approval_number', 'approved_at', 'approved_by'] as $field) {
+            self::assertArrayHasKey($field, $validator->errors()->toArray());
+        }
+    }
+
+    public function test_save_request_provides_translated_attributes_and_messages(): void
+    {
+        $request = new SaveAuctionEstablishmentRequest;
+        $attributes = $request->attributes();
+
+        self::assertArrayHasKey('data.organization.fal_license', $attributes);
+        self::assertSame('رخصة فال للمزادات العقارية', $attributes['data.organization.fal_license']);
+        self::assertSame('اسم مدير المزاد', $attributes['data.manager.name']);
+        self::assertSame('اسم محرّج المزاد', $attributes['data.auctioneer.name']);
+        self::assertSame('شهادة دورة مدير المزاد', $attributes['attachments.manager_certificate']);
+        self::assertSame('الإقرار والتعهد', $attributes['declaration_accepted']);
+
+        // Check validator output has Arabic attribute translation
+        $validator = Validator::make(
+            ['data' => ['organization' => ['fal_license' => '']]],
+            ['data.organization.fal_license' => 'required'],
+            $request->messages(),
+            $request->attributes()
+        );
+        self::assertTrue($validator->fails());
+        self::assertStringContainsString('رخصة فال للمزادات العقارية', $validator->errors()->first('data.organization.fal_license'));
+    }
+
+    public function test_approval_number_preserves_leading_zeroes_and_rejects_blank(): void
+    {
+        self::assertTrue(class_exists(ApproveAuctionEstablishmentRequest::class));
+        $rules = (new ApproveAuctionEstablishmentRequest)->rules();
+        self::assertTrue(Validator::make(['approval_number' => ' '], $rules)->fails());
+        self::assertSame('000123', Validator::make(['approval_number' => '000123'], $rules)->validated()['approval_number']);
+    }
+
+    public function test_establishment_requests_datatable_has_checkbox_column(): void
+    {
+        $dataTable = app(\App\DataTables\Tenants\AuctionEstablishments\AuctionEstablishmentRequestsDataTable::class);
+        $columns = $dataTable->html()->getColumns();
+
+        self::assertNotEmpty($columns);
+        self::assertSame('checkbox', $columns[0]['data']);
+        self::assertStringContainsString('id="select-all"', (string) $columns[0]['title']);
+
+        $approvalColumn = collect($columns)->firstWhere('data', 'approval_number');
+        self::assertNotNull($approvalColumn);
+        self::assertSame('establishmentRequest.approval_number', $approvalColumn['name']);
+
+        $reflector = new \ReflectionClass($dataTable);
+        $rawColumnsMethod = $reflector->getMethod('rawColumns');
+        $rawColumnsMethod->setAccessible(true);
+        $rawColumns = $rawColumnsMethod->invoke($dataTable);
+        self::assertContains('approval_number', $rawColumns);
+    }
+}

@@ -69,12 +69,12 @@ class DashboardService
 
     private function getKPIs(array $subscription): array
     {
-        $activeAuctionsCount = Auction::query()
-            ->activeStatus()
+        $approvedAuctionsCount = Auction::query()
+            ->approved()
             ->count();
 
-        $upcomingAuctionsCount = Auction::query()
-            ->upcoming()
+        $pendingAuctionsCount = Auction::query()
+            ->pending()
             ->count();
 
         $totalProperties = Property::query()->count();
@@ -90,8 +90,8 @@ class DashboardService
 
         return [
             'total_auctions' => Auction::query()->count(),
-            'active_auctions' => $activeAuctionsCount,
-            'upcoming_auctions' => $upcomingAuctionsCount,
+            'approved_auctions' => $approvedAuctionsCount,
+            'pending_auctions' => $pendingAuctionsCount,
             'total_properties' => $totalProperties,
             'sold_properties' => $soldPropertiesCount,
             'active_users' => $activeUsers,
@@ -268,6 +268,7 @@ class DashboardService
     public function getLatestAuctions(int $limit = 5): Collection
     {
         return Auction::query()
+            ->with(['establishmentRequest', 'properties:id'])
             ->withCount('properties')
             ->latest()
             ->limit($limit)

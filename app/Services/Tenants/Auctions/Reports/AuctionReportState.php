@@ -11,20 +11,11 @@ final class AuctionReportState
 {
     public function fromData(array $campaigns, bool $closingSaved, array $results): AuctionReportContentStatus
     {
-        if ($closingSaved && $results !== [] && count(array_filter($results, static fn ($status) => $status === 'sold')) === count($results)) {
-            return AuctionReportContentStatus::ENDED;
-        }
-
-        return $campaigns === [] ? AuctionReportContentStatus::INCOMPLETE : AuctionReportContentStatus::COMPLETE;
+        return app(AuctionMarketingCompleteness::class)->isComplete($campaigns) ? AuctionReportContentStatus::COMPLETE : AuctionReportContentStatus::INCOMPLETE;
     }
 
     public function forAuction(Auction $auction): AuctionReportContentStatus
     {
-        $auction->loadMissing(['closing', 'marketingCampaigns', 'properties']);
-        if ($auction->closing?->is_finalized || $auction->closing?->finalized_snapshot !== null) {
-            return AuctionReportContentStatus::ENDED;
-        }
-
-        return $this->fromData($auction->marketingCampaigns->all(), $auction->closing !== null, $auction->properties->map(fn ($property) => $property->pivot->result_status)->all());
+        return app(AuctionMarketingCompleteness::class)->forAuction($auction) ? AuctionReportContentStatus::COMPLETE : AuctionReportContentStatus::INCOMPLETE;
     }
 }

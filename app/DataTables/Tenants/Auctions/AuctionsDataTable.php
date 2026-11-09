@@ -20,7 +20,7 @@ class AuctionsDataTable extends AbstractDataTable
     protected function resource()
     {
         return Auction::query()
-            ->with(['assignment.issuingEntity', 'latestReportGeneration'])
+            ->with(['assignment.issuingEntity', 'latestReportGeneration', 'establishmentRequest', 'properties:id', 'marketingCampaigns'])
             ->withCount('properties');
     }
 
@@ -31,13 +31,14 @@ class AuctionsDataTable extends AbstractDataTable
             ['data' => 'image', 'name' => 'image', 'title' => 'الصورة', 'orderable' => false, 'searchable' => false, 'width' => '60px', 'className' => 'text-center'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم المزاد', 'width' => '200px'],
             ['data' => 'issuing_entity', 'name' => 'assignment_id', 'title' => 'الجهة المسندة', 'width' => '150px'],
+            ['data' => 'city', 'name' => 'city', 'title' => 'المدينة', 'width' => '120px', 'className' => 'text-center'],
             ['data' => 'start_date', 'name' => 'start_date', 'title' => 'تاريخ البداية', 'width' => '130px'],
             ['data' => 'end_date', 'name' => 'end_date', 'title' => 'تاريخ النهاية', 'width' => '130px'],
             ['data' => 'properties_count', 'name' => 'properties_count', 'title' => 'عدد العقارات', 'width' => '90px', 'className' => 'text-center'],
+            ['data' => 'completion_status', 'name' => 'completion_status', 'title' => 'حالة الاكتمال', 'orderable' => false, 'searchable' => false, 'width' => '110px', 'className' => 'text-center'],
             ['data' => 'outputs', 'name' => 'outputs', 'title' => 'المخرجات', 'orderable' => false, 'searchable' => false, 'width' => '110px', 'className' => 'text-center'],
             ['data' => 'status_badge', 'name' => 'status_badge', 'title' => 'حالة المزاد', 'orderable' => false, 'searchable' => false, 'width' => '100px', 'className' => 'text-center'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'width' => '130px', 'className' => 'text-center'],
-            ['data' => 'is_active', 'name' => 'is_active', 'title' => 'الحالة', 'width' => '90px', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -76,6 +77,7 @@ class AuctionsDataTable extends AbstractDataTable
 
                 return '<a href="'.tenant_route_name('assignments.show', $row->assignment_id).'" class="text-body fw-medium" title="'.e((string) $row->assignment->name).'">'.e((string) $entityName).'</a>';
             })
+            ->editColumn('city', fn ($row): string => $row->city ? e($row->city) : '-')
             ->addColumn('assignment', function ($row) {
                 if (! $row->assignment) {
                     return '-';
@@ -137,21 +139,12 @@ class AuctionsDataTable extends AbstractDataTable
             ->addColumn('status_badge', function ($row): string {
                 return '<span class="badge '.$row->status_badge_class.'">'.e($row->status_label).'</span>';
             })
-            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
-            ->editColumn('is_active', function ($row): string {
-                $canEdit = auth('tenant')->user()?->can('auctions.edit');
-                if ($canEdit) {
-                    $checked = $row->is_active ? 'checked' : '';
-                    $url = tenant_route_name('auctions.toggle-status', $row->id);
+            ->addColumn('completion_status', function ($row): string {
+                $status = $row->completion_status;
 
-                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="auction_status_'.$row->id.'" data-url="'.e($url).'" data-active-value="active" data-inactive-value="inactive" '.$checked.' aria-label="تبديل حالة المزاد"></div></div>';
-                }
-
-                $statusClass = $row->is_active ? 'bg-success' : 'bg-danger';
-                $statusText = $row->is_active ? 'نشط' : 'متوقف';
-
-                return '<span class="badge '.$statusClass.'">'.$statusText.'</span>';
+                return '<span class="badge bg-label-'.$status->color().'">'.e($status->label()).'</span>';
             })
+            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
             ->addColumn('actions', function ($row) {
                 return view('tenant.auctions.action', ['row' => $row, 'route' => $this->route])->render();
             });
@@ -159,7 +152,7 @@ class AuctionsDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'image', 'name', 'assignment', 'issuing_entity', 'start_date', 'end_date', 'properties_count', 'outputs', 'status_badge', 'is_active', 'actions'];
+        return ['checkbox', 'image', 'name', 'assignment', 'issuing_entity', 'start_date', 'end_date', 'properties_count', 'outputs', 'status_badge', 'completion_status', 'actions'];
     }
 
     protected function filterableColumns(): array
@@ -177,15 +170,17 @@ class AuctionsDataTable extends AbstractDataTable
 
         if ($request->filled('status')) {
             $status = (string) $request->status;
-            if ($status === 'active' || $status === '1') {
-                $query->activeStatus();
+            if ($status === 'approved') {
+                $query->approved();
             } elseif ($status === 'closed') {
                 $query->closed();
-            } elseif ($status === 'suspended' || $status === 'inactive' || $status === '0') {
-                $query->suspended();
-            } elseif ($status === 'upcoming') {
-                $query->upcoming();
+            } elseif ($status === 'pending') {
+                $query->pending();
             }
+        }
+        if (in_array($request->input('completion_status'), ['complete', 'incomplete'], true)) {
+            $completeIds = app(\App\Services\Tenants\Auctions\Reports\AuctionMarketingCompleteness::class)->completeAuctionIds();
+            $request->input('completion_status') === 'complete' ? $query->whereIn('auctions.id', $completeIds) : $query->whereNotIn('auctions.id', $completeIds);
         }
 
         if ($request->filled('assignment_id')) {

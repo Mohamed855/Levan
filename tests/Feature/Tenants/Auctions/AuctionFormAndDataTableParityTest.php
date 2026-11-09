@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 class AuctionFormAndDataTableParityTest extends TestCase
 {
-    public function test_auctions_data_table_has_image_and_status_toggle_columns(): void
+    public function test_auctions_data_table_has_image_and_automatic_status_without_toggle(): void
     {
         $dataTable = new AuctionsDataTable();
         $reflection = new \ReflectionClass($dataTable);
@@ -20,7 +20,8 @@ class AuctionFormAndDataTableParityTest extends TestCase
         $columnNames = collect($columns)->pluck('name')->all();
 
         $this->assertContains('image', $columnNames);
-        $this->assertContains('is_active', $columnNames);
+        $this->assertContains('status_badge', $columnNames);
+        $this->assertNotContains('is_active', $columnNames);
         $this->assertNotContains('status', $columnNames);
 
         $issuingEntityCol = collect($columns)->firstWhere('data', 'issuing_entity');

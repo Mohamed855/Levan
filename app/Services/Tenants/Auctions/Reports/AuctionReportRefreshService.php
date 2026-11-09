@@ -14,7 +14,7 @@ final class AuctionReportRefreshService
         foreach (array_unique(array_map('intval', $auctionIds)) as $id) {
             DB::transaction(function () use ($id, $includeFinalized): void {
                 $auction = Auction::query()->whereKey($id)->lockForUpdate()->first();
-                if (! $auction || (! $includeFinalized && (new AuctionReportState)->forAuction($auction)->value === 'ended')) {
+                if (! $auction || (! $includeFinalized && $auction->isClosed())) {
                     return;
                 }
                 $snapshot = app(AuctionReportDataBuilder::class)->build($auction->fresh());

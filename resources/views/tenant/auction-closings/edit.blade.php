@@ -25,8 +25,9 @@
                         @csrf
                         @method('PUT')
                         <div class="row g-4 mb-4">
-                            <x-form.controls.input required name="approval_number" label="رقم الموافقة على إقامة المزاد"
-                                :value="old('approval_number', $auction->closing?->approval_number)" col="col-md-4" />
+                            <div class="col-md-4"><label class="form-label">رقم الموافقة على إقامة المزاد</label>
+                                <div class="form-control bg-light">{{ $auction->establishmentRequest->approval_number }}</div>
+                            </div>
                             <x-form.controls.input name="closing_date" label="تاريخ الإقفال" type="date"
                                 :value="old(
                                     'closing_date',

@@ -31,6 +31,8 @@ final class AuctionCyclePresentationTest extends TenantAuctionReportTestCase
         }
         $this->actingAs($user, 'tenant');
         $auction = $this->cycleAuction();
+        $request = $auction->establishmentRequest()->create(['data' => ['properties' => $auction->properties->map(fn ($property) => ['property_id' => $property->id])->all()], 'submitted_at' => now()]);
+        $request->forceFill(['approved_at' => now(), 'approval_number' => '000187'])->save();
         foreach (['marketing-campaigns.create' => [], 'auction-closings.edit' => [$auction]] as $route => $parameters) {
             $response = $this->get(tenant_route_name($route, $parameters))->assertOk()->assertDontSee('data-form-stepper', false)->assertDontSee('data-cycle-review', false)->assertSee('data-form-validate', false);
             if (getenv('AUCTION_REPORT_UI_PROOF')) {
@@ -42,7 +44,7 @@ final class AuctionCyclePresentationTest extends TenantAuctionReportTestCase
         foreach (['marketing-campaigns' => 'إجمالي الحملات', 'auction-closings' => 'مزادات لم تُقفل', 'auction-reports' => 'إجمالي التقارير'] as $resource => $label) {
             $response = $this->get(tenant_route_name($resource.'.index'))->assertOk()->assertSee($label);
             if ($resource === 'marketing-campaigns') {
-                $response->assertSee('btn-add', false);
+                $response->assertSee(tenant_route_name('marketing-campaigns.create'), false);
             }
             $table = $this->getJson(tenant_route_name($resource.'.index').'?draw=1&length=100', ['X-Requested-With' => 'XMLHttpRequest'])->assertOk();
             self::assertStringContainsString('btn-icon', $table->json('data.0.actions'));

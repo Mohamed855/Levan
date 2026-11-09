@@ -86,6 +86,23 @@ final class WizardDraftUploads
     private function resourceRoute(Request $request): \Illuminate\Routing\Route
     {
         $key = (string) $request->input('resource_key');
+        if (preg_match('/^tenant\.auction-establishment-request\.([1-9][0-9]*)$/', $key, $matches)) {
+            abort_unless($this->context->guard($request) === 'tenant' && tenant(), 403);
+            $prefix = Str::beforeLast((string) $request->route()?->getName(), 'wizard-drafts.');
+            $route = app('router')->getRoutes()->getByName($prefix.'auction-establishment-requests.update');
+            abort_unless($route, 422, 'The draft resource is unavailable.');
+            $route = clone $route;
+            $uri = '/'.ltrim(str_replace(
+                ['{tenant}', '{auction}'],
+                [rawurlencode((string) tenant()->getKey()), $matches[1]],
+                $route->uri(),
+            ), '/');
+            $route->bind(Request::create($uri, 'PUT', [], [], [], ['HTTP_HOST' => $request->getHost()]));
+            app('router')->substituteBindings($route);
+            app('router')->substituteImplicitBindings($route);
+
+            return $route;
+        }
         if (isset(self::RESOURCE_ROUTES[$key])) {
             $prefix = Str::beforeLast((string) $request->route()?->getName(), 'wizard-drafts.');
             $route = app('router')->getRoutes()->getByName($prefix.self::RESOURCE_ROUTES[$key]);

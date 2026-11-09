@@ -58,7 +58,7 @@ class DiscardCompletedWizardDraft
             || $request->filled('_wizard_resource_key')
             || $request->attributes->has('wizard_resource_key');
 
-        if (! $request->isMethod('POST') || ! $hasDraftIdentifier) {
+        if (! in_array($request->getMethod(), ['POST', 'PUT', 'PATCH'], true) || ! $hasDraftIdentifier) {
             return false;
         }
 

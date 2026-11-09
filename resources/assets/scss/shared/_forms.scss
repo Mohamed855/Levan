@@ -120,13 +120,81 @@ textarea.form-control {
     }
 }
 
+// Disabled & Readonly Form Controls (Inputs, Textareas, Selects)
+// Gives readonly inputs the exact visual cues of disabled inputs (subtle light gray)
+// Explicitly excludes DataTable search inputs (which use readonly trick for autocomplete) and flatpickr pickers
+.form-control:disabled,
+.form-control[disabled],
+.form-control[readonly]:not([type="search"]):not(.flatpickr-input):not(.dataTables_filter input),
+textarea.form-control[readonly],
+.form-select:disabled,
+.form-select[disabled] {
+    background-color: #f8f9fa !important;
+    border-color: rgba(29, 79, 68, 0.10) !important;
+    color: #6d6b77 !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    outline: none !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: #f8f9fa !important;
+        border-color: rgba(29, 79, 68, 0.10) !important;
+        color: #6d6b77 !important;
+        box-shadow: none !important;
+        outline: none !important;
+        cursor: not-allowed !important;
+    }
+
+    &::placeholder {
+        color: #a5a3ae !important;
+    }
+}
+
+// Flatpickr input when genuinely disabled
+.flatpickr-input:disabled,
+.flatpickr-input[disabled] {
+    background-color: #f8f9fa !important;
+    border-color: rgba(29, 79, 68, 0.10) !important;
+    color: #6d6b77 !important;
+    cursor: not-allowed !important;
+}
+
+// Ensure DataTable search input and length select are completely unaffected
+.dataTables_filter input,
+div.dataTables_filter input,
+.dataTables_wrapper input[type="search"],
+.dataTables_length select,
+div.dataTables_length select {
+    background-color: #fff !important;
+    color: var(--brand-dark-green, #12332C) !important;
+    border: 1px solid rgba(29, 79, 68, 0.16) !important;
+    cursor: text !important;
+
+    &:hover {
+        border-color: rgba(29, 79, 68, 0.36) !important;
+    }
+
+    &:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+}
+
+.dataTables_length select,
+div.dataTables_length select {
+    cursor: pointer !important;
+}
+
 // Input Group & Input Group Merge
 .input-group,
 .input-group-merge {
     border-radius: 0.5rem;
     box-shadow: none !important;
 
-    &:hover:not(.is-invalid):not(:has(.is-invalid)):not(:has(.form-control.is-invalid)) {
+    &:hover:not(.is-invalid):not(:has(.is-invalid)):not(:has(.form-control.is-invalid)):not(:has(.form-control:disabled)):not(:has(.form-control[readonly]:not([type="search"]):not(.flatpickr-input))) {
         .input-group-text,
         .form-control,
         button.input-group-text,
@@ -136,7 +204,7 @@ textarea.form-control {
         }
     }
 
-    &:focus-within {
+    &:focus-within:not(:has(.form-control:disabled)):not(:has(.form-control[readonly]:not([type="search"]):not(.flatpickr-input))) {
         box-shadow: none !important;
 
         .input-group-text,
@@ -150,6 +218,16 @@ textarea.form-control {
             box-shadow: none !important;
             outline: none !important;
             border-color: var(--primary-color) !important;
+        }
+    }
+
+    &:has(.form-control:disabled),
+    &:has(.form-control[readonly]:not([type="search"]):not(.flatpickr-input)) {
+        .input-group-text {
+            background-color: #f8f9fa !important;
+            border-color: rgba(29, 79, 68, 0.10) !important;
+            color: #6d6b77 !important;
+            cursor: not-allowed !important;
         }
     }
 

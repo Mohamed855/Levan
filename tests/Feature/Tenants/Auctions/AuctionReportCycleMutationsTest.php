@@ -58,6 +58,8 @@ final class AuctionReportCycleMutationsTest extends TenantAuctionReportTestCase
         Queue::fake();
         $auction = $this->cycleAuction();
         $other = $this->cycleAuction();
+        $this->approveForClosing($auction);
+        $this->approveForClosing($other);
         $property = $auction->properties()->first();
         $foreign = $other->properties()->first();
         $action = app(SaveAuctionClosingAction::class);
@@ -81,6 +83,7 @@ final class AuctionReportCycleMutationsTest extends TenantAuctionReportTestCase
         Queue::fake();
         $open = $this->cycleAuction();
         $final = $this->cycleAuction();
+        $this->approveForClosing($final);
         $save = app(SaveMarketingCampaignAction::class);
         $campaign = $save->execute(null, ['auction_id' => $final->id, 'channel' => 'x', 'metrics' => ['views' => 0]], null);
         $property = $final->properties()->first();
@@ -105,6 +108,7 @@ final class AuctionReportCycleMutationsTest extends TenantAuctionReportTestCase
     {
         Queue::fake();
         $auction = $this->cycleAuction();
+        $this->approveForClosing($auction);
         $property = $auction->properties()->first();
         $service = app(AuctionReportService::class);
         $service->requestGeneration($auction, (string) tenant('id'));
@@ -180,6 +184,7 @@ final class AuctionReportCycleMutationsTest extends TenantAuctionReportTestCase
     {
         Queue::fake();
         $auction = $this->cycleAuction();
+        $this->approveForClosing($auction);
         $property = $auction->properties()->first();
         app(SaveAuctionClosingAction::class)->execute($auction, ['closing_date' => now()->toDateString(), 'results' => [$property->id => ['status' => 'sold', 'buyer_name' => 'Buyer', 'sale_price' => 500]]], null);
         foreach (['update', 'toggle', 'delete'] as $operation) {
@@ -214,6 +219,7 @@ final class AuctionReportCycleMutationsTest extends TenantAuctionReportTestCase
     {
         Queue::fake();
         $auction = $this->cycleAuction();
+        $this->approveForClosing($auction);
         $property = $auction->properties()->first();
         $closing = app(SaveAuctionClosingAction::class)->execute($auction, ['closing_date' => now()->toDateString(), 'results' => [$property->id => ['status' => 'sold', 'buyer_name' => 'المشتري', 'sale_price' => 500]]], null);
         self::assertNotNull($closing->finalized_snapshot);
@@ -222,5 +228,11 @@ final class AuctionReportCycleMutationsTest extends TenantAuctionReportTestCase
         self::assertSame('أرض', $generation->snapshot['properties'][0]['name']);
         $this->expectException(ValidationException::class);
         app(AuctionReportLock::class)->assertEditable($auction->fresh());
+    }
+
+    private function approveForClosing(\App\Models\Tenants\Auctions\Auction $auction): void
+    {
+        $request = $auction->establishmentRequest()->create(['data' => ['properties' => $auction->properties->map(fn ($property) => ['property_id' => $property->id])->all()], 'submitted_at' => now()]);
+        $request->forceFill(['approved_at' => now(), 'approval_number' => '000187'])->save();
     }
 }

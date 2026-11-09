@@ -35,14 +35,12 @@
         <x-slot:stats>
             <x-ui.stat-card title="إجمالي المزادات" :value="$totalAuctions" subtitle="مزاد مسجل" icon="ti-gavel"
                 color="primary" />
-            <x-ui.stat-card title="مزادات نشطة" :value="$activeAuctions" subtitle="قيد التشغيل حالياً" icon="ti-player-play"
+            <x-ui.stat-card title="مزادات معتمدة" :value="$approvedAuctions" subtitle="طلبات معتمدة وقابلة للإقفال" icon="ti-circle-check"
                 color="success" />
-            <x-ui.stat-card title="تم الإغلاق" :value="$closedAuctions" subtitle="انتهى وقت المزاد" icon="ti-circle-check"
+            <x-ui.stat-card title="تم الإقفال" :value="$closedAuctions" subtitle="بيعت جميع العقارات المرتبطة" icon="ti-circle-check"
                 color="secondary" />
-            <x-ui.stat-card title="مزادات معلقة" :value="$suspendedAuctions" subtitle="معلقة من الجهة" icon="ti-player-pause"
+            <x-ui.stat-card title="مزادات قيد الانتظار" :value="$pendingAuctions" subtitle="بانتظار اعتماد طلب الإقامة" icon="ti-clock"
                 color="warning" />
-            <x-ui.stat-card title="مزادات قادمة" :value="$upcomingAuctions" subtitle="مجدولة للبدء" icon="ti-calendar-time"
-                color="info" />
         </x-slot:stats>
 
         <x-slot:filters>
@@ -51,6 +49,8 @@
                     placeholder="جميع الأنواع" :enum="\App\Enums\Tenants\Auctions\AuctionType::class" />
                 <x-filter.select id="filter-status" filterKey="status" table="#auctions-table" label="الحالة"
                     placeholder="جميع الحالات" :options="$statusOptions" />
+                <x-filter.select id="filter-completion" filterKey="completion_status" table="#auctions-table" label="حالة الاكتمال"
+                    placeholder="جميع الحالات" :options="['complete' => 'مكتمل', 'incomplete' => 'غير مكتمل']" />
                 <x-filter.select id="filter-assignment" filterKey="assignment_id" table="#auctions-table" label="الإسناد"
                     placeholder="جميع الإسنادات" :options="$assignments->pluck('name', 'id')->all()" />
                 <x-filter.select id="filter-city" filterKey="city" table="#auctions-table" label="المدينة"

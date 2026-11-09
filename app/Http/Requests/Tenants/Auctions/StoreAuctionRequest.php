@@ -9,6 +9,7 @@ use App\Enums\Tenants\Auctions\AuctionCategory;
 use App\Enums\Tenants\Auctions\AuctionType;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Models\Tenants\Assignments\Assignment;
+use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
 use Carbon\Carbon;
 use Closure;
@@ -177,11 +178,8 @@ class StoreAuctionRequest extends WizardFormRequest
 
                         return;
                     }
-                    $isInActiveAuction = DB::table('auction_properties')
-                        ->join('auctions', 'auctions.id', '=', 'auction_properties.auction_id')
-                        ->where('auction_properties.property_id', $value)
-                        ->where('auctions.is_active', true)
-                        ->whereNull('auctions.deleted_at')
+                    $isInActiveAuction = Auction::query()->open()
+                        ->whereHas('properties', fn ($query) => $query->where('properties.id', $value))
                         ->exists();
                     if ($isInActiveAuction) {
                         $fail("العقار ({$property->name}) مدرج حالياً في مزاد نشط.");

@@ -6,13 +6,15 @@
 @section('content')
     <div class="d-flex justify-content-end align-items-center mb-4">
         <div class="d-flex gap-2">
-            <a href="{{ tenant_route_name('auctions.index') }}" class="btn btn-secondary">
+            <a href="{{ tenant_route_name(auth('tenant')->user()->can('auctions.view') ? 'auctions.index' : (auth('tenant')->user()->can('auction_establishment_requests.view') ? 'auction-establishment-requests.index' : 'auction-closings.index')) }}" class="btn btn-secondary">
                 <i class="ti ti-arrow-right me-1"></i> العودة
             </a>
             @can('auctions.edit')
+                @if (!$auction->isClosed())
                 <a href="{{ tenant_route_name('auctions.edit', $auction->id) }}" class="btn btn-primary">
                     <i class="ti ti-edit me-1"></i> تعديل المزاد
                 </a>
+                @endif
             @endcan
         </div>
     </div>
@@ -29,6 +31,8 @@
                     </div>
                     <h5 class="mb-1">{{ $auction->name }}</h5>
                     <span class="badge bg-primary mb-3">{{ $auction->category_label }}</span>
+                    <span class="badge {{ $auction->status_badge_class }} mb-3">{{ $auction->status_label }}</span>
+                    <span class="badge bg-label-{{ $auction->completion_status->color() }} mb-3">حالة الاكتمال: {{ $auction->completion_status->label() }}</span>
 
                     <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
                         <div>
@@ -84,6 +88,8 @@
                     </div>
                 </div>
             </div>
+
+            @include('tenant.auctions.partials.establishment-request')
 
             {{-- كارت ملفات وتقارير المزاد --}}
             @php
@@ -173,6 +179,8 @@
                     </div>
                 </div>
             </div>
+
+            @include('tenant.auctions.partials.regulatory-forms')
 
             @php
                 $auctionDocs = $auction->attachments->where('category', 'auction_doc');

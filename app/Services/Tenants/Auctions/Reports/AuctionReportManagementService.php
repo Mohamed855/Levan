@@ -23,28 +23,28 @@ final class AuctionReportManagementService
     public function closingStatistics(): array
     {
         $total = Auction::count();
-        $saved = Auction::has('closing')->count();
-        $ended = Auction::whereHas('closing', fn ($query) => $query->whereNotNull('finalized_snapshot'))->count();
+        $saved = Auction::has('closing')->open()->count();
+        $ended = Auction::closed()->count();
 
-        return ['total' => $total, 'not_started' => $total - $saved, 'saved' => $saved - $ended, 'ended' => $ended];
+        return ['total' => $total, 'not_started' => $total - $saved - $ended, 'saved' => $saved, 'ended' => $ended];
     }
 
     public function reportStatistics(): array
     {
-        $ended = Auction::whereHas('closing', fn ($query) => $query->whereNotNull('finalized_snapshot'))->count();
-        $open = Auction::whereDoesntHave('closing', fn ($query) => $query->whereNotNull('finalized_snapshot'));
+        $total = Auction::count() * 2;
+        $complete = count(app(AuctionMarketingCompleteness::class)->completeAuctionIds()) * 2;
 
-        return ['total' => Auction::count() * 2, 'incomplete' => (clone $open)->doesntHave('marketingCampaigns')->count() * 2, 'complete' => (clone $open)->has('marketingCampaigns')->count() * 2, 'ended' => $ended * 2];
+        return ['total' => $total, 'incomplete' => $total - $complete, 'complete' => $complete];
     }
 
     public function editableAuctions(): array
     {
-        return Auction::query()->whereDoesntHave('closing', fn ($query) => $query->whereNotNull('finalized_snapshot'))->orderByDesc('id')->get(['id', 'name'])->map(fn ($auction) => ['value' => $auction->id, 'label' => $auction->name])->all();
+        return Auction::query()->open()->orderByDesc('id')->get(['id', 'name'])->map(fn ($auction) => ['value' => $auction->id, 'label' => $auction->name])->all();
     }
 
     public function campaignPropertyOptions(): array
     {
-        return Auction::query()->whereDoesntHave('closing', fn ($query) => $query->whereNotNull('finalized_snapshot'))
+        return Auction::query()->open()
             ->with('properties:id,name,property_number')->get(['id'])->mapWithKeys(fn ($auction) => [$auction->id => $auction->properties->map(fn ($property) => ['value' => $property->id, 'label' => $property->name.' — '.$property->property_number])->all()])->all();
     }
 }

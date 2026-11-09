@@ -66,8 +66,8 @@ final class AsirReportData
             'auction_type' => (string) ($auction['type'] ?? '-'),
             'duration' => $this->format->duration($auction),
             'status' => match ($auction['status'] ?? null) {
-                'active' => 'مزاد نشط', 'upcoming' => 'مزاد قادم', 'closed' => 'مزاد مغلق', 'suspended' => 'مزاد متوقف',
-                default => array_key_exists('is_active', $auction) ? ($auction['is_active'] ? 'مزاد نشط' : 'مزاد متوقف') : 'غير متوفر',
+                'pending' => 'مزاد قيد الانتظار', 'approved' => 'مزاد معتمد', 'closed' => 'مزاد مغلق',
+                default => 'غير متوفر',
             },
             'start_mark' => '', 'duplicate_header' => '', 'contract_text' => '',
             'phone' => (string) ($contacts['phone'] ?? '-'), 'unified_phone' => (string) ($contacts['unified_phone'] ?? '-'),

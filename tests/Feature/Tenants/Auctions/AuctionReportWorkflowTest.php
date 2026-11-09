@@ -300,6 +300,7 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
         $oldReportPath = 'auctions/report-images/old.webp';
         Storage::disk('tenant_public')->put($oldReportPath, 'old-report');
         $auction->update(['report_image' => $oldReportPath, 'project_manager_name' => 'المدير القديم']);
+        $unsoldProperty = $this->property($assignment, 'REPLACE-UNSOLD');
         $auction->properties()->sync([
             $property->id => [
                 'sort_order' => 1,
@@ -309,9 +310,10 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
                 'participants_count' => 4,
                 'bids_count' => 9,
             ],
+            $unsoldProperty->id => ['sort_order' => 2, 'result_status' => 'unsold', 'unsold_reason' => 'No sale'],
         ]);
 
-        $payload = $this->validPayload($assignment) + ['property_ids' => [$property->id], 'report_image' => null, 'cover_image' => null];
+        $payload = $this->validPayload($assignment) + ['property_ids' => [$property->id, $unsoldProperty->id], 'report_image' => null, 'cover_image' => null];
         $retained = app(UpdateAuctionAction::class)->execute($auction, $payload, null, []);
         self::assertSame($oldReportPath, $retained->report_image);
         Storage::disk('tenant_public')->assertExists($oldReportPath);

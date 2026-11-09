@@ -8,19 +8,18 @@ enum AuctionReportContentStatus: string
 {
     case INCOMPLETE = 'incomplete';
     case COMPLETE = 'complete';
-    case ENDED = 'ended';
 
     public function label(): string
     {
         return match ($this) {
-            self::INCOMPLETE => 'غير مكتمل', self::COMPLETE => 'مكتمل', self::ENDED => 'منتهي'
+            self::INCOMPLETE => 'غير مكتمل', self::COMPLETE => 'مكتمل'
         };
     }
 
     public function color(): string
     {
         return match ($this) {
-            self::INCOMPLETE => 'warning', self::COMPLETE => 'success', self::ENDED => 'secondary'
+            self::INCOMPLETE => 'warning', self::COMPLETE => 'success'
         };
     }
 }

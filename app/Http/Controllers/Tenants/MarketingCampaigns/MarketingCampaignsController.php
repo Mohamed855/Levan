@@ -23,7 +23,7 @@ final class MarketingCampaignsController extends Controller
     {
         $this->middleware('auth:tenant');
         $this->middleware('can:marketing_campaigns.view')->only('index');
-        $this->middleware('can:marketing_campaigns.create')->only(['create', 'store']);
+        $this->middleware('can:marketing_campaigns.create')->only('store');
         $this->middleware('can:marketing_campaigns.edit')->only(['edit', 'update']);
         $this->middleware('can:marketing_campaigns.delete')->only(['destroy', 'massDelete']);
     }
@@ -33,22 +33,6 @@ final class MarketingCampaignsController extends Controller
         return $table->render('tenant.marketing-campaigns.index', [
             'statistics' => $options->campaignStatistics(),
             'auctionOptions' => $options->auctionOptions(),
-        ]);
-    }
-
-    public function create(Request $request, AuctionReportManagementService $options)
-    {
-        $selectedAuction = $request->filled('auction_id')
-            ? Auction::with('marketingCampaigns')->find((int) $request->input('auction_id'))
-            : null;
-
-        return view('tenant.marketing-campaigns.form', [
-            'auction' => $selectedAuction ?? new Auction,
-            'is_edit' => false,
-            'auctionOptions' => $options->editableAuctions(),
-            'propertyOptions' => $options->campaignPropertyOptions(),
-            'existingCampaigns' => $selectedAuction ? $selectedAuction->marketingCampaigns->keyBy('channel') : collect(),
-            'selectedChannels' => $selectedAuction ? $selectedAuction->marketingCampaigns->pluck('channel')->all() : [],
         ]);
     }
 
@@ -183,6 +167,10 @@ final class MarketingCampaignsController extends Controller
 
         $deletedCount = 0;
         DB::transaction(function () use ($auctions, $action, &$deletedCount) {
+            $auctions = Auction::query()->whereKey($auctions->modelKeys())->orderBy('id')->lockForUpdate()->get();
+            foreach ($auctions as $auction) {
+                app(AuctionReportLock::class)->assertEditable($auction);
+            }
             foreach ($auctions as $auction) {
                 $campaignsCount = $auction->marketingCampaigns()->count();
                 $action->executeForAuction($auction);

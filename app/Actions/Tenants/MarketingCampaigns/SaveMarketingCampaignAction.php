@@ -105,6 +105,7 @@ final class SaveMarketingCampaignAction
 
         try {
             $savedCampaigns = DB::transaction(function () use ($auction, $data, $actorId, $filesByChannel, &$stored, &$removedPaths): array {
+                $auction = Auction::query()->lockForUpdate()->findOrFail($auction->id);
                 app(AuctionReportLock::class)->assertEditable($auction);
 
                 $channels = (array) ($data['channels'] ?? array_keys($data['campaigns'] ?? []));

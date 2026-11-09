@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Models\Tenants\Auctions;
 
 use App\Enums\Tenants\Auctions\AuctionStatus;
+use App\Enums\Tenants\Auctions\AuctionReportContentStatus;
+use App\Services\Tenants\Auctions\Reports\AuctionReportState;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\AuctionClosings\AuctionClosing;
+use App\Models\Tenants\AuctionEstablishments\AuctionEstablishmentRequest;
 use App\Models\Tenants\MarketingCampaigns\MarketingCampaign;
 use App\Models\Tenants\PromotionalAdvertisements\PromotionalAdvertisement;
 use App\Models\Tenants\Properties\Property;
@@ -97,6 +100,11 @@ class Auction extends Model
         return $this->hasOne(AuctionClosing::class);
     }
 
+    public function establishmentRequest(): HasOne
+    {
+        return $this->hasOne(AuctionEstablishmentRequest::class);
+    }
+
     public function publishedReportGeneration(): BelongsTo
     {
         return $this->belongsTo(AuctionReportGeneration::class, 'published_report_generation_id');
@@ -179,28 +187,21 @@ class Auction extends Model
 
     public function getStatusAttribute(): AuctionStatus
     {
-        if (! $this->is_active) {
-            return AuctionStatus::SUSPENDED;
-        }
-
-        $now = Carbon::now();
-
-        $endDateTime = $this->getEndDateTime();
-        if ($endDateTime && $now->greaterThanOrEqualTo($endDateTime)) {
+        if ($this->properties->isNotEmpty() && $this->properties->every(fn ($property) => $property->pivot->result_status === 'sold')) {
             return AuctionStatus::CLOSED;
         }
 
-        $startDateTime = $this->getStartDateTime();
-        if ($startDateTime && $now->lessThan($startDateTime)) {
-            return AuctionStatus::UPCOMING;
-        }
-
-        return AuctionStatus::ACTIVE;
+        return $this->establishmentRequest?->isApproved() ? AuctionStatus::APPROVED : AuctionStatus::PENDING;
     }
 
     public function getStatusLabelAttribute(): string
     {
         return $this->status->label();
+    }
+
+    public function getCompletionStatusAttribute(): AuctionReportContentStatus
+    {
+        return app(AuctionReportState::class)->forAuction($this);
     }
 
     public function getStatusBadgeClassAttribute(): string
@@ -218,85 +219,30 @@ class Auction extends Model
         return $this->status === AuctionStatus::CLOSED;
     }
 
-    public function isSuspended(): bool
+    public function isApproved(): bool
     {
-        return $this->status === AuctionStatus::SUSPENDED;
+        return $this->status === AuctionStatus::APPROVED;
     }
 
-    public function isUpcoming(): bool
+    public function scopePending(Builder $query): Builder
     {
-        return $this->status === AuctionStatus::UPCOMING;
-    }
-
-    public function isActive(): bool
-    {
-        return $this->status === AuctionStatus::ACTIVE;
-    }
-
-    public function scopeSuspended(Builder $query): Builder
-    {
-        return $query->where('is_active', false);
+        return $query->open()->whereDoesntHave('establishmentRequest', fn (Builder $request) => $request->whereNotNull('approved_at')->whereRaw("TRIM(COALESCE(approval_number, '')) <> ''"));
     }
 
     public function scopeClosed(Builder $query): Builder
     {
-        $today = Carbon::today()->toDateString();
-        $nowTime = Carbon::now()->format('H:i:s');
-
-        return $query->where('is_active', true)
-            ->where(function (Builder $q) use ($today, $nowTime): void {
-                $q->whereDate('end_date', '<', $today)
-                    ->orWhere(function (Builder $sub) use ($today, $nowTime): void {
-                        $sub->whereDate('end_date', '=', $today)
-                            ->whereNotNull('end_time')
-                            ->where('end_time', '<=', $nowTime);
-                    });
-            });
+        return $query->has('properties')
+            ->whereDoesntHave('properties', fn (Builder $properties) => $properties->where(fn (Builder $results) => $results->whereNull('auction_properties.result_status')->orWhere('auction_properties.result_status', '!=', 'sold')));
     }
 
-    public function scopeUpcoming(Builder $query): Builder
+    public function scopeApproved(Builder $query): Builder
     {
-        $today = Carbon::today()->toDateString();
-        $nowTime = Carbon::now()->format('H:i:s');
-
-        return $query->where('is_active', true)
-            ->where(function (Builder $q) use ($today, $nowTime): void {
-                $q->whereDate('start_date', '>', $today)
-                    ->orWhere(function (Builder $sub) use ($today, $nowTime): void {
-                        $sub->whereDate('start_date', '=', $today)
-                            ->whereNotNull('start_time')
-                            ->where('start_time', '>', $nowTime);
-                    });
-            });
+        return $query->open()->whereHas('establishmentRequest', fn (Builder $request) => $request->whereNotNull('approved_at')->whereRaw("TRIM(COALESCE(approval_number, '')) <> ''"));
     }
 
-    public function scopeActiveStatus(Builder $query): Builder
+    public function scopeOpen(Builder $query): Builder
     {
-        $today = Carbon::today()->toDateString();
-        $nowTime = Carbon::now()->format('H:i:s');
-
-        return $query->where('is_active', true)
-            ->where(function (Builder $q) use ($today, $nowTime): void {
-                $q->whereDate('end_date', '>', $today)
-                    ->orWhere(function (Builder $sub) use ($today, $nowTime): void {
-                        $sub->whereDate('end_date', '=', $today)
-                            ->where(function (Builder $t) use ($nowTime): void {
-                                $t->whereNull('end_time')
-                                    ->orWhere('end_time', '>', $nowTime);
-                            });
-                    })
-                    ->orWhereNull('end_date');
-            })
-            ->where(function (Builder $q) use ($today, $nowTime): void {
-                $q->whereDate('start_date', '<', $today)
-                    ->orWhere(function (Builder $sub) use ($today, $nowTime): void {
-                        $sub->whereDate('start_date', '=', $today)
-                            ->where(function (Builder $t) use ($nowTime): void {
-                                $t->whereNull('start_time')
-                                    ->orWhere('start_time', '<=', $nowTime);
-                            });
-                    })
-                    ->orWhereNull('start_date');
-            });
+        return $query->where(fn (Builder $properties) => $properties->doesntHave('properties')
+            ->orWhereHas('properties', fn (Builder $results) => $results->where(fn (Builder $status) => $status->whereNull('auction_properties.result_status')->orWhere('auction_properties.result_status', '!=', 'sold'))));
     }
 }

@@ -8,6 +8,12 @@ return [
     'auction_closings.view' => 'View auction closings',
     'auction_closings.create' => 'Create auction closings',
     'auction_closings.edit' => 'Edit auction closings',
+    'auction_closings.regenerate' => 'Regenerate auction closing forms',
+    'auction_establishment_requests.view' => 'View auction establishment requests',
+    'auction_establishment_requests.create' => 'Create auction establishment requests',
+    'auction_establishment_requests.edit' => 'Edit auction establishment requests',
+    'auction_establishment_requests.approve' => 'Approve auction establishment requests',
+    'auction_establishment_requests.regenerate' => 'Regenerate auction establishment forms',
     'auction_reports.view' => 'View auction reports',
     // Sections
     'sections' => [
@@ -18,6 +24,7 @@ return [
         'auctions_management' => 'Auctions Management',
         'marketing_campaigns_management' => 'Marketing Campaigns',
         'auction_closings_management' => 'Auction Closings',
+        'auction_establishment_requests_management' => 'Auction Establishment Requests',
         'auction_reports_management' => 'Auction Reports',
         'users_management' => 'Users Management',
         'plans_management' => 'Plans Management',

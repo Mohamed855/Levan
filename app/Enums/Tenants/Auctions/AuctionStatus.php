@@ -6,27 +6,24 @@ namespace App\Enums\Tenants\Auctions;
 
 enum AuctionStatus: string
 {
-    case UPCOMING = 'upcoming';
-    case ACTIVE = 'active';
-    case SUSPENDED = 'suspended';
+    case PENDING = 'pending';
+    case APPROVED = 'approved';
     case CLOSED = 'closed';
 
     public function label(): string
     {
         return match ($this) {
-            self::UPCOMING => 'قادم',
-            self::ACTIVE => 'نشط',
-            self::SUSPENDED => 'معلق',
-            self::CLOSED => 'تم الإغلاق',
+            self::PENDING => 'قيد الانتظار',
+            self::APPROVED => 'معتمد',
+            self::CLOSED => 'تم الإقفال',
         };
     }
 
     public function badgeClass(): string
     {
         return match ($this) {
-            self::UPCOMING => 'bg-info',
-            self::ACTIVE => 'bg-success',
-            self::SUSPENDED => 'bg-warning',
+            self::PENDING => 'bg-warning',
+            self::APPROVED => 'bg-success',
             self::CLOSED => 'bg-secondary',
         };
     }
@@ -34,9 +31,8 @@ enum AuctionStatus: string
     public function labelBadgeClass(): string
     {
         return match ($this) {
-            self::UPCOMING => 'bg-label-info',
-            self::ACTIVE => 'bg-label-success',
-            self::SUSPENDED => 'bg-label-warning',
+            self::PENDING => 'bg-label-warning',
+            self::APPROVED => 'bg-label-success',
             self::CLOSED => 'bg-label-secondary',
         };
     }
@@ -47,9 +43,8 @@ enum AuctionStatus: string
     public static function options(): array
     {
         return [
-            self::ACTIVE->value => self::ACTIVE->label(),
-            self::UPCOMING->value => self::UPCOMING->label(),
-            self::SUSPENDED->value => self::SUSPENDED->label(),
+            self::PENDING->value => self::PENDING->label(),
+            self::APPROVED->value => self::APPROVED->label(),
             self::CLOSED->value => self::CLOSED->label(),
         ];
     }

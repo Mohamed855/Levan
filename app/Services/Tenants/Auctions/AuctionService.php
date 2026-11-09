@@ -7,7 +7,6 @@ use App\Actions\Tenants\Auctions\UpdateAuctionAction;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Auctions\Reports\AuctionReportLock;
-use App\Services\Tenants\Auctions\Reports\AuctionReportRefreshService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -19,11 +18,9 @@ class AuctionService
     {
         return [
             'total' => Auction::count(),
-            'active' => Auction::activeStatus()->count(),
+            'approved' => Auction::approved()->count(),
             'closed' => Auction::closed()->count(),
-            'suspended' => Auction::suspended()->count(),
-            'upcoming' => Auction::upcoming()->count(),
-            'inactive' => Auction::suspended()->count(),
+            'pending' => Auction::pending()->count(),
             'without_properties' => Auction::doesntHave('properties')->count(),
             'ready_reports' => Auction::whereHas('reportGenerations', fn ($q) => $q->where('status', 'ready'))->count(),
         ];
@@ -51,15 +48,7 @@ class AuctionService
 
     public function toggleStatus(Auction $auction, ?bool $isActive = null): bool
     {
-        return DB::transaction(function () use ($auction, $isActive): bool {
-            $auction = Auction::query()->whereKey($auction->id)->lockForUpdate()->firstOrFail();
-            app(AuctionReportLock::class)->assertEditable($auction);
-            $newStatus = $isActive ?? ! $auction->is_active;
-            $auction->update(['is_active' => $newStatus]);
-            app(AuctionReportRefreshService::class)->afterMutation([$auction->id]);
-
-            return $newStatus;
-        });
+        throw ValidationException::withMessages(['status' => 'تتحدد حالة المزاد تلقائيًا من اعتماد الطلب ونتائج بيع العقارات.']);
     }
 
     public function deleteAuction(Auction $auction): bool
@@ -74,25 +63,20 @@ class AuctionService
 
     public function forceDeleteAuction(Auction $auction): bool
     {
-        app(AuctionReportLock::class)->assertEditable($auction);
-        $attachmentPaths = $auction->attachments()->pluck('file_path')->filter()->all();
+        return DB::transaction(function () use ($auction): bool {
+            $auction = Auction::withTrashed()->whereKey($auction->id)->lockForUpdate()->firstOrFail();
+            app(AuctionReportLock::class)->assertEditable($auction);
+            $paths = $auction->attachments()->pluck('file_path')->filter()->all();
+            if ($auction->cover_image) {
+                $paths[] = $auction->cover_image;
+            }
+            if (! $auction->forceDelete()) {
+                return false;
+            }
+            DB::afterCommit(fn () => Storage::disk('tenant_public')->delete($paths));
 
-        $coverImage = $auction->cover_image;
-        $deleted = (bool) $auction->forceDelete();
-
-        if (! $deleted) {
-            return false;
-        }
-
-        if ($coverImage) {
-            Storage::disk('tenant_public')->delete($coverImage);
-        }
-
-        foreach ($attachmentPaths as $attachmentPath) {
-            Storage::disk('tenant_public')->delete($attachmentPath);
-        }
-
-        return true;
+            return true;
+        });
     }
 
     /** @param array<int, int|string> $propertyIds */

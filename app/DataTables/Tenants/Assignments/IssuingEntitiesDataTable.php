@@ -101,7 +101,7 @@ class IssuingEntitiesDataTable extends AbstractDataTable
                 return $this->renderTableImage($image, (string) $row->name);
             })
             ->editColumn('assignments_count', function ($row) {
-                return '<span class="badge bg-label-primary fs-6">'.$row->assignments_count.'</span>';
+                return '<span class="badge bg-label-primary">'.$row->assignments_count.'</span>';
             })
             ->editColumn('created_at', function ($row) {
                 return $row->created_at ? $row->created_at->format('Y-m-d') : '-';

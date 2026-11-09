@@ -156,17 +156,15 @@
                 <div class="card-body">
                     <form id="report-cycle-form" method="POST" enctype="multipart/form-data" autocomplete="off"
                         data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
-                        @if (!$is_edit) data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
-                            data-draft-file-url="{{ tenant_route_name('wizard-drafts.file.destroy') }}"
-                            data-draft-resource-key="tenant.marketing-campaign-create" @endif
-                        action="{{ $is_edit ? tenant_route_name('marketing-campaigns.update', $auction->id) : tenant_route_name('marketing-campaigns.store') }}"
+                        data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
+                        data-draft-file-url="{{ tenant_route_name('wizard-drafts.file.destroy') }}"
+                        data-draft-resource-key="tenant.marketing-campaign.{{ $auction->id }}"
+                        action="{{ tenant_route_name('marketing-campaigns.update', $auction->id) }}"
                         data-campaign-metrics='@json($channelDefinitions)'
                         data-campaign-fields='@json($channelFields)'
                         data-campaign-properties='@json($propertyOptions)'>
                         @csrf
-                        @if ($is_edit)
-                            @method('PUT')
-                        @endif
+                        @method('PUT')
 
                         @php
                             $activeChannels = (array) old('channels', $selectedChannels);
@@ -428,9 +426,7 @@
                         <x-form.wizard.actions>
                             <x-form.wizard.previous-button :href="tenant_route_name('marketing-campaigns.index')" />
                             <div class="d-flex gap-2">
-                                @if (!$is_edit)
-                                    <x-form.wizard.draft-button step="1" />
-                                @endif
+                                <x-form.wizard.draft-button step="1" />
                                 <x-form.wizard.save-button />
                             </div>
                         </x-form.wizard.actions>

@@ -7,6 +7,7 @@ namespace App\DataTables\Tenants\Auctions;
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\Auctions\Auction;
 use App\Services\Tenants\Auctions\Reports\AuctionReportState;
+use App\Services\Tenants\Auctions\Reports\AuctionMarketingCompleteness;
 use Illuminate\Support\Facades\DB;
 
 final class AuctionReportsDataTable extends AbstractDataTable
@@ -131,12 +132,9 @@ final class AuctionReportsDataTable extends AbstractDataTable
             $query->where('report_kinds.report_kind', request('report_kind'));
         }
         $status = request('content_status');
-        if ($status === 'ended') {
-            $query->whereHas('closing', fn ($q) => $q->whereNotNull('finalized_snapshot'));
-        }
         if (in_array($status, ['complete', 'incomplete'], true)) {
-            $query->whereDoesntHave('closing', fn ($q) => $q->whereNotNull('finalized_snapshot'));
-            $status === 'complete' ? $query->has('marketingCampaigns') : $query->doesntHave('marketingCampaigns');
+            $ids = app(AuctionMarketingCompleteness::class)->completeAuctionIds();
+            $status === 'complete' ? $query->whereIn('auctions.id', $ids) : $query->whereNotIn('auctions.id', $ids);
         }
 
         return $query;

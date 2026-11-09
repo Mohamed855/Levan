@@ -12,6 +12,8 @@ use App\Http\Controllers\Tenants\Archive\User\UserArchiveController;
 use App\Http\Controllers\Tenants\Assignments\AssignmentsController;
 use App\Http\Controllers\Tenants\Assignments\IssuingEntitiesController;
 use App\Http\Controllers\Tenants\AuctionClosings\AuctionClosingsController;
+use App\Http\Controllers\Tenants\AuctionEstablishments\AuctionEstablishmentRequestsController;
+use App\Http\Controllers\Tenants\Auctions\AuctionRegulatoryFormsController;
 use App\Http\Controllers\Tenants\Auctions\AuctionReportController;
 use App\Http\Controllers\Tenants\Auctions\AuctionReportsController;
 use App\Http\Controllers\Tenants\Auctions\AuctionsController;
@@ -97,6 +99,8 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 PropertiesController::class.'@update',
                 AuctionsController::class.'@store',
                 AuctionsController::class.'@update',
+                AuctionEstablishmentRequestsController::class.'@update',
+                AuctionEstablishmentRequestsController::class.'@approve',
                 IssuingEntitiesController::class.'@store',
                 IssuingEntitiesController::class.'@update',
                 MarketingCampaignsController::class.'@store',
@@ -369,13 +373,25 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 Route::name('download')->get('download/{type}', [AuctionReportController::class, 'download']);
                 Route::name('retry')->post('retry', [AuctionReportController::class, 'retry']);
             });
+            Route::prefix('{auction}/forms/{type}')->where(['type' => 'establishment|closing'])->name('forms.')->group(function () {
+                Route::get('status', [AuctionRegulatoryFormsController::class, 'status'])->name('status');
+                Route::post('start', [AuctionRegulatoryFormsController::class, 'start'])->name('start');
+                Route::post('retry', [AuctionRegulatoryFormsController::class, 'retry'])->name('retry');
+                Route::get('download', [AuctionRegulatoryFormsController::class, 'download'])->name('download');
+            });
             // Route::name('promotional-advertisements.status')->get('{auction}/promotional-advertisements/status', [\App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController::class, 'status']);
         });
         Route::post('marketing-campaigns/mass-delete', [MarketingCampaignsController::class, 'massDelete'])->name('marketing-campaigns.mass-delete');
-        Route::resource('marketing-campaigns', MarketingCampaignsController::class)->except('show')->parameters(['marketing-campaigns' => 'auction']);
+        Route::match(['put', 'post'], 'marketing-campaigns/{auction}', [MarketingCampaignsController::class, 'update'])->name('marketing-campaigns.update');
+        Route::resource('marketing-campaigns', MarketingCampaignsController::class)->except(['create', 'show', 'update'])->parameters(['marketing-campaigns' => 'auction']);
         Route::get('auction-closings', [AuctionClosingsController::class, 'index'])->name('auction-closings.index');
         Route::get('auction-closings/{auction}/edit', [AuctionClosingsController::class, 'edit'])->name('auction-closings.edit');
         Route::put('auction-closings/{auction}', [AuctionClosingsController::class, 'update'])->name('auction-closings.update');
+        Route::get('auction-establishment-requests', [AuctionEstablishmentRequestsController::class, 'index'])->name('auction-establishment-requests.index');
+        Route::get('auction-establishment-requests/{auction}/edit', [AuctionEstablishmentRequestsController::class, 'edit'])->name('auction-establishment-requests.edit');
+        Route::match(['put', 'post'], 'auction-establishment-requests/{auction}', [AuctionEstablishmentRequestsController::class, 'update'])->name('auction-establishment-requests.update');
+        Route::post('auction-establishment-requests/{auction}/approve', [AuctionEstablishmentRequestsController::class, 'approve'])->name('auction-establishment-requests.approve');
+        Route::get('auction-establishment-requests/{auction}/attachments/{type}/{property?}', [AuctionEstablishmentRequestsController::class, 'attachment'])->whereNumber('property')->name('auction-establishment-requests.attachment');
         Route::get('auction-reports', [AuctionReportsController::class, 'index'])->name('auction-reports.index');
         Route::resource('auctions', AuctionsController::class)
             ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);

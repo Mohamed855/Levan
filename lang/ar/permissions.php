@@ -10,6 +10,7 @@ return [
         'auctions_management' => 'إدارة المزادات',
         'marketing_campaigns_management' => 'الحملات التسويقية',
         'auction_closings_management' => 'إقفال المزاد',
+        'auction_establishment_requests_management' => 'طلب إقامة مزاد',
         'auction_reports_management' => 'تقارير المزادات',
         'auction_templates_management' => 'إدارة القوالب الإعلانية',
         'users_management' => 'إدارة المستخدمين',
@@ -28,6 +29,13 @@ return [
         'system_management' => 'إدارة النظام',
         'archive_management' => 'إدارة الأرشيف',
     ],
+
+    'auction_establishment_requests.view' => 'عرض طلبات إقامة المزادات',
+    'auction_establishment_requests.create' => 'إضافة طلب إقامة مزاد',
+    'auction_establishment_requests.edit' => 'تعديل طلب إقامة مزاد',
+    'auction_establishment_requests.approve' => 'اعتماد طلب إقامة مزاد',
+    'auction_establishment_requests.regenerate' => 'إعادة توليد نموذج طلب إقامة مزاد',
+    'auction_closings.regenerate' => 'إعادة توليد نموذج إقفال المزاد',
 
     // لوحة القيادة
     'dashboard.main' => 'لوحة القيادة الرئيسية',

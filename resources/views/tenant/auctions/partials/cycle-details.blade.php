@@ -16,9 +16,7 @@
             'marketing_evidence' => 'ti ti-link text-info',
         ];
         $isClosed = $auction->isClosed();
-        $isFinalized =
-            (bool) ($auction->is_finalized ?? $auction->closing()->whereNotNull('finalized_snapshot')->exists());
-        $isLocked = $isClosed || $isFinalized;
+        $isLocked = $isClosed;
         $hasCampaigns = $auction->marketingCampaigns->isNotEmpty();
     @endphp
     <div class="card mb-4">
@@ -69,17 +67,17 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">إقفال المزاد</h5>
             @if (
-                !$auction->closing?->finalized_snapshot &&
+                !$auction->isClosed() && $auction->establishmentRequest?->isApproved() &&
                     auth('tenant')->user()->can($auction->closing ? 'auction_closings.edit' : 'auction_closings.create'))
                 <x-actions.edit :url="tenant_route_name('auction-closings.edit', $auction)" :title="$auction->closing ? 'تعديل الإقفال' : 'إضافة الإقفال'" />
             @endif
         </div>
         @if ($auction->closing)
             <div class="card-body"><span>تاريخ الإقفال: {{ $auction->closing->closing_date?->format('Y-m-d') }}</span>
-                @if ($auction->closing->approval_number)
-                    <span class="ms-3">رقم الاعتماد: {{ $auction->closing->approval_number }}</span>
+                @if ($auction->establishmentRequest?->isApproved())
+                    <span class="ms-3">رقم الاعتماد: {{ $auction->establishmentRequest->approval_number }}</span>
                 @endif
-                @if ($auction->closing->finalized_snapshot)
+                @if ($auction->isClosed())
                     <span class="badge bg-success ms-3">منتهي</span>
                 @endif
             </div>

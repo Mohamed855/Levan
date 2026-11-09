@@ -130,6 +130,11 @@ final class UpdateAuctionAction
                 $propertyIds = array_key_exists('property_ids', $data)
                     ? $this->reportInputs->validatePropertyIds((array) $data['property_ids'], $targetAssignmentId)
                     : $currentProperties->pluck('id')->map(static fn (mixed $id): int => (int) $id)->all();
+                $currentPropertyIds = $currentProperties->modelKeys();
+                if ($auction->establishmentRequest?->isApproved() && (! $isSameAssignment
+                    || array_diff($currentPropertyIds, $propertyIds) !== [] || array_diff($propertyIds, $currentPropertyIds) !== [])) {
+                    throw ValidationException::withMessages(['property_ids' => 'لا يمكن تغيير الإسناد أو عقارات المزاد بعد اعتماد طلب إقامته.']);
+                }
                 $syncData = $this->reportInputs->pivotData(
                     $propertyIds,
                     (array) ($data['property_results'] ?? []),

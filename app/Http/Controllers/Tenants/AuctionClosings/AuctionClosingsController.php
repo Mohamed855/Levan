@@ -27,7 +27,7 @@ final class AuctionClosingsController extends Controller
 
     public function edit(Auction $auction)
     {
-        app(AuctionReportLock::class)->assertEditable($auction);
+        app(AuctionReportLock::class)->assertClosingAllowed($auction);
         abort_unless(auth('tenant')->user()->can($auction->closing ? 'auction_closings.edit' : 'auction_closings.create'), 403);
 
         return view('tenant.auction-closings.edit', ['auction' => $auction->load(['properties', 'closing', 'attachments' => fn ($query) => $query->where('report_section', 'board_after')])]);

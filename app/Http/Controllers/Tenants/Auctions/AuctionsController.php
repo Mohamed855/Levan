@@ -30,7 +30,7 @@ class AuctionsController extends Controller
     ) {
         $this->middleware('auth:tenant');
         $this->authorizeResource(Auction::class, 'auction');
-        $this->middleware('can:auctions.view')->only(['index', 'show']);
+        $this->middleware('can:auctions.view')->only(['index']);
         $this->middleware('can:auctions.create')->only(['create', 'store']);
         $this->middleware('can:auctions.edit')->only(['edit', 'update', 'toggleStatus']);
         $this->middleware('can:auctions.delete')->only(['destroy']);
@@ -42,11 +42,9 @@ class AuctionsController extends Controller
 
         return $dataTable->render('tenant.auctions.index', [
             'totalAuctions' => $statistics['total'],
-            'activeAuctions' => $statistics['active'],
+            'approvedAuctions' => $statistics['approved'],
             'closedAuctions' => $statistics['closed'],
-            'suspendedAuctions' => $statistics['suspended'],
-            'upcomingAuctions' => $statistics['upcoming'],
-            'inactiveAuctions' => $statistics['inactive'],
+            'pendingAuctions' => $statistics['pending'],
             'withoutPropertiesAuctions' => $statistics['without_properties'],
             'readyReportsAuctions' => $statistics['ready_reports'],
             'assignments' => Assignment::query()->select(['id', 'name', 'assignment_number'])->orderBy('name')->get(),
@@ -96,7 +94,7 @@ class AuctionsController extends Controller
 
     public function show(Auction $auction): View
     {
-        $auction->load(['assignment', 'properties', 'attachments', 'latestReportGeneration', 'publishedReportGeneration', 'marketingCampaigns.evidence', 'closing']);
+        $auction->load(['assignment', 'properties', 'attachments', 'latestReportGeneration', 'publishedReportGeneration', 'marketingCampaigns.evidence', 'closing', 'establishmentRequest']);
 
         return view('tenant.auctions.show', [
             'auction' => $auction,
@@ -105,6 +103,7 @@ class AuctionsController extends Controller
 
     public function edit(Auction $auction): View
     {
+        app(\App\Services\Tenants\Auctions\Reports\AuctionReportLock::class)->assertEditable($auction);
         $auction->load(['assignment', 'properties', 'attachments']);
         $assignments = Assignment::where(function ($query) {
             $query->where('is_active', true)
@@ -184,22 +183,6 @@ class AuctionsController extends Controller
 
     public function toggleStatus(UpdateResourceStatusRequest $request, Auction $auction): JsonResponse
     {
-        try {
-            $newStatus = $this->auctionService->toggleStatus(
-                $auction,
-                $request->validated('status') === 'active',
-            );
-
-            return response()->json([
-                'success' => true,
-                'message' => $newStatus ? 'تم تفعيل المزاد' : 'تم تعطيل المزاد',
-                'status' => $newStatus,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء تعديل الحالة',
-            ], 500);
-        }
+        throw \Illuminate\Validation\ValidationException::withMessages(['status' => 'تتحدد حالة المزاد تلقائيًا من اعتماد الطلب ونتائج بيع العقارات.']);
     }
 }

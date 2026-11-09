@@ -16,6 +16,7 @@ final class AuctionReportDataBuilder
             'assignment.issuingEntity',
             'marketingCampaigns',
             'closing',
+            'establishmentRequest',
             'properties.galleryAttachments',
             'attachments' => fn ($query) => $query->orderBy('report_section')->orderBy('display_order')->orderBy('id'),
         ]);
@@ -99,7 +100,7 @@ final class AuctionReportDataBuilder
             'cycle_version' => 1,
             'branding' => ['issuing_entity_logo' => (new AuctionReportBranding)->image($auction->assignment?->issuingEntity?->image)],
             'closing_saved' => $auction->closing !== null,
-            'closing' => $auction->closing ? ['date' => $auction->closing->closing_date?->format('Y-m-d'), 'approval_number' => $auction->closing->approval_number] : null,
+            'closing' => $auction->closing ? ['date' => $auction->closing->closing_date?->format('Y-m-d'), 'approval_number' => $auction->establishmentRequest?->isApproved() ? $auction->establishmentRequest->approval_number : $auction->closing->approval_number] : null,
             'generated_at' => now()->toIso8601String(),
             'auction' => [
                 'id' => (int) $auction->id,
