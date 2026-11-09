@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders\admin;
 
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
@@ -26,10 +28,19 @@ class TestTenantSeeder extends Seeder
 {
     public function run(): void
     {
-        if (app()->environment('production')) {
-            $this->command?->warn('TestTenantSeeder is disabled in production environment.');
+        if (! config('seeding.test_seeders_enabled', false)) {
+            $this->command?->warn('TestTenantSeeder is disabled. Set TEST_SEEDERS_ENABLED=true to enable test data.');
 
             return;
+        }
+
+        if (tenancy()->initialized) {
+            throw new \RuntimeException('TestTenantSeeder must run from the central database context.');
+        }
+        $central = DB::connection('mysql')->getConfig();
+        $tenantDatabase = (string) config('seeding.test_tenant_database');
+        if (! preg_match('/^[A-Za-z0-9_]+$/D', $tenantDatabase) || strcasecmp($tenantDatabase, (string) ($central['database'] ?? '')) === 0) {
+            throw new \RuntimeException('TEST_TENANT_DATABASE must name a separate, valid test database.');
         }
 
         $adminUser = AdminUser::first();
@@ -59,11 +70,11 @@ class TestTenantSeeder extends Seeder
         $tenant = Tenant::updateOrCreate(
             ['id' => 'test'],
             [
-                'db_database' => env('TEST_TENANT_DATABASE', 'etmam_lot_test'),
-                'db_username' => env('DB_USERNAME', 'root'),
-                'db_password' => env('DB_PASSWORD', ''),
-                'db_host' => env('DB_HOST', '127.0.0.1'),
-                'db_port' => env('DB_PORT', '3306'),
+                'db_database' => $tenantDatabase,
+                'db_username' => $central['username'],
+                'db_password' => $central['password'],
+                'db_host' => $central['host'],
+                'db_port' => $central['port'],
                 'folderName' => 'test',
                 'company_name' => 'تجربة',
                 'commercial_number' => '2222222222',
@@ -99,12 +110,15 @@ class TestTenantSeeder extends Seeder
             return;
         }
 
-        $tenantDbName = $tenant->db_database ?? env('TEST_TENANT_DATABASE', 'etmam_lot_test');
+        $tenantDbName = $tenantDatabase;
         DB::statement("CREATE DATABASE IF NOT EXISTS `{$tenantDbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 
-        Artisan::call('tenants:migrate-fresh', [
+        $migrationExitCode = Artisan::call('tenants:migrate-fresh', [
             '--tenants' => [$tenant->id],
         ]);
+        if ($migrationExitCode !== 0) {
+            throw new \RuntimeException('Test tenant migrations failed; seeding was stopped.');
+        }
 
         tenancy()->initialize($tenant);
         try {

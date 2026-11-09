@@ -85,4 +85,43 @@ final class AuctionEstablishmentRequestTest extends TestCase
         $rawColumns = $rawColumnsMethod->invoke($dataTable);
         self::assertContains('approval_number', $rawColumns);
     }
+
+    public function test_establishment_request_validates_saudi_mobile_and_identity_and_numbers(): void
+    {
+        $request = new SaveAuctionEstablishmentRequest;
+        $rules = $request->rules();
+        $messages = $request->messages();
+        $attributes = $request->attributes();
+
+        // 1. Mobile number validation
+        $vMobile = Validator::make(['data' => ['manager' => ['mobile' => '0612345678']]], ['data.manager.mobile' => $rules['data.manager.mobile']], $messages, $attributes);
+        self::assertTrue($vMobile->fails());
+        self::assertStringContainsString('05', $vMobile->errors()->first('data.manager.mobile'));
+
+        $vMobileValid = Validator::make(['data' => ['manager' => ['mobile' => '0512345678']]], ['data.manager.mobile' => $rules['data.manager.mobile']], $messages, $attributes);
+        self::assertFalse($vMobileValid->fails());
+
+        // 2. Identity number validation
+        $vId = Validator::make(['data' => ['manager' => ['identity_number' => '3000000000']]], ['data.manager.identity_number' => $rules['data.manager.identity_number']], $messages, $attributes);
+        self::assertTrue($vId->fails());
+        self::assertStringContainsString('1 أو 2', $vId->errors()->first('data.manager.identity_number'));
+
+        $vIdValid = Validator::make(['data' => ['manager' => ['identity_number' => '1000000001']]], ['data.manager.identity_number' => $rules['data.manager.identity_number']], $messages, $attributes);
+        self::assertFalse($vIdValid->fails());
+
+        // 3. Unified number validation
+        $vUnified = Validator::make(['data' => ['organization' => ['unified_number' => '1234567890']]], ['data.organization.unified_number' => $rules['data.organization.unified_number']], $messages, $attributes);
+        self::assertTrue($vUnified->fails());
+        self::assertStringContainsString('700', $vUnified->errors()->first('data.organization.unified_number'));
+
+        $vUnifiedValid = Validator::make(['data' => ['organization' => ['unified_number' => '7001234567']]], ['data.organization.unified_number' => $rules['data.organization.unified_number']], $messages, $attributes);
+        self::assertFalse($vUnifiedValid->fails());
+
+        // 4. Refund days max 3
+        $vRefund = Validator::make(['data' => ['funds' => ['refund_days' => 5]]], ['data.funds.refund_days' => $rules['data.funds.refund_days']], $messages, $attributes);
+        self::assertTrue($vRefund->fails());
+
+        $vRefundValid = Validator::make(['data' => ['funds' => ['refund_days' => 3]]], ['data.funds.refund_days' => $rules['data.funds.refund_days']], $messages, $attributes);
+        self::assertFalse($vRefundValid->fails());
+    }
 }

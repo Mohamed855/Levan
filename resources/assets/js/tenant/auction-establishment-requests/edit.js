@@ -65,18 +65,42 @@ document.addEventListener("DOMContentLoaded", () => {
                 toggleField(`[name="data[disclosures][${key}_details]"]`, val === "yes");
             });
 
-            // Disposition rights other
+            // Disposition rights other & mutual exclusivity for 'none'
             const rightsSelect = form.querySelector('[name="data[disclosures][disposition_rights][]"], [name="data[disclosures][disposition_rights]"]');
             let hasOther = false;
             if (rightsSelect) {
+                let vals = [];
                 if (window.jQuery && window.jQuery(rightsSelect).data("select2")) {
-                    const vals = window.jQuery(rightsSelect).val() || [];
-                    hasOther = vals.includes("other");
+                    vals = window.jQuery(rightsSelect).val() || [];
                 } else if (rightsSelect.selectedOptions) {
-                    hasOther = Array.from(rightsSelect.selectedOptions).some((opt) => opt.value === "other");
+                    vals = Array.from(rightsSelect.selectedOptions).map((opt) => opt.value);
                 }
+
+                if (vals.includes("none") && vals.length > 1) {
+                    const lastVal = vals[vals.length - 1];
+                    const newVals = lastVal === "none" ? ["none"] : vals.filter((v) => v !== "none");
+                    if (window.jQuery && window.jQuery(rightsSelect).data("select2")) {
+                        window.jQuery(rightsSelect).val(newVals).trigger("change.select2");
+                    } else {
+                        Array.from(rightsSelect.options).forEach((opt) => {
+                            opt.selected = newVals.includes(opt.value);
+                        });
+                    }
+                    vals = newVals;
+                }
+
+                hasOther = vals.includes("other");
             }
             toggleField('[name="data[disclosures][disposition_right_other]"]', hasOther);
+        };
+
+        // Date sync
+        const syncAuctionDates = () => {
+            const startInput = form.querySelector('[name="data[auction][start_date]"]');
+            const endInput = form.querySelector('[name="data[auction][end_date]"]');
+            if (startInput && endInput && startInput.value) {
+                endInput.min = startInput.value;
+            }
         };
 
         // Property status other
@@ -93,6 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const name = e.target?.name || "";
             if (name.includes("[funds]")) checkFundsMethods();
             if (name.includes("[auction][method]")) checkAuctionMethod();
+            if (name.includes("[auction][start_date]")) syncAuctionDates();
             if (name.includes("[disclosures]")) checkDisclosures();
             if (name.includes("[status]")) checkPropertyStatuses();
             updateReviewCardValues();
@@ -108,6 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Run initial checks
         checkFundsMethods();
         checkAuctionMethod();
+        syncAuctionDates();
         checkDisclosures();
         checkPropertyStatuses();
     };

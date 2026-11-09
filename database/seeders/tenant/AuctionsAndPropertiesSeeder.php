@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders\tenant;
 
 use App\Enums\Tenants\Properties\PropertyUnitStatus;
 use App\Enums\Tenants\Properties\PropertyUnitType;
 use App\Enums\Tenants\Properties\PropertyUnitUsage;
-use App\Jobs\Tenants\Auctions\GenerateAuctionReportsJob;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\Auctions\Auction;
@@ -21,8 +22,8 @@ class AuctionsAndPropertiesSeeder extends Seeder
 {
     public function run(): void
     {
-        if (app()->environment('production')) {
-            $this->command?->warn('AuctionsAndPropertiesSeeder is disabled in production environment.');
+        if (! config('seeding.test_seeders_enabled', false)) {
+            $this->command?->warn('AuctionsAndPropertiesSeeder is disabled. Set TEST_SEEDERS_ENABLED=true to enable test data.');
 
             return;
         }
@@ -714,6 +715,10 @@ class AuctionsAndPropertiesSeeder extends Seeder
         // 3. Create Auctions & Generate Sample Reports
         // ---------------------------------------------------------
         $sampleReportPath = 'auctions/report-images/sample-report-cover.png';
+        $sampleBrochurePath = 'auctions/attachments/sample_brochure.pdf';
+        if (! Storage::disk('tenant_public')->exists($sampleBrochurePath)) {
+            Storage::disk('tenant_public')->put($sampleBrochurePath, File::get(database_path('seeders/fixtures/auction-demo-document.pdf')));
+        }
         if (! Storage::disk('tenant_public')->exists($sampleReportPath)) {
             $sourceFile = public_path('static/samples/auction-templates/brochure-1.png');
             if (File::exists($sourceFile)) {
@@ -922,29 +927,23 @@ class AuctionsAndPropertiesSeeder extends Seeder
                     'file_name'  => 'كتيب_المزاد_الرسمي.pdf',
                 ],
                 [
-                    'file_path'  => 'auctions/attachments/sample_brochure.pdf',
+                    'file_path'  => $sampleBrochurePath,
                     'file_type'  => 'application/pdf',
-                    'file_size'  => 2450000,
+                    'file_size'  => Storage::disk('tenant_public')->size($sampleBrochurePath),
                     'category'   => 'brochure',
                     'channels'   => ['web', 'social', 'whatsapp'],
                 ]
             );
 
-            // Generate reports for active seeded auctions
-            if (! $isArchived && $auction->is_active) {
-                try {
-                    $tenantId = (string) (tenant('id') ?: tenant()?->id);
-                    if ($tenantId) {
-                        GenerateAuctionReportsJob::dispatchSyncNow($auction, $tenantId);
-                    }
-                } catch (\Throwable $e) {
-                    // Seeding remains resilient even if Browsershot is offline
-                }
+            // The details screen starts rendering after the seed has finished.
+            if (! $isArchived) {
+                app(\App\Services\Tenants\Auctions\Reports\AuctionReportService::class)->requestGeneration($auction, (string) tenant('id'));
             }
 
             if ($isArchived && ! $auction->trashed()) {
                 $auction->delete();
             }
         }
+        $this->call(AuctionWorkflowScenariosSeeder::class);
     }
 }

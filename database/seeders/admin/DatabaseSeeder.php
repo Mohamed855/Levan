@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders\admin;
 
 use Illuminate\Database\Seeder;
@@ -21,7 +23,7 @@ class DatabaseSeeder extends Seeder
             FaqSeeder::class,
         ]);
 
-        if (app()->environment('local')) {
+        if (config('seeding.test_seeders_enabled', false)) {
             $this->call([
                 TestTenantSeeder::class,
             ]);

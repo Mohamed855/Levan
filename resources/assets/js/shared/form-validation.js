@@ -1234,6 +1234,71 @@ function validateControlClientSide(form, control) {
             }
         }
 
+        // Phone / Mobile format
+        if (
+            control.type === "tel" ||
+            control.dataset.phoneFormat === "mobile" ||
+            /(?:^|[_\[])(?:phone|phone_number|mobile)(?:$|\])/i.test(control.name)
+        ) {
+            if (!/^05[0-9]{8}$/.test(trimmed)) {
+                setFieldError(
+                    form,
+                    name,
+                    "رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام",
+                );
+                return false;
+            }
+        }
+
+        // Identity number check (Saudi ID / Iqama)
+        if (/(?:^|[_\[])(?:identity_number|national_id)(?:$|\])/i.test(control.name)) {
+            if (!/^[12][0-9]{9}$/.test(trimmed)) {
+                setFieldError(
+                    form,
+                    name,
+                    "رقم الهوية يجب أن يبدأ بـ 1 أو 2 ويتكون من 10 أرقام",
+                );
+                return false;
+            }
+        }
+
+        // Unified number check (700)
+        if (/(?:^|[_\[])(?:unified_number)(?:$|\])/i.test(control.name)) {
+            if (!/^700[0-9]{7}$/.test(trimmed)) {
+                setFieldError(
+                    form,
+                    name,
+                    "الرقم الموحد للمنشأة يجب أن يبدأ بـ 700 ويتكون من 10 أرقام",
+                );
+                return false;
+            }
+        }
+
+        // Digits-only check
+        if (control.dataset.digitsOnly !== undefined) {
+            if (!/^[0-9]+$/.test(trimmed)) {
+                setFieldError(
+                    form,
+                    name,
+                    "هذا الحقل يجب أن يحتوي على أرقام فقط",
+                );
+                return false;
+            }
+        }
+
+        // End date after start date check
+        if (control.name.includes("end_date")) {
+            const startInput = form.querySelector('[name$="[start_date]"], [name="start_date"]');
+            if (startInput && startInput.value && trimmed < startInput.value) {
+                setFieldError(
+                    form,
+                    name,
+                    "تاريخ نهاية المزاد يجب أن يكون في نفس يوم تاريخ البداية أو بعده",
+                );
+                return false;
+            }
+        }
+
         // HTML5 pattern attribute
         if (control.pattern) {
             try {
@@ -1383,6 +1448,28 @@ function isStepValid(form, step) {
                     `[name="${CSS.escape(passwordField)}"]`,
                 )?.value;
                 if (pwd && val !== pwd) {
+                    return false;
+                }
+            }
+            if (
+                control.type === "tel" ||
+                control.dataset.phoneFormat === "mobile" ||
+                /(?:^|[_\[])(?:phone|phone_number|mobile)(?:$|\])/i.test(control.name)
+            ) {
+                if (!/^05[0-9]{8}$/.test(val)) return false;
+            }
+            if (/(?:^|[_\[])(?:identity_number|national_id)(?:$|\])/i.test(control.name)) {
+                if (!/^[12][0-9]{9}$/.test(val)) return false;
+            }
+            if (/(?:^|[_\[])(?:unified_number)(?:$|\])/i.test(control.name)) {
+                if (!/^700[0-9]{7}$/.test(val)) return false;
+            }
+            if (control.dataset.digitsOnly !== undefined) {
+                if (!/^[0-9]+$/.test(val)) return false;
+            }
+            if (control.name.includes("end_date")) {
+                const startInput = form.querySelector('[name$="[start_date]"], [name="start_date"]');
+                if (startInput && startInput.value && val < startInput.value) {
                     return false;
                 }
             }

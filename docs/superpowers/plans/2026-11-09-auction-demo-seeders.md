@@ -2,9 +2,13 @@
 
 Authorized scope: update demo seeders for the new auction lifecycle and enable explicit opt-in on any APP_ENV, defaulting off. Preserve unrelated user changes. Do not run migrate:fresh or the destructive TestTenantSeeder against shared/local/server business databases.
 
-- [ ] Replace environment checks in central/demo seeder entry points with config-backed TEST_SEEDERS_ENABLED, false in config, .env.example and .env. Respect configuration caching for the test tenant database and credentials.
-- [ ] Keep normal tenant bootstrap free of demo data. Seed new scenarios only through the opt-in demo entry point.
-- [ ] Preserve existing property/type/category coverage. Add named workflow scenarios: no request, under review, approved, partially closed, all unsold, fully closed, complete/incomplete marketing, and empty auction.
-- [ ] Use real save/approval/closing actions, valid request data, private demo attachments and validated marketing campaigns. Queue generation snapshots for the details screen; avoid synchronous Chromium rendering during fresh seed.
-- [ ] Verify opt-in behavior independently of APP_ENV and all lifecycle/completeness states on isolated CI schemas, repeat-run stability, linked document generation and closed locks.
-- [ ] Review diff, run scoped tests/lint and document how to toggle the flag on a server and refresh cached configuration.
+- [x] Replace environment checks in central/demo seeder entry points with config-backed TEST_SEEDERS_ENABLED, false in config, .env.example and .env. Respect configuration caching for the test tenant database and credentials.
+- [x] Keep normal tenant bootstrap free of demo data. Seed new scenarios only through the opt-in demo entry point.
+- [x] Preserve existing property/type/category coverage. Add named workflow scenarios: no request, under review, approved, partially closed, all unsold, fully closed, complete/incomplete marketing, and empty auction.
+- [x] Use real save/approval/closing actions, valid request data, private demo attachments and validated marketing campaigns. Queue generation snapshots for the details screen; avoid synchronous Chromium rendering during fresh seed.
+- [x] Verify opt-in behavior independently of APP_ENV and all lifecycle/completeness states on isolated CI schemas, repeat-run stability and linked document generation. Existing lifecycle guards are unchanged.
+- [x] Independent review, scoped tests/lint and server toggle documentation.
+
+Evidence: 10 seeder tests / 183 assertions passed (`tmp/auction-seeders-focused.log`), 8 PHP files linted, scoped diff whitespace check passed. Independent review findings fixed with red/green tests: effective DB_URL credentials/database, case-insensitive central database exclusion, and stable scenario identity after renaming both populated and empty auctions.
+
+Wider regression run: 111 tests / 667 assertions, with 6 errors and 3 failures. Eight cases in old establishment workflow fixtures now violate a concurrently updated positive-area rule; one existing closing DataTable structure expectation also fails. Those production and test files are outside this seeder change and were preserved. See `tmp/auction-seeders-verification.log`. No fresh operation was executed against business data.

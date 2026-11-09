@@ -1,4 +1,4 @@
-const phoneNamePattern = /(?:^|[_\[])(?:phone|phone_number)(?:$|\])/i;
+const phoneNamePattern = /(?:^|[_\[])(?:phone|phone_number|mobile)(?:$|\])/i;
 const allowedNavigationKeys = new Set([
     'Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End',
 ]);

@@ -18,24 +18,20 @@ use Tests\TestCase;
 
 class DemoDataAndProductionSafetyTest extends TestCase
 {
-    public function test_production_environment_prevents_test_tenant_and_demo_seeders(): void
+    public function test_test_tenant_and_demo_seeders_require_explicit_opt_in_in_any_environment(): void
     {
         $testTenantSeederContent = file_get_contents(base_path('database/seeders/admin/TestTenantSeeder.php'));
         $auctionsSeederContent = file_get_contents(base_path('database/seeders/tenant/AuctionsAndPropertiesSeeder.php'));
         $adminDatabaseSeederContent = file_get_contents(base_path('database/seeders/admin/DatabaseSeeder.php'));
         $tenantDatabaseSeederContent = file_get_contents(base_path('database/seeders/tenant/TenantDatabaseSeeder.php'));
 
-        // TestTenantSeeder MUST check production environment and exit early
-        $this->assertStringContainsString("app()->environment('production')", $testTenantSeederContent);
-
-        // AuctionsAndPropertiesSeeder MUST check production environment and exit early
-        $this->assertStringContainsString("app()->environment('production')", $auctionsSeederContent);
-
-        // DatabaseSeeder must only call TestTenantSeeder in local environment
-        $this->assertStringContainsString("if (app()->environment('local'))", $adminDatabaseSeederContent);
+        foreach ([$testTenantSeederContent, $auctionsSeederContent, $adminDatabaseSeederContent] as $content) {
+            $this->assertStringContainsString("config('seeding.test_seeders_enabled', false)", $content);
+            $this->assertStringNotContainsString('app()->environment(', $content);
+        }
         $this->assertStringContainsString('TestTenantSeeder::class', $adminDatabaseSeederContent);
 
-        // TenantDatabaseSeeder must NOT run demo seeders for all tenants
+        // Normal tenant bootstrap must not seed demo data even when opt-in is enabled.
         $this->assertStringNotContainsString('AuctionsAndPropertiesSeeder::class,', $tenantDatabaseSeederContent);
     }
 

@@ -15,41 +15,41 @@ final class AuctionEstablishmentRequestData
     {
         return [
             'organization' => ['label' => 'المنشأة العقارية', 'fields' => [
-                'name' => $this->field('اسم المنشأة'),
-                'commercial_registration' => $this->field('السجل التجاري'),
-                'unified_number' => $this->field('الرقم الموحد للمنشأة'),
-                'fal_license' => $this->field('رخصة فال للمزادات العقارية'),
+                'name' => $this->field('اسم المنشأة', 'text', true, [], ['string', 'max:255', 'min:2'], ['maxlength' => '255']),
+                'commercial_registration' => $this->field('السجل التجاري', 'text', true, [], ['string', 'digits:10', 'regex:/^\d{10}$/'], ['inputmode' => 'numeric', 'pattern' => '[0-9]{10}', 'maxlength' => '10', 'data-digits-only' => 'true', 'placeholder' => '10 أرقام']),
+                'unified_number' => $this->field('الرقم الموحد للمنشأة (700)', 'text', true, [], ['string', 'digits:10', 'regex:/^700\d{7}$/'], ['inputmode' => 'numeric', 'pattern' => '700[0-9]{7}', 'maxlength' => '10', 'data-digits-only' => 'true', 'placeholder' => '700xxxxxxx', 'title' => 'الرقم الموحد يجب أن يبدأ بـ 700 ويتكون من 10 أرقام']),
+                'fal_license' => $this->field('رخصة فال للمزادات العقارية', 'text', true, [], ['string', 'max:50', 'regex:/^\d+$/'], ['inputmode' => 'numeric', 'pattern' => '[0-9]+', 'data-digits-only' => 'true', 'placeholder' => 'أدخل رقم رخصة فال']),
             ]],
             'manager' => ['label' => 'مدير المزاد', 'fields' => $this->personFields()],
             'auctioneer' => ['label' => 'محرّج المزاد', 'fields' => $this->personFields()],
             'auction' => ['label' => 'تفاصيل إقامة المزاد', 'fields' => [
-                'name' => $this->field('اسم المزاد'),
-                'properties_count' => $this->field('عدد العقارات', 'number', true, [], ['integer', 'min:1']),
-                'units_count' => $this->field('عدد الوحدات', 'number', true, [], ['integer', 'min:0']),
+                'name' => $this->field('اسم المزاد', 'text', true, [], ['string', 'max:255', 'min:3'], ['maxlength' => '255']),
+                'properties_count' => $this->field('عدد العقارات', 'number', true, [], ['integer', 'min:1'], ['min' => '1', 'step' => '1', 'inputmode' => 'numeric']),
+                'units_count' => $this->field('عدد الوحدات', 'number', true, [], ['integer', 'min:0'], ['min' => '0', 'step' => '1', 'inputmode' => 'numeric']),
                 'method' => $this->field('طريقة إقامة المزاد', 'select', true, ['electronic' => 'إلكتروني', 'in_person' => 'حضوري', 'hybrid' => 'هجين']),
-                'platform' => $this->field('المنصة الإلكترونية', 'text', false),
-                'city' => $this->field('المدينة'),
-                'venue' => $this->field('مقر إقامة المزاد', 'text', false),
-                'broadcast_url' => $this->field('رابط المزاد أو البث', 'url', false),
-                'start_date' => $this->field('تاريخ البداية', 'date'),
-                'end_date' => $this->field('تاريخ النهاية', 'date'),
-                'start_time' => $this->field('وقت البداية', 'time'),
-                'award_period' => $this->field('مدة الترسية'),
+                'platform' => $this->field('المنصة الإلكترونية', 'text', false, [], ['string', 'max:255'], ['maxlength' => '255']),
+                'city' => $this->field('المدينة', 'text', true, [], ['string', 'max:100'], ['maxlength' => '100']),
+                'venue' => $this->field('مقر إقامة المزاد', 'text', false, [], ['string', 'max:255'], ['maxlength' => '255']),
+                'broadcast_url' => $this->field('رابط المزاد أو البث', 'url', false, [], ['url:http,https', 'max:2000'], ['placeholder' => 'https://...']),
+                'start_date' => $this->field('تاريخ البداية', 'date', true, [], ['date']),
+                'end_date' => $this->field('تاريخ النهاية', 'date', true, [], ['date', 'after_or_equal:data.auction.start_date']),
+                'start_time' => $this->field('وقت البداية', 'time', true, [], ['date_format:H:i']),
+                'award_period' => $this->field('مدة الترسية', 'text', true, [], ['string', 'max:100'], ['placeholder' => 'مثال: دقيقتان', 'maxlength' => '100']),
                 'disposition' => $this->field('نوع التصرف', 'select', true, ['sale' => 'بيع', 'lease' => 'تأجير']),
             ]],
             'funds' => ['label' => 'استلام وحفظ وإعادة أموال المتنافسين', 'fields' => [
                 'receipt_method' => $this->field('طريقة الاستلام', 'select', true, $this->paymentMethods()),
-                'receipt_other' => $this->field('طريقة الاستلام الأخرى', 'text', false),
-                'safekeeping' => $this->field('آلية حفظ الأموال'),
-                'receipt_days' => $this->field('مدة الاستلام بالأيام', 'number', true, [], ['integer', 'min:0']),
+                'receipt_other' => $this->field('طريقة الاستلام الأخرى', 'text', false, [], ['string', 'max:255'], ['maxlength' => '255']),
+                'safekeeping' => $this->field('آلية حفظ الأموال', 'text', true, [], ['string', 'max:500'], ['maxlength' => '500']),
+                'receipt_days' => $this->field('مدة الاستلام بالأيام', 'number', true, [], ['integer', 'min:0', 'max:365'], ['min' => '0', 'max' => '365', 'step' => '1', 'inputmode' => 'numeric']),
                 'refund_method' => $this->field('طريقة الإعادة', 'select', true, $this->paymentMethods()),
-                'refund_other' => $this->field('طريقة الإعادة الأخرى', 'text', false),
-                'refund_days' => $this->field('مدة الإعادة بالأيام', 'number', true, [], ['integer', 'min:0', 'max:3']),
+                'refund_other' => $this->field('طريقة الإعادة الأخرى', 'text', false, [], ['string', 'max:255'], ['maxlength' => '255']),
+                'refund_days' => $this->field('مدة الإعادة بالأيام', 'number', true, [], ['integer', 'min:0', 'max:3'], ['min' => '0', 'max' => '3', 'step' => '1', 'inputmode' => 'numeric', 'title' => 'مدة الإعادة يجب ألا تزيد عن 3 أيام']),
                 'entry_type' => $this->field('نوع مبلغ الدخول', 'select', true, ['earnest' => 'عربون', 'advance' => 'مقدم ثمن', 'refundable' => 'مبلغ مسترد', 'none' => 'بدون مبلغ']),
             ]],
             'disclosures' => ['label' => 'الإفصاحات', 'fields' => $this->disclosureFields()],
             'declaration' => ['label' => 'الإقرار والتعهد', 'fields' => [
-                'representative_name' => $this->field('اسم الممثل النظامي للمنشأة'),
+                'representative_name' => $this->field('اسم الممثل النظامي للمنشأة', 'text', true, [], ['string', 'max:255', 'min:3'], ['maxlength' => '255']),
             ]],
         ];
     }
@@ -57,24 +57,24 @@ final class AuctionEstablishmentRequestData
     public function propertyFields(): array
     {
         return [
-            'owner_name' => $this->field('المالك / الملاك'),
-            'deed_number' => $this->field('رقم الصك / الصحيفة العقارية'),
-            'agent_name' => $this->field('اسم الوكيل', 'text', false),
-            'agency_number' => $this->field('رقم الوكالة', 'text', false),
-            'contract_number' => $this->field('رقم عقد المزاد'),
-            'area' => $this->field('المساحة', 'number', true, [], ['numeric', 'min:0']),
-            'type' => $this->field('نوع العقار'),
-            'usage' => $this->field('استخدام العقار'),
-            'usage_other' => $this->field('الاستخدام الآخر', 'text', false),
-            'age' => $this->field('عمر العقار بالسنوات (صفر للأرض)', 'number', true, [], ['integer', 'min:0']),
-            'city_district' => $this->field('المدينة / الحي'),
+            'owner_name' => $this->field('المالك / الملاك', 'text', true, [], ['string', 'max:255', 'min:3'], ['maxlength' => '255']),
+            'deed_number' => $this->field('رقم الصك / الصحيفة العقارية', 'text', true, [], ['string', 'max:50', 'regex:/^\d+$/'], ['inputmode' => 'numeric', 'pattern' => '[0-9]+', 'data-digits-only' => 'true', 'placeholder' => 'أدخل رقم الصك']),
+            'agent_name' => $this->field('اسم الوكيل', 'text', false, [], ['string', 'max:255'], ['maxlength' => '255']),
+            'agency_number' => $this->field('رقم الوكالة', 'text', false, [], ['string', 'max:50', 'regex:/^\d+$/'], ['inputmode' => 'numeric', 'pattern' => '[0-9]+', 'data-digits-only' => 'true', 'placeholder' => 'أدخل رقم الوكالة']),
+            'contract_number' => $this->field('رقم عقد المزاد', 'text', true, [], ['string', 'max:50', 'regex:/^\d+$/'], ['inputmode' => 'numeric', 'pattern' => '[0-9]+', 'data-digits-only' => 'true', 'placeholder' => 'أدخل رقم عقد المزاد']),
+            'area' => $this->field('المساحة', 'number', true, [], ['numeric', 'gt:0', 'max:999999999'], ['min' => '0.01', 'step' => 'any', 'inputmode' => 'decimal']),
+            'type' => $this->field('نوع العقار', 'text', true, [], ['string', 'max:100'], ['maxlength' => '100']),
+            'usage' => $this->field('استخدام العقار', 'text', true, [], ['string', 'max:100'], ['maxlength' => '100']),
+            'usage_other' => $this->field('الاستخدام الآخر', 'text', false, [], ['string', 'max:255'], ['maxlength' => '255']),
+            'age' => $this->field('عمر العقار بالسنوات (صفر للأرض)', 'number', true, [], ['integer', 'min:0', 'max:200'], ['min' => '0', 'max' => '200', 'step' => '1', 'inputmode' => 'numeric']),
+            'city_district' => $this->field('المدينة / الحي', 'text', true, [], ['string', 'max:255'], ['maxlength' => '255']),
             'status' => $this->field('الحالة النظامية', 'select', true, ['clear' => 'سليم', 'seized' => 'محجوز', 'mortgaged' => 'مرهون', 'endowed' => 'وقف', 'other' => 'أخرى']),
-            'status_other' => $this->field('تفاصيل الحالة الأخرى', 'text', false),
-            'ownership_share' => $this->field('نسبة الملكية المعروضة %', 'number', true, [], ['numeric', 'gt:0', 'max:100']),
-            'disclosure' => $this->field('الإفصاح الخاص بالعقار'),
-            'opening_value' => $this->field('قيمة افتتاح المزاد', 'number', true, [], ['decimal:0,2', 'min:0']),
-            'entry_amount' => $this->field('مبلغ الدخول', 'number', true, [], ['decimal:0,2', 'min:0']),
-            'estimated_value' => $this->field('القيمة التقديرية', 'number', true, [], ['decimal:0,2', 'min:0']),
+            'status_other' => $this->field('تفاصيل الحالة الأخرى', 'text', false, [], ['string', 'max:255'], ['maxlength' => '255']),
+            'ownership_share' => $this->field('نسبة الملكية المعروضة %', 'number', true, [], ['numeric', 'gt:0', 'max:100'], ['min' => '0.01', 'max' => '100', 'step' => 'any', 'inputmode' => 'decimal']),
+            'disclosure' => $this->field('الإفصاح الخاص بالعقار', 'text', true, [], ['string', 'max:2000']),
+            'opening_value' => $this->field('قيمة افتتاح المزاد', 'number', true, [], ['numeric', 'min:0', 'max:999999999999'], ['min' => '0', 'step' => '0.01', 'inputmode' => 'decimal']),
+            'entry_amount' => $this->field('مبلغ الدخول', 'number', true, [], ['numeric', 'min:0', 'max:999999999999'], ['min' => '0', 'step' => '0.01', 'inputmode' => 'decimal']),
+            'estimated_value' => $this->field('القيمة التقديرية', 'number', true, [], ['numeric', 'min:0', 'max:999999999999'], ['min' => '0', 'step' => '0.01', 'inputmode' => 'decimal']),
         ];
     }
 
@@ -101,6 +101,7 @@ final class AuctionEstablishmentRequestData
         $rules['data.disclosures.disposition_right_other'][] = 'required_if:data.disclosures.disposition_rights.*,other';
         $rules['data.properties.*.status_other'][] = 'required_if:data.properties.*.status,other';
         $rules['data.properties.*.agency_number'][] = 'required_with:data.properties.*.agent_name';
+        $rules['data.properties.*.agent_name'][] = 'required_with:data.properties.*.agency_number';
         $rules['data.auction.platform'][] = 'required_if:data.auction.method,electronic,hybrid';
         $rules['data.auction.venue'][] = 'required_if:data.auction.method,in_person,hybrid';
 
@@ -284,15 +285,20 @@ final class AuctionEstablishmentRequestData
 
     private function personFields(): array
     {
-        return ['name' => $this->field('الاسم'), 'identity_number' => $this->field('رقم الهوية'), 'mobile' => $this->field('رقم الجوال'), 'email' => $this->field('البريد الإلكتروني', 'email')];
+        return [
+            'name' => $this->field('الاسم', 'text', true, [], ['string', 'max:255', 'min:3'], ['maxlength' => '255', 'placeholder' => 'الاسم الثلاثي']),
+            'identity_number' => $this->field('رقم الهوية', 'text', true, [], ['string', 'digits:10', 'regex:/^[12]\d{9}$/'], ['inputmode' => 'numeric', 'pattern' => '[12][0-9]{9}', 'maxlength' => '10', 'data-digits-only' => 'true', 'placeholder' => '1xxxxxxxxx أو 2xxxxxxxxx', 'title' => 'رقم الهوية يجب أن يبدأ بـ 1 أو 2 ويتكون من 10 أرقام']),
+            'mobile' => $this->field('رقم الجوال', 'tel', true, [], ['string', 'size:10', 'regex:/^05[0-9]{8}$/'], ['inputmode' => 'numeric', 'pattern' => '05[0-9]{8}', 'maxlength' => '10', 'data-phone-format' => 'mobile', 'placeholder' => '05xxxxxxxx', 'title' => 'رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام']),
+            'email' => $this->field('البريد الإلكتروني', 'email', true, [], ['email', 'max:255'], ['maxlength' => '255', 'placeholder' => 'name@example.com']),
+        ];
     }
 
     private function disclosureFields(): array
     {
-        $fields = ['disposition_right_other' => $this->field('تفاصيل حقوق التصرف الأخرى', 'text', false)];
+        $fields = ['disposition_right_other' => $this->field('تفاصيل حقوق التصرف الأخرى', 'text', false, [], ['string', 'max:2000'], ['maxlength' => '2000'])];
         foreach (['real_rights' => 'حقوق عينية', 'dispute' => 'نزاع على العقار', 'value_information' => 'معلومات مؤثرة على القيمة', 'off_plan' => 'بيع على الخارطة', 'contribution' => 'مساهمة عقارية'] as $key => $label) {
             $fields[$key] = $this->field($label, 'select', true, ['no' => 'لا', 'yes' => 'نعم']);
-            $fields[$key.'_details'] = $this->field('تفاصيل '.$label, 'text', false);
+            $fields[$key.'_details'] = $this->field('تفاصيل '.$label, 'text', false, [], ['string', 'max:2000'], ['maxlength' => '2000']);
         }
 
         return $fields;
@@ -303,13 +309,27 @@ final class AuctionEstablishmentRequestData
         return ['transfer' => 'حوالة بنكية', 'cheque' => 'شيك', 'other' => 'أخرى'];
     }
 
-    private function field(string $label, string $type = 'text', bool $required = true, array $options = [], array $rules = []): array
+    private function field(string $label, string $type = 'text', bool $required = true, array $options = [], array $rules = [], array $attrs = []): array
     {
-        $rules = $rules ?: match ($type) {
-            'date' => ['date'], 'time' => ['date_format:H:i'], 'email' => ['email', 'max:255'], 'url' => ['url:http,https', 'max:2000'],
-            'select' => ['string', Rule::in(array_keys($options))], default => ['string', 'max:2000'],
+        $defaultRules = match ($type) {
+            'date' => ['date'],
+            'time' => ['date_format:H:i'],
+            'email' => ['email', 'max:255'],
+            'url' => ['url:http,https', 'max:2000'],
+            'select' => ['string', Rule::in(array_keys($options))],
+            'number' => ['numeric'],
+            default => ['string', 'max:255'],
         };
 
-        return ['label' => $label, 'type' => $type, 'required' => $required, 'options' => $options, 'rules' => [$required ? 'required' : 'nullable', ...$rules]];
+        $effectiveRules = ! empty($rules) ? $rules : $defaultRules;
+
+        return [
+            'label' => $label,
+            'type' => $type,
+            'required' => $required,
+            'options' => $options,
+            'rules' => [$required ? 'required' : 'nullable', ...$effectiveRules],
+            'attrs' => $attrs,
+        ];
     }
 }
