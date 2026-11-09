@@ -109,13 +109,13 @@ final class BrowsershotDocumentRenderer implements BrowserDocumentRenderer
 
         if (str_contains($html, 'name="auction-regulatory-form"')) {
             $browser->waitForFunction(<<<'JS'
-() => {
+(() => {
     if (window.regulatoryFormError) {
         throw new Error(window.regulatoryFormError);
     }
     return window.regulatoryFormReady === true;
-}
-JS);
+})()
+JS, timeout: 10000);
         }
 
         if (str_contains($html, 'name="auction-report-design"')) {

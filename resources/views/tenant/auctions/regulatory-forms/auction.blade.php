@@ -2,9 +2,9 @@
     <h2 class="section-heading">معلومات المزاد العقاري</h2>
     <div class="auction-fields">
         <table class="form-field auction-summary"><tbody><tr>
-            <th>اسم المزاد العقاري</th><td class="data-value">{{ $value('auction.name') }}</td>
-            <th>عدد العقارات محل<br>المزاد العقاري</th><td class="data-value">{{ $value('auction.properties_count', count($data['properties'] ?? []) ?: '') }}</td>
-            <th>عدد الوحدات<br>العقارية</th><td class="data-value">{{ $value('auction.units_count') }}</td>
+            <th>اسم المزاد العقاري</th><td><span class="data-value">{{ $value('auction.name') }}</span></td>
+            <th>عدد العقارات محل<br>المزاد العقاري</th><td><span class="data-value">{{ $value('auction.properties_count', count($data['properties'] ?? []) ?: '') }}</span></td>
+            <th>عدد الوحدات<br>العقارية</th><td><span class="data-value">{{ $value('auction.units_count') }}</span></td>
         </tr></tbody></table>
         <table class="form-field"><tbody><tr><th>طريقة إقامة المزاد العقاري</th><td class="choices">
             @foreach(['electronic' => 'إلكتروني', 'in_person' => 'غير إلكتروني', 'hybrid' => 'جميعها'] as $key => $label)
@@ -14,7 +14,7 @@
         <table class="form-field venue-row"><tbody><tr><th>مكان إقامة المزاد العقاري</th><td><div class="venue-grid"><span><u>اسم المنصة العقارية الإلكترونية المرخصة</u><span class="data-value">{{ $value('auction.platform') }}</span></span><span><u>المدينة:</u><span class="data-value">{{ $value('auction.city') }}</span><br><u>مقر إقامة المزاد العقاري:</u><span class="data-value">{{ $value('auction.venue') }}</span></span></div></td></tr></tbody></table>
         @include('tenant.auctions.regulatory-forms.field', ['label' => 'رابط النقل المرئي للمزادات العقارية الإلكترونية - إن وجد -', 'content' => $value('auction.broadcast_url'), 'labelWidth' => 250, 'ltr' => true])
         <div class="date-row">
-            <table class="form-field"><tbody><tr><th>تاريخ إقامة المزاد العقاري</th><td>البداية: <span class="data-value" dir="ltr">{{ $value('auction.start_date', ' / / ') }}</span> <span class="end-date">النهاية: <span class="data-value" dir="ltr">{{ $value('auction.end_date', ' / / ') }}</span></span></td></tr></tbody></table>
+            <table class="form-field"><tbody><tr><th>تاريخ إقامة المزاد العقاري</th><td><div class="auction-dates"><span>البداية: <span class="data-value" dir="ltr">{{ $value('auction.start_date', ' / / ') }}</span></span><span>النهاية: <span class="data-value" dir="ltr">{{ $value('auction.end_date', ' / / ') }}</span></span></div></td></tr></tbody></table>
             <table class="start-time"><thead><tr><th>وقت البداية</th></tr></thead><tbody><tr><td class="data-value" dir="ltr">{{ $value('auction.start_time') }}</td></tr></tbody></table>
         </div>
         <table class="form-field"><tbody><tr><th style="width:215pt">آلية استلام أموال المتنافسين في المزاد العقاري</th><td class="choices compact-choices">

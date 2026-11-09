@@ -8,12 +8,20 @@
 
 ## Tasks
 
-- [ ] Inspect reference typography, geometry, branding and field semantics; prepare reusable branding/font assets and record provenance.
-- [ ] Add failing renderer tests for native content, blank pages, mixed orientation, input escaping, conditional results and table continuation.
-- [ ] Implement the independent renderer, print views and stable input contract.
-- [ ] Export blank, populated and continuation proofs through Chromium; inspect all pages and measure overflow.
-- [ ] Compare every blank page against the originals; record actual differences and unresolved fidelity limits honestly.
-- [ ] Review scope/security/simplicity, run relevant tests and deliver files plus integration instructions.
+- [x] Inspect reference typography, geometry, branding and field semantics; prepare reusable branding/font assets and record provenance.
+- [x] Add failing renderer tests for native content, blank pages, mixed orientation, input escaping, conditional results and table continuation.
+- [x] Implement the independent renderer, print views and stable input contract.
+- [x] Export blank, populated and continuation proofs through Chromium; inspect all pages and measure overflow.
+- [x] Compare every blank page against the originals; record actual differences and unresolved fidelity limits honestly.
+- [x] Review scope/security/simplicity, run relevant tests and deliver files plus integration instructions.
+
+## Verification record
+
+- Nine scoped PHP tests pass (75 assertions). Five real Chromium tests pass, including actual valid exports and failed-export rejection.
+- Six proof PDFs verified: 6/6/9 establishment pages and 1/1/3 closing pages; mixed page dimensions and native text verified.
+- Independent review caught and reverified fixes for the browser predicate and unbounded property-type values. Usage Other checkbox added.
+- Full project suite also attempted: 1014 tests, 259 errors and 38 failures, with isolated-database guards and unrelated module failures. This is not a green full-suite claim. See the output test summary.
+- Seven unmasked page comparisons produced. Exact visual equality is false; typography/spacing differences remain. Full source REGA/Bukra font files were unavailable. The explicit 100% visual-match requirement remains unfulfilled and is a delivery limitation, not an approved relaxation.
 
 ## Acceptance
 

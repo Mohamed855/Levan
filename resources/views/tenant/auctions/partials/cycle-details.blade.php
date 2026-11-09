@@ -16,7 +16,8 @@
             'marketing_evidence' => 'ti ti-link text-info',
         ];
         $isClosed = $auction->isClosed();
-        $isFinalized = (bool) ($auction->is_finalized ?? $auction->closing()->whereNotNull('finalized_snapshot')->exists());
+        $isFinalized =
+            (bool) ($auction->is_finalized ?? $auction->closing()->whereNotNull('finalized_snapshot')->exists());
         $isLocked = $isClosed || $isFinalized;
         $hasCampaigns = $auction->marketingCampaigns->isNotEmpty();
     @endphp
@@ -32,7 +33,6 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th style="width: 70px;">#</th>
                             <th>نوع الحملة</th>
                             <th>عدد المرفقات</th>
                         </tr>
@@ -44,21 +44,12 @@
                                 $channelIcon = $channelIcons[$campaign->channel] ?? 'ti ti-speakerphone text-primary';
                             @endphp
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <span
-                                            class="avatar-initial rounded bg-label-primary p-2 me-2 d-inline-flex flex-shrink-0">
-                                            <i class="{{ $channelIcon }} fs-4"></i>
-                                        </span>
-                                        <div>
-                                            <span class="fw-bold d-block text-heading">{{ $channelLabel }}</span>
-                                            @if ($campaign->campaign_date)
-                                                <small class="text-muted"><i
-                                                        class="ti ti-calendar me-1"></i>{{ $campaign->campaign_date->format('Y-m-d') }}</small>
-                                            @endif
-                                        </div>
-                                    </div>
+                                    {{ $channelLabel }}
+                                    @if ($campaign->campaign_date)
+                                        <small class="text-muted"><i
+                                                class="ti ti-calendar me-1"></i>{{ $campaign->campaign_date->format('Y-m-d') }}</small>
+                                    @endif
                                 </td>
                                 <td>
                                     <span class="badge bg-label-info">{{ $campaign->evidence->count() }} مرفق</span>

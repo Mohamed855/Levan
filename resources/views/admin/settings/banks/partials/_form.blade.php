@@ -1,5 +1,5 @@
 @php
-    $is_edit = $is_edit ?? (isset($bank) && $bank->exists);
+    $is_edit = $is_edit ?? isset($bank) && $bank->exists;
     $steps = [
         [
             'id' => 'bank-info',
@@ -15,17 +15,11 @@
 
             <form id="bank-wizard-form"
                 action="{{ $is_edit ? route('admin.settings.banks.update', $bank->id) : route('admin.settings.banks.store') }}"
-                method="POST"
-                enctype="multipart/form-data"
-                autocomplete="off"
-                data-form-validate
+                method="POST" enctype="multipart/form-data" autocomplete="off" data-form-validate
                 data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
-                @if (!$is_edit)
-                    data-draft-url="{{ route('admin.wizard-drafts.store') }}"
+                @if (!$is_edit) data-draft-url="{{ route('admin.wizard-drafts.store') }}"
                     data-draft-file-url="{{ route('admin.wizard-drafts.file.destroy') }}"
-                    data-draft-resource-key="admin.bank-create"
-                @endif
-            >
+                    data-draft-resource-key="admin.bank-create" @endif>
                 @csrf
                 @if ($is_edit)
                     @method('PUT')
@@ -34,33 +28,33 @@
                 <x-form.wizard.step id="bank-info" :fields="['bank_name', 'account_name', 'iban', 'account_number', 'icon']">
                     <div class="row g-4">
                         <!-- اسم البنك -->
-                        <x-form.controls.input name="bank_name" id="bank_name" label="اسم البنك"
-                            :value="old('bank_name', $is_edit ? $bank->bank_name : '')"
-                            placeholder="مثال: البنك الأهلي السعودي" required aria-required="true" maxlength="255" col="col-md-6" />
+                        <x-form.controls.input name="bank_name" id="bank_name" label="اسم البنك" :value="old('bank_name', $is_edit ? $bank->bank_name : '')"
+                            placeholder="مثال: البنك الأهلي السعودي" required aria-required="true" maxlength="255"
+                            col="col-md-6" />
 
                         <!-- اسم الحساب -->
                         <x-form.controls.input name="account_name" id="account_name" label="اسم الحساب"
-                            :value="old('account_name', $is_edit ? $bank->account_name : '')"
-                            placeholder="مثال: شركة لوت للمزادات" required aria-required="true" maxlength="255" col="col-md-6" />
+                            :value="old('account_name', $is_edit ? $bank->account_name : '')" placeholder="مثال: شركة لوت للمزادات" required aria-required="true"
+                            maxlength="255" col="col-md-6" />
 
                         <!-- رقم الآيبان -->
                         <x-form.controls.input name="iban" id="iban" label="رقم الآيبان (IBAN)"
-                            :value="old('iban', $is_edit ? $bank->iban : '')"
-                            placeholder="SA0000000000000000000000" minlength="24" maxlength="24" pattern="SA[0-9]{22}"
-                            title="يجب أن يبدأ رقم الآيبان بـ SA ويتبعه 22 رقمًا"
-                            help="يبدأ بـ SA ويتبعه 22 رقمًا (24 خانة إجمالًا)" required aria-required="true" col="col-md-6" />
+                            :value="old('iban', $is_edit ? $bank->iban : '')" placeholder="SA0000000000000000000000" minlength="24" maxlength="24"
+                            pattern="SA[0-9]{22}" title="يجب أن يبدأ رقم الآيبان بـ SA ويتبعه 22 رقمًا"
+                            help="يبدأ بـ SA ويتبعه 22 رقمًا (24 خانة إجمالًا)" required aria-required="true"
+                            col="col-md-6" />
 
                         <!-- رقم الحساب -->
                         <x-form.controls.input name="account_number" id="account_number" label="رقم الحساب"
-                            :value="old('account_number', $is_edit ? $bank->account_number : '')"
-                            placeholder="مثال: 1234567890" required aria-required="true" maxlength="255" inputmode="numeric"
-                            pattern="[0-9]+" title="رقم الحساب يجب أن يحتوي على أرقام فقط" col="col-md-6" />
+                            type="number" :value="old('account_number', $is_edit ? $bank->account_number : '')" placeholder="مثال: 1234567890" required
+                            aria-required="true" maxlength="255" inputmode="numeric" pattern="[0-9]+"
+                            title="رقم الحساب يجب أن يحتوي على أرقام فقط" col="col-md-6" />
 
                         <!-- أيقونة البنك -->
                         <x-form.controls.image-upload name="icon" id="icon" label="أيقونة البنك"
-                            :value="$is_edit && $bank->icon ? asset('storage/' . $bank->icon) : null"
-                            accept="image/jpeg,image/png,image/jpg,image/svg+xml"
-                            :help="$is_edit ? 'اترك الحقل فارغاً للإبقاء على الصورة الحالية' : 'الصيغ المسموحة: JPG, PNG, SVG | الحجم الأقصى: 10MB'"
+                            :value="$is_edit && $bank->icon ? asset('storage/' . $bank->icon) : null" accept="image/jpeg,image/png,image/jpg,image/svg+xml" :help="$is_edit
+                                ? 'اترك الحقل فارغاً للإبقاء على الصورة الحالية'
+                                : 'الصيغ المسموحة: JPG, PNG, SVG | الحجم الأقصى: 10MB'"
                             :required="!$is_edit" col="col-md-6" />
                     </div>
 

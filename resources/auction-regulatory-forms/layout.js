@@ -74,13 +74,16 @@ window.regulatoryFormError = null;
             const bounds = sheet.getBoundingClientRect();
             for (const value of sheet.querySelectorAll('.data-value')) {
                 if (!value.textContent.trim()) continue;
-                if (value.scrollHeight > value.clientHeight + 2 || value.scrollWidth > value.clientWidth + 2) {
+                const maximumHeight = Number.parseFloat(getComputedStyle(value).maxHeight);
+                const cell = value.closest('td');
+                const availableHeight = Number.isFinite(maximumHeight) ? maximumHeight : (cell ? cell.clientHeight - 2 : Infinity);
+                if (value.scrollHeight > availableHeight + 2 || value.scrollWidth > value.clientWidth + 2) {
                     throw new Error(`Data overflow: a value does not fit in the ${sheet.dataset.formPage} form.`);
                 }
                 const range = document.createRange();
                 range.selectNodeContents(value);
                 const textBounds = range.getBoundingClientRect();
-                if (textBounds.bottom > bounds.bottom + 1 || textBounds.top < bounds.top - 1) {
+                if (textBounds.bottom > bounds.bottom + 1 || textBounds.top < bounds.top - 1 || textBounds.left < bounds.left - 2 || textBounds.right > bounds.right + 2) {
                     throw new Error('Data overflow: text exceeds the page.');
                 }
             }

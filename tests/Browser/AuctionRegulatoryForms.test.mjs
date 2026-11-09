@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -54,5 +54,35 @@ test('an overlong scalar is reported instead of exported with silently clipped t
         assert.match(error, /fit|overflow/i);
     } finally {
         await browser.close();
+    }
+});
+
+test('an overlong property type cannot expand its field over subsequent fields', async () => {
+    const { browser, page } = await render({ property: { type: 'نوع عقار طويل '.repeat(20) } }, 'establishment');
+    try {
+        assert.match(await page.evaluate(() => window.regulatoryFormError || ''), /fit|overflow/i);
+    } finally {
+        await browser.close();
+    }
+});
+
+test('PDF export actually rejects a detected overflow and does not create a PDF', () => {
+    const directory = mkdtempSync(path.join(os.tmpdir(), 'auction-regulatory-rejection-'));
+    const input = path.join(directory, 'data.json');
+    writeFileSync(input, JSON.stringify({ organization: { name: 'شركة ذات اسم طويل جدًا '.repeat(100) } }));
+    assert.throws(() => execFileSync(php, ['scripts/auction-regulatory-forms/render.php', '--type=establishment', `--data=${input}`, `--output=${directory}`], { stdio: 'pipe' }));
+    assert.equal(existsSync(path.join(directory, 'establishment.pdf')), false);
+});
+
+test('blank and example forms both export successfully with ordinary dates and short values', () => {
+    const example = path.resolve('resources/auction-regulatory-forms/example.json');
+    for (const type of ['establishment', 'closing']) {
+        for (const data of [null, example]) {
+            const directory = mkdtempSync(path.join(os.tmpdir(), 'auction-regulatory-valid-'));
+            const args = ['scripts/auction-regulatory-forms/render.php', `--type=${type}`, `--output=${directory}`];
+            if (data) args.push(`--data=${data}`);
+            execFileSync(php, args, { stdio: 'pipe' });
+            assert.equal(readFileSync(path.join(directory, `${type}.pdf`)).subarray(0, 5).toString(), '%PDF-');
+        }
     }
 });

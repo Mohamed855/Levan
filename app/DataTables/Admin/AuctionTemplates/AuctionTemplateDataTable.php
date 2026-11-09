@@ -48,7 +48,7 @@ class AuctionTemplateDataTable extends AbstractDataTable
     {
         return [
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
-            ['data' => 'name', 'name' => 'name', 'title' => 'اسم القالب', 'className' => 'text-start'],
+            ['data' => 'name', 'name' => 'name', 'title' => 'اسم القالب', 'className' => 'text-center'],
             ['data' => 'type', 'name' => 'type', 'title' => 'النوع', 'className' => 'text-center'],
             ['data' => 'version', 'name' => 'current_version', 'title' => 'الإصدار الحالي', 'className' => 'text-center'],
             ['data' => 'publication_status', 'name' => 'status', 'title' => 'حالة النشر', 'className' => 'text-center'],

@@ -52,6 +52,7 @@
         "age": "5",
         "type": "فيلا",
         "usage": "سكني",
+        "usage_other": "",
         "status": "clear",
         "status_other": "",
         "opening_value": "1,000,000.00",
@@ -59,7 +60,7 @@
         "ownership_share": "100"
     },
     "disclosures": {
-        "disposition_right": "none",
+        "disposition_rights": ["none"],
         "disposition_right_other": "",
         "real_rights": "no",
         "real_rights_details": "",

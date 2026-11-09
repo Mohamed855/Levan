@@ -38,11 +38,11 @@ class SettingManagePaymentDataTable extends AbstractDataTable
                 'className' => 'custom-checkbox',
             ],
 
-            ['data' => 'customer_name', 'name' => 'customer_name', 'title' => 'اسم العميل', 'className' => 'text-start'],
-            ['data' => 'payment_id', 'name' => 'payment_id', 'title' => 'رقم العملية', 'className' => 'text-start'],
-            ['data' => 'amount', 'name' => 'amount', 'title' => 'المبلغ', 'className' => 'text-start'],
-            ['data' => 'description', 'name' => 'description', 'title' => 'نوع العملية', 'className' => 'text-start'],
-            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'className' => 'text-start'],
+            ['data' => 'customer_name', 'name' => 'customer_name', 'title' => 'اسم العميل', 'className' => 'text-center'],
+            ['data' => 'payment_id', 'name' => 'payment_id', 'title' => 'رقم العملية', 'className' => 'text-center'],
+            ['data' => 'amount', 'name' => 'amount', 'title' => 'المبلغ', 'className' => 'text-center'],
+            ['data' => 'description', 'name' => 'description', 'title' => 'نوع العملية', 'className' => 'text-center'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'paid_at', 'name' => 'paid_at', 'title' => 'تاريخ العملية', 'className' => 'text-center', 'width' => '130px'],
         ];
     }

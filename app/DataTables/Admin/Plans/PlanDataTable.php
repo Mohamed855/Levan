@@ -32,7 +32,7 @@ class PlanDataTable extends AbstractDataTable
         return [
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'color', 'name' => 'color', 'title' => 'اللون', 'width' => '50px', 'className' => 'text-center align-middle', 'orderable' => true],
-            ['data' => 'name', 'name' => 'name', 'title' => 'اسم الباقة', 'className' => 'text-start'],
+            ['data' => 'name', 'name' => 'name', 'title' => 'اسم الباقة', 'className' => 'text-center'],
             ['data' => 'code', 'name' => 'code', 'title' => 'الكود', 'className' => 'text-center'],
             ['data' => 'is_most_requested', 'name' => 'is_most_requested', 'title' => 'الأكثر طلباً', 'width' => '95px', 'className' => 'text-center align-middle', 'orderable' => false, 'searchable' => false],
             ['data' => 'plan_type', 'name' => 'plan_type', 'title' => 'النوع', 'className' => 'text-center'],

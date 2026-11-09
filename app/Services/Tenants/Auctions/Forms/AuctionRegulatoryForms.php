@@ -15,6 +15,7 @@ final class AuctionRegulatoryForms
         if (! in_array($type, ['establishment', 'closing'], true)) {
             throw new InvalidArgumentException('Unsupported regulatory form type.');
         }
+        $this->validateData($data);
 
         $properties = $this->rows($data['properties'] ?? []);
         $agents = $this->rows($data['agents'] ?? []);
@@ -96,6 +97,56 @@ final class AuctionRegulatoryForms
         }
 
         return $rows;
+    }
+
+    private function validateData(array $data): void
+    {
+        foreach (['organization', 'manager', 'auctioneer', 'auction', 'funds', 'property', 'disclosures', 'declaration', 'closing'] as $section) {
+            if (! isset($data[$section])) {
+                continue;
+            }
+            if (! is_array($data[$section])) {
+                throw new InvalidArgumentException('Form sections must be objects.');
+            }
+            foreach ($data[$section] as $key => $value) {
+                if ($section === 'disclosures' && $key === 'disposition_rights') {
+                    continue;
+                }
+                if ($value !== null && ! is_scalar($value)) {
+                    throw new InvalidArgumentException('Form section values must be scalar.');
+                }
+            }
+        }
+
+        $options = [
+            'auction.method' => ['electronic', 'in_person', 'hybrid'],
+            'auction.disposition' => ['sale', 'lease'],
+            'funds.receipt_method' => ['transfer', 'cheque', 'other'],
+            'funds.refund_method' => ['transfer', 'cheque', 'other'],
+            'funds.entry_type' => ['earnest', 'advance', 'refundable', 'none'],
+            'property.status' => ['clear', 'seized', 'mortgaged', 'endowed', 'other'],
+        ];
+        foreach (['real_rights', 'dispute', 'value_information', 'off_plan', 'contribution'] as $key) {
+            $options['disclosures.'.$key] = ['yes', 'no'];
+        }
+        foreach ($options as $path => $allowed) {
+            $selected = data_get($data, $path);
+            if ($selected !== null && $selected !== '' && ! in_array($selected, $allowed, true)) {
+                throw new InvalidArgumentException('Unknown option for '.$path.'.');
+            }
+        }
+        $rights = data_get($data, 'disclosures.disposition_rights', []);
+        if (! is_array($rights) || ! array_is_list($rights)) {
+            throw new InvalidArgumentException('Disposition rights must be a list.');
+        }
+        foreach ($rights as $right) {
+            if (! in_array($right, ['none', 'preemption', 'session_option', 'condition_option', 'earnest_sale', 'other'], true)) {
+                throw new InvalidArgumentException('Unknown disposition right.');
+            }
+        }
+        if (in_array('none', $rights, true) && count($rights) > 1) {
+            throw new InvalidArgumentException('No rights cannot be combined with a right.');
+        }
     }
 
     private function money(mixed $value): string

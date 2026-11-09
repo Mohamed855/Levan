@@ -56,6 +56,8 @@ small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:
 .date-row .form-field{width:378pt;height:30.6pt}
 .date-row .form-field th{width:133pt}
 .date-row td{background:transparent;font-family:FormSans,sans-serif;font-size:8pt}
+.auction-dates{display:flex;justify-content:space-around;gap:8pt;white-space:nowrap}
+.auction-dates .data-value{font-size:8pt}
 .end-date{margin-inline-start:12pt}
 .start-time{border:.45pt solid var(--navy);border-collapse:collapse;width:112.6pt;height:30.6pt;table-layout:fixed}
 .start-time th{background:#808080;color:white;height:11.5pt;font-size:5pt;font-weight:400;padding:0}
@@ -64,6 +66,9 @@ small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:
 .other-detail .data-value{display:block;min-width:45pt;border-block-end:.4pt dotted #aaa;font-size:7pt}
 .auction-fields>.short-row{height:22.1pt}
 .short-row td{font-family:FormSans,sans-serif;font-size:8pt}
+.auction-fields>.short-row:nth-child(8) td{white-space:nowrap;font-size:7pt}
+.auction-fields>.short-row:nth-child(8) td>.data-value,.auction-fields>.form-field:nth-child(10) td>.data-value{display:inline-block;min-width:25pt;border-block-end:.4pt dotted #aaa;vertical-align:baseline}
+.auction-fields>.form-field:nth-child(10) td{white-space:nowrap;font-family:FormSans,sans-serif;font-size:7pt}
 .short-row .choice-box{width:13pt;height:10pt}
 .auction-fields>.disposition-row{height:19.6pt}
 .disposition-row .choice-box{width:13pt;height:10pt}
@@ -84,6 +89,10 @@ small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:
 .two-fields .form-field{height:20pt;flex:1;width:0}
 .two-fields th{width:117pt;font-size:8pt}
 .two-fields small{display:inline;font-size:5pt}
+.two-fields .form-field td>.data-value{max-height:16pt;font-size:8pt}
+.two-fields .form-field td.usage-value>.data-value{display:inline-block;max-width:42pt;vertical-align:middle}
+.usage-value .choice{display:inline-flex;font-size:5pt;gap:3pt;align-items:center}
+.usage-value .choice-box{width:9pt;height:7pt}
 .property-description .property-status{height:26.3pt}
 .property-status .choice{margin-inline-end:7pt}
 .property-status .choice-box{width:13pt;height:9pt}
@@ -103,6 +112,8 @@ small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:
 .disclosure-row th{width:255pt;font-size:8pt}
 .disclosure-row .choice{margin-inline-end:6pt;font-size:5.5pt}
 .disclosure-row .dotted{min-width:55pt;font-size:6pt}
+.disclosure-row .data-value{max-height:14pt;max-width:70pt}
+.disclosure-row td>.data-value{display:inline-block;vertical-align:baseline}
 .statement-table{border-collapse:collapse;table-layout:fixed;width:100%;font-size:9pt}
 .statement-table th,.statement-table td{border:.55pt solid #303b3b;padding:2pt 3pt;text-align:center;vertical-align:middle}
 .statement-table th{font-size:9pt;font-weight:800;line-height:1.45;background:rgba(205,211,219,.35)}
@@ -144,13 +155,16 @@ small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:
 .closing-statement .signatures td{height:61.5pt}
 .closing-repeat{text-align:center;font-size:10pt;font-weight:400;color:#008d9c;margin-block-start:11pt}
 .declaration-panel{inset-block-start:120.4pt;height:684.9pt}
+.form-page--declaration h1{inset-block-start:90pt}
+.percentage{font-family:FormSans,sans-serif;font-weight:400}
 .required-attachments{position:absolute;inset-block-start:12.5pt;inset-inline:13.65pt}
 .declaration-panel ul{padding-inline-start:10pt;list-style-type:disc;font-size:9pt;line-height:1.8;margin-block-start:7pt}
-.required-attachments li:last-child{font-size:8pt}
+.required-attachments li:last-child{font-size:6.5pt}
 .request-requirements{position:absolute;inset-block-start:113.5pt;inset-inline:13.65pt}
 .declaration-text{position:absolute;inset-block-start:187pt;inset-inline:13.65pt}
 .declarant{display:flex;align-items:baseline;gap:3pt;font-size:9pt;line-height:1.7;margin-block-start:10pt}
 .declarant .dotted{flex:1}
+.declarant .data-value{max-height:20pt;overflow:visible}
 .organization-declarant{margin-block-start:10pt;white-space:nowrap}
 .organization-declarant .dotted{min-width:90pt}
 .commitment-intro{font-size:9pt;margin-block-start:11pt}

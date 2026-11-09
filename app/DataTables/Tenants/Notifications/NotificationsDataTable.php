@@ -53,7 +53,7 @@ class NotificationsDataTable extends AbstractDataTable
                 'className' => 'custom-checkbox',
                 'titleAttr' => 'تحديد الكل',
             ],
-            ['data' => 'title', 'name' => 'data->title', 'title' => 'العنوان', 'width' => '200px', 'className' => 'text-start'],
+            ['data' => 'title', 'name' => 'data->title', 'title' => 'العنوان', 'width' => '200px', 'className' => 'text-center'],
             ['data' => 'message', 'name' => 'data->message', 'title' => 'الرسالة', 'width' => '300px'],
             ['data' => 'type', 'name' => 'data->type', 'title' => 'النوع', 'width' => '100px'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'التاريخ', 'width' => '120px'],

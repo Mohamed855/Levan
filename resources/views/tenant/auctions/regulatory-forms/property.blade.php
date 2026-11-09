@@ -21,8 +21,8 @@
             @include('tenant.auctions.regulatory-forms.field', ['label' => 'عُمر العقار', 'content' => $pv('age'), 'labelWidth' => 78])
         </div>
         <div class="two-fields">
-            <table class="form-field"><tbody><tr><th>نوع العقار <small>(فيلا، شقة، دبلكس، إلخ)</small></th><td class="data-value">{{ $pv('type') }}</td></tr></tbody></table>
-            <table class="form-field"><tbody><tr><th>نوع استخدام العقار <small>(سكني، تجاري)</small></th><td class="data-value">{{ $pv('usage') }}</td></tr></tbody></table>
+            <table class="form-field"><tbody><tr><th>نوع العقار <small>(فيلا، شقة، دبلكس، إلخ)</small></th><td><span class="data-value">{{ $pv('type') }}</span></td></tr></tbody></table>
+            <table class="form-field"><tbody><tr><th>نوع استخدام العقار <small>(سكني، تجاري)</small></th><td class="choices usage-value"><span class="data-value">{{ $pv('usage') }}</span>@include('tenant.auctions.regulatory-forms.choices', ['label' => 'أخرى', 'checked' => $pv('usage_other') !== ''])<span class="data-value">{{ $pv('usage_other') }}</span></td></tr></tbody></table>
         </div>
         <table class="form-field property-status"><tbody><tr><th style="width:63pt">حالة العقار</th><td class="choices compact-choices">
             @foreach(['clear' => 'بدون قيود', 'seized' => 'محجوز', 'mortgaged' => 'مرهون', 'endowed' => 'موقوف', 'other' => 'أخرى:'] as $key => $label)
@@ -37,7 +37,7 @@
         <h2 class="section-heading">الحقوق والقيود محل المزاد العقاري</h2>
         <table class="form-field rights-types"><tbody><tr><th style="width:120pt">هل توجد أحكام متعلقة<br>بالتصرف في العقار</th><td class="choices compact-choices">
             @foreach(['none' => 'لا يوجد', 'preemption' => 'حق الشفعة', 'session_option' => 'خيار المجلس', 'condition_option' => 'خيار الشرط', 'earnest_sale' => 'بيع العربون', 'other' => 'غير ذلك'] as $key => $label)
-                @include('tenant.auctions.regulatory-forms.choices', ['label' => $label, 'checked' => $value('disclosures.disposition_right') === $key])
+                @include('tenant.auctions.regulatory-forms.choices', ['label' => $label, 'checked' => in_array($key, $data['disclosures']['disposition_rights'] ?? [], true)])
             @endforeach
             <span class="data-value">{{ $value('disclosures.disposition_right_other') }}</span>
         </td></tr></tbody></table>
@@ -47,13 +47,13 @@
             <span class="data-value">{{ $pv('ownership_share') !== '100' ? $pv('ownership_share') : '' }}</span>
         </td></tr></tbody></table>
         @foreach([
-            'real_rights' => 'هل توجد حقوق عينية أو التزامات مرتبطة بالعقار',
-            'dispute' => 'هل يوجد رهن أو قيد أو نزاع قد يؤثر في الانتفاع بالعقار',
-            'value_information' => 'هل توجد معلومات تؤثر في قيمة العقار',
-            'off_plan' => 'هل سيتم بيع أحد العقارات بنموذج البيع أو التأجير على الخارطة',
-            'contribution' => 'هل توجد مساهمة عقارية مرتبطة بأحد العقارات محل المزاد العقاري',
-        ] as $key => $label)
-            <table class="form-field disclosure-row"><tbody><tr><th>{{ $label }}</th><td class="choices compact-choices">
+            'real_rights' => ['هل توجد حقوق عينية أو التزامات مرتبطة بالعقار', 275],
+            'dispute' => ['هل يوجد رهن أو قيد أو نزاع قد يؤثر في الانتفاع بالعقار', 298],
+            'value_information' => ['هل توجد معلومات تؤثر في قيمة العقار', 240],
+            'off_plan' => ['هل سيتم بيع أحد العقارات بنموذج البيع أو التأجير على الخارطة', 322],
+            'contribution' => ['هل توجد مساهمة عقارية مرتبطة بأحد العقارات محل المزاد العقاري', 339],
+        ] as $key => [$label, $labelWidth])
+            <table class="form-field disclosure-row"><tbody><tr><th style="width:{{ $labelWidth }}pt">{{ $label }}</th><td class="choices compact-choices">
                 @include('tenant.auctions.regulatory-forms.choices', ['label' => 'لا', 'checked' => $value('disclosures.'.$key) === 'no'])
                 @include('tenant.auctions.regulatory-forms.choices', ['label' => 'نعم (يتم ذكرها):', 'checked' => $value('disclosures.'.$key) === 'yes'])
                 <span class="dotted data-value">{{ $value('disclosures.'.$key.'_details') }}</span>
