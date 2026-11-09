@@ -1,0 +1,163 @@
+:root{--ink:#005257;--navy:#1c365c;--green:#05a286;--tint:rgba(205,211,219,.36)}
+@page portrait{size:595.276pt 841.89pt;margin:0}
+@page landscape{size:841.89pt 595.276pt;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;color:var(--ink);font-family:REGA,FormData,sans-serif;font-size:9pt;font-weight:800;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{background:#fff}
+.form-page{position:relative;isolation:isolate;width:595.276pt;height:841.89pt;break-after:page;overflow:hidden}
+.form-page:last-child{break-after:auto}
+.form-page[data-orientation=landscape]{width:841.89pt;height:595.276pt}
+.watermark{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.form-header{position:relative;height:136.49pt}
+.form-logo{position:absolute;inset-block-start:33.2pt;inset-inline-start:35.876pt;width:154.6pt;height:43.1pt}
+.submission{position:absolute;inset-block-start:56.6pt;inset-inline-end:36.85pt;display:flex;gap:4pt;align-items:baseline;font-size:7pt;font-weight:400;color:var(--navy)}
+.dotted{display:inline-block;min-width:70pt;min-height:8pt;border-block-end:.7pt dotted currentColor;vertical-align:baseline}
+h1,h2,p,ul{margin:0}
+h1{position:absolute;inset-block-start:101.4pt;inset-inline:36pt;text-align:center;font-size:15pt;font-weight:800;line-height:1.4}
+.form-panel{position:absolute;inset-block-start:136.49pt;inset-inline-start:36pt;width:523.276pt;height:669.4pt;border:.45pt solid var(--green);padding-inline:13.65pt}
+.section-heading{display:flex;align-items:baseline;gap:8pt;position:relative;font-size:10pt;font-weight:800;line-height:15pt;white-space:nowrap}
+.section-heading:after{content:"";height:.7pt;background:var(--ink);flex:1}
+.section-heading:before{content:"";position:absolute;inset-inline-start:-13.7pt;inset-block-end:2pt;width:12.56pt;height:6.49pt;background:var(--green)}
+.form-field{border-collapse:collapse;table-layout:fixed;width:100%;height:25.32pt;border:.45pt solid var(--navy);font-size:9pt;line-height:1.25}
+.form-field th{width:124pt;text-align:start;padding:2pt 4pt;font-weight:800;vertical-align:middle}
+.form-field td{background:var(--tint);padding:1pt 4pt;font-weight:400;vertical-align:middle;overflow-wrap:anywhere}
+.data-value{font-family:FormData,sans-serif;font-weight:400;unicode-bidi:plaintext;white-space:pre-wrap;overflow-wrap:anywhere}
+.data-value[dir=ltr]{display:inline-block;unicode-bidi:isolate}
+.form-field .data-value{font-size:9pt;line-height:1.15}
+.form-field td>.data-value{display:block;max-height:21pt;overflow:visible}
+small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:1.5}
+.form-field th>small{display:block}
+.organization-section{position:absolute;inset-block-start:43pt;inset-inline:13.65pt}
+.organization-fields{display:grid;gap:10.9pt;margin-block-start:12pt}
+.organization-fields .form-field:first-child{margin-block-end:1.1pt}
+.person-section{position:absolute;inset-inline:13.65pt}
+.person-section--manager{inset-block-start:273pt}
+.person-section--auctioneer{inset-block-start:476.8pt}
+.person-fields{display:grid;gap:8.15pt;margin-block-start:12.3pt}
+.page-number{position:absolute;inset-block-end:13.7pt;inset-inline-start:35.5pt;font-family:FormData,sans-serif;font-size:8pt;font-weight:400;color:#092f57}
+.auction-panel>.section-heading{margin-block-start:27pt}
+.auction-fields{display:grid;gap:11.4pt;margin-block-start:20.5pt}
+.auction-fields>.form-field,.date-row{height:30.6pt}
+.auction-summary th{width:89pt}
+.auction-summary th:nth-of-type(2){width:85pt}
+.auction-summary th:nth-of-type(3){width:61pt}
+.auction-summary td:first-of-type{width:153pt}
+.auction-summary td{padding-inline:2pt}
+.auction-summary th{white-space:nowrap;font-size:8.7pt}
+.choices{font-family:FormSans,sans-serif;font-size:8pt}
+.choices .choice{display:inline-flex;align-items:center;gap:5pt;white-space:nowrap;margin-inline-end:25pt;vertical-align:middle}
+.choice-box{display:inline-flex;justify-content:center;align-items:center;width:19pt;height:15pt;border:1pt solid var(--navy);font:12pt FormData,sans-serif;color:var(--navy);flex-shrink:0}
+.compact-choices .choice{margin-inline-end:9pt;gap:4pt;font-size:6.5pt}
+.compact-choices .choice-box{width:18pt;height:14pt}
+.venue-row{height:40.6pt!important}
+.venue-grid{display:grid;grid-template-columns:1fr 1fr;gap:4pt;font-family:FormSans,sans-serif;font-size:7pt;line-height:1.7}
+.venue-grid .data-value{font-size:7pt;display:block}
+.date-row{display:flex;gap:5pt}
+.date-row .form-field{width:378pt;height:30.6pt}
+.date-row .form-field th{width:133pt}
+.date-row td{background:transparent;font-family:FormSans,sans-serif;font-size:8pt}
+.end-date{margin-inline-start:12pt}
+.start-time{border:.45pt solid var(--navy);border-collapse:collapse;width:112.6pt;height:30.6pt;table-layout:fixed}
+.start-time th{background:#808080;color:white;height:11.5pt;font-size:5pt;font-weight:400;padding:0}
+.start-time td{text-align:center;font-size:9pt;font-weight:400}
+.other-detail{display:inline-block;text-align:center;font-family:FormSans,sans-serif;font-size:5.5pt;line-height:1.7;max-width:72pt;vertical-align:middle}
+.other-detail .data-value{display:block;min-width:45pt;border-block-end:.4pt dotted #aaa;font-size:7pt}
+.auction-fields>.short-row{height:22.1pt}
+.short-row td{font-family:FormSans,sans-serif;font-size:8pt}
+.short-row .choice-box{width:13pt;height:10pt}
+.auction-fields>.disposition-row{height:19.6pt}
+.disposition-row .choice-box{width:13pt;height:10pt}
+.property-panel{inset-block-start:136.9pt;height:669pt}
+.property-heading{position:absolute;inset-block-start:30.5pt;inset-inline:13.65pt;display:flex;gap:13pt;align-items:center}
+.property-heading h2{width:160pt;flex:none}
+.property-heading h2:after{display:none}
+.property-heading p{font-family:FormSans,sans-serif;font-size:5pt;font-weight:400;line-height:1.9;flex:1}
+.property-identity{position:absolute;inset-block-start:59.3pt;inset-inline:13.65pt;display:grid;gap:13.8pt}
+.property-identity .form-field{height:22.7pt}
+.agent-info{position:absolute;inset-block-start:129pt;inset-inline:13.65pt;height:68pt;border:.45pt solid var(--navy);padding:7pt 1pt 4pt;margin:0}
+.agent-info legend{font-size:8pt;padding-inline:13pt}
+.agent-info .form-field{height:22pt;border:none}
+.agent-info th{width:115pt;background:rgba(255,255,255,.6);font-size:8pt}
+.agent-info td{background:rgba(205,211,219,.16)}
+.property-description{position:absolute;inset-block-start:212.2pt;inset-inline:13.65pt;display:grid;gap:11.4pt}
+.two-fields{display:flex;gap:13.5pt;height:20pt}
+.two-fields .form-field{height:20pt;flex:1;width:0}
+.two-fields th{width:117pt;font-size:8pt}
+.two-fields small{display:inline;font-size:5pt}
+.property-description .property-status{height:26.3pt}
+.property-status .choice{margin-inline-end:7pt}
+.property-status .choice-box{width:13pt;height:9pt}
+.property-description .opening-value{height:22.7pt}
+.property-description .entry-amount{height:39.2pt}
+.entry-amount small{font-size:5pt;line-height:1.6}
+.property-rights{position:absolute;inset-block-start:400.4pt;inset-inline:13pt}
+.property-rights>.section-heading{margin-block-end:11pt}
+.property-rights .form-field{margin-block-end:7.7pt}
+.property-rights .rights-types{height:30.4pt}
+.rights-types .choice{margin-inline-end:4pt;font-size:5pt;gap:3pt}
+.rights-types .choice-box{width:11pt;height:10pt}
+.rights-types td{padding-inline:3pt}
+.property-rights .ownership-share{height:22.5pt;margin-block-end:9pt}
+.ownership-share .choice-box,.disclosure-row .choice-box{width:11pt;height:9pt}
+.disclosure-row{height:20.9pt}
+.disclosure-row th{width:255pt;font-size:8pt}
+.disclosure-row .choice{margin-inline-end:6pt;font-size:5.5pt}
+.disclosure-row .dotted{min-width:55pt;font-size:6pt}
+.statement-table{border-collapse:collapse;table-layout:fixed;width:100%;font-size:9pt}
+.statement-table th,.statement-table td{border:.55pt solid #303b3b;padding:2pt 3pt;text-align:center;vertical-align:middle}
+.statement-table th{font-size:9pt;font-weight:800;line-height:1.45;background:rgba(205,211,219,.35)}
+.statement-table th small{display:block;font-size:5pt;line-height:1.5}
+.statement-table td{height:24.26pt;padding:1pt 2pt;font-family:FormData,sans-serif;font-size:7pt;line-height:1.15;font-weight:400}
+.statement-table .data-value{font-size:7pt;line-height:1.15}
+.signatures{border-collapse:collapse;table-layout:fixed;width:447pt;height:94.5pt;margin-inline:auto;font-size:10pt}
+.signatures th,.signatures td{border:.35pt solid #8193b1;text-align:center;padding:3pt;font-weight:800}
+.signatures th{height:26pt;vertical-align:middle;background:rgba(255,255,255,.65)}
+.signatures td{background:var(--tint);height:68.5pt}
+.form-page--properties .form-logo{inset-block-start:20pt;inset-inline-start:24pt}
+.form-page--properties h1{inset-block-start:39.3pt;inset-inline:140pt;font-size:12pt}
+.header-note{position:absolute;inset-block-start:61pt;inset-inline:140pt;text-align:center;font-size:9pt;color:#008d9c}
+.property-statement{position:absolute;inset-block-start:81.95pt;inset-inline-start:34.79pt;width:772.31pt}
+.property-table thead tr{height:48.51pt}
+.property-table th{padding:2pt 2pt;font-family:FormSans,sans-serif;font-weight:700;font-size:9pt;line-height:1.45}
+.property-table th small{font-family:FormSans,sans-serif;font-weight:700;font-size:4.7pt}
+.property-table th:nth-child(5){font-size:7pt}
+.property-table td{height:24.253pt}
+.property-statement .signatures{margin-block-start:10.5pt}
+.form-page--agents h1{inset-block-start:87pt}
+.agent-statement{position:absolute;inset-block-start:147.3pt;inset-inline-start:35.5pt;width:524.3pt}
+.agent-table th,.agent-table td{border-color:#00a98c}
+.agent-table th{height:42.7pt;font-size:9pt}
+.agent-table td{height:42.75pt}
+.agent-table tbody tr:nth-child(even){background:rgba(205,211,219,.12)}
+.agent-statement .signatures{margin-block-start:64pt}
+.form-page--closing .form-logo{inset-block-start:20.8pt;inset-inline-start:30pt}
+.form-page--closing h1{inset-block-start:38pt;inset-inline:240pt;font-size:17pt;font-weight:400}
+.form-page--closing .header-note{inset-block-start:68pt;inset-inline:180pt;font-size:10pt;font-weight:400}
+.closing-dates{position:absolute;inset-block-start:29.8pt;inset-inline-end:30.5pt;font-size:7pt;line-height:2.4}
+.closing-dates .dotted{width:100pt;min-width:100pt;font-size:8pt}
+.closing-statement{position:absolute;inset-block-start:97.04pt;inset-inline-start:65.65pt;width:710.6pt}
+.closing-table th{height:29.4pt;font-family:FormPlex,sans-serif;font-weight:700;font-size:8.03pt;line-height:1.35}
+.closing-table th small{font-family:FormPlex,sans-serif;font-weight:500;font-size:5.35pt}
+.closing-table td{height:19.642pt}
+.closing-statement .signatures{width:415.5pt;height:83pt;margin-block-start:15pt;font-size:8pt}
+.closing-statement .signatures th{height:21.5pt}
+.closing-statement .signatures td{height:61.5pt}
+.closing-repeat{text-align:center;font-size:10pt;font-weight:400;color:#008d9c;margin-block-start:11pt}
+.declaration-panel{inset-block-start:120.4pt;height:684.9pt}
+.required-attachments{position:absolute;inset-block-start:12.5pt;inset-inline:13.65pt}
+.declaration-panel ul{padding-inline-start:10pt;list-style-type:disc;font-size:9pt;line-height:1.8;margin-block-start:7pt}
+.required-attachments li:last-child{font-size:8pt}
+.request-requirements{position:absolute;inset-block-start:113.5pt;inset-inline:13.65pt}
+.declaration-text{position:absolute;inset-block-start:187pt;inset-inline:13.65pt}
+.declarant{display:flex;align-items:baseline;gap:3pt;font-size:9pt;line-height:1.7;margin-block-start:10pt}
+.declarant .dotted{flex:1}
+.organization-declarant{margin-block-start:10pt;white-space:nowrap}
+.organization-declarant .dotted{min-width:90pt}
+.commitment-intro{font-size:9pt;margin-block-start:11pt}
+.declaration-panel .commitments{font-size:8pt;line-height:1.8;margin-block-start:3pt;padding-inline-start:10pt}
+.commitments li{padding-inline-start:0;margin-block-end:1pt}
+.declaration-panel>.signatures{position:absolute;inset-block-end:6pt;inset-inline:8.8pt;width:496pt;height:70.8pt;font-size:9pt}
+.declaration-panel>.signatures th{height:19.2pt;padding:2pt;font-size:9pt}
+.declaration-panel>.signatures th:last-child{font-size:8pt}
+.declaration-panel>.signatures td{height:51.6pt}
+@media screen{body{background:#e5e7eb;padding:16px}.form-page{margin:0 auto 16px;background:white;box-shadow:0 2px 8px #0002}.watermark{z-index:0}.form-header,.form-panel,.property-statement,.agent-statement,.closing-statement,.page-number{z-index:1}}

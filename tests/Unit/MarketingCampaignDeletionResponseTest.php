@@ -61,4 +61,22 @@ final class MarketingCampaignDeletionResponseTest extends TestCase
 
         (new MarketingCampaignsController)->destroy(new MarketingCampaign(['auction_id' => 4]), new DeleteMarketingCampaignAction);
     }
+
+    public function test_mass_delete_validates_required_ids(): void
+    {
+        $this->app->instance('request', Request::create('/campaigns/mass-delete', 'POST', ['ids' => []]));
+
+        $this->expectException(ValidationException::class);
+
+        $request = Request::create('/campaigns/mass-delete', 'POST', ['ids' => []]);
+        (new MarketingCampaignsController)->massDelete($request, new DeleteMarketingCampaignAction);
+    }
+
+    public function test_mass_delete_validates_non_integer_ids(): void
+    {
+        $this->expectException(ValidationException::class);
+
+        $request = Request::create('/campaigns/mass-delete', 'POST', ['ids' => 'abc, def']);
+        (new MarketingCampaignsController)->massDelete($request, new DeleteMarketingCampaignAction);
+    }
 }

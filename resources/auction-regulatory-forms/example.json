@@ -1,0 +1,123 @@
+{
+    "submission_date": "2026/11/09",
+    "organization": {
+        "name": "شركة المثال للمزادات العقارية",
+        "commercial_registration": "0101234567",
+        "unified_number": "7001234567",
+        "fal_license": "1200000001"
+    },
+    "manager": {
+        "name": "أحمد محمد عبدالله",
+        "identity_number": "1000000001",
+        "mobile": "0500000001",
+        "email": "manager@example.com"
+    },
+    "auctioneer": {
+        "name": "خالد عبدالرحمن محمد",
+        "identity_number": "1000000002",
+        "mobile": "0500000002",
+        "email": "auctioneer@example.com"
+    },
+    "auction": {
+        "name": "مزاد المثال العقاري",
+        "properties_count": "2",
+        "units_count": "3",
+        "method": "electronic",
+        "platform": "المنصة المرخصة",
+        "city": "الرياض",
+        "venue": "",
+        "broadcast_url": "https://example.com/auction",
+        "start_date": "2026/12/01",
+        "end_date": "2026/12/01",
+        "start_time": "16:00",
+        "award_period": "دقيقتان",
+        "disposition": "sale"
+    },
+    "funds": {
+        "receipt_method": "transfer",
+        "receipt_other": "",
+        "safekeeping": "حساب مخصص لأموال المتنافسين",
+        "receipt_days": "3",
+        "refund_method": "transfer",
+        "refund_other": "",
+        "refund_days": "3",
+        "entry_type": "refundable"
+    },
+    "property": {
+        "owner_name": "عبدالله محمد المثال",
+        "deed_number": "000123456789",
+        "agent_name": "صالح أحمد المثال",
+        "agency_number": "0012345678",
+        "area": "1200.00",
+        "age": "5",
+        "type": "فيلا",
+        "usage": "سكني",
+        "status": "clear",
+        "status_other": "",
+        "opening_value": "1,000,000.00",
+        "entry_amount": "50,000.00",
+        "ownership_share": "100"
+    },
+    "disclosures": {
+        "disposition_right": "none",
+        "disposition_right_other": "",
+        "real_rights": "no",
+        "real_rights_details": "",
+        "dispute": "no",
+        "dispute_details": "",
+        "value_information": "no",
+        "value_information_details": "",
+        "off_plan": "no",
+        "off_plan_details": "",
+        "contribution": "no",
+        "contribution_details": ""
+    },
+    "properties": [
+        {
+            "owner_name": "عبدالله محمد المثال",
+            "deed_number": "000123456789",
+            "contract_number": "00001501",
+            "area": "1200.00",
+            "type": "فيلا",
+            "usage": "سكني",
+            "age": "5",
+            "city_district": "الرياض / النرجس",
+            "disclosure": "بدون قيود",
+            "opening_value": "1,000,000.00",
+            "entry_amount": "50,000.00",
+            "estimated_value": "1,200,000.00",
+            "result": "awarded",
+            "awardee": "شركة المثال للاستثمار العقاري",
+            "award_value": "1350000.25",
+            "unawarded_reason": ""
+        },
+        {
+            "owner_name": "محمد عبدالله المثال",
+            "deed_number": "000987654321",
+            "contract_number": "00001502",
+            "area": "750.00",
+            "type": "أرض",
+            "usage": "تجاري",
+            "age": "",
+            "city_district": "الرياض / الملقا",
+            "disclosure": "بدون قيود",
+            "opening_value": "2,000,000.00",
+            "entry_amount": "75,000.00",
+            "estimated_value": "2,100,000.00",
+            "result": "not_awarded",
+            "awardee": "",
+            "award_value": "",
+            "unawarded_reason": "لم تصل المزايدات إلى الحد الأدنى المعتمد"
+        }
+    ],
+    "agents": [
+        {
+            "owner_name": "عبدالله محمد المثال",
+            "deed_number": "000123456789",
+            "name": "صالح أحمد المثال",
+            "agency_number": "0012345678"
+        }
+    ],
+    "declaration": {"representative_name": "أحمد محمد عبدالله"},
+    "closing": {"date": "2026/12/02", "approval_number": "00012026"}
+}

@@ -107,6 +107,17 @@ final class BrowsershotDocumentRenderer implements BrowserDocumentRenderer
         $browser->timeout(max(180, (int) config('auction-renderer.timeout', 180)))
             ->waitUntilNetworkIdle();
 
+        if (str_contains($html, 'name="auction-regulatory-form"')) {
+            $browser->waitForFunction(<<<'JS'
+() => {
+    if (window.regulatoryFormError) {
+        throw new Error(window.regulatoryFormError);
+    }
+    return window.regulatoryFormReady === true;
+}
+JS);
+        }
+
         if (str_contains($html, 'name="auction-report-design"')) {
             $browser->waitForFunction(<<<'JS'
 (async () => {

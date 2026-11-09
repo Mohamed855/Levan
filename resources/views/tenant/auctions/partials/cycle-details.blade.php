@@ -15,13 +15,15 @@
             'google' => 'ti ti-brand-google text-primary',
             'marketing_evidence' => 'ti ti-link text-info',
         ];
-        $isFinalized = $auction->is_finalized ?? $auction->closing()->whereNotNull('finalized_snapshot')->exists();
+        $isClosed = $auction->isClosed();
+        $isFinalized = (bool) ($auction->is_finalized ?? $auction->closing()->whereNotNull('finalized_snapshot')->exists());
+        $isLocked = $isClosed || $isFinalized;
         $hasCampaigns = $auction->marketingCampaigns->isNotEmpty();
     @endphp
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">الحملات التسويقية ({{ $auction->marketingCampaigns->count() }})</h5>
-            @if (!$isFinalized && auth('tenant')->user()?->can('marketing_campaigns.edit'))
+            @if (!$isLocked && auth('tenant')->user()?->can('marketing_campaigns.edit'))
                 <x-actions.edit :url="tenant_route_name('marketing-campaigns.edit', $auction->id)" :title="$hasCampaigns ? 'تعديل الحملات التسويقية' : 'إضافة حملات تسويقية'" />
             @endif
         </div>
@@ -32,6 +34,7 @@
                         <tr>
                             <th style="width: 70px;">#</th>
                             <th>نوع الحملة</th>
+                            <th>عدد المرفقات</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -56,6 +59,9 @@
                                             @endif
                                         </div>
                                     </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-label-info">{{ $campaign->evidence->count() }} مرفق</span>
                                 </td>
                             </tr>
                         @endforeach

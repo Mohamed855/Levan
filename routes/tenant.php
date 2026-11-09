@@ -371,6 +371,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             });
             // Route::name('promotional-advertisements.status')->get('{auction}/promotional-advertisements/status', [\App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController::class, 'status']);
         });
+        Route::post('marketing-campaigns/mass-delete', [MarketingCampaignsController::class, 'massDelete'])->name('marketing-campaigns.mass-delete');
         Route::resource('marketing-campaigns', MarketingCampaignsController::class)->except('show')->parameters(['marketing-campaigns' => 'auction']);
         Route::get('auction-closings', [AuctionClosingsController::class, 'index'])->name('auction-closings.index');
         Route::get('auction-closings/{auction}/edit', [AuctionClosingsController::class, 'edit'])->name('auction-closings.edit');

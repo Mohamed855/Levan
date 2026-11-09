@@ -1,0 +1,1 @@
+<span class="choice"><span class="choice-box" aria-label="{{ $label }}" aria-checked="{{ !empty($checked) ? 'true' : 'false' }}">{{ !empty($checked) ? '✓' : '' }}</span><span>{{ $label }}</span></span>

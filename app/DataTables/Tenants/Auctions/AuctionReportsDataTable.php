@@ -11,12 +11,9 @@ use Illuminate\Support\Facades\DB;
 
 final class AuctionReportsDataTable extends AbstractDataTable
 {
-    protected function buttons(): array
-    {
-        return [['extend' => 'collection', 'className' => 'btn btn-export', 'text' => 'الإجراءات', 'buttons' => [['extend' => 'copy', 'text' => 'نسخ'], ['extend' => 'excel', 'text' => 'إكسل']]]];
-    }
+    private string $route = 'auction-reports';
 
-    protected function getTableId()
+    protected function getTableId(): string
     {
         return 'auction-reports-table';
     }
@@ -25,28 +22,102 @@ final class AuctionReportsDataTable extends AbstractDataTable
     {
         $kinds = DB::query()->selectRaw("'outputs' as report_kind")->unionAll(DB::query()->selectRaw("'report' as report_kind"));
 
-        return Auction::query()->select(['auctions.*', 'report_kinds.report_kind'])->crossJoinSub($kinds, 'report_kinds')->with(['marketingCampaigns', 'properties:id', 'closing' => fn ($q) => $q->select(['id', 'auction_id'])->selectRaw('finalized_snapshot IS NOT NULL as is_finalized'), 'publishedReportGeneration:id,status,outputs_path,report_path', 'latestReportGeneration:auction_report_generations.id,auction_report_generations.auction_id,auction_report_generations.status']);
+        return Auction::query()
+            ->select(['auctions.*', 'report_kinds.report_kind'])
+            ->crossJoinSub($kinds, 'report_kinds')
+            ->with([
+                'marketingCampaigns',
+                'properties:id',
+                'closing' => fn ($q) => $q->select(['id', 'auction_id'])->selectRaw('finalized_snapshot IS NOT NULL as is_finalized'),
+                'publishedReportGeneration:id,status,outputs_path,report_path',
+                'latestReportGeneration:auction_report_generations.id,auction_report_generations.auction_id,auction_report_generations.status',
+            ]);
     }
 
     protected function getColumns(): array
     {
-        return [['data' => 'name', 'name' => 'auctions.name', 'title' => 'المزاد'], ['data' => 'kind_label', 'name' => 'report_kind', 'title' => 'التقرير'], ['data' => 'content_status', 'title' => 'حالة التقرير', 'orderable' => false, 'searchable' => false], ['data' => 'generation_status', 'title' => 'تجهيز الملف', 'orderable' => false, 'searchable' => false], ['data' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false]];
+        return [
+            [
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<input type="checkbox" id="select-all">',
+                'orderable' => false,
+                'searchable' => false,
+                'width' => '10px',
+                'className' => 'custom-checkbox',
+            ],
+            [
+                'data' => 'name',
+                'name' => 'auctions.name',
+                'title' => 'المزاد',
+                'width' => '250px',
+            ],
+            [
+                'data' => 'kind_label',
+                'name' => 'report_kind',
+                'title' => 'التقرير',
+                'className' => 'text-center',
+                'width' => '140px',
+            ],
+            [
+                'data' => 'content_status',
+                'title' => 'حالة التقرير',
+                'orderable' => false,
+                'searchable' => false,
+                'className' => 'text-center',
+                'width' => '130px',
+            ],
+            [
+                'data' => 'generation_status',
+                'title' => 'تجهيز الملف',
+                'orderable' => false,
+                'searchable' => false,
+                'className' => 'text-center',
+                'width' => '140px',
+            ],
+            [
+                'data' => 'actions',
+                'name' => 'actions',
+                'title' => 'الإجراءات',
+                'orderable' => false,
+                'searchable' => false,
+                'width' => '120px',
+                'className' => 'text-center',
+            ],
+        ];
     }
 
     protected function addCustomColumns($datatable): void
     {
-        $datatable->setRowId(fn ($row) => 'report-'.$row->id.'-'.$row->report_kind)->addColumn('kind_label', fn ($row) => $row->report_kind === 'outputs' ? 'مخرجات المزاد' : 'التقرير النهائي')->addColumn('content_status', function ($row) {
-            $state = (new AuctionReportState)->forAuction($row);
+        $datatable
+            ->setRowId(fn ($row) => 'report-'.$row->id.'-'.$row->report_kind)
+            ->addColumn('checkbox', function ($row) {
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'-'.$row->report_kind.'">';
+            })
+            ->editColumn('name', function ($row) {
+                $url = tenant_route_name('auctions.show', $row->id);
+                $name = e($row->name);
 
-            return '<span class="badge bg-label-'.$state->color().'">'.e($state->label()).'</span>';
-        })->addColumn('generation_status', fn ($row) => match ($row->latestReportGeneration?->status) {
-            'ready' => 'جاهز', 'failed' => 'تعذر التجهيز', 'queued', 'processing' => 'قيد التجهيز', default => 'لم يجهز بعد'
-        })->addColumn('actions', fn ($row) => view('tenant.auction-reports.action', ['auction' => $row])->render());
+                return '<a href="'.$url.'" class="fw-semibold text-heading">'.$name.'</a>';
+            })
+            ->addColumn('kind_label', fn ($row) => $row->report_kind === 'outputs' ? 'مخرجات المزاد' : 'التقرير النهائي')
+            ->addColumn('content_status', function ($row) {
+                $state = (new AuctionReportState)->forAuction($row);
+
+                return '<span class="badge bg-label-'.$state->color().'">'.e($state->label()).'</span>';
+            })
+            ->addColumn('generation_status', fn ($row) => match ($row->latestReportGeneration?->status) {
+                'ready' => '<span class="badge bg-label-success">جاهز</span>',
+                'failed' => '<span class="badge bg-label-danger">تعذر التجهيز</span>',
+                'queued', 'processing' => '<span class="badge bg-label-info"><i class="ti ti-loader ti-spin me-1"></i>قيد التوليد</span>',
+                default => '<span class="badge bg-label-secondary">لم يجهز بعد</span>',
+            })
+            ->addColumn('actions', fn ($row) => view('tenant.auction-reports.action', ['row' => $row, 'route' => $this->route])->render());
     }
 
     protected function rawColumns(): array
     {
-        return ['content_status', 'actions'];
+        return ['checkbox', 'name', 'content_status', 'generation_status', 'actions'];
     }
 
     protected function filterableColumns(): array
@@ -69,5 +140,25 @@ final class AuctionReportsDataTable extends AbstractDataTable
         }
 
         return $query;
+    }
+
+    protected function buttons(): array
+    {
+        return [
+            $this->getActionsDropdownButton(),
+        ];
+    }
+
+    private function getActionsDropdownButton(): array
+    {
+        return [
+            'extend' => 'collection',
+            'className' => 'btn btn-export',
+            'text' => 'الإجراءات',
+            'buttons' => [
+                ['extend' => 'copy', 'text' => 'نسخ'],
+                ['extend' => 'excel', 'text' => 'إكسل'],
+            ],
+        ];
     }
 }
