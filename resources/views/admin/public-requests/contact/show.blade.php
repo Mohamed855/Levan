@@ -32,7 +32,7 @@
                         <dt class="col-sm-5 text-muted">البريد</dt>
                         <dd class="col-sm-7 text-break">{{ $contactRequest->customer_email }}</dd>
                         <dt class="col-sm-5 text-muted">التاريخ</dt>
-                        <dd class="col-sm-7">{{ $contactRequest->created_at?->format('Y-m-d H:i') ?? '-' }}</dd>
+                        <dd class="col-sm-7">@datetime($contactRequest->created_at)</dd>
                     </dl>
                     <hr>
                     <h6 class="mb-2">الرسالة</h6>

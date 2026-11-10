@@ -68,17 +68,17 @@
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-calendar-plus text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">تاريخ البداية:</span>
-                                <span>{{ $couponDetails->start_date ? \Carbon\Carbon::parse($couponDetails->start_date)->format('Y-m-d') : '-' }}</span>
+                                <span>@date($couponDetails->start_date)</span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-calendar-due text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">تاريخ الانتهاء:</span>
-                                <span>{{ $couponDetails->expiry_date ? \Carbon\Carbon::parse($couponDetails->expiry_date)->format('Y-m-d') : 'مفتوح' }}</span>
+                                <span>{{ system_date($couponDetails->expiry_date, 'مفتوح') }}</span>
                             </li>
                             <li class="mb-2 d-flex align-items-center">
                                 <i class="ti ti-clock text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">تاريخ الإنشاء:</span>
-                                <span>{{ \Carbon\Carbon::parse($couponDetails->created_at)->format('Y-m-d') }}</span>
+                                <span>@date($couponDetails->created_at)</span>
                             </li>
                         </ul>
                     </div>
@@ -254,7 +254,7 @@
                                         <span class="fw-bold">{{ number_format($tenantTotalAmount, 2) }} ر.س</span>
                                     </td>
                                     <td>
-                                        <div>{{ $lastBill?->created_at ? $lastBill->created_at->format('Y-m-d') : '-' }}
+                                        <div>@date($lastBill?->created_at)
                                         </div>
                                         <small
                                             class="text-muted">{{ $lastBill?->created_at ? $lastBill->created_at->diffForHumans() : '' }}</small>

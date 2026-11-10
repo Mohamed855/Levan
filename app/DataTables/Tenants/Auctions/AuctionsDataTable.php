@@ -94,16 +94,10 @@ class AuctionsDataTable extends AbstractDataTable
                 return '<a href="'.tenant_route_name('assignments.show', $row->assignment_id).'" class="text-body fw-medium" title="'.e((string) $row->assignment->name).'">'.e((string) $entityName).'</a>';
             })
             ->editColumn('start_date', function ($row) {
-                $date = Carbon::parse($row->start_date)->format('Y/m/d');
-                $time = $row->start_time ? Carbon::parse($row->start_time)->format('h:i A') : '';
-
-                return '<div>'.$date.'</div><small class="text-muted">'.$time.'</small>';
+                return $this->formatDateWithSubTime($row->start_date, $row->start_time);
             })
             ->editColumn('end_date', function ($row) {
-                $date = Carbon::parse($row->end_date)->format('Y/m/d');
-                $time = $row->end_time ? Carbon::parse($row->end_time)->format('h:i A') : '';
-
-                return '<div>'.$date.'</div><small class="text-muted">'.$time.'</small>';
+                return $this->formatDateWithSubTime($row->end_date, $row->end_time);
             })
             ->editColumn('properties_count', function ($row) {
                 return '<span class="badge bg-info">'.(int) $row->properties_count.'</span>';
@@ -144,7 +138,7 @@ class AuctionsDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-label-'.$status->color().'">'.e($status->label()).'</span>';
             })
-            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
+            ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
             ->addColumn('actions', function ($row) {
                 return view('tenant.auctions.action', ['row' => $row, 'route' => $this->route])->render();
             });

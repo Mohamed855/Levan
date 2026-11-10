@@ -33,7 +33,7 @@
         </div>
         <div class="info-row">
             <span class="info-label">تاريخ الإنشاء:</span>
-            <span class="info-value">{{ $ticket->created_at?->format('Y-m-d H:i') ?? date('Y-m-d H:i') }}</span>
+            <span class="info-value">{{ system_datetime($ticket->created_at ?? now()) }}</span>
         </div>
     </div>
 

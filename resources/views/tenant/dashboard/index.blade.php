@@ -305,7 +305,7 @@
                                     </td>
                                     <td>
                                         <small
-                                            class="text-muted">{{ $auction->start_date ? $auction->start_date->format('Y-m-d') : '-' }}</small>
+                                            class="text-muted">@date($auction->start_date)</small>
                                     </td>
                                     <td>
                                         <span class="badge {{ $auction->status_badge_class }}">

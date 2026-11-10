@@ -173,12 +173,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (planDisplayName) {
             setReviewValue("review-plan-name", planDisplayName);
         }
+        const formatDisplay = (val) =>
+            typeof window.formatSystemDate === "function"
+                ? window.formatSystemDate(val)
+                : val;
+
         if (startDate?.value) {
-            setReviewValue("review-start-date", startDate.value);
+            setReviewValue("review-start-date", formatDisplay(startDate.value));
         }
         const endDateInput = form.querySelector('[name="end_date"]');
         if (endDateInput?.value) {
-            setReviewValue("review-end-date", endDateInput.value);
+            setReviewValue("review-end-date", formatDisplay(endDateInput.value));
         }
 
         const reviewActivation = document.getElementById(

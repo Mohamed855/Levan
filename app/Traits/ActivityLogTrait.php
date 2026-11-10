@@ -87,7 +87,7 @@ trait ActivityLogTrait
         return match (true) {
             is_bool($value) => $value ? 'نعم' : 'لا',
             is_array($value) => implode(', ', $value),
-            $value instanceof \Carbon\Carbon => $value->format('Y-m-d H:i'),
+            $value instanceof \Carbon\Carbon => system_datetime($value),
             default => (string) $value,
         };
     }

@@ -47,7 +47,7 @@ final class TrialRequestsDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-'.$color.'">'.$row->status->label().'</span>';
             })
-            ->editColumn('created_at', fn ($row) => $row->created_at?->format('Y-m-d H:i'))
+            ->editColumn('created_at', fn ($row) => $this->formatDate($row->created_at))
             ->addColumn('actions', fn ($row) => '<div class="d-flex justify-content-center"><a class="btn btn-sm btn-icon btn-primary bg-primary" href="'.route('admin.trial-requests.show', $row).'" title="عرض"><i class="ti ti-eye"></i></a></div>');
     }
 

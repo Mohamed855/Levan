@@ -65,7 +65,8 @@ class NotificationDeadlineScanner
         $email = $subscription->tenant?->primary_contact_email ?? $subscription->tenant?->email;
 
         if ($seconds <= 0) {
-            $this->notices->admins('subscription.expired:'.$marker, DashboardNotificationService::payload('subscription.expired', 'انتهاء اشتراك', "انتهى اشتراك {$company} بتاريخ {$end->format('Y-m-d')}.", $adminUrl, 'danger'));
+            $formattedEnd = system_date($end);
+            $this->notices->admins('subscription.expired:'.$marker, DashboardNotificationService::payload('subscription.expired', 'انتهاء اشتراك', "انتهى اشتراك {$company} بتاريخ {$formattedEnd}.", $adminUrl, 'danger'));
             $this->notices->tenant($subscription->tenant_id, 'subscription.expired:'.$marker, DashboardNotificationService::payload('subscription.expired', 'انتهى الاشتراك', 'انتهى اشتراك شركتك. راجع صفحة الاشتراك لمتابعة التفعيل.', $tenantUrl, 'danger'));
             if ($email) {
                 $cacheKey = "mail_sent:sub_{$subscription->id}:expired:{$end->format('Y-m-d')}";

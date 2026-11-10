@@ -46,7 +46,7 @@ class AuctionArchiveDataTable extends AbstractDataTable
                 return $row->assignment?->name ?? '-';
             })
             ->editColumn('deleted_at', function ($row) {
-                return $row->deleted_at ? $row->deleted_at->format('Y-m-d') : '-';
+                return $this->formatDate($row->deleted_at);
             })
             ->addColumn('actions', function ($row) {
                 return view('tenant.archive.auctions.action', ['row' => $row])->render();

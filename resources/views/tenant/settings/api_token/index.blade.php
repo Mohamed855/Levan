@@ -46,7 +46,7 @@
                                 readonly>
                             @if (tenant()->api_token_regenerated_at)
                                 <small class="text-muted">آخر توليد:
-                                    {{ tenant()->api_token_regenerated_at->format('Y-m-d H:i') }}</small>
+                                    @datetime(tenant()->api_token_regenerated_at)</small>
                             @endif
                         </div>
                     @endif
@@ -82,7 +82,7 @@
                             <tbody>
                                 @forelse ($logs as $log)
                                     <tr>
-                                        <td>{{ $log->created_at->format('Y-m-d H:i:s') }}</td>
+                                        <td>@datetime($log->created_at)</td>
                                         <td><span class="badge bg-secondary">{{ $log->method }}</span></td>
                                         <td>{{ $log->path }}</td>
                                         <td>

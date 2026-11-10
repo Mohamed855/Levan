@@ -70,7 +70,7 @@
                         <div class="content-left">
                             <span class="text-heading">آخر تصدير</span>
                             <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $archives->isNotEmpty() ? \Carbon\Carbon::parse($archives->first()['date'])->format('d/m') : '--' }}</h4>
+                                <h4 class="mb-0 me-2">{{ $archives->isNotEmpty() ? system_date($archives->first()['date'], '--') : '--' }}</h4>
                             </div>
                             <small class="mb-0">{{ $archives->isNotEmpty() ? \Carbon\Carbon::parse($archives->first()['date'])->diffForHumans() : 'لا يوجد' }}</small>
                         </div>
@@ -144,8 +144,8 @@
                                     </td>
                                     <td>
                                         <div>
-                                            <div>{{ \Carbon\Carbon::parse($archive['date'])->format('Y-m-d') }}</div>
-                                            <small class="text-muted">{{ \Carbon\Carbon::parse($archive['date'])->format('H:i') }}</small>
+                                            <div>@date($archive['date'])</div>
+                                            <small class="text-muted">{{ parse_system_date($archive['date'])?->locale('ar')->translatedFormat('h:i A') ?? '' }}</small>
                                         </div>
                                     </td>
                                     <td>

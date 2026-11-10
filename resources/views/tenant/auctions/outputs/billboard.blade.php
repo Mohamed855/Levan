@@ -108,7 +108,7 @@
 
         <div class="badges-row">
             <span class="badge">مدينة {{ $auction->city ?? 'المملكة' }}</span>
-            <span class="badge badge-gold">{{ $auction->start_date ? $auction->start_date->format('Y/m/d') : '-' }}</span>
+            <span class="badge badge-gold">@date($auction->start_date)</span>
             <span class="badge">{{ $auction->properties->count() }} عقار معتمد</span>
         </div>
 
@@ -123,7 +123,7 @@
                 <td class="details-col" @if(empty($coverImageBase64)) colspan="2" @endif>
                     <div class="info-pill">
                         <div class="info-label">موعد بدء المزاد</div>
-                        <div class="info-val">{{ $auction->start_date ? $auction->start_date->format('Y-m-d') : '-' }} — الساعة {{ $auction->start_time ?? '-' }}</div>
+                        <div class="info-val">@date($auction->start_date) — الساعة {{ $auction->start_time ?? '-' }}</div>
                     </div>
 
                     <div class="info-pill">

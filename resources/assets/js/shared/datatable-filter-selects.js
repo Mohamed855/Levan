@@ -248,6 +248,8 @@ function handleFilterReset(resetButton) {
       $input.val(null).trigger('change.select2');
     } else if (this.type === 'checkbox' || this.type === 'radio') {
       this.checked = false;
+    } else if (this._flatpickr) {
+      this._flatpickr.clear(false);
     } else {
       $input.val('');
     }

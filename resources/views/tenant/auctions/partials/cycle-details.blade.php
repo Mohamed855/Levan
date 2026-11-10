@@ -46,7 +46,7 @@
                                     {{ $channelLabel }}
                                     @if ($campaign->campaign_date)
                                         <small class="text-muted"><i
-                                                class="ti ti-calendar me-1"></i>{{ $campaign->campaign_date->format('Y-m-d') }}</small>
+                                                class="ti ti-calendar me-1"></i>@date($campaign->campaign_date)</small>
                                     @endif
                                 </td>
                                 <td>
@@ -67,20 +67,13 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">إقفال المزاد</h5>
             @if (
-                !$auction->isClosed() && $auction->establishmentRequest?->isApproved() &&
+                !$auction->isClosed() &&
+                    $auction->establishmentRequest?->isApproved() &&
                     auth('tenant')->user()->can($auction->closing ? 'auction_closings.edit' : 'auction_closings.create'))
                 <x-actions.edit :url="tenant_route_name('auction-closings.edit', $auction)" :title="$auction->closing ? 'تعديل الإقفال' : 'إضافة الإقفال'" />
             @endif
         </div>
         @if ($auction->closing)
-            <div class="card-body"><span>تاريخ الإقفال: {{ $auction->closing->closing_date?->format('Y-m-d') }}</span>
-                @if ($auction->establishmentRequest?->isApproved())
-                    <span class="ms-3">رقم الاعتماد: {{ $auction->establishmentRequest->approval_number }}</span>
-                @endif
-                @if ($auction->isClosed())
-                    <span class="badge bg-success ms-3">منتهي</span>
-                @endif
-            </div>
             <div class="table-responsive">
                 <table class="table">
                     <thead>

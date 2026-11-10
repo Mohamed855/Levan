@@ -68,11 +68,11 @@
                             </li>
                             <li class="mb-2">
                                 <span class="fw-bold me-1">تاريخ الإنشاء:</span>
-                                <span>{{ $role->created_at?->format('Y-m-d') ?? '-' }}</span>
+                                <span>@date($role->created_at)</span>
                             </li>
                             <li class="mb-0">
                                 <span class="fw-bold me-1">آخر تحديث:</span>
-                                <span>{{ $role->updated_at?->format('Y-m-d') ?? '-' }}</span>
+                                <span>@date($role->updated_at)</span>
                             </li>
                         </ul>
                     </div>
@@ -122,7 +122,7 @@
                                             {{ $user->status === 'active' ? 'نشط' : 'غير نشط' }}
                                         </span>
                                     </td>
-                                    <td>{{ $user->created_at?->format('Y-m-d') ?? '-' }}</td>
+                                    <td>@date($user->created_at)</td>
                                 </tr>
                             @empty
                                 <tr>

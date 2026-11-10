@@ -494,8 +494,8 @@ document.addEventListener("DOMContentLoaded", () => {
             ["الجهة المسندة", selectedText("issuing_entity_id") !== "-" ? selectedText("issuing_entity_id") : value("issuing_entity")],
             ["المدينة", selectedText("city")],
             ["النطاق/الحي", selectedText("district") !== "-" ? selectedText("district") : value("district")],
-            ["تاريخ البداية", value("start_date")],
-            ["تاريخ النهاية", value("end_date")],
+            ["تاريخ البداية", typeof window.formatSystemDate === "function" ? window.formatSystemDate(value("start_date")) : value("start_date")],
+            ["تاريخ النهاية", typeof window.formatSystemDate === "function" ? window.formatSystemDate(value("end_date")) : value("end_date")],
             ["وصف الإسناد", value("notes")],
         ];
         document.getElementById("review-basic").innerHTML =

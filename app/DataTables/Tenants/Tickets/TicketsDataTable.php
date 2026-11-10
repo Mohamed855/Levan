@@ -93,11 +93,7 @@ class TicketsDataTable extends AbstractDataTable
             })
 
             ->editColumn('created_at', function ($row) {
-                try {
-                    return Carbon::parse($row->created_at)->format('Y-m-d H:i');
-                } catch (\Exception $e) {
-                    return $row->created_at ?? '-';
-                }
+                return $this->formatDate($row->created_at);
             })
 
             ->addColumn('actions', function ($row) {

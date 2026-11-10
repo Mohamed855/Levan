@@ -63,7 +63,7 @@
             @if (!empty($trialEndDate))
                 <div class="info-row">
                     <span class="info-label">تاريخ نهاية التجربة:</span>
-                    <span class="info-value">{{ $trialEndDate }}</span>
+                    <span class="info-value">@date($trialEndDate)</span>
                 </div>
             @endif
         @endif

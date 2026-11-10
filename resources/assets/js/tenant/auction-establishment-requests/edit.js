@@ -178,8 +178,12 @@ document.addEventListener("DOMContentLoaded", () => {
         setReview("review-auction-name", getVal("data[auction][name]"));
         setReview("review-auction-method", getText('[name="data[auction][method]"]'));
         setReview("review-auction-city", getVal("data[auction][city]"));
-        setReview("review-auction-start", getVal("data[auction][start_date]") + " " + getVal("data[auction][start_time]"));
-        setReview("review-auction-end", getVal("data[auction][end_date]"));
+        const formatDisplay = (val) =>
+            typeof window.formatSystemDate === "function"
+                ? window.formatSystemDate(val, "")
+                : val || "";
+        setReview("review-auction-start", (formatDisplay(getVal("data[auction][start_date]")) + " " + getVal("data[auction][start_time]")).trim());
+        setReview("review-auction-end", formatDisplay(getVal("data[auction][end_date]")));
         setReview("review-auction-disposition", getText('[name="data[auction][disposition]"]'));
         setReview("review-funds-receipt", getText('[name="data[funds][receipt_method]"]'));
         setReview("review-funds-safekeeping", getVal("data[funds][safekeeping]"));

@@ -27,7 +27,7 @@
                         </div>
                         <div class="text-end">
                             <div class="fw-bold fs-6">فاتورة #{{ $bill->bill_number }}</div>
-                            <div class="text-muted">تاريخ الإصدار: {{ $bill->created_at->format('Y/m/d') }}</div>
+                            <div class="text-muted">تاريخ الإصدار: @date($bill->created_at)</div>
                         </div>
                     </div>
                 </div>
@@ -56,8 +56,8 @@
                                     <div class="d-flex justify-content-between mt-2">
                                         <span class="text-muted">الفترة</span>
                                         <span class="fw-medium">
-                                            من {{ $bill->period->period_start->format('Y/m/d') }}
-                                            إلى {{ $bill->period->period_end->format('Y/m/d') }}
+                                            من @date($bill->period->period_start)
+                                            إلى @date($bill->period->period_end)
                                         </span>
                                     </div>
                                 @endif
@@ -197,7 +197,7 @@
                                 <i class="ti ti-calendar me-1"></i>
                                 تاريخ الإصدار
                             </span>
-                            <span class="fw-medium">{{ $bill->created_at->format('Y/m/d') }}</span>
+                            <span class="fw-medium">@date($bill->created_at)</span>
                         </div>
 
                         <!-- النوع -->
@@ -251,7 +251,7 @@
                                     <i class="ti ti-calendar-check me-1"></i>
                                     تاريخ الدفع
                                 </span>
-                                <span class="fw-medium text-success">{{ $bill->paid_at }}</span>
+                                <span class="fw-medium text-success">@date($bill->paid_at)</span>
                             </div>
                         @endif
                     </div>

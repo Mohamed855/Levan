@@ -70,7 +70,7 @@
 
                 <dt class="col-5 text-muted">بداية ونهاية المزاد</dt>
                 <dd class="col-7 fw-semibold" id="review-auction-start">
-                    {{ ($data['auction']['start_date'] ?? '') . ' ' . ($data['auction']['start_time'] ?? '') }} إلى {{ $data['auction']['end_date'] ?? '' }}
+                    {{ system_date($data['auction']['start_date'] ?? null, '') . ' ' . ($data['auction']['start_time'] ?? '') }} إلى {{ system_date($data['auction']['end_date'] ?? null, '') }}
                 </dd>
 
                 <dt class="col-5 text-muted">نوع التصرف</dt>

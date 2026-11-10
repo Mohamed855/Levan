@@ -69,7 +69,7 @@ class AdminUserDataTable extends AbstractDataTable
                 return '<button type="button" class="btn btn-link p-0 edit-role-link" data-user-id="'.e((string) $user->id).'" aria-label="تعديل دور المستخدم">'.$roleBadges.'</button>';
             })
 
-            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
+            ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
             ->editColumn('status', function (AdminUser $row) {
                 $isActive = ($row->status === AdminUserStatus::ACTIVE || ($row->status?->value ?? $row->status) === 'active');
                 $checked = $isActive ? 'checked' : '';

@@ -87,7 +87,7 @@ class PlanDataTable extends AbstractDataTable
                 return '<span class="badge bg-secondary">غير مفعّلة</span>';
             })
 
-            ->editColumn('deleted_at', fn ($row): string => $row->deleted_at ? $row->deleted_at->format('Y-m-d') : '-')
+            ->editColumn('deleted_at', fn ($row): string => $this->formatDate($row->deleted_at))
 
             ->editColumn('is_active', function ($row) {
                 return $row->is_active

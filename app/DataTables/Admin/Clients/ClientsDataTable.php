@@ -106,7 +106,7 @@ class ClientsDataTable extends AbstractDataTable
             })
             ->addColumn('plan', fn (Tenant $row) => $row->lastSubscription?->plan?->name ?: '-')
             ->addColumn('used_users', fn (Tenant $row) => $row->lastSubscription ? $row->lastSubscription->used_users : '-')
-            ->addColumn('starts_at', fn (Tenant $row) => $row->lastSubscription?->starts_at?->format('Y-m-d') ?: '-')
+            ->addColumn('starts_at', fn (Tenant $row) => $this->formatDate($row->lastSubscription?->starts_at))
             ->addColumn('ends_at', function (Tenant $row) {
                 $sub = $row->lastSubscription;
                 if (! $sub) {
@@ -114,7 +114,7 @@ class ClientsDataTable extends AbstractDataTable
                 }
                 $period = $sub->currentPeriod ?? $sub->periods->sortByDesc('period_end')->first();
 
-                return $period?->period_end?->format('Y-m-d') ?: ($sub->ends_at?->format('Y-m-d') ?: '-');
+                return $this->formatDate($period?->period_end ?? $sub->ends_at);
             })
             ->addColumn('days_remaining', function (Tenant $row) {
                 $sub = $row->lastSubscription;
@@ -148,7 +148,7 @@ class ClientsDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-success">'.$days.' يوماً</span>';
             })
-            ->editColumn('created_at', fn (Tenant $row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
+            ->editColumn('created_at', fn (Tenant $row): string => $this->formatDate($row->created_at))
             ->addColumn('subscription_status', function (Tenant $row) {
                 $sub = $row->lastSubscription;
                 if (! $sub || ! $sub->status) {

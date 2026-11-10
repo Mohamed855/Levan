@@ -86,7 +86,7 @@ class AdminBillsDataTable extends AbstractDataTable
             })
 
             ->editColumn('created_at', function ($row) {
-                return $row->created_at?->format('Y-m-d');
+                return $this->formatDate($row->created_at);
             })
 
             ->editColumn('due_date', function ($row) {
@@ -100,7 +100,7 @@ class AdminBillsDataTable extends AbstractDataTable
                 return sprintf(
                     '<span class="%s">%s</span>',
                     $isOverdue ? 'text-danger fw-bold' : '',
-                    $row->due_date
+                    e($this->formatDate($row->due_date))
                 );
             })
 

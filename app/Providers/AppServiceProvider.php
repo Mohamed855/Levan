@@ -8,6 +8,7 @@ use App\Services\Shared\Payment\Gateways\MoyasarGateway;
 use App\Services\Shared\Tenant\TenantInitializer;
 use App\Support\Vite as AppVite;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Database\Seeders\tenant\PermissionsRolesSeeder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Vite;
@@ -96,7 +97,17 @@ class AppServiceProvider extends ServiceProvider
             return "<?php echo request()->attributes->get('csp_nonce'); ?>";
         });
 
+        Blade::directive('date', function (string $expression) {
+            return "<?php echo e(system_date({$expression})); ?>";
+        });
+
+        Blade::directive('datetime', function (string $expression) {
+            return "<?php echo e(system_datetime({$expression})); ?>";
+        });
+
         Carbon::setLocale('ar');
+        Carbon::setToStringFormat(system_date_format());
+        CarbonImmutable::setToStringFormat(system_date_format());
         Paginator::useBootstrapFive();
 
         $cssClassResolver = function (?string $src, string $url, ?array $chunk, ?array $manifest): array {

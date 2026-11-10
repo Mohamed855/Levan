@@ -76,7 +76,7 @@ class BankDataTable extends AbstractDataTable
                 );
             })
 
-            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
+            ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
 
             ->editColumn('is_active', function ($row) {
                 $checked = $row->is_active ? 'checked' : '';

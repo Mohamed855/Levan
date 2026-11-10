@@ -25,7 +25,7 @@
                         </div>
                         <div class="text-end">
                             <div class="fw-bold fs-6">فاتورة #{{ $bill->bill_number }}</div>
-                            <div class="text-muted small">تاريخ الإصدار: {{ $bill->created_at->format('Y/m/d') }}</div>
+                            <div class="text-muted small">تاريخ الإصدار: @date($bill->created_at)</div>
                             <span class="badge bg-{{ $bill->status->color() }} mt-1">
                                 {{ $bill->status->label() }}
                             </span>
@@ -172,7 +172,7 @@
                         {{-- تاريخ الإصدار --}}
                         <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                             <span class="text-muted small"><i class="ti ti-calendar me-1"></i>تاريخ الإصدار</span>
-                            <span class="fw-medium small">{{ $bill->created_at->format('Y/m/d') }}</span>
+                            <span class="fw-medium small">@date($bill->created_at)</span>
                         </div>
 
                         {{-- نوع الفاتورة --}}
@@ -205,7 +205,7 @@
                             <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                                 <span class="text-muted small"><i class="ti ti-calendar-check me-1"></i>تاريخ
                                     التحقق</span>
-                                <span class="fw-medium small">{{ $bill->verified_at }}</span>
+                                <span class="fw-medium small">@datetime($bill->verified_at)</span>
                             </div>
                         @endif
 

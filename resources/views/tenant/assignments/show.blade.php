@@ -67,10 +67,10 @@
                                 </li>
                             @endif
                             <li class="mb-2"><span class="fw-bold me-1">تاريخ البداية:</span>
-                                <span>{{ $assignment->start_date?->format('Y-m-d') ?? '-' }}</span>
+                                <span>@date($assignment->start_date)</span>
                             </li>
                             <li class="mb-2"><span class="fw-bold me-1">تاريخ الانتهاء:</span>
-                                <span>{{ $assignment->end_date?->format('Y-m-d') ?? '-' }}</span>
+                                <span>@date($assignment->end_date)</span>
                             </li>
                         </ul>
                     </div>
@@ -181,7 +181,7 @@
                                             {{ $auc->name }}
                                         </a>
                                     </td>
-                                    <td>{{ $auc->start_date?->format('Y-m-d') }}</td>
+                                    <td>@date($auc->start_date)</td>
                                     <td><span class="badge bg-secondary">{{ $auc->type_label }}</span></td>
                                     <td><span
                                             class="badge {{ $auc->is_active ? 'bg-success' : 'bg-danger' }}">{{ $auc->is_active ? 'نشط' : 'متوقف' }}</span>

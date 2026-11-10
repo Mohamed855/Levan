@@ -180,7 +180,7 @@ class Subscription extends Model
     public function getFormattedEndDateAttribute()
     {
         return $this->current_period_end
-            ? $this->current_period_end->format('Y/m/d')
+            ? system_date($this->current_period_end)
             : 'N/A';
     }
 

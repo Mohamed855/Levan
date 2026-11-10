@@ -88,7 +88,7 @@ final class CentralLicenseGateway
 
             if ($enforceWaitingPeriod && $seat->assigned_at && $seat->assigned_at->diffInDays(now()) < 30) {
                 $daysRemaining = 30 - $seat->assigned_at->diffInDays(now());
-                $releaseDate = $seat->assigned_at->copy()->addDays(30)->format('Y-m-d');
+                $releaseDate = system_date($seat->assigned_at->copy()->addDays(30));
                 throw new DomainException("لا يمكن تحرير الترخيص إلا بعد مرور 30 يومًا من تاريخ الإسناد. المتبقي: {$daysRemaining} يوم (يمكن التحرير بتاريخ: {$releaseDate})");
             }
 

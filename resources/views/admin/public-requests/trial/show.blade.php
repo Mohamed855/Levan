@@ -41,7 +41,7 @@
                         <dt class="col-sm-5 text-muted">العنوان</dt>
                         <dd class="col-sm-7">{{ $trialRequest->address ?? '-' }}</dd>
                         <dt class="col-sm-5 text-muted">تأكيد البريد</dt>
-                        <dd class="col-sm-7">{{ $trialRequest->email_verified_at?->format('Y-m-d H:i') ?? 'غير مؤكد' }}
+                        <dd class="col-sm-7">{{ system_datetime($trialRequest->email_verified_at, 'غير مؤكد') }}
                         </dd>
                         @if ($trialRequest->provisioning_error && $trialRequest->status->value !== 'already_subscribed')
                             <dd class="col-12 text-danger">{{ $trialRequest->provisioning_error }}</dd>
@@ -51,9 +51,9 @@
                                     href="{{ route('path.login', ['tenant' => $trialRequest->tenant_id]) }}"><i
                                         class="ti ti-external-link me-1"></i>فتح رابط دخول العميل</a></dd>
                             <dt class="col-sm-5 text-muted">بداية التجربة</dt>
-                            <dd class="col-sm-7">{{ $trialRequest->subscription?->starts_at?->format('Y-m-d H:i') }}</dd>
+                            <dd class="col-sm-7">@datetime($trialRequest->subscription?->starts_at)</dd>
                             <dt class="col-sm-5 text-muted">نهاية التجربة</dt>
-                            <dd class="col-sm-7">{{ $trialRequest->subscription?->ends_at?->format('Y-m-d H:i') }}</dd>
+                            <dd class="col-sm-7">@datetime($trialRequest->subscription?->ends_at)</dd>
                             <dd class="col-12">بدون باقة — مستخدم واحد (المدير الأساسي)</dd>
                         @elseif ($trialRequest->status->value === 'already_subscribed' && $trialRequest->tenant)
                             <dd class="col-12">
@@ -63,7 +63,7 @@
                             </dd>
                         @endif
                         <dt class="col-sm-5 text-muted">التاريخ</dt>
-                        <dd class="col-sm-7">{{ $trialRequest->created_at?->format('Y-m-d H:i') ?? '-' }}</dd>
+                        <dd class="col-sm-7">@datetime($trialRequest->created_at)</dd>
                         @if ($trialRequest->rejection_reason)
                             <dt class="col-sm-5 text-muted">سبب الرفض</dt>
                             <dd class="col-sm-7">{{ $trialRequest->rejection_reason }}</dd>

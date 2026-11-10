@@ -269,10 +269,10 @@
                                         {{ $subscription?->plan?->name ?? '-' }}</dd>
                                     <dt class="col-5 text-muted">تاريخ البداية</dt>
                                     <dd class="col-7 fw-semibold" id="review-start-date">
-                                        {{ $subscription?->starts_at?->format('Y-m-d') ?? '-' }}</dd>
+                                        @date($subscription?->starts_at)</dd>
                                     <dt class="col-5 text-muted">تاريخ النهاية</dt>
                                     <dd class="col-7 fw-semibold" id="review-end-date">
-                                        {{ $subEnd ?? '-' }}</dd>
+                                        @date($subEnd)</dd>
                                     @if (!$is_edit)
                                         <dt class="col-5 text-muted">حالة التفعيل</dt>
                                         <dd class="col-7 fw-semibold" id="review-activation-status"><span

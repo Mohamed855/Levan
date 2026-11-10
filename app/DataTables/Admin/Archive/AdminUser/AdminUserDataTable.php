@@ -76,7 +76,7 @@ class AdminUserDataTable extends AbstractDataTable
                     : '-';
             })
 
-            ->editColumn('deleted_at', fn ($row): string => $row->deleted_at ? $row->deleted_at->format('Y-m-d') : '-')
+            ->editColumn('deleted_at', fn ($row): string => $this->formatDate($row->deleted_at))
 
             ->addColumn('actions', function ($row) {
                 return view('admin.archive.admin_user.action', ['id' => $row->id, 'route' => $this->route])->render();

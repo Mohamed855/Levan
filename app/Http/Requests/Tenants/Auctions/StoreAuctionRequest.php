@@ -42,7 +42,7 @@ class StoreAuctionRequest extends WizardFormRequest
                         $auctionStart = Carbon::parse((string) $value)->startOfDay();
                         $asgStart = $assignment->start_date->startOfDay();
                         if ($auctionStart->lt($asgStart)) {
-                            $fail('تاريخ بداية المزاد يجب ألا يسبق تاريخ بداية الإسناد ('.$assignment->start_date->format('Y-m-d').').');
+                            $fail('تاريخ بداية المزاد يجب ألا يسبق تاريخ بداية الإسناد ('.system_date($assignment->start_date).').');
                         }
                     }
                 },
@@ -58,7 +58,7 @@ class StoreAuctionRequest extends WizardFormRequest
                         $auctionEnd = Carbon::parse((string) $value)->startOfDay();
                         $asgEnd = $assignment->end_date->startOfDay();
                         if ($auctionEnd->gt($asgEnd)) {
-                            $fail('تاريخ نهاية المزاد يجب ألا يتجاوز تاريخ نهاية الإسناد ('.$assignment->end_date->format('Y-m-d').').');
+                            $fail('تاريخ نهاية المزاد يجب ألا يتجاوز تاريخ نهاية الإسناد ('.system_date($assignment->end_date).').');
                         }
                     }
                 },
@@ -110,7 +110,7 @@ class StoreAuctionRequest extends WizardFormRequest
 
                     $today = now()->startOfDay();
                     if ($assignment->end_date && $assignment->end_date->startOfDay()->lt($today)) {
-                        $fail('الإسناد المختار منتهي الصلاحية بتاريخ '.$assignment->end_date->format('Y-m-d').'.');
+                        $fail('الإسناد المختار منتهي الصلاحية بتاريخ '.system_date($assignment->end_date).'.');
 
                         return;
                     }
@@ -122,7 +122,7 @@ class StoreAuctionRequest extends WizardFormRequest
                         $auctionStart = Carbon::parse((string) $startDate)->startOfDay();
                         $asgStart = $assignment->start_date->startOfDay();
                         if ($auctionStart->lt($asgStart)) {
-                            $fail('تاريخ بداية المزاد يجب ألا يسبق تاريخ بداية الإسناد ('.$assignment->start_date->format('Y-m-d').').');
+                            $fail('تاريخ بداية المزاد يجب ألا يسبق تاريخ بداية الإسناد ('.system_date($assignment->start_date).').');
                         }
                     }
 
@@ -130,7 +130,7 @@ class StoreAuctionRequest extends WizardFormRequest
                         $auctionEnd = Carbon::parse((string) $endDate)->startOfDay();
                         $asgEnd = $assignment->end_date->startOfDay();
                         if ($auctionEnd->gt($asgEnd)) {
-                            $fail('تاريخ نهاية المزاد يجب ألا يتجاوز تاريخ نهاية الإسناد ('.$assignment->end_date->format('Y-m-d').').');
+                            $fail('تاريخ نهاية المزاد يجب ألا يتجاوز تاريخ نهاية الإسناد ('.system_date($assignment->end_date).').');
                         }
                     }
                 },

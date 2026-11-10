@@ -102,7 +102,7 @@
         <table class="details-grid">
             <tr>
                 <td style="width: 25%;">موعد المزاد</td>
-                <td class="val" style="width: 75%;">{{ $auction->start_date ? $auction->start_date->format('Y-m-d') : '-' }} ({{ $auction->start_time ?? '-' }})</td>
+                <td class="val" style="width: 75%;">@date($auction->start_date) ({{ $auction->start_time ?? '-' }})</td>
             </tr>
             <tr>
                 <td>المنصة المعتمدة</td>

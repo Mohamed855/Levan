@@ -23,7 +23,7 @@
                         <dt class="col-5 text-muted">المدينة</dt>
                         <dd class="col-7 fw-semibold" id="review-city">{{ $isEdit ? $auction->city : '-' }}</dd>
                         <dt class="col-5 text-muted">الفترة</dt>
-                        <dd class="col-7 fw-semibold" id="review-dates">{{ $isEdit ? ($auction->start_date?->format('Y-m-d') . ' إلى ' . $auction->end_date?->format('Y-m-d')) : '-' }}</dd>
+                        <dd class="col-7 fw-semibold" id="review-dates">{{ $isEdit ? (system_date($auction->start_date) . ' إلى ' . system_date($auction->end_date)) : '-' }}</dd>
                         <dt class="col-5 text-muted">الوصف</dt>
                         <dd class="col-7 fw-semibold" id="review-description">{{ $isEdit ? ($auction->description ?: '-') : '-' }}</dd>
                         <dt class="col-5 text-muted">عدد العقارات المتوقع</dt>

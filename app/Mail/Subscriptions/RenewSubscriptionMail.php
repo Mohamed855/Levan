@@ -30,7 +30,7 @@ final class RenewSubscriptionMail extends BaseMailable
                 'planName'           => $plan?->name ?? 'الباقة',
                 'subscriptionNumber' => $this->subscription->subscription_number ?? (string) $this->subscription->id,
                 'amount'             => $this->bill?->amount ?? $this->subscription->price,
-                'endDate'            => $this->subscription->ends_at?->format('Y-m-d') ?? $this->subscription->next_payment_date?->format('Y-m-d'),
+                'endDate'            => system_date($this->subscription->ends_at ?? $this->subscription->next_payment_date, ''),
                 'loginUrl'           => $loginUrl,
             ]);
     }

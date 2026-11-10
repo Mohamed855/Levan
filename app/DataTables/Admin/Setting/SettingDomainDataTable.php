@@ -56,7 +56,7 @@ class SettingDomainDataTable extends AbstractDataTable
             })
 
             ->editColumn('created_at', function ($row) {
-                return $row->created_at ? $row->created_at->format('Y-m-d') : '-';
+                return $this->formatDate($row->created_at);
             })
 
             ->addColumn('actions', function ($row) {

@@ -58,9 +58,9 @@ class AssignmentsDataTable extends AbstractDataTable
             ->editColumn('category', fn ($row): string => '<span class="badge bg-primary">'.e($row->category_label).'</span>')
             ->editColumn('properties_count', fn ($row): string => '<span class="badge bg-info">'.(int) $row->properties_count.'</span>')
             ->editColumn('auctions_count', fn ($row): string => '<span class="badge bg-secondary">'.(int) $row->auctions_count.'</span>')
-            ->editColumn('start_date', fn ($row): string => $row->start_date?->format('Y-m-d') ?? '-')
-            ->editColumn('end_date', fn ($row): string => $row->end_date?->format('Y-m-d') ?? '-')
-            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
+            ->editColumn('start_date', fn ($row): string => $this->formatDate($row->start_date))
+            ->editColumn('end_date', fn ($row): string => $this->formatDate($row->end_date))
+            ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
             ->editColumn('status', function ($row): string {
                 $canEdit = auth('tenant')->user()?->can('assignments.edit');
                 if ($canEdit) {

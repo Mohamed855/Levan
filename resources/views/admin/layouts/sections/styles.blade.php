@@ -10,6 +10,7 @@
     'resources/assets/css/shared/demo.css',
     'resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.scss',
     'resources/assets/vendor/libs/typeahead-js/typeahead.scss',
+    'resources/assets/vendor/libs/flatpickr/flatpickr.scss',
     'resources/assets/css/shared/main.css'
 ])
 @yield('vendor-style')

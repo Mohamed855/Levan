@@ -94,7 +94,7 @@ class PropertiesDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-danger d-inline-flex align-items-center gap-1"><i class="ti ti-link-off text-danger fs-6"></i> غير مرتبط</span>';
             })
-            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
+            ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
             ->editColumn('status', function ($row): string {
                 $canEdit = auth('tenant')->user()?->can('properties.edit');
                 if ($canEdit) {

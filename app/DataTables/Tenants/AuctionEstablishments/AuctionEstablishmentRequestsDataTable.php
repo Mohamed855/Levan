@@ -57,7 +57,7 @@ final class AuctionEstablishmentRequestsDataTable extends AbstractDataTable
                 return $row->establishmentRequest->isApproved() ? '<span class="badge bg-label-success">معتمد</span>' : '<span class="badge bg-label-warning">قيد المراجعة</span>';
             })
             ->addColumn('approval_number', fn ($row): string => $this->copyableCode($row->establishmentRequest?->approval_number))
-            ->addColumn('submitted_at', fn ($row): string => $row->establishmentRequest?->submitted_at?->format('Y-m-d') ?? '-')
+            ->addColumn('submitted_at', fn ($row): string => $this->formatDate($row->establishmentRequest?->submitted_at))
             ->orderColumn('submitted_at', function ($query, $order): void {
                 $direction = strtolower((string) $order) === 'desc' ? 'desc' : 'asc';
                 $subquery = AuctionEstablishmentRequest::query()
@@ -66,7 +66,7 @@ final class AuctionEstablishmentRequestsDataTable extends AbstractDataTable
                     ->limit(1);
                 $query->orderBy($subquery, $direction);
             })
-            ->editColumn('created_at', fn ($row): string => $row->created_at?->format('Y-m-d') ?? '-')
+            ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
             ->addColumn('actions', fn ($row): string => view('tenant.auction-establishment-requests.action', ['row' => $row])->render());
     }
 

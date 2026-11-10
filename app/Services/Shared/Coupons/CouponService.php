@@ -108,7 +108,7 @@ class CouponService
         if ($coupon->isExpired()) {
             return [
                 'valid' => false,
-                'message' => 'انتهت صلاحية كود الخصم في تاريخ '.$coupon->expiry_date->format('Y/m/d'),
+                'message' => 'انتهت صلاحية كود الخصم في تاريخ '.system_date($coupon->expiry_date),
             ];
         }
 

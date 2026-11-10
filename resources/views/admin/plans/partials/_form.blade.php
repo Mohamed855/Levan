@@ -283,7 +283,7 @@
                                         {{ $target?->is_active ?? true ? 'نشطة' : 'متوقفة' }}</dd>
                                     <dt class="col-5 text-muted">تاريخ بدء الإتاحة</dt>
                                     <dd class="col-7 fw-semibold" id="plan-review-available-from">
-                                        {{ $target?->available_from?->format('Y-m-d') ?? '-' }}</dd>
+                                        @date($target?->available_from)</dd>
                                     <dt class="col-5 text-muted">الوصف</dt>
                                     <dd class="col-7 fw-semibold" id="plan-review-description">
                                         {{ $target?->description ?? '-' }}</dd>

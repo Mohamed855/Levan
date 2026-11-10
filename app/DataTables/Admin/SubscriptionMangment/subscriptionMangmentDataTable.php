@@ -84,18 +84,16 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             })
 
             ->editColumn('starts_at', function ($row) {
-                return $row->starts_at?->format('Y-m-d') ?? '-';
+                return $this->formatDate($row->starts_at);
             })
 
             ->editColumn('ends_at', function ($row) {
-                return $row->ends_at?->format('Y-m-d')
-                    ?? ($row->currentPeriod?->period_end?->format('Y-m-d') ?? '-');
+                return $this->formatDate($row->ends_at ?? $row->currentPeriod?->period_end);
             })
             ->editColumn('period_end', function ($row) {
                 $latestPeriod = $row->currentPeriod ?? $row->periods()->latest('period_end')->first();
 
-                return $latestPeriod?->period_end?->format('Y-m-d')
-                    ?? ($row->ends_at?->format('Y-m-d') ?? '-');
+                return $this->formatDate($latestPeriod?->period_end ?? $row->ends_at);
             })
 
             // ترتيب عمود الأيام المتبقية
@@ -137,7 +135,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 return '<span class="badge bg-success">'.$days.' يوماً</span>';
             })
 
-            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
+            ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
 
             ->editColumn('status', function ($row) {
                 return $this->StageBadge($row);

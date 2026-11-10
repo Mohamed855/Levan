@@ -27,7 +27,7 @@
         @endif
         <div class="info-row">
             <span class="info-label">تاريخ الطلب:</span>
-            <span class="info-value">{{ date('Y-m-d H:i') }}</span>
+            <span class="info-value">{{ system_datetime(now()) }}</span>
         </div>
         <div class="info-row">
             <span class="info-label">مدة التجربة:</span>

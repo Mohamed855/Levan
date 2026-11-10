@@ -80,7 +80,7 @@ final class CreateAuctionAction
                 $today = now()->startOfDay();
                 if ($assignment->end_date && $assignment->end_date->startOfDay()->lt($today)) {
                     throw ValidationException::withMessages([
-                        'assignment_id' => 'الإسناد المختار منتهي الصلاحية بتاريخ '.$assignment->end_date->format('Y-m-d').'.',
+                        'assignment_id' => 'الإسناد المختار منتهي الصلاحية بتاريخ '.system_date($assignment->end_date).'.',
                     ]);
                 }
 
@@ -88,12 +88,12 @@ final class CreateAuctionAction
                 $endDate = $data['end_date'] ?? null;
                 if ($startDate && $assignment->start_date && Carbon::parse((string) $startDate)->startOfDay()->lt($assignment->start_date->startOfDay())) {
                     throw ValidationException::withMessages([
-                        'start_date' => 'تاريخ بداية المزاد يجب ألا يسبق تاريخ بداية الإسناد ('.$assignment->start_date->format('Y-m-d').').',
+                        'start_date' => 'تاريخ بداية المزاد يجب ألا يسبق تاريخ بداية الإسناد ('.system_date($assignment->start_date).').',
                     ]);
                 }
                 if ($endDate && $assignment->end_date && Carbon::parse((string) $endDate)->startOfDay()->gt($assignment->end_date->startOfDay())) {
                     throw ValidationException::withMessages([
-                        'end_date' => 'تاريخ نهاية المزاد يجب ألا يتجاوز تاريخ نهاية الإسناد ('.$assignment->end_date->format('Y-m-d').').',
+                        'end_date' => 'تاريخ نهاية المزاد يجب ألا يتجاوز تاريخ نهاية الإسناد ('.system_date($assignment->end_date).').',
                     ]);
                 }
 

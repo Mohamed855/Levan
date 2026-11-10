@@ -10,7 +10,7 @@
     <h2 class="greeting">مرحباً {{ $customerName }}،</h2>
 
     <p class="lead-text">
-        نود تذكيرك بأن اشتراك منشأتك في باقة <strong>{{ $planName }}</strong> على منصة <strong>{{ $brandName }}</strong> سينتهي خلال <strong>{{ $daysRemaining }} أيام</strong> (بتاريخ {{ $expiryDate }}).
+        نود تذكيرك بأن اشتراك منشأتك في باقة <strong>{{ $planName }}</strong> على منصة <strong>{{ $brandName }}</strong> سينتهي خلال <strong>{{ $daysRemaining }} أيام</strong> (بتاريخ @date($expiryDate)).
     </p>
 
     <div class="alert-box warning">
@@ -25,7 +25,7 @@
         </div>
         <div class="info-row">
             <span class="info-label">تاريخ الانتهاء:</span>
-            <span class="info-value" style="color: #b45309; font-weight: 700;">{{ $expiryDate }}</span>
+            <span class="info-value" style="color: #b45309; font-weight: 700;">@date($expiryDate)</span>
         </div>
         <div class="info-row">
             <span class="info-label">الأيام المتبقية:</span>

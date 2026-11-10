@@ -77,7 +77,7 @@ class DomainDataTable extends AbstractDataTable
                     return '<span class="text-muted">غير متاح</span>';
                 }
 
-                return Carbon::parse($info['expires_at'])->format('Y-m-d');
+                return $this->formatDate($info['expires_at']);
             })
 
             ->editColumn('remaining_days', function ($row) {
@@ -122,11 +122,11 @@ class DomainDataTable extends AbstractDataTable
             })
 
             ->editColumn('created_at', function ($row) {
-                return $row->created_at ? $row->created_at->format('Y-m-d') : '-';
+                return $this->formatDate($row->created_at);
             })
 
             ->editColumn('updated_at', function ($row) {
-                return $row->updated_at?->format('Y-m-d H:i');
+                return $this->formatDate($row->updated_at);
             })
 
             ->addColumn('actions', function ($row) {

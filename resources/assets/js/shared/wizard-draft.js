@@ -14,7 +14,12 @@ for (const form of document.querySelectorAll('form[data-wizard-resource]')) {
     if (!control || control.type === 'file') return;
     if (control.length && control[0]?.type === 'radio') Array.from(control).forEach((item) => { item.checked = item.value === String(value); });
     else if (control.type === 'checkbox') control.checked = Boolean(value) && value !== '0';
-    else control.value = value ?? '';
+    else {
+      control.value = value ?? '';
+      if (control._flatpickr) {
+        control._flatpickr.setDate(value || null, false);
+      }
+    }
     control.dispatchEvent(new Event('change', { bubbles: true }));
   });
 

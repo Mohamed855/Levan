@@ -95,7 +95,7 @@
                                 <span>{{ $property->deed_number ?? '-' }}</span>
                             </li>
                             <li class="mb-2"><span class="fw-bold me-1">تاريخ الصك:</span>
-                                <span>{{ $property->deed_date?->format('Y-m-d') ?? '-' }}</span>
+                                <span>@date($property->deed_date)</span>
                             </li>
                             <li class="mb-2"><span class="fw-bold me-1">جهة الإصدار:</span>
                                 <span>{{ $property->issuing_authority ?? '-' }}</span>
@@ -282,7 +282,7 @@
                                             {{ $auc->name }}
                                         </a>
                                     </td>
-                                    <td>{{ $auc->start_date?->format('Y-m-d') }}</td>
+                                    <td>@date($auc->start_date)</td>
                                     <td><span class="badge bg-secondary">{{ $auc->type_label }}</span></td>
                                     <td><span
                                             class="badge {{ $auc->status_badge_class }}">{{ $auc->status_label }}</span>

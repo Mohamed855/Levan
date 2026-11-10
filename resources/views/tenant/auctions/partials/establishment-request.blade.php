@@ -21,7 +21,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-muted small">تاريخ تقديم الطلب:</span>
                         <span
-                            class="fw-semibold small">{{ $establishment->submitted_at?->format('Y/m/d H:i') ?? '-' }}</span>
+                            class="fw-semibold small">@datetime($establishment->submitted_at)</span>
                     </div>
                     @if ($establishment->isApproved())
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -31,7 +31,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="text-muted small">تاريخ الاعتماد:</span>
                             <span
-                                class="small text-muted">{{ $establishment->approved_at?->format('Y/m/d H:i') ?? '-' }}</span>
+                                class="small text-muted">@datetime($establishment->approved_at)</span>
                         </div>
                     @else
                         <div class="alert alert-warning p-2 small mb-0 mt-2">

@@ -122,11 +122,11 @@ class SubscriptionDataTable extends AbstractDataTable
                     .'<span class="badge bg-secondary" title="المزادات"><i class="ti ti-gavel ti-xs me-1"></i>'.$auctions.'</span>'
                     .'</div>';
             })
-            ->editColumn('starts_at', fn (Subscription $row) => $row->starts_at?->format('Y-m-d') ?: '-')
+            ->editColumn('starts_at', fn (Subscription $row) => $this->formatDate($row->starts_at))
             ->editColumn('ends_at', function (Subscription $row) {
                 $period = $row->currentPeriod ?? $row->periods->sortByDesc('period_end')->first();
 
-                return $period?->period_end?->format('Y-m-d') ?: ($row->ends_at?->format('Y-m-d') ?: '-');
+                return $this->formatDate($period?->period_end ?? $row->ends_at);
             })
             ->orderColumn('days_remaining', function ($query, $order) {
                 $direction = strtolower((string) $order) === 'desc' ? 'desc' : 'asc';
@@ -161,7 +161,7 @@ class SubscriptionDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-success">'.$days.' يوماً</span>';
             })
-            ->editColumn('created_at', fn (Subscription $row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
+            ->editColumn('created_at', fn (Subscription $row): string => $this->formatDate($row->created_at))
             ->editColumn('status', function (Subscription $row) {
                 $isActive = $row->status === SubscriptionStatus::ACTIVE;
                 $checked = $isActive ? 'checked' : '';

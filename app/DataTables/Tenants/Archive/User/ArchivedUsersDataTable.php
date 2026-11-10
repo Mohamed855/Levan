@@ -111,7 +111,7 @@ class ArchivedUsersDataTable extends AbstractDataTable
                 return '<span class="badge '.$statusClass.'">'.$statusText.'</span>';
             })
             ->editColumn('deleted_at', function ($row) {
-                return $row->deleted_at ? Carbon::parse($row->deleted_at)->format('Y-m-d') : '-';
+                return $this->formatDate($row->deleted_at);
             })
             ->addColumn('actions', function ($row) {
                 return view('tenant.archive.users.action', ['id' => $row->id, 'route' => $this->route])->render();

@@ -63,7 +63,7 @@ class ExportMonthlyActivityLogs extends Command
                 $activity->description,
                 $activity->causer ? $activity->causer->name : 'النظام',
                 $activity->subject ? class_basename($activity->subject_type).' #'.$activity->subject_id : 'محذوف',
-                $activity->created_at->format('Y-m-d H:i:s'),
+                system_datetime($activity->created_at),
             ], null, "A{$row}");
             $row++;
         }

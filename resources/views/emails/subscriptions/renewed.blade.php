@@ -34,7 +34,7 @@
         @if(!empty($endDate))
             <div class="info-row">
                 <span class="info-label">تاريخ نهاية الفترة الجديدة:</span>
-                <span class="info-value">{{ $endDate }}</span>
+                <span class="info-value">@date($endDate)</span>
             </div>
         @endif
     </div>

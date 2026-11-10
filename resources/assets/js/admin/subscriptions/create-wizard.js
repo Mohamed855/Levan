@@ -407,14 +407,18 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // Dates & Payments
-        const sDateVal =
+        const formatDisplay = (val) =>
+            val && typeof window.formatSystemDate === "function"
+                ? window.formatSystemDate(val)
+                : val || "-";
+        const sDateVal = formatDisplay(
             document.getElementById("start_date")?.value ||
-            document.getElementById("sub_start_date")?.value ||
-            "-";
-        const eDateVal =
+            document.getElementById("sub_start_date")?.value
+        );
+        const eDateVal = formatDisplay(
             document.getElementById("end_date")?.value ||
-            document.getElementById("sub_end_date")?.value ||
-            "-";
+            document.getElementById("sub_end_date")?.value
+        );
         setElemText("sub_review-start-date", sDateVal);
         setElemText("sub_review-end-date", eDateVal);
 

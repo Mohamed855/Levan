@@ -181,10 +181,10 @@ class PlanDataTable extends AbstractDataTable
                 }
 
                 if ($row->available_from->isFuture()) {
-                    return '<span class="badge bg-warning" title="'.e($row->available_from->format('Y-m-d H:i')).'">مجدولة '.e($row->available_from->format('Y-m-d')).'</span>';
+                    return '<span class="badge bg-warning" title="'.e($this->formatDateTime($row->available_from)).'">مجدولة '.e($this->formatDate($row->available_from)).'</span>';
                 }
 
-                return '<span class="badge bg-info">'.e($row->available_from->format('Y-m-d')).'</span>';
+                return '<span class="badge bg-info">'.e($this->formatDate($row->available_from)).'</span>';
             })
 
             ->addColumn('domain_management', function ($row) {
@@ -195,7 +195,7 @@ class PlanDataTable extends AbstractDataTable
                 return '<span class="badge bg-secondary">غير مفعّلة</span>';
             })
 
-            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
+            ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
 
             ->editColumn('is_active', function ($row) {
                 if (! auth()->user()?->can('plans.edit')) {

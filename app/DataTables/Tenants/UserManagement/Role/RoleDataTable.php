@@ -54,7 +54,7 @@ final class RoleDataTable extends AbstractDataTable
             ->editColumn('name', fn (Role $role): string => '<span class="fw-medium text-heading">'.e(AccessLabels::role($role->name)).'</span>')
             ->editColumn('users_count', fn (Role $role): string => '<span class="badge bg-primary">'.number_format($role->users_count).'</span>')
             ->editColumn('permissions_count', fn (Role $role): string => '<span class="badge bg-info">'.number_format($role->permissions_count).'</span>')
-            ->editColumn('created_at', fn (Role $role): string => $role->created_at ? $role->created_at->format('Y-m-d') : '-')
+            ->editColumn('created_at', fn (Role $role): string => $this->formatDate($role->created_at))
             ->addColumn('actions', fn (Role $role): string => view($this->page.'.action', compact('role'))->render());
     }
 

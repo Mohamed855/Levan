@@ -150,7 +150,7 @@ class ActivityLogController extends Controller
             'log_name_arabic' => $this->activityLogNameLabel($activity->log_name),
             'subject_display' => $this->activitySubjectDisplay($activity),
             'user_name' => $activity->causer->name ?? 'النظام',
-            'formatted_date' => $activity->created_at ? $activity->created_at->format('Y-m-d H:i:s') : 'غير محدد',
+            'formatted_date' => system_datetime($activity->created_at, 'غير محدد'),
             'connection_info' => $this->getActivityConnectionInfo($activity),
         ];
     }

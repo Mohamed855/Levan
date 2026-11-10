@@ -381,7 +381,7 @@
                         <li class="mb-3 d-flex justify-content-between align-items-center">
                             <span class="text-muted">تاريخ الإنشاء:</span>
                             <span
-                                class="small">{{ $ticket->created_at ? \Carbon\Carbon::parse($ticket->created_at)->format('Y-m-d H:i') : '-' }}</span>
+                                class="small">@datetime($ticket->created_at)</span>
                         </li>
                         <li class="mb-3 d-flex justify-content-between align-items-center">
                             <span class="text-muted">منذ:</span>
@@ -392,14 +392,14 @@
                             <li class="mb-3 d-flex justify-content-between align-items-center">
                                 <span class="text-muted">تاريخ المعالجة:</span>
                                 <span
-                                    class="small">{{ \Carbon\Carbon::parse($ticket->resolved_at)->format('Y-m-d H:i') }}</span>
+                                    class="small">@datetime($ticket->resolved_at)</span>
                             </li>
                         @endif
                         @if (!empty($ticket->closed_at))
                             <li class="d-flex justify-content-between align-items-center">
                                 <span class="text-muted">تاريخ الإغلاق:</span>
                                 <span
-                                    class="small">{{ \Carbon\Carbon::parse($ticket->closed_at)->format('Y-m-d H:i') }}</span>
+                                    class="small">@datetime($ticket->closed_at)</span>
                             </li>
                         @endif
                     </ul>

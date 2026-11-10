@@ -79,10 +79,10 @@
                                 </li>
                             @endif
                             <li class="mb-2"><span class="fw-bold me-1">تاريخ البداية:</span>
-                                <span>{{ $auction->start_date?->format('Y-m-d') }} {{ $auction->start_time }}</span>
+                                <span>@date($auction->start_date) {{ $auction->start_time }}</span>
                             </li>
                             <li class="mb-0"><span class="fw-bold me-1">تاريخ النهاية:</span>
-                                <span>{{ $auction->end_date?->format('Y-m-d') }} {{ $auction->end_time }}</span>
+                                <span>@date($auction->end_date) {{ $auction->end_time }}</span>
                             </li>
                         </ul>
                     </div>

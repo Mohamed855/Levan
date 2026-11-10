@@ -50,7 +50,7 @@ class TenantDataTable extends AbstractDataTable
             })
 
             ->editColumn('deleted_at', function ($row) {
-                return $row->deleted_at ? $row->deleted_at->format('Y-m-d') : '-';
+                return $this->formatDate($row->deleted_at);
             })
 
             ->addColumn('subscription_status', function ($row) {

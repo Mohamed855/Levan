@@ -121,7 +121,7 @@ class NotificationsDataTable extends AbstractDataTable
                 return '<span class="badge '.$colorClass.'">'.$typeText.'</span>';
             })
             ->editColumn('created_at', function ($row) {
-                return Carbon::parse($row->created_at)->format('Y-m-d');
+                return $this->formatDate($row->created_at);
             })
             ->editColumn('read_at', function ($row) {
                 if ($row->read_at) {

@@ -63,7 +63,7 @@ class AdminTicketsDataTable extends AbstractDataTable
                 return TicketStatus::toBadge($row->status);
             })
             ->editColumn('created_at', function ($row) {
-                return $row->created_at?->format('Y-m-d');
+                return $this->formatDate($row->created_at);
             })
             ->addColumn('actions', function ($row) {
                 return '<a href="'.route($this->route.'.show', $row->ticket_number).'" class="btn btn-icon btn-primary bg-primary" title="عرض التذكرة"><i class="ti ti-eye"></i></a>';

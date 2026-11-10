@@ -72,10 +72,10 @@ class CouponDataTable extends AbstractDataTable
             })
 
             ->editColumn('expiry_date', function ($row) {
-                return $row->expiry_date?->format('Y-m-d');
+                return $this->formatDate($row->expiry_date);
             })
 
-            ->editColumn('deleted_at', fn ($row): string => $row->deleted_at ? $row->deleted_at->format('Y-m-d') : '-')
+            ->editColumn('deleted_at', fn ($row): string => $this->formatDate($row->deleted_at))
 
             ->addColumn('actions', function ($row) {
                 return view('admin.archive.coupon.action', ['id' => $row->id, 'route' => $this->route])->render();

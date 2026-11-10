@@ -23,9 +23,7 @@ final class SubscriptionExpiringMail extends BaseMailable
             $renewUrl = url($renewUrl);
         }
 
-        $expiryDate = $this->subscription->ends_at?->format('Y-m-d') 
-            ?? $this->subscription->currentPeriod?->period_end?->format('Y-m-d') 
-            ?? date('Y-m-d');
+        $expiryDate = system_date($this->subscription->ends_at ?? $this->subscription->currentPeriod?->period_end ?? now());
 
         return $this->subject("تنبيه: اشتراكك ينتهي خلال {$this->daysRemaining} أيام — لوت LOT")
             ->viewWithOffice('emails.subscriptions.expiring_soon', [

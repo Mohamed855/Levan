@@ -43,7 +43,8 @@
         },
         "files": [
             "app/Helpers/Helpers.php",
-            "app/Helpers/TenantHelper.php"
+            "app/Helpers/TenantHelper.php",
+            "app/Helpers/DateHelper.php"
         ]
     },
     "autoload-dev": {
@@ -53,7 +54,8 @@
         },
         "files": [
             "app/Helpers/Helpers.php",
-            "app/Helpers/TenantHelper.php"
+            "app/Helpers/TenantHelper.php",
+            "app/Helpers/DateHelper.php"
         ]
     },
     "scripts": {

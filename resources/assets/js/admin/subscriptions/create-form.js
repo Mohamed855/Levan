@@ -750,8 +750,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Card 3: Subscription & Payment
         const planName = selectedPlan ? selectedPlan.name : "-";
-        const startDate = document.getElementById("start_date")?.value || "-";
-        const endDate = document.getElementById("end_date")?.value || "-";
+        const formatDisplay = (val) =>
+            val && typeof window.formatSystemDate === "function"
+                ? window.formatSystemDate(val)
+                : val || "-";
+        const startDate = formatDisplay(document.getElementById("start_date")?.value);
+        const endDate = formatDisplay(document.getElementById("end_date")?.value);
         const totalUsers = document.getElementById("total_users")?.value || "-";
         const isImmediate = document.getElementById(
             "activate_immediately",

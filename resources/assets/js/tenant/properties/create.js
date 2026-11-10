@@ -1346,7 +1346,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 : 0;
             const ownershipFields = [
                 ["رقم الصك", getVal("deed_number")],
-                ["تاريخ الصك", getVal("deed_date")],
+                ["تاريخ الصك", typeof window.formatSystemDate === "function" ? window.formatSystemDate(getVal("deed_date")) : getVal("deed_date")],
                 ["جهة الإصدار", getVal("issuing_authority")],
                 ["نوع الملكية", getSelectedText("ownership_type")],
                 ["عدد الملاك", `${ownersCount} مالك`],

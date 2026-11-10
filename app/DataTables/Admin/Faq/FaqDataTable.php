@@ -84,7 +84,7 @@ class FaqDataTable extends AbstractDataTable
             ->editColumn('answer', function ($row) {
                 return Str::limit(strip_tags((string) $row->answer), 100);
             })
-            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
+            ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
             ->editColumn('is_active', function ($row) {
                 $checked = $row->is_active ? 'checked' : '';
                 $url = route('admin.faqs.toggle-status', $row->id);

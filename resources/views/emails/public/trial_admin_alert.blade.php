@@ -37,7 +37,7 @@
         </div>
         <div class="info-row">
             <span class="info-label">تاريخ التقديم:</span>
-            <span class="info-value">{{ $trialRequest->created_at?->format('Y-m-d H:i') ?? date('Y-m-d H:i') }}</span>
+            <span class="info-value">{{ system_datetime($trialRequest->created_at ?? now()) }}</span>
         </div>
     </div>
 

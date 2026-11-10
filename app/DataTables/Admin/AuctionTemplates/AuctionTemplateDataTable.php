@@ -91,7 +91,7 @@ class AuctionTemplateDataTable extends AbstractDataTable
             })
 
             ->editColumn('created_at', function ($row) {
-                return $row->created_at ? '<span class="text-muted">'.e($row->created_at->format('Y-m-d')).'</span>' : '-';
+                return $row->created_at ? '<span class="text-muted">'.e($this->formatDate($row->created_at)).'</span>' : '-';
             })
 
             ->editColumn('is_active', function ($row) {

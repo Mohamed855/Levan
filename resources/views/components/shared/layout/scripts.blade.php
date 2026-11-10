@@ -24,6 +24,7 @@
     'resources/assets/js/shared/csrf-setup.js',
     'resources/assets/js/shared/modal-close-controls.js',
     'resources/assets/js/shared/input-guards.js',
+    'resources/assets/js/shared/date-format.js',
     'resources/assets/js/shared/datatable-primary-actions.js',
     'resources/assets/js/shared/datatable-filter-selects.js',
     'resources/assets/js/shared/datatable-responsive.js',

@@ -315,7 +315,7 @@
                                     </td>
                                     <td>
                                         <small
-                                            class="text-muted">{{ $request->starts_at?->format('Y-m-d') ?? $request->created_at?->format('Y-m-d') }}</small>
+                                            class="text-muted">@date($request->starts_at ?? $request->created_at)</small>
                                     </td>
                                     <td>
                                         <span class="fw-bold">{{ number_format($request->price, 2) }} ر.س</span>

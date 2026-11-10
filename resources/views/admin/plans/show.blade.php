@@ -90,7 +90,7 @@
                             <li class="mb-2 d-flex align-items-center">
                                 <i class="ti ti-calendar text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">تاريخ الإتاحة:</span>
-                                <span>{{ $plan->available_from ? $plan->available_from->format('Y-m-d') : 'متاحة فوراً' }}</span>
+                                <span>{{ system_date($plan->available_from, 'متاحة فوراً') }}</span>
                             </li>
                         </ul>
                     </div>
@@ -290,10 +290,10 @@
                                     </td>
                                     <td>
                                         <div>
-                                            {{ $sub->start_date ? \Carbon\Carbon::parse($sub->start_date)->format('Y-m-d') : '-' }}
+                                            @date($sub->start_date)
                                         </div>
                                         <small class="text-muted">إلى
-                                            {{ $sub->end_date ? \Carbon\Carbon::parse($sub->end_date)->format('Y-m-d') : '-' }}</small>
+                                            @date($sub->end_date)</small>
                                     </td>
                                     <td>
                                         <span class="badge bg-{{ $sub->status?->color() ?? 'secondary' }}">

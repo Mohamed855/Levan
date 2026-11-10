@@ -79,7 +79,7 @@
                     <span class="d-val" style="font-size:11.5px">{{ $bill->bill_number }}</span>
 
                     <span class="d-lbl">تاريخ الإصدار</span>
-                    <span class="d-val">{{ $bill->created_at->format('Y/m/d') }}</span>
+                    <span class="d-val">@date($bill->created_at)</span>
 
                     <span class="d-lbl">نوع الفاتورة</span>
                     <span class="d-val">{{ $bill->type->label() }}</span>
@@ -91,7 +91,7 @@
 
                     @if ($bill->paid_at)
                         <span class="d-lbl">تاريخ الدفع</span>
-                        <span class="d-val green">{{ $bill->paid_at }}</span>
+                        <span class="d-val green">@date($bill->paid_at)</span>
                     @endif
 
                     @if ($bill->bank)

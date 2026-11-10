@@ -60,7 +60,7 @@
                     <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
                         <div>
                             <h6 class="mb-0 text-muted small">تاريخ التسجيل</h6>
-                            <span class="fw-semibold">{{ optional($target->created_at)->format('Y-m-d') ?? '-' }}</span>
+                            <span class="fw-semibold">@date($target->created_at)</span>
                         </div>
                         <div>
                             <h6 class="mb-0 text-muted small">الاشتراكات</h6>
@@ -176,8 +176,8 @@
                                                         class="ti ti-database ti-xs me-1"></i>{{ $sub->plan?->storage_quota_gb ? $sub->plan->storage_quota_gb . 'GB' : '∞' }}</span>
                                             </div>
                                         </td>
-                                        <td>{{ $sub->starts_at?->format('Y-m-d') ?: '-' }}</td>
-                                        <td>{{ $period?->period_end?->format('Y-m-d') ?: ($sub->ends_at?->format('Y-m-d') ?: '-') }}
+                                        <td>@date($sub->starts_at)</td>
+                                        <td>@date($period?->period_end ?? $sub->ends_at)
                                         </td>
                                         <td class="text-center">
                                             @if ($days === null)

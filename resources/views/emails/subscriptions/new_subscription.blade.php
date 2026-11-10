@@ -40,13 +40,13 @@
         @if(!empty($startDate))
             <div class="info-row">
                 <span class="info-label">تاريخ البداية:</span>
-                <span class="info-value">{{ $startDate }}</span>
+                <span class="info-value">@date($startDate)</span>
             </div>
         @endif
         @if(!empty($endDate))
             <div class="info-row">
                 <span class="info-label">تاريخ التجديد القادم:</span>
-                <span class="info-value">{{ $endDate }}</span>
+                <span class="info-value">@date($endDate)</span>
             </div>
         @endif
         @if(!empty($totalUsers))

@@ -104,7 +104,7 @@ class IssuingEntitiesDataTable extends AbstractDataTable
                 return '<span class="badge bg-label-primary">'.$row->assignments_count.'</span>';
             })
             ->editColumn('created_at', function ($row) {
-                return $row->created_at ? $row->created_at->format('Y-m-d') : '-';
+                return $this->formatDate($row->created_at);
             })
             ->editColumn('is_active', function ($row) {
                 if ($row->assignments_count > 0) {

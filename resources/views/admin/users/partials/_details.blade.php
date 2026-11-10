@@ -149,7 +149,7 @@
                                 <div class="d-flex justify-content-between text-muted small mt-auto pt-2 border-top">
                                     <span>الاستخدام: {{ $coupon->used_count ?? 0 }} /
                                         {{ $coupon->usage_limit ?? '∞' }}</span>
-                                    <span>{{ $expiryDate ? $expiryDate->format('Y-m-d') : 'بدون انتهاء' }}</span>
+                                    <span>{{ system_date($expiryDate, 'بدون انتهاء') }}</span>
                                 </div>
                             </div>
                         </div>

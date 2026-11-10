@@ -182,16 +182,10 @@ final class AuctionClosingsDataTable extends AbstractDataTable
             })
             ->editColumn('city', fn ($row): string => $row->city ? e($row->city) : '-')
             ->editColumn('start_date', function ($row) {
-                $date = Carbon::parse($row->start_date)->format('Y/m/d');
-                $time = $row->start_time ? Carbon::parse($row->start_time)->format('h:i A') : '';
-
-                return '<div>'.$date.'</div><small class="text-muted">'.$time.'</small>';
+                return $this->formatDateWithSubTime($row->start_date, $row->start_time);
             })
             ->editColumn('end_date', function ($row) {
-                $date = Carbon::parse($row->end_date)->format('Y/m/d');
-                $time = $row->end_time ? Carbon::parse($row->end_time)->format('h:i A') : '';
-
-                return '<div>'.$date.'</div><small class="text-muted">'.$time.'</small>';
+                return $this->formatDateWithSubTime($row->end_date, $row->end_time);
             })
             ->addColumn('properties_results', function ($row) {
                 return view('components.shared.ui.progress-bar', [
@@ -216,7 +210,7 @@ final class AuctionClosingsDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-label-warning">لم يبدأ</span>';
             })
-            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
+            ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
             ->addColumn('actions', fn ($row) => view('tenant.auction-closings.action', ['row' => $row, 'route' => $this->route])->render());
     }
 

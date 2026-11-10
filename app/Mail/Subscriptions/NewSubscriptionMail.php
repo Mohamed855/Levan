@@ -31,8 +31,8 @@ final class NewSubscriptionMail extends BaseMailable
                 'subscriptionNumber' => $this->subscription->subscription_number ?? (string) $this->subscription->id,
                 'amount'             => $this->bill?->amount ?? $this->subscription->price,
                 'billNumber'         => $this->bill?->bill_number,
-                'startDate'          => $this->subscription->starts_at?->format('Y-m-d') ?? date('Y-m-d'),
-                'endDate'            => $this->subscription->ends_at?->format('Y-m-d') ?? $this->subscription->next_payment_date?->format('Y-m-d'),
+                'startDate'          => system_date($this->subscription->starts_at ?? now()),
+                'endDate'            => system_date($this->subscription->ends_at ?? $this->subscription->next_payment_date, ''),
                 'totalUsers'         => $this->subscription->total_users,
                 'loginUrl'           => $loginUrl,
             ]);

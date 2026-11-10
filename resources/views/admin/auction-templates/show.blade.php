@@ -88,7 +88,7 @@
                             </li>
                             <li class="mb-2">
                                 <span class="fw-bold me-1">تاريخ الإنشاء:</span>
-                                <span>{{ $template->created_at?->format('Y-m-d H:i') ?? '-' }}</span>
+                                <span>@datetime($template->created_at)</span>
                             </li>
                             @if (!empty($template->field_names))
                                 <li class="mb-0 border-top pt-2">
@@ -135,7 +135,7 @@
                                             {{ $version->status === 'published' ? 'منشور ومتاح' : 'مسودة' }}
                                         </span>
                                     </td>
-                                    <td>{{ $version->published_at?->format('Y-m-d H:i') ?: '—' }}</td>
+                                    <td>{{ system_datetime($version->published_at, '—') }}</td>
                                     <td>{{ $version->creator?->name ?? '—' }}</td>
                                     <td>
                                         @if ($version->status !== 'published')

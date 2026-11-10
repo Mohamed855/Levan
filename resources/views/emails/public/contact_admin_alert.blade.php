@@ -37,7 +37,7 @@
         @endif
         <div class="info-row">
             <span class="info-label">تاريخ الإرسال:</span>
-            <span class="info-value">{{ date('Y-m-d H:i') }}</span>
+            <span class="info-value">{{ system_datetime(now()) }}</span>
         </div>
     </div>
 

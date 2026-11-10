@@ -177,10 +177,10 @@
         <table class="data-table">
             <tr>
                 <td class="label">تاريخ البداية</td>
-                <td class="val">{{ $auction->start_date ? $auction->start_date->format('Y-m-d') : '-' }}
+                <td class="val">@date($auction->start_date)
                     ({{ $auction->start_time ?? '-' }})</td>
                 <td class="label">تاريخ النهاية</td>
-                <td class="val">{{ $auction->end_date ? $auction->end_date->format('Y-m-d') : '-' }}
+                <td class="val">@date($auction->end_date)
                     ({{ $auction->end_time ?? '-' }})</td>
             </tr>
             <tr>
@@ -225,7 +225,7 @@
                 </td>
                 <td style="text-align: left; width: 140px; font-size: 8.5pt; color: #64748b;">
                     تاريخ الإصدار:<br>
-                    <strong>{{ now()->format('Y-m-d H:i') }}</strong>
+                    <strong>@datetime(now())</strong>
                 </td>
             </tr>
         </table>
@@ -309,7 +309,7 @@
                         <td class="label">رقم الصك</td>
                         <td class="val">{{ $prop['deed_number'] }}</td>
                         <td class="label">تاريخ الصك</td>
-                        <td class="val">{{ $prop['deed_date'] }}</td>
+                        <td class="val">@date($prop['deed_date'])</td>
                     </tr>
                     <tr>
                         <td class="label">المدينة والحي</td>

@@ -196,22 +196,10 @@ final class MarketingCampaignsDataTable extends AbstractDataTable
             })
             ->editColumn('city', fn ($row): string => $row->city ? e($row->city) : '-')
             ->editColumn('start_date', function ($row) {
-                if (! $row->start_date) {
-                    return '-';
-                }
-                $date = Carbon::parse($row->start_date)->format('Y/m/d');
-                $time = $row->start_time ? Carbon::parse($row->start_time)->format('h:i A') : '';
-
-                return '<div>'.$date.'</div><small class="text-muted">'.$time.'</small>';
+                return $this->formatDateWithSubTime($row->start_date, $row->start_time);
             })
             ->editColumn('end_date', function ($row) {
-                if (! $row->end_date) {
-                    return '-';
-                }
-                $date = Carbon::parse($row->end_date)->format('Y/m/d');
-                $time = $row->end_time ? Carbon::parse($row->end_time)->format('h:i A') : '';
-
-                return '<div>'.$date.'</div><small class="text-muted">'.$time.'</small>';
+                return $this->formatDateWithSubTime($row->end_date, $row->end_time);
             })
             ->editColumn('properties_count', function ($row) {
                 return '<span class="badge bg-info">'.(int) $row->properties_count.'</span>';
@@ -231,7 +219,7 @@ final class MarketingCampaignsDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-label-info">'.$total.' مرفق</span>';
             })
-            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
+            ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
             ->addColumn('actions', fn ($row) => view('tenant.marketing-campaigns.action', ['row' => $row, 'route' => $this->route])->render());
     }
 

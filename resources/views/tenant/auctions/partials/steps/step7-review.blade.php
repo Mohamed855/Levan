@@ -38,12 +38,12 @@
 
                         <dt class="col-5 text-muted">بداية المزاد</dt>
                         <dd class="col-7 fw-semibold" id="review-start-datetime">
-                            {{ $isEdit && $auction->start_date ? $auction->start_date->format('Y-m-d') . ' ' . ($auction->start_time ?: '') : '-' }}
+                            {{ $isEdit && $auction->start_date ? system_date($auction->start_date) . ' ' . ($auction->start_time ?: '') : '-' }}
                         </dd>
 
                         <dt class="col-5 text-muted">نهاية المزاد</dt>
                         <dd class="col-7 fw-semibold" id="review-end-datetime">
-                            {{ $isEdit && $auction->end_date ? $auction->end_date->format('Y-m-d') . ' ' . ($auction->end_time ?: '') : '-' }}
+                            {{ $isEdit && $auction->end_date ? system_date($auction->end_date) . ' ' . ($auction->end_time ?: '') : '-' }}
                         </dd>
 
                         <dt class="col-5 text-muted">عدد العقارات المتوقع</dt>

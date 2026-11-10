@@ -318,9 +318,14 @@ function initPlanFormUI() {
                 getValue("is_active") === "1" ? "مفعل" : "معطل",
             ),
         );
+        const availableFromVal = getValue("available_from");
         setReview(
             "plan-review-available-from",
-            getValue("available_from") || "متاح فوراً",
+            availableFromVal
+                ? typeof window.formatSystemDate === "function"
+                    ? window.formatSystemDate(availableFromVal, "متاح فوراً")
+                    : availableFromVal
+                : "متاح فوراً",
         );
         setReview("plan-review-description", getValue("description"));
 

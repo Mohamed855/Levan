@@ -320,9 +320,16 @@ abstract class AbstractDataTable extends DataTable
                     'targets' => '_all',
                     'defaultContent' => '-',
                     'render' => 'function(data, type, full, meta) {
-                        if (type === "display") {
+                        if (type === "display" || type === "export") {
                             if (data === null || data === undefined || data === "" || (typeof data === "string" && data.trim() === "")) {
                                 return "-";
+                            }
+                            if (typeof data === "string") {
+                                var trimmed = data.trim();
+                                var match = trimmed.match(/^(\d{4})[-\/](\d{2})[-\/](\d{2})(?:[T\s]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?)?$/);
+                                if (match) {
+                                    return match[3] + "-" + match[2] + "-" + match[1];
+                                }
                             }
                         }
                         return data;
@@ -374,5 +381,33 @@ abstract class AbstractDataTable extends DataTable
         $escaped = e($code);
 
         return '<div class="d-inline-flex align-items-center gap-1 copyable-code-wrapper" data-code="'.$escaped.'" role="button" tabindex="0" title="اضغط لنسخ الرقم"><code class="copyable-code">'.$escaped.'</code><i class="ti ti-copy text-muted"></i></div>';
+    }
+
+    protected function formatDate(mixed $value, string $fallback = '-'): string
+    {
+        return system_date($value, $fallback);
+    }
+
+    protected function formatDateTime(mixed $value, string $fallback = '-'): string
+    {
+        return system_datetime($value, $fallback);
+    }
+
+    protected function formatDateWithSubTime(mixed $date, mixed $time = null, string $fallback = '-'): string
+    {
+        $formattedDate = system_date($date, '');
+        if ($formattedDate === '') {
+            return $fallback;
+        }
+
+        $formattedTime = '';
+        if ($time !== null && $time !== '') {
+            $parsedTime = parse_system_date($time);
+            $formattedTime = $parsedTime
+                ? $parsedTime->copy()->locale('ar')->translatedFormat('h:i A')
+                : (string) $time;
+        }
+
+        return '<div>'.e($formattedDate).'</div><small class="text-muted">'.e($formattedTime).'</small>';
     }
 }

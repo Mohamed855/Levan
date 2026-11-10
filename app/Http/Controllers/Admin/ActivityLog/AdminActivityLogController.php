@@ -119,7 +119,7 @@ class AdminActivityLogController extends Controller
             'subject_display' => $this->activitySubjectDisplay($activity),
             'connection_info' => $this->getActivityConnectionInfo($activity),
             'user_name' => $activity->causer->name ?? 'النظام',
-            'formatted_date' => $activity->created_at ? $activity->created_at->format('Y-m-d H:i:s') : 'غير محدد',
+            'formatted_date' => system_datetime($activity->created_at, 'غير محدد'),
         ];
     }
 

@@ -242,7 +242,7 @@ class ProcessSubscriptionPeriods implements ShouldQueue
                     return;
                 }
 
-                $formattedDate = Carbon::parse($periodEnd)->format('Y-m-d');
+                $formattedDate = system_date($periodEnd);
                 $isUrgent = ($level === 'danger');
 
                 $title = $isUrgent ? 'تحذير عاجل: اقتراب انتهاء الاشتراك' : 'تذكير: اقتراب موعد تجديد الاشتراك';

@@ -138,12 +138,34 @@ function validationSignature(form, fields) {
     return JSON.stringify(values);
 }
 
+function isNonInteractiveControl(control) {
+    if (!control) return true;
+    if (["submit", "button", "reset"].includes(control.type)) return true;
+    return (
+        control.type === "hidden" &&
+        !control._flatpickr?.altInput &&
+        control.dataset.datePicker === undefined
+    );
+}
+
+function isControlInvisible(control) {
+    const target = control._flatpickr?.altInput || control;
+    return (
+        (control.type !== "hidden" || Boolean(control._flatpickr?.altInput)) &&
+        target.offsetParent === null
+    );
+}
+
 function stateTargets(control) {
     const targets = [control];
     const inputGroup = control.closest(".input-group");
 
     if (inputGroup) {
         targets.push(inputGroup);
+    }
+
+    if (control._flatpickr?.altInput) {
+        targets.push(control._flatpickr.altInput);
     }
 
     if (control.tagName === "SELECT") {
@@ -190,7 +212,7 @@ function ensureValidationContract(form) {
         "[data-form-control][name], input[name], select[name], textarea[name]",
     ).forEach((control) => {
         if (
-            control.type === "hidden" ||
+            isNonInteractiveControl(control) ||
             control.matches("[data-validation-skip]")
         ) {
             return;
@@ -1137,7 +1159,7 @@ function validateControlClientSide(form, control) {
         control.disabled ||
         control.closest(".d-none") ||
         control.closest("[hidden]") ||
-        (control.type !== "hidden" && control.offsetParent === null)
+        isControlInvisible(control)
     ) {
         return true;
     }
@@ -1208,11 +1230,19 @@ function validateControlClientSide(form, control) {
         }
 
         // Date min check
-        if (control.type === "date" && control.min && trimmed < control.min) {
+        if (
+            (control.type === "date" || control.dataset.datePicker === "date") &&
+            control.min &&
+            trimmed < control.min
+        ) {
+            const minDisplay =
+                typeof window.formatSystemDate === "function"
+                    ? window.formatSystemDate(control.min)
+                    : control.min;
             setFieldError(
                 form,
                 name,
-                `التاريخ يجب أن يكون ${control.min} أو بعده`,
+                `التاريخ يجب أن يكون ${minDisplay} أو بعده`,
             );
             return false;
         }
@@ -1363,16 +1393,14 @@ function isStepValid(form, step) {
 
     const controls = Array.from(step.querySelectorAll("[name]")).filter(
         (control) => {
-            if (
-                ["submit", "button", "reset", "hidden"].includes(control.type)
-            ) {
+            if (isNonInteractiveControl(control)) {
                 return false;
             }
             if (
                 control.disabled ||
                 control.closest(".d-none") ||
                 control.closest("[hidden]") ||
-                (control.type !== "hidden" && control.offsetParent === null)
+                isControlInvisible(control)
             ) {
                 return false;
             }
@@ -1433,7 +1461,11 @@ function isStepValid(form, step) {
                 )
                     return false;
             }
-            if (control.type === "date" && control.min && val < control.min) {
+            if (
+                (control.type === "date" || control.dataset.datePicker === "date") &&
+                control.min &&
+                val < control.min
+            ) {
                 return false;
             }
             if (
@@ -1792,6 +1824,10 @@ function scrollToFirstInvalid(container, preferredInvalidElement = null) {
                     select2Focusable.focus({ preventScroll: true });
                 } catch (_) {}
             }
+        } else if (control._flatpickr?.altInput && !control.disabled) {
+            try {
+                control._flatpickr.altInput.focus({ preventScroll: true });
+            } catch (_) {}
         } else if (
             typeof control.focus === "function" &&
             control.tabIndex !== -1 &&
@@ -2281,10 +2317,12 @@ function initForm(form) {
 
     const userInteractedControls = new WeakSet();
     const shouldValidateInteraction = (control, event) =>
-        event?.isTrusted || hasControlValue(control);
+        event?.isTrusted ||
+        hasControlValue(control) ||
+        Boolean(control.dataset.datePicker && userInteractedControls.has(control));
 
     formControls.forEach((control) => {
-        if (["submit", "button", "reset", "hidden"].includes(control.type)) {
+        if (isNonInteractiveControl(control)) {
             return;
         }
 
@@ -2403,7 +2441,7 @@ function initForm(form) {
     const hasInitialValue = (control) => {
         if (
             control.disabled ||
-            ["submit", "button", "reset", "hidden"].includes(control.type) ||
+            isNonInteractiveControl(control) ||
             control.matches("[data-validation-skip], [data-datatable-filter]")
         ) {
             return false;

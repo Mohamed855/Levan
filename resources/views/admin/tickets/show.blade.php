@@ -228,7 +228,7 @@
                         </li>
                         <li class="d-flex justify-content-between align-items-center">
                             <span class="text-muted">تاريخ الإنشاء:</span>
-                            <span class="small">{{ $ticket->created_at?->format('Y-m-d H:i') }}</span>
+                            <span class="small">@datetime($ticket->created_at)</span>
                         </li>
                     </ul>
                 </div>

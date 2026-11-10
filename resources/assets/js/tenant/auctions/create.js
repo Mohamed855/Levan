@@ -653,8 +653,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     $("#asg-summary-status").text(
                         res.assignment.status_label || "-",
                     );
-                    const asgStartDate = res.assignment.start_date || "-";
-                    const asgEndDate = res.assignment.end_date || "-";
+                    const formatDisplay = (val) =>
+                        typeof window.formatSystemDate === "function"
+                            ? window.formatSystemDate(val)
+                            : val || "-";
+                    const asgStartDate = formatDisplay(res.assignment.start_date);
+                    const asgEndDate = formatDisplay(res.assignment.end_date);
                     const asgDatesText =
                         res.assignment.start_date || res.assignment.end_date
                             ? `${asgStartDate} إلى ${asgEndDate}`
@@ -1081,9 +1085,13 @@ document.addEventListener("DOMContentLoaded", () => {
         $("#preview-auction-city").text(cityVal || "المدينة");
         $("#review-city").text(cityVal || "-");
 
-        const startDate = $("#start_date").val();
+        const formatDisplay = (val) =>
+            typeof window.formatSystemDate === "function"
+                ? window.formatSystemDate(val, "")
+                : val || "";
+        const startDate = formatDisplay($("#start_date").val());
         const startTime = $("#start_time").val();
-        const endDate = $("#end_date").val();
+        const endDate = formatDisplay($("#end_date").val());
         const endTime = $("#end_time").val();
 
         $("#preview-auction-date").text(startDate || "تاريخ الانطلاق");

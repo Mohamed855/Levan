@@ -54,9 +54,7 @@ class SettingManagePaymentDataTable extends AbstractDataTable
                 return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('paid_at', function ($row) {
-                return $row->paid_at
-                    ? Carbon::parse($row->paid_at)->format('Y-m-d')
-                    : '-';
+                return $this->formatDate($row->paid_at);
             });
     }
 

@@ -72,7 +72,7 @@ class UsersDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable)
     {
         $datatable
-            ->editColumn('created_at', fn ($row): string => $row->created_at ? $row->created_at->format('Y-m-d') : '-')
+            ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
             ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
             ->addColumn('image', function (User $user) {
                 $profilePicture = $user->image ? tasset($user->image) : null;

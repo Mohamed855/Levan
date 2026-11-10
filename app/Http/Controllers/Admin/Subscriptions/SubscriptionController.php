@@ -206,7 +206,7 @@ class SubscriptionController extends Controller
                 'number' => $lastSub->subscription_number,
                 'plan' => $lastSub->plan?->name ?: '-',
                 'status' => $lastSub->status->label(),
-                'ends_at' => $lastSub->ends_at?->format('Y-m-d') ?: '-',
+                'ends_at' => system_date($lastSub->ends_at),
             ] : null,
         ]);
     }

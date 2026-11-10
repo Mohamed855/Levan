@@ -81,7 +81,7 @@ class ActivityLogsExport implements FromCollection, ShouldAutoSize, WithColumnWi
             $connectionInfo['device'] ?? '-',
             $connectionInfo['os'] ?? '-',
             $connectionInfo['browser'] ?? '-',
-            $activity->created_at ? $activity->created_at->format('Y-m-d H:i:s') : '-',
+            system_datetime($activity->created_at),
         ];
     }
 
