@@ -1,7 +1,7 @@
 @props([
     'id',
     'label',
-    'placeholder' => null,
+    'placeholder' => 'اختر التاريخ',
     'value' => null,
     'name' => null,
     'filterKey' => null,
@@ -17,7 +17,7 @@
 @php
     $customClass = $attributes->get('class', '');
     $hasColInClass = $customClass && preg_match('/(^|\s)col(-[a-z0-9]+)?(-\d+)?(\s|$)/', $customClass);
-    $columnClass = trim(($hasColInClass ? $customClass : "$col $wrapperClass"));
+    $columnClass = trim($hasColInClass ? $customClass : "$col $wrapperClass");
     $remainingAttributes = $hasColInClass ? $attributes->except('class') : $attributes;
 
     $targetTable = $table ?? $target;
@@ -43,11 +43,8 @@
 
 <div class="{{ $columnClass }}">
     <label class="form-label" for="{{ $id }}">{{ $label }}</label>
-    <input type="date"
-        id="{{ $id }}"
-        @if ($name) name="{{ $name }}" @endif
+    <input type="date" id="{{ $id }}" @if ($name) name="{{ $name }}" @endif
         @if ($value !== null) value="{{ $value }}" @endif
-        @if ($disabled) disabled @endif
-        @if ($required) required @endif
+        @if ($disabled) disabled @endif @if ($required) required @endif
         {{ $remainingAttributes->merge($filterDataAttributes) }} />
 </div>

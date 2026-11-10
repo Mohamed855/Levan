@@ -94,10 +94,10 @@
                     col="col-md-6" />
 
                 <x-form.controls.input name="start_date" type="date" label="تاريخ البداية" :value="$is_edit ? $assignment->start_date?->format('Y-m-d') : old('start_date')"
-                    placeholder="اختر تاريخ البداية" required col="col-md-6" />
+                    placeholder="اختر التاريخ" required col="col-md-6" />
 
                 <x-form.controls.input name="end_date" type="date" label="تاريخ النهاية" :value="$is_edit ? $assignment->end_date?->format('Y-m-d') : old('end_date')"
-                    placeholder="اختر تاريخ النهاية" required col="col-md-6" />
+                    placeholder="اختر التاريخ" required col="col-md-6" />
 
                 <x-form.controls.textarea name="notes" label="وصف الإسناد"
                     placeholder="أدخل وصفاً تفصيلياً للإسناد..." required col="col-12" rows="4">

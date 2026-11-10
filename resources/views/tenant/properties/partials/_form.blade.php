@@ -173,7 +173,7 @@
             <div class="row g-4">
                 <x-form.controls.input name="deed_number" type="number" step="1" min="0" label="رقم الصك"
                     :value="$is_edit ? $property->deed_number : old('deed_number')" placeholder="أدخل رقم الصك" required col="col-md-6" />
-                <x-form.controls.input name="deed_date" type="date" label="تاريخ الصك" placeholder="اختر تاريخ الصك"
+                <x-form.controls.input name="deed_date" type="date" label="تاريخ الصك" placeholder="اختر التاريخ"
                     :value="$is_edit
                         ? ($property->deed_date instanceof \DateTimeInterface
                             ? $property->deed_date->format('Y-m-d')
@@ -202,7 +202,7 @@
                         ? $property->agency_date->format('Y-m-d')
                         : $property->agency_date)
                     : old('agency_date')"
-                    placeholder="اختر تاريخ الوكالة" :required="false" col="col-md-6" />
+                    placeholder="اختر التاريخ" :required="false" col="col-md-6" />
 
                 {{-- ملاك العقار --}}
                 <div class="col-12">

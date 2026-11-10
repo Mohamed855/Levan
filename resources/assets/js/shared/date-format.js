@@ -119,23 +119,70 @@ const nativeInputValueDescriptor = Object.getOwnPropertyDescriptor(
     "value"
 );
 
+const DEFAULT_DATE_PLACEHOLDER = "اختر التاريخ";
+const DEFAULT_DATETIME_PLACEHOLDER = "اختر التاريخ والوقت";
+
+function resolveDatePlaceholder(el, isDateTime) {
+    const existing = (el.getAttribute("placeholder") || "").trim();
+    if (!existing) {
+        return isDateTime ? DEFAULT_DATETIME_PLACEHOLDER : DEFAULT_DATE_PLACEHOLDER;
+    }
+
+    return existing;
+}
+
+function buildAltInputClassName(el) {
+    const allowedUtilityClasses = ["form-control-sm", "form-control-lg", "mb-0"];
+    const classes = ["form-control", "input"];
+
+    allowedUtilityClasses.forEach((cls) => {
+        if (el.classList.contains(cls)) {
+            classes.push(cls);
+        }
+    });
+
+    if (!el.hasAttribute("readonly")) {
+        classes.push("flatpickr-input");
+    }
+
+    return classes.join(" ");
+}
+
+function syncAltInputDirection(instance) {
+    if (!instance || !instance.altInput) return;
+
+    const hasValue = Boolean(instance.altInput.value);
+    instance.altInput.setAttribute("dir", hasValue ? "ltr" : "rtl");
+    instance.altInput.style.textAlign = "right";
+}
+
 function syncReadonlyVisualState(el, fp) {
     if (!fp || !fp.altInput) return;
     const isExplicitReadonly = el.hasAttribute("readonly");
     const isDisabled = el.disabled;
 
+    // Never allow manual typing; only toggle open/visual state for readonly/disabled.
+    fp.altInput.readOnly = true;
+    fp.altInput.setAttribute("readonly", "readonly");
     fp.altInput.disabled = isDisabled;
+
     if (isExplicitReadonly && !isDisabled) {
+        fp.altInput.classList.remove("flatpickr-input");
         fp.altInput.classList.add("bg-light");
         fp.altInput.style.cursor = "not-allowed";
-    } else {
+    } else if (isDisabled) {
+        fp.altInput.classList.add("flatpickr-input");
         fp.altInput.classList.remove("bg-light");
-        fp.altInput.style.cursor = "";
+        fp.altInput.style.cursor = "not-allowed";
+    } else {
+        fp.altInput.classList.add("flatpickr-input");
+        fp.altInput.classList.remove("bg-light");
+        fp.altInput.style.cursor = "pointer";
     }
 
     fp.set("clickOpens", !isDisabled && !isExplicitReadonly);
     if (fp.config) {
-        fp.config.allowInput = !isDisabled && !isExplicitReadonly;
+        fp.config.allowInput = false;
     }
 }
 
@@ -172,6 +219,11 @@ function attachDatePicker(el) {
 
     const wasExplicitReadonly = el.hasAttribute("readonly");
     const isInteractive = !el.disabled && !wasExplicitReadonly;
+    const resolvedPlaceholder = resolveDatePlaceholder(el, isDateTime);
+    if ((el.getAttribute("placeholder") || "").trim() !== resolvedPlaceholder) {
+        el.setAttribute("placeholder", resolvedPlaceholder);
+    }
+
     let internalSync = false;
 
     const minAttr = el.getAttribute("min");
@@ -181,10 +233,11 @@ function attachDatePicker(el) {
         locale: Arabic,
         dateFormat: storageFormat,
         altInput: true,
+        altInputClass: buildAltInputClassName(el),
         altFormat: altFormat,
         enableTime: isDateTime,
         time_24hr: false,
-        allowInput: isInteractive,
+        allowInput: false,
         clickOpens: isInteractive,
         disableMobile: true,
         minDate: minAttr ? normalizeToStorageFormat(minAttr, isDateTime) : undefined,
@@ -195,12 +248,33 @@ function attachDatePicker(el) {
 
             instance.altInput.dataset.datatableFilter = "false";
             instance.altInput.dataset.validationSkip = "true";
-            instance.altInput.setAttribute("dir", "ltr");
-            instance.altInput.style.textAlign = "right";
+            instance.altInput.readOnly = true;
+            instance.altInput.setAttribute("readonly", "readonly");
+            instance.altInput.placeholder = resolvedPlaceholder;
+            syncAltInputDirection(instance);
 
-            if (el.placeholder) {
-                instance.altInput.placeholder = el.placeholder;
-            }
+            const originalClear = instance.clear.bind(instance);
+            instance.clear = (emitChangeEvent = true, toInitial = false) => {
+                originalClear(emitChangeEvent, toInitial);
+                syncAltInputDirection(instance);
+            };
+
+            instance.altInput.addEventListener("keydown", (event) => {
+                if (el.disabled || el.hasAttribute("readonly")) return;
+
+                if (event.key === "Backspace" || event.key === "Delete") {
+                    event.preventDefault();
+                    if (instance.altInput.value || el.value) {
+                        instance.clear(true);
+                    }
+                    return;
+                }
+
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    instance.open();
+                }
+            });
             if (el.classList.contains("is-invalid")) {
                 instance.altInput.classList.add("is-invalid");
             }
@@ -230,7 +304,11 @@ function attachDatePicker(el) {
                 el.dispatchEvent(new Event("blur", { bubbles: false }));
             });
         },
-        onChange() {
+        onValueUpdate(_selectedDates, _dateStr, instance) {
+            syncAltInputDirection(instance);
+        },
+        onChange(_selectedDates, _dateStr, instance) {
+            syncAltInputDirection(instance);
             if (internalSync) return;
             el.dispatchEvent(new Event("input", { bubbles: true }));
         },

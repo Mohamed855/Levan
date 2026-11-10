@@ -222,4 +222,27 @@ final class SystemDateFormatTest extends TestCase
 
         self::assertStringContainsString('10-11-2026 إلى 12-11-2026', $reviewHtml);
     }
+
+    public function test_date_inputs_and_filters_render_expected_format_placeholders_and_readonly_picker_config(): void
+    {
+        $dateInputHtml = Blade::render('<x-form.controls.input name="start_date" type="date" label="تاريخ البداية" />');
+        $dateTimeInputHtml = Blade::render('<x-form.controls.input name="starts_at" type="datetime-local" label="وقت البداية" />');
+        $filterDateHtml = Blade::render('<x-filter.date id="filter-created-from" filterKey="created_from" label="تاريخ الإنشاء من" />');
+
+        self::assertStringContainsString('placeholder="اختر التاريخ"', $dateInputHtml);
+        self::assertStringContainsString('placeholder="اختر التاريخ والوقت"', $dateTimeInputHtml);
+        self::assertStringContainsString('placeholder="اختر التاريخ"', $filterDateHtml);
+
+        $assignmentsForm = file_get_contents(resource_path('views/tenant/assignments/partials/_form.blade.php')) ?: '';
+        $propertiesForm = file_get_contents(resource_path('views/tenant/properties/partials/_form.blade.php')) ?: '';
+        self::assertStringNotContainsString('يوم-شهر-سنة', $assignmentsForm);
+        self::assertStringNotContainsString('يوم-شهر-سنة', $propertiesForm);
+
+        $dateFormatJs = file_get_contents(resource_path('assets/js/shared/date-format.js')) ?: '';
+        self::assertStringContainsString('allowInput: false', $dateFormatJs);
+        self::assertStringContainsString('fp.config.allowInput = false;', $dateFormatJs);
+        self::assertStringContainsString('اختر التاريخ', $dateFormatJs);
+        self::assertStringContainsString('اختر التاريخ والوقت', $dateFormatJs);
+        self::assertStringContainsString('flatpickr-input', $dateFormatJs);
+    }
 }
