@@ -212,7 +212,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>رقم العقار</th>
+                                <th>رقم الأصل</th>
                                 <th>اسم العقار</th>
                                 <th>النوع</th>
                                 <th>المساحة</th>

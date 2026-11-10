@@ -43,7 +43,7 @@
                             <th style="width: 2.5rem;" class="text-center">
                                 <input type="checkbox" id="select-all-properties" class="form-check-input" aria-label="تحديد الكل">
                             </th>
-                            <th style="width: 100px;">رقم العقار</th>
+                            <th style="width: 100px;">رقم الأصل</th>
                             <th style="width: 60px;" class="text-center">الصورة</th>
                             <th>اسم العقار</th>
                             <th>نوع العقار</th>

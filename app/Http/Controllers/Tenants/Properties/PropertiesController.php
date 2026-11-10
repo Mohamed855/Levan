@@ -55,7 +55,6 @@ class PropertiesController extends Controller
     public function create(): View
     {
         $assignments = Assignment::where('is_active', true)->select(['id', 'name', 'assignment_number'])->get();
-        $generatedPropertyNumber = $this->propertyService->generatePropertyNumber();
         $city = old('city');
         $districtOptions = $city ? $this->cityOptionsGateway->districtsByCityName($city) : [];
         if (old('district') && ! isset($districtOptions[old('district')])) {
@@ -66,7 +65,6 @@ class PropertiesController extends Controller
 
         return view('tenant.properties.create', [
             'assignments' => $assignments,
-            'generatedPropertyNumber' => $generatedPropertyNumber,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
             'regionOptions' => $regionOptions,
             'districtOptions' => $districtOptions,

@@ -246,7 +246,7 @@
                                 </h2>
                                 <div style="color: #64748b; font-size: 9.5pt;">
                                     المدينة: <strong>{{ $prop['city'] }}</strong> — الحي:
-                                    <strong>{{ $prop['district'] }}</strong> | رقم العقار:
+                                    <strong>{{ $prop['district'] }}</strong> | رقم الأصل:
                                     <strong>{{ $prop['property_number'] }}</strong>
                                 </div>
                             </td>

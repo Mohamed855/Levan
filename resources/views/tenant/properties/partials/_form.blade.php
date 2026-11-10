@@ -23,9 +23,6 @@
             @method('PUT')
         @endif
 
-        <input type="hidden" name="property_number"
-            value="{{ $is_edit ? $property->property_number : $generatedPropertyNumber }}">
-
         {{-- الخطوة 1: البيانات الأساسية --}}
         <x-form.wizard.step id="property-basic-validation" :fields="['name', 'type', 'usage_classification', 'area', 'short_description', 'aerial_image', 'raw_aerial_image', 'boundary_geojson']">
             <div class="row g-4">
@@ -169,8 +166,10 @@
         </x-form.wizard.step>
 
         {{-- الخطوة 3: الملكية والتفاصيل --}}
-        <x-form.wizard.step id="property-ownership-validation" :fields="['deed_number', 'deed_date', 'issuing_authority', 'ownership_type', 'owners']">
+        <x-form.wizard.step id="property-ownership-validation" :fields="['property_number', 'deed_number', 'deed_date', 'issuing_authority', 'ownership_type', 'owners']">
             <div class="row g-4">
+                <x-form.controls.input name="property_number" label="رقم الأصل"
+                    :value="$is_edit ? $property->property_number : old('property_number')" placeholder="أدخل رقم الأصل" required col="col-12" maxlength="100" />
                 <x-form.controls.input name="deed_number" type="number" step="1" min="0" label="رقم الصك"
                     :value="$is_edit ? $property->deed_number : old('deed_number')" placeholder="أدخل رقم الصك" required col="col-md-6" />
                 <x-form.controls.input name="deed_date" type="date" label="تاريخ الصك" placeholder="اختر التاريخ"

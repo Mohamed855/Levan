@@ -23,13 +23,6 @@ class PropertyService
         ];
     }
 
-    public function generatePropertyNumber(?int $assignmentId = null): string
-    {
-        $count = Property::when($assignmentId, fn ($q) => $q->where('assignment_id', $assignmentId))->count() + 1;
-
-        return str_pad((string) $count, 3, '0', STR_PAD_LEFT);
-    }
-
     public function toggleStatus(Property $property, ?bool $isActive = null): bool
     {
         $newStatus = $isActive ?? ! $property->is_active;

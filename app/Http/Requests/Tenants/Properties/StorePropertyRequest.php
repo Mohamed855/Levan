@@ -21,6 +21,10 @@ class StorePropertyRequest extends WizardFormRequest
     public function validationData(): array
     {
         $data = parent::validationData();
+        if (isset($data['property_number']) && is_string($data['property_number'])) {
+            $data['property_number'] = trim($data['property_number']);
+        }
+
         if (is_string($data['boundary_geojson'] ?? null)) {
             $data['boundary_geojson'] = json_decode($data['boundary_geojson'], true);
         }
@@ -51,7 +55,6 @@ class StorePropertyRequest extends WizardFormRequest
             'area' => ['required', 'numeric', 'min:0.01'],
             'is_active' => ['nullable', 'boolean'],
             'short_description' => ['required', 'string', 'max:500'],
-            'property_number' => ['nullable', 'string', 'max:100'],
 
             // Step 2: الموقع والحدود
             'city' => ['required', 'string', 'max:100'],
@@ -117,6 +120,12 @@ class StorePropertyRequest extends WizardFormRequest
 
             // Step 3: الملكية والتفاصيل
             'assignment_letter_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
+            'property_number' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('properties', 'property_number')->whereNull('deleted_at'),
+            ],
             'deed_number' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
             'deed_date' => ['required', 'date'],
             'issuing_authority' => ['required', 'string', 'max:255'],
@@ -183,6 +192,10 @@ class StorePropertyRequest extends WizardFormRequest
             'boundaries.*.length.numeric' => 'طول الحد يجب أن يكون رقماً.',
 
             // Step 3
+            'property_number.required' => 'رقم الأصل مطلوب.',
+            'property_number.string' => 'رقم الأصل يجب أن يكون نصاً.',
+            'property_number.max' => 'رقم الأصل يجب ألا يتجاوز 100 حرف.',
+            'property_number.unique' => 'رقم الأصل مستخدم بالفعل لعقار آخر.',
             'deed_number.required' => 'رقم الصك مطلوب.',
             'deed_date.required' => 'تاريخ الصك مطلوب.',
             'issuing_authority.required' => 'جهة إصدار الصك مطلوبة.',
@@ -240,6 +253,7 @@ class StorePropertyRequest extends WizardFormRequest
             'boundaries.*.border_type' => 'نوع الحد',
             'boundaries.*.border_description' => 'وصف الحد',
             'boundaries.*.length' => 'الطول (م)',
+            'property_number' => 'رقم الأصل',
             'deed_number' => 'رقم الصك',
             'deed_date' => 'تاريخ الصك',
             'issuing_authority' => 'جهة الإصدار',

@@ -7,7 +7,6 @@ namespace App\Actions\Tenants\Properties;
 use App\Enums\Tenants\Properties\PropertyAttachmentCategory;
 use App\Enums\Tenants\Properties\PropertyDataStatus;
 use App\Models\Tenants\Properties\Property;
-use App\Services\Tenants\Properties\PropertyService;
 use App\Services\Tenants\Properties\OriginalPropertyImageService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +17,6 @@ use Throwable;
 final class CreatePropertyAction
 {
     public function __construct(
-        private readonly PropertyService $propertyService,
         private readonly OriginalPropertyImageService $originalImages,
     ) {}
 
@@ -65,10 +63,6 @@ final class CreatePropertyAction
                     $data['_wizard_draft_id'],
                     $data['_wizard_resource_key']
                 );
-
-                if (empty($data['property_number'])) {
-                    $data['property_number'] = $this->propertyService->generatePropertyNumber();
-                }
 
                 // Parse coordinates from Google Maps URL if empty
                 if ((empty($data['latitude']) || empty($data['longitude'])) && ! empty($data['google_maps_url'])) {

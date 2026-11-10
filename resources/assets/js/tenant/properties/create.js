@@ -1347,6 +1347,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ? unitsList.querySelectorAll(".unit-row").length
                 : 0;
             const ownershipFields = [
+                ["رقم الأصل", getVal("property_number")],
                 ["رقم الصك", getVal("deed_number")],
                 ["تاريخ الصك", typeof window.formatSystemDate === "function" ? window.formatSystemDate(getVal("deed_date")) : getVal("deed_date")],
                 ["جهة الإصدار", getVal("issuing_authority")],

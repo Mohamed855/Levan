@@ -50,7 +50,7 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
     {
         return [
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all-properties" aria-label="تحديد كل العقارات الظاهرة">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
-            ['data' => 'property_number', 'name' => 'property_number', 'title' => 'رقم العقار'],
+            ['data' => 'property_number', 'name' => 'property_number', 'title' => 'رقم الأصل'],
             ['data' => 'image', 'name' => 'image', 'title' => 'الصورة', 'orderable' => false, 'searchable' => false],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم العقار'],
             ['data' => 'type', 'name' => 'type', 'title' => 'نوع العقار'],

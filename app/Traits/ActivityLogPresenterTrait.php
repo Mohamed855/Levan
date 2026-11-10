@@ -117,7 +117,7 @@ trait ActivityLogPresenterTrait
             'area' => 'المساحة',
             'city' => 'المدينة',
             'district' => 'الحي',
-            'property_number' => 'رقم العقار',
+            'property_number' => 'رقم الأصل',
             'auction_number' => 'رقم المزاد',
             'assignment_number' => 'رقم الإسناد',
             'deed_number' => 'رقم الصك',

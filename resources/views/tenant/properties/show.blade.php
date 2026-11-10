@@ -11,7 +11,7 @@
             </h4>
             <div class="d-flex align-items-center gap-2">
                 <code class="copyable-code fs-6"
-                    onclick="navigator.clipboard.writeText('{{ $property->property_number }}'); toastr.success('تم نسخ رقم العقار');">
+                    onclick="navigator.clipboard.writeText('{{ $property->property_number }}'); toastr.success('تم نسخ رقم الأصل');">
                     {{ $property->property_number }}
                 </code>
                 <span class="badge {{ $property->data_status_badge_class }}">{{ $property->data_status_label }}</span>

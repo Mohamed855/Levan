@@ -26,7 +26,7 @@ class PropertiesDataTable extends AbstractDataTable
     {
         return [
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
-            ['data' => 'property_number', 'name' => 'property_number', 'title' => 'رقم العقار', 'width' => '100px'],
+            ['data' => 'property_number', 'name' => 'property_number', 'title' => 'رقم الأصل', 'width' => '100px'],
             ['data' => 'image', 'name' => 'image', 'title' => 'الصورة', 'orderable' => false, 'searchable' => false, 'width' => '70px'],
             ['data' => 'name', 'name' => 'name', 'title' => 'الاسم', 'width' => '170px'],
             ['data' => 'issuing_entity', 'name' => 'issuing_authority', 'title' => 'الجهة', 'width' => '140px'],

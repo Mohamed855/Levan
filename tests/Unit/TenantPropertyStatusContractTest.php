@@ -44,6 +44,7 @@ class TenantPropertyStatusContractTest extends TestCase
         foreach ([new StorePropertyRequest, new UpdatePropertyRequest] as $request) {
             $rules = $request->rules();
             $validator = Validator::make([
+                'property_number' => 'INH122607',
                 'plan_number' => '00123',
                 'parcel_number' => '00456',
                 'deed_number' => '1234567890',
@@ -52,6 +53,7 @@ class TenantPropertyStatusContractTest extends TestCase
                 'boundaries' => [['direction' => 'northeast', 'border_type' => 'street']],
                 'units' => [['unit_type' => 'villa', 'current_use' => 'residential']],
             ], [
+                'property_number' => ['required', 'string', 'max:100'],
                 'plan_number' => $rules['plan_number'],
                 'parcel_number' => $rules['parcel_number'],
                 'deed_number' => $rules['deed_number'],

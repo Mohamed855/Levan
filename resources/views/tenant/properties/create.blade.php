@@ -33,7 +33,6 @@
     @include('tenant.properties.partials._form', [
         'is_edit' => false,
         'property' => null,
-        'generatedPropertyNumber' => $generatedPropertyNumber,
         'assignments' => $assignments,
         'cityOptions' => $cityOptions,
         'regionOptions' => $regionOptions ?? [],

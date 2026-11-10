@@ -50,6 +50,8 @@ class PropertyManagementFeatureTest extends TestCase
             ->get($this->tenantUrl('properties'));
 
         $response->assertOk();
+        $response->assertSee('رقم الأصل');
+        $response->assertDontSee('رقم العقار');
         $response->assertSee('إجمالي العقارات');
         $response->assertSee('مكتملة البيانات');
         $response->assertSee('غير مرتبطة بإسناد');
@@ -124,7 +126,7 @@ class PropertyManagementFeatureTest extends TestCase
     public function test_property_creation_with_subtables_and_attachments(): void
     {
         Storage::fake('tenant_public');
-        Property::where('deed_number', '31099887766')->forceDelete();
+        Property::withTrashed()->whereIn('deed_number', ['31099887766'])->orWhereIn('property_number', ['INH-31099887766'])->forceDelete();
 
         $payload = [
             'name' => 'فيلا تجريبية للاختبار',
@@ -157,6 +159,7 @@ class PropertyManagementFeatureTest extends TestCase
                 ['direction' => 'north', 'border_type' => 'street', 'border_description' => 'شارع عرض 20م', 'length' => 25.0],
                 ['direction' => 'south', 'border_type' => 'parcel', 'border_description' => 'قطعة 12', 'length' => 25.0],
             ],
+            'property_number' => 'INH-31099887766',
             'deed_number' => '31099887766',
             'deed_date' => now()->subYears(2)->toDateString(),
             'issuing_authority' => 'كتابة العدل الأولى بالرياض',
@@ -186,6 +189,7 @@ class PropertyManagementFeatureTest extends TestCase
 
         $this->assertDatabaseHas('properties', [
             'name' => 'فيلا تجريبية للاختبار',
+            'property_number' => 'INH-31099887766',
             'plan_number' => '999',
             'deed_number' => '31099887766',
             'data_status' => 'completed',
@@ -205,6 +209,7 @@ class PropertyManagementFeatureTest extends TestCase
         $this->actingAs($this->owner, 'tenant')
             ->get($this->tenantUrl('properties/'.$property->id))
             ->assertOk()
+            ->assertSee('تم نسخ رقم الأصل')
             ->assertSee('صورة العقار المحددة')
             ->assertSee('متاح')
             ->assertSee('https://maps.google.com/?q=24.7136,46.6753', false)
@@ -213,6 +218,8 @@ class PropertyManagementFeatureTest extends TestCase
         $this->actingAs($this->owner, 'tenant')
             ->get($this->tenantUrl('properties/'.$property->id.'/edit'))
             ->assertOk()
+            ->assertSee('name="property_number"', false)
+            ->assertSee('value="INH-31099887766"', false)
             ->assertSee('name="google_maps_url"', false)
             ->assertSee('https://maps.google.com/?q=24.7136,46.6753', false);
 
@@ -222,6 +229,7 @@ class PropertyManagementFeatureTest extends TestCase
     public function test_property_creation_with_base64_aerial_image(): void
     {
         Storage::fake('tenant_public');
+        Property::withTrashed()->where('property_number', 'AST-320000001')->orWhere('deed_number', '320000001')->forceDelete();
 
         $dummyPngBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
@@ -253,6 +261,7 @@ class PropertyManagementFeatureTest extends TestCase
             'boundaries' => [
                 ['direction' => 'north', 'border_type' => 'street', 'border_description' => 'شارع الملك', 'length' => 50.0],
             ],
+            'property_number' => 'AST-320000001',
             'deed_number' => '320000001',
             'deed_date' => now()->subYear()->toDateString(),
             'issuing_authority' => 'كتابة عدل جدة',
@@ -305,6 +314,7 @@ class PropertyManagementFeatureTest extends TestCase
             'boundaries' => [
                 ['direction' => 'north', 'border_type' => 'street', 'border_description' => 'شارع', 'length' => 20.0],
             ],
+            'property_number' => 'AST-329999991',
             'deed_number' => '329999991',
             'deed_date' => now()->toDateString(),
             'issuing_authority' => 'كتابة عدل الأولى',
@@ -353,6 +363,7 @@ class PropertyManagementFeatureTest extends TestCase
             'boundaries' => [
                 ['direction' => 'north', 'border_type' => 'street', 'border_description' => 'شارع', 'length' => 20.0],
             ],
+            'property_number' => 'AST-329999992',
             'deed_number' => '329999992',
             'deed_date' => now()->toDateString(),
             'issuing_authority' => 'كتابة عدل الأولى',
@@ -411,7 +422,7 @@ class PropertyManagementFeatureTest extends TestCase
     public function test_property_creation_normalizes_arabic_is_active_input(): void
     {
         Storage::fake('tenant_public');
-        Property::where('deed_number', '320000002')->forceDelete();
+        Property::withTrashed()->where('deed_number', '320000002')->orWhere('property_number', 'AST-320000002')->forceDelete();
 
         $payload = [
             'name' => 'عقار اختبار تطبيع الحالة',
@@ -432,6 +443,7 @@ class PropertyManagementFeatureTest extends TestCase
                     [[0.1, 0.1], [0.8, 0.1], [0.8, 0.8], [0.1, 0.8], [0.1, 0.1]],
                 ],
             ],
+            'property_number' => 'AST-320000002',
             'deed_number' => '320000002',
             'deed_date' => now()->toDateString(),
             'issuing_authority' => 'كتابة عدل الرياض',
@@ -462,7 +474,7 @@ class PropertyManagementFeatureTest extends TestCase
     public function test_property_creation_defaults_to_active_without_form_input(): void
     {
         Storage::fake('tenant_public');
-        Property::where('deed_number', '330000003')->forceDelete();
+        Property::withTrashed()->where('deed_number', '330000003')->orWhere('property_number', 'AST-330000003')->forceDelete();
 
         $payload = [
             'name' => 'عقار افتراضي نشط',
@@ -482,6 +494,7 @@ class PropertyManagementFeatureTest extends TestCase
                     [[0.1, 0.1], [0.8, 0.1], [0.8, 0.8], [0.1, 0.8], [0.1, 0.1]],
                 ],
             ],
+            'property_number' => 'AST-330000003',
             'deed_number' => '330000003',
             'deed_date' => now()->toDateString(),
             'issuing_authority' => 'كتابة عدل الدمام',
@@ -507,5 +520,184 @@ class PropertyManagementFeatureTest extends TestCase
         $this->assertTrue($property->is_active, 'Newly created property must be active by default.');
 
         $property->forceDelete();
+    }
+
+    public function test_property_number_is_required_and_validated_in_ownership_step(): void
+    {
+        Storage::fake('tenant_public');
+        Property::withTrashed()->whereIn('property_number', ['INH122607'])->orWhereIn('deed_number', ['340000001'])->forceDelete();
+
+        $basePayload = [
+            'name' => 'عقار التحقق من رقم الأصل',
+            'type' => PropertyType::LAND->value,
+            'usage_classification' => PropertyUsageClassification::COMMERCIAL->value,
+            'area' => 300,
+            'short_description' => 'وصف اختبار رقم الأصل',
+            'city' => 'الرياض',
+            'district' => 'النرجس',
+            'plan_number' => '101',
+            'parcel_number' => '202',
+            'aerial_image' => UploadedFile::fake()->image('aerial.jpg', 400, 400),
+            'boundary_geojson' => [
+                'type' => 'Polygon',
+                'coordinates' => [[[0.1, 0.1], [0.8, 0.1], [0.8, 0.8], [0.1, 0.8], [0.1, 0.1]]],
+            ],
+            'boundaries' => [
+                ['direction' => 'north', 'border_type' => 'street', 'border_description' => 'شارع', 'length' => 20],
+            ],
+            'deed_number' => '340000001',
+            'deed_date' => now()->toDateString(),
+            'issuing_authority' => 'كتابة عدل الرياض',
+            'ownership_type' => PropertyOwnershipType::SOLE_OWNERSHIP->value,
+            'owners' => [
+                ['owner_name' => 'سالم علي', 'national_id_or_cr' => '1029384755'],
+            ],
+            'deed_document' => UploadedFile::fake()->create('deed.pdf', 100, 'application/pdf'),
+            'cadastral_plan' => UploadedFile::fake()->create('plan.pdf', 100, 'application/pdf'),
+            'coordinates_statement' => UploadedFile::fake()->create('coords.pdf', 100, 'application/pdf'),
+            'main_image' => UploadedFile::fake()->image('main.jpg', 400, 400),
+        ];
+
+        $this->actingAs($this->owner, 'tenant')
+            ->post($this->tenantUrl('properties'), $basePayload)
+            ->assertSessionHasErrors(['property_number']);
+
+        $this->actingAs($this->owner, 'tenant')
+            ->post($this->tenantUrl('properties'), $basePayload + ['property_number' => '   '])
+            ->assertSessionHasErrors(['property_number']);
+
+        $this->assertDatabaseMissing('properties', ['deed_number' => '340000001']);
+
+        $stepFields = ['property_number', 'deed_number', 'deed_date', 'issuing_authority', 'ownership_type', 'owners'];
+        $stepPayload = [
+            'target_path' => '/properties',
+            'target_method' => 'POST',
+            'fields' => $stepFields,
+            'deed_number' => '340000001',
+            'deed_date' => now()->toDateString(),
+            'issuing_authority' => 'كتابة عدل الرياض',
+            'ownership_type' => PropertyOwnershipType::SOLE_OWNERSHIP->value,
+            'owners' => [['owner_name' => 'سالم علي', 'national_id_or_cr' => '1029384755']],
+        ];
+
+        $this->actingAs($this->owner, 'tenant')
+            ->postJson($this->tenantUrl('wizard-drafts/validate-step'), $stepPayload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('property_number');
+
+        $this->actingAs($this->owner, 'tenant')
+            ->postJson($this->tenantUrl('wizard-drafts/validate-step'), $stepPayload + ['property_number' => 'INH122607'])
+            ->assertOk();
+    }
+
+    public function test_property_number_must_be_unique_except_current_and_soft_deleted(): void
+    {
+        Storage::fake('tenant_public');
+        Property::withTrashed()->where('property_number', 'INH-UNIQ-01')->orWhereIn('deed_number', ['340000002', '340000003'])->forceDelete();
+
+        $existing = Property::create([
+            'property_number' => 'INH-UNIQ-01',
+            'name' => 'عقار رقم أصل أول',
+            'type' => PropertyType::LAND->value,
+            'usage_classification' => PropertyUsageClassification::COMMERCIAL->value,
+            'area' => 400,
+            'short_description' => 'وصف',
+            'city' => 'الرياض',
+            'district' => 'النرجس',
+            'plan_number' => '100',
+            'parcel_number' => '200',
+            'deed_number' => '340000002',
+            'deed_date' => now()->toDateString(),
+            'issuing_authority' => 'كتابة عدل الرياض',
+            'ownership_type' => PropertyOwnershipType::SOLE_OWNERSHIP->value,
+            'created_by' => $this->owner->id,
+        ]);
+
+        $payload = [
+            'name' => 'عقار برقم أصل مكرر',
+            'type' => PropertyType::LAND->value,
+            'usage_classification' => PropertyUsageClassification::COMMERCIAL->value,
+            'area' => 450,
+            'short_description' => 'وصف العقار الثاني',
+            'city' => 'الرياض',
+            'district' => 'النرجس',
+            'plan_number' => '102',
+            'parcel_number' => '203',
+            'aerial_image' => UploadedFile::fake()->image('aerial.jpg', 400, 400),
+            'boundary_geojson' => [
+                'type' => 'Polygon',
+                'coordinates' => [[[0.1, 0.1], [0.8, 0.1], [0.8, 0.8], [0.1, 0.8], [0.1, 0.1]]],
+            ],
+            'boundaries' => [
+                ['direction' => 'north', 'border_type' => 'street', 'border_description' => 'شارع', 'length' => 20],
+            ],
+            'property_number' => 'INH-UNIQ-01',
+            'deed_number' => '340000003',
+            'deed_date' => now()->toDateString(),
+            'issuing_authority' => 'كتابة عدل الرياض',
+            'ownership_type' => PropertyOwnershipType::SOLE_OWNERSHIP->value,
+            'owners' => [
+                ['owner_name' => 'فهد سالم', 'national_id_or_cr' => '1029384755'],
+            ],
+            'deed_document' => UploadedFile::fake()->create('deed.pdf', 100, 'application/pdf'),
+            'cadastral_plan' => UploadedFile::fake()->create('plan.pdf', 100, 'application/pdf'),
+            'coordinates_statement' => UploadedFile::fake()->create('coords.pdf', 100, 'application/pdf'),
+            'main_image' => UploadedFile::fake()->image('main.jpg', 400, 400),
+        ];
+
+        $this->actingAs($this->owner, 'tenant')
+            ->post($this->tenantUrl('properties'), $payload)
+            ->assertSessionHasErrors(['property_number']);
+
+        $this->actingAs($this->owner, 'tenant')
+            ->put($this->tenantUrl('properties/'.$existing->id), [
+                'name' => 'عقار رقم أصل محدث',
+                'type' => PropertyType::LAND->value,
+                'usage_classification' => PropertyUsageClassification::COMMERCIAL->value,
+                'area' => 400,
+                'short_description' => 'وصف محدث',
+                'city' => 'الرياض',
+                'district' => 'النرجس',
+                'plan_number' => '100',
+                'parcel_number' => '200',
+                'boundary_geojson' => [
+                    'type' => 'Polygon',
+                    'coordinates' => [[[0.1, 0.1], [0.8, 0.1], [0.8, 0.8], [0.1, 0.8], [0.1, 0.1]]],
+                ],
+                'property_number' => 'INH-UNIQ-01',
+                'deed_number' => '340000002',
+                'deed_date' => now()->toDateString(),
+                'issuing_authority' => 'كتابة عدل الرياض',
+                'ownership_type' => PropertyOwnershipType::SOLE_OWNERSHIP->value,
+            ])
+            ->assertRedirect($this->tenantUrl('properties'));
+
+        $existing->delete();
+
+        $this->actingAs($this->owner, 'tenant')
+            ->post($this->tenantUrl('properties'), $payload)
+            ->assertRedirect($this->tenantUrl('properties'));
+
+        Property::withTrashed()->where('property_number', 'INH-UNIQ-01')->forceDelete();
+    }
+
+    public function test_create_form_renders_required_col12_property_number_in_ownership_step(): void
+    {
+        $response = $this->actingAs($this->owner, 'tenant')
+            ->get($this->tenantUrl('properties/create'));
+
+        $response->assertOk();
+        $response->assertDontSee('type="hidden" name="property_number"', false);
+
+        $content = $response->getContent();
+        $this->assertFalse(method_exists(PropertyService::class, 'generatePropertyNumber'));
+        $this->assertMatchesRegularExpression(
+            '/id="property-ownership-validation"[^>]*data-validation-fields="\[&amp;quot;property_number&amp;quot;,&amp;quot;deed_number&amp;quot;/',
+            $content,
+        );
+        $this->assertMatchesRegularExpression(
+            '/<div[^>]*class="col-12"[^>]*data-field-name="property_number"[\s\S]*?رقم الأصل[\s\S]*?<input[^>]*name="property_number"[^>]*type="text"[^>]*required[\s\S]*?name="deed_number"/',
+            $content,
+        );
     }
 }

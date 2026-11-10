@@ -31,7 +31,7 @@ class PropertyArchiveDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'property_number', 'name' => 'property_number', 'title' => 'رقم العقار', 'className' => 'text-center'],
+            ['data' => 'property_number', 'name' => 'property_number', 'title' => 'رقم الأصل', 'className' => 'text-center'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم العقار', 'className' => 'text-center'],
             ['data' => 'assignment_name', 'name' => 'assignment.name', 'title' => 'الإسناد التابع له', 'className' => 'text-center'],
             ['data' => 'city', 'name' => 'city', 'title' => 'المدينة', 'className' => 'text-center'],
