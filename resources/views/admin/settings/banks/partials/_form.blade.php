@@ -54,7 +54,7 @@
                             :value="$is_edit && $bank->icon ? asset('storage/' . $bank->icon) : null" accept="image/jpeg,image/png,image/jpg,image/svg+xml" :help="$is_edit
                                 ? 'اترك الحقل فارغاً للإبقاء على الصورة الحالية'
                                 : 'الصيغ المسموحة: JPG, PNG, SVG | الحجم الأقصى: 10MB'"
-                            :required="!$is_edit" col="col-md-6" />
+                            :required="!$is_edit" col="col-12" />
                     </div>
 
                     <x-form.wizard.actions>
