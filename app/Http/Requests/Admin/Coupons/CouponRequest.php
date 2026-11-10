@@ -36,10 +36,47 @@ class CouponRequest extends WizardFormRequest
             ],
 
             'max_discount' => 'nullable|numeric|min:0',
-            'expiry_date' => 'nullable|date|after_or_equal:today',
+            'start_date' => [
+                'nullable',
+                'date',
+                function (string $attribute, mixed $value, \Closure $fail) use ($coupon): void {
+                    if (! $value) {
+                        return;
+                    }
+
+                    $parsed = parse_system_date($value);
+                    if (! $parsed) {
+                        return;
+                    }
+
+                    $unchanged = $coupon instanceof Coupon
+                        && $coupon->start_date !== null
+                        && $parsed->isSameDay($coupon->start_date);
+
+                    if (! $unchanged && $parsed->copy()->startOfDay()->lt(now()->startOfDay())) {
+                        $fail('تاريخ البداية يجب أن يكون اليوم أو في المستقبل');
+                    }
+                },
+            ],
+            'expiry_date' => [
+                'nullable',
+                'date',
+                'after_or_equal:today',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (! $value || ! $this->filled('start_date')) {
+                        return;
+                    }
+
+                    $expiry = parse_system_date($value);
+                    $start = parse_system_date($this->input('start_date'));
+
+                    if ($expiry && $start && $expiry->copy()->startOfDay()->lt($start->copy()->startOfDay())) {
+                        $fail('تاريخ الانتهاء يجب أن يكون مساوياً أو بعد تاريخ البداية');
+                    }
+                },
+            ],
             'usage_limit' => 'nullable|integer|min:1',
             'is_active' => 'required|boolean',
-            'admin_user_id' => 'nullable|exists:admin_users,id',
         ];
     }
 
@@ -56,6 +93,7 @@ class CouponRequest extends WizardFormRequest
             'discount_value.min' => 'قيمة الخصم يجب أن تكون أكبر من أو تساوي صفر',
             'max_discount.numeric' => 'الحد الأقصى للخصم يجب أن يكون رقم',
             'max_discount.min' => 'الحد الأقصى للخصم يجب أن يكون أكبر من أو تساوي صفر',
+            'start_date.date' => 'تاريخ البداية غير صحيح',
             'expiry_date.date' => 'تاريخ الانتهاء غير صحيح',
             'expiry_date.after_or_equal' => 'تاريخ الانتهاء يجب أن يكون اليوم أو في المستقبل',
             'usage_limit.integer' => 'حد الاستخدام يجب أن يكون رقم صحيح',
@@ -73,10 +111,10 @@ class CouponRequest extends WizardFormRequest
             'discount_type' => 'نوع الخصم',
             'discount_value' => 'قيمة الخصم',
             'max_discount' => 'الحد الأقصى للخصم',
+            'start_date' => 'تاريخ البداية',
             'expiry_date' => 'تاريخ الانتهاء',
             'usage_limit' => 'حد الاستخدام',
             'is_active' => 'حالة الكوبون',
-            'admin_user_id' => 'إسناد الكوبون',
         ];
     }
 

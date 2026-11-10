@@ -49,7 +49,7 @@ class CouponService
             $coupon = $this->findActiveCoupon($couponCode);
 
             if (! $coupon) {
-                return $this->errorResponse('كود الخصم غير صحيح ');
+                return $this->errorResponse('كود الخصم غير صالح ');
             }
 
             // التحقق من صلاحية الكوبون
@@ -104,11 +104,19 @@ class CouponService
     */
     private function validateCoupon(Coupon $coupon): array
     {
+        // التحقق من تاريخ البداية
+        if ($coupon->hasNotStarted()) {
+            return [
+                'valid' => false,
+                'message' => 'لم تبدأ صلاحية كود الخصم بعد',
+            ];
+        }
+
         // التحقق من تاريخ الانتهاء
         if ($coupon->isExpired()) {
             return [
                 'valid' => false,
-                'message' => 'انتهت صلاحية كود الخصم في تاريخ '.system_date($coupon->expiry_date),
+                'message' => 'انتهت صلاحية كود الخصم',
             ];
         }
 

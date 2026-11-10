@@ -19,7 +19,7 @@ class CouponDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        return Coupon::query();
+        return Coupon::query()->with(['admin_user', 'creator']);
     }
 
     protected function getColumns(): array
@@ -41,9 +41,11 @@ class CouponDataTable extends AbstractDataTable
             ['data' => 'discount_type',    'name' => 'discount_type',       'title' => 'نوع الخصم'],
             ['data' => 'discount_value',   'name' => 'discount_value',      'title' => 'قيمة الخصم'],
             ['data' => 'max_discount',     'name' => 'max_discount',        'title' => 'الحد الأقصى للخصم'],
+            ['data' => 'start_date',       'name' => 'start_date',          'title' => 'تاريخ البداية'],
             ['data' => 'expiry_date',      'name' => 'expiry_date',         'title' => 'تاريخ الانتهاء'],
             ['data' => 'usage_limit',      'name' => 'usage_limit',         'title' => 'حد الاستخدام'],
             ['data' => 'used_count',      'name' => 'used_count',         'title' => 'مرات الاستخدام'],
+            ['data' => 'created_by',      'name' => 'created_by',         'title' => 'أنشئ بواسطة', 'orderable' => false, 'searchable' => false],
             ['data' => 'created_at',      'name' => 'created_at',         'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'is_active',         'name' => 'is_active',          'title' => 'الحالة'],
             ['data' => 'actions',           'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
@@ -63,6 +65,12 @@ class CouponDataTable extends AbstractDataTable
 
             ->editColumn('discount_type', function ($row) {
                 return $this->DiscountTypeBadge($row);
+            })
+
+            ->editColumn('created_by', function ($row) {
+                $creator = $row->admin_user ?? $row->creator;
+
+                return $creator ? e($creator->name) : '-';
             })
 
             ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
@@ -89,6 +97,10 @@ class CouponDataTable extends AbstractDataTable
                                    aria-label="تبديل حالة الكوبون">
                         </div>
                     </div>';
+            })
+
+            ->editColumn('start_date', function ($row) {
+                return $row->start_date ? $this->formatDate($row->start_date) : 'فوري';
             })
 
             ->editColumn('expiry_date', function ($row) {
@@ -154,7 +166,7 @@ class CouponDataTable extends AbstractDataTable
         $buttons = [
             ['extend' => 'copy', 'text' => 'نسخ'],
             ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
-                'columns' => [11, 10, 9, 8, 7, 6, 5, 4, 3],
+                'columns' => [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
             ]],
         ];
 

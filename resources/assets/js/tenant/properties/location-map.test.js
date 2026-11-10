@@ -103,6 +103,7 @@ function fixture(values = {}) {
             "property-location-status",
             "property-location-results",
             "property-location-retry",
+            "property-location-fallback",
         ].map((id) => [id, new Control()]),
     );
     elements["property-location-map"].dataset.apiKey = "test-key";
@@ -112,8 +113,10 @@ function fixture(values = {}) {
     const listeners = {};
     const state = {};
     class Map {
-        constructor() {
-            this.center = null;
+        constructor(container, options) {
+            this.center = options.center;
+            this.zoom = options.zoom;
+            state.hiddenWhenConstructed = container.hidden;
             state.map = this;
         }
         addListener(name, callback) {
@@ -122,7 +125,9 @@ function fixture(values = {}) {
         panTo(position) {
             this.center = position;
         }
-        setZoom() {}
+        setZoom(zoom) {
+            this.zoom = zoom;
+        }
     }
     class Marker extends EventTarget {
         constructor(options) {
@@ -200,6 +205,81 @@ test("map loading failure preserves a saved location and shows a retry action", 
     assert.equal(f.controls.latitude.value, "24.5");
     assert.equal(f.elements["property-location-retry"].hidden, false);
     assert.ok(f.elements["property-location-status"].textContent.length > 0);
+    assert.equal(f.elements["property-location-fallback"].hidden, false);
+    assert.match(f.elements["property-location-fallback"].src, /q=24.5%2C46.5/);
+});
+
+test("an empty location displays Riyadh without filling or saving any location fields", async () => {
+    const f = fixture();
+    await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });
+    assert.deepEqual(f.state.map.center, { lat: 24.7136, lng: 46.6753 });
+    assert.equal(f.state.map.zoom, 12);
+    assert.equal(f.state.marker.map, null);
+    assert.equal(f.controls.latitude.value, "");
+    assert.equal(f.controls.longitude.value, "");
+    assert.equal(f.controls.google_maps_url.value, "");
+    assert.equal(f.elements["property-location-fallback"].hidden, true);
+});
+
+test("an empty draft recenters Riyadh after a different saved location without selecting Riyadh", async () => {
+    const f = fixture({ latitude: "25", longitude: "47" });
+    await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });
+    f.controls.latitude.value = "";
+    f.controls.longitude.value = "";
+    f.controls.google_maps_url.value = "";
+    f.form.dispatchEvent(new Event("wizardDraftRestored"));
+    assert.deepEqual(f.state.map.center, { lat: 24.7136, lng: 46.6753 });
+    assert.equal(f.controls.latitude.value, "");
+    assert.equal(f.controls.longitude.value, "");
+    assert.equal(f.controls.google_maps_url.value, "");
+});
+
+test("a failed Maps script displays Riyadh as a view only fallback and retry restores the picker", async () => {
+    const f = fixture();
+    const previousDocument = globalThis.document;
+    const previousWindow = globalThis.window;
+    const previousGoogle = globalThis.google;
+    const scripts = [];
+    globalThis.window = globalThis;
+    delete globalThis.google;
+    globalThis.document = {
+        createElement: () => ({ remove() {} }),
+        querySelector: () => ({ nonce: "test-nonce" }),
+        head: { appendChild: (script) => scripts.push(script) },
+    };
+    try {
+        const { initPropertyLocationMap: initialize } = await import(
+            "./location-map.js?failed-loader-regression"
+        );
+        const ready = initialize(f.form);
+        scripts[0].onerror();
+        await ready;
+        assert.equal(f.elements["property-location-map"].hidden, true);
+        assert.equal(f.elements["property-location-fallback"].hidden, false);
+        assert.match(
+            f.elements["property-location-fallback"].src,
+            /q=24.7136%2C46.6753/,
+        );
+        assert.equal(f.controls.latitude.value, "");
+        assert.equal(f.controls.longitude.value, "");
+        assert.equal(f.controls.google_maps_url.value, "");
+        f.elements["property-location-retry"].dispatchEvent(new Event("click"));
+        assert.equal(scripts.length, 2);
+        assert.equal(scripts[1].nonce, "test-nonce");
+        globalThis.google = { maps: { importLibrary: async () => f.maps } };
+        globalThis.__propertyMapsReady();
+        await new Promise(setImmediate);
+        assert.equal(f.elements["property-location-fallback"].hidden, true);
+        assert.equal(f.elements["property-location-map"].hidden, false);
+        assert.equal(f.state.hiddenWhenConstructed, false);
+        assert.deepEqual(f.state.map.center, { lat: 24.7136, lng: 46.6753 });
+        assert.equal(f.controls.latitude.value, "");
+    } finally {
+        globalThis.document = previousDocument;
+        globalThis.window = previousWindow;
+        globalThis.google = previousGoogle;
+        delete globalThis.__propertyMapsReady;
+    }
 });
 
 test("searching coordinates selects the pin without calling a Places API", async () => {

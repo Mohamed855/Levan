@@ -6,7 +6,6 @@ use App\DataTables\Admin\Coupons\CouponDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Coupons\CouponRequest;
-use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Coupons\Coupon;
 use App\Models\Admin\Tenants\Tenant;
@@ -96,10 +95,9 @@ class AdminCouponController extends Controller
 
     public function create()
     {
-        $admin_users = AdminUser::get();
         $generatedCode = $this->couponService->generateUniqueCode();
 
-        return view($this->page.'.create', compact('admin_users', 'generatedCode'));
+        return view($this->page.'.create', compact('generatedCode'));
     }
 
     public function store(CouponRequest $request)
@@ -111,9 +109,7 @@ class AdminCouponController extends Controller
 
     public function edit(Coupon $coupon)
     {
-        $admin_users = AdminUser::get();
-
-        return view($this->page.'.edit', compact('coupon', 'admin_users'));
+        return view($this->page.'.edit', compact('coupon'));
     }
 
     public function update(CouponRequest $request, Coupon $coupon)
@@ -137,7 +133,7 @@ class AdminCouponController extends Controller
     public function getCouponDetails(Coupon $coupon)
     {
         try {
-            $couponDetails = $coupon->load('admin_user');
+            $couponDetails = $coupon->load(['admin_user', 'creator']);
 
             // Get all tenants who used this coupon through bills
             $tenants = Tenant::whereHas('bills', function ($query) use ($coupon) {

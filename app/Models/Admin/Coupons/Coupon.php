@@ -7,6 +7,7 @@ use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Traits\ActivityLogTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Coupon extends Model
@@ -21,6 +22,7 @@ class Coupon extends Model
         'discount_type',
         'discount_value',
         'max_discount',
+        'start_date',
         'expiry_date',
         'is_active',
         'usage_limit',
@@ -33,6 +35,7 @@ class Coupon extends Model
     protected $casts = [
         'discount_type' => CouponDiscountType::class,
 
+        'start_date' => 'date',
         'expiry_date' => 'date',
         'is_active' => 'boolean',
         'discount_value' => 'decimal:2',
@@ -64,6 +67,7 @@ class Coupon extends Model
             'discount_type' => 'نوع الخصم',
             'discount_value' => 'قيمة الخصم',
             'max_discount' => 'الحد الأقصى للخصم',
+            'start_date' => 'تاريخ البداية',
             'expiry_date' => 'تاريخ الانتهاء',
             'is_active' => 'الحالة',
             'usage_limit' => 'حد الاستخدام',
@@ -108,10 +112,16 @@ class Coupon extends Model
 
     public function scopeValid($query)
     {
+        $today = now()->toDateString();
+
         return $query->where('is_active', true)
-            ->where(function ($q) {
+            ->where(function ($q) use ($today) {
+                $q->whereNull('start_date')
+                    ->orWhere('start_date', '<=', $today);
+            })
+            ->where(function ($q) use ($today) {
                 $q->whereNull('expiry_date')
-                    ->orWhere('expiry_date', '>=', now());
+                    ->orWhere('expiry_date', '>=', $today);
             });
     }
 
@@ -130,9 +140,14 @@ class Coupon extends Model
     |============================================================================
     |============================================================================
     */
+    public function hasNotStarted(): bool
+    {
+        return $this->start_date !== null && $this->start_date->copy()->startOfDay()->isFuture();
+    }
+
     public function isExpired(): bool
     {
-        return $this->expiry_date && $this->expiry_date->isPast();
+        return $this->expiry_date !== null && $this->expiry_date->copy()->endOfDay()->isPast();
     }
 
     // هل الوصل الحد للنهاية
@@ -175,8 +190,13 @@ class Coupon extends Model
         return $this->expiry_date && $this->expiry_date->isPast();
     }
 
-    public function admin_user()
+    public function admin_user(): BelongsTo
     {
         return $this->belongsTo(AdminUser::class, 'admin_user_id');
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(AdminUser::class, 'created_by');
     }
 }

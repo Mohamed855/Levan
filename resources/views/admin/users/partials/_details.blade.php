@@ -74,7 +74,7 @@
         </div>
     </div>
 
-    {{-- العمود الأيسر (النشاطات والكوبونات) --}}
+    {{-- العمود الأيسر (سجل النشاطات) --}}
     <div class="col-xl-8 col-lg-7 col-md-7">
         {{-- كارت سجل النشاطات --}}
         <div class="card mb-4">
@@ -103,63 +103,6 @@
                         </div>
                     @endforelse
                 </ul>
-            </div>
-        </div>
-
-        {{-- كارت الكوبونات المُسندة --}}
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center py-3">
-                <h6 class="card-title mb-0">
-                    <i class="ti ti-ticket text-success me-2"></i> الكوبونات المُسندة
-                </h6>
-                <span class="badge bg-primary rounded-pill">{{ $coupons->count() }} كوبون</span>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    @forelse ($coupons as $coupon)
-                        @php
-                            $expiryDate = $coupon->expiry_date ? \Carbon\Carbon::parse($coupon->expiry_date) : null;
-                            $isExpired = $expiryDate && $expiryDate->isPast();
-                            $isExhausted = $coupon->usage_limit && $coupon->used_count >= $coupon->usage_limit;
-                            $isActive = $coupon->is_active && !$isExpired && !$isExhausted;
-                        @endphp
-                        <div class="col-md-6">
-                            <div
-                                class="card border h-100 shadow-none p-3 {{ $isActive ? 'border-primary' : 'border-secondary' }}">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h6 class="mb-0 fw-bold">{{ $coupon->name }}</h6>
-                                    @if (!$coupon->is_active)
-                                        <span class="badge bg-label-secondary">غير نشط</span>
-                                    @elseif ($isExpired)
-                                        <span class="badge bg-label-danger">منتهي</span>
-                                    @elseif ($isExhausted)
-                                        <span class="badge bg-label-warning">مستنفد</span>
-                                    @else
-                                        <span class="badge bg-label-success">نشط</span>
-                                    @endif
-                                </div>
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <span class="text-muted small">الكود:</span>
-                                    <code class="bg-light px-2 py-1 rounded fw-bold cursor-pointer"
-                                        onclick="navigator.clipboard.writeText('{{ $coupon->code }}'); toastr.success('تم نسخ الكود');"
-                                        title="انقر للنسخ">
-                                        {{ $coupon->code }}
-                                    </code>
-                                </div>
-                                <div class="d-flex justify-content-between text-muted small mt-auto pt-2 border-top">
-                                    <span>الاستخدام: {{ $coupon->used_count ?? 0 }} /
-                                        {{ $coupon->usage_limit ?? '∞' }}</span>
-                                    <span>{{ system_date($expiryDate, 'بدون انتهاء') }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="col-12 text-center text-muted py-4">
-                            <i class="ti ti-ticket-off fs-2 d-block mb-2"></i>
-                            لا توجد كوبونات مسندة لهذا المستخدم
-                        </div>
-                    @endforelse
-                </div>
             </div>
         </div>
     </div>

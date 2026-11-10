@@ -1,4 +1,6 @@
 const coordinatePair = /^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/;
+const riyadhCenter = { lat: 24.7136, lng: 46.6753 };
+const defaultZoom = 12;
 const mapsHosts = new Set([
     "google.com",
     "www.google.com",
@@ -126,8 +128,10 @@ export async function initPropertyLocationMap(
     const results = form.querySelector("#property-location-results");
     const status = form.querySelector("#property-location-status");
     const retry = form.querySelector("#property-location-retry");
+    const fallback = form.querySelector("#property-location-fallback");
     let map;
     let marker;
+    let mapFailed = false;
     let requestVersion = 0;
 
     function message(text, error = false) {
@@ -152,10 +156,7 @@ export async function initPropertyLocationMap(
         mapsUrl.dispatchEvent(new Event("change", { bubbles: true }));
     }
 
-    function restoreLocation() {
-        if (!map) return;
-        requestVersion++;
-        results.replaceChildren?.();
+    function savedPosition() {
         let point = coordinates(latitude.value, longitude.value);
         if (!point && mapsUrl.value) {
             try {
@@ -164,10 +165,36 @@ export async function initPropertyLocationMap(
                 /* Keep the saved URL available for search. */
             }
         }
+        return point;
+    }
+
+    function showFallback() {
+        const point = savedPosition() || riyadhCenter;
+        if (fallback) {
+            fallback.src = `https://www.google.com/maps?${new URLSearchParams({ q: `${point.lat},${point.lng}`, z: String(defaultZoom), output: "embed", hl: "ar" })}`;
+            fallback.hidden = false;
+            container.hidden = true;
+        }
+        message(
+            "تحديد الموقع غير متاح حاليًا. تُعرض خريطة للعرض فقط، ويمكنك إعادة المحاولة.",
+            true,
+        );
+    }
+
+    function restoreLocation() {
+        requestVersion++;
+        results.replaceChildren?.();
         search.value = mapsUrl.value || "";
+        if (!map) {
+            if (mapFailed) showFallback();
+            return;
+        }
+        const point = savedPosition();
         if (point) selectPosition(point);
         else {
             marker.map = null;
+            map.panTo(riyadhCenter);
+            map.setZoom(defaultZoom);
             message("ابحث عن الموقع أو اضغط على الخريطة لتحديده.");
         }
     }
@@ -180,9 +207,10 @@ export async function initPropertyLocationMap(
             const { Map, AdvancedMarkerElement } = await loadMaps(
                 container.dataset.apiKey,
             );
+            container.hidden = false;
             map = new Map(container, {
-                center: { lat: 24.7136, lng: 46.6753 },
-                zoom: 6,
+                center: riyadhCenter,
+                zoom: defaultZoom,
                 mapId: container.dataset.mapId || "DEMO_MAP_ID",
                 mapTypeId: "hybrid",
                 streetViewControl: false,
@@ -206,9 +234,18 @@ export async function initPropertyLocationMap(
                 const point = marker.position?.toJSON?.() || marker.position;
                 selectPosition(point, false);
             });
+            mapFailed = false;
+            if (fallback) {
+                fallback.hidden = true;
+                fallback.removeAttribute?.("src");
+            }
             restoreLocation();
         } catch (error) {
-            message(error.message || "تعذر تحميل الخريطة. أعد المحاولة.", true);
+            if (marker) marker.map = null;
+            marker = null;
+            map = null;
+            mapFailed = true;
+            showFallback();
             retry.hidden = false;
         } finally {
             searchButton.disabled = !map;
@@ -320,8 +357,7 @@ export async function initPropertyLocationMap(
     form.addEventListener("wizardDraftRestored", restoreLocation);
     // The wizard may initially hide this step. Recenter when it becomes visible.
     form.addEventListener("stepChanged", () => {
-        const point = coordinates(latitude.value, longitude.value);
-        if (point && map) map.panTo(point);
+        if (map) map.panTo(savedPosition() || riyadhCenter);
     });
     await initialize();
 }

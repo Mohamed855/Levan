@@ -11,7 +11,7 @@ require dirname(__DIR__, 2).'/vendor/autoload.php';
 $app = require dirname(__DIR__, 2).'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 $source = storage_path('app/private/backups/auction-restoration-source.json');
-$archive = storage_path('app/private/backups/etmam_levan_test-20261026-125042.sql.gz');
+$archive = storage_path('app/private/backups/etmam_lot_test-20261026-125042.sql.gz');
 $data = json_decode(file_get_contents($source), true, flags: JSON_THROW_ON_ERROR);
 if (! hash_equals($data['source_sha256'], hash_file('sha256', $archive))) {
     throw new RuntimeException('The restoration archive hash changed.');

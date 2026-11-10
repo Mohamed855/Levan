@@ -15,7 +15,6 @@ use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserPhoneUniqueRequest
 use App\Http\Requests\Admin\AdminMangment\Users\UpdateAdminUserProfileImageRequest;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
-use App\Models\Admin\Coupons\Coupon;
 use App\Services\Admin\AdminMangment\Users\UserService;
 use App\Services\Shared\Notifications\DashboardNotificationService;
 use App\Support\AccessLabels;
@@ -296,12 +295,7 @@ class AdminUserController extends Controller
             ->take(5)
             ->get();
 
-        // جلب جميع الكوبونات المسندة لهذا المستخدم
-        $coupons = Coupon::where('admin_user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view($this->page.'.show', compact('user', 'recentActivities', 'role', 'coupons'));
+        return view($this->page.'.show', compact('user', 'recentActivities', 'role'));
     }
 
     public function checkEmailUnique(CheckAdminUserEmailUniqueRequest $request)

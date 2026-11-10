@@ -12,7 +12,7 @@ final class AuctionReportDatabaseGuardTest extends TestCase
 {
     public function test_it_refuses_shared_databases_before_any_connection_is_opened(): void
     {
-        foreach (['levan_test', 'lot_legacy', 'etmam_levan', ''] as $database) {
+        foreach (['levan_test', 'lot_legacy', 'etmam_lot', ''] as $database) {
             try {
                 AuctionReportDatabaseGuard::assertSafe([
                     'central' => $database,

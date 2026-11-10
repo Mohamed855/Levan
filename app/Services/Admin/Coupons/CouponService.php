@@ -11,10 +11,12 @@ class CouponService
     public function create(array $data): Coupon
     {
         return DB::transaction(function () use ($data) {
+            $adminId = auth('admin')->id() ?? auth()->id();
 
             return Coupon::create([
                 ...$data,
-                'created_by' => auth('admin')->id() ?? auth()->id(),
+                'admin_user_id' => $adminId,
+                'created_by' => $adminId,
             ]);
         });
     }

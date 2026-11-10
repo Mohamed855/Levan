@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[2]
-source = root / "storage/app/private/backups/etmam_levan_test-20261026-125042.sql.gz"
+source = root / "storage/app/private/backups/etmam_lot_test-20261026-125042.sql.gz"
 tables = {name: [] for name in ["auctions", "auction_properties", "auction_attachments", "assignments", "properties", "property_boundaries", "property_owners", "property_units", "attachments"]}
 
 

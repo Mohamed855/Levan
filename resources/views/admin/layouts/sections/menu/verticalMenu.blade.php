@@ -27,10 +27,6 @@
 
     <ul class="menu-inner py-1">
 
-        <li class="menu-header small">
-            <span class="menu-header-text">الرئيسية</span>
-        </li>
-
         @can('dashboard.main')
             <li class="menu-item @if (Route::is('admin.dashboard')) active open @endif">
                 <a href="{{ route('admin.dashboard') }}" class="menu-link">

@@ -18,7 +18,6 @@
     </div>
 
     <div class="row">
-        {{-- كارت معلومات الكوبون (العمود الأيمن) --}}
         <div class="col-xl-4 col-lg-5 col-md-5 mb-4">
             <div class="card mb-4">
                 <div class="card-body text-center">
@@ -49,7 +48,7 @@
                         </div>
                         <div>
                             <h5 class="mb-0 text-success">{{ $tenants->count() }}</h5>
-                            <small class="text-muted">الشركات</small>
+                            <small class="text-muted">العملاء</small>
                         </div>
                     </div>
 
@@ -68,7 +67,7 @@
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-calendar-plus text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">تاريخ البداية:</span>
-                                <span>@date($couponDetails->start_date)</span>
+                                <span>{{ system_date($couponDetails->start_date, 'فوري') }}</span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-calendar-due text-primary me-2 fs-5"></i>
@@ -85,21 +84,24 @@
                 </div>
             </div>
 
-            {{-- بطاقة المستخدم الإداري المسند له الكوبون --}}
+            {{-- بطاقة منشئ الكوبون --}}
+            @php
+                $creator = $couponDetails->admin_user ?? $couponDetails->creator;
+            @endphp
             <div class="card mb-4">
                 <div class="card-header pb-2">
-                    <h6 class="card-title mb-0"><i class="ti ti-user-shield text-primary me-2"></i>المستخدم الإداري</h6>
+                    <h6 class="card-title mb-0"><i class="ti ti-user-shield text-primary me-2"></i>أنشئ بواسطة</h6>
                 </div>
                 <div class="card-body">
-                    @if ($couponDetails->admin_user)
+                    @if ($creator)
                         <div class="d-flex align-items-center">
                             <div
                                 class="avatar avatar-md me-3 bg-label-primary rounded-circle d-flex align-items-center justify-content-center">
                                 <i class="ti ti-user fs-4 text-primary"></i>
                             </div>
                             <div>
-                                <h6 class="mb-0 fw-bold">{{ $couponDetails->admin_user->name }}</h6>
-                                <small class="text-muted">{{ $couponDetails->admin_user->email }}</small>
+                                <h6 class="mb-0 fw-bold">{{ $creator->name }}</h6>
+                                <small class="text-muted">{{ $creator->email }}</small>
                             </div>
                         </div>
                     @else
@@ -109,8 +111,7 @@
                                 <i class="ti ti-user-off fs-4 text-white"></i>
                             </div>
                             <div>
-                                <h6 class="mb-0 fw-bold text-muted">كوبون عام</h6>
-                                <small class="text-muted">غير مسند لمستخدم إداري محدد</small>
+                                <h6 class="mb-0 fw-bold text-muted">غير محدد</h6>
                             </div>
                         </div>
                     @endif
@@ -123,7 +124,7 @@
             {{-- بطاقة مؤشرات الكوبون --}}
             <div class="card mb-4">
                 <div class="card-header pb-2">
-                    <h5 class="card-title mb-0"><i class="ti ti-chart-bar text-primary me-2"></i>مؤشرات استخدام الكوبون</h5>
+                    <h5 class="card-title mb-0"><i class="ti ti-chart-bar text-primary me-2"></i>مؤشرات الاستخدام</h5>
                 </div>
                 <div class="card-body">
                     @php
@@ -138,11 +139,11 @@
                         <div class="col-sm-6 col-md-4">
                             <div class="card border shadow-none h-100">
                                 <div class="card-body p-3 d-flex align-items-center">
-                                    <div class="avatar bg-primary rounded p-2 me-3">
+                                    <div class="avatar bg-primary rounded text-center p-2 me-3">
                                         <i class="ti ti-building fs-4 text-white"></i>
                                     </div>
                                     <div>
-                                        <small class="text-muted d-block">الشركات المستفيدة</small>
+                                        <small class="text-muted d-block">العملاء المستفيدين</small>
                                         <span class="fw-bold fs-5">{{ $tenants->count() }}</span>
                                     </div>
                                 </div>
@@ -151,7 +152,7 @@
                         <div class="col-sm-6 col-md-4">
                             <div class="card border shadow-none h-100">
                                 <div class="card-body p-3 d-flex align-items-center">
-                                    <div class="avatar bg-success rounded p-2 me-3">
+                                    <div class="avatar bg-success rounded text-center p-2 me-3">
                                         <i class="ti ti-receipt fs-4 text-white"></i>
                                     </div>
                                     <div>
@@ -164,7 +165,7 @@
                         <div class="col-sm-6 col-md-4">
                             <div class="card border shadow-none h-100">
                                 <div class="card-body p-3 d-flex align-items-center">
-                                    <div class="avatar bg-info rounded p-2 me-3">
+                                    <div class="avatar bg-info rounded text-center p-2 me-3">
                                         <i class="ti ti-cash fs-4 text-white"></i>
                                     </div>
                                     <div>
@@ -179,7 +180,7 @@
                     @if ($usagePercent !== null)
                         <div class="mt-3">
                             <div class="d-flex justify-content-between mb-1">
-                                <small class="fw-semibold">نسبة استهلاك الكوبون من الحد الأقصى</small>
+                                <small class="fw-semibold">نسبة الاستهلاك من الحد الأقصى</small>
                                 <small class="text-muted">{{ $couponDetails->used_count }} من
                                     {{ $couponDetails->usage_limit }} ({{ $usagePercent }}%)</small>
                             </div>
@@ -197,22 +198,22 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">
-                        <i class="ti ti-receipt text-primary me-2"></i>سجل استخدام الكوبون ({{ $tenants->count() }})
+                        <i class="ti ti-receipt text-primary me-2"></i>سجل الاستخدام ({{ $tenants->count() }})
                     </h5>
                     @if ($tenants->count() > 0)
-                        <span class="badge bg-label-primary">{{ $tenants->count() }} شركة</span>
+                        <span class="badge bg-label-primary">{{ $tenants->count() }} عميل</span>
                     @endif
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>الشركة</th>
+                                <th>العميل</th>
                                 <th>المسؤول</th>
                                 <th>عدد مرات الاستخدام</th>
                                 <th>إجمالي المدفوع</th>
                                 <th>آخر استخدام</th>
-                                <th>الإجراءات</th>
+                                <th class="text-center">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -223,25 +224,14 @@
                                     $couponBills = $tenant->bills;
                                     $tenantTotalAmount = $couponBills->sum('amount');
                                     $lastBill = $couponBills->first();
-                                    $tenantUrl = route('path.dashboard', ['tenant' => $tenant->id]);
                                 @endphp
                                 <tr>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar avatar-sm me-2">
-                                                <span class="avatar-initial rounded-circle bg-label-primary">
-                                                    {{ mb_substr($tenant->company_name ?? 'ش', 0, 1) }}
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <a href="{{ route('admin.clients.show', $tenant->id) }}"
-                                                    class="fw-semibold text-body">
-                                                    {{ $tenant->company_name }}
-                                                </a>
-                                                <small
-                                                    class="text-muted d-block">{{ $tenant->commercial_number ?: '-' }}</small>
-                                            </div>
-                                        </div>
+                                        <a href="{{ route('admin.clients.show', $tenant->id) }}"
+                                            class="fw-semibold text-body">
+                                            {{ $tenant->company_name }}
+                                        </a>
+                                        <small class="text-muted d-block">{{ $tenant->commercial_number ?: '-' }}</small>
                                     </td>
                                     <td>
                                         <div>{{ $primaryContact ?: '-' }}</div>
@@ -260,16 +250,9 @@
                                             class="text-muted">{{ $lastBill?->created_at ? $lastBill->created_at->diffForHumans() : '' }}</small>
                                     </td>
                                     <td>
-                                        <div class="d-flex gap-1">
-                                            <a href="{{ route('admin.clients.show', $tenant->id) }}"
-                                                class="btn btn-icon btn-text-secondary btn-sm" title="عرض تفاصيل العميل">
-                                                <i class="ti ti-eye"></i>
-                                            </a>
-                                            <a href="{{ $tenantUrl }}" class="btn btn-icon btn-text-secondary btn-sm"
-                                                title="لوحة التحكم" target="_blank">
-                                                <i class="ti ti-external-link"></i>
-                                            </a>
-                                        </div>
+                                        <x-actions.row>
+                                            <x-actions.show :url="route('admin.clients.show', $tenant->id)" title="عرض تفاصيل العميل" />
+                                        </x-actions.row>
                                     </td>
                                 </tr>
                             @empty

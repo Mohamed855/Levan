@@ -269,7 +269,7 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
             ],
         ])->post(route('site.plans.checkout.payment', $plan->id), ['payment_method' => 'card']);
 
-        // Must NOT redirect with error "كود الخصم غير صحيح"
+        // Must NOT redirect with error "كود الخصم غير صالح"
         $response->assertOk();
         $response->assertSee('mysr-form', false);
 

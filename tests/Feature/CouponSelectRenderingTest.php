@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Coupons\Coupon;
 use DOMDocument;
 use DOMXPath;
@@ -13,7 +12,7 @@ use Tests\TestCase;
 
 final class CouponSelectRenderingTest extends TestCase
 {
-    public function test_coupon_create_form_contains_discount_status_and_assignee_options(): void
+    public function test_coupon_create_form_contains_discount_status_and_start_date_without_assignee(): void
     {
         $xpath = $this->renderForm(false);
 
@@ -23,26 +22,45 @@ final class CouponSelectRenderingTest extends TestCase
         foreach (['0', '1'] as $value) {
             self::assertSame(1, $xpath->query('//select[@name="is_active"]/option[@value="'.$value.'"]')->length);
         }
-        self::assertSame('Assigned Admin', trim($xpath->query('//select[@name="admin_user_id"]/option[@value="7"]')->item(0)->textContent));
+
+        self::assertSame(1, $xpath->query('//input[@name="start_date"]')->length);
+        self::assertSame(0, $xpath->query('//*[@name="admin_user_id"]')->length);
     }
 
-    public function test_coupon_edit_form_preserves_saved_select_values_including_inactive_status(): void
+    public function test_coupon_edit_form_preserves_saved_values_and_omits_assignee(): void
     {
         $xpath = $this->renderForm(true);
 
         $this->assertSelected($xpath, 'discount_type', 'percentage');
-        $this->assertSelected($xpath, 'is_active', '0');
-        $this->assertSelected($xpath, 'admin_user_id', '7');
+
+        $isActiveHidden = $xpath->query('//input[@type="hidden" and @name="is_active"]')->item(0);
+        self::assertNotNull($isActiveHidden);
+        self::assertSame('0', $isActiveHidden->getAttribute('value'));
+
+        $startDateInput = $xpath->query('//input[@name="start_date"]')->item(0);
+        self::assertNotNull($startDateInput);
+        self::assertSame('2026-11-05', $startDateInput->getAttribute('value'));
+        self::assertSame('', $startDateInput->getAttribute('min'));
+
+        self::assertSame(0, $xpath->query('//*[@name="admin_user_id"]')->length);
     }
 
-    public function test_old_select_values_take_precedence_after_validation_errors(): void
+    public function test_old_values_take_precedence_after_validation_errors(): void
     {
-        $this->withSession(['_old_input' => ['discount_type' => 'fixed', 'is_active' => '1', 'admin_user_id' => '8']]);
-        $xpath = $this->renderForm(true);
+        $this->withSession(['_old_input' => [
+            'discount_type' => 'fixed',
+            'is_active' => '1',
+            'start_date' => '2026-11-12',
+        ]]);
 
-        $this->assertSelected($xpath, 'discount_type', 'fixed');
-        $this->assertSelected($xpath, 'is_active', '1');
-        $this->assertSelected($xpath, 'admin_user_id', '8');
+        $createXpath = $this->renderForm(false);
+        $this->assertSelected($createXpath, 'discount_type', 'fixed');
+        $this->assertSelected($createXpath, 'is_active', '1');
+
+        $startDateInput = $createXpath->query('//input[@name="start_date"]')->item(0);
+        self::assertNotNull($startDateInput);
+        self::assertSame('2026-11-12', $startDateInput->getAttribute('value'));
+        self::assertSame(0, $createXpath->query('//*[@name="admin_user_id"]')->length);
     }
 
     private function renderForm(bool $isEdit): DOMXPath
@@ -50,21 +68,23 @@ final class CouponSelectRenderingTest extends TestCase
         app('request')->setLaravelSession(app('session')->driver());
         view()->share('errors', new ViewErrorBag);
         $coupon = new Coupon([
-            'name' => 'Test Coupon', 'code' => 'TEST1234', 'discount_type' => 'percentage',
-            'discount_value' => 20, 'max_discount' => 50, 'is_active' => false, 'admin_user_id' => 7,
+            'name' => 'Test Coupon',
+            'code' => 'TEST1234',
+            'discount_type' => 'percentage',
+            'discount_value' => 20,
+            'max_discount' => 50,
+            'start_date' => '2026-11-05',
+            'is_active' => false,
         ]);
         $coupon->id = 42;
-        $admins = collect([7 => 'Assigned Admin', 8 => 'Other Admin'])->map(function ($name, $id) {
-            $admin = new AdminUser(['name' => $name]);
-            $admin->id = $id;
 
-            return $admin;
-        });
         $html = view('admin.coupons.partials._form', [
-            'is_edit' => $isEdit, 'coupon' => $coupon, 'admin_users' => $admins,
+            'is_edit' => $isEdit,
+            'coupon' => $coupon,
         ])->render();
+
         $document = new DOMDocument;
-        @$document->loadHTML($html);
+        @$document->loadHTML('<?xml encoding="utf-8" ?>'.$html);
 
         return new DOMXPath($document);
     }

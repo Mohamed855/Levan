@@ -95,6 +95,18 @@ final class PropertyLocationMapTest extends TestCase
         ])->assertUnprocessable()->assertJsonValidationErrors(['latitude', 'longitude']);
     }
 
+    public function test_location_is_optional_in_both_create_and_edit(): void
+    {
+        $property = Property::query()->firstOrFail();
+        foreach ([['/properties', 'POST'], ['/properties/'.$property->id, 'PUT']] as [$path, $method]) {
+            $this->postJson('http://test.localhost/wizard-drafts/validate-step', [
+                'target_path' => $path, 'target_method' => $method,
+                'fields' => ['latitude', 'longitude', 'google_maps_url'],
+                'latitude' => null, 'longitude' => null, 'google_maps_url' => null,
+            ])->assertOk();
+        }
+    }
+
     public function test_property_forms_allow_google_map_resources_in_their_content_security_policy(): void
     {
         $response = $this->get('http://test.localhost/properties/create')->assertOk();

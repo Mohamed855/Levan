@@ -25,7 +25,7 @@
         </div>
         <div class="d-flex gap-2">
             <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-secondary">
-                <i class="ti ti-arrow-right me-1"></i> العودة للسجل
+                <i class="ti ti-arrow-right me-1"></i> العودة
             </a>
         </div>
     </div>
@@ -37,9 +37,10 @@
                 <div class="card-body text-center">
                     <div class="mx-auto mb-3">
                         @php
-                            $avatar = $activity->causer && method_exists($activity->causer, 'getProfilePhotoUrlAttribute')
-                                ? $activity->causer->profile_photo_url
-                                : asset('static/brand/logos/logo.svg');
+                            $avatar =
+                                $activity->causer && method_exists($activity->causer, 'getProfilePhotoUrlAttribute')
+                                    ? $activity->causer->profile_photo_url
+                                    : asset('static/brand/logos/logo.svg');
                         @endphp
                         <img src="{{ $avatar }}" alt="{{ $activityData['user_name'] }}" class="rounded-circle"
                             style="width: 100px; height: 100px; object-fit: cover;">
@@ -84,7 +85,8 @@
                             </li>
                             <li class="mb-2 d-flex justify-content-between align-items-center">
                                 <span class="fw-bold text-muted">الوقت النسبي:</span>
-                                <span class="badge bg-label-info">{{ $activity->created_at ? $activity->created_at->locale('ar')->diffForHumans() : '-' }}</span>
+                                <span
+                                    class="badge bg-label-info">{{ $activity->created_at ? $activity->created_at->locale('ar')->diffForHumans() : '-' }}</span>
                             </li>
                             @if ($activity->batch_uuid)
                                 <li class="mb-2 d-flex justify-content-between align-items-center">
@@ -116,7 +118,8 @@
                                 <span>{{ $activityData['connection_info']['device'] }}</span>
                             </li>
                             <li class="mb-2 d-flex justify-content-between align-items-center">
-                                <span class="fw-bold text-muted"><i class="ti ti-brand-windows me-1"></i>نظام التشغيل:</span>
+                                <span class="fw-bold text-muted"><i class="ti ti-brand-windows me-1"></i>نظام
+                                    التشغيل:</span>
                                 <span>{{ $activityData['connection_info']['os'] }}</span>
                             </li>
                             <li class="mb-2 d-flex justify-content-between align-items-center">
@@ -126,7 +129,8 @@
                             @if (!empty($activityData['connection_info']['reason']))
                                 <li class="mb-2 d-flex justify-content-between align-items-center">
                                     <span class="fw-bold text-danger"><i class="ti ti-alert-triangle me-1"></i>السبب:</span>
-                                    <span class="text-danger fw-semibold">{{ $activityData['connection_info']['reason'] }}</span>
+                                    <span
+                                        class="text-danger fw-semibold">{{ $activityData['connection_info']['reason'] }}</span>
                                 </li>
                             @endif
                         </ul>
@@ -134,7 +138,8 @@
                         @if (!empty($activityData['connection_info']['user_agent']))
                             <div class="mt-3 pt-2 border-top">
                                 <small class="text-muted d-block mb-1">User Agent:</small>
-                                <div class="bg-light p-2 rounded text-break small font-monospace text-muted" style="font-size: 0.75rem;">
+                                <div class="bg-light p-2 rounded text-break small font-monospace text-muted"
+                                    style="font-size: 0.75rem;">
                                     {{ $activityData['connection_info']['user_agent'] }}
                                 </div>
                             </div>
@@ -154,8 +159,9 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div class="border rounded p-3 bg-light">
-                        <p class="mb-0 text-break" style="white-space: pre-wrap; font-family: inherit;">{{ $activity->description ?: 'لا يوجد وصف مخصص لهذا النشاط.' }}</p>
+                    <div class="alert alert-primary">
+                        <p class="mb-0 text-break">
+                            {{ $activity->description ?: 'لا يوجد وصف مخصص لهذا النشاط.' }}</p>
                     </div>
                 </div>
             </div>
@@ -180,7 +186,8 @@
                                         @if ($changes['has_old'])
                                             <th class="text-center align-middle" style="width: 37.5%;">القيمة السابقة</th>
                                         @endif
-                                        <th class="text-center align-middle" style="width: {{ $changes['has_old'] ? '37.5%' : '75%' }};">
+                                        <th class="text-center align-middle"
+                                            style="width: {{ $changes['has_old'] ? '37.5%' : '75%' }};">
                                             {{ $changes['has_old'] ? 'القيمة الجديدة' : 'القيمة' }}
                                         </th>
                                     </tr>
@@ -190,7 +197,8 @@
                                         <tr>
                                             <td class="fw-bold text-center align-middle">
                                                 <div>{{ $field['label'] }}</div>
-                                                <small class="text-muted font-monospace" style="font-size: 0.75rem;">{{ $field['key'] }}</small>
+                                                <small class="text-muted font-monospace"
+                                                    style="font-size: 0.75rem;">{{ $field['key'] }}</small>
                                             </td>
 
                                             @if ($changes['has_old'])
@@ -198,11 +206,13 @@
                                                     @if (!$field['has_old'])
                                                         <span class="text-muted">-</span>
                                                     @elseif ($field['old']['type'] === 'sensitive')
-                                                        <span class="badge bg-danger text-truncate">{{ $field['old']['display'] }}</span>
+                                                        <span
+                                                            class="badge bg-danger text-truncate">{{ $field['old']['display'] }}</span>
                                                     @elseif ($field['old']['type'] === 'file')
                                                         @if ($field['old']['is_image'] && $field['old']['url'])
                                                             <div class="d-flex justify-content-center">
-                                                                <x-ui.file-card :url="$field['old']['url']" :name="$field['old']['display']" :isImage="true" />
+                                                                <x-ui.file-card :url="$field['old']['url']" :name="$field['old']['display']"
+                                                                    :isImage="true" />
                                                             </div>
                                                         @else
                                                             <div class="d-flex justify-content-center">
@@ -210,9 +220,11 @@
                                                             </div>
                                                         @endif
                                                     @elseif ($field['old']['type'] === 'bool')
-                                                        <span class="badge {{ $field['old']['badge'] }}">{{ $field['old']['display'] }}</span>
+                                                        <span
+                                                            class="badge {{ $field['old']['badge'] }}">{{ $field['old']['display'] }}</span>
                                                     @elseif ($field['old']['type'] === 'array')
-                                                        <pre class="mb-0 text-start bg-light p-2 rounded small font-monospace" style="white-space: pre-wrap; font-size: 0.8rem; direction: ltr;">{{ $field['old']['display'] }}</pre>
+                                                        <pre class="mb-0 text-start bg-light p-2 rounded small font-monospace"
+                                                            style="white-space: pre-wrap; font-size: 0.8rem; direction: ltr;">{{ $field['old']['display'] }}</pre>
                                                     @elseif ($field['old']['type'] === 'null')
                                                         <span class="text-muted">-</span>
                                                     @else
@@ -225,11 +237,13 @@
                                                 @if (!$field['has_new'])
                                                     <span class="text-muted">-</span>
                                                 @elseif ($field['new']['type'] === 'sensitive')
-                                                    <span class="badge bg-danger text-truncate">{{ $field['new']['display'] }}</span>
+                                                    <span
+                                                        class="badge bg-danger text-truncate">{{ $field['new']['display'] }}</span>
                                                 @elseif ($field['new']['type'] === 'file')
                                                     @if ($field['new']['is_image'] && $field['new']['url'])
                                                         <div class="d-flex justify-content-center">
-                                                            <x-ui.file-card :url="$field['new']['url']" :name="$field['new']['display']" :isImage="true" />
+                                                            <x-ui.file-card :url="$field['new']['url']" :name="$field['new']['display']"
+                                                                :isImage="true" />
                                                         </div>
                                                     @else
                                                         <div class="d-flex justify-content-center">
@@ -237,9 +251,11 @@
                                                         </div>
                                                     @endif
                                                 @elseif ($field['new']['type'] === 'bool')
-                                                    <span class="badge {{ $field['new']['badge'] }}">{{ $field['new']['display'] }}</span>
+                                                    <span
+                                                        class="badge {{ $field['new']['badge'] }}">{{ $field['new']['display'] }}</span>
                                                 @elseif ($field['new']['type'] === 'array')
-                                                    <pre class="mb-0 text-start bg-light p-2 rounded small font-monospace" style="white-space: pre-wrap; font-size: 0.8rem; direction: ltr;">{{ $field['new']['display'] }}</pre>
+                                                    <pre class="mb-0 text-start bg-light p-2 rounded small font-monospace"
+                                                        style="white-space: pre-wrap; font-size: 0.8rem; direction: ltr;">{{ $field['new']['display'] }}</pre>
                                                 @elseif ($field['new']['type'] === 'null')
                                                     <span class="text-muted">-</span>
                                                 @else
@@ -267,14 +283,16 @@
                         <h5 class="card-title mb-0">
                             <i class="ti ti-code text-secondary me-2"></i>البيانات الخام (JSON)
                         </h5>
-                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#rawJsonCollapse" aria-expanded="false" aria-controls="rawJsonCollapse">
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#rawJsonCollapse" aria-expanded="false" aria-controls="rawJsonCollapse">
                             <i class="ti ti-eye me-1"></i> إظهار / إخفاء
                         </button>
                     </div>
                 </div>
                 <div class="collapse" id="rawJsonCollapse">
                     <div class="card-body pt-0">
-                        <pre class="bg-dark text-light p-3 rounded text-start mb-0 font-monospace" style="white-space: pre-wrap; font-size: 0.8rem; direction: ltr; max-height: 400px; overflow-y: auto;">{{ $changes['raw_json'] }}</pre>
+                        <pre class="bg-dark text-light p-3 rounded text-start mb-0 font-monospace"
+                            style="white-space: pre-wrap; font-size: 0.8rem; direction: ltr; max-height: 400px; overflow-y: auto;">{{ $changes['raw_json'] }}</pre>
                     </div>
                 </div>
             </div>
