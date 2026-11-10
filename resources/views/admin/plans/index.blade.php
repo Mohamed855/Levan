@@ -25,7 +25,6 @@
     @vite(['resources/assets/js/admin/plans/index.js'])
 @endsection
 @section('content')
-    <x-ui.validation-errors />
 
     <x-data-table.page table-id="plans-table">
         <x-slot:stats>

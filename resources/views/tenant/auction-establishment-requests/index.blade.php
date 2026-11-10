@@ -16,7 +16,6 @@
 @endsection
 
 @section('content')
-    <x-ui.validation-errors />
     <x-data-table.page table-id="auction-establishment-requests-table">
         <x-slot:stats>
             <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي المزادات" :value="number_format($statistics['total'])" subtitle="كافة المزادات المسجلة" icon="ti-gavel" color="primary" />

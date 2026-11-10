@@ -63,21 +63,17 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $exception)
     {
         if ($exception instanceof ValidationException) {
+            $firstMessage = collect($exception->errors())->flatten()->first();
+            $message = is_string($firstMessage) && trim($firstMessage) !== ''
+                ? trim($firstMessage)
+                : 'فشل التحقق من البيانات';
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'فشل التحقق من البيانات',
+                    'message' => $message,
                     'errors' => $exception->errors(),
                 ], 422);
-            }
-
-            if (app()->environment('production')) {
-                return redirect()
-                    ->back()
-                    ->withInput()
-                    ->withErrors($exception->errors())
-                    ->with('error', 'هناك بعض الأخطاء في البيانات المدخلة. يرجى تصحيحها والمحاولة مرة أخرى.');
             }
         }
 

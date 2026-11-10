@@ -13,16 +13,6 @@
 @endphp
 
 <x-form.wizard.stepper id="wizard-validation" class="mt-2" :steps="$steps">
-    @if ($errors->any())
-        <div class="alert alert-danger" role="alert">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <form id="{{ $is_edit ? 'auction-edit-form' : 'wizard-validation-form' }}"
         action="{{ $is_edit ? tenant_route_name('auctions.update', $auction->id) : tenant_route_name('auctions.store') }}"
         method="POST" enctype="multipart/form-data" autocomplete="off" data-form-validate

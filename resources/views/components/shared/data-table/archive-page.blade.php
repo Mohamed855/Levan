@@ -2,7 +2,6 @@
     'cardId' => null,
 ])
 
-<x-ui.validation-errors />
 
 @if (isset($filters) && ! $filters->isEmpty())
     {{ $filters }}

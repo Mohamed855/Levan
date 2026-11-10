@@ -25,7 +25,6 @@
 @endsection
 
 @section('content')
-    <x-ui.validation-errors />
 
     @php
         $isExpiring = !empty($isExpiringPage) || request()->routeIs('admin.subscriptionManage.expiring');

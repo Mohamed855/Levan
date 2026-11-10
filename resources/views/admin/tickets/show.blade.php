@@ -19,16 +19,6 @@
         </a>
     </div>
 
-    @if ($errors->any())
-        <div class="alert alert-danger mb-4">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <div class="row g-4">
         <div class="col-lg-8">
             <div class="card mb-4 shadow-sm">

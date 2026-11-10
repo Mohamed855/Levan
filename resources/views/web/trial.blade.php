@@ -44,7 +44,6 @@
 
         <section class="checkout-section">
             <div class="container">
-                <x-ui.validation-errors class="mb-4" />
                 @if ($otpStep)
                     <div class="checkout-grid">
                         <div class="checkout-main-col">

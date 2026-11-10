@@ -31,16 +31,6 @@
                         </div>
 
                         <div class="card-body">
-                            @if ($errors->any())
-                                <div class="alert alert-danger" role="alert">
-                                    <ul class="mb-0 ps-3">
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
-
                             <div class="alert alert-info d-flex align-items-start gap-2 mb-5" role="alert">
                                 <i class="ti ti-shield-lock fs-5"></i>
                                 <span>سيتم إدخال بيانات البطاقة داخل نموذج Moyasar الآمن في الخطوة التالية.</span>

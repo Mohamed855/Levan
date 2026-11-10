@@ -12,7 +12,6 @@
 
 
 @section('content')
-    <x-ui.validation-errors class="mb-4" />
 
     <div class="row">
         <div class="col-12">

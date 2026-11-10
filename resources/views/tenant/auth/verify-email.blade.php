@@ -25,11 +25,6 @@
             ['icon' => 'ti ti-shield-check', 'text' => 'حماية الحساب من الوصول غير المصرح'],
             ['icon' => 'ti ti-rocket', 'text' => 'انطلق فوراً بعد التحقق'],
         ]" :show-footer="true">
-        @if (session('status') == 'verification-link-sent')
-            <div class="alert alert-success py-2 px-3 mb-4 text-center" role="alert">
-                تم إرسال رابط تحقق جديد إلى عنوان البريد الإلكتروني الذي قدمته أثناء التسجيل.
-            </div>
-        @endif
 
         <div class="d-flex flex-column gap-3">
             <form method="POST" action="{{ tenant_route_name('verification.send') }}">

@@ -11,7 +11,6 @@
 <div class="row">
     <div class="col-12 mb-6">
         <x-form.wizard.stepper id="domain-wizard" :steps="$steps">
-            <x-ui.validation-errors />
 
             <form id="domain-wizard-form"
                 action="{{ $is_edit ? route('admin.settings.domains.update', $domain->id) : route('admin.settings.domains.store') }}"

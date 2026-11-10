@@ -24,49 +24,6 @@
 
                 <!-- Card Body -->
                 <div class="card-body-custom">
-                    <!-- Flash Messages Display -->
-                    @if (Session::has('success'))
-                        <div class="alert-custom alert-success-custom">
-                            <i class="ti ti-check-circle" style="font-size: 1.5rem;"></i>
-                            <div>{{ Session::get('success') }}</div>
-                        </div>
-                    @endif
-
-                    @if (Session::has('error'))
-                        <div class="alert-custom alert-error-custom">
-                            <i class="ti ti-alert-circle" style="font-size: 1.5rem;"></i>
-                            <div>{{ Session::get('error') }}</div>
-                        </div>
-                    @endif
-
-                    @if (Session::has('info'))
-                        <div class="alert-custom alert-info-custom">
-                            <i class="ti ti-info-circle" style="font-size: 1.5rem;"></i>
-                            <div>{{ Session::get('info') }}</div>
-                        </div>
-                    @endif
-
-                    @if (Session::has('warning'))
-                        <div class="alert-custom alert-warning-custom">
-                            <i class="ti ti-bulb" style="font-size: 1.5rem;"></i>
-                            <div>{{ Session::get('warning') }}</div>
-                        </div>
-                    @endif
-
-                    @if ($errors->any())
-                        <div class="alert-custom alert-error-custom">
-                            <i class="ti ti-alert-circle" style="font-size: 1.5rem;"></i>
-                            <div>
-                                <strong>خطأ في التحقق:</strong>
-                                <ul style="margin: 5px 0 0 0; padding-right: 1.25rem;">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                    @endif
-
                     <!-- Main Operations Section - ALL AT THE TOP -->
                     <div class="main-operations-section" id="mainOperationsSection">
 
@@ -76,7 +33,6 @@
                                 <i class="ti ti-check me-2"></i>
                                 تحقق من إعداد الدومين الفرعي
                             </h5>
-                            <div id="alertContainer"></div>
 
                             <div class="form-group-custom">
                                 <label class="form-custom">
@@ -454,7 +410,6 @@
             const transferSection = document.getElementById('transferSection');
             const successSection = document.getElementById('successSection');
             const mainOperationsSection = document.getElementById('mainOperationsSection');
-            const alertContainer = document.getElementById('alertContainer');
             const backBtn = document.getElementById('backBtn');
 
             // Copy IP Button
@@ -474,7 +429,7 @@
                     }, 2000);
                 }).catch(function(err) {
                     console.error('فشل النسخ:', err);
-                    alert('حدث خطأ أثناء النسخ');
+                    window.toastr?.error?.('حدث خطأ أثناء النسخ');
                 });
             });
 
@@ -730,19 +685,13 @@
                                     displayDNSInfo(data.dns_info, data.pointing_status,
                                         cleanDomain);
 
-                                    // رسالة تحذير تختفي بعد ثانيتين
-                                    showAlert(`
-                                    <strong>الدومين غير متوجه إلى سيرفرنا</strong><br>
-                                    <div style="margin-top: 10px;">
-                                        <strong>IP الحالي:</strong> <code>${data.dns_info.a_records.length > 0 ? data.dns_info.a_records.join(', ') : 'غير محدد'}</code><br>
-                                        <strong>IP المطلوب:</strong> <code>${data.pointing_status.server_ip}</code>
-                                    </div>
-                                `, 'warning');
-
-                                    // إخفاء الرسالة بعد ثانيتين
-                                    setTimeout(() => {
-                                        alertContainer.innerHTML = '';
-                                    }, 2000);
+                                    const currentIps = data.dns_info.a_records.length > 0
+                                        ? data.dns_info.a_records.join(', ')
+                                        : 'غير محدد';
+                                    showAlert(
+                                        `الدومين غير متوجه إلى سيرفرنا (IP الحالي: ${currentIps} | IP المطلوب: ${data.pointing_status.server_ip})`,
+                                        'warning'
+                                    );
                                 }
                             } else {
                                 showAlert('حدث خطأ في استرجاع معلومات DNS', 'error');
@@ -773,7 +722,6 @@
             backBtn.addEventListener('click', function() {
                 transferSection.style.display = 'none';
                 checkDomainSection.style.display = 'block';
-                alertContainer.innerHTML = '';
             });
 
             // Form Submit with AJAX
@@ -856,46 +804,8 @@
 
             // Helper Functions
             function showAlert(message, type) {
-                const alertTypes = {
-                    'success': {
-                        class: 'alert-success-custom',
-                        icon: 'ti-check-circle'
-                    },
-                    'error': {
-                        class: 'alert-error-custom',
-                        icon: 'ti-alert-circle'
-                    },
-                    'warning': {
-                        class: 'alert-warning-custom',
-                        icon: 'ti-bulb'
-                    },
-                    'info': {
-                        class: 'alert-info-custom',
-                        icon: 'ti-info-circle'
-                    }
-                };
-
-                const alertConfig = alertTypes[type] || alertTypes['error'];
-
-                alertContainer.innerHTML = `
-                <div class="alert-custom ${alertConfig.class}">
-                    <i class="ti ${alertConfig.icon}" style="font-size: 1.5rem; flex-shrink: 0;"></i>
-                    <div style="flex: 1;">${message}</div>
-                </div>
-            `;
-
-                if (type === 'success') {
-                    setTimeout(() => {
-                        const alertElement = alertContainer.querySelector('.alert-custom');
-                        if (alertElement) {
-                            alertElement.style.transition = 'opacity 0.5s ease';
-                            alertElement.style.opacity = '0';
-                            setTimeout(() => {
-                                alertContainer.innerHTML = '';
-                            }, 500);
-                        }
-                    }, 5000);
-                }
+                const toastType = ['success', 'error', 'warning', 'info'].includes(type) ? type : 'error';
+                window.toastr?.[toastType]?.(message);
             }
 
             function showSuccessSection(alertMessage, alertType, title, description) {
@@ -919,50 +829,8 @@
 
                 successSection.style.display = 'block';
 
-                showAlertInSuccessSection(alertMessage, alertType);
-            }
-
-            function showAlertInSuccessSection(message, type) {
-                const alertTypes = {
-                    'success': {
-                        class: 'alert-success-custom',
-                        icon: 'ti-check-circle'
-                    },
-                    'error': {
-                        class: 'alert-error-custom',
-                        icon: 'ti-alert-circle'
-                    },
-                    'warning': {
-                        class: 'alert-warning-custom',
-                        icon: 'ti-bulb'
-                    },
-                    'info': {
-                        class: 'alert-info-custom',
-                        icon: 'ti-info-circle'
-                    }
-                };
-
-                const alertConfig = alertTypes[type] || alertTypes['success'];
-                const successSection = document.getElementById('successSection');
-
-                const oldAlert = successSection.querySelector('.alert-custom');
-                if (oldAlert) {
-                    oldAlert.remove();
-                }
-
-                const alertDiv = document.createElement('div');
-                alertDiv.className = `alert-custom ${alertConfig.class}`;
-                alertDiv.style.marginBottom = '20px';
-                alertDiv.innerHTML = `
-                <i class="ti ${alertConfig.icon}" style="font-size: 1.5rem; flex-shrink: 0;"></i>
-                <div style="flex: 1;">${message}</div>
-            `;
-
-                const firstChild = successSection.firstChild;
-                if (firstChild) {
-                    successSection.insertBefore(alertDiv, firstChild);
-                } else {
-                    successSection.appendChild(alertDiv);
+                if (alertMessage) {
+                    showAlert(alertMessage, alertType);
                 }
             }
 
@@ -996,18 +864,10 @@
             // Copy to Clipboard Function
             window.copyToClipboard = function(text) {
                 navigator.clipboard.writeText(text).then(function() {
-                    const toast = document.createElement('div');
-                    toast.className =
-                        'position-fixed top-0 start-50 translate-middle-x mt-5 alert alert-success';
-                    toast.style.zIndex = '9999';
-                    toast.innerHTML = '<i class="ti ti-check me-2"></i>تم النسخ بنجاح!';
-                    document.body.appendChild(toast);
-
-                    setTimeout(() => {
-                        toast.remove();
-                    }, 2000);
+                    window.toastr?.success?.('تم النسخ بنجاح!');
                 }).catch(function(err) {
                     console.error('فشل النسخ:', err);
+                    window.toastr?.error?.('حدث خطأ أثناء النسخ');
                 });
             };
 
@@ -1018,20 +878,6 @@
                     checkDomainBtn.click();
                 }
             });
-
-            // Auto-hide flash messages after 7 seconds
-            setTimeout(function() {
-                const flashAlerts = document.querySelectorAll('.card-body-custom > .alert-custom');
-                flashAlerts.forEach(function(alert) {
-                    if (alert.classList.contains('alert-success-custom')) {
-                        alert.style.transition = 'opacity 0.5s ease';
-                        alert.style.opacity = '0';
-                        setTimeout(() => {
-                            alert.remove();
-                        }, 500);
-                    }
-                });
-            }, 7000);
         });
     </script>
 

@@ -320,7 +320,7 @@ async function restoreDraft(form) {
 
     const hasServerErrors = Boolean(
         form.querySelector(".is-invalid, .wizard-server-error") ||
-            document.querySelector(".alert-danger"),
+            document.body?.dataset.hasValidationErrors === "true",
     );
 
     if (!hasServerErrors) {

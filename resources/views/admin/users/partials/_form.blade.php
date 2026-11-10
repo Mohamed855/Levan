@@ -6,7 +6,6 @@
 <div class="row">
     <div class="col-12 mb-6">
         <x-form.wizard.stepper id="user-wizard" :steps="$steps">
-            <x-ui.validation-errors />
 
             <form id="user-wizard-form"
                 action="{{ $is_profile ? route('admin.profile.update') : ($is_edit ? route('admin.users.update', $user) : route('admin.users.store')) }}"

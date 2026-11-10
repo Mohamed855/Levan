@@ -150,18 +150,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // رسالة حالة الكوبون
     function showCouponMessage(message, type) {
-        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-        const icon = type === 'success' ? 'ti-check' : 'ti-alert-circle';
-
-        couponMessage.innerHTML = `
-                    <div class="alert ${alertClass} py-2 px-3 mb-0">
-                        <small><i class="ti ${icon} me-1"></i>${message}</small>
-                    </div>
-                `;
-
-        if (type === 'danger') {
-            setTimeout(() => couponMessage.innerHTML = '', 5000);
-        }
+        const toastType = type === 'success' ? 'success' : 'error';
+        window.toastr?.[toastType]?.(message);
     }
 
     // تنسيق حقول البطاقة

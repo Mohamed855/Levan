@@ -28,7 +28,6 @@
 <div class="row">
     <div class="col-12">
         <x-form.wizard.stepper id="subscription-wizard" :steps="$steps">
-            <x-ui.validation-errors />
 
             <form id="subscription-wizard-form" action="{{ $is_edit ? '#' : route('admin.subscriptions.store') }}"
                 method="POST" enctype="multipart/form-data" autocomplete="off" data-form-validate

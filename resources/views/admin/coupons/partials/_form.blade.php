@@ -14,7 +14,6 @@
 <div class="row">
     <div class="col-12 mb-6">
         <x-form.wizard.stepper id="coupon-wizard" :steps="$steps">
-            <x-ui.validation-errors />
 
             <form id="coupon-wizard-form"
                 action="{{ $is_edit ? route('admin.coupons.update', $coupon->id) : route('admin.coupons.store') }}"

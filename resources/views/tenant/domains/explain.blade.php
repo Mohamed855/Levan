@@ -486,16 +486,7 @@
     <script>
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(function() {
-                const toast = document.createElement('div');
-                toast.className = 'position-fixed top-0 start-50 translate-middle-x mt-5 alert alert-success';
-                toast.style.zIndex = '9999';
-                toast.style.fontSize = '0.9rem';
-                toast.innerHTML = '<i class="ti ti-check me-2"></i>تم النسخ بنجاح!';
-                document.body.appendChild(toast);
-
-                setTimeout(() => {
-                    toast.remove();
-                }, 2000);
+                window.toastr?.success?.('تم النسخ بنجاح!');
             });
         }
     </script>

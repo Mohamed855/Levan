@@ -35,10 +35,10 @@
 </head>
 
 <body class="site-shell"
-    data-flash-success="{{ Session::get('success') }}"
-    data-flash-error="{{ Session::get('error') }}"
-    data-flash-info="{{ Session::get('info') }}"
-    data-flash-warning="{{ Session::get('warning') }}">
+    @foreach (\App\Support\FlashFeedback::attributes($errors ?? null) as $flashAttribute => $flashValue)
+        {{ $flashAttribute }}="{{ $flashValue }}"
+    @endforeach
+>
 
     @unless (($hidePreloader ?? false) || ($hideLoader ?? false) || isset($exception))
         <div class="page-loading" role="status" aria-live="polite" aria-atomic="true" aria-label="Loading...">

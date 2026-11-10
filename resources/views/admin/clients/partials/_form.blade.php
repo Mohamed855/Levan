@@ -35,7 +35,6 @@
 </script>
 
 <x-form.wizard.stepper id="client-wizard" :steps="$steps">
-    <x-ui.validation-errors />
 
     <form id="client-wizard-form"
         action="{{ $is_edit ? route('admin.clients.update', $target) : route('admin.clients.store') }}" method="POST"

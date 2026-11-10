@@ -20,7 +20,6 @@
 @endsection
 
 @section('content')
-    <x-ui.validation-errors />
 
     <x-data-table.page table-id="tickets-table">
         <x-slot:stats>

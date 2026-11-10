@@ -31,8 +31,6 @@
             </div>
         </div>
 
-        <div id="alertContainer"></div>
-
         <!-- Step 1 -->
         <div class="form-section active" data-section="1">
             <h5 class="section-title">
@@ -198,7 +196,6 @@
             const cnameOption = document.getElementById('cnameOption');
             const methodAlert = document.getElementById('methodAlert');
             const methodAlertText = document.getElementById('methodAlertText');
-            const alertContainer = document.getElementById('alertContainer');
             const dnsRecordsSection = document.getElementById('dnsRecordsSection');
             const confirmationSection = document.getElementById('confirmationSection');
             const dnsRecordsContainer = document.getElementById('dnsRecordsContainer');
@@ -455,37 +452,8 @@
             }
 
             function showAlert(message, type) {
-                const alertTypes = {
-                    'success': {
-                        class: 'alert-success',
-                        icon: 'ti-check-circle'
-                    },
-                    'warning': {
-                        class: 'alert-warning',
-                        icon: 'ti-alert-triangle'
-                    },
-                    'danger': {
-                        class: 'alert-danger',
-                        icon: 'ti-alert-circle'
-                    },
-                    'info': {
-                        class: 'alert-info',
-                        icon: 'ti-info-circle'
-                    }
-                };
-
-                const config = alertTypes[type] || alertTypes['info'];
-
-                alertContainer.innerHTML = `
-            <div class="alert-box ${config.class}">
-                <i class="ti ${config.icon}" style="font-size: 1rem;"></i>
-                <div>${message}</div>
-            </div>
-        `;
-
-                setTimeout(() => {
-                    alertContainer.innerHTML = '';
-                }, 9000);
+                const toastType = type === 'danger' ? 'error' : (['success', 'warning', 'info', 'error'].includes(type) ? type : 'info');
+                window.toastr?.[toastType]?.(message);
             }
 
             domainInput.addEventListener('keypress', function(e) {
@@ -549,28 +517,10 @@
                                 'الدومين غير متصل بالسيرفر. يرجى التحقق من إعدادات DNS.';
 
                             if (data.current_ns && data.required_ns) {
-                                errorMessage +=
-                                    '<br><br><div style="background: #fff; padding: 0.75rem; border-radius: 7px; margin-top: 0.5rem;">';
-                                errorMessage +=
-                                    '<strong style="color: var(--danger-color); font-size: 0.8rem;">Name Servers الحالية:</strong><br>';
-                                data.current_ns.forEach(ns => {
-                                    errorMessage +=
-                                        `<code style="padding: 3px 7px; border-radius: 0.25rem; margin: 2px; display: inline-block; font-size: 0.75rem;">${ns}</code><br>`;
-                                });
-                                errorMessage +=
-                                    '<br><strong style="color: var(--success-color); font-size: 0.8rem;">Name Servers المطلوبة:</strong><br>';
-                                data.required_ns.forEach(ns => {
-                                    errorMessage +=
-                                        `<code style="padding: 3px 7px; border-radius: 0.25rem; margin: 2px; display: inline-block; font-size: 0.75rem;">${ns}</code><br>`;
-                                });
-                                errorMessage += '</div>';
+                                errorMessage += ` (الحالية: ${data.current_ns.join(', ')} | المطلوبة: ${data.required_ns.join(', ')})`;
                             }
 
                             showAlert(errorMessage, 'danger');
-                            window.scrollTo({
-                                top: 0,
-                                behavior: 'smooth'
-                            });
                         }
                     })
                     .catch(error => {
@@ -585,16 +535,7 @@
 
             window.copyText = function(text) {
                 navigator.clipboard.writeText(text).then(function() {
-                    const toast = document.createElement('div');
-                    toast.style.cssText =
-                        'position: fixed; top: 1.25rem; left: 50%; transform: translateX(-50%); background: #4caf50; color: white; padding: 10px 1.25rem; border-radius: 7px; box-shadow: 0 3px 10px rgba(0,0,0,0.12); z-index: 9999; font-size: 0.8rem;';
-                    toast.innerHTML = '<i class="ti ti-check me-2"></i>تم النسخ!';
-                    document.body.appendChild(toast);
-                    setTimeout(() => {
-                        toast.style.transition = 'opacity 0.3s';
-                        toast.style.opacity = '0';
-                        setTimeout(() => toast.remove(), 300);
-                    }, 2000);
+                    window.toastr?.success?.('تم النسخ!');
                 });
             };
         });

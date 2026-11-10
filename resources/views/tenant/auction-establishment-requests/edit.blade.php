@@ -28,7 +28,6 @@
 @endsection
 
 @section('content')
-    <x-ui.validation-errors />
 
     @php
         $sections = $schema->sections();
@@ -45,16 +44,6 @@
     <div class="row">
         <div class="col-12 mb-6">
             <x-form.wizard.stepper id="wizard-validation" class="mt-2" :steps="$steps">
-                @if ($errors->any())
-                    <div class="alert alert-danger mb-4" role="alert">
-                        <ul class="mb-0">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
                 <form id="establishment-request-form"
                     action="{{ tenant_route_name('auction-establishment-requests.update', $auction) }}"
                     method="POST" enctype="multipart/form-data" autocomplete="off" data-form-validate

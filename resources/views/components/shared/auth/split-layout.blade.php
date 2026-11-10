@@ -45,24 +45,6 @@
                 <p class="auth-form-subtitle">{{ $formSubtitle }}</p>
             @endif
 
-            @if ($status || session('status'))
-                <div class="alert alert-success py-2 px-3 mb-4 text-center" role="alert">
-                    {{ $status ?? session('status') }}
-                </div>
-            @endif
-
-            @if (session('success'))
-                <div class="alert alert-success py-2 px-3 mb-4 text-center" role="alert">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="alert alert-danger py-2 px-3 mb-4 text-center" role="alert">
-                    {{ session('error') }}
-                </div>
-            @endif
-
             {{ $slot }}
 
             @if ($backUrl)

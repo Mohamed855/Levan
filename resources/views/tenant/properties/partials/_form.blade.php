@@ -11,16 +11,6 @@
 @endphp
 
 <x-form.wizard.stepper id="wizard-validation" class="mt-2" :steps="$steps">
-    @if ($errors->any())
-        <div class="alert alert-danger" role="alert">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <form id="property-{{ $is_edit ? 'edit' : 'create' }}-form"
         action="{{ $is_edit ? tenant_route_name('properties.update', $property->id) : tenant_route_name('properties.store') }}"
         method="POST" enctype="multipart/form-data" autocomplete="off" data-form-validate

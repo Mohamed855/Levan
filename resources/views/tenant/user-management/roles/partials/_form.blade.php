@@ -11,7 +11,6 @@
 <div class="row">
     <div class="col-12 mb-6">
         <x-form.wizard.stepper id="role-wizard" :steps="$steps">
-            <x-ui.validation-errors />
 
             <form id="role-wizard-form"
                 action="{{ $isEdit ? tenant_route_name('roles.update', $role->id) : tenant_route_name('roles.store') }}"

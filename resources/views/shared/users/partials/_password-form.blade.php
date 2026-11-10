@@ -5,7 +5,6 @@
 <div class="row">
     <div class="col-12 mb-6">
         <x-form.wizard.stepper id="password-wizard" :steps="$steps">
-            <x-ui.validation-errors />
 
             <form id="password-wizard-form" action="{{ $action }}" method="POST" novalidate
                 data-form-validate data-validation-url="{{ $validationUrl }}">

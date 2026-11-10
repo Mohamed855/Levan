@@ -120,7 +120,7 @@
                 <div class="card-body pt-3">
                     {{-- تنبيه الفشل --}}
                     <div id="reports-error-alert"
-                        class="alert alert-danger p-2 small mb-3 {{ $isFailed ? '' : 'd-none' }}">
+                        class="text-danger small mb-3 {{ $isFailed ? '' : 'd-none' }}">
                         <i class="ti ti-alert-circle me-1"></i>
                         @include('tenant.auctions.partials.report-error', ['generation' => $gen])
                     </div>

@@ -16,7 +16,6 @@
 @endsection
 
 @section('content')
-    <x-ui.validation-errors />
 
     <x-data-table.page table-id="auction-closings-table">
         <x-slot:stats>

@@ -59,10 +59,9 @@ $contentLayout = isset($container) ? ($container === 'container-xxl' ? 'layout-c
 
 {{-- Flash data passed as data-attributes so resources/assets/js/shared/toastr-flash.js can read them --}}
 <body
-    data-flash-success="{{ Session::get('success') }}"
-    data-flash-error="{{ Session::get('error') }}"
-    data-flash-info="{{ Session::get('info') }}"
-    data-flash-warning="{{ Session::get('warning') }}"
+    @foreach (\App\Support\FlashFeedback::attributes($errors ?? null) as $flashAttribute => $flashValue)
+        {{ $flashAttribute }}="{{ $flashValue }}"
+    @endforeach
     data-username="{{ Auth::user()->name ?? '' }}"
     data-app-boundary="tenant"
     data-wizard-drafts-url="{{ tenant() ? tenant_route_name('wizard-drafts.index') : '' }}"

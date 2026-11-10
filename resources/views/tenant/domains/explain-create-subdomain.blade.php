@@ -360,22 +360,6 @@
                             لا تريد القيام بالخطوات يدوياً؟ يمكنك إنشاء النطاق الفرعي تلقائياً من خلال النموذج أدناه
                         </p>
 
-                        @if (session('success'))
-                            <div class="alert alert-success alert-dismissible" role="alert">
-                                <i class="ti ti-circle-check me-2"></i>
-                                {{ session('success') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        @endif
-
-                        @if (session('error'))
-                            <div class="alert alert-danger alert-dismissible" role="alert">
-                                <i class="ti ti-alert-triangle me-2"></i>
-                                {{ session('error') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        @endif
-
                         @if (session('subdomain_url'))
                             <div class="alert alert-info alert-dismissible" role="alert">
                                 <i class="ti ti-link me-2"></i>

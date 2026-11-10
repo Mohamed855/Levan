@@ -255,8 +255,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!file || !workspace || !previewBox) return;
         if (file.type.startsWith("image/")) return setupImagePlacement(file);
         setupPdfPlacement(file).catch(() => {
-            previewBox.innerHTML =
-                '<div class="alert alert-danger mb-0">تعذرت معاينة ملف PDF. يرجى اختيار ملف PDF صالح.</div>';
+            previewBox.innerHTML = "";
+            window.toastr?.error?.("تعذرت معاينة ملف PDF. يرجى اختيار ملف PDF صالح.");
         });
     }
 

@@ -11,7 +11,6 @@
 <div class="row">
     <div class="col-12 mb-6">
         <x-form.wizard.stepper id="issuing-entity-wizard" :steps="$steps">
-            <x-ui.validation-errors />
 
             <form id="issuing-entity-wizard-form"
                 action="{{ $is_edit ? tenant_route_name('issuing-entities.update', $issuingEntity->id) : tenant_route_name('issuing-entities.store') }}"

@@ -6,7 +6,6 @@
 <div class="row">
     <div class="col-12 mb-6">
         <x-form.wizard.stepper id="wizard-validation" class="mt-2" :steps="$steps">
-            <x-ui.validation-errors />
 
             <form id="wizard-validation-form"
                 action="{{ $is_edit ? '#' : tenant_route_name('tickets.store') }}"

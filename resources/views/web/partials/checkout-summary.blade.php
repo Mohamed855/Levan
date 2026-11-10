@@ -25,15 +25,7 @@
                             class="ti ti-discount-2"></i>
                         تطبيق</button>
                 </div>
-                <div id="coupon-message" class="mt-2 text-sm">
-                    @if (!empty($appliedCoupon['coupon_code']))
-                        <div
-                            class="site-alert site-alert-success d-flex align-items-center gap-2 px-3 py-2 rounded-lg border text-sm font-semibold">
-                            <i class="ti ti-check"></i>
-                            تم تطبيق كود الخصم بنجاح
-                        </div>
-                    @endif
-                </div>
+                <div id="coupon-message" class="mt-2 text-sm"></div>
             </div>
         @endif
         <div class="summary-details">

@@ -25,12 +25,6 @@
             ['icon' => 'ti ti-device-mobile', 'text' => 'تكامل مع تطبيقات المصادقة'],
             ['icon' => 'ti ti-key', 'text' => 'رموز استرداد احتياطية'],
         ]">
-        @if ($errors->any())
-            <div class="alert alert-danger py-2 px-3 mb-4 text-center" role="alert">
-                {{ $errors->first() }}
-            </div>
-        @endif
-
         @php
             $isRecovery = old('recovery_code') || $errors->has('recovery_code');
         @endphp

@@ -27,7 +27,7 @@
                     </span>
                 </div>
                 <div class="card-body pt-3">
-                    <div data-form-error role="alert" class="alert alert-danger p-2 small {{ $formGeneration?->status === 'failed' ? '' : 'd-none' }}">{{ $formGeneration?->publicErrorMessage() }}</div>
+                    <div data-form-error class="text-danger small mb-2 {{ $formGeneration?->status === 'failed' ? '' : 'd-none' }}">{{ $formGeneration?->publicErrorMessage() }}</div>
                     <div data-form-loading class="p-3 mb-3 border rounded bg-light-subtle {{ $formProcessing ? '' : 'd-none' }}">
                         <div class="d-flex justify-content-between align-items-center mb-2 small text-primary">
                             <span><i class="ti ti-loader ti-spin me-1"></i>جارٍ تجهيز النموذج...</span>
@@ -69,6 +69,7 @@
                 let failures = 0;
 
                 function showError(message) {
+                    window.toastr?.error?.(message);
                     error.textContent = message;
                     error.classList.remove('d-none');
                     loading.classList.add('d-none');
@@ -81,6 +82,7 @@
                 }
 
                 function render(state) {
+                    const previousStatus = card.dataset.status;
                     card.dataset.status = state.status;
                     const pending = ['queued', 'processing'].includes(state.status);
                     const value = Math.max(0, Math.min(100, Number(state.progress) || 0));
@@ -90,6 +92,9 @@
                     percent.textContent = value + '%';
                     error.classList.toggle('d-none', state.status !== 'failed');
                     error.textContent = state.error_message || '';
+                    if (state.status === 'failed' && previousStatus !== 'failed') {
+                        window.toastr?.error?.(state.error_message || 'تعذر تجهيز النموذج.');
+                    }
                     badge.textContent = pending ? 'قيد التوليد' : (state.status === 'failed' ? 'فشل الإعداد' : (state.has_file ? 'جاهز للتحميل' : 'غير مجهز بعد'));
                     badge.className = 'badge ' + (pending ? 'bg-info' : (state.status === 'failed' ? 'bg-danger' : (state.has_file ? 'bg-success' : 'bg-secondary')));
                     download.classList.toggle('disabled', !state.has_file);

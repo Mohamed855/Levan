@@ -202,23 +202,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // رسالة حالة الكوبون
     function showCouponMessage(message, type) {
-        const isSuccess = type === 'success';
-        const colorClass = isSuccess
-            ? 'site-alert site-alert-success'
-            : 'site-alert site-alert-danger';
-
-        couponMessage.innerHTML = `
-        <div class="${colorClass} d-flex align-items-center gap-2">
-           ${message}
-        </div>
-    `;
-
-        // إخفاء رسائل الخطأ بعد 5 ثواني
-        if (type === 'danger') {
-            setTimeout(() => {
-                couponMessage.innerHTML = '';
-            }, 5000);
-        }
+        const toastType = type === 'success' ? 'success' : 'error';
+        window.toastr?.[toastType]?.(message);
     }
 
     // تجهيز بيانات البطاقة قبل الإرسال

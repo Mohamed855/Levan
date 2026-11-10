@@ -46,7 +46,6 @@
 
 
 @section('content')
-    <x-ui.validation-errors />
 
     <x-data-table.page table-id="domain-table">
         <x-slot:stats>

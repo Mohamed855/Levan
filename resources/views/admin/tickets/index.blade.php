@@ -26,7 +26,6 @@
         <input type="hidden" name="tickets_enabled" value="{{ $ticketsEnabled ? '0' : '1' }}">
     </form>
 
-    <x-ui.validation-errors />
 
     <x-data-table.page table-id="admin-tickets-table">
         <x-slot:stats>

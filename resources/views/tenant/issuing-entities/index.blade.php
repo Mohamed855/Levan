@@ -39,7 +39,6 @@
 @endsection
 
 @section('content')
-    <x-ui.validation-errors />
 
     <x-data-table.page table-id="issuing-entities-table">
         <x-slot:stats>

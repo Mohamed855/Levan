@@ -20,16 +20,6 @@
 
 @section('content')
 
-    @if ($errors->any())
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                @foreach ($errors->all() as $error)
-                    toastr.error(@json($error));
-                @endforeach
-            });
-        </script>
-    @endif
-
     <main class="site-main">
         <!-- Sub Hero -->
         <section class="site-page-hero">

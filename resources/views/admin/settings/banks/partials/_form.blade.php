@@ -11,7 +11,6 @@
 <div class="row">
     <div class="col-12 mb-6">
         <x-form.wizard.stepper id="bank-wizard" :steps="$steps">
-            <x-ui.validation-errors />
 
             <form id="bank-wizard-form"
                 action="{{ $is_edit ? route('admin.settings.banks.update', $bank->id) : route('admin.settings.banks.store') }}"

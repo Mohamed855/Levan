@@ -31,7 +31,6 @@
 @endif
 
 <x-form.wizard.stepper id="plan-wizard" :steps="$steps">
-    <x-ui.validation-errors />
 
     <form id="plan-wizard-form"
         action="{{ $is_edit ? route('admin.plans.update', $target->id) : route('admin.plans.store') }}" method="POST"

@@ -15,7 +15,6 @@
 @endsection
 
 @section('content')
-    <x-ui.validation-errors />
     <div class="row">
         <div class="col-12 mb-6">
             <div class="card">
