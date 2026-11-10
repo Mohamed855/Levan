@@ -944,9 +944,10 @@ class AuctionsAndPropertiesSeeder extends Seeder
             }
         }
         $this->call(AuctionWorkflowScenariosSeeder::class);
+        $documents = app(SeededAuctionDocuments::class);
         foreach (Auction::whereKey($seededAuctionIds)->get() as $auction) {
-            $this->command?->info('Generating auction documents: '.$auction->name);
-            app(SeededAuctionDocuments::class)->generate($auction);
+            $this->command?->info(($documents->shouldRenderSynchronously() ? 'Generating' : 'Queuing').' auction documents: '.$auction->name);
+            $documents->generate($auction);
         }
     }
 }

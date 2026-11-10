@@ -2,15 +2,18 @@
 
 namespace App\Providers;
 
+use App\Contracts\Auctions\BrowserDocumentRenderer;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Services\Shared\Payment\Contracts\PaymentGatewayInterface;
 use App\Services\Shared\Payment\Gateways\MoyasarGateway;
 use App\Services\Shared\Tenant\TenantInitializer;
+use App\Services\Tenants\Auctions\BrowsershotDocumentRenderer;
 use App\Support\Vite as AppVite;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Database\Seeders\tenant\PermissionsRolesSeeder;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Foundation\Console\ServeCommand;
 use Illuminate\Foundation\Vite;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
@@ -35,8 +38,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PaymentGatewayInterface::class, MoyasarGateway::class);
 
         $this->app->bind(
-            \App\Contracts\Auctions\BrowserDocumentRenderer::class,
-            \App\Services\Tenants\Auctions\BrowsershotDocumentRenderer::class,
+            BrowserDocumentRenderer::class,
+            BrowsershotDocumentRenderer::class,
         );
 
         $this->app->bind(TenantInitializer::class, function ($app) {
@@ -70,14 +73,14 @@ class AppServiceProvider extends ServiceProvider
             'assignment' => Assignment::class,
         ]);
 
-        if ($this->app->runningInConsole() && class_exists(\Illuminate\Foundation\Console\ServeCommand::class)) {
+        if ($this->app->runningInConsole() && class_exists(ServeCommand::class)) {
             $windowsVars = [
                 'SystemRoot', 'SystemDrive', 'windir', 'ComSpec', 'PATHEXT',
                 'TEMP', 'TMP', 'USERPROFILE', 'LOCALAPPDATA', 'APPDATA',
                 'ProgramData', 'ProgramFiles', 'ProgramFiles(x86)',
             ];
 
-            $allAllowed = array_merge(\Illuminate\Foundation\Console\ServeCommand::$passthroughVariables, $windowsVars);
+            $allAllowed = array_merge(ServeCommand::$passthroughVariables, $windowsVars);
             $matchedEnvKeys = [];
 
             foreach (array_keys($_ENV) as $key) {
@@ -89,8 +92,8 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
 
-            \Illuminate\Foundation\Console\ServeCommand::$passthroughVariables = array_values(array_unique(array_merge(
-                \Illuminate\Foundation\Console\ServeCommand::$passthroughVariables,
+            ServeCommand::$passthroughVariables = array_values(array_unique(array_merge(
+                ServeCommand::$passthroughVariables,
                 $windowsVars,
                 $matchedEnvKeys
             )));

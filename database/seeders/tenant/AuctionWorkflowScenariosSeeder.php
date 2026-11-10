@@ -117,8 +117,9 @@ final class AuctionWorkflowScenariosSeeder extends Seeder
                 throw $exception;
             }
             $auction = Auction::where('marketing_data->demo_scenario', 'WF-'.$number)->firstOrFail();
-            $this->command?->info('Generating auction documents: '.$auction->name);
-            app(SeededAuctionDocuments::class)->generate($auction);
+            $documents = app(SeededAuctionDocuments::class);
+            $this->command?->info(($documents->shouldRenderSynchronously() ? 'Generating' : 'Queuing').' auction documents: '.$auction->name);
+            $documents->generate($auction);
         }
         $this->seedExistingMixedClosing((int) $actorId);
     }

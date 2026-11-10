@@ -16,6 +16,11 @@ use RuntimeException;
 
 final class SeededAuctionDocuments
 {
+    public function shouldRenderSynchronously(): bool
+    {
+        return app()->environment(['local', 'testing']);
+    }
+
     public function generate(Auction $auction): void
     {
         if (! tenancy()->initialized) {
@@ -37,15 +42,19 @@ final class SeededAuctionDocuments
 
     private function reports(Auction $auction): void
     {
+        $synchronous = $this->shouldRenderSynchronously();
         $generation = $auction->latestReportGeneration()->first();
         if ($this->reportsReady($generation) && (int) $auction->published_report_generation_id === $generation->id) {
             return;
         }
-        if (! $generation || in_array($generation->status, ['ready', 'processing', 'superseded'], true)) {
+        if (! $generation || in_array($generation->status, ['ready', 'processing', 'superseded'], true) || (! $synchronous && $generation->status === 'failed')) {
             $generation = app(AuctionReportService::class)->requestGeneration($auction, (string) tenant('id'));
         }
         if (! $generation) {
             throw new RuntimeException('Could not prepare seeded auction reports for auction '.$auction->id.'.');
+        }
+        if (! $synchronous) {
+            return;
         }
 
         app()->call([new GenerateAuctionReportsJob(
@@ -58,16 +67,20 @@ final class SeededAuctionDocuments
 
     private function form(Auction $auction, string $type): void
     {
+        $synchronous = $this->shouldRenderSynchronously();
         $forms = app(AuctionRegulatoryFormService::class);
         $generation = $forms->latest($auction, $type);
         if ($this->formReady($generation)) {
             return;
         }
-        if (! $generation || in_array($generation->status, ['ready', 'processing', 'superseded'], true)) {
+        if (! $generation || in_array($generation->status, ['ready', 'processing', 'superseded'], true) || (! $synchronous && $generation->status === 'failed')) {
             $generation = $forms->requestGeneration($auction, $type);
         }
         if (! $generation) {
             throw new RuntimeException('Could not prepare seeded '.$type.' form for auction '.$auction->id.'.');
+        }
+        if (! $synchronous) {
+            return;
         }
 
         app()->call([new GenerateAuctionRegulatoryFormJob(

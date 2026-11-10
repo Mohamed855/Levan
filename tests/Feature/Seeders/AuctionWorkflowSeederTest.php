@@ -56,7 +56,7 @@ final class AuctionWorkflowSeederTest extends TenantAuctionReportTestCase
     public function test_demo_workflows_cover_approval_closing_completeness_and_ready_files_before_returning(): void
     {
         config(['seeding.test_seeders_enabled' => true]);
-        $this->app->detectEnvironment(fn () => 'production');
+        $this->app->detectEnvironment(fn () => 'local');
         Storage::fake('tenant_private');
         Storage::fake('tenant_public');
         Queue::fake();
@@ -418,5 +418,50 @@ final class AuctionWorkflowSeederTest extends TenantAuctionReportTestCase
         self::assertTrue($form->isReady());
         self::assertStringContainsString('%%EOF', Storage::disk('tenant_private')->get($report->report_path));
         self::assertStringContainsString('%%EOF', Storage::disk('tenant_private')->get($form->file_path));
+    }
+
+    public function test_production_demo_seeder_queues_documents_without_running_renderer(): void
+    {
+        config(['seeding.test_seeders_enabled' => true]);
+        $this->app->detectEnvironment(fn () => 'production');
+        Storage::fake('tenant_private');
+        Storage::fake('tenant_public');
+        Queue::fake();
+        $this->app->instance(BrowserDocumentRenderer::class, new class implements BrowserDocumentRenderer
+        {
+            public function pdf(string $html, string $outputPath): string
+            {
+                throw new \RuntimeException('Renderer must not run during production seeding.');
+            }
+
+            public function png(string $html, string $outputPath): string
+            {
+                throw new \RuntimeException('Renderer must not run during production seeding.');
+            }
+        });
+
+        $this->artisan('db:seed', ['--class' => AuctionWorkflowScenariosSeeder::class, '--force' => true])->assertSuccessful();
+
+        foreach (['01', '02', '05', '07', '10'] as $number) {
+            $auction = Auction::where('marketing_data->demo_scenario', 'WF-'.$number)->firstOrFail();
+            $report = $auction->latestReportGeneration;
+            self::assertNotNull($report, $auction->name);
+            self::assertSame('queued', $report->status, $auction->name);
+            self::assertSame(0, (int) $report->progress, $auction->name);
+            self::assertNull($auction->published_report_generation_id, $auction->name);
+            if ($auction->establishmentRequest) {
+                $establishment = AuctionFormGeneration::where('auction_id', $auction->id)->where('type', 'establishment')->latest('id')->firstOrFail();
+                self::assertSame('queued', $establishment->status, $auction->name);
+                self::assertSame(0, (int) $establishment->progress, $auction->name);
+                if ($auction->establishmentRequest->isApproved() && $auction->closing?->saved_at) {
+                    $closing = AuctionFormGeneration::where('auction_id', $auction->id)->where('type', 'closing')->latest('id')->firstOrFail();
+                    self::assertSame('queued', $closing->status, $auction->name);
+                    self::assertSame(0, (int) $closing->progress, $auction->name);
+                }
+            }
+        }
+
+        Queue::assertNothingPushed();
+        self::assertSame([], Storage::disk('tenant_private')->files('auction-reports'));
     }
 }
