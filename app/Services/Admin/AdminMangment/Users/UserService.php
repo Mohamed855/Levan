@@ -4,6 +4,9 @@ namespace App\Services\Admin\AdminMangment\Users;
 
 use App\Enums\Admin\Users\AdminUserStatus;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Services\Shared\Mail\SystemMailService;
+use App\Support\AccessLabels;
+use App\Support\Security\TenantPasswordGenerator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -34,9 +37,10 @@ class UserService
             throw new \InvalidArgumentException('لا يمكن إنشاء مستخدم بدون دور.');
         }
 
-        $rawPassword = $data['password'] ?? null;
+        unset($data['password'], $data['password_confirmation']);
+        $rawPassword = TenantPasswordGenerator::generate();
 
-        $user = DB::transaction(function () use ($data, $roleId) {
+        $user = DB::transaction(function () use ($data, $roleId, $rawPassword) {
             unset($data['role_id']);
 
             // Handle image upload
@@ -44,8 +48,8 @@ class UserService
                 $data['image'] = $this->handleImageUpload($data['image']);
             }
 
-            // Hash password
-            $data['password'] = Hash::make($data['password']);
+            // Hash auto-generated password
+            $data['password'] = Hash::make($rawPassword);
 
             // Set default status
             $data['status'] = $data['status'] ?? 'active';
@@ -66,12 +70,16 @@ class UserService
 
         try {
             $loginUrl = route('admin.login');
-            \App\Services\Shared\Mail\SystemMailService::sendUserWelcome(
+            $rawRoleName = $user->roles->first()?->name;
+            $roleName = $rawRoleName ? AccessLabels::role($rawRoleName) : null;
+
+            SystemMailService::sendUserWelcome(
                 $user->email,
                 $user->name,
                 $rawPassword,
                 $loginUrl,
-                'لوحة الإدارة المركزية'
+                'لوحة الإدارة المركزية',
+                $roleName
             );
         } catch (\Throwable $e) {
             // Ignore email error to not prevent user creation
@@ -85,7 +93,7 @@ class UserService
         return DB::transaction(function () use ($user, $data) {
             $hasRoleId = array_key_exists('role_id', $data);
             $roleId = $data['role_id'] ?? null;
-            unset($data['role_id']);
+            unset($data['role_id'], $data['password'], $data['password_confirmation']);
 
             if ($hasRoleId && empty($roleId)) {
                 throw new \InvalidArgumentException('لا يمكن ترك المستخدم بدون دور.');
@@ -98,13 +106,6 @@ class UserService
                     $this->deleteImage($user->image);
                 }
                 $data['image'] = $this->handleImageUpload($data['image']);
-            }
-
-            // Hash password if provided
-            if (isset($data['password']) && ! empty($data['password'])) {
-                $data['password'] = Hash::make($data['password']);
-            } else {
-                unset($data['password']);
             }
 
             // Update user

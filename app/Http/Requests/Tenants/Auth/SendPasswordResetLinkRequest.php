@@ -4,22 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Tenants\Auth;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Shared\Auth\SendPasswordResetOtpRequest;
 
-class SendPasswordResetLinkRequest extends FormRequest
+class SendPasswordResetLinkRequest extends SendPasswordResetOtpRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
-
-    public function rules(): array
-    {
-        return ['email' => ['required', 'email']];
-    }
-
-    public function attributes(): array
-    {
-        return ['email' => 'البريد الإلكتروني'];
-    }
 }

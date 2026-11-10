@@ -3,7 +3,10 @@
 namespace App\Services\Tenants\UserManagement\User;
 
 use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Shared\Mail\SystemMailService;
 use App\Services\Tenants\Shared\CentralTrialAccessGateway;
+use App\Support\AccessLabels;
+use App\Support\Security\TenantPasswordGenerator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -41,16 +44,17 @@ class UserService
             throw new \InvalidArgumentException('لا يمكن إنشاء مستخدم بدون تحديد دور.');
         }
 
-        $rawPassword = $data['password'] ?? null;
+        unset($data['password'], $data['password_confirmation']);
+        $rawPassword = TenantPasswordGenerator::generate();
 
-        $user = DB::transaction(function () use ($data, $roleId) {
+        $user = DB::transaction(function () use ($data, $roleId, $rawPassword) {
             unset($data['role_id']);
 
             if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
                 $data['image'] = $this->handleImageUpload($data['image']);
             }
 
-            $data['password'] = Hash::make($data['password']);
+            $data['password'] = Hash::make($rawPassword);
             $data['status'] = $data['status'] ?? 'active';
 
             $user = User::create($data);
@@ -69,9 +73,10 @@ class UserService
         try {
             $tenant = tenant();
             $loginUrl = $tenant ? tenant_route_name('login') : config('app.url');
-            $roleName = $user->roles->first()?->name;
+            $rawRoleName = $user->roles->first()?->name;
+            $roleName = $rawRoleName ? AccessLabels::role($rawRoleName) : null;
 
-            \App\Services\Shared\Mail\SystemMailService::sendUserWelcome(
+            SystemMailService::sendUserWelcome(
                 $user->email,
                 $user->name,
                 $rawPassword,
@@ -97,7 +102,7 @@ class UserService
         return DB::transaction(function () use ($user, $data) {
             $hasRoleId = array_key_exists('role_id', $data);
             $roleId = $data['role_id'] ?? null;
-            unset($data['role_id']);
+            unset($data['role_id'], $data['password'], $data['password_confirmation']);
 
             if ($hasRoleId && empty($roleId)) {
                 throw new \InvalidArgumentException('لا يمكن ترك المستخدم بدون دور.');
@@ -108,12 +113,6 @@ class UserService
                     $this->deleteImage($user->image);
                 }
                 $data['image'] = $this->handleImageUpload($data['image']);
-            }
-
-            if (isset($data['password']) && ! empty($data['password'])) {
-                $data['password'] = Hash::make($data['password']);
-            } else {
-                unset($data['password']);
             }
 
             $user->update($data);

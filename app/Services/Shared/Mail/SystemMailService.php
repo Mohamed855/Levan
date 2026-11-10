@@ -123,7 +123,8 @@ class SystemMailService
     ): bool {
         return self::sendSafely(
             $email,
-            new UserWelcomeMail($userName, $email, $temporaryPassword, $loginUrl, $companyName, $roleName)
+            new UserWelcomeMail($userName, $email, $temporaryPassword, $loginUrl, $companyName, $roleName),
+            forceSync: true
         );
     }
 

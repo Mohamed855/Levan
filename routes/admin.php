@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\Archive\Plan\PlanArchiveController;
 use App\Http\Controllers\Admin\Archive\Tenant\TenantArchiveController;
 use App\Http\Controllers\Admin\AuctionTemplates\AuctionTemplateController;
 use App\Http\Controllers\Admin\Auth\AdminAuthController;
+use App\Http\Controllers\Admin\Auth\AdminPasswordResetController;
 use App\Http\Controllers\Admin\Auth\AdminTwoFactorChallengeController;
 use App\Http\Controllers\Admin\Auth\AdminTwoFactorSettingsController;
 use App\Http\Controllers\Admin\Bills\AdminBillsController;
@@ -265,6 +266,9 @@ Route::prefix('superadmin')->name('admin.')->group(function () {
         Route::match(['post', 'put', 'patch'], 'form-validation', [WizardDraftController::class, 'validateStep'])
             ->defaults('shared_form_validation_actions', [
                 AdminAuthController::class.'@login',
+                AdminPasswordResetController::class.'@store',
+                AdminPasswordResetController::class.'@verifyOtp',
+                AdminPasswordResetController::class.'@resetPassword',
                 AdminTwoFactorChallengeController::class.'@store',
             ])
             ->name('form-validation');
@@ -273,6 +277,18 @@ Route::prefix('superadmin')->name('admin.')->group(function () {
         Route::post('login', [AdminAuthController::class, 'login'])
             ->middleware('throttle:5,1')
             ->defaults('shared_form_validation', true);
+
+        Route::get('forgot-password', [AdminPasswordResetController::class, 'create'])->name('password.request');
+        Route::post('forgot-password', [AdminPasswordResetController::class, 'store'])->name('password.email');
+        Route::post('forgot-password/verify', [AdminPasswordResetController::class, 'verifyOtp'])
+            ->defaults('shared_form_validation', true)
+            ->name('password.otp.verify');
+        Route::post('forgot-password/resend-otp', [AdminPasswordResetController::class, 'resendOtp'])
+            ->middleware('throttle:6,1')
+            ->name('password.otp.resend');
+        Route::get('forgot-password/edit', [AdminPasswordResetController::class, 'editEmail'])->name('password.otp.edit');
+        Route::get('reset-password', [AdminPasswordResetController::class, 'showResetForm'])->name('password.reset');
+        Route::post('forgot-password/reset', [AdminPasswordResetController::class, 'resetPassword'])->name('password.reset.store');
 
         Route::get('two-factor-challenge', [AdminTwoFactorChallengeController::class, 'create'])->name('two-factor.login');
         Route::post('two-factor-challenge', [AdminTwoFactorChallengeController::class, 'store'])

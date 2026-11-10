@@ -122,7 +122,7 @@ final class ProfileSelfServiceTest extends TestCase
     }
 
     #[DataProvider('scopes')]
-    public function test_personal_edit_form_has_no_password_fields_but_management_edit_keeps_them(string $scope): void
+    public function test_neither_personal_nor_management_user_forms_expose_password_fields(string $scope): void
     {
         [$user] = $this->signIn($scope);
         $view = $scope === 'admin' ? 'admin.users.partials._form' : 'tenant.user-management.users.partials._form';
@@ -135,8 +135,13 @@ final class ProfileSelfServiceTest extends TestCase
             ->assertDontSee('name="password_confirmation"', false);
 
         $this->view($view, $data)
-            ->assertSee('name="password"', false)
-            ->assertSee('name="password_confirmation"', false);
+            ->assertDontSee('name="password"', false)
+            ->assertDontSee('name="password_confirmation"', false);
+
+        $this->view($view, ['user' => null, 'is_edit' => false, 'roles' => collect()])
+            ->assertDontSee('name="password"', false)
+            ->assertDontSee('name="password_confirmation"', false)
+            ->assertSee('سيتم توليد كلمة المرور تلقائياً');
     }
 
     #[DataProvider('scopes')]

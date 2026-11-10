@@ -6,7 +6,6 @@ use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Shared\CentralSubscriptionContextGateway;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 
 class StoreUserRequest extends WizardFormRequest
 {
@@ -42,12 +41,6 @@ class StoreUserRequest extends WizardFormRequest
                 // 'email:rfc,dns',
                 'max:255',
                 'unique:users,email',
-            ],
-            'password' => [
-                'required',
-                'string',
-                Password::defaults(),
-                'confirmed',
             ],
             'phone' => [
                 'required',
@@ -90,11 +83,6 @@ class StoreUserRequest extends WizardFormRequest
             'email.max' => 'البريد الإلكتروني يجب ألا يزيد عن 255 حرف',
             'email.unique' => 'البريد الإلكتروني مستخدم مسبقاً',
 
-            'password.required' => 'كلمة المرور مطلوبة',
-            'password.string' => 'كلمة المرور يجب أن تكون نص',
-            'password.min' => 'كلمة المرور يجب ألا تقل عن 8 أحرف',
-            'password.confirmed' => 'تأكيد كلمة المرور غير مطابق',
-
             'phone.required' => 'رقم الهاتف مطلوب',
             'phone.string' => 'رقم الهاتف يجب أن يكون نص',
             'phone.size' => 'رقم الهاتف يجب أن يتكون من 10 أرقام',
@@ -122,8 +110,6 @@ class StoreUserRequest extends WizardFormRequest
         return [
             'name' => 'الاسم الكامل',
             'email' => 'البريد الإلكتروني',
-            'password' => 'كلمة المرور',
-            'password_confirmation' => 'تأكيد كلمة المرور',
             'phone' => 'رقم الهاتف',
             'image' => 'الصورة الشخصية',
             'role_id' => 'الدور',

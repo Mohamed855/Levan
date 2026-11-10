@@ -184,7 +184,7 @@ final class AccountPasswordChangeTest extends TestCase
         self::assertTrue(Validator::make($payload, $rules)->errors()->has('current_password'));
     }
 
-    public function test_admin_user_edit_can_still_update_the_password(): void
+    public function test_admin_user_edit_never_updates_the_password(): void
     {
         $originalPassword = $this->admin->password;
         app(AdminUserService::class)->update($this->admin, [
@@ -194,11 +194,11 @@ final class AccountPasswordChangeTest extends TestCase
         ]);
 
         self::assertSame('Updated Name', $this->admin->fresh()->name);
-        self::assertNotSame($originalPassword, $this->admin->fresh()->password);
-        self::assertTrue(Hash::check('InjectedPassword123!', $this->admin->fresh()->password));
+        self::assertSame($originalPassword, $this->admin->fresh()->password);
+        self::assertFalse(Hash::check('InjectedPassword123!', $this->admin->fresh()->password));
     }
 
-    public function test_tenant_user_edit_can_still_update_the_password(): void
+    public function test_tenant_user_edit_never_updates_the_password(): void
     {
         Schema::connection('tenant')->create('users', function (Blueprint $table): void {
             $table->id();
@@ -218,8 +218,8 @@ final class AccountPasswordChangeTest extends TestCase
         ]);
 
         self::assertSame('Updated Tenant', $user->fresh()->name);
-        self::assertNotSame($originalPassword, $user->fresh()->password);
-        self::assertTrue(Hash::check('InjectedPassword123!', $user->fresh()->password));
+        self::assertSame($originalPassword, $user->fresh()->password);
+        self::assertFalse(Hash::check('InjectedPassword123!', $user->fresh()->password));
     }
 
     public function test_tenant_user_password_change_remains_logged_in_redirects_to_profile_and_creates_notification(): void

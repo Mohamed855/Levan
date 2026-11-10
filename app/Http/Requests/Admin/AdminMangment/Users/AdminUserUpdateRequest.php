@@ -4,7 +4,6 @@ namespace App\Http\Requests\Admin\AdminMangment\Users;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 
 class AdminUserUpdateRequest extends FormRequest
 {
@@ -28,7 +27,6 @@ class AdminUserUpdateRequest extends FormRequest
                 Rule::unique('admin_users', 'email')->ignore($userId),
             ],
 
-            'password' => ['nullable', 'string', Password::defaults(), 'confirmed'],
             'phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
             'role_id' => [
                 'required',
@@ -54,12 +52,6 @@ class AdminUserUpdateRequest extends FormRequest
             'email.max' => 'البريد الإلكتروني يجب ألا يزيد عن 255 حرف',
             'email.unique' => 'البريد الإلكتروني مستخدم مسبقاً',
 
-            // password
-            'password.required' => 'كلمة المرور مطلوبة',
-            'password.string' => 'كلمة المرور يجب أن تكون نص',
-            'password.min' => 'كلمة المرور يجب ألا تقل عن 8 أحرف',
-            'password.confirmed' => 'تأكيد كلمة المرور غير مطابق',
-
             // phone
             'phone.required' => 'رقم الهاتف مطلوب',
             'phone.string' => 'رقم الهاتف يجب أن يكون نص',
@@ -84,8 +76,6 @@ class AdminUserUpdateRequest extends FormRequest
         return [
             'name' => 'الاسم الكامل',
             'email' => 'البريد الإلكتروني',
-            'password' => 'كلمة المرور الجديدة',
-            'password_confirmation' => 'تأكيد كلمة المرور الجديدة',
             'phone' => 'رقم الهاتف',
             'role_id' => 'الدور',
             'image' => 'الصورة الشخصية',

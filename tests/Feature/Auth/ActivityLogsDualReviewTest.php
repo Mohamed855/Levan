@@ -810,4 +810,116 @@ final class ActivityLogsDualReviewTest extends TestCase
         $this->assertEquals(0, $indexB['recordsTotal']);
         tenancy()->end();
     }
+
+    public function test_admin_and_tenant_index_follow_golden_pattern_and_standardized_formatting(): void
+    {
+        $adminActivity = Activity::on('mysql')->create([
+            'log_name' => 'companies',
+            'description' => 'تحديث بيانات عميل',
+            'causer_type' => AdminUser::class,
+            'causer_id' => $this->superAdmin->id,
+            'created_at' => now()->setDate(2026, 5, 10)->setTime(14, 30),
+        ]);
+
+        // Admin HTML uses Golden Pattern components and does not expose broken massDelete
+        $adminHtml = $this->actingAs($this->superAdmin, 'admin')
+            ->get(route('admin.activity-logs.index'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('id="card-activity-logs"', $adminHtml);
+        $this->assertStringContainsString('id="activity-logs-table"', $adminHtml);
+        $this->assertStringContainsString('id="select-all"', $adminHtml);
+        $this->assertStringContainsString('row-checkbox:checked', $adminHtml);
+        $this->assertStringContainsString('btn-reset-datatable-filters', $adminHtml);
+        $this->assertStringNotContainsString('massDelete', $adminHtml);
+        $this->assertStringNotContainsString('حذف المحدد', $adminHtml);
+
+        // Admin AJAX returns checkbox, subject_info, system_datetime date, and btn-labeled action button
+        $adminJson = $this->actingAs($this->superAdmin, 'admin')
+            ->getJson(route('admin.activity-logs.index'))
+            ->assertOk()
+            ->json();
+
+        $row = $adminJson['data'][0];
+        $this->assertArrayHasKey('checkbox', $row);
+        $this->assertStringContainsString('row-checkbox', $row['checkbox']);
+        $this->assertArrayNotHasKey('subject_info', $row);
+        $this->assertStringContainsString('10-05-2026', $row['created_at']);
+        $this->assertStringContainsString('btn btn-icon btn-label-primary', $row['actions']);
+        $this->assertStringContainsString(route('admin.activity-logs.show', $adminActivity->id), $row['actions']);
+
+        // Tenant HTML & AJAX follow Golden Pattern with expanded log_name filter options
+        tenancy()->initialize($this->tenantA);
+        $tenantActivity = Activity::on('tenant')->create([
+            'log_name' => 'auctions',
+            'description' => 'إنشاء مزاد جديد',
+            'causer_type' => User::class,
+            'causer_id' => $this->tenantUserA->id,
+            'created_at' => now()->setDate(2026, 6, 15)->setTime(9, 15),
+        ]);
+
+        $tenantHtml = $this->actingAs($this->tenantUserA, 'tenant')
+            ->get(tenant_route_name('activity-logs.index'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('id="card-activity-logs"', $tenantHtml);
+        $this->assertStringContainsString('ti-activity', $tenantHtml);
+        $this->assertStringContainsString('value="auctions"', $tenantHtml);
+        $this->assertStringContainsString('المزادات', $tenantHtml);
+        $this->assertStringContainsString('btn-reset-datatable-filters', $tenantHtml);
+
+        $tenantJson = $this->actingAs($this->tenantUserA, 'tenant')
+            ->getJson(tenant_route_name('activity-logs.index'))
+            ->assertOk()
+            ->json();
+
+        $tenantRow = $tenantJson['data'][0];
+        $this->assertArrayHasKey('checkbox', $tenantRow);
+        $this->assertArrayNotHasKey('subject_info', $tenantRow);
+        $this->assertStringContainsString('15-06-2026', $tenantRow['created_at']);
+        $this->assertStringContainsString('btn btn-icon btn-label-primary', $tenantRow['actions']);
+        $this->assertStringContainsString(tenant_route_name('activity-logs.show', $tenantActivity->id), $tenantRow['actions']);
+
+        // Tenant get-all-ids respects created_from / created_to date range
+        Activity::on('tenant')->create([
+            'log_name' => 'properties',
+            'description' => 'نشاط قديم',
+            'causer_type' => User::class,
+            'causer_id' => $this->tenantUserA->id,
+            'created_at' => now()->setDate(2025, 1, 10)->setTime(10, 0),
+        ]);
+
+        $idsRes = $this->actingAs($this->tenantUserA, 'tenant')
+            ->getJson(tenant_route_name('activity-logs.get-all-ids', [
+                'created_from' => '2026-06-01',
+                'created_to' => '2026-06-30',
+            ]))
+            ->assertOk()
+            ->json();
+
+        $this->assertEquals(1, $idsRes['total']);
+        $this->assertEquals([$tenantActivity->id], $idsRes['ids']);
+        tenancy()->end();
+    }
+
+    public function test_tenant_archives_renders_shared_empty_state_when_no_files_exist(): void
+    {
+        tenancy()->initialize($this->tenantA);
+
+        $disk = Storage::disk('tenant_public');
+        foreach ($disk->files('activity-logs') as $existingFile) {
+            $disk->delete($existingFile);
+        }
+
+        $this->actingAs($this->tenantUserA, 'tenant')
+            ->get(tenant_route_name('activity-logs.archives'))
+            ->assertOk()
+            ->assertSee('empty-state')
+            ->assertSee('لا توجد ملفات مصدرة')
+            ->assertSee('العودة للسجل');
+
+        tenancy()->end();
+    }
 }

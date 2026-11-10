@@ -12,7 +12,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/shared/auth-layout.js'])
+    @vite(['resources/assets/js/shared/auth-layout.js', 'resources/assets/js/shared/form-validation.js'])
 @endsection
 
 @section('content')
@@ -40,6 +40,10 @@
                     <input class="form-check-input" type="checkbox" id="remember_me" name="remember">
                     <label class="form-check-label" for="remember_me">تذكرني في هذا الجهاز</label>
                 </div>
+
+                <a href="{{ route('admin.password.request') }}" class="auth-link">
+                    نسيت كلمة المرور؟
+                </a>
             </div>
 
             <button class="btn-auth-primary" type="submit">

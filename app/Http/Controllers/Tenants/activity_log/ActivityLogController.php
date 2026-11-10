@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Tenants\activity_log;
 
+use App\DataTables\Tenants\ActivityLog\TenantActivityLogDataTable;
 use App\Exports\Tenants\ActivityLog\ActivityLogsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\ActivityLog\ActivityLogIndexRequest;
 use App\Http\Requests\Tenants\ActivityLog\DownloadActivityLogExportRequest;
 use App\Http\Requests\Tenants\ActivityLog\ExportActivityLogsRequest;
 use App\Models\Tenants\UserMangment\User\User;
-use App\Traits\ActivityLogPresenterTrait;
-use Carbon\Carbon;
+use App\Services\Shared\ActivityLog\ActivityLogService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
@@ -18,13 +20,9 @@ use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Activitylog\Models\Activity;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Yajra\DataTables\Facades\DataTables;
 
 class ActivityLogController extends Controller
 {
-    use ActivityLogPresenterTrait;
-
     /*
     |--------------------------------------------------------------------------
     | الحد الأقصى لعدد السجلات القابلة للتصدير دفعة واحدة
@@ -32,82 +30,35 @@ class ActivityLogController extends Controller
     */
     private const EXPORT_MAX = 20000;
 
-    public function __construct()
-    {
+    public function __construct(
+        private readonly ActivityLogService $activityLogService,
+    ) {
         $this->middleware('can:activity_log.view');
     }
 
-    public function index(ActivityLogIndexRequest $request): View|JsonResponse
+    public function index(ActivityLogIndexRequest $request, TenantActivityLogDataTable $dataTable): View|JsonResponse
     {
         $this->authorize('viewAny', Activity::class);
 
-        if ($request->ajax() || $request->wantsJson()) {
-            $query = Activity::with('causer', 'subject')
-                ->select([
-                    'id',
-                    'log_name',
-                    'description',
-                    'subject_id',
-                    'subject_type',
-                    'causer_id',
-                    'causer_type',
-                    'properties',
-                    'created_at',
-                ]);
-
-            // تطبيق الفلاتر
-            $this->applyFilters($query, $request);
-
-            return DataTables::of($query)
-                ->addColumn('checkbox', function ($activity) {
-                    return '<input type="checkbox" class="row-checkbox" value="'.$activity->id.'">';
-                })
-                ->addColumn('log_name_formatted', function ($activity) {
-                    return '<span class="badge bg-primary">'.$this->activityLogNameLabel($activity->log_name).'</span>';
-                })
-                ->addColumn('causer_name', function ($activity) {
-                    return $activity->causer ? $activity->causer->name : 'النظام';
-                })
-                ->addColumn('subject_info', function ($activity) {
-                    if ($activity->log_name === 'auth') {
-                        $identifier = e(data_get($activity->properties, 'identifier', 'غير معروف'));
-
-                        if ($activity->subject) {
-                            return '<span class="badge bg-warning me-1">محاولة دخول</span><span class="text-info">'.e($activity->subject->name).' ('.$identifier.')</span>';
-                        }
-
-                        return '<span class="badge bg-warning me-1">محاولة دخول</span><span class="text-muted">'.$identifier.'</span>';
-                    }
-
-                    if (! $activity->subject) {
-                        return '<span class="text-muted">محذوف</span>';
-                    }
-
-                    $subjectType = class_basename($activity->subject_type);
-                    $arabicType = $this->activitySubjectTypeMap()[$subjectType] ?? $subjectType;
-
-                    return '<span class="text-info">'.$arabicType.' #'.$activity->subject_id.'</span>';
-                })
-
-                ->editColumn('created_at', function ($row) {
-                    return Carbon::parse($row->created_at)->locale('ar')->diffForHumans();
-                })
-
-                ->addColumn('action', function ($activity) {
-                    return $this->getActionsColumn($activity);
-                })
-                ->orderColumn('created_at', fn ($query, $order) => $query->orderBy('created_at', $order))
-                ->rawColumns(['checkbox', 'log_name_formatted', 'subject_info', 'created_at', 'action'])
-                ->make(true);
+        if ($request->ajax() || $request->wantsJson() || $request->has('draw')) {
+            return $dataTable->render('tenant.activity-logs.index');
         }
 
-        // الإحصائيات للعرض
-        $statistics = $this->getStatistics();
+        $statistics = $this->activityLogService->getStatistics();
         $users = User::select('id', 'name')->orderBy('name')->get();
 
-        return view('tenant.activity-logs.index', [
+        $filterOptions = [
+            'users' => $users->map(fn (User $user): array => [
+                'value' => $user->id,
+                'label' => $user->name,
+            ]),
+            'log_names' => $this->activityLogService->getLogNameFilterOptions(),
+        ];
+
+        return $dataTable->render('tenant.activity-logs.index', [
             'users' => $users,
             'statistics' => $statistics,
+            'filterOptions' => $filterOptions,
         ]);
     }
 
@@ -120,105 +71,9 @@ class ActivityLogController extends Controller
     public function show($id): View
     {
         $activity = Activity::with('causer')->findOrFail($id);
-        if ($activity->subject_type && class_exists($activity->subject_type)) {
-            $activity->load('subject');
-        }
+        $this->authorize('view', $activity);
 
-        // تحضير البيانات للعرض
-        $activityData = $this->prepareActivityData($activity);
-        $changes = $this->prepareChangesData($activity);
-
-        return view('tenant.activity-logs.show', [
-            'activity' => $activity,
-            'activityData' => $activityData,
-            'changes' => $changes,
-        ]);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | تحضير بيانات النشاط للعرض
-    |--------------------------------------------------------------------------
-    */
-    private function prepareActivityData($activity): array
-    {
-        $arabicEvent = $this->activityEventMap()[$activity->event] ?? ($activity->event ?? 'غير محدد');
-
-        return [
-            'event_arabic' => $arabicEvent,
-            'event_badge_class' => $this->activityEventBadgeClass($activity->event),
-            'log_name_arabic' => $this->activityLogNameLabel($activity->log_name),
-            'subject_display' => $this->activitySubjectDisplay($activity),
-            'user_name' => $activity->causer->name ?? 'النظام',
-            'formatted_date' => system_datetime($activity->created_at, 'غير محدد'),
-            'connection_info' => $this->getActivityConnectionInfo($activity),
-        ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | تطبيق الفلاتر على الاستعلام
-    |--------------------------------------------------------------------------
-    */
-    private function applyFilters($query, ActivityLogIndexRequest $request): void
-    {
-        if ($request->filled('user_id')) {
-            $query->where('causer_id', $request->user_id);
-        }
-
-        if ($request->filled('log_name')) {
-            $query->where('log_name', $request->log_name);
-        }
-
-        $from = $request->date_from ?? $request->created_from;
-        if ($from) {
-            $query->whereDate('created_at', '>=', $from);
-        }
-
-        $to = $request->date_to ?? $request->created_to;
-        if ($to) {
-            $query->whereDate('created_at', '<=', $to);
-        }
-
-        $search = $request->input('search.value', $request->input('search'));
-        if (! empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('description', 'like', "%{$search}%")
-                    ->orWhere('log_name', 'like', "%{$search}%");
-            });
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    |  الحصول على الإحصائيات
-    |--------------------------------------------------------------------------
-    */
-    private function getStatistics(): array
-    {
-        return [
-            'total' => Activity::count(),
-            'today' => Activity::whereDate('created_at', today())->count(),
-            'this_week' => Activity::whereBetween('created_at', [
-                now()->startOfWeek(),
-                now()->endOfWeek(),
-            ])->count(),
-            'this_month' => Activity::whereMonth('created_at', now()->month)->count(),
-        ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | عمود الإجراءات
-    |--------------------------------------------------------------------------
-    */
-    private function getActionsColumn(Activity $activity): string
-    {
-        $showUrl = tenant_route_name('activity-logs.show', $activity->id);
-
-        return '<a href="'.$showUrl.'" title="عرض التفاصيل" class="btn btn-icon btn-primary">
-                <i class="ti ti-eye"></i>
-            </a>';
+        return view('tenant.activity-logs.show', $this->activityLogService->getShowViewData($activity));
     }
 
     /*
@@ -228,8 +83,10 @@ class ActivityLogController extends Controller
     */
     public function getAllIds(ActivityLogIndexRequest $request): JsonResponse
     {
+        $this->authorize('viewAny', Activity::class);
+
         $query = Activity::query();
-        $this->applyFilters($query, $request);
+        $this->activityLogService->applyFilters($query, $request->validated(), true);
 
         $total = (clone $query)->count();
         $ids = $query->orderByDesc('created_at')->limit(self::EXPORT_MAX)->pluck('id');
@@ -249,6 +106,8 @@ class ActivityLogController extends Controller
     */
     public function export(ExportActivityLogsRequest $request): JsonResponse
     {
+        $this->authorize('viewAny', Activity::class);
+
         $ids = collect(json_decode($request->validated('ids'), true) ?: [])
             ->filter()
             ->take(self::EXPORT_MAX)
@@ -312,54 +171,8 @@ class ActivityLogController extends Controller
     */
     public function archives(): View
     {
-        $disk = Storage::disk('tenant_public');
-        $files = $disk->files('activity-logs');
+        $this->authorize('viewAny', Activity::class);
 
-        $archives = collect($files)->map(function ($file) use ($disk) {
-            $lastModified = $disk->lastModified($file);
-
-            return [
-                'name' => basename($file),
-                'path' => $file,
-                'size' => $this->formatBytes($disk->size($file)),
-                'date' => Carbon::createFromTimestamp($lastModified)->format('Y-m-d H:i'),
-                'month' => Carbon::createFromTimestamp($lastModified)->format('F Y'),
-            ];
-        })->sortByDesc('date')->values();
-
-        return view('tenant.activity-logs.archives', compact('archives'));
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | تحميل ملف مصدر
-    |--------------------------------------------------------------------------
-    */
-    public function downloadFile($file): StreamedResponse
-    {
-        $filePath = 'activity-logs/'.$file;
-        $disk = Storage::disk('tenant_public');
-
-        if (! $disk->exists($filePath)) {
-            abort(404, 'الملف غير موجود');
-        }
-
-        return $disk->download($filePath);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | تحويل حجم الملف إلى صيغة مقروءة
-    |--------------------------------------------------------------------------
-    */
-    private function formatBytes($bytes, $precision = 2): string
-    {
-        $units = ['B', 'KB', 'MB', 'GB'];
-
-        for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
-            $bytes /= 1024;
-        }
-
-        return round($bytes, $precision).' '.$units[$i];
+        return view('tenant.activity-logs.archives', $this->activityLogService->getTenantArchivesData());
     }
 }

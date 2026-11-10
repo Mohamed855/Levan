@@ -4,7 +4,6 @@ namespace App\Http\Requests\Admin\AdminMangment\Users;
 
 use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 
 class AdminUserStoreRequest extends WizardFormRequest
 {
@@ -18,7 +17,6 @@ class AdminUserStoreRequest extends WizardFormRequest
         return [
             'name' => ['required', 'string', 'max:255', 'min:3', 'regex:/^[\pL\s\-\.]+$/u'],
             'email' => ['required', 'email:rfc', 'max:255', 'unique:admin_users,email'],
-            'password' => ['required', 'string', Password::defaults(), 'confirmed'],
             'phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
             'role_id' => [
                 'required',
@@ -44,12 +42,6 @@ class AdminUserStoreRequest extends WizardFormRequest
             'email.max' => 'البريد الإلكتروني يجب ألا يزيد عن 255 حرف',
             'email.unique' => 'البريد الإلكتروني مستخدم مسبقاً',
 
-            // password
-            'password.required' => 'كلمة المرور مطلوبة',
-            'password.string' => 'كلمة المرور يجب أن تكون نص',
-            'password.min' => 'كلمة المرور يجب ألا تقل عن 8 أحرف',
-            'password.confirmed' => 'تأكيد كلمة المرور غير مطابق',
-
             // phone
             'phone.required' => 'رقم الهاتف مطلوب',
             'phone.string' => 'رقم الهاتف يجب أن يكون نص',
@@ -74,8 +66,6 @@ class AdminUserStoreRequest extends WizardFormRequest
         return [
             'name' => 'الاسم الكامل',
             'email' => 'البريد الإلكتروني',
-            'password' => 'كلمة المرور',
-            'password_confirmation' => 'تأكيد كلمة المرور',
             'phone' => 'رقم الهاتف',
             'role_id' => 'الدور',
             'image' => 'الصورة الشخصية',

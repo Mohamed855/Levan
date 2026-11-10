@@ -676,6 +676,129 @@ final class RolesAndPermissionsDualReviewTest extends TestCase
         $this->assertStringContainsString('لا يمكن حذف الدور الأساسي', (string) $response2->json('message'));
     }
 
+    public function test_system_protected_roles_cannot_be_edited_or_updated_in_admin_and_tenant(): void
+    {
+        $admin = $this->createAdminUser();
+        $superAdminRole = Role::on('mysql')->where('name', 'SuperAdmin')->firstOrFail();
+        $initialAdminPermsCount = $superAdminRole->permissions()->count();
+
+        // Admin SuperAdmin edit route redirects with error
+        $this->actingAs($admin, 'admin')
+            ->get(route('admin.roles.edit', $superAdminRole->id))
+            ->assertRedirect(route('admin.roles.index'))
+            ->assertSessionHas('error', 'لا يمكن تعديل دور مدير النظام الرئيسي.');
+
+        // Admin SuperAdmin update via web form redirects with error and preserves role & permissions
+        $this->actingAs($admin, 'admin')
+            ->put(route('admin.roles.update', $superAdminRole->id), [
+                'name' => 'RenamedSuperAdmin',
+                'permissions' => ['dashboard.main'],
+            ])
+            ->assertRedirect(route('admin.roles.index'))
+            ->assertSessionHas('error', 'لا يمكن تعديل دور مدير النظام الرئيسي.');
+
+        // Admin SuperAdmin update via JSON returns 422 even without permissions
+        $this->actingAs($admin, 'admin')
+            ->putJson(route('admin.roles.update', $superAdminRole->id), [
+                'name' => 'RenamedSuperAdmin',
+            ])
+            ->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'message' => 'لا يمكن تعديل دور مدير النظام الرئيسي.',
+            ]);
+
+        $superAdminRole->refresh();
+        $this->assertSame('SuperAdmin', $superAdminRole->name);
+        $this->assertSame($initialAdminPermsCount, $superAdminRole->permissions()->count());
+
+        // Direct service call throws LogicException for SuperAdmin
+        try {
+            app(AdminRoleService::class)->updateRole($superAdminRole, [
+                'name' => 'RenamedSuperAdmin',
+                'permissions' => ['dashboard.main'],
+            ]);
+            $this->fail('Expected LogicException when updating SuperAdmin role.');
+        } catch (LogicException $e) {
+            $this->assertSame('لا يمكن تعديل دور مدير النظام الرئيسي.', $e->getMessage());
+        }
+
+        // Custom admin role remains editable
+        $customAdminRole = Role::on('mysql')->create(['name' => 'EditableAdminRole', 'guard_name' => 'admin']);
+        $customAdminRole->syncPermissions(['dashboard.main']);
+
+        $this->actingAs($admin, 'admin')
+            ->put(route('admin.roles.update', $customAdminRole->id), [
+                'name' => 'UpdatedAdminRole',
+                'permissions' => ['dashboard.main', 'users.view'],
+            ])
+            ->assertRedirect(route('admin.roles.index'))
+            ->assertSessionHas('success');
+        $this->assertSame('UpdatedAdminRole', $customAdminRole->fresh()->name);
+
+        // Tenant Admin role
+        $tenant = Tenant::on('mysql')->create(['id' => 't-sys-edit']);
+        $tenantUser = $this->createTenantUser($tenant);
+        $primaryAdminRole = Role::on('tenant')->where('name', 'Admin')->firstOrFail();
+        $initialTenantPermsCount = $primaryAdminRole->permissions()->count();
+
+        // Tenant Admin edit route redirects with error
+        $this->actingAs($tenantUser, 'tenant')
+            ->get(tenant_route_name('roles.edit', $primaryAdminRole->id))
+            ->assertRedirect(tenant_route_name('roles.index'))
+            ->assertSessionHas('error', 'لا يمكن تعديل دور مدير النظام.');
+
+        // Tenant Admin update via web form redirects with error and preserves role & permissions
+        $this->actingAs($tenantUser, 'tenant')
+            ->put(tenant_route_name('roles.update', $primaryAdminRole->id), [
+                'name' => 'RenamedTenantAdmin',
+                'permissions' => ['dashboard.view'],
+            ])
+            ->assertRedirect(tenant_route_name('roles.index'))
+            ->assertSessionHas('error', 'لا يمكن تعديل دور مدير النظام.');
+
+        // Tenant Admin update via JSON returns 422 even without permissions
+        $this->actingAs($tenantUser, 'tenant')
+            ->putJson(tenant_route_name('roles.update', $primaryAdminRole->id), [
+                'name' => 'RenamedTenantAdmin',
+            ])
+            ->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'message' => 'لا يمكن تعديل دور مدير النظام.',
+            ]);
+
+        $primaryAdminRole->refresh();
+        $this->assertSame('Admin', $primaryAdminRole->name);
+        $this->assertSame($initialTenantPermsCount, $primaryAdminRole->permissions()->count());
+
+        // Direct service call throws LogicException for Tenant Admin
+        try {
+            app(TenantRoleService::class)->updateRole($primaryAdminRole, [
+                'name' => 'RenamedTenantAdmin',
+                'permissions' => ['dashboard.view'],
+            ]);
+            $this->fail('Expected LogicException when updating Tenant Admin role.');
+        } catch (LogicException $e) {
+            $this->assertSame('لا يمكن تعديل دور مدير النظام.', $e->getMessage());
+        }
+
+        // Custom tenant role remains editable
+        $customTenantRole = Role::on('tenant')->create(['name' => 'EditableTenantRole', 'guard_name' => 'tenant']);
+        $customTenantRole->syncPermissions(['dashboard.view']);
+
+        $this->actingAs($tenantUser, 'tenant')
+            ->put(tenant_route_name('roles.update', $customTenantRole->id), [
+                'name' => 'UpdatedTenantRole',
+                'permissions' => ['dashboard.view', 'users.view'],
+            ])
+            ->assertRedirect(tenant_route_name('roles.index'))
+            ->assertSessionHas('success');
+        $this->assertSame('UpdatedTenantRole', $customTenantRole->fresh()->name);
+
+        tenancy()->end();
+    }
+
     /*
     |--------------------------------------------------------------------------
     | ROL-12: Mass Delete Protects Linked & Protected Roles
@@ -905,6 +1028,91 @@ final class RolesAndPermissionsDualReviewTest extends TestCase
 
         $tenantActionWithoutUsers = view('tenant.user-management.roles.action', ['role' => $tenantRoleWithoutUsers])->render();
         $this->assertStringContainsString('js-delete-btn', $tenantActionWithoutUsers);
+
+        tenancy()->end();
+    }
+
+    public function test_protected_roles_render_protected_label_and_hide_edit_and_delete_actions_in_admin_and_tenant(): void
+    {
+        $admin = $this->createAdminUser();
+        $this->actingAs($admin, 'admin');
+
+        $superAdminRole = Role::on('mysql')->where('name', 'SuperAdmin')->firstOrFail();
+        $customAdminRole = Role::on('mysql')->create(['name' => 'CustomAdminRole', 'guard_name' => 'admin']);
+
+        // Action partial renders "محمي" without edit or delete buttons
+        $adminProtectedAction = view('admin.roles.action', ['role' => $superAdminRole])->render();
+        $this->assertSame('<span class="text-muted">محمي</span>', trim($adminProtectedAction));
+        $this->assertStringNotContainsString('js-delete-btn', $adminProtectedAction);
+        $this->assertStringNotContainsString('تعديل الدور', $adminProtectedAction);
+
+        // DataTable JSON renders "محمي" and disabled checkbox for SuperAdmin
+        $adminDtResponse = $this->actingAs($admin, 'admin')
+            ->getJson(route('admin.roles.index', ['draw' => 1]));
+        $adminDtResponse->assertOk();
+
+        $adminRows = collect($adminDtResponse->json('data'));
+        $superRow = $adminRows->first(fn (array $row): bool => str_contains((string) ($row['name'] ?? ''), 'مدير النظام الرئيسي'));
+        $customAdminRow = $adminRows->first(fn (array $row): bool => str_contains((string) ($row['name'] ?? ''), 'CustomAdminRole'));
+
+        $this->assertNotNull($superRow);
+        $this->assertSame('<span class="text-muted">محمي</span>', $superRow['actions']);
+        $this->assertStringContainsString('disabled', $superRow['checkbox']);
+        $this->assertNotNull($customAdminRow);
+        $this->assertStringContainsString('تعديل الدور', $customAdminRow['actions']);
+
+        // Tenant side
+        $tenant = Tenant::on('mysql')->create(['id' => 't-prot-ui-'.uniqid()]);
+        $tenantUser = $this->createTenantUser($tenant);
+        $this->actingAs($tenantUser, 'tenant');
+
+        $primaryAdminRole = Role::on('tenant')->where('name', 'Admin')->firstOrFail();
+        $customTenantRole = Role::on('tenant')->create(['name' => 'CustomTenantRole', 'guard_name' => 'tenant']);
+
+        // Action partial renders "محمي" without edit or delete buttons
+        $tenantProtectedAction = view('tenant.user-management.roles.action', ['role' => $primaryAdminRole])->render();
+        $this->assertSame('<span class="text-muted">محمي</span>', trim($tenantProtectedAction));
+        $this->assertStringNotContainsString('js-delete-btn', $tenantProtectedAction);
+        $this->assertStringNotContainsString('تعديل الدور', $tenantProtectedAction);
+
+        // DataTable JSON renders "محمي" and disabled checkbox for Tenant Admin
+        $tenantDtResponse = $this->actingAs($tenantUser, 'tenant')
+            ->getJson(tenant_route_name('roles.index').'?draw=1');
+        $tenantDtResponse->assertOk();
+
+        $tenantRows = collect($tenantDtResponse->json('data'));
+        $tenantAdminRow = $tenantRows->first(fn (array $row): bool => str_contains((string) ($row['name'] ?? ''), 'مدير النظام'));
+        $customTenantRow = $tenantRows->first(fn (array $row): bool => str_contains((string) ($row['name'] ?? ''), 'CustomTenantRole'));
+
+        $this->assertNotNull($tenantAdminRow);
+        $this->assertSame('<span class="text-muted">محمي</span>', $tenantAdminRow['actions']);
+        $this->assertStringContainsString('disabled', $tenantAdminRow['checkbox']);
+        $this->assertNotNull($customTenantRow);
+        $this->assertStringContainsString('تعديل الدور', $customTenantRow['actions']);
+
+        // Tenant role show page hides edit button and shows protected badge for Admin, while keeping edit button for custom role
+        if (! Schema::connection('mysql')->hasTable('subscription_periods')) {
+            Schema::connection('mysql')->create('subscription_periods', function (Blueprint $table): void {
+                $table->id();
+                $table->unsignedBigInteger('subscription_id');
+                $table->string('status')->default('active');
+                $table->timestamp('period_start')->nullable();
+                $table->timestamp('period_end')->nullable();
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
+
+        $this->actingAs($tenantUser, 'tenant')
+            ->get(tenant_route_name('roles.show', $primaryAdminRole->id))
+            ->assertOk()
+            ->assertSee('محمي')
+            ->assertDontSee('تعديل الدور');
+
+        $this->actingAs($tenantUser, 'tenant')
+            ->get(tenant_route_name('roles.show', $customTenantRole->id))
+            ->assertOk()
+            ->assertSee('تعديل الدور');
 
         tenancy()->end();
     }

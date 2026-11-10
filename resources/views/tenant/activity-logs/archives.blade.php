@@ -2,111 +2,34 @@
 
 @section('title', 'أرشيف سجل النشاطات')
 
-@section('vendor-style')
-    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss'])
-@endsection
-
 @section('content')
     {{-- Statistics Cards --}}
     <div class="row g-4 mb-4">
-        <div class="col-sm-6 col-xl-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">إجمالي الملفات</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $archives->count() }}</h4>
-                            </div>
-                            <small class="mb-0">ملف مصدر</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-primary">
-                                <i class="ti ti-files ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-ui.stat-card col="col-sm-6 col-xl-4" title="إجمالي الملفات" :value="$totalCount" icon="ti-files" color="primary">
+            <small class="text-muted d-block mt-1">ملف مصدر</small>
+        </x-ui.stat-card>
 
-        <div class="col-sm-6 col-xl-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">إجمالي الحجم</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">
-                                    @php
-                                        $totalSize = 0;
-                                        foreach($archives as $a) {
-                                            $size = floatval(str_replace([' MB', ' KB', ' GB', ' B'], '', $a['size']));
-                                            if(str_contains($a['size'], 'KB')) $size = $size / 1024;
-                                            if(str_contains($a['size'], 'GB')) $size = $size * 1024;
-                                            $totalSize += $size;
-                                        }
-                                        echo round($totalSize, 2);
-                                    @endphp
-                                    MB
-                                </h4>
-                            </div>
-                            <small class="mb-0">حجم تقريبي</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-success">
-                                <i class="ti ti-database ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-ui.stat-card col="col-sm-6 col-xl-4" title="إجمالي الحجم" :value="$totalSizeMb" icon="ti-database" color="success">
+            <small class="text-muted d-block mt-1">حجم تقريبي</small>
+        </x-ui.stat-card>
 
-        <div class="col-sm-6 col-xl-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">آخر تصدير</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $archives->isNotEmpty() ? system_date($archives->first()['date'], '--') : '--' }}</h4>
-                            </div>
-                            <small class="mb-0">{{ $archives->isNotEmpty() ? \Carbon\Carbon::parse($archives->first()['date'])->diffForHumans() : 'لا يوجد' }}</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-info">
-                                <i class="ti ti-calendar-event ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-ui.stat-card col="col-sm-6 col-xl-4" title="آخر تصدير" :value="$lastExportDate" icon="ti-calendar-event"
+            color="info">
+            <small class="text-muted d-block mt-1">{{ $lastExportDiff }}</small>
+        </x-ui.stat-card>
     </div>
 
     {{-- Archives Content --}}
-    @if($archives->isEmpty())
-        {{-- Empty State --}}
+    @if ($archives->isEmpty())
         <div class="card">
             <div class="card-body">
-                <div class="text-center py-5">
-                    <i class="ti ti-folder-off ti-xl text-muted mb-4 d-block"></i>
-                    <h5 class="mb-2">لا توجد ملفات مصدرة</h5>
-                    <p class="text-muted mb-4">
-                        سيتم تصدير سجل النشاطات تلقائياً في بداية كل شهر<br>
-                        وسيظهر الملف المصدر هنا
-                    </p>
-                    <a href="{{ tenant_route_name('activity-logs.index') }}" class="btn btn-primary">
-                        <i class="ti ti-arrow-right me-1"></i>
-                        العودة للسجل
-                    </a>
-                </div>
+                <x-ui.empty-state icon="ti ti-folder-off" title="لا توجد ملفات مصدرة"
+                    description="سيتم تصدير سجل النشاطات تلقائياً في بداية كل شهر وسيظهر الملف المصدر هنا"
+                    actionText="العودة للسجل" :actionUrl="tenant_route_name('activity-logs.index')" actionIcon="ti ti-arrow-right" />
             </div>
         </div>
     @else
-        {{-- Table View --}}
-        <div class="card">
+        <div class="card" id="card-activity-log-archives">
             <div class="card-header">
                 <h5 class="mb-0">
                     <i class="ti ti-list me-2"></i>
@@ -115,7 +38,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover table-bordered text-center">
+                    <table class="table table-hover table-bordered text-center align-middle">
                         <thead class="table-light">
                             <tr>
                                 <th width="60">#</th>
@@ -127,7 +50,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($archives as $index => $archive)
+                            @foreach ($archives as $index => $archive)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td class="text-start">
@@ -144,16 +67,16 @@
                                     </td>
                                     <td>
                                         <div>
-                                            <div>@date($archive['date'])</div>
-                                            <small class="text-muted">{{ parse_system_date($archive['date'])?->locale('ar')->translatedFormat('h:i A') ?? '' }}</small>
+                                            <div>{{ $archive['formatted_date'] }}</div>
+                                            <small class="text-muted">{{ $archive['formatted_time'] }}</small>
                                         </div>
                                     </td>
                                     <td>
-                                        <a href="{{ tenant_route_name('activity-logs.export-download', basename($archive['path'])) }}" 
-                                           class="btn btn-icon btn-primary"
-                                           title="تحميل الملف">
-                                            <i class="ti ti-download"></i>
-                                        </a>
+                                        <x-actions.row>
+                                            <x-actions.show :url="tenant_route_name('activity-logs.export-download', $archive['name'])"
+                                                title="تحميل الملف" icon="ti ti-download"
+                                                class="btn-icon btn-primary" />
+                                        </x-actions.row>
                                     </td>
                                 </tr>
                             @endforeach
@@ -163,7 +86,6 @@
             </div>
         </div>
 
-        {{-- Info Alert --}}
         <div class="alert alert-info mt-4 d-flex align-items-center" role="alert">
             <i class="ti ti-info-circle me-2 ti-lg"></i>
             <div>

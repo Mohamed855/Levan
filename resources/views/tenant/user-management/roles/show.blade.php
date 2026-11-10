@@ -17,17 +17,22 @@
                 </code>
                 <span class="badge bg-info">{{ \App\Support\AccessLabels::guard($role->guard_name) }}</span>
                 <span class="badge bg-success">{{ $roleData['users_count'] ?? $role->users->count() }} مستخدم</span>
+                @if (\App\Services\Tenants\UserManagement\Role\RoleService::isProtectedRole($role))
+                    <span class="badge bg-label-secondary">محمي</span>
+                @endif
             </div>
         </div>
         <div class="d-flex gap-2">
             <a href="{{ tenant_route_name('roles.index') }}" class="btn btn-secondary">
                 <i class="ti ti-arrow-right me-1"></i> العودة
             </a>
-            @can('roles.edit')
-                <a href="{{ tenant_route_name('roles.edit', $role->id) }}" class="btn btn-primary">
-                    <i class="ti ti-edit me-1"></i> تعديل الدور
-                </a>
-            @endcan
+            @if (! \App\Services\Tenants\UserManagement\Role\RoleService::isProtectedRole($role))
+                @can('roles.edit')
+                    <a href="{{ tenant_route_name('roles.edit', $role->id) }}" class="btn btn-primary">
+                        <i class="ti ti-edit me-1"></i> تعديل الدور
+                    </a>
+                @endcan
+            @endif
         </div>
     </div>
 

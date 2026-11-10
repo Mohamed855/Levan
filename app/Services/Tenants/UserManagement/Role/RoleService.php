@@ -66,6 +66,17 @@ class RoleService
         });
     }
 
+    public static function isProtectedRole(Role $role): bool
+    {
+        return (int) $role->id === 1
+            || in_array(strtolower((string) $role->name), ['admin', 'superadmin'], true);
+    }
+
+    public function canEditRole(Role $role): bool
+    {
+        return ! self::isProtectedRole($role);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Role Update
@@ -74,6 +85,10 @@ class RoleService
     */
     public function updateRole(Role $role, array $data): Role
     {
+        if (self::isProtectedRole($role)) {
+            throw new \LogicException('لا يمكن تعديل دور مدير النظام.');
+        }
+
         $permissions = $this->getPermissionsFromData($data);
         if (empty($permissions)) {
             throw new \InvalidArgumentException('يجب اختيار صلاحية واحدة على الأقل.');
@@ -98,7 +113,7 @@ class RoleService
     */
     public function deleteRole(Role $role): bool
     {
-        if ((int) $role->id === 1 || $role->name === 'Admin') {
+        if (self::isProtectedRole($role)) {
             throw new \LogicException('لا يمكن حذف الدور الأساسي.');
         }
 

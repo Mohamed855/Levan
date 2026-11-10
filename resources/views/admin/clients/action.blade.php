@@ -30,9 +30,9 @@
         </button>
     @endcanany
 
-        <form id="delete-form-{{ $row->id }}" action="{{ route($route . '.destroy', $row->id) }}" method="POST"
-            style="display: none;">
-            @csrf
-            @method('DELETE')
-        </form>
+    <form id="delete-form-{{ $row->id }}" action="{{ route($route . '.destroy', $row->id) }}" method="POST"
+        style="display: none;">
+        @csrf
+        @method('DELETE')
+    </form>
 </div>

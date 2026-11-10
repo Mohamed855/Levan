@@ -6,6 +6,7 @@ namespace Tests\Feature\Auth;
 
 use App\Actions\Admin\MassDelete\DeleteAdminRecordsAction;
 use App\Enums\Admin\Users\AdminUserStatus;
+use App\Mail\Auth\UserWelcomeMail;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\UserMangment\User\User;
@@ -14,6 +15,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use LogicException;
@@ -393,21 +395,20 @@ final class UsersAndProfilesDualReviewTest extends TestCase
      */
     public function test_admin_user_creation_validations_and_role_requirement(): void
     {
+        Mail::fake();
         $admin = $this->createAdminUser();
         $adminRole = Role::on('mysql')->firstOrCreate(['name' => 'Auditor', 'guard_name' => 'admin']);
 
         // Missing all required fields
         $response = $this->actingAs($admin, 'admin')->postJson(route('admin.users.store'), []);
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['name', 'email', 'phone', 'password', 'role_id']);
+            ->assertJsonValidationErrors(['name', 'email', 'phone', 'role_id']);
 
         // Invalid phone format (not 10 digits starting with 05)
         $response = $this->actingAs($admin, 'admin')->postJson(route('admin.users.store'), [
             'name' => 'Test User',
             'email' => 'valid@lot.test',
             'phone' => '0123456789',
-            'password' => 'Password123!',
-            'password_confirmation' => 'Password123!',
             'role_id' => $adminRole->id,
         ]);
         $response->assertStatus(422)->assertJsonValidationErrors(['phone']);
@@ -418,13 +419,11 @@ final class UsersAndProfilesDualReviewTest extends TestCase
             'name' => 'Test User',
             'email' => 'valid2@lot.test',
             'phone' => '0512345678',
-            'password' => 'Password123!',
-            'password_confirmation' => 'Password123!',
             'role_id' => $tenantGuardRole->id,
         ]);
         $response->assertStatus(422)->assertJsonValidationErrors(['role_id']);
 
-        // Successful creation
+        // Successful creation (ignores injected password, auto-generates, and emails it)
         $response = $this->actingAs($admin, 'admin')->post(route('admin.users.store'), [
             'name' => 'Valid Admin User',
             'email' => 'valid_admin@lot.test',
@@ -437,9 +436,21 @@ final class UsersAndProfilesDualReviewTest extends TestCase
 
         $created = AdminUser::on('mysql')->where('email', 'valid_admin@lot.test')->first();
         $this->assertNotNull($created);
-        $this->assertTrue(Hash::check('Password123!', $created->password));
+        $this->assertFalse(Hash::check('Password123!', $created->password));
         $this->assertTrue($created->hasRole('Auditor', 'admin'));
         $this->assertTrue($created->must_change_password);
+
+        $sentPassword = null;
+        Mail::assertQueued(UserWelcomeMail::class, function (UserWelcomeMail $mail) use (&$sentPassword): bool {
+            if (! $mail->hasTo('valid_admin@lot.test')) {
+                return false;
+            }
+            $sentPassword = $mail->temporaryPassword;
+
+            return ! empty($sentPassword) && $mail->connection === 'sync' && $sentPassword !== 'Password123!';
+        });
+        $this->assertNotNull($sentPassword);
+        $this->assertTrue(Hash::check($sentPassword, $created->password));
     }
 
     /**
@@ -447,6 +458,7 @@ final class UsersAndProfilesDualReviewTest extends TestCase
      */
     public function test_tenant_user_creation_validations_and_role_requirement(): void
     {
+        Mail::fake();
         $tenant = $this->createTenantWithDb('tenant-u1');
         $manager = $this->createTenantUser($tenant, [], ['Admin']);
         $tenantRole = Role::on('tenant')->firstOrCreate(['name' => 'Staff', 'guard_name' => 'tenant']);
@@ -454,20 +466,18 @@ final class UsersAndProfilesDualReviewTest extends TestCase
         // Missing fields
         $response = $this->actingAs($manager, 'tenant')->postJson(tenant_route_name('users.store'), []);
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['name', 'email', 'phone', 'password', 'role_id']);
+            ->assertJsonValidationErrors(['name', 'email', 'phone', 'role_id']);
 
         // Invalid phone
         $response = $this->actingAs($manager, 'tenant')->postJson(tenant_route_name('users.store'), [
             'name' => 'Tenant User',
             'email' => 'staff@lot.test',
             'phone' => '05123',
-            'password' => 'Password123!',
-            'password_confirmation' => 'Password123!',
             'role_id' => $tenantRole->id,
         ]);
         $response->assertStatus(422)->assertJsonValidationErrors(['phone']);
 
-        // Successful creation
+        // Successful creation (ignores injected password, auto-generates, and emails it)
         $response = $this->actingAs($manager, 'tenant')->post(tenant_route_name('users.store'), [
             'name' => 'Valid Tenant User',
             'email' => 'valid_tenant@lot.test',
@@ -480,9 +490,36 @@ final class UsersAndProfilesDualReviewTest extends TestCase
 
         $created = User::on('tenant')->where('email', 'valid_tenant@lot.test')->first();
         $this->assertNotNull($created);
-        $this->assertTrue(Hash::check('Password123!', $created->password));
+        $this->assertFalse(Hash::check('Password123!', $created->password));
         $this->assertTrue($created->hasRole('Staff', 'tenant'));
         $this->assertTrue($created->must_change_password);
+
+        $sentPassword = null;
+        Mail::assertQueued(UserWelcomeMail::class, function (UserWelcomeMail $mail) use (&$sentPassword): bool {
+            if (! $mail->hasTo('valid_tenant@lot.test')) {
+                return false;
+            }
+            $sentPassword = $mail->temporaryPassword;
+
+            return ! empty($sentPassword) && $mail->connection === 'sync' && $sentPassword !== 'Password123!';
+        });
+        $this->assertNotNull($sentPassword);
+        $this->assertTrue(Hash::check($sentPassword, $created->password));
+
+        // Attempting to update password via tenant user edit must not mutate password
+        $this->actingAs($manager, 'tenant')->put(tenant_route_name('users.update', $created), [
+            'name' => 'Edited Tenant User',
+            'email' => 'valid_tenant@lot.test',
+            'phone' => '0511223344',
+            'role_id' => $tenantRole->id,
+            'password' => 'HijackedPassword123!',
+            'password_confirmation' => 'HijackedPassword123!',
+        ])->assertRedirect(tenant_route_name('users.index'));
+
+        $created->refresh();
+        $this->assertSame('Edited Tenant User', $created->name);
+        $this->assertTrue(Hash::check($sentPassword, $created->password));
+        $this->assertFalse(Hash::check('HijackedPassword123!', $created->password));
 
         tenancy()->initialize($tenant);
         $this->actingAs($created, 'tenant')
@@ -490,7 +527,7 @@ final class UsersAndProfilesDualReviewTest extends TestCase
             ->assertRedirect(tenant_route_name('users.password.change'));
 
         $this->post(tenant_route_name('users.password.update'), [
-            'current_password' => 'Password123!',
+            'current_password' => $sentPassword,
             'new_password' => 'NewTenantPassword123!',
             'new_password_confirmation' => 'NewTenantPassword123!',
         ])->assertRedirect(tenant_route_name('login'))
@@ -610,9 +647,9 @@ final class UsersAndProfilesDualReviewTest extends TestCase
         $this->assertEquals('0599999999', $managed->phone);
         $this->assertEquals($originalHash, $managed->password);
 
-        // Update with new valid password
+        // Attempting to inject a new password via user edit must NOT modify the password
         $response = $this->actingAs($admin, 'admin')->put(route('admin.users.update', $managed), [
-            'name' => 'Target Renamed',
+            'name' => 'Target Renamed Again',
             'email' => 'target@lot.test',
             'phone' => '0599999999',
             'role_id' => $role->id,
@@ -622,8 +659,10 @@ final class UsersAndProfilesDualReviewTest extends TestCase
         $response->assertRedirect(route('admin.users.index'));
 
         $managed->refresh();
-        $this->assertTrue(Hash::check('NewSecretPassword123!', $managed->password));
-        $this->assertNotEquals($originalHash, $managed->password);
+        $this->assertEquals('Target Renamed Again', $managed->name);
+        $this->assertFalse(Hash::check('NewSecretPassword123!', $managed->password));
+        $this->assertTrue(Hash::check('OriginalPassword123!', $managed->password));
+        $this->assertEquals($originalHash, $managed->password);
     }
 
     /**

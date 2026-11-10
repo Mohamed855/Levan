@@ -3,9 +3,23 @@
     $isEdit = isset($user) && $user->exists;
     $currentRoleId = $isEdit ? $user->roles->first()?->id : null;
     $roles = $roles ?? collect();
+    $resolvedImageUrl = $imageUrl ?? (
+        $isEdit && !empty($user?->image)
+            ? (function_exists('tenant') && tenant() ? tasset($user->image) : asset('storage/' . $user->image))
+            : null
+    );
 @endphp
 
 <div class="row g-4">
+    @if (!$isEdit && !$is_profile)
+        <div class="col-12">
+            <div class="alert alert-primary d-flex align-items-center gap-2 mb-0" role="alert">
+                <i class="ti ti-info-circle fs-4"></i>
+                <span>سيتم توليد كلمة المرور تلقائياً وإرسالها إلى البريد الإلكتروني للمستخدم في الرسالة الترحيبية.</span>
+            </div>
+        </div>
+    @endif
+
     <x-form.controls.input name="name" label="الاسم الكامل" :value="old('name', $user->name ?? '')" placeholder="ادخل الاسم الكامل"
         required col="col-md-6" />
 
@@ -21,15 +35,6 @@
         <input type="hidden" name="role_id" value="{{ $currentRoleId }}">
     @endif
 
-    @if (!$is_profile)
-        <x-form.controls.password name="password" :label="$is_edit ? 'كلمة المرور الجديدة' : 'كلمة المرور'" :placeholder="$is_edit ? 'اتركه فارغاً إذا لم ترغب بالتعديل' : 'ادخل كلمة المرور'"
-            data-validation-dependents="password_confirmation" :required="!$is_edit" col="col-md-6" />
-
-        <x-form.controls.password name="password_confirmation" :label="$is_edit ? 'تأكيد كلمة المرور الجديدة' : 'تأكيد كلمة المرور'" :placeholder="$is_edit ? 'أعد إدخال كلمة المرور' : 'أعد إدخال كلمة المرور'"
-            :required="!$is_edit" col="col-md-6" />
-    @endif
-
-    <x-form.controls.file name="image" label="الصورة الشخصية" :value="!empty($user?->image) ? asset('storage/' . $user->image) : null"
+    <x-form.controls.file name="image" label="الصورة الشخصية" :value="$resolvedImageUrl"
         help="JPG، PNG أو GIF. الحد الأقصى 10MB" accept="image/*" col="col-12" :max-size="10" />
 </div>
-

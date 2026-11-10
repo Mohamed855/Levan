@@ -4,7 +4,6 @@ namespace App\Http\Requests\Tenants\UserManagement\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -43,12 +42,6 @@ class UpdateUserRequest extends FormRequest
                 'email',
                 'max:255',
                 Rule::unique('users', 'email')->ignore($userId),
-            ],
-            'password' => [
-                'nullable',
-                'string',
-                Password::defaults(),
-                'confirmed',
             ],
             'phone' => [
                 'required',
@@ -91,10 +84,6 @@ class UpdateUserRequest extends FormRequest
             'email.max' => 'البريد الإلكتروني يجب ألا يزيد عن 255 حرف',
             'email.unique' => 'البريد الإلكتروني مستخدم مسبقاً',
 
-            'password.string' => 'كلمة المرور يجب أن تكون نص',
-            'password.min' => 'كلمة المرور يجب ألا تقل عن 8 أحرف',
-            'password.confirmed' => 'تأكيد كلمة المرور غير مطابق',
-
             'phone.required' => 'رقم الهاتف مطلوب',
             'phone.string' => 'رقم الهاتف يجب أن يكون نص',
             'phone.size' => 'رقم الهاتف يجب أن يتكون من 10 أرقام',
@@ -122,8 +111,6 @@ class UpdateUserRequest extends FormRequest
         return [
             'name' => 'الاسم الكامل',
             'email' => 'البريد الإلكتروني',
-            'password' => 'كلمة المرور',
-            'password_confirmation' => 'تأكيد كلمة المرور',
             'phone' => 'رقم الهاتف',
             'image' => 'الصورة الشخصية',
             'role_id' => 'الدور',
@@ -155,11 +142,7 @@ class UpdateUserRequest extends FormRequest
     public function getValidatedData(): array
     {
         $validated = $this->validated();
-
-        // Remove password if empty (for update)
-        if (empty($validated['password'])) {
-            unset($validated['password']);
-        }
+        unset($validated['password'], $validated['password_confirmation']);
 
         return $validated;
     }

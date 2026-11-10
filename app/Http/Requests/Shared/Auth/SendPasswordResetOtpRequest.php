@@ -1,0 +1,25 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Requests\Shared\Auth;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class SendPasswordResetOtpRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return ['email' => ['required', 'email']];
+    }
+
+    public function attributes(): array
+    {
+        return ['email' => 'البريد الإلكتروني'];
+    }
+}

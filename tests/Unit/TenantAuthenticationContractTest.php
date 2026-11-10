@@ -110,6 +110,8 @@ class TenantAuthenticationContractTest extends TestCase
 
     public function test_public_auth_forms_use_the_shared_validation_contract(): void
     {
+        $viewsRoot = dirname(__DIR__, 2).'/resources/views';
+
         foreach ([
             'login.blade.php',
             'forgot-password.blade.php',
@@ -117,12 +119,41 @@ class TenantAuthenticationContractTest extends TestCase
             'two-factor-challenge.blade.php',
             'register.blade.php',
         ] as $view) {
-            $content = file_get_contents(dirname(__DIR__, 2).'/resources/views/tenant/auth/'.$view);
+            $content = $this->resolveViewWithSharedIncludes($viewsRoot.'/tenant/auth/'.$view, $viewsRoot);
 
             $this->assertStringContainsString('data-form-validate', $content);
             $this->assertStringContainsString("tenant_route_name('form-validation')", $content);
             $this->assertStringNotContainsString('autofocus', $content);
         }
+
+        foreach ([
+            'login.blade.php',
+            'forgot-password.blade.php',
+            'reset-password.blade.php',
+            'two-factor-challenge.blade.php',
+        ] as $view) {
+            $content = $this->resolveViewWithSharedIncludes($viewsRoot.'/admin/auth/'.$view, $viewsRoot);
+
+            $this->assertStringContainsString('data-form-validate', $content);
+            $this->assertStringContainsString("route('admin.form-validation')", $content);
+            $this->assertStringNotContainsString('autofocus', $content);
+        }
+    }
+
+    private function resolveViewWithSharedIncludes(string $path, string $viewsRoot): string
+    {
+        $content = file_get_contents($path);
+
+        if (preg_match_all("/@include\(\s*['\"]([^'\"]+)['\"]/", $content, $matches)) {
+            foreach ($matches[1] as $viewName) {
+                $includePath = $viewsRoot.'/'.str_replace('.', '/', $viewName).'.blade.php';
+                if (is_file($includePath)) {
+                    $content .= "\n".file_get_contents($includePath);
+                }
+            }
+        }
+
+        return $content;
     }
 
     public function test_auth_forms_do_not_validate_on_page_load(): void

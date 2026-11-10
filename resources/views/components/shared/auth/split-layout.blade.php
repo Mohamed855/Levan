@@ -15,14 +15,31 @@
 ])
 
 @php
+    use App\Helpers\Admin\Settings\AdminSettingsHelper;
     use App\Helpers\Tenants\Settings\SettingsHelper;
 
-    if (!$logoUrl) {
-        $tenantLogo =
-            class_exists(SettingsHelper::class) && function_exists('tenant') && tenant()
-                ? SettingsHelper::get('image')
-                : null;
-        $logoUrl = $tenantLogo ? tasset($tenantLogo) : asset('static/brand/logos/lot/trans-profile.png');
+    if (! $logoUrl) {
+        $defaultLogo = asset('static/brand/logos/lot/trans-profile.png');
+        $logoUrl = $defaultLogo;
+
+        try {
+            if (function_exists('tenant') && tenant()) {
+                $tenantLogo = class_exists(SettingsHelper::class) ? SettingsHelper::get('image') : null;
+                if (! empty($tenantLogo) && ! in_array($tenantLogo, ['default-office.png', 'image/demo-office.jpg'], true)) {
+                    $logoUrl = tasset($tenantLogo, 'static/brand/logos/lot/trans-profile.png');
+                }
+            } elseif (class_exists(AdminSettingsHelper::class)) {
+                $adminLogo = AdminSettingsHelper::get('image');
+                $normalizedAdminLogo = ltrim((string) $adminLogo, '/');
+                if (! empty($adminLogo)
+                    && ! in_array($adminLogo, ['default-office.png', 'image/demo-office.jpg'], true)
+                    && \Illuminate\Support\Facades\Storage::disk('public')->exists($normalizedAdminLogo)) {
+                    $logoUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($normalizedAdminLogo);
+                }
+            }
+        } catch (\Throwable) {
+            $logoUrl = $defaultLogo;
+        }
     }
 @endphp
 

@@ -137,6 +137,11 @@ class RoleController extends Controller
     */
     public function edit(Role $role): View|RedirectResponse
     {
+        if (RoleService::isProtectedRole($role)) {
+            return redirect()->to(tenant_route_name('roles.index'))
+                ->with('error', 'لا يمكن تعديل دور مدير النظام.');
+        }
+
         try {
             $permissions = $this->roleService->getGroupedPermissions();
 
@@ -152,14 +157,43 @@ class RoleController extends Controller
     |--------------------------------------------------------------------------
     | Update the specified role in storage.
     */
-    public function update(UpdateRoleRequest $request, Role $role): RedirectResponse
+    public function update(UpdateRoleRequest $request, Role $role): JsonResponse|RedirectResponse
     {
+        if (RoleService::isProtectedRole($role)) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكن تعديل دور مدير النظام.',
+                ], 422);
+            }
+
+            return redirect()->to(tenant_route_name('roles.index'))
+                ->with('error', 'لا يمكن تعديل دور مدير النظام.');
+        }
+
         try {
             $this->roleService->updateRole($role, $request->getValidatedData());
 
             return redirect()->to(tenant_route_name('roles.index'))
                 ->with('success', 'تم تحديث الدور بنجاح');
+        } catch (\LogicException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
+            return redirect()->to(tenant_route_name('roles.index'))
+                ->with('error', $e->getMessage());
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ أثناء تحديث الدور',
+                ], 500);
+            }
+
             return redirect()
                 ->back()
                 ->withInput()

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DataTables\Admin\AdminMangment\Roles;
 
 use App\DataTables\Abstract\AbstractDataTable;
+use App\Services\Admin\AdminMangment\Role\RoleService;
 use App\Support\AccessLabels;
 use Spatie\Permission\Models\Role;
 
@@ -42,7 +43,7 @@ final class AdminRoleDataTable extends AbstractDataTable
     {
         $dataTable
             ->addColumn('checkbox', function (Role $role): string {
-                if ($role->name === 'SuperAdmin') {
+                if (RoleService::isProtectedRole($role)) {
                     return '<input type="checkbox" class="row-checkbox" value="'.$role->id.'" disabled title="لا يمكن حذف دور السوبر أدمن">';
                 }
                 if (($role->users_count ?? 0) > 0) {
@@ -55,7 +56,13 @@ final class AdminRoleDataTable extends AbstractDataTable
             ->editColumn('users_count', fn (Role $role): string => '<span class="badge bg-primary">'.number_format($role->users_count).'</span>')
             ->editColumn('permissions_count', fn (Role $role): string => '<span class="badge bg-info">'.number_format($role->permissions_count).'</span>')
             ->editColumn('created_at', fn (Role $role): string => $this->formatDate($role->created_at))
-            ->addColumn('actions', fn (Role $role): string => view($this->page.'.action', compact('role'))->render());
+            ->addColumn('actions', function (Role $role): string {
+                if (RoleService::isProtectedRole($role)) {
+                    return '<span class="text-muted">محمي</span>';
+                }
+
+                return view($this->page.'.action', compact('role'))->render();
+            });
     }
 
     protected function rawColumns(): array

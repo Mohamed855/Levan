@@ -98,6 +98,9 @@ class AdminRoleController extends Controller
     */
     public function edit(Role $role)
     {
+        if (RoleService::isProtectedRole($role)) {
+            return redirect()->route($this->route.'.index')->with('error', 'لا يمكن تعديل دور مدير النظام الرئيسي.');
+        }
 
         try {
             $permissions = $this->roleService->getGroupedPermissions();
@@ -117,12 +120,39 @@ class AdminRoleController extends Controller
     */
     public function update(AdminUpdateRoleRequest $request, Role $role)
     {
+        if (RoleService::isProtectedRole($role)) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا يمكن تعديل دور مدير النظام الرئيسي.',
+                ], 422);
+            }
+
+            return redirect()->route($this->route.'.index')->with('error', 'لا يمكن تعديل دور مدير النظام الرئيسي.');
+        }
+
         try {
             $this->roleService->updateRole($role, $request->getValidatedData());
 
             // return redirect()->back()->withInput()->with('success', 'تم تحديث الدور بنجاح');
             return redirect()->route($this->route.'.index')->with('success', 'تم تحديث الدور بنجاح');
+        } catch (\LogicException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
+            return redirect()->route($this->route.'.index')->with('error', $e->getMessage());
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ أثناء تحديث الدور',
+                ], 500);
+            }
+
             return redirect()->back()->withInput()->with('error', 'حدث خطأ أثناء تحديث الدور');
         }
     }

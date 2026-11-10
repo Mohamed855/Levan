@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests\Admin\AdminMangment\Role;
 
+use App\Services\Admin\AdminMangment\Role\RoleService;
 use App\Support\AccessLabels;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class AdminUpdateRoleRequest extends FormRequest
 {
@@ -29,6 +31,10 @@ class AdminUpdateRoleRequest extends FormRequest
     public function rules(): array
     {
         $role = $this->route('role');
+        if ($role instanceof Role && RoleService::isProtectedRole($role)) {
+            return [];
+        }
+
         $roleId = is_object($role) ? ($role->id ?? $role->getKey()) : ($role ?? $this->input('role_id'));
 
         return [
