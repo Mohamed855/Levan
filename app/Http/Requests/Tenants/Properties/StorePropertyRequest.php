@@ -60,8 +60,8 @@ class StorePropertyRequest extends WizardFormRequest
             'plan_number' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
             'parcel_number' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
             'google_maps_url' => ['nullable', 'url', 'max:1000'],
-            'latitude' => ['nullable', 'numeric'],
-            'longitude' => ['nullable', 'numeric'],
+            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'aerial_image' => [
                 'required',
                 function ($attribute, $value, $fail) {

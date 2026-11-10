@@ -2629,17 +2629,30 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
+function stripLoadingTextDecorations(text) {
+    return String(text || "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .replace(/^(?:(?:جاري|جارٍ|جارى|جار)(?=\s|[.…]|$)\s*)+/, "")
+        .replace(/[.…]+$/, "")
+        .trim();
+}
+
 function getButtonLoadingText(button) {
     if (button.dataset.loadingText) {
         return button.dataset.loadingText;
     }
 
     const textEl = button.querySelector(".btn-text");
-    const rawText = (
+    const originalText = (
         textEl ? textEl.textContent : button.textContent || ""
     ).trim();
+    const rawText = stripLoadingTextDecorations(originalText);
 
-    if (!rawText || rawText === "حفظ") {
+    if (!rawText) {
+        return originalText ? "جاري المعالجة..." : "جاري الحفظ...";
+    }
+    if (rawText === "حفظ") {
         return "جاري الحفظ...";
     }
     if (rawText === "تحديث") {
@@ -2815,6 +2828,8 @@ function boot() {
         const form = event.target;
         if (!form || !(form instanceof HTMLFormElement)) return;
         if (form.dataset.formValidate !== undefined) return;
+        if (form.classList.contains("mysr-form") || form.closest?.(".mysr-form"))
+            return;
         if (event.defaultPrevented) return;
         if (typeof form.checkValidity === "function" && !form.checkValidity())
             return;
@@ -2830,7 +2845,13 @@ function boot() {
                   )
                 : null);
 
-        if (submitButton && !submitButton.matches("[data-no-loading]")) {
+        if (
+            submitButton &&
+            !submitButton.matches("[data-no-loading]") &&
+            !submitButton.disabled &&
+            submitButton.dataset.buttonIsLoading !== "true" &&
+            submitButton.getAttribute("aria-busy") !== "true"
+        ) {
             setButtonLoading(submitButton);
         }
     });

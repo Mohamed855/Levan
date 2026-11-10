@@ -1,6 +1,7 @@
 "use strict";
 
 import { initCityDistrictSelector } from "../../shared/city-district-selector.js";
+import { initPropertyLocationMap } from "./location-map.js";
 import {
     bindBoundaryDragEndListeners,
     getBoundaryPointerAction,
@@ -8,8 +9,10 @@ import {
 } from "./boundary-drawing.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("property-create-form");
+    const form = document.querySelector("#property-create-form, #property-edit-form");
     if (!form) return;
+
+    void initPropertyLocationMap(form);
 
     initCityDistrictSelector({
         citySelector: "#property-city",
@@ -386,6 +389,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let annotatedDataUrl = "";
     let drawFrameId = null;
     let syncTimeout = null;
+    let imageLoadVersion = 0;
+    let isLegacyAnnotatedImage = false;
 
     function requestDraw() {
         if (drawFrameId !== null) return;
@@ -502,6 +507,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // Draw background image
         ctx.drawImage(loadedImage, 0, 0, canvas.width, canvas.height);
 
+        if (isLegacyAnnotatedImage) {
+            updateStatusUI();
+            return;
+        }
+
         if (!points.length) {
             updateStatusUI();
             return;
@@ -574,6 +584,10 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateStatusUI() {
         if (!statusBar || !pointsBadge || !statusText) return;
         pointsBadge.textContent = `${points.length} نقاط محددة`;
+        if (isLegacyAnnotatedImage) {
+            statusText.textContent = "الصورة محفوظة بالحدود المرسومة. لتعديل الحدود، ارفع الصورة الأصلية من زر تغيير الصورة.";
+            return;
+        }
         if (points.length === 0) {
             statusText.textContent = "انقر على زوايا العقار لوضع نقاط الحدود";
             pointsBadge.className = "badge bg-info";
@@ -591,6 +605,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function syncAnnotatedImage() {
+        if (isLegacyAnnotatedImage) return;
         if (!loadedImage) return;
 
         if (isBoundaryClosed && points.length >= 3) {
@@ -706,13 +721,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function loadImageSrc(src, existingGeoJson = null) {
+    function loadImageSrc(src, existingGeoJson = null, preserveAnnotation = false) {
         if (!src) return;
+        const version = ++imageLoadVersion;
         const img = new Image();
         img.crossOrigin = "anonymous";
         img.onload = () => {
+            if (version !== imageLoadVersion) return;
             loadedImage = img;
+            isLegacyAnnotatedImage = preserveAnnotation;
             setImageActionVisibility(true);
+            if (btnClearBoundary) btnClearBoundary.disabled = preserveAnnotation;
+            if (dimmingInput) dimmingInput.disabled = preserveAnnotation;
             if (emptyPlaceholder) emptyPlaceholder.classList.add("d-none");
             if (canvasWrapper) canvasWrapper.classList.remove("d-none");
             if (statusBar) statusBar.classList.remove("d-none");
@@ -748,7 +768,12 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             drawCanvas();
-            syncAnnotatedImage();
+            if (preserveAnnotation) {
+                annotatedDataUrl = src;
+                if (btnDownload) btnDownload.disabled = false;
+            } else {
+                syncAnnotatedImage();
+            }
         };
         img.src = src;
     }
@@ -800,10 +825,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        const version = ++imageLoadVersion;
         const reader = new FileReader();
         reader.onload = async (event) => {
             const originalDataUrl = event.target.result;
             const optimizedDataUrl = await optimizeImage(originalDataUrl, 1600, 0.85);
+            if (version !== imageLoadVersion) return;
             rawImageDataUrl = optimizedDataUrl;
             if (rawAerialImageInput) {
                 rawAerialImageInput.value = optimizedDataUrl;
@@ -904,6 +931,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function handleBoundaryPointerDown(coords, nearPointIndex) {
+        if (isLegacyAnnotatedImage) {
+            notifyUser("info", "لتعديل الحدود ارفع الصورة الأصلية من زر تغيير الصورة.");
+            return;
+        }
         const action = getBoundaryPointerAction({
             points,
             isClosed: isBoundaryClosed,
@@ -1039,6 +1070,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (btnClearBoundary) {
         btnClearBoundary.addEventListener("click", () => {
+            if (isLegacyAnnotatedImage) return;
             clearTimeout(syncTimeout);
             syncTimeout = null;
             points = [];
@@ -1095,12 +1127,18 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", () => {
         flushSyncAnnotatedImage();
     });
+    form.addEventListener("click", (event) => {
+        if (event.target.closest("[data-save-draft], .btn-next")) {
+            flushSyncAnnotatedImage();
+        }
+    }, true);
 
     const initialAerialSrc =
-        rawAerialImageInput?.value || aerialImageInput?.value;
+        rawAerialImageInput?.value || aerialImageInput?.dataset.imageSrc || aerialImageInput?.value;
     if (initialAerialSrc) {
         rawImageDataUrl = initialAerialSrc;
-        loadImageSrc(initialAerialSrc, boundaryGeoJsonInput?.value || null);
+        loadImageSrc(initialAerialSrc, boundaryGeoJsonInput?.value || null,
+            !rawAerialImageInput?.value && Boolean(boundaryGeoJsonInput?.value));
     }
 
     // =========================================================================
@@ -1231,42 +1269,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return `<figure class="property-aerial-review mt-3 mb-0"><img src="${escapeHtml(source)}" alt="صورة العقار بعد تحديد الحدود"><a class="property-aerial-review__download" href="${escapeHtml(source)}" download="property-boundary.png" aria-label="تحميل صورة العقار المحددة"><i class="ti ti-download" aria-hidden="true"></i></a></figure>`;
     }
 
-    const googleMapsInput = form.elements.namedItem("google_maps_url");
-    const latInput = form.elements.namedItem("latitude");
-    const lngInput = form.elements.namedItem("longitude");
-
-    function parseGoogleMapsUrl(url) {
-        if (!url) return null;
-        let match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
-
-        match = url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
-        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
-
-        match = url.match(/[?&]ll=(-?\d+\.\d+),(-?\d+\.\d+)/);
-        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
-
-        match = url.match(/place\/(-?\d+\.\d+),(-?\d+\.\d+)/);
-        if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
-
-        return null;
-    }
-
-    function syncCoordinatesFromMapsUrl() {
-        const url = googleMapsInput?.value?.trim();
-        if (!url) return;
-        const coords = parseGoogleMapsUrl(url);
-        if (coords) {
-            if (latInput) latInput.value = coords.lat.toFixed(7);
-            if (lngInput) lngInput.value = coords.lng.toFixed(7);
-        }
-    }
-
-    if (googleMapsInput) {
-        googleMapsInput.addEventListener("input", syncCoordinatesFromMapsUrl);
-        googleMapsInput.addEventListener("change", syncCoordinatesFromMapsUrl);
-    }
-
     function buildReview() {
         // Review Basic Info
         const reviewBasic = document.getElementById("review-basic");
@@ -1332,7 +1334,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 )
                 .join(
                     "",
-                )}</dl>${safeAerialReviewMarkup(aerialImageInput?.value)}`;
+                )}</dl>${safeAerialReviewMarkup(/^(data:image\/|https?:\/\/)/.test(aerialImageInput?.value || '') ? aerialImageInput?.value : aerialImageInput?.dataset.imageSrc)}`;
         }
 
         // Review Ownership
@@ -1675,7 +1677,7 @@ document.addEventListener("DOMContentLoaded", () => {
             rawImageDataUrl = data.raw_aerial_image || data.aerial_image;
             if (rawAerialImageInput)
                 rawAerialImageInput.value =
-                    data.raw_aerial_image || restoredImage;
+                    data.raw_aerial_image || "";
             if (aerialImageInput)
                 aerialImageInput.value = data.aerial_image || restoredImage;
             if (boundaryGeoJsonInput) {
@@ -1685,13 +1687,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         : JSON.stringify(data.boundary_geojson)
                     : "";
             }
-            loadImageSrc(restoredImage, data.boundary_geojson || null);
+            loadImageSrc(restoredImage, data.boundary_geojson || null,
+                !data.raw_aerial_image && Boolean(data.boundary_geojson));
         } else if (data.boundary_geojson && aerialImageInput?.value) {
             loadImageSrc(aerialImageInput.value, data.boundary_geojson);
-        }
-
-        if (data.google_maps_url) {
-            syncCoordinatesFromMapsUrl();
         }
 
         buildReview();

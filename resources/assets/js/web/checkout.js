@@ -335,6 +335,29 @@ document.addEventListener("DOMContentLoaded", function () {
         return Boolean(paymentGrid && !paymentGrid.closest(".d-none"));
     };
 
+    const applyProcessingState = (button) => {
+        if (!button) return;
+
+        const textEl = button.querySelector(".btn-text");
+        if (button.dataset.buttonIsLoading === "true" && textEl) {
+            textEl.textContent = "جاري المعالجة...";
+            return;
+        }
+
+        if (window.SharedFormValidation?.setButtonLoading) {
+            window.SharedFormValidation.setButtonLoading(
+                button,
+                "جاري المعالجة...",
+            );
+            return;
+        }
+
+        button.disabled = true;
+        button.dataset.buttonIsLoading = "true";
+        button.innerHTML =
+            '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> جاري المعالجة...';
+    };
+
     paymentForm.addEventListener(
         "submit",
         function (event) {
@@ -400,21 +423,14 @@ document.addEventListener("DOMContentLoaded", function () {
             const submitBtn =
                 paymentForm.querySelector('button[type="submit"]') ||
                 document.getElementById("submit-payment-btn");
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML =
-                    '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> جاري المعالجة...';
-            }
+            applyProcessingState(submitBtn);
         },
         true,
     );
 
     paymentForm.addEventListener("formValidationPassed", () => {
-        const submitButton = paymentForm.querySelector('button[type="submit"]');
-        if (!submitButton) return;
-
-        submitButton.disabled = true;
-        submitButton.innerHTML =
-            '<span class="spinner-border spinner-border-sm me-2"></span> جاري المعالجة...';
+        applyProcessingState(
+            paymentForm.querySelector('button[type="submit"]'),
+        );
     });
 });

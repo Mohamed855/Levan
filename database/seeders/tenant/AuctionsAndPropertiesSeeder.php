@@ -15,9 +15,9 @@ use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Auctions\Reports\AuctionReportService;
 use Carbon\Carbon;
+use Database\Seeders\Support\DemoAssets;
 use Database\Seeders\tenant\Support\SeededAuctionDocuments;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class AuctionsAndPropertiesSeeder extends Seeder
@@ -33,10 +33,8 @@ class AuctionsAndPropertiesSeeder extends Seeder
         $user = User::first();
         $userId = $user?->id;
 
-        // Ensure issuing entities exist
-        if (IssuingEntity::count() === 0) {
-            $this->call(IssuingEntitySeeder::class);
-        }
+        // Refresh the demo issuing entities and their bundled images on every run.
+        $this->call(IssuingEntitySeeder::class);
 
         // ---------------------------------------------------------
         // 1. Create Assignments (Covering all 5 categories + inactive + archived)
@@ -146,6 +144,8 @@ class AuctionsAndPropertiesSeeder extends Seeder
                     'issuing_entity_id' => $issuingEntityId,
                 ])
             );
+
+            DemoAssets::assignment($assignment);
 
             if ($isArchived && ! $assignment->trashed()) {
                 $assignment->delete();
@@ -657,6 +657,8 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 array_merge($pData, ['created_by' => $userId])
             );
 
+            DemoAssets::property($prop);
+
             // Boundaries
             if ($prop->boundaries()->count() === 0) {
                 $prop->boundaries()->createMany([
@@ -716,18 +718,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
         // ---------------------------------------------------------
         // 3. Create Auctions & Generate Sample Reports
         // ---------------------------------------------------------
-        $sampleReportPath = 'auctions/report-images/sample-report-cover.png';
-        $sampleBrochurePath = 'auctions/attachments/sample_brochure.pdf';
-        if (! Storage::disk('tenant_public')->exists($sampleBrochurePath)) {
-            Storage::disk('tenant_public')->put($sampleBrochurePath, File::get(database_path('seeders/fixtures/auction-demo-document.pdf')));
-        }
-        if (! Storage::disk('tenant_public')->exists($sampleReportPath)) {
-            $sourceFile = public_path('static/samples/auction-templates/brochure-1.png');
-            if (File::exists($sourceFile)) {
-                Storage::disk('tenant_public')->put($sampleReportPath, File::get($sourceFile));
-            }
-        }
-
         $auctionsData = [
             // Auction 1: Electronic, Upcoming/Active, Residential
             [
@@ -747,7 +737,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'project_manager_name'     => 'م. فهد بن عبدالعزيز',
                 'platform_name'            => 'منصة سومات للمزادات الإلكترونية',
                 'platform_url'             => 'https://soum.sa',
-                'report_image'             => $sampleReportPath,
                 'marketing_data'           => [
                     'campaigns' => [
                         ['platform' => 'Instagram', 'reach' => 32000, 'impressions' => 58000, 'engagements' => 2400, 'clicks' => 890],
@@ -782,7 +771,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'project_manager_name'     => 'أ. سلطان الحربي',
                 'platform_name'            => 'قاعة ليلتي للمناسبات - جدة',
                 'platform_url'             => null,
-                'report_image'             => $sampleReportPath,
                 'marketing_data'           => [
                     'campaigns' => [
                         ['platform' => 'Instagram', 'reach' => 19000, 'impressions' => 34000, 'engagements' => 1400, 'clicks' => 460],
@@ -813,7 +801,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'project_manager_name'     => 'م. عبدالله القحطاني',
                 'platform_name'            => 'منصة مباشر للمزادات',
                 'platform_url'             => 'https://mubasher.sa',
-                'report_image'             => $sampleReportPath,
                 'marketing_data'           => [
                     'campaigns' => [
                         ['platform' => 'Instagram', 'reach' => 28000, 'impressions' => 48000, 'engagements' => 1950, 'clicks' => 730],
@@ -844,7 +831,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'project_manager_name'     => 'م. فيصل الغامدي',
                 'platform_name'            => 'منصة سومات',
                 'platform_url'             => 'https://soum.sa',
-                'report_image'             => $sampleReportPath,
                 'marketing_data'           => [
                     'campaigns' => [
                         ['platform' => 'Instagram', 'reach' => 45000, 'impressions' => 82000, 'engagements' => 3800, 'clicks' => 1450],
@@ -891,7 +877,6 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'project_manager_name'     => 'مدير تجريبي',
                 'platform_name'            => 'منصة سومات',
                 'platform_url'             => 'https://soum.sa',
-                'report_image'             => null,
                 'is_active'                => false,
                 'properties_to_sync'       => [],
             ],
@@ -907,6 +892,10 @@ class AuctionsAndPropertiesSeeder extends Seeder
             $auction = Auction::withTrashed()->whereIn('name', $names)->first() ?? new Auction;
             $auction->fill(array_merge($aucData, ['created_by' => $userId]));
             $auction->save();
+            $auction->update([
+                'cover_image' => DemoAssets::image('auctions/covers/demo-'.$auction->id.'.jpg'),
+                'report_image' => DemoAssets::image('auctions/report-images/demo-'.$auction->id.'.jpg'),
+            ]);
 
             // Sync properties to auction with results and ordering
             if (! empty($propsToSync)) {
@@ -928,7 +917,8 @@ class AuctionsAndPropertiesSeeder extends Seeder
             }
 
             // Create sample attachment
-            AuctionAttachment::firstOrCreate(
+            $sampleBrochurePath = DemoAssets::document('auctions/attachments/demo-'.$auction->id.'-brochure.pdf');
+            AuctionAttachment::updateOrCreate(
                 [
                     'auction_id' => $auction->id,
                     'file_name'  => 'كتيب_المزاد_الرسمي.pdf',

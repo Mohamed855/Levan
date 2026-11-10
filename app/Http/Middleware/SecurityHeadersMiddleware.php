@@ -112,6 +112,9 @@ class SecurityHeadersMiddleware
         $scriptCdn = implode(' ', self::SCRIPT_CDN);
         $styleCdn = implode(' ', self::STYLE_CDN);
         $fontCdn = implode(' ', self::FONT_CDN);
+        $hasPropertyMap = $request->routeIs('properties.create', 'properties.edit', '*.properties.create', '*.properties.edit');
+        // Maps loads tiles and service endpoints from Google-managed subdomains.
+        $mapSources = $hasPropertyMap ? ' https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.googleusercontent.com' : '';
 
         /*
          * connect-src: حدّد domains API / WebSocket بتاعتك هنا صراحةً
@@ -139,12 +142,13 @@ class SecurityHeadersMiddleware
 
             "style-src 'self' 'unsafe-inline' {$styleCdn}",
 
-            "img-src 'self' data: blob: https://www.gstatic.com https://server.arcgisonline.com",
+            "img-src 'self' data: blob: https://www.gstatic.com https://server.arcgisonline.com{$mapSources}",
 
             "font-src 'self' data: {$fontCdn}",
 
             // أضفنا gstatic هنا أيضاً لضمان جلب ملفات الدعم
-            "connect-src 'self' {$connectSrc} https://www.gstatic.com",
+            "connect-src 'self' {$connectSrc} https://www.gstatic.com{$mapSources}",
+            $hasPropertyMap ? "worker-src 'self' blob:" : null,
 
             "form-action 'self' https://api.moyasar.com https://payment.moyasar.com",
 

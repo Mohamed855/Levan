@@ -8,14 +8,19 @@ use App\Contracts\Auctions\BrowserDocumentRenderer;
 use App\Enums\Tenants\Assignments\AssignmentCategory;
 use App\Enums\Tenants\Properties\PropertyType;
 use App\Enums\Tenants\Properties\PropertyUsageClassification;
+use App\Models\Admin\Settings\Settings as CentralSettings;
+use App\Models\Shared\Attachment;
 use App\Models\Tenants\Assignments\Assignment;
+use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionFormGeneration;
 use App\Models\Tenants\Properties\Property;
+use App\Models\Tenants\Settings\Settings;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Auctions\BrowsershotDocumentRenderer;
 use App\Services\Tenants\Auctions\Forms\AuctionRegulatoryForms;
 use App\Services\Tenants\Shared\CentralCityOptionsGateway;
+use Database\Seeders\admin\SettingsSeeder as CentralSettingsSeeder;
 use Database\Seeders\tenant\AuctionsAndPropertiesSeeder;
 use Database\Seeders\tenant\AuctionWorkflowScenariosSeeder;
 use Database\Seeders\tenant\Support\SeededAuctionDocuments;
@@ -30,6 +35,8 @@ final class AuctionWorkflowSeederTest extends TenantAuctionReportTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Storage::fake('public');
+        Storage::fake('tenant_public');
         $this->app->instance(BrowserDocumentRenderer::class, new class implements BrowserDocumentRenderer
         {
             public function pdf(string $html, string $outputPath): string
@@ -86,6 +93,7 @@ final class AuctionWorkflowSeederTest extends TenantAuctionReportTestCase
                 foreach ($auction->establishmentRequest->data['attachments'] as $files) {
                     foreach ($files as $file) {
                         Storage::disk('tenant_private')->assertExists($file['path']);
+                        $this->assertStoredFixture('sample.pdf', $file['path'], 'tenant_private');
                     }
                 }
             }
@@ -124,12 +132,12 @@ final class AuctionWorkflowSeederTest extends TenantAuctionReportTestCase
         $auction->update(['name' => 'Renamed by tester', 'description' => 'Preserve tester changes']);
         $empty = Auction::where('name', 'like', '[WF-10]%')->firstOrFail();
         $empty->update(['name' => 'Renamed empty auction']);
-        $counts = [Auction::count(), AuctionFormGeneration::count(), count(Storage::disk('tenant_private')->allFiles())];
+        $counts = [Auction::count(), AuctionFormGeneration::count(), Attachment::count(), count(Storage::disk('tenant_private')->allFiles()), count(Storage::disk('tenant_public')->allFiles())];
         $this->seed(AuctionWorkflowScenariosSeeder::class);
         self::assertSame('Preserve tester changes', $auction->fresh()->description);
         self::assertSame('Renamed by tester', $auction->fresh()->name);
         self::assertSame('Renamed empty auction', $empty->fresh()->name);
-        self::assertSame($counts, [Auction::count(), AuctionFormGeneration::count(), count(Storage::disk('tenant_private')->allFiles())]);
+        self::assertSame($counts, [Auction::count(), AuctionFormGeneration::count(), Attachment::count(), count(Storage::disk('tenant_private')->allFiles()), count(Storage::disk('tenant_public')->allFiles())]);
     }
 
     public function test_base_demo_seeder_keeps_property_coverage_and_links_existing_mixed_closing(): void
@@ -146,7 +154,7 @@ final class AuctionWorkflowSeederTest extends TenantAuctionReportTestCase
         $this->seed(TenantDatabaseSeeder::class);
         self::assertSame($originalAuctionCount, Auction::count(), 'Normal tenant bootstrap must not create demo auctions.');
         $this->seed(AuctionsAndPropertiesSeeder::class);
-        foreach (Auction::where('name', 'not like', '[WF-%')->whereHas('attachments', fn ($query) => $query->where('file_path', 'auctions/attachments/sample_brochure.pdf'))->get() as $seededAuction) {
+        foreach (Auction::where('name', 'not like', '[WF-%')->whereHas('attachments', fn ($query) => $query->where('file_name', 'كتيب_المزاد_الرسمي.pdf'))->get() as $seededAuction) {
             self::assertTrue($seededAuction->latestReportGeneration?->isReady(), $seededAuction->name);
             Storage::disk('tenant_private')->assertExists($seededAuction->latestReportGeneration->outputs_path);
             Storage::disk('tenant_private')->assertExists($seededAuction->latestReportGeneration->report_path);
@@ -166,11 +174,92 @@ final class AuctionWorkflowSeederTest extends TenantAuctionReportTestCase
         self::assertNotNull($auction->closing);
         self::assertTrue($auction->properties->contains(fn ($property) => $property->pivot->result_status === 'sold'));
         self::assertTrue($auction->properties->contains(fn ($property) => $property->pivot->result_status === 'unsold'));
-        Storage::disk('tenant_public')->assertExists('auctions/attachments/sample_brochure.pdf');
+        $this->assertStoredFixture('sample.pdf', $auction->attachments()->where('category', 'brochure')->firstOrFail()->file_path);
+        $image = file_get_contents(database_path('seeders/fixtures/images.jpg'));
+        $document = file_get_contents(database_path('seeders/fixtures/sample.pdf'));
+        foreach (Property::withTrashed()->where(fn ($query) => $query->where('property_number', 'like', 'PROP-%')->orWhere('property_number', 'like', 'WF-%'))->get() as $property) {
+            self::assertNotEmpty($property->main_image, $property->property_number);
+            $this->assertStoredFixture('images.jpg', $property->main_image);
+            $this->assertStoredFixture('images.jpg', $property->aerial_image);
+            foreach ($property->attachments as $attachment) {
+                $isImage = $attachment->mime_type === 'image/jpeg';
+                $this->assertStoredFixture($isImage ? 'images.jpg' : 'sample.pdf', $attachment->file_path, $attachment->disk);
+                self::assertSame($isImage ? 'jpg' : 'pdf', $attachment->extension);
+                self::assertSame(strlen($isImage ? $image : $document), $attachment->file_size);
+            }
+            self::assertSame(9, $property->attachments()->count());
+        }
+        foreach (Assignment::withTrashed()->with('attachments')->where(fn ($query) => $query->where('assignment_number', 'WF-DEMO')->orWhere('assignment_number', 'like', 'ASN-'.date('Y').'-001%'))->get() as $assignment) {
+            self::assertSame(4, $assignment->attachments->count());
+            foreach ($assignment->attachments as $attachment) {
+                $this->assertStoredFixture($attachment->mime_type === 'image/jpeg' ? 'images.jpg' : 'sample.pdf', $attachment->file_path, $attachment->disk);
+            }
+        }
+        foreach (Auction::withTrashed()->where(fn ($query) => $query->whereNotNull('marketing_data->demo_scenario')->orWhereHas('attachments', fn ($attachments) => $attachments->where('file_name', 'كتيب_المزاد_الرسمي.pdf')))->get() as $seededAuction) {
+            $this->assertStoredFixture('images.jpg', $seededAuction->cover_image);
+            $this->assertStoredFixture('images.jpg', $seededAuction->report_image);
+            foreach ($seededAuction->marketingCampaigns as $campaign) {
+                if (! in_array($campaign->channel, config('auction-marketing-fields.evidence'), true)) {
+                    continue;
+                }
+                self::assertCount(1, $campaign->evidence);
+                $evidence = $campaign->evidence->first();
+                $this->assertStoredFixture($campaign->channel === 'brochure' ? 'sample.pdf' : 'images.jpg', $evidence->file_path);
+            }
+        }
+        self::assertSame('default-office.png', Settings::firstOrFail()->image);
+        $entities = IssuingEntity::where('image', 'like', 'issuing-entities/demo-%')->get();
+        self::assertCount(10, $entities);
+        foreach ($entities as $entity) {
+            $this->assertStoredFixture('images.jpg', $entity->image);
+        }
+        foreach (User::whereIn('email', ['demo@lot.com', 'ahmed@lot.com', 'sara@lot.com', 'khalid@lot.com'])->get() as $user) {
+            $this->assertStoredFixture('images.jpg', $user->image);
+            $this->assertStoredFixture('images.jpg', $user->background_image);
+        }
         $admin = User::where('email', 'demo@lot.com')->firstOrFail();
         self::assertTrue($admin->can('auction_establishment_requests.approve'));
         self::assertTrue($admin->can('auction_establishment_requests.regenerate'));
         Queue::assertNothingPushed();
+
+        $firstBrochure = Auction::where('name', 'مزاد درة الرياض')->firstOrFail()->attachments()->where('category', 'brochure')->firstOrFail();
+        $secondBrochure = Auction::where('name', 'مزاد جوهرة الغربية')->firstOrFail()->attachments()->where('category', 'brochure')->firstOrFail();
+        self::assertNotSame($firstBrochure->file_path, $secondBrochure->file_path);
+        Storage::disk('tenant_public')->delete($firstBrochure->file_path);
+        $this->assertStoredFixture('sample.pdf', $secondBrochure->file_path);
+    }
+
+    public function test_central_settings_seed_keeps_the_platform_logo_when_demo_assets_are_enabled(): void
+    {
+        config(['seeding.test_seeders_enabled' => false]);
+        $this->seed(CentralSettingsSeeder::class);
+        self::assertSame('default-office.png', CentralSettings::firstOrFail()->image);
+        self::assertSame([], Storage::disk('public')->allFiles());
+
+        config(['seeding.test_seeders_enabled' => true]);
+        $this->seed(CentralSettingsSeeder::class);
+        self::assertSame('default-office.png', CentralSettings::firstOrFail()->image);
+        $this->seed(CentralSettingsSeeder::class);
+        self::assertSame([], Storage::disk('public')->allFiles());
+    }
+
+    public function test_normal_tenant_bootstrap_does_not_copy_demo_assets_when_disabled(): void
+    {
+        config(['seeding.test_seeders_enabled' => false]);
+        $regions = \Mockery::mock(new CentralCityOptionsGateway);
+        $regions->shouldReceive('allRegionOptionsByName')->once()->andReturn([]);
+        $this->app->instance(CentralCityOptionsGateway::class, $regions);
+        $this->seed(TenantDatabaseSeeder::class);
+        self::assertSame('default-office.png', Settings::firstOrFail()->image);
+        self::assertSame('', User::where('email', 'demo@lot.com')->firstOrFail()->image);
+        self::assertSame([], Storage::disk('tenant_public')->allFiles());
+        self::assertSame([], Storage::disk('public')->allFiles());
+    }
+
+    private function assertStoredFixture(string $filename, string $path, string $disk = 'tenant_public'): void
+    {
+        Storage::disk($disk)->assertExists($path);
+        self::assertSame(hash_file('sha256', database_path('seeders/fixtures/'.$filename)), hash('sha256', Storage::disk($disk)->get($path)));
     }
 
     public function test_missing_report_and_closing_files_are_recreated_without_changing_approved_data(): void

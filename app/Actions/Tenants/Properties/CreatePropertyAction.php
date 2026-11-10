@@ -8,6 +8,7 @@ use App\Enums\Tenants\Properties\PropertyAttachmentCategory;
 use App\Enums\Tenants\Properties\PropertyDataStatus;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Properties\PropertyService;
+use App\Services\Tenants\Properties\OriginalPropertyImageService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +17,10 @@ use Throwable;
 
 final class CreatePropertyAction
 {
-    public function __construct(private readonly PropertyService $propertyService) {}
+    public function __construct(
+        private readonly PropertyService $propertyService,
+        private readonly OriginalPropertyImageService $originalImages,
+    ) {}
 
     public function execute(array $data, int $creatorId): Property
     {
@@ -41,6 +45,7 @@ final class CreatePropertyAction
 
                 $mainImageFile = $data['main_image'] ?? null;
                 $aerialImageInput = $data['aerial_image'] ?? null;
+                $originalImageInput = $data['raw_aerial_image'] ?? null;
 
                 // Remove non-column data from array
                 unset(
@@ -104,6 +109,7 @@ final class CreatePropertyAction
                 $data['is_active'] = true;
 
                 $property = Property::query()->create($data);
+                $this->originalImages->store($property, $originalImageInput, $storedPaths);
 
                 // Create main image attachment record
                 if ($mainImageFile instanceof UploadedFile) {

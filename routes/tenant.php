@@ -357,6 +357,8 @@ Route::middleware(['auth:tenant', \App\Http\Middleware\EnsureInitialPasswordChan
         |--------------------------------------------------------------------------
         */
         Route::prefix('properties')->name('properties.')->group(function () {
+            Route::post('resolve-maps-url', \App\Http\Controllers\Tenants\Properties\ResolveGoogleMapsUrlController::class)
+                ->middleware('throttle:30,1')->name('resolve-maps-url');
             Route::name('toggle-status')->patch('{property}/toggle-status', [PropertiesController::class, 'toggleStatus']);
         });
         Route::resource('properties', PropertiesController::class)

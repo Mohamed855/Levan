@@ -1,0 +1,341 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { parseLocationQuery, initPropertyLocationMap } from "./location-map.js";
+
+test("location search accepts coordinates and prefers the place pin over the map camera", () => {
+    assert.deepEqual(parseLocationQuery("0, 0"), {
+        coordinates: { lat: 0, lng: 0 },
+    });
+    assert.deepEqual(
+        parseLocationQuery(
+            "https://www.google.com/maps/place/Test/@24.1,46.1,14z/data=!3d24.7136!4d46.6753",
+        ),
+        { coordinates: { lat: 24.7136, lng: 46.6753 } },
+    );
+    for (const url of [
+        "https://maps.google.com/?q=24.7136%2C46.6753",
+        "https://www.google.com/maps/search/?api=1&query=24.7136,46.6753",
+        "https://www.google.com/maps/@24.7136,46.6753,18z",
+    ])
+        assert.deepEqual(parseLocationQuery(url), {
+            coordinates: { lat: 24.7136, lng: 46.6753 },
+        });
+    assert.deepEqual(
+        parseLocationQuery(
+            "https://www.google.com/maps/place/24.7136,46.6753/@24.7,46.6,17z",
+        ),
+        { coordinates: { lat: 24.7136, lng: 46.6753 } },
+    );
+    assert.deepEqual(
+        parseLocationQuery(
+            "https://www.google.com/maps/place/King+Fahd+Road/@24.7,46.6,17z",
+        ),
+        { text: "King Fahd Road" },
+    );
+});
+
+test("location search distinguishes names, place IDs and shortened Google links", () => {
+    assert.deepEqual(parseLocationQuery("الرياض"), { text: "الرياض" });
+    assert.deepEqual(parseLocationQuery("https://maps.google.com/?q=الرياض"), {
+        text: "الرياض",
+    });
+    assert.deepEqual(
+        parseLocationQuery(
+            "https://www.google.com/maps/search/?api=1&query=Test&query_place_id=ChIJtest",
+        ),
+        { placeId: "ChIJtest" },
+    );
+    assert.deepEqual(parseLocationQuery("https://maps.app.goo.gl/abc"), {
+        shortUrl: "https://maps.app.goo.gl/abc",
+    });
+    assert.deepEqual(parseLocationQuery("https://goo.gl/maps/abc"), {
+        shortUrl: "https://goo.gl/maps/abc",
+    });
+    assert.deepEqual(
+        parseLocationQuery("https://www.google.com/maps/place/King+Fahd+Road"),
+        { text: "King Fahd Road" },
+    );
+});
+
+test("invalid coordinates and non Maps URLs cannot become a selected property location", () => {
+    for (const input of [
+        "91,46",
+        "24,181",
+        "https://evil.example/?q=24,46",
+        "https://google.com.evil.example/maps/@24,46",
+        "https://user@google.com/maps/@24,46",
+        "https://google.com:8443/maps/@24,46",
+    ]) {
+        assert.throws(() => parseLocationQuery(input));
+    }
+    assert.equal(parseLocationQuery(""), null);
+});
+
+class Control extends EventTarget {
+    constructor(value = "") {
+        super();
+        this.value = value;
+        this.hidden = false;
+        this.textContent = "";
+        this.dataset = {};
+    }
+    children = [];
+    replaceChildren() {
+        this.children = [];
+    }
+    appendChild(child) {
+        this.children.push(child);
+    }
+}
+
+function fixture(values = {}) {
+    const controls = Object.fromEntries(
+        ["latitude", "longitude", "google_maps_url"].map((name) => [
+            name,
+            new Control(values[name] ?? ""),
+        ]),
+    );
+    const elements = Object.fromEntries(
+        [
+            "property-location-map",
+            "property-location-search",
+            "property-location-search-button",
+            "property-location-status",
+            "property-location-results",
+            "property-location-retry",
+        ].map((id) => [id, new Control()]),
+    );
+    elements["property-location-map"].dataset.apiKey = "test-key";
+    const form = new Control();
+    form.elements = { namedItem: (name) => controls[name] };
+    form.querySelector = (selector) => elements[selector.slice(1)] ?? null;
+    const listeners = {};
+    const state = {};
+    class Map {
+        constructor() {
+            this.center = null;
+            state.map = this;
+        }
+        addListener(name, callback) {
+            listeners[name] = callback;
+        }
+        panTo(position) {
+            this.center = position;
+        }
+        setZoom() {}
+    }
+    class Marker extends EventTarget {
+        constructor(options) {
+            super();
+            Object.assign(this, options);
+            state.marker = this;
+        }
+        addListener(name, callback) {
+            listeners[name] = callback;
+        }
+    }
+    const maps = { Map, AdvancedMarkerElement: Marker };
+    return { form, controls, elements, maps, listeners, state };
+}
+
+test("clicking and dragging persist coordinates and a matching URL in the form payload", async () => {
+    const f = fixture();
+    await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });
+    assert.equal(f.controls.latitude.value, "");
+    f.listeners.click({ latLng: { lat: () => 24.7136, lng: () => 46.6753 } });
+    assert.equal(f.controls.latitude.value, "24.7136000");
+    assert.equal(f.controls.longitude.value, "46.6753000");
+    assert.equal(
+        f.controls.google_maps_url.value,
+        "https://www.google.com/maps/search/?api=1&query=24.7136000,46.6753000",
+    );
+    f.state.marker.position = { lat: 0, lng: 0 };
+    f.state.marker.dispatchEvent(new Event("gmp-dragend"));
+    assert.equal(f.controls.latitude.value, "0.0000000");
+    assert.equal(f.controls.longitude.value, "0.0000000");
+});
+
+test("edit and draft restoration keep exact coordinates even when an older URL has another center", async () => {
+    const f = fixture({
+        latitude: "24.5",
+        longitude: "46.5",
+        google_maps_url: "https://maps.google.com/?q=24,46",
+    });
+    await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });
+    assert.equal(f.controls.latitude.value, "24.5000000");
+    f.controls.latitude.value = "25.25";
+    f.controls.longitude.value = "47.75";
+    f.form.dispatchEvent(new Event("wizardDraftRestored"));
+    assert.equal(f.controls.latitude.value, "25.2500000");
+    assert.match(f.controls.google_maps_url.value, /25.2500000,47.7500000$/);
+});
+
+test("a draft restored before Maps finishes loading becomes the initial marker", async () => {
+    const f = fixture();
+    let resolve;
+    const ready = initPropertyLocationMap(f.form, {
+        loadMaps: () =>
+            new Promise((done) => {
+                resolve = done;
+            }),
+    });
+    f.controls.latitude.value = "0";
+    f.controls.longitude.value = "46.6";
+    f.form.dispatchEvent(new Event("wizardDraftRestored"));
+    resolve(f.maps);
+    await ready;
+    assert.equal(f.controls.latitude.value, "0.0000000");
+    assert.equal(f.controls.longitude.value, "46.6000000");
+    assert.deepEqual(f.state.marker.position, { lat: 0, lng: 46.6 });
+    assert.equal(f.state.marker.map, f.state.map);
+});
+
+test("map loading failure preserves a saved location and shows a retry action", async () => {
+    const f = fixture({ latitude: "24.5", longitude: "46.5" });
+    await initPropertyLocationMap(f.form, {
+        loadMaps: async () => {
+            throw new Error("offline");
+        },
+    });
+    assert.equal(f.controls.latitude.value, "24.5");
+    assert.equal(f.elements["property-location-retry"].hidden, false);
+    assert.ok(f.elements["property-location-status"].textContent.length > 0);
+});
+
+test("searching coordinates selects the pin without calling a Places API", async () => {
+    const f = fixture();
+    await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });
+    f.elements["property-location-search"].value = "25.2, 47.3";
+    f.elements["property-location-search-button"].dispatchEvent(
+        new Event("click"),
+    );
+    assert.deepEqual(f.state.marker.position, { lat: 25.2, lng: 47.3 });
+    assert.equal(f.controls.latitude.value, "25.2000000");
+});
+
+test("clearing the restored location removes a previous marker", async () => {
+    const f = fixture({ latitude: "24.5", longitude: "46.5" });
+    await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });
+    f.controls.latitude.value = "";
+    f.controls.longitude.value = "";
+    f.controls.google_maps_url.value = "";
+    f.form.dispatchEvent(new Event("wizardDraftRestored"));
+    assert.equal(f.state.marker.map, null);
+    assert.equal(f.controls.latitude.value, "");
+});
+
+test("an outdated place search cannot overwrite a point picked while waiting for results", async () => {
+    const f = fixture();
+    await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });
+    let resolveSearch;
+    const previousGoogle = globalThis.google;
+    globalThis.google = {
+        maps: {
+            importLibrary: async () => ({
+                Place: {
+                    searchByText: () =>
+                        new Promise((resolve) => {
+                            resolveSearch = resolve;
+                        }),
+                },
+            }),
+        },
+    };
+    try {
+        f.elements["property-location-search"].value = "الرياض";
+        f.elements["property-location-search-button"].dispatchEvent(
+            new Event("click"),
+        );
+        await new Promise(setImmediate);
+        f.listeners.click({ latLng: { lat: () => 25, lng: () => 47 } });
+        resolveSearch({
+            places: [{ location: { toJSON: () => ({ lat: 24, lng: 46 }) } }],
+        });
+        await new Promise(setImmediate);
+        assert.deepEqual(f.state.marker.position, { lat: 25, lng: 47 });
+        assert.equal(f.controls.latitude.value, "25.0000000");
+        assert.equal(
+            f.elements["property-location-results"].children.length,
+            0,
+        );
+    } finally {
+        globalThis.google = previousGoogle;
+    }
+});
+
+test("place search results let the user pick the exact matching location", async () => {
+    const f = fixture();
+    await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });
+    const previousGoogle = globalThis.google;
+    const previousDocument = globalThis.document;
+    globalThis.document = { createElement: () => new Control() };
+    globalThis.google = {
+        maps: {
+            importLibrary: async () => ({
+                Place: {
+                    searchByText: async () => ({
+                        places: [
+                            {
+                                displayName: "الموقع الأول",
+                                location: {
+                                    toJSON: () => ({ lat: 24, lng: 46 }),
+                                },
+                            },
+                            {
+                                displayName: "الموقع الثاني",
+                                location: {
+                                    toJSON: () => ({ lat: 25, lng: 47 }),
+                                },
+                            },
+                        ],
+                    }),
+                },
+            }),
+        },
+    };
+    try {
+        f.elements["property-location-search"].value = "موقع";
+        f.elements["property-location-search-button"].dispatchEvent(
+            new Event("click"),
+        );
+        await new Promise(setImmediate);
+        assert.equal(
+            f.elements["property-location-results"].children.length,
+            2,
+        );
+        f.elements["property-location-results"].children[1].dispatchEvent(
+            new Event("click"),
+        );
+        assert.deepEqual(f.state.marker.position, { lat: 25, lng: 47 });
+        assert.equal(f.controls.longitude.value, "47.0000000");
+    } finally {
+        globalThis.google = previousGoogle;
+        globalThis.document = previousDocument;
+    }
+});
+
+test("searching a short link selects the location from its expanded Google Maps URL", async () => {
+    const f = fixture();
+    await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });
+    const previousFetch = globalThis.fetch;
+    globalThis.fetch = async () => ({
+        ok: true,
+        json: async () => ({
+            data: {
+                url: "https://www.google.com/maps/place/Test/data=!3d25.5!4d47.5",
+            },
+        }),
+    });
+    try {
+        f.elements["property-location-search"].value =
+            "https://maps.app.goo.gl/example";
+        f.elements["property-location-search-button"].dispatchEvent(
+            new Event("click"),
+        );
+        await new Promise(setImmediate);
+        assert.deepEqual(f.state.marker.position, { lat: 25.5, lng: 47.5 });
+        assert.equal(f.controls.latitude.value, "25.5000000");
+    } finally {
+        globalThis.fetch = previousFetch;
+    }
+});

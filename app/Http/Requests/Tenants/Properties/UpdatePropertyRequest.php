@@ -60,8 +60,8 @@ class UpdatePropertyRequest extends WizardFormRequest
             'plan_number' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
             'parcel_number' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
             'google_maps_url' => ['nullable', 'url', 'max:1000'],
-            'latitude' => ['nullable', 'numeric'],
-            'longitude' => ['nullable', 'numeric'],
+            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'aerial_image' => [
                 'nullable',
                 function ($attribute, $value, $fail) {
@@ -78,6 +78,10 @@ class UpdatePropertyRequest extends WizardFormRequest
                             return;
                         }
                     } elseif (is_string($value)) {
+                        $property = $this->route('property');
+                        if ($property instanceof \App\Models\Tenants\Properties\Property && $value === $property->aerial_image) {
+                            return;
+                        }
                         if (! str_starts_with($value, 'data:image/') && ! str_starts_with($value, 'properties/')) {
                             $fail('صورة العقار المحددة غير صالحة.');
 

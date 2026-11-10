@@ -6,6 +6,7 @@ namespace Database\Seeders\tenant;
 
 use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\UserMangment\User\User;
+use Database\Seeders\Support\DemoAssets;
 use Illuminate\Database\Seeder;
 
 class IssuingEntitySeeder extends Seeder
@@ -67,6 +68,7 @@ class IssuingEntitySeeder extends Seeder
                     'is_active' => $entity['is_active'],
                     'created_by' => $firstUserId,
                     'deleted_at' => null,
+                    ...(config('seeding.test_seeders_enabled', false) ? ['image' => DemoAssets::image('issuing-entities/demo-'.md5($entity['name']).'.jpg')] : []),
                 ]
             );
         }

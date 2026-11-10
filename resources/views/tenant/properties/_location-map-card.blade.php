@@ -1,3 +1,8 @@
+@php
+    $aerialImageValue = old('aerial_image', $property->aerial_image ?? '');
+    $aerialImageSource = $aerialImageValue ? (str_starts_with($aerialImageValue, 'data:image/') || str_starts_with($aerialImageValue, 'http') ? $aerialImageValue : tasset($aerialImageValue)) : '';
+    $originalPath = isset($property) ? $property->attachments->firstWhere('category', \App\Enums\Tenants\Properties\PropertyAttachmentCategory::AERIAL_ORIGINAL->value)?->file_path : null;
+@endphp
 <div class="card assignment-properties-table-card h-100">
     <div class="card-body d-flex flex-column gap-3">
         <div>
@@ -72,9 +77,9 @@
         {{-- حقول تخزين البيانات المخفية المرتبطة بالفورم ونظام المسودات --}}
         <div data-form-field data-field-name="boundary_geojson,aerial_image">
             <input type="hidden" name="aerial_image" id="property-aerial-image" data-form-control
-                value="{{ old('aerial_image', isset($property) && $property->aerial_image ? (str_starts_with($property->aerial_image, 'data:image/') || str_starts_with($property->aerial_image, 'http') ? $property->aerial_image : tasset($property->aerial_image)) : '') }}">
+                value="{{ $aerialImageValue }}" data-image-src="{{ $aerialImageSource }}">
             <input type="hidden" name="raw_aerial_image" id="property-raw-aerial-image" data-form-control
-                value="{{ old('raw_aerial_image', '') }}">
+                value="{{ old('raw_aerial_image', $originalPath ? tasset($originalPath) : '') }}">
             <input type="hidden" name="boundary_geojson" id="property-boundary-geojson" data-form-control
                 value="{{ old('boundary_geojson', isset($property) && $property->boundary_geojson ? (is_array($property->boundary_geojson) ? json_encode($property->boundary_geojson) : $property->boundary_geojson) : '') }}">
             <div data-form-error class="invalid-feedback d-block text-danger mt-1" style="display: none;" hidden></div>

@@ -3,6 +3,7 @@
 namespace Database\Seeders\tenant;
 
 use App\Models\Tenants\UserMangment\User\User;
+use Database\Seeders\Support\DemoAssets;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
@@ -20,7 +21,8 @@ class UserSeeder extends Seeder
                 'password'          => Hash::make('123456789'),
                 'phone'             => '0500000001',
                 'status'            => 'active',
-                'image'             => '',
+                'image'             => config('seeding.test_seeders_enabled', false) ? DemoAssets::image('users/demo-admin.jpg') : '',
+                ...(config('seeding.test_seeders_enabled', false) ? ['background_image' => DemoAssets::image('users/demo-admin-background.jpg')] : []),
                 'global_uid'        => '00000000-0000-0000-0000-000000000001',
             ]
         );
@@ -58,7 +60,8 @@ class UserSeeder extends Seeder
                     'password'          => Hash::make('123456789'),
                     'phone'             => $agentData['phone'],
                     'status'            => 'active',
-                    'image'             => '',
+                    'image'             => config('seeding.test_seeders_enabled', false) ? DemoAssets::image('users/demo-'.md5($agentData['email']).'.jpg') : '',
+                    ...(config('seeding.test_seeders_enabled', false) ? ['background_image' => DemoAssets::image('users/demo-'.md5($agentData['email']).'-background.jpg')] : []),
                     'global_uid'        => $agentData['global_uid'],
                 ]
             );

@@ -7,6 +7,7 @@ namespace App\Actions\Tenants\Properties;
 use App\Enums\Tenants\Properties\PropertyAttachmentCategory;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Auctions\Reports\AuctionReportRefreshService;
+use App\Services\Tenants\Properties\OriginalPropertyImageService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +18,8 @@ use Throwable;
 
 final class UpdatePropertyAction
 {
+    public function __construct(private readonly OriginalPropertyImageService $originalImages) {}
+
     public function execute(Property $property, array $data): Property
     {
         $storedPaths = [];
@@ -40,6 +43,7 @@ final class UpdatePropertyAction
 
                 $mainImageFile = $data['main_image'] ?? null;
                 $aerialImageInput = $data['aerial_image'] ?? null;
+                $originalImageInput = $data['raw_aerial_image'] ?? null;
 
                 unset(
                     $data['boundaries'],
@@ -137,6 +141,10 @@ final class UpdatePropertyAction
                 }
 
                 $property->update($data);
+                $pathsToDelete['tenant_public'] = array_merge(
+                    $pathsToDelete['tenant_public'] ?? [],
+                    $this->originalImages->store($property, $originalImageInput, $storedPaths),
+                );
 
                 // Update boundaries if provided
                 if ($boundaries !== null) {

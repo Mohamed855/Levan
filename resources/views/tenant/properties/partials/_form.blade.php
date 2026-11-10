@@ -27,26 +27,37 @@
             value="{{ $is_edit ? $property->property_number : $generatedPropertyNumber }}">
 
         {{-- الخطوة 1: البيانات الأساسية --}}
-        <x-form.wizard.step id="property-basic-validation" :fields="['name', 'type', 'usage_classification', 'area', 'short_description']">
+        <x-form.wizard.step id="property-basic-validation" :fields="['name', 'type', 'usage_classification', 'area', 'short_description', 'aerial_image', 'raw_aerial_image', 'boundary_geojson']">
             <div class="row g-4">
-                <x-form.controls.input name="name" label="اسم العقار" placeholder="مثال: فيلا النخيل" required
-                    :value="$is_edit ? $property->name : old('name')" col="col-md-6" />
-                <x-form.controls.select name="type" label="نوع العقار" required col="col-md-6" :value="$is_edit
-                    ? ($property->type instanceof \BackedEnum
-                        ? $property->type->value
-                        : $property->type)
-                    : old('type')"
-                    :enum="\App\Enums\Tenants\Properties\PropertyType::class" />
-                <x-form.controls.select name="usage_classification" label="تصنيف الاستخدام" required col="col-md-6"
-                    :value="$is_edit
-                        ? ($property->usage_classification instanceof \BackedEnum
-                            ? $property->usage_classification->value
-                            : $property->usage_classification)
-                        : old('usage_classification')" :enum="\App\Enums\Tenants\Properties\PropertyUsageClassification::class" />
-                <x-form.controls.input name="area" type="number" step="0.01" label="المساحة (م²)"
-                    :value="$is_edit ? $property->area : old('area')" placeholder="مثال: 600" required col="col-md-6" />
-                <x-form.controls.textarea name="short_description" label="وصف العقار" placeholder="أدخل وصفاً للعقار..."
-                    :value="$is_edit ? $property->short_description : old('short_description')" required col="col-12" rows="4" maxlength="500" />
+                <div class="col-lg-7">
+                    <div class="card assignment-properties-table-card h-100">
+                        <div class="card-body">
+                            <div class="row g-4">
+                                <x-form.controls.input name="name" label="اسم العقار" placeholder="مثال: فيلا النخيل" required
+                                    :value="$is_edit ? $property->name : old('name')" col="col-md-6" />
+                                <x-form.controls.select name="type" label="نوع العقار" required col="col-md-6" :value="$is_edit
+                                    ? ($property->type instanceof \BackedEnum
+                                        ? $property->type->value
+                                        : $property->type)
+                                    : old('type')"
+                                    :enum="\App\Enums\Tenants\Properties\PropertyType::class" />
+                                <x-form.controls.select name="usage_classification" label="تصنيف الاستخدام" required col="col-md-6"
+                                    :value="$is_edit
+                                        ? ($property->usage_classification instanceof \BackedEnum
+                                            ? $property->usage_classification->value
+                                            : $property->usage_classification)
+                                        : old('usage_classification')" :enum="\App\Enums\Tenants\Properties\PropertyUsageClassification::class" />
+                                <x-form.controls.input name="area" type="number" step="0.01" label="المساحة (م²)"
+                                    :value="$is_edit ? $property->area : old('area')" placeholder="مثال: 600" required col="col-md-6" />
+                                <x-form.controls.textarea name="short_description" label="وصف العقار" placeholder="أدخل وصفاً للعقار..."
+                                    :value="$is_edit ? $property->short_description : old('short_description')" required col="col-12" rows="4" maxlength="500" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    @include('tenant.properties._location-map-card')
+                </div>
 
                 <x-form.wizard.actions>
                     <x-form.wizard.previous-button :href="tenant_route_name('properties.index')" />
@@ -68,14 +79,16 @@
             'plan_number',
             'parcel_number',
             'google_maps_url',
-            'aerial_image',
-            'boundary_geojson',
+            'latitude',
+            'longitude',
             'boundaries',
         ]">
             <input type="hidden" name="latitude" id="latitude"
                 value="{{ old('latitude', $is_edit ? $property->latitude : '') }}">
             <input type="hidden" name="longitude" id="longitude"
                 value="{{ old('longitude', $is_edit ? $property->longitude : '') }}">
+            <input type="hidden" name="google_maps_url" id="property-google-maps-url"
+                value="{{ old('google_maps_url', $is_edit ? $property->google_maps_url : '') }}">
             @php
                 $defaultBorders = [
                     [
@@ -131,9 +144,6 @@
                                 <x-form.controls.input name="parcel_number" type="number" step="1" min="0"
                                     :value="$is_edit ? $property->parcel_number : old('parcel_number')" label="رقم القطعة" placeholder="مثال: 1288" required
                                     col="col-md-6" />
-                                <x-form.controls.input name="google_maps_url" label="رابط الموقع (Google Maps)"
-                                    :value="$is_edit ? $property->google_maps_url : old('google_maps_url')" placeholder="https://maps.google.com/?q=..." :required="false"
-                                    col="col-md-6" help="رابط موقع العقار على خرائط جوجل إن وُجد." />
                             </div>
                             @include('tenant.properties._boundaries-table', [
                                 'bordersData' => $bordersData,
@@ -143,7 +153,7 @@
                 </div>
 
                 <div class="col-lg-5">
-                    @include('tenant.properties._location-map-card')
+                    @include('tenant.properties._google-map-card')
                 </div>
 
                 <x-form.wizard.actions>

@@ -15,6 +15,7 @@ use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\AuctionEstablishments\AuctionEstablishmentRequestData;
 use App\Services\Tenants\Auctions\Reports\AuctionReportService;
+use Database\Seeders\Support\DemoAssets;
 use Database\Seeders\tenant\Support\SeededAuctionDocuments;
 use Illuminate\Database\Seeder;
 use Illuminate\Http\UploadedFile;
@@ -42,6 +43,7 @@ final class AuctionWorkflowScenariosSeeder extends Seeder
             'name' => 'إسناد اختبار دورة المزاد', 'issuing_entity' => 'جهة تجريبية', 'category' => 'residential',
             'city' => 'الرياض', 'start_date' => now()->subMonths(2), 'end_date' => now()->addYear(), 'is_active' => true,
         ]);
+        DemoAssets::assignment($assignment);
         foreach ($this->scenarios() as $number => $scenario) {
             $name = '[WF-'.$number.'] '.$scenario['title'];
             // Re-running seeders must preserve the tester's edits and approved snapshots.
@@ -68,6 +70,10 @@ final class AuctionWorkflowScenariosSeeder extends Seeder
                         'marketing_data' => ['demo_scenario' => 'WF-'.$number],
                         'is_active' => true, 'created_by' => $actorId,
                     ]);
+                    $auction->update([
+                        'cover_image' => DemoAssets::image('auctions/covers/demo-'.$auction->id.'.jpg'),
+                        'report_image' => DemoAssets::image('auctions/report-images/demo-'.$auction->id.'.jpg'),
+                    ]);
                     for ($index = 1; $index <= $scenario['properties']; $index++) {
                         $property = Property::create([
                             'assignment_id' => $assignment->id, 'property_number' => 'WF-'.$number.'-P'.$index,
@@ -77,6 +83,7 @@ final class AuctionWorkflowScenariosSeeder extends Seeder
                             'agent_name' => $number === '03' && $index === 1 ? 'وكيل المالك التجريبي' : null,
                             'agency_number' => $number === '03' && $index === 1 ? '000123456' : null, 'created_by' => $actorId,
                         ]);
+                        DemoAssets::property($property);
                         $property->owners()->create(['owner_name' => 'مالك عقار التجربة '.$index, 'national_id_or_cr' => '100000000'.$index, 'sort_order' => 0]);
                         $auction->properties()->attach($property->id, ['sort_order' => $index, 'result_status' => 'pending', 'opening_price' => '1000000.00']);
                     }
@@ -192,6 +199,7 @@ final class AuctionWorkflowScenariosSeeder extends Seeder
         }
         $channels = $level === 'complete' ? array_keys(config('auction-marketing-campaigns')) : ['google'];
         $payload = ['auction_id' => $auction->id, 'channels' => $channels, 'campaigns' => []];
+        $filesByChannel = [];
         foreach ($channels as $channel) {
             $metrics = [];
             foreach (config('auction-marketing-campaigns.'.$channel) as $metric) {
@@ -206,16 +214,21 @@ final class AuctionWorkflowScenariosSeeder extends Seeder
                 $metrics = ['messages' => 1000, 'delivered' => 900, 'failed' => 50, 'pending' => 50, 'total' => 1000, 'views' => 750];
             }
             $payload['campaigns'][$channel] = ['metrics' => $metrics, 'url' => 'https://example.com/demo/'.$channel, 'campaign_date' => now()->toDateString()];
+            if (in_array($channel, config('auction-marketing-fields.evidence'), true)) {
+                $evidence = [$channel === 'brochure' ? DemoAssets::uploadDocument() : DemoAssets::uploadImage()];
+                $payload['campaigns'][$channel]['evidence'] = $evidence;
+                $filesByChannel[$channel]['evidence'] = $evidence;
+            }
         }
         $request = new SaveMarketingCampaignRequest;
         $request->merge($payload);
         $validated = Validator::make($payload, $request->rules(), $request->messages(), $request->attributes())->validate();
-        app(SaveMarketingCampaignAction::class)->executeBatch($auction, $validated, $actorId);
+        app(SaveMarketingCampaignAction::class)->executeBatch($auction, $validated, $actorId, $filesByChannel);
     }
 
     private function document(): UploadedFile
     {
-        return new UploadedFile(database_path('seeders/fixtures/auction-demo-document.pdf'), 'مستند_تجريبي_للاختبار.pdf', 'application/pdf', test: true);
+        return DemoAssets::uploadDocument();
     }
 
     private function requireReportGeneration(Auction $auction): void

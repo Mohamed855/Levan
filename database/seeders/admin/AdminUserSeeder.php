@@ -3,6 +3,7 @@
 namespace Database\Seeders\admin;
 
 use App\Models\Admin\AdminMangment\Users\AdminUser;
+use Database\Seeders\Support\DemoAssets;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
@@ -25,6 +26,8 @@ class AdminUserSeeder extends Seeder
             'phone'                 => '0123456789',
             'status'                => 'active',
             'is_super_admin'        => true,
+            ...(config('seeding.test_seeders_enabled', false) ? ['image' => DemoAssets::image('users/demo-superadmin.jpg', 'public')] : []),
+            ...(config('seeding.test_seeders_enabled', false) ? ['background_image' => DemoAssets::image('users/demo-superadmin-background.jpg', 'public')] : []),
 
             'created_at'            => now(),
             'updated_at'            => now(),
