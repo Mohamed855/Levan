@@ -36,7 +36,7 @@ abstract class BaseMailable extends Mailable implements ShouldQueue
 
         $customImage = $this->officeSettings?->image;
         $hasCustomImage = ! empty($customImage)
-            && $customImage !== 'default-office.png'
+            && ! in_array($customImage, ['default-office.png', 'image/demo-office.jpg'], true)
             && file_exists(public_path('storage/' . $customImage));
 
         $brandLogoPath = $hasCustomImage

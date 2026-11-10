@@ -18,7 +18,7 @@ class ChangeCurrentUserPasswordRequest extends FormRequest
     {
         return [
             'current_password' => ['required', 'current_password:tenant'],
-            'new_password' => ['required', 'confirmed', Password::defaults()],
+            'new_password' => ['required', 'confirmed', 'different:current_password', Password::defaults()],
         ];
     }
 

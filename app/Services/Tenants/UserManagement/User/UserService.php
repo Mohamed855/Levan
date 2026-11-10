@@ -54,6 +54,7 @@ class UserService
             $data['status'] = $data['status'] ?? 'active';
 
             $user = User::create($data);
+            $user->forceFill(['must_change_password' => true])->save();
 
             $role = Role::query()->where('guard_name', 'tenant')->findOrFail($roleId);
             $user->syncRoles([$role->name]);
@@ -173,7 +174,8 @@ class UserService
 
     public function updatePassword(User $user, string $password): void
     {
-        DB::transaction(fn () => $user->update(['password' => Hash::make($password)]));
+        DB::transaction(fn () => app(\App\Actions\Auth\PersistAuthenticationStateAction::class)
+            ->updatePassword($user, $password, (bool) $user->must_change_password));
     }
 
     /*

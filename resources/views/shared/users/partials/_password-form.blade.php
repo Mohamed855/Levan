@@ -26,7 +26,9 @@
                     </div>
 
                     <x-form.wizard.actions>
-                        <x-form.wizard.previous-button :href="$backUrl" />
+                        @unless ($requiredPasswordChange ?? false)
+                            <x-form.wizard.previous-button :href="$backUrl" />
+                        @endunless
                         <x-form.wizard.save-button />
                     </x-form.wizard.actions>
                 </x-form.wizard.step>

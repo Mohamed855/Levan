@@ -78,6 +78,10 @@ class TenantInitializer
             'updated_at' => now(),
         ]);
 
+        if ($user->wasRecentlyCreated) {
+            $user->forceFill(['must_change_password' => true])->save();
+        }
+
         $user->syncRoles(['Admin']);
         $user->syncPermissions(Permission::where('guard_name', 'tenant')->get());
         $user->forceFill(['email_verified_at' => now()])->save();

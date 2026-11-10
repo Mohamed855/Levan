@@ -118,6 +118,7 @@ final class UsersAndProfilesDualReviewTest extends TestCase
         if ($connection === 'mysql') {
             $schema->create('admin_users', function (Blueprint $table): void {
                 $table->id();
+                $table->boolean('must_change_password')->default(false);
                 $table->string('name');
                 $table->string('email')->unique();
                 $table->string('password');
@@ -201,6 +202,7 @@ final class UsersAndProfilesDualReviewTest extends TestCase
         } else {
             $schema->create('users', function (Blueprint $table): void {
                 $table->id();
+                $table->boolean('must_change_password')->default(false);
                 $table->string('name');
                 $table->string('employee_number')->nullable();
                 $table->string('email')->unique();
@@ -437,6 +439,7 @@ final class UsersAndProfilesDualReviewTest extends TestCase
         $this->assertNotNull($created);
         $this->assertTrue(Hash::check('Password123!', $created->password));
         $this->assertTrue($created->hasRole('Auditor', 'admin'));
+        $this->assertTrue($created->must_change_password);
     }
 
     /**
@@ -479,6 +482,24 @@ final class UsersAndProfilesDualReviewTest extends TestCase
         $this->assertNotNull($created);
         $this->assertTrue(Hash::check('Password123!', $created->password));
         $this->assertTrue($created->hasRole('Staff', 'tenant'));
+        $this->assertTrue($created->must_change_password);
+
+        tenancy()->initialize($tenant);
+        $this->actingAs($created, 'tenant')
+            ->get(tenant_route_name('profile.show'))
+            ->assertRedirect(tenant_route_name('users.password.change'));
+
+        $this->post(tenant_route_name('users.password.update'), [
+            'current_password' => 'Password123!',
+            'new_password' => 'NewTenantPassword123!',
+            'new_password_confirmation' => 'NewTenantPassword123!',
+        ])->assertRedirect(tenant_route_name('login'))
+            ->assertSessionHas('tenant_login_context', 'tenant-u1')
+            ->assertSessionMissing('auth_tenant_id');
+
+        $this->assertGuest('tenant');
+        $this->assertFalse($created->fresh()->must_change_password);
+        $this->assertNull($created->fresh()->current_session_id);
     }
 
     /**

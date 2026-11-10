@@ -1,4 +1,8 @@
 function ensureModalCloseControl(modal) {
+    if (modal.dataset.modalDismissible === 'false') {
+        return;
+    }
+
     modal.querySelectorAll('.btn-close').forEach((button) => button.remove());
     modal.querySelectorAll('.modal-body').forEach((body) => body.classList.add('my-3'));
 

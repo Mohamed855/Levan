@@ -27,10 +27,13 @@ class SettingsTableSeeder extends Seeder
             'منطقة نجران',
         ];
 
+        $settings = Settings::query()->first();
+        $image = $settings?->image;
+
         Settings::updateOrCreate(
-            ['id' => Settings::query()->value('id') ?? 1],
+            ['id' => $settings?->getKey() ?? 1],
             [
-                'image' => 'default-office.png',
+                'image' => empty($image) || $image === 'image/demo-office.jpg' ? 'default-office.png' : $image,
                 'office_name' => 'لوت LOT',
                 'logo_text' => 'لوت LOT',
                 'operational_regions' => $defaultRegions,

@@ -6,6 +6,7 @@
     'centered' => true,
     'scrollable' => false,
     'staticBackdrop' => false,
+    'dismissible' => true,
     'labelledBy' => null,
     'dialogClass' => null,
     'bodyClass' => null,
@@ -19,6 +20,7 @@
 @endphp
 
 <div id="{{ $id }}" tabindex="-1" aria-labelledby="{{ $titleId }}" aria-hidden="true"
+    @if (! $dismissible) data-modal-dismissible="false" @endif
     @if ($staticBackdrop) data-bs-backdrop="static" data-bs-keyboard="false" @endif
     {{ $attributes->merge(['class' => 'modal fade']) }}>
     <div class="{{ $dialogClasses }}">
@@ -26,7 +28,9 @@
             @if (isset($header))
                 <div class="modal-header {{ $headerClass }}">
                     {{ $header }}
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                    @if ($dismissible)
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                    @endif
                 </div>
             @elseif ($title)
                 <div class="modal-header {{ $headerClass }}">
@@ -46,7 +50,9 @@
                         @endif
                         <span>{{ $title }}</span>
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                    @if ($dismissible)
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                    @endif
                 </div>
             @endif
 

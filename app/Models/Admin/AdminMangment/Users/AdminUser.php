@@ -58,6 +58,7 @@ class AdminUser extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_super_admin' => 'boolean',
+        'must_change_password' => 'boolean',
 
     ];
 

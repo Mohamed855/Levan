@@ -12,10 +12,13 @@ class SettingsSeeder extends Seeder
      */
     public function run(): void
     {
+        $settings = Settings::query()->first();
+        $image = $settings?->image;
+
         Settings::updateOrCreate(
-            ['id' => Settings::query()->value('id') ?? 1],
+            ['id' => $settings?->getKey() ?? 1],
             [
-                'image'       => 'default-office.png',
+                'image'       => empty($image) || $image === 'image/demo-office.jpg' ? 'default-office.png' : $image,
                 'office_name' => 'لوت LOT',
                 'logo_text'   => 'لوت LOT',
                 'office_address' => 'الرياض، طريق الأمير محمد بن عبدالعزيز، حي السليمانية، 12242', 'phone_number' => '0500181100', 'email' => 'info@e-tec.sa',

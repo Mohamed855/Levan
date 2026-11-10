@@ -247,6 +247,7 @@ class AdminUserController extends Controller
     public function updatePassword(ChangeCurrentAdminPasswordRequest $request): RedirectResponse
     {
         $user = $request->user('admin');
+        $requiredPasswordChange = (bool) $user->must_change_password;
         $password = $request->validated('new_password');
         $this->userService->updatePassword($user, $password);
 
@@ -269,6 +270,15 @@ class AdminUserController extends Controller
             );
         } catch (\Throwable $e) {
             Log::warning('Failed to send admin password change notification: ' . $e->getMessage());
+        }
+
+        if ($requiredPasswordChange) {
+            Auth::guard('admin')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('admin.login')
+                ->with('success', 'تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول بكلمة المرور الجديدة.');
         }
 
         return redirect()->route('admin.profile.show')

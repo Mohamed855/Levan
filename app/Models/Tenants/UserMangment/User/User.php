@@ -58,6 +58,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'last_login_at' => 'datetime',
+        'must_change_password' => 'boolean',
         'email_verified_at' => 'datetime',
         'microsoft_token_expires' => 'datetime',
         'microsoft_token' => 'encrypted',

@@ -298,6 +298,7 @@ class UserController extends Controller
     public function updatePassword(ChangeCurrentUserPasswordRequest $request): RedirectResponse
     {
         $user = $request->user('tenant');
+        $requiredPasswordChange = (bool) $user->must_change_password;
         $password = $request->validated('new_password');
 
         $this->userService->updatePassword($user, $password);
@@ -339,6 +340,21 @@ class UserController extends Controller
             }
         } catch (\Throwable $e) {
             Log::warning('Failed to send tenant password change notification: ' . $e->getMessage());
+        }
+
+        if ($requiredPasswordChange) {
+            $tenantId = tenant('id');
+            app(\App\Actions\Auth\PersistAuthenticationStateAction::class)->clearCurrentSession($user);
+            Auth::guard('tenant')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            if ($tenantId) {
+                $request->session()->put('tenant_login_context', $tenantId);
+            }
+
+            return redirect()->to(tenant_route_name('login'))
+                ->with('success', 'تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول بكلمة المرور الجديدة.');
         }
 
         return redirect()->to(tenant_route_name('profile.show'))

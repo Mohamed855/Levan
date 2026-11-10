@@ -61,7 +61,10 @@ use Illuminate\Support\Facades\Route;
 |============================================================================
 */
 
-Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
+Route::middleware(['auth:tenant', \App\Http\Middleware\EnsureInitialPasswordChanged::class.':tenant', 'tenant.2fa.force'])->group(function () {
+    Route::get('users/password/change', [UserController::class, 'showChangePasswordForm'])->name('users.password.change');
+    Route::post('users/password/change', [UserController::class, 'updatePassword'])->name('users.password.update')->defaults('shared_form_validation', true);
+
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'show'])->name('show');
         Route::get('edit', [ProfileController::class, 'edit'])->name('edit');
@@ -308,8 +311,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('update-image')->post('{user}/image', [UserController::class, 'updateImage'])->defaults('shared_form_validation', true);
             Route::name('update-background')->post('{user}/background', [UserController::class, 'updateBackgroundImage'])->defaults('shared_form_validation', true);
             Route::name('toggle-status')->patch('{user}/toggle-status', [UserController::class, 'toggleStatus']);
-            Route::name('password.change')->get('password/change', [UserController::class, 'showChangePasswordForm']);
-            Route::name('password.update')->post('password/change', [UserController::class, 'updatePassword'])->defaults('shared_form_validation', true);
             Route::resource('/', UserController::class)->parameters(['' => 'user']);
         });
 
@@ -532,7 +533,7 @@ Route::middleware('guest:tenant')->group(function () {
     Route::get('two-factor-challenge/cancel', [TenantTwoFactorChallengeController::class, 'cancel'])->name('tenants.two-factor.cancel');
 });
 
-Route::middleware('auth:tenant')->group(function () {
+Route::middleware(['auth:tenant', \App\Http\Middleware\EnsureInitialPasswordChanged::class.':tenant'])->group(function () {
     Route::name('verification.notice')->get('verify-email', EmailVerificationPromptController::class);
     Route::name('verification.verify')->get('verify-email/{id}/{hash}', VerifyEmailController::class)->middleware(['signed', 'throttle:6,1']);
     Route::name('verification.send')->post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->middleware('throttle:6,1');

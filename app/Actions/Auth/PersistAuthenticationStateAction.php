@@ -44,7 +44,7 @@ class PersistAuthenticationStateAction
             $attributes['must_change_password'] = false;
         }
 
-        $user->update($attributes);
+        $user->forceFill($attributes)->save();
     }
 
     public function resetPassword(Authenticatable $user, string $password): void
