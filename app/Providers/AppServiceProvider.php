@@ -23,6 +23,13 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        if (! function_exists('system_date_format')) {
+            $dateHelper = app_path('Helpers/DateHelper.php');
+            if (is_file($dateHelper)) {
+                require_once $dateHelper;
+            }
+        }
+
         $this->app->singleton(Vite::class, AppVite::class);
 
         $this->app->bind(PaymentGatewayInterface::class, MoyasarGateway::class);
