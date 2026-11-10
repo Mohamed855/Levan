@@ -4,10 +4,29 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Mail\Auth\OtpMail;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\UserMangment\User\User;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
+use Stancl\Tenancy\Contracts\TenancyBootstrapper;
 use Tests\TestCase;
+
+final class PasswordResetOtpTenancyBootstrapper implements TenancyBootstrapper
+{
+    public function bootstrap(\Stancl\Tenancy\Contracts\Tenant $tenant): void
+    {
+        DB::setDefaultConnection('tenant');
+    }
+
+    public function revert(): void
+    {
+        DB::setDefaultConnection('mysql');
+    }
+}
 
 class TenantPasswordResetOtpFeatureTest extends TestCase
 {
@@ -18,12 +37,55 @@ class TenantPasswordResetOtpFeatureTest extends TestCase
     {
         parent::setUp();
 
-        $this->tenant = Tenant::findOrFail('test');
+        config([
+            'database.default' => 'mysql',
+            'database.connections.mysql' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => ''],
+            'database.connections.tenant' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => ''],
+            'tenancy.bootstrappers' => [PasswordResetOtpTenancyBootstrapper::class],
+            'activitylog.enabled' => false,
+            'services.moyasar.mode' => 'test',
+        ]);
+        DB::purge('mysql');
+        DB::purge('tenant');
+        $this->withoutVite();
+        Mail::fake();
+
+        Schema::connection('mysql')->create('tenants', function (Blueprint $table): void {
+            $table->string('id')->primary();
+            $table->text('data')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
+        });
+        Schema::connection('mysql')->create('domains', function (Blueprint $table): void {
+            $table->id();
+            $table->string('domain')->unique();
+            $table->string('tenant_id');
+            $table->timestamps();
+        });
+        Schema::connection('tenant')->create('users', function (Blueprint $table): void {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->string('global_uid')->nullable();
+            $table->string('status')->default('active');
+            $table->boolean('must_change_password')->default(false);
+            $table->rememberToken();
+            $table->timestamps();
+            $table->softDeletes();
+        });
+        Schema::connection('tenant')->create('settings', function (Blueprint $table): void {
+            $table->id();
+            $table->boolean('maintenance_mode')->default(false);
+        });
+        DB::connection('mysql')->table('tenants')->insert(['id' => 'otp-test']);
+        DB::connection('mysql')->table('domains')->insert(['domain' => 'test.localhost', 'tenant_id' => 'otp-test']);
+        $this->tenant = Tenant::findOrFail('otp-test');
         tenancy()->initialize($this->tenant);
 
-        $this->user = User::firstOrCreate(
-            ['email' => 'test-otp-user@example.com'],
+        $this->user = User::create(
             [
+                'email' => 'test-otp-user@example.com',
                 'name' => 'OTP Test User',
                 'password' => Hash::make('OldPassword123!'),
                 'status' => 'active',
@@ -70,9 +132,12 @@ class TenantPasswordResetOtpFeatureTest extends TestCase
 
         $verification = session('password_reset_verification');
         $this->assertNotNull($verification);
+        $this->assertSame($this->tenant->id, $verification['tenant_id']);
+        $this->assertSame($this->user->id, $verification['user_id']);
         $this->assertSame($this->user->email, $verification['email']);
         $this->assertSame(hash('sha256', '000000'), $verification['otp_hash']);
         $this->assertFalse($verification['verified']);
+        Mail::assertQueued(OtpMail::class, fn (OtpMail $mail): bool => $mail->hasTo($this->user->email) && $mail->otp === '000000');
 
         // Next GET request renders OTP view
         $viewResponse = $this->get('http://test.localhost/forgot-password');
@@ -80,23 +145,12 @@ class TenantPasswordResetOtpFeatureTest extends TestCase
         $viewResponse->assertSee('التحقق من رمز الأمان');
         $viewResponse->assertSee('checkout-otp-timer', false);
         $viewResponse->assertSee('btn-resend-otp', false);
-        $viewResponse->assertSee($this->user->email);
+        $this->assertSame($this->user->email, session('password_reset_verification.email'));
     }
 
     public function test_verifying_invalid_otp_fails_and_increments_attempts(): void
     {
-        $this->withSession([
-            'password_reset_verification' => [
-                'email' => $this->user->email,
-                'user_id' => $this->user->id,
-                'otp_hash' => hash('sha256', '000000'),
-                'expires_at' => now()->addMinutes(2)->timestamp,
-                'session_expires_at' => now()->addMinutes(15)->timestamp,
-                'resend_count' => 0,
-                'attempts' => 0,
-                'verified' => false,
-            ],
-        ]);
+        $this->requestPasswordReset();
 
         $response = $this->post('http://test.localhost/forgot-password/verify', [
             'otp' => '999999',
@@ -110,18 +164,7 @@ class TenantPasswordResetOtpFeatureTest extends TestCase
 
     public function test_resending_otp_updates_timer_and_respects_max_resends(): void
     {
-        $this->withSession([
-            'password_reset_verification' => [
-                'email' => $this->user->email,
-                'user_id' => $this->user->id,
-                'otp_hash' => hash('sha256', '000000'),
-                'expires_at' => now()->addMinutes(2)->timestamp,
-                'session_expires_at' => now()->addMinutes(15)->timestamp,
-                'resend_count' => 0,
-                'attempts' => 0,
-                'verified' => false,
-            ],
-        ]);
+        $this->requestPasswordReset();
 
         // Resend 1
         $res1 = $this->postJson('http://test.localhost/forgot-password/resend-otp');
@@ -149,13 +192,7 @@ class TenantPasswordResetOtpFeatureTest extends TestCase
 
     public function test_editing_email_clears_otp_and_restores_email_input(): void
     {
-        $this->withSession([
-            'password_reset_verification' => [
-                'email' => $this->user->email,
-                'otp_hash' => hash('sha256', '000000'),
-                'verified' => false,
-            ],
-        ]);
+        $this->requestPasswordReset();
 
         $response = $this->get('http://test.localhost/forgot-password/edit');
 
@@ -166,18 +203,7 @@ class TenantPasswordResetOtpFeatureTest extends TestCase
 
     public function test_verifying_valid_otp_marks_session_verified_and_redirects_to_reset_password(): void
     {
-        $this->withSession([
-            'password_reset_verification' => [
-                'email' => $this->user->email,
-                'user_id' => $this->user->id,
-                'otp_hash' => hash('sha256', '000000'),
-                'expires_at' => now()->addMinutes(2)->timestamp,
-                'session_expires_at' => now()->addMinutes(15)->timestamp,
-                'resend_count' => 0,
-                'attempts' => 0,
-                'verified' => false,
-            ],
-        ]);
+        $this->requestPasswordReset();
 
         $response = $this->post('http://test.localhost/forgot-password/verify', [
             'otp' => '000000',
@@ -206,16 +232,9 @@ class TenantPasswordResetOtpFeatureTest extends TestCase
     {
         $newPassword = 'NewSecretPassword123!';
 
-        $this->withSession([
-            'password_reset_verification' => [
-                'email' => $this->user->email,
-                'user_id' => $this->user->id,
-                'otp_hash' => hash('sha256', '000000'),
-                'expires_at' => now()->addMinutes(15)->timestamp,
-                'session_expires_at' => now()->addMinutes(15)->timestamp,
-                'verified' => true,
-            ],
-        ]);
+        $this->requestPasswordReset();
+        $this->post('http://test.localhost/forgot-password/verify', ['otp' => '000000'])
+            ->assertRedirect('http://test.localhost/reset-password');
 
         $response = $this->post('http://test.localhost/reset-password', [
             'email' => $this->user->email,
@@ -247,6 +266,52 @@ class TenantPasswordResetOtpFeatureTest extends TestCase
         ]);
     }
 
+    public function test_an_otp_bound_to_another_tenant_cannot_be_verified(): void
+    {
+        $this->requestPasswordReset();
+        $verification = session('password_reset_verification');
+        $verification['tenant_id'] = 'another-tenant';
+
+        $this->withSession(['password_reset_verification' => $verification])
+            ->post('http://test.localhost/forgot-password/verify', ['otp' => '000000'])
+            ->assertRedirect('http://test.localhost/forgot-password')
+            ->assertSessionHasErrors('otp')
+            ->assertSessionMissing('password_reset_verification');
+    }
+
+    public function test_an_expired_otp_can_be_replaced_while_its_verification_session_is_active(): void
+    {
+        $this->requestPasswordReset();
+        $this->travel(3)->minutes();
+
+        try {
+            $this->post('http://test.localhost/forgot-password/verify', ['otp' => '000000'])
+                ->assertSessionHasErrors('otp');
+            $this->postJson('http://test.localhost/forgot-password/resend-otp')
+                ->assertOk()->assertJsonPath('resend_count', 1);
+            $this->post('http://test.localhost/forgot-password/verify', ['otp' => '000000'])
+                ->assertRedirect('http://test.localhost/reset-password');
+            $this->assertTrue(session('password_reset_verification.verified'));
+        } finally {
+            $this->travelBack();
+        }
+    }
+
+    public function test_otp_verification_rejects_an_expired_verification_session(): void
+    {
+        $this->requestPasswordReset();
+        $this->travel(16)->minutes();
+
+        try {
+            $this->post('http://test.localhost/forgot-password/verify', ['otp' => '000000'])
+                ->assertRedirect('http://test.localhost/forgot-password')
+                ->assertSessionHasErrors('otp')
+                ->assertSessionMissing('password_reset_verification');
+        } finally {
+            $this->travelBack();
+        }
+    }
+
     public function test_form_validation_endpoint_fails_when_otp_is_invalid_format(): void
     {
         $response = $this->postJson('http://test.localhost/form-validation', [
@@ -258,5 +323,12 @@ class TenantPasswordResetOtpFeatureTest extends TestCase
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['otp']);
+    }
+
+    private function requestPasswordReset(): void
+    {
+        $this->from('http://test.localhost/forgot-password')
+            ->post('http://test.localhost/forgot-password', ['email' => $this->user->email])
+            ->assertRedirect('http://test.localhost/forgot-password');
     }
 }

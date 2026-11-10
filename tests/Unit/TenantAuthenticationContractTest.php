@@ -139,7 +139,7 @@ class TenantAuthenticationContractTest extends TestCase
         $content = file_get_contents(dirname(__DIR__, 2).'/resources/views/tenant/auth/two-factor-settings.blade.php');
 
         $this->assertStringContainsString('data-form-validate', $content);
-        $this->assertStringContainsString("tenant_route_name('wizard-drafts.validate-step')", $content);
+        $this->assertStringContainsString("tenant_route_name('tenants.two-factor.validate')", $content);
         $this->assertStringContainsString('SharedFormValidation', file_get_contents(dirname(__DIR__, 2).'/resources/assets/js/shared/form-validation.js'));
     }
 }

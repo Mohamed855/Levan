@@ -24,6 +24,15 @@ use Tests\TestCase;
 
 final class ScopedPasswordResetAndFaqAuthorizationTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        if (tenancy()->initialized) {
+            tenancy()->end();
+        }
+
+        parent::tearDown();
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -184,6 +193,9 @@ final class ScopedPasswordResetAndFaqAuthorizationTest extends TestCase
 
     public function test_verified_tenant_otp_reset_keeps_using_the_verified_email(): void
     {
+        config(['tenancy.bootstrappers' => []]);
+        tenancy()->initialize(Tenant::findOrFail('tenant-a'));
+
         Schema::connection('tenant')->create('users', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
@@ -202,6 +214,7 @@ final class ScopedPasswordResetAndFaqAuthorizationTest extends TestCase
         Route::middleware('web')->post('/testing/verified-password-reset', [NewPasswordController::class, 'store']);
 
         $this->withSession(['password_reset_verification' => [
+            'tenant_id' => 'tenant-a', 'user_id' => 1,
             'verified' => true, 'email' => 'verified@example.com', 'expires_at' => now()->addMinutes(5)->timestamp,
         ]])->post('/testing/verified-password-reset', [
             'email' => 'other@example.com', 'password' => 'NewPassword123!',

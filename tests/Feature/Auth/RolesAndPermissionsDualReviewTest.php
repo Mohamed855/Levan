@@ -844,12 +844,14 @@ final class RolesAndPermissionsDualReviewTest extends TestCase
         // Delete existing seeded permissions to control ordering explicitly
         Permission::on('tenant')->where('guard_name', 'tenant')->delete();
 
-        // Seed with issuing entities having lower IDs (to simulate arbitrary DB insertion order)
+        // Earlier test schemas omit section, which Eloquent caches as an unguardable
+        // column. Force these fixture attributes without changing global model state.
+        // Insert issuing entities first so section order cannot follow database IDs.
         foreach (['issuing_entities.view', 'issuing_entities.create', 'issuing_entities.edit'] as $perm) {
-            Permission::on('tenant')->create(['name' => $perm, 'guard_name' => 'tenant', 'section' => 'issuing_entities_management']);
+            Permission::on('tenant')->forceCreate(['name' => $perm, 'guard_name' => 'tenant', 'section' => 'issuing_entities_management']);
         }
-        Permission::on('tenant')->create(['name' => 'dashboard.view', 'guard_name' => 'tenant', 'section' => 'dashboard']);
-        Permission::on('tenant')->create(['name' => 'assignments.view', 'guard_name' => 'tenant', 'section' => 'assignments_management']);
+        Permission::on('tenant')->forceCreate(['name' => 'dashboard.view', 'guard_name' => 'tenant', 'section' => 'dashboard']);
+        Permission::on('tenant')->forceCreate(['name' => 'assignments.view', 'guard_name' => 'tenant', 'section' => 'assignments_management']);
 
         $service = app(TenantRoleService::class);
         $grouped = $service->getGroupedPermissions();

@@ -403,19 +403,38 @@ final class OverviewAndSecurityDualReviewTest extends TestCase
 
         Schema::connection($connection)->create('auctions', function (Blueprint $table): void {
             $table->id();
-            $table->string('title');
-            $table->string('status')->default('active');
+            $table->unsignedBigInteger('assignment_id')->nullable();
+            $table->string('name');
             $table->timestamp('start_date')->nullable();
             $table->timestamp('end_date')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
 
+        Schema::connection($connection)->create('auction_establishment_requests', function (Blueprint $table): void {
+            $table->id();
+            $table->unsignedBigInteger('auction_id')->unique();
+            $table->json('data');
+            $table->timestamp('submitted_at');
+            $table->timestamp('approved_at')->nullable();
+            $table->string('approval_number')->nullable();
+            $table->timestamps();
+        });
+
         Schema::connection($connection)->create('auction_properties', function (Blueprint $table): void {
             $table->id();
             $table->unsignedBigInteger('auction_id');
             $table->unsignedBigInteger('property_id');
+            $table->unsignedInteger('sort_order')->default(0);
             $table->string('result_status')->nullable();
+            $table->decimal('opening_price', 15, 2)->nullable();
+            $table->decimal('sale_price', 15, 2)->nullable();
+            $table->unsignedInteger('participants_count')->nullable();
+            $table->unsignedInteger('bids_count')->nullable();
+            $table->text('unsold_reason')->nullable();
+            $table->json('board_data')->nullable();
+            $table->string('buyer_name')->nullable();
+            $table->text('result_notes')->nullable();
             $table->timestamps();
         });
     }
@@ -736,8 +755,51 @@ final class OverviewAndSecurityDualReviewTest extends TestCase
      */
     public function test_tenant_dashboard_kpis_and_auction_activity_ranges(): void
     {
+        $this->travelTo(now()->setDate(2026, 11, 10)->setTime(12, 0));
         tenancy()->initialize($this->tenantA);
         $this->actingAs($this->tenantUser, 'tenant');
+
+        $assignment = Assignment::create(['name' => 'Dashboard Assignment']);
+        $soldProperty = Property::create([
+            'name' => 'Sold Property',
+            'assignment_id' => $assignment->id,
+            'data_status' => PropertyDataStatus::COMPLETED->value,
+            'is_active' => true,
+        ]);
+
+        // Approval needs both a timestamp and a nonblank number; sold-out auctions are closed.
+        $cases = [
+            'approved' => [now()->subDay(), now(), 'APP-001'],
+            'no_request' => [now()->subMonths(2), null, null],
+            'no_approval_date' => [now()->subMonths(4), null, 'APP-002'],
+            'blank_approval_number' => [now()->subMonths(8), now(), '   '],
+            'closed' => [now()->subDay(), now(), 'APP-003'],
+            'outside_activity_ranges' => [now()->subMonths(13), null, null],
+            'deleted' => [now()->subDay(), now(), 'APP-004'],
+        ];
+        foreach ($cases as $name => [$createdAt, $approvedAt, $approvalNumber]) {
+            $auction = Auction::query()->forceCreate([
+                'name' => $name,
+                'assignment_id' => $assignment->id,
+                'created_at' => $createdAt,
+            ]);
+
+            if ($approvedAt !== null || $approvalNumber !== null) {
+                $auction->establishmentRequest()->forceCreate([
+                    'data' => [],
+                    'submitted_at' => now(),
+                    'approved_at' => $approvedAt,
+                    'approval_number' => $approvalNumber,
+                ]);
+            }
+
+            if ($name === 'closed') {
+                $auction->properties()->attach($soldProperty->id, ['result_status' => 'sold']);
+            }
+            if ($name === 'deleted') {
+                $auction->delete();
+            }
+        }
 
         $service = app(TenantDashboardService::class);
         $data = $service->getDashboardData();
@@ -745,15 +807,26 @@ final class OverviewAndSecurityDualReviewTest extends TestCase
         $this->assertArrayHasKey('kpis', $data);
         $this->assertArrayHasKey('auctionActivity', $data);
         $this->assertArrayHasKey('propertyStatus', $data);
+        $this->assertSame(6, $data['kpis']['total_auctions']);
+        $this->assertSame(1, $data['kpis']['approved_auctions']);
+        $this->assertSame(4, $data['kpis']['pending_auctions']);
+        $this->assertSame(1, $data['kpis']['total_properties']);
+        $this->assertSame(1, $data['kpis']['sold_properties']);
+        $this->assertSame(1, $data['kpis']['active_users']);
+        $this->assertSame(1, $data['kpis']['total_assignments']);
+        $this->assertCount(5, $data['latestAuctions']);
+        $this->assertNotContains('deleted', $data['latestAuctions']->pluck('name')->all());
 
-        // Test all valid range parameters
-        foreach (['1month', '3months', '6months', '1year'] as $range) {
+        // Activity counts auction creation regardless of approval, including closed auctions.
+        foreach (['1month' => [32, 2], '3months' => [4, 3], '6months' => [7, 4], '1year' => [13, 5]] as $range => [$points, $count]) {
             $activity = $service->getAuctionActivityByRange($range);
-            $this->assertIsArray($activity);
-            $this->assertNotEmpty($activity);
+            $this->assertCount($points, $activity, $range);
             $this->assertArrayHasKey('label', $activity[0]);
             $this->assertArrayHasKey('count', $activity[0]);
+            $this->assertSame($count, array_sum(array_column($activity, 'count')), $range);
+            $this->assertSame(0, $activity[0]['count'], 'The empty starting bucket must be zero-filled.');
         }
+        $this->assertSame(2, array_sum(array_column($data['auctionActivity'], 'count')));
     }
 
     /**
