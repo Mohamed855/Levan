@@ -2,7 +2,6 @@
 
 @section('title', 'تفاصيل الباقة - ' . $plan->name)
 
-
 @section('content')
     <div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-2">
         <div class="d-flex gap-2 flex-wrap">
@@ -24,13 +23,13 @@
                 <div class="card-body text-center">
                     <div class="mx-auto mb-3">
                         <div class="avatar avatar-xl rounded-circle p-3 d-flex align-items-center justify-content-center mx-auto shadow-sm"
-                            style="width: 100px; height: 100px; background-color: {{ $plan->color?->hex() ?? '#7367f0' }}20; color: {{ $plan->color?->hex() ?? '#7367f0' }};">
+                            style="width: 100px; height: 100px; background-color: {{ $plan->color?->hex() ?? '#1D4F44' }}20; color: {{ $plan->color?->hex() ?? '#1D4F44' }};">
                             <i class="ti ti-cube fs-1"></i>
                         </div>
                     </div>
-                    <h5 class="mb-1 fw-bold">{{ $plan->name }}</h5>
-                    <span class="badge bg-label-dark text-dark mb-2">{{ $plan->code }}</span>
-                    <span class="badge bg-{{ $plan->plan_type?->color() ?? 'primary' }} mb-3">
+                    <h4 class="mb-1 fw-bold text-primary">{{ $plan->name }}</h4>
+                    <p class="mb-2 text-muted fw-medium">{{ $plan->code }}</p>
+                    <span class="badge bg-label-{{ $plan->plan_type?->color() ?? 'primary' }} mb-3 fs-6">
                         {{ $plan->plan_type?->label() ?? 'أساسي' }}
                     </span>
 
@@ -94,7 +93,7 @@
 
             @if (!empty($plan->admin_notes))
                 <div class="card mb-4">
-                    <div class="card-header pb-2">
+                    <div class="card-header pb-2 mb-3">
                         <h6 class="card-title mb-0"><i class="ti ti-notes text-primary me-2"></i>ملاحظات إدارية</h6>
                     </div>
                     <div class="card-body">
@@ -108,7 +107,7 @@
         <div class="col-xl-8 col-lg-7 col-md-7">
             {{-- بطاقة المؤشرات المالية والتشغيلية --}}
             <div class="card mb-4">
-                <div class="card-header pb-2">
+                <div class="card-header pb-2 mb-3">
                     <h5 class="card-title mb-0"><i class="ti ti-chart-pie text-primary me-2"></i>المؤشرات المالية والتشغيلية
                     </h5>
                 </div>
@@ -117,12 +116,12 @@
                         <div class="col-sm-6 col-md-4">
                             <div class="card border shadow-none h-100">
                                 <div class="card-body p-3 d-flex align-items-center">
-                                    <div class="avatar bg-primary rounded p-2 me-3">
+                                    <div class="avatar bg-primary rounded text-center p-2 me-3">
                                         <i class="ti ti-currency-riyal fs-4 text-white"></i>
                                     </div>
                                     <div>
                                         <small class="text-muted d-block">السعر الأساسي للدورة</small>
-                                        <span class="fw-bold">{{ number_format((float) $plan->price, 2) }} ر.س</span>
+                                        <span class="fw-bold fs-5">{{ number_format((float) $plan->price, 2) }} ر.س</span>
                                     </div>
                                 </div>
                             </div>
@@ -130,12 +129,12 @@
                         <div class="col-sm-6 col-md-4">
                             <div class="card border shadow-none h-100">
                                 <div class="card-body p-3 d-flex align-items-center">
-                                    <div class="avatar bg-warning rounded p-2 me-3">
+                                    <div class="avatar bg-warning rounded text-center p-2 me-3">
                                         <i class="ti ti-percentage fs-4 text-white"></i>
                                     </div>
                                     <div>
                                         <small class="text-muted d-block">نسبة الخصم</small>
-                                        <span class="fw-bold">{{ $plan->discount_percentage ?? 0 }}%</span>
+                                        <span class="fw-bold fs-5">{{ $plan->discount_percentage ?? 0 }}%</span>
                                     </div>
                                 </div>
                             </div>
@@ -143,13 +142,13 @@
                         <div class="col-sm-6 col-md-4">
                             <div class="card border shadow-none h-100">
                                 <div class="card-body p-3 d-flex align-items-center">
-                                    <div class="avatar bg-success rounded p-2 me-3">
+                                    <div class="avatar bg-success rounded text-center p-2 me-3">
                                         <i class="ti ti-tag fs-4 text-white"></i>
                                     </div>
                                     <div>
                                         <small class="text-muted d-block">السعر النهائي</small>
                                         <span
-                                            class="fw-bold text-success">{{ number_format($plan->price_after_discount, 2) }}
+                                            class="fw-bold fs-5 text-success">{{ number_format($plan->price_after_discount, 2) }}
                                             ر.س</span>
                                     </div>
                                 </div>
@@ -158,13 +157,13 @@
                         <div class="col-sm-6 col-md-4">
                             <div class="card border shadow-none h-100">
                                 <div class="card-body p-3 d-flex align-items-center">
-                                    <div class="avatar bg-info rounded p-2 me-3">
+                                    <div class="avatar bg-info rounded text-center p-2 me-3">
                                         <i class="ti ti-calendar-event fs-4 text-white"></i>
                                     </div>
                                     <div>
                                         <small class="text-muted d-block">سعر العرض السنوي</small>
                                         <span
-                                            class="fw-bold">{{ $plan->yearly_renewal_price ? number_format((float) $plan->yearly_renewal_price, 2) . ' ر.س' : 'غير متوفر' }}</span>
+                                            class="fw-bold fs-5">{{ $plan->yearly_renewal_price ? number_format((float) $plan->yearly_renewal_price, 2) . ' ر.س' : 'غير متوفر' }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -172,13 +171,13 @@
                         <div class="col-sm-6 col-md-4">
                             <div class="card border shadow-none h-100">
                                 <div class="card-body p-3 d-flex align-items-center">
-                                    <div class="avatar bg-secondary rounded p-2 me-3">
+                                    <div class="avatar bg-dark rounded text-center p-2 me-3">
                                         <i class="ti ti-user-plus fs-4 text-white"></i>
                                     </div>
                                     <div>
                                         <small class="text-muted d-block">ترخيص إضافي</small>
                                         <span
-                                            class="fw-bold">{{ $plan->isUnlimited() ? 'غير مطلوب' : ($plan->extra_user_license_price ? number_format((float) $plan->extra_user_license_price, 2) . ' ر.س' : '0.00 ر.س') }}</span>
+                                            class="fw-bold fs-5">{{ $plan->isUnlimited() ? 'غير مطلوب' : ($plan->extra_user_license_price ? number_format((float) $plan->extra_user_license_price, 2) . ' ر.س' : '0.00 ر.س') }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -186,13 +185,13 @@
                         <div class="col-sm-6 col-md-4">
                             <div class="card border shadow-none h-100">
                                 <div class="card-body p-3 d-flex align-items-center">
-                                    <div class="avatar bg-danger rounded p-2 me-3">
+                                    <div class="avatar bg-danger rounded text-center p-2 me-3">
                                         <i class="ti ti-gavel fs-4 text-white"></i>
                                     </div>
                                     <div>
                                         <small class="text-muted d-block">حد المزادات</small>
                                         <span
-                                            class="fw-bold">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->active_auctions_limit ?? '-' }}</span>
+                                            class="fw-bold fs-5">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->active_auctions_limit ?? '-' }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -203,7 +202,7 @@
 
             {{-- بطاقة ميزات الباقة التسويقية --}}
             <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title mb-0">
                         <i class="ti ti-list-check text-primary me-2"></i>ميزات الباقة التسويقية
                         ({{ count($plan->features ?? []) }})
@@ -224,7 +223,7 @@
                         </div>
                     @else
                         <div class="text-center py-4 text-muted">
-                            <i class="ti ti-file-text fs-1 mb-2"></i>
+                            <i class="ti ti-file-text fs-1 mb-2 d-block"></i>
                             <p class="mb-0">لا توجد ميزات مسجلة لهذه الباقة.</p>
                         </div>
                     @endif
@@ -233,7 +232,7 @@
 
             {{-- بطاقة الاشتراكات والشركات المرتبطة --}}
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title mb-0">
                         <i class="ti ti-building-store text-primary me-2"></i>الاشتراكات والشركات المرتبطة بالباقة
                         ({{ $subscriptions->count() }})
@@ -250,7 +249,7 @@
                                 <th>المسؤول</th>
                                 <th>فترة الاشتراك</th>
                                 <th>الحالة</th>
-                                <th>الإجراءات</th>
+                                <th class="text-center">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -284,34 +283,27 @@
                                         <small class="text-muted">{{ $primaryEmail ?: '-' }}</small>
                                     </td>
                                     <td>
-                                        <div>
-                                            @date($sub->start_date)
-                                        </div>
-                                        <small class="text-muted">إلى
-                                            @date($sub->end_date)</small>
+                                        <div>@date($sub->start_date)</div>
+                                        <small class="text-muted">إلى @date($sub->end_date)</small>
                                     </td>
                                     <td>
-                                        <span class="badge bg-{{ $sub->status?->color() ?? 'secondary' }}">
+                                        <span class="badge bg-label-{{ $sub->status?->color() ?? 'secondary' }}">
                                             {{ $sub->status?->label() ?? 'غير محدد' }}
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="d-flex gap-1">
+                                        <x-actions.row>
                                             @if ($tenant)
-                                                <a href="{{ route('admin.clients.show', $tenant->id) }}"
-                                                    class="btn btn-icon btn-text-secondary btn-sm"
-                                                    title="عرض تفاصيل العميل">
-                                                    <i class="ti ti-eye"></i>
-                                                </a>
+                                                <x-actions.show :url="route('admin.clients.show', $tenant->id)" title="عرض تفاصيل العميل" />
                                             @endif
                                             @if ($tenantUrl)
                                                 <a href="{{ $tenantUrl }}"
-                                                    class="btn btn-icon btn-text-secondary btn-sm"
+                                                    class="btn btn-icon btn-label-info"
                                                     title="لوحة تحكم الشركة (رابط مباشر)" target="_blank">
                                                     <i class="ti ti-external-link"></i>
                                                 </a>
                                             @endif
-                                        </div>
+                                        </x-actions.row>
                                     </td>
                                 </tr>
                             @empty

@@ -304,7 +304,7 @@ class SubscriptionController extends Controller
         request()->session()->put('tenant_login_context', $tenantId);
         cookie()->queue(cookie('tenant_login_hint', $tenantId, 60 * 24 * 30));
 
-        return redirect()->to(url('/admin/login'))
+        return redirect()->to(route('path.login', ['tenant' => $tenantId], false))
             ->with('success', 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول');
     }
 

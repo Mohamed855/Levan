@@ -49,23 +49,20 @@ if (! function_exists('tenant_route_name')) {
 
         $currentHost = request()->getHost();
 
-        // Get central domains
+        // Keep the same host order as RouteServiceProvider, including www aliases.
         $centralDomains = array_values(array_map(function ($domain) {
-            return str_replace(['http://', 'https://', 'www.'], '', trim($domain));
-        }, config('tenancy.central_domains', [])));
+            return str_replace(['http://', 'https://'], '', trim($domain));
+        }, array_unique(array_filter(
+            config('tenancy.central_domains', []),
+            static fn (mixed $domain): bool => is_string($domain) && $domain !== '',
+        ))));
+        $domainIndex = array_search($currentHost, $centralDomains, true);
 
-        // Check if current host is central domain
-        $isCentralDomain = in_array($currentHost, $centralDomains) ||
-            in_array('www.'.$currentHost, $centralDomains);
-
-        if ($isCentralDomain) {
-            $cleanHost = str_replace('www.', '', $currentHost);
-            $domainIndex = array_search($cleanHost, $centralDomains, true);
-            $routeScope = $name === 'login' ? 'tenant' : 'path';
-            $prefix = ($domainIndex === false || $domainIndex === 0) ? $routeScope.'.' : "central-domain-{$domainIndex}.{$routeScope}.";
+        if ($domainIndex !== false) {
+            $prefix = $domainIndex === 0 ? 'path.' : "central-domain-{$domainIndex}.path.";
             $routeName = $prefix.$name;
 
-            if ($name !== 'login' && ! isset($parameters['tenant'])) {
+            if (! isset($parameters['tenant'])) {
                 $parameters = array_merge(['tenant' => tenant('id')], $parameters);
             }
 

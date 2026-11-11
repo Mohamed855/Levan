@@ -43,31 +43,6 @@ class SingleSessionPerUser
     */
     protected function redirectToLogin(Request $request)
     {
-        if (! tenant()) {
-            return redirect('/login');
-        }
-
-        $currentHost = $request->getHost();
-        $centralDomains = $this->getCentralDomains();
-        $isCentralDomain = in_array($currentHost, $centralDomains);
-
-        if ($isCentralDomain) {
-            return redirect('/admin/login');
-        }
-
-        return redirect('/login');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get Cleaned Central Domains
-    |--------------------------------------------------------------------------
-    | الحصول على قائمة النطاقات المركزية بعد تنظيفها
-    */
-    protected function getCentralDomains(): array
-    {
-        return array_map(function ($domain) {
-            return str_replace(['http://', 'https://', 'www.'], '', $domain);
-        }, config('tenancy.central_domains', []));
+        return redirect()->to(tenant() ? tenant_route_name('login', [], false) : '/');
     }
 }

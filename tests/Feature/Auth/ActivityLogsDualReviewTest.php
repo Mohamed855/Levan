@@ -439,7 +439,7 @@ final class ActivityLogsDualReviewTest extends TestCase
         // 4. Tenant unauthenticated gets redirected
         tenancy()->initialize($this->tenantA);
         $this->get(tenant_route_name('activity-logs.index'))
-            ->assertRedirect(route('tenant.login'));
+            ->assertRedirect(tenant_route_name('login'));
 
         // 5. Tenant user with permission gets 200
         $this->actingAs($this->tenantUserA, 'tenant')

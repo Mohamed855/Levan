@@ -6,8 +6,8 @@
 // and rich deep text for flawless legibility and WCAG AA/AAA compliance.
 // =============================================================================
 
-@use 'sass:map';
-@use 'palette';
+@use "sass:map";
+@use "palette";
 
 .fixed-alert {
     position: fixed;
@@ -26,7 +26,7 @@
     padding: 0.875rem 1.125rem;
     font-size: 0.925rem;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 0.625rem;
     border-width: 1px;
     border-style: solid;
@@ -57,7 +57,9 @@
     $solid-color: map.get($props, solid-color);
 
     // 1. Soft / Dual-Tone Alert (Default Bootstrap Alert)
-    .alert-#{$name}:not([class*="alert-solid-"]):not([class*="alert-outline-"]) {
+    .alert-#{$name}:not([class*="alert-solid-"]):not(
+            [class*="alert-outline-"]
+        ) {
         background-color: $bg !important;
         border-color: $border !important;
         color: $color !important;

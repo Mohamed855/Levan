@@ -82,41 +82,4 @@ abstract class AbstractActivityLogDataTable extends AbstractDataTable
     {
         return [5, 'desc'];
     }
-
-    protected function selectedRowsFilterCallback(): string
-    {
-        return 'function (idx, data, node) { var table = node && node.closest("table"); var hasChecked = table ? table.querySelectorAll("tbody .row-checkbox:checked").length > 0 : false; return hasChecked ? Boolean(node && node.querySelector(".row-checkbox:checked")) : true; }';
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    protected function copyActionButton(): array
-    {
-        return [
-            'extend' => 'copy',
-            'text' => 'نسخ',
-            'exportOptions' => [
-                'columns' => [2, 3, 4, 5],
-                'rows' => $this->selectedRowsFilterCallback(),
-            ],
-        ];
-    }
-
-    /**
-     * @param  array<int, array<string, mixed>>  $subButtons
-     * @return array<int, array<string, mixed>>
-     */
-    protected function actionsCollectionButton(array $subButtons): array
-    {
-        return [
-            [
-                'extend' => 'collection',
-                'className' => 'btn btn-export',
-                'text' => 'الإجراءات',
-                'autoClose' => true,
-                'buttons' => $subButtons,
-            ],
-        ];
-    }
 }

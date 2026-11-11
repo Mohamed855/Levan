@@ -311,7 +311,7 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
 
         $response = $this->get(route('site.plans.checkout.callback', ['bill' => $bill->bill_number, 'id' => 'pay_test_123']));
 
-        $response->assertRedirect(url('/admin/login'));
+        $response->assertRedirect(url('/test-tenant-uuid/login'));
         $this->assertSame('test-tenant-uuid', session('tenant_login_context'));
         $response->assertSessionHas('success', 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول');
     }

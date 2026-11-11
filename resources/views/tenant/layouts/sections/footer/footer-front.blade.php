@@ -42,7 +42,7 @@
                             <a href="#landingContact" class="footer-link">تواصل معنا</a>
                         </li>
                         {{-- <li class="mb-4">
-              <a href="{{url('/login')}}" class="footer-link">تسجيل الدخول</a>
+              <a href="{{ tenant_route_name('login') }}" class="footer-link">تسجيل الدخول</a>
             </li> --}}
                     </ul>
                 </div>

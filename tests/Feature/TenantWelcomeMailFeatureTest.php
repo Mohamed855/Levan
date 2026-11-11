@@ -300,13 +300,13 @@ class TenantWelcomeMailFeatureTest extends TestCase
         });
 
         $callback = route('site.plans.checkout.callback', ['bill' => $bill->bill_number, 'id' => 'pay_welcome_test']);
-        $this->get($callback)->assertRedirect(url('/admin/login'))->assertSessionHas('success');
+        $this->get($callback)->assertRedirect(url('/'.$tenant->id.'/login'))->assertSessionHas('success');
         self::assertSame(BillStatus::PAID, $bill->fresh()->status);
         $this->assertWelcomeDelivered($transport, 'salem@payment.test', $tenant);
         self::assertStringContainsString('SalemSecretPass123!', $transport->messages()->sole()->getOriginalMessage()->getHtmlBody());
         self::assertStringContainsString('الاحتفاظ برابط تسجيل الدخول', $transport->messages()->sole()->getOriginalMessage()->getHtmlBody());
 
-        $this->get($callback)->assertRedirect(url('/admin/login'));
+        $this->get($callback)->assertRedirect(url('/'.$tenant->id.'/login'));
         $this->assertWelcomeDelivered($transport, 'salem@payment.test', $tenant);
     }
 

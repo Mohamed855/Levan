@@ -55,13 +55,13 @@ class TenantAuthenticationValidationFeatureTest extends TestCase
         ])->assertNotFound();
     }
 
-    public function test_shared_login_uses_tenant_scoped_validation_endpoint(): void
+    public function test_scoped_login_uses_tenant_scoped_validation_endpoint(): void
     {
-        $this->get('/admin/login')->assertOk()
+        $this->get('/test/login')->assertOk()
             ->assertSee('data-validation-url="'.url('/test/form-validation').'"', false);
 
         $this->postJson('/test/form-validation', [
-            'target_path' => '/admin/login',
+            'target_path' => '/test/login',
             'target_method' => 'POST',
             'fields' => ['email', 'password'],
             'email' => '',
@@ -82,7 +82,7 @@ class TenantAuthenticationValidationFeatureTest extends TestCase
                 'two_factor_recovery_codes' => encrypt(json_encode(['test-recovery-code'])),
             ])->save();
 
-            $this->post('/admin/login', [
+            $this->post('/test/login', [
                 'tenant_id' => 'test',
                 'email' => 'demo@lot.com',
                 'password' => '123456789',

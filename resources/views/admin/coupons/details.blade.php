@@ -89,7 +89,7 @@
                 $creator = $couponDetails->admin_user ?? $couponDetails->creator;
             @endphp
             <div class="card mb-4">
-                <div class="card-header pb-2">
+                <div class="card-header pb-2 mb-3">
                     <h6 class="card-title mb-0"><i class="ti ti-user-shield text-primary me-2"></i>أنشئ بواسطة</h6>
                 </div>
                 <div class="card-body">
@@ -123,7 +123,7 @@
         <div class="col-xl-8 col-lg-7 col-md-7">
             {{-- بطاقة مؤشرات الكوبون --}}
             <div class="card mb-4">
-                <div class="card-header pb-2">
+                <div class="card-header pb-2 mb-3">
                     <h5 class="card-title mb-0"><i class="ti ti-chart-bar text-primary me-2"></i>مؤشرات الاستخدام</h5>
                 </div>
                 <div class="card-body">
@@ -196,7 +196,7 @@
 
             {{-- بطاقة سجل الاستخدام --}}
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title mb-0">
                         <i class="ti ti-receipt text-primary me-2"></i>سجل الاستخدام ({{ $tenants->count() }})
                     </h5>

@@ -7,24 +7,8 @@
 
 @section('title', 'تفاصيل العميل — ' . $target->company_name)
 
-
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-            <h4 class="fw-bold mb-1">
-                <i class="ti ti-building me-2 text-primary"></i>تفاصيل العميل: {{ $target->company_name }}
-            </h4>
-            <div class="d-flex align-items-center gap-2">
-                @if ($activeSub)
-                    <span class="badge bg-{{ $activeSub->status->color() }}">
-                        {{ $activeSub->status->label() }}
-                    </span>
-                @else
-                    <span class="badge bg-secondary">بدون اشتراك</span>
-                @endif
-                <span class="badge bg-label-primary">معرف العميل: {{ $target->id }}</span>
-            </div>
-        </div>
+    <div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-2">
         <div class="d-flex gap-2 flex-wrap">
             <a href="{{ route('admin.clients.index') }}" class="btn btn-secondary">
                 <i class="ti ti-arrow-right me-1"></i> العودة
@@ -42,7 +26,7 @@
     </div>
 
     <div class="row">
-        {{-- العمود الأيمن (الملف الأساسي للعميل) --}}
+        {{-- كارت الملف الأساسي للعميل (العمود الأيمن) --}}
         <div class="col-xl-4 col-lg-5 col-md-5 mb-4">
             <div class="card mb-4">
                 <div class="card-body text-center">
@@ -52,19 +36,29 @@
                             <i class="ti ti-building fs-1 text-primary"></i>
                         </div>
                     </div>
-                    <h5 class="mb-1 fw-bold">{{ $target->company_name }}</h5>
-                    <span class="badge bg-info mb-3">
-                        {{ $activeSub?->plan?->name ?? 'عميل لوت' }}
-                    </span>
+                    <h4 class="mb-1 fw-bold text-primary">{{ $target->company_name }}</h4>
+                    <p class="mb-2 text-muted fw-medium">معرف العميل: {{ $target->id }}</p>
+                    <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
+                        @if ($activeSub)
+                            <span class="badge bg-label-{{ $activeSub->status->color() }} fs-6">
+                                {{ $activeSub->status->label() }}
+                            </span>
+                        @else
+                            <span class="badge bg-label-secondary fs-6">بدون اشتراك</span>
+                        @endif
+                        <span class="badge bg-label-info fs-6">
+                            {{ $activeSub?->plan?->name ?? 'عميل لوت' }}
+                        </span>
+                    </div>
 
                     <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
                         <div>
-                            <h6 class="mb-0 text-muted small">تاريخ التسجيل</h6>
-                            <span class="fw-semibold">@date($target->created_at)</span>
+                            <h5 class="mb-0">@date($target->created_at)</h5>
+                            <small class="text-muted">تاريخ التسجيل</small>
                         </div>
                         <div>
-                            <h6 class="mb-0 text-muted small">الاشتراكات</h6>
-                            <span class="fw-semibold">{{ $target->subscriptions->count() }}</span>
+                            <h5 class="mb-0 text-success">{{ $target->subscriptions->count() }}</h5>
+                            <small class="text-muted">الاشتراكات</small>
                         </div>
                     </div>
 
@@ -73,27 +67,27 @@
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-file-text text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">السجل التجاري:</span>
-                                <span class="text-muted" dir="ltr">{{ $target->commercial_number ?: '-' }}</span>
+                                <span dir="ltr">{{ $target->commercial_number ?: '-' }}</span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-receipt-tax text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">الرقم الضريبي:</span>
-                                <span class="text-muted" dir="ltr">{{ $target->tax_number ?: '-' }}</span>
+                                <span dir="ltr">{{ $target->tax_number ?: '-' }}</span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-map-pin text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">المدينة:</span>
-                                <span class="text-muted">{{ $target->city?->name ?: '-' }}</span>
+                                <span>{{ $target->city?->name ?: '-' }}</span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-home text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">العنوان:</span>
-                                <span class="text-muted">{{ $target->address ?: '-' }}</span>
+                                <span>{{ $target->address ?: '-' }}</span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-user-circle text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">المسؤول:</span>
-                                <span class="text-muted">{{ $target->primary_contact_name ?: '-' }}</span>
+                                <span>{{ $target->primary_contact_name ?: '-' }}</span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-mail text-primary me-2 fs-5"></i>
@@ -104,7 +98,7 @@
                             <li class="mb-2 d-flex align-items-center">
                                 <i class="ti ti-phone text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">الهاتف:</span>
-                                <span class="text-muted" dir="ltr">{{ $target->primary_contact_phone ?: '-' }}</span>
+                                <span dir="ltr">{{ $target->primary_contact_phone ?: '-' }}</span>
                             </li>
                         </ul>
                     </div>
@@ -112,16 +106,16 @@
             </div>
         </div>
 
-        {{-- العمود الأيسر (سجل الاشتراكات وسجل الأنشطة) --}}
+        {{-- سجل الاشتراكات وسجل الأنشطة (العمود الأيسر) --}}
         <div class="col-xl-8 col-lg-7 col-md-7">
             {{-- كارت سجل الاشتراكات --}}
             <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center py-3 flex-wrap gap-2">
-                    <h6 class="card-title mb-0">
-                        <i class="ti ti-packages text-primary me-2"></i> سجل الاشتراكات
-                    </h6>
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-packages text-primary me-2"></i>سجل الاشتراكات
+                    </h5>
                     <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-primary rounded-pill">{{ $target->subscriptions->count() }} اشتراك</span>
+                        <span class="badge bg-label-primary">{{ $target->subscriptions->count() }} اشتراك</span>
                         @can('subscriptions.create')
                             @if (!$target->lastSubscription || $target->lastSubscription->status->value === 'expired')
                                 <a href="{{ route('admin.subscriptions.create') }}?company_id={{ $target->id }}"
@@ -132,110 +126,110 @@
                         @endcan
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped w-100">
-                            <thead>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>رقم الاشتراك</th>
+                                <th>الباقة</th>
+                                <th>حدود الباقة</th>
+                                <th>البداية</th>
+                                <th>النهاية</th>
+                                <th>الأيام المتبقية</th>
+                                <th>الحالة</th>
+                                <th>تغيير الحالة</th>
+                                <th class="text-center">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($target->subscriptions as $sub)
+                                @php
+                                    $period =
+                                        $sub->currentPeriod ??
+                                        $sub->periods->sortByDesc('period_end')->first();
+                                    $days = app(
+                                        \App\Services\Shared\Subscription\SubscriptionManager::class,
+                                    )->calculateDaysRemaining($period);
+                                    $isActive =
+                                        $sub->status ===
+                                        \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE;
+                                @endphp
                                 <tr>
-                                    <th>رقم الاشتراك</th>
-                                    <th>الباقة</th>
-                                    <th>حدود الباقة</th>
-                                    <th>البداية</th>
-                                    <th>النهاية</th>
-                                    <th>الأيام المتبقية</th>
-                                    <th>الحالة</th>
-                                    <th>تغيير الحالة</th>
-                                    <th>الإجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($target->subscriptions as $sub)
-                                    @php
-                                        $period =
-                                            $sub->currentPeriod ??
-                                            $sub->periods->sortByDesc('period_end')->first();
-                                        $days = app(
-                                            \App\Services\Shared\Subscription\SubscriptionManager::class,
-                                        )->calculateDaysRemaining($period);
-                                        $isActive =
-                                            $sub->status ===
-                                            \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE;
-                                    @endphp
-                                    <tr>
-                                        <td>
-                                            <span class="fw-bold text-primary">{{ $sub->subscription_number }}</span>
-                                        </td>
-                                        <td>{{ $sub->plan?->name ?: '-' }}</td>
-                                        <td>
-                                            <div class="d-flex flex-wrap gap-1">
-                                                <span class="badge bg-info"><i
-                                                        class="ti ti-users ti-xs me-1"></i>{{ $sub->total_users }}</span>
-                                                <span class="badge bg-primary"><i
-                                                        class="ti ti-building ti-xs me-1"></i>{{ $sub->plan?->properties_limit ?? '∞' }}</span>
-                                                <span class="badge bg-danger"><i
-                                                        class="ti ti-database ti-xs me-1"></i>{{ $sub->plan?->storage_quota_gb ? $sub->plan->storage_quota_gb . 'GB' : '∞' }}</span>
+                                    <td>
+                                        <span class="fw-bold text-primary">{{ $sub->subscription_number }}</span>
+                                    </td>
+                                    <td>{{ $sub->plan?->name ?: '-' }}</td>
+                                    <td>
+                                        <div class="d-flex flex-wrap justify-content-center gap-1">
+                                            <span class="badge bg-label-info"><i
+                                                    class="ti ti-users ti-xs me-1"></i>{{ $sub->total_users }}</span>
+                                            <span class="badge bg-label-primary"><i
+                                                    class="ti ti-building ti-xs me-1"></i>{{ $sub->plan?->properties_limit ?? '∞' }}</span>
+                                            <span class="badge bg-label-danger"><i
+                                                    class="ti ti-database ti-xs me-1"></i>{{ $sub->plan?->storage_quota_gb ? $sub->plan->storage_quota_gb . 'GB' : '∞' }}</span>
+                                        </div>
+                                    </td>
+                                    <td>@date($sub->starts_at)</td>
+                                    <td>@date($period?->period_end ?? $sub->ends_at)</td>
+                                    <td>
+                                        @if ($days === null)
+                                            <span class="badge bg-label-secondary">-</span>
+                                        @elseif ($days <= 0)
+                                            <span class="badge bg-label-danger">منتهي</span>
+                                        @elseif ($days <= 7)
+                                            <span class="badge bg-label-danger">{{ $days }} يوم</span>
+                                        @elseif ($days <= 30)
+                                            <span class="badge bg-label-warning">{{ $days }} يوماً</span>
+                                        @else
+                                            <span class="badge bg-label-success">{{ $days }} يوماً</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-label-{{ $sub->status->color() }}">{{ $sub->status->label() }}</span>
+                                    </td>
+                                    <td>
+                                        @can('subscriptions.toggle_status')
+                                            <div class="form-check form-switch mb-0 d-flex justify-content-center">
+                                                <input type="checkbox"
+                                                    class="form-check-input js-sub-toggle text-center"
+                                                    data-url="{{ route('admin.subscriptions.toggle-status', $sub->id) }}"
+                                                    {{ $isActive ? 'checked' : '' }}>
                                             </div>
-                                        </td>
-                                        <td>@date($sub->starts_at)</td>
-                                        <td>@date($period?->period_end ?? $sub->ends_at)
-                                        </td>
-                                        <td class="text-center">
-                                            @if ($days === null)
-                                                <span class="badge bg-secondary">-</span>
-                                            @elseif ($days <= 0)
-                                                <span class="badge bg-danger">منتهي</span>
-                                            @elseif ($days <= 7)
-                                                <span class="badge bg-danger fw-bold">{{ $days }} يوم</span>
-                                            @elseif ($days <= 30)
-                                                <span class="badge bg-warning fw-semibold">{{ $days }} يوماً</span>
-                                            @else
-                                                <span class="badge bg-success">{{ $days }} يوماً</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-{{ $sub->status->color() }}">{{ $sub->status->label() }}</span>
-                                        </td>
-                                        <td class="text-center">
-                                            @can('subscriptions.toggle_status')
-                                                <div class="form-check form-switch mb-0 d-flex justify-content-center">
-                                                    <input type="checkbox"
-                                                        class="form-check-input js-sub-toggle text-center"
-                                                        data-url="{{ route('admin.subscriptions.toggle-status', $sub->id) }}"
-                                                        {{ $isActive ? 'checked' : '' }}>
-                                                </div>
-                                            @else
-                                                -
-                                            @endcan
-                                        </td>
-                                        <td class="text-center">
+                                        @else
+                                            -
+                                        @endcan
+                                    </td>
+                                    <td>
+                                        <x-actions.row>
                                             @can('subscriptions.delete')
                                                 <button type="button"
-                                                    class="btn btn-icon btn-danger js-sub-delete-btn"
+                                                    class="btn btn-icon btn-label-danger js-sub-delete-btn"
                                                     data-url="{{ route('admin.subscriptions.destroy', $sub->id) }}"
-                                                    data-number="{{ $sub->subscription_number }}">
+                                                    data-number="{{ $sub->subscription_number }}"
+                                                    title="حذف الاشتراك">
                                                     <i class="ti ti-trash"></i>
                                                 </button>
                                             @endcan
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="9" class="text-center py-4 text-muted">لا توجد اشتراكات مسجلة لهذا العميل.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                                        </x-actions.row>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="text-center py-4 text-muted">لا توجد اشتراكات مسجلة لهذا العميل.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
             {{-- كارت سجل الأنشطة والعمليات --}}
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center py-3">
-                    <h6 class="card-title mb-0">
-                        <i class="ti ti-history text-warning me-2"></i> سجل النشاطات
-                    </h6>
-                    <span class="badge bg-label-secondary">آخر النشاطات</span>
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-history text-primary me-2"></i>سجل النشاطات
+                    </h5>
+                    <span class="badge bg-label-primary">آخر النشاطات</span>
                 </div>
                 <div class="card-body">
                     <ul class="timeline mb-0">
@@ -250,7 +244,7 @@
                                     <p class="text-muted mb-0 small">
                                         بواسطة: {{ $activity->causer?->name ?? 'النظام' }}
                                         @if ($activity->event)
-                                            &bull; الحدث: <span class="badge bg-info">{{ $activity->event }}</span>
+                                            &bull; الحدث: <span class="badge bg-label-info">{{ $activity->event }}</span>
                                         @endif
                                     </p>
                                 </div>

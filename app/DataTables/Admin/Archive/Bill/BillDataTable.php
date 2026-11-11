@@ -22,7 +22,6 @@ class BillDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id', 'visible' => false],
             [
                 'data' => 'checkbox',
                 'title' => '<input type="checkbox" id="select-all">',
@@ -121,7 +120,7 @@ class BillDataTable extends AbstractDataTable
 
     protected function getCustomOrder(): array
     {
-        return [1, 'desc'];
+        return [9, 'desc'];
     }
 
     protected function buttons(): array
@@ -133,19 +132,10 @@ class BillDataTable extends AbstractDataTable
 
     private function getActionsDropdownButton(): array
     {
-        $buttons = [
-            ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
-                'columns' => [11, 10, 9, 8, 7, 6, 5, 4, 3],
-            ]],
-        ];
-
-        return [
-            'extend' => 'collection',
-            'className' => 'btn btn-export',
-            'text' => 'الإجراءات',
-            'buttons' => $buttons,
-        ];
+        return $this->actionsCollectionButton([
+            $this->copyActionButton(),
+            $this->excelActionButton(),
+        ])[0];
     }
 
     private function TypeBadge($row): string

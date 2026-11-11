@@ -33,7 +33,7 @@ class EtmamTicketService
         }
     }
 
-    private function mirrorExternalReply(string $ticketNumber, string $message, string $senderType, ?string $senderName): void
+    private function mirrorExternalReply(string $ticketNumber, ?string $message, string $senderType, ?string $senderName): void
     {
         try {
             $query = auth('admin')->check() && ! tenancy()->initialized ? Ticket::query() : $this->tenantTicketQuery();
@@ -43,7 +43,7 @@ class EtmamTicketService
             }
             TicketReply::create([
                 'ticket_id' => $ticket->id, 'ticket_number' => $ticketNumber,
-                'sender_type' => $senderType, 'message' => $message,
+                'sender_type' => $senderType, 'message' => trim((string) $message),
                 'user_id' => $senderType === 'support_user' ? auth('admin')->id() : auth('tenant')->id(),
                 'user_name' => $senderName ?? auth('tenant')->user()?->name,
             ]);
@@ -346,11 +346,20 @@ class EtmamTicketService
     /**
      * Add reply to ticket
      */
-    public function addReply(string $ticketNumber, string $message, array $files = [], string $senderType = 'tenant_user', ?string $senderName = null): array
+    public function addReply(string $ticketNumber, ?string $message, array $files = [], string $senderType = 'tenant_user', ?string $senderName = null): array
     {
+        $cleanMessage = trim((string) $message);
+
+        if ($cleanMessage === '' && empty($files)) {
+            return [
+                'success' => false,
+                'message' => 'يجب كتابة رد أو إرفاق ملف واحد على الأقل',
+            ];
+        }
+
         if ($this->isEtmamConfigured()) {
             try {
-                $data = ['message' => $message];
+                $data = ['message' => $cleanMessage];
                 if (empty($files)) {
                     $response = $this->getConnector()->post("tickets/{$ticketNumber}/replies", $data);
                 } else {
@@ -358,7 +367,7 @@ class EtmamTicketService
                 }
 
                 if ($response['success']) {
-                    $this->mirrorExternalReply($ticketNumber, $message, $senderType, $senderName);
+                    $this->mirrorExternalReply($ticketNumber, $cleanMessage, $senderType, $senderName);
 
                     return $response;
                 }
@@ -392,13 +401,20 @@ class EtmamTicketService
                 }
             }
 
+            if ($cleanMessage === '' && empty($uploadedAttachments)) {
+                return [
+                    'success' => false,
+                    'message' => 'يجب كتابة رد أو إرفاق ملف واحد على الأقل',
+                ];
+            }
+
             $reply = TicketReply::create([
                 'ticket_id' => $ticket->id,
                 'ticket_number' => $ticketNumber,
                 'sender_type' => $senderType,
                 'user_id' => $user?->id,
                 'user_name' => $senderName ?? $user?->name ?? ($senderType === 'support_user' ? 'الدعم الفني' : 'المستأجر'),
-                'message' => $message,
+                'message' => $cleanMessage,
                 'attachments' => $uploadedAttachments,
             ]);
 

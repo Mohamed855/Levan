@@ -26,6 +26,7 @@ class AdminTicketsDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
+            ['data' => 'checkbox',      'name' => 'checkbox',      'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'width' => '10px', 'className' => 'custom-checkbox'],
             ['data' => 'ticket_number', 'name' => 'ticket_number', 'title' => 'رقم التذكرة', 'className' => 'text-center'],
             ['data' => 'tenant_name',   'name' => 'tenant_name',   'title' => 'المستأجر', 'className' => 'text-center'],
             ['data' => 'customer_name', 'name' => 'customer_name', 'title' => 'صاحب التذكرة', 'className' => 'text-center'],
@@ -40,6 +41,7 @@ class AdminTicketsDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable)
     {
         $datatable
+            ->addColumn('checkbox', fn ($row): string => $this->checkbox($row))
             ->editColumn('ticket_number', function ($row) {
                 return $this->copyableCode('#'.e($row->ticket_number));
             })
@@ -91,7 +93,7 @@ class AdminTicketsDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['ticket_number', 'tenant_name', 'customer_name', 'status', 'actions'];
+        return ['checkbox', 'ticket_number', 'tenant_name', 'customer_name', 'status', 'actions'];
     }
 
     protected function getSearchableColumns(): array
@@ -101,7 +103,7 @@ class AdminTicketsDataTable extends AbstractDataTable
 
     protected function getCustomOrder(): array
     {
-        return [1, 'desc'];
+        return [7, 'desc'];
     }
 
     protected function buttons(): array
@@ -152,18 +154,9 @@ class AdminTicketsDataTable extends AbstractDataTable
 
     private function getActionsDropdownButton(): array
     {
-        $buttons = [
-            ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
-                'columns' => [7, 6, 5, 4, 3, 2, 1, 0],
-            ]],
-        ];
-
-        return [
-            'extend' => 'collection',
-            'className' => 'btn btn-export',
-            'text' => 'الإجراءات',
-            'buttons' => $buttons,
-        ];
+        return $this->actionsCollectionButton([
+            $this->copyActionButton(),
+            $this->excelActionButton(),
+        ])[0];
     }
 }

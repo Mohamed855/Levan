@@ -2,55 +2,87 @@
 
 @section('title', 'تفاصيل طلب التواصل')
 
-
-
-
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="mb-1">تفاصيل طلب التواصل</h4>
-            <p class="text-muted mb-0">مراجعة بيانات العميل والرد على الاستفسار</p>
+    <div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-2">
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ route('admin.contact-requests.index') }}" class="btn btn-secondary">
+                <i class="ti ti-arrow-right me-1"></i> العودة
+            </a>
         </div>
-        <a href="{{ route('admin.contact-requests.index') }}" class="btn btn-secondary">
-            <i class="ti ti-arrow-right me-1"></i> العودة
-        </a>
     </div>
 
-    <div class="row g-4">
-        <div class="col-xl-4 col-lg-5">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">بيانات الطلب</h5>
-                    <span class="badge bg-{{ $contactRequest->status->value === 'pending' ? 'warning' : 'success' }}">
+    <div class="row">
+        {{-- كارت بيانات العميل والطلب (العمود الأيمن) --}}
+        <div class="col-xl-4 col-lg-5 col-md-5 mb-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="mx-auto mb-3">
+                        <div class="avatar avatar-xl bg-label-primary rounded-circle p-3 d-flex align-items-center justify-content-center mx-auto shadow-sm"
+                            style="width: 100px; height: 100px;">
+                            <i class="ti ti-mail-opened fs-1 text-primary"></i>
+                        </div>
+                    </div>
+                    <h4 class="mb-1 fw-bold text-primary">{{ $contactRequest->customer_name }}</h4>
+                    <p class="mb-2 text-muted fw-medium text-break">{{ $contactRequest->customer_email }}</p>
+                    <span
+                        class="badge bg-label-{{ $contactRequest->status->value === 'pending' ? 'warning' : 'success' }} mb-3 fs-6">
                         {{ $contactRequest->status->label() }}
                     </span>
-                </div>
-                <div class="card-body">
-                    <dl class="row mb-0">
-                        <dt class="col-sm-5 text-muted">الاسم</dt>
-                        <dd class="col-sm-7">{{ $contactRequest->customer_name }}</dd>
-                        <dt class="col-sm-5 text-muted">البريد</dt>
-                        <dd class="col-sm-7 text-break">{{ $contactRequest->customer_email }}</dd>
-                        <dt class="col-sm-5 text-muted">التاريخ</dt>
-                        <dd class="col-sm-7">@datetime($contactRequest->created_at)</dd>
-                    </dl>
-                    <hr>
-                    <h6 class="mb-2">الرسالة</h6>
-                    <div class="bg-secondary rounded p-3" style="white-space: pre-wrap;">{{ $contactRequest->message }}
+
+                    <div class="info-container text-start border-top pt-3 mt-1">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-user text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">الاسم:</span>
+                                <span>{{ $contactRequest->customer_name }}</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-mail text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">البريد:</span>
+                                <span class="text-break">{{ $contactRequest->customer_email }}</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-calendar text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">التاريخ:</span>
+                                <span>@datetime($contactRequest->created_at)</span>
+                            </li>
+                            <li class="mb-2 d-flex align-items-center">
+                                <i class="ti ti-status-change text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">الحالة:</span>
+                                <span
+                                    class="badge bg-label-{{ $contactRequest->status->value === 'pending' ? 'warning' : 'success' }}">
+                                    {{ $contactRequest->status->label() }}
+                                </span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-8 col-lg-7">
+        {{-- الرسالة والرد (العمود الأيسر) --}}
+        <div class="col-xl-8 col-lg-7 col-md-7">
+            <div class="card mb-4">
+                <div class="card-header pb-2 mb-3">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-message-text text-primary me-2"></i>رسالة العميل
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="bg-secondary rounded p-3" style="white-space: pre-wrap; line-height: 1.6;">{{ $contactRequest->message }}</div>
+                </div>
+            </div>
+
             <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">الرد على الطلب</h5>
+                <div class="card-header pb-2 mb-3">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-send text-primary me-2"></i>الرد على الطلب
+                    </h5>
                 </div>
                 <div class="card-body">
                     @if ($contactRequest->reply)
                         <div class="alert alert-success mb-0">
-                            <h6 class="alert-heading">تم إرسال الرد</h6>
+                            <h6 class="alert-heading mb-1">تم إرسال الرد</h6>
                             <p class="mb-0" style="white-space: pre-wrap;">{{ $contactRequest->reply }}</p>
                         </div>
                     @else

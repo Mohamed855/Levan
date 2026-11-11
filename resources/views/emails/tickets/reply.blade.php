@@ -15,7 +15,7 @@
 
     <div class="info-card" style="border-right: 4px solid #4f46e5;">
         <div class="info-card-title" style="color: #4338ca;">نص الرد الجديد:</div>
-        <div style="font-size: 14.5px; color: #1e293b; line-height: 1.8; white-space: pre-wrap;">{{ $replyMessage }}</div>
+        <div style="font-size: 14.5px; color: #1e293b; line-height: 1.8; white-space: pre-wrap;">{{ filled($replyMessage) ? $replyMessage : 'تم إرسال مرفقات بدون نص رسالة.' }}</div>
     </div>
 
     <div class="info-card">

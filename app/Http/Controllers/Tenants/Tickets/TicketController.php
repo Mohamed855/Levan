@@ -172,7 +172,7 @@ class TicketController extends Controller
     {
         try {
             $validated = $request->validated();
-            $result = $this->ticketService->addReply($ticket, $validated['message'], $request->file('attachments', []));
+            $result = $this->ticketService->addReply($ticket, $validated['message'] ?? '', $request->file('attachments', []));
 
             if ($result['success']) {
                 return redirect()->back()->with('success', 'تم الرد على التذكرة بنجاح');

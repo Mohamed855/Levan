@@ -25,7 +25,6 @@ class AdminUserDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id',        'name' => 'id',         'title' => 'المعرف', 'visible' => false, 'className' => 'no-export'],
             ['data' => 'checkbox',  'name' => 'checkbox',   'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'image',     'name' => 'image',  'className' => 'no-export text-center',    'title' => 'الصورة',    'orderable' => false, 'searchable' => false],
             ['data' => 'name',      'name' => 'name',       'title' => 'الاسم', 'className' => 'text-center'],
@@ -115,7 +114,7 @@ class AdminUserDataTable extends AbstractDataTable
 
     protected function getCustomOrder(): array
     {
-        return [1, 'desc'];
+        return [8, 'desc'];
     }
 
     // Buttons
@@ -130,14 +129,8 @@ class AdminUserDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         $buttons = [
-            ['extend' => 'copy', 'text' => 'نسخ'],
-            [
-                'extend' => 'excel',
-                'text' => 'إكسل',
-                'exportOptions' => [
-                    'columns' => [9, 8, 7, 6, 5, 4],
-                ],
-            ],
+            $this->copyActionButton(),
+            $this->excelActionButton(),
         ];
 
         if (auth()->user()?->can('users.delete')) {

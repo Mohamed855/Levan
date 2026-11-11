@@ -22,6 +22,7 @@ final class TrialRequestsDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
+            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'width' => '10px', 'className' => 'custom-checkbox'],
             ['data' => 'id', 'name' => 'id', 'title' => 'رقم الطلب'],
             ['data' => 'customer_name', 'name' => 'customer_name', 'title' => 'الاسم'],
             ['data' => 'company_name', 'name' => 'company_name', 'title' => 'الشركة'],
@@ -37,6 +38,7 @@ final class TrialRequestsDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable)
     {
         return $datatable
+            ->addColumn('checkbox', fn ($row): string => $this->checkbox($row))
             ->editColumn('status', function ($row) {
                 $color = match ($row->status->value) {
                     'pending' => 'warning',
@@ -53,7 +55,7 @@ final class TrialRequestsDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['status', 'actions'];
+        return ['checkbox', 'status', 'actions'];
     }
 
     protected function applyCustomFilters($query)
@@ -76,16 +78,16 @@ final class TrialRequestsDataTable extends AbstractDataTable
         return ['customer_name', 'customer_email', 'customer_phone', 'company_name', 'commercial_number'];
     }
 
+    protected function getCustomOrder(): array
+    {
+        return [1, 'desc'];
+    }
+
     protected function buttons(): array
     {
-        return [[
-            'extend' => 'collection',
-            'className' => 'btn btn-export',
-            'text' => 'الإجراءات',
-            'buttons' => [
-                ['extend' => 'copy', 'text' => 'نسخ'],
-                ['extend' => 'excel', 'text' => 'إكسل'],
-            ],
-        ]];
+        return $this->actionsCollectionButton([
+            $this->copyActionButton(),
+            $this->excelActionButton(),
+        ]);
     }
 }

@@ -22,14 +22,7 @@ class AdminActivityLogDataTable extends AbstractActivityLogDataTable
     {
         return $this->actionsCollectionButton([
             $this->copyActionButton(),
-            [
-                'extend' => 'excel',
-                'text' => 'إكسل',
-                'exportOptions' => [
-                    'columns' => [5, 4, 3, 2],
-                    'rows' => $this->selectedRowsFilterCallback(),
-                ],
-            ],
+            $this->excelActionButton(),
         ]);
     }
 }

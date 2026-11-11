@@ -4,7 +4,6 @@ namespace App\DataTables\Tenants\Properties;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\Properties\Property;
-use Carbon\Carbon;
 
 class PropertyArchiveDataTable extends AbstractDataTable
 {
@@ -31,6 +30,7 @@ class PropertyArchiveDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
+            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'width' => '10px', 'className' => 'custom-checkbox'],
             ['data' => 'property_number', 'name' => 'property_number', 'title' => 'رقم الأصل', 'className' => 'text-center'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم العقار', 'className' => 'text-center'],
             ['data' => 'assignment_name', 'name' => 'assignment.name', 'title' => 'الإسناد التابع له', 'className' => 'text-center'],
@@ -43,6 +43,7 @@ class PropertyArchiveDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable): void
     {
         $datatable
+            ->addColumn('checkbox', fn ($row): string => $this->checkbox($row))
             ->addColumn('assignment_name', function ($row) {
                 return $row->assignment?->name ?? '-';
             })
@@ -56,7 +57,12 @@ class PropertyArchiveDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['actions'];
+        return ['checkbox', 'actions'];
+    }
+
+    protected function getCustomOrder(): array
+    {
+        return [5, 'desc'];
     }
 
     protected function buttons(): array
@@ -69,17 +75,10 @@ class PropertyArchiveDataTable extends AbstractDataTable
 
     private function getActionsDropdownButton(): array
     {
-        $buttons = [
-            ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل'],
-        ];
-
-        return [
-            'extend' => 'collection',
-            'className' => 'btn btn-export',
-            'text' => 'الإجراءات',
-            'buttons' => $buttons,
-        ];
+        return $this->actionsCollectionButton([
+            $this->copyActionButton(),
+            $this->excelActionButton(),
+        ])[0];
     }
 
     private function getAddButton(): array

@@ -16,7 +16,7 @@ class TenantNavigationRegressionFeatureTest extends TestCase
     public function test_tenant_user_can_navigate_links_without_superadmin_redirect_or_database_empty_error(): void
     {
         // 1. Authenticate via tenant admin login
-        $loginResponse = $this->post('/admin/login', [
+        $loginResponse = $this->post('/test/login', [
             'tenant_id' => 'test',
             'email' => 'demo@lot.com',
             'password' => '123456789',
@@ -68,7 +68,7 @@ class TenantNavigationRegressionFeatureTest extends TestCase
         Config::set('database.connections.tenant.username', null);
         DB::purge('tenant');
 
-        $revisitLogin = $this->get('/admin/login');
+        $revisitLogin = $this->get('/test/login');
         $revisitLogin->assertRedirect('/test/dashboard');
     }
 
@@ -81,12 +81,12 @@ class TenantNavigationRegressionFeatureTest extends TestCase
         }
     }
 
-    public function test_guest_deep_link_is_preserved_after_shared_login(): void
+    public function test_guest_deep_link_is_preserved_after_scoped_login(): void
     {
-        $this->get('/test/properties?search=example')->assertRedirect('/admin/login');
+        $this->get('/test/properties?search=example')->assertRedirect('/test/login');
         $this->assertSame(url('/test/properties?search=example'), session('url.intended'));
 
-        $this->post('/admin/login', [
+        $this->post('/test/login', [
             'email' => 'demo@lot.com',
             'password' => '123456789',
         ])->assertRedirect(url('/test/properties?search=example'));
@@ -119,13 +119,13 @@ class TenantNavigationRegressionFeatureTest extends TestCase
     {
         foreach (array_unique(config('tenancy.central_domains')) as $domain) {
             $host = str_replace(['http://', 'https://'], '', $domain);
-            $this->get('http://'.$host.'/test/login')->assertRedirect('/admin/login');
+            $this->get('http://'.$host.'/test/login')->assertOk();
 
             $this->assertNotNull(tenant(), $host);
             $this->assertSame('/test/dashboard', tenant_route_name('dashboard', [], false), $host.' / '.request()->getHost());
             $this->assertSame('/test/users', tenant_route_name('users.index', [], false));
             $this->assertSame('/test/assignments/5/properties', tenant_route_name('assignments.properties', ['assignment' => 5], false));
-            $this->assertSame('/admin/login', tenant_route_name('login', [], false));
+            $this->assertSame('/test/login', tenant_route_name('login', [], false));
             $this->assertSame('http://'.$host.'/test/dashboard', tenant_route_name('dashboard'));
         }
     }

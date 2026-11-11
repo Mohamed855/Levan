@@ -139,7 +139,7 @@ final class TwoFactorAuthenticationClosureTest extends TestCase
                 $login = "$root/login";
             } else {
                 $root = "/$tenantId";
-                $login = '/admin/login';
+                $login = $root.'/login';
             }
             tenancy()->initialize($tenant);
         }

@@ -34,6 +34,7 @@ final class IsolatePanelSession
         // from surviving into another panel when the application is reused.
         $this->sessions->forgetDrivers();
         app()->forgetInstance('session.store');
+        app()->forgetInstance('auth.driver');
         $this->auth->forgetGuards();
         $this->auth->shouldUse('admin');
 

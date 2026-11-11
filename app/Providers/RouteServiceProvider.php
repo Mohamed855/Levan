@@ -89,7 +89,7 @@ class RouteServiceProvider extends ServiceProvider
         foreach ($this->centralDomains() as $index => $domain) {
             $cleanDomain = str_replace(['http://', 'https://'], '', $domain);
 
-            // Shared tenant login; dashboard and management routes remain tenant-scoped.
+            // Legacy shared login links redirect to the tenant-scoped entry point.
             Route::middleware([
                 'web',
                 'tenant.session',

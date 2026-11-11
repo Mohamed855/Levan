@@ -6,8 +6,11 @@ namespace Tests\Feature\Auth;
 
 use App\Http\Middleware\Tenancy\SingleSessionPerUser;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Shared\Payment\Moyasar\MoyasarCallbackHandler;
+use App\Services\Shared\Subscription\SubscriptionService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +19,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Testing\TestResponse;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 final class EnforcePanelCsrfToken extends ValidateCsrfToken
@@ -241,6 +245,19 @@ final class DatabasePanelSessionIsolationTest extends TestCase
         $this->browser('GET', '/session-tenant/__session-probe')->assertOk();
     }
 
+    public function test_database_session_user_ids_follow_the_correct_guard_when_services_are_reused(): void
+    {
+        $this->user->forceFill(['id' => 7])->save();
+        $this->reuseRequestServices = true;
+        $this->loginAdmin();
+        $admin = $this->browser('GET', '/superadmin/__session-probe')->assertOk()->json();
+        $this->loginTenant();
+        $tenant = $this->browser('GET', '/session-tenant/__session-probe')->assertOk()->json();
+
+        $this->assertSame($this->admin->id, (int) DB::connection('mysql')->table('sessions')->where('id', $admin['session_id'])->value('user_id'));
+        $this->assertSame(7, (int) DB::connection('mysql')->table('sessions')->where('id', $tenant['session_id'])->value('user_id'));
+    }
+
     public function test_legacy_shared_session_cookie_cannot_authenticate_either_new_panel(): void
     {
         $this->loginAdmin();
@@ -249,7 +266,78 @@ final class DatabasePanelSessionIsolationTest extends TestCase
         unset($this->browserCookies[$adminCookie]);
 
         $this->browser('GET', '/superadmin/__session-probe')->assertRedirect('/superadmin/login');
-        $this->browser('GET', '/session-tenant/__session-probe')->assertRedirect('/admin/login');
+        $this->browser('GET', '/session-tenant/__session-probe')->assertRedirect('/session-tenant/login');
+    }
+
+    public function test_tenant_login_page_and_form_stay_under_the_tenant_path(): void
+    {
+        $this->browser('GET', '/session-tenant/login')->assertOk()
+            ->assertSee('action="http://localhost/session-tenant/login"', false)
+            ->assertDontSee('action="http://localhost/admin/login"', false);
+    }
+
+    public function test_legacy_shared_login_redirects_to_the_known_tenant_login(): void
+    {
+        $this->browser('GET', '/session-tenant/login');
+
+        $this->browser('GET', '/admin/login')->assertRedirect('/session-tenant/login');
+    }
+
+    public function test_login_links_and_forms_keep_the_current_central_host(): void
+    {
+        foreach (array_unique(config('tenancy.central_domains')) as $domain) {
+            $host = str_replace(['http://', 'https://'], '', $domain);
+
+            $this->get('http://'.$host.'/session-tenant/login')->assertOk()
+                ->assertSee('action="http://'.$host.'/session-tenant/login"', false);
+            $this->assertSame('/session-tenant/login', tenant_route_name('login', [], false));
+        }
+    }
+
+    public function test_login_without_a_known_tenant_does_not_render_a_shared_form(): void
+    {
+        $this->browser('GET', '/admin/login')->assertNotFound();
+        $this->browser('GET', '/unknown-tenant/login')->assertNotFound();
+    }
+
+    public function test_completed_checkout_returns_to_the_created_tenant_login(): void
+    {
+        $bill = new Bill;
+        $payment = ['id' => 'payment-test', 'status' => 'paid'];
+
+        $this->mock(MoyasarCallbackHandler::class, function (MockInterface $mock) use ($bill, $payment): void {
+            $mock->shouldReceive('verify')->once()->andReturn(['bill' => $bill, 'payment' => $payment]);
+        });
+        $this->mock(SubscriptionService::class, function (MockInterface $mock) use ($bill, $payment): void {
+            $mock->shouldReceive('completeOnlineSubscription')->once()->with($bill, $payment)
+                ->andReturn(['tenant_id' => 'session-tenant']);
+        });
+
+        $this->browser('GET', route('site.plans.checkout.callback', [], false))
+            ->assertRedirect('/session-tenant/login')
+            ->assertSessionHas('tenant_login_context', 'session-tenant')
+            ->assertSessionHas('success');
+        $this->browser('GET', '/session-tenant/login')->assertOk();
+    }
+
+    public function test_tenant_logout_returns_to_the_tenant_login(): void
+    {
+        $this->loginTenant();
+
+        $this->browser('POST', '/session-tenant/logout')->assertRedirect('/session-tenant/login');
+    }
+
+    public function test_a_replaced_tenant_session_returns_to_the_tenant_login(): void
+    {
+        $this->loginTenant();
+        $this->user->update(['current_session_id' => 'another-session']);
+
+        $this->browser('GET', '/session-tenant/__session-probe')->assertRedirect('/session-tenant/login');
+    }
+
+    public function test_canceling_a_tenant_two_factor_challenge_returns_to_its_login(): void
+    {
+        $this->browser('GET', '/session-tenant/two-factor-challenge/cancel')->assertRedirect('http://localhost/session-tenant/login');
     }
 
     private function loginAdmin(bool $twoFactor = false): void
@@ -260,7 +348,7 @@ final class DatabasePanelSessionIsolationTest extends TestCase
 
     private function loginTenant(bool $twoFactor = false): void
     {
-        $response = $this->browser('POST', '/admin/login', ['tenant_id' => 'session-tenant', 'email' => $this->user->email, 'password' => 'Password123!']);
+        $response = $this->browser('POST', '/session-tenant/login', ['tenant_id' => 'session-tenant', 'email' => $this->user->email, 'password' => 'Password123!']);
         if ($twoFactor) {
             $this->assertStringContainsString('/session-tenant/two-factor-challenge', (string) $response->headers->get('Location'));
         } else {

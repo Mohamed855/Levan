@@ -22,7 +22,6 @@ class TenantDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
                 'data' => 'checkbox',
                 'name' => 'checkbox',
@@ -118,10 +117,8 @@ class TenantDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         $buttons = [
-            ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل',  'exportOptions' => [
-                'columns' => [7, 6, 5, 4, 3],
-            ]],
+            $this->copyActionButton(),
+            $this->excelActionButton(),
         ];
 
         if (auth()->user()?->can('clients.delete')) {

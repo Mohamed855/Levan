@@ -17,9 +17,18 @@ $(function () {
             .each(function () {
                 const $this = $(this);
                 if ($this.closest(".select2-container").length === 0) {
+                    const searchDisabled =
+                        $this.data("select2-search") === false ||
+                        $this.data("select2-search") === "false";
+                    const allowClear =
+                        !$this.prop("required") &&
+                        $this.data("allow-clear") !== false &&
+                        $this.data("allow-clear") !== "false";
+
                     $this.select2({
                         placeholder: $this.data("placeholder") || "اختر",
-                        allowClear: true,
+                        allowClear: allowClear,
+                        minimumResultsForSearch: searchDisabled ? Infinity : 0,
                         width: "100%",
                         language: "ar",
                         dir: "rtl",

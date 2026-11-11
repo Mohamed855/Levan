@@ -5,7 +5,6 @@ namespace App\DataTables\Tenants\Archive\User;
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Support\AccessLabels;
-use Carbon\Carbon;
 
 class ArchivedUsersDataTable extends AbstractDataTable
 {
@@ -44,7 +43,6 @@ class ArchivedUsersDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
                 'data' => 'checkbox',
                 'name' => 'checkbox',
@@ -158,6 +156,11 @@ class ArchivedUsersDataTable extends AbstractDataTable
     |--------------------------------------------------------------------------
     | Define DataTable top buttons.
     */
+    protected function getCustomOrder(): array
+    {
+        return [6, 'desc'];
+    }
+
     protected function buttons(): array
     {
         return [

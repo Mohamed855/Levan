@@ -118,6 +118,50 @@ class DataTableDetailsControlContractTest extends TestCase
         }
     }
 
+    public function test_collection_dropdown_tables_place_checkbox_first_and_archive_tables_omit_hidden_id(): void
+    {
+        foreach ($this->dataTableFiles() as $file) {
+            if (! $file->isFile() || $file->getExtension() !== 'php') {
+                continue;
+            }
+
+            $path = str_replace('\\', '/', $file->getPathname());
+            if (str_contains($path, '/Abstract/')) {
+                continue;
+            }
+
+            $content = file_get_contents($file->getPathname());
+            $executableContent = $this->withoutComments($content);
+
+            $hasCollectionDropdown = str_contains($executableContent, "'collection'")
+                || str_contains($executableContent, 'actionsCollectionButton')
+                || str_contains($executableContent, 'getActionsDropdownButton');
+
+            if (! $hasCollectionDropdown) {
+                continue;
+            }
+
+            if (preg_match('/protected function getColumns\(\): array\s*\{\s*return \[(.*?)\];/s', $executableContent, $columnBlock)) {
+                preg_match_all("/'data'\s*=>\s*'([^']+)'/", $columnBlock[1], $columns);
+                $this->assertSame('checkbox', $columns[1][0] ?? null, "{$path} must define 'checkbox' as its first column.");
+                $this->assertStringContainsString('id="select-all"', $columnBlock[1], "{$path} must render #select-all in its checkbox column header.");
+                $this->assertStringContainsString('custom-checkbox', $columnBlock[1], "{$path} must apply custom-checkbox styling.");
+            }
+
+            if (preg_match('/protected function rawColumns\(\): array\s*\{\s*return \[(.*?)\];/s', $executableContent, $rawBlock)) {
+                $this->assertStringContainsString("'checkbox'", $rawBlock[1], "{$path} must declare 'checkbox' in rawColumns().");
+            }
+
+            if (str_contains($path, '/Archive/') || str_ends_with($path, 'ArchiveDataTable.php')) {
+                $this->assertDoesNotMatchRegularExpression(
+                    "/\['data'\s*=>\s*'id'[^\]]*'visible'\s*=>\s*false/s",
+                    $executableContent,
+                    "{$path} must not keep a hidden id column.",
+                );
+            }
+        }
+    }
+
     private function dataTableFiles(): \RecursiveIteratorIterator
     {
         return new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(dirname(__DIR__, 2).'/app/DataTables'));

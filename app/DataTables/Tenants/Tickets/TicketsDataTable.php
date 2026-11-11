@@ -5,7 +5,6 @@ namespace App\DataTables\Tenants\Tickets;
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Enums\Tenants\Tickets\TicketStatus;
 use App\Services\Shared\Integration\EtmamTicketService;
-use Carbon\Carbon;
 
 class TicketsDataTable extends AbstractDataTable
 {
@@ -68,6 +67,7 @@ class TicketsDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
+            ['data' => 'checkbox',              'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'width' => '10px', 'className' => 'custom-checkbox'],
             ['data' => 'ticket_number',         'title' => 'رقم التذكرة', 'className' => 'text-center'],
             ['data' => 'title',                 'title' => 'العنوان', 'className' => 'text-center'],
             ['data' => 'ticketing_sections_id', 'title' => 'التصنيف', 'className' => 'text-center'],
@@ -80,6 +80,8 @@ class TicketsDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable)
     {
         $datatable
+            ->addColumn('checkbox', fn ($row): string => $this->checkbox($row))
+
             ->editColumn('ticket_number', function ($row) {
                 return $this->copyableCode('#'.e($row->ticket_number));
             })
@@ -106,7 +108,7 @@ class TicketsDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['ticket_number', 'status', 'actions'];
+        return ['checkbox', 'ticket_number', 'status', 'actions'];
     }
 
     protected function getSearchableColumns(): array
@@ -129,15 +131,10 @@ class TicketsDataTable extends AbstractDataTable
 
     private function getActionsDropdownButton(): array
     {
-        return [
-            'extend' => 'collection',
-            'className' => 'btn btn-export',
-            'text' => 'الإجراءات',
-            'buttons' => [
-                ['extend' => 'copy', 'text' => 'نسخ'],
-                ['extend' => 'excel', 'text' => 'إكسل'],
-            ],
-        ];
+        return $this->actionsCollectionButton([
+            $this->copyActionButton(),
+            $this->excelActionButton(),
+        ])[0];
     }
 
     private function getAddButton(): array

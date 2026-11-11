@@ -34,7 +34,7 @@ abstract class AbstractDataTable extends DataTable
             ->processing(true)
             ->serverSide(true)
             ->dom($this->dom())
-            ->buttons($this->buttons())
+            ->buttons($this->normalizedButtons())
             ->parameters($this->parameters());
     }
 
@@ -301,6 +301,148 @@ abstract class AbstractDataTable extends DataTable
         return [];
     }
 
+    /**
+     * Normalize top action buttons so copy/excel actions automatically respect
+     * selected .row-checkbox rows and exclude UI-only or hidden columns.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    protected function normalizedButtons(): array
+    {
+        return array_map(
+            fn (array $button): array => $this->normalizeActionButton($button),
+            $this->buttons()
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $button
+     * @return array<string, mixed>
+     */
+    private function normalizeActionButton(array $button): array
+    {
+        $extend = $button['extend'] ?? null;
+
+        if ($extend === 'collection') {
+            $button['autoClose'] ??= true;
+
+            if (isset($button['buttons']) && is_array($button['buttons'])) {
+                $button['buttons'] = array_map(
+                    fn (array $subButton): array => $this->normalizeActionButton($subButton),
+                    $button['buttons']
+                );
+            }
+
+            return $button;
+        }
+
+        if (in_array($extend, ['copy', 'excel'], true)) {
+            $exportOptions = is_array($button['exportOptions'] ?? null) ? $button['exportOptions'] : [];
+
+            if (! array_key_exists('rows', $exportOptions)) {
+                $exportOptions['rows'] = $this->selectedRowsFilterCallback();
+            }
+
+            if (! array_key_exists('columns', $exportOptions)) {
+                $exportOptions['columns'] = $this->getExportableColumnIndices($extend === 'excel');
+            }
+
+            $button['exportOptions'] = $exportOptions;
+        }
+
+        return $button;
+    }
+
+    /**
+     * JS row-selector callback: exports checked rows when any .row-checkbox is checked,
+     * or all rows when nothing is checked.
+     */
+    protected function selectedRowsFilterCallback(): string
+    {
+        return 'function (idx, data, node) { var table = node && node.closest("table"); var hasChecked = table ? table.querySelectorAll("tbody .row-checkbox:checked").length > 0 : false; return hasChecked ? Boolean(node && node.querySelector(".row-checkbox:checked")) : true; }';
+    }
+
+    /**
+     * Resolve visible exportable column indices (excluding selection, actions, images, icons, colors).
+     *
+     * @return list<int>
+     */
+    protected function getExportableColumnIndices(bool $reversed = false): array
+    {
+        $excludedDataKeys = ['checkbox', 'actions', 'action', 'image', 'icon', 'color'];
+        $indices = [];
+
+        foreach (array_values($this->getColumns()) as $index => $column) {
+            if (($column['visible'] ?? true) === false) {
+                continue;
+            }
+
+            $dataKey = (string) ($column['data'] ?? '');
+            if (in_array($dataKey, $excludedDataKeys, true)) {
+                continue;
+            }
+
+            $className = (string) ($column['className'] ?? '');
+            if (str_contains($className, 'no-export')) {
+                continue;
+            }
+
+            $indices[] = $index;
+        }
+
+        return $reversed ? array_values(array_reverse($indices)) : $indices;
+    }
+
+    /**
+     * @param  array<int, int>  $columns
+     * @return array<string, mixed>
+     */
+    protected function copyActionButton(array $columns = []): array
+    {
+        return [
+            'extend' => 'copy',
+            'text' => 'نسخ',
+            'exportOptions' => [
+                'columns' => $columns !== [] ? array_values($columns) : $this->getExportableColumnIndices(),
+                'rows' => $this->selectedRowsFilterCallback(),
+            ],
+        ];
+    }
+
+    /**
+     * @param  array<int, int>  $columns
+     * @param  array<string, mixed>  $extraExportOptions
+     * @return array<string, mixed>
+     */
+    protected function excelActionButton(array $columns = [], array $extraExportOptions = []): array
+    {
+        return [
+            'extend' => 'excel',
+            'text' => 'إكسل',
+            'exportOptions' => array_merge([
+                'columns' => $columns !== [] ? array_values($columns) : $this->getExportableColumnIndices(true),
+                'rows' => $this->selectedRowsFilterCallback(),
+            ], $extraExportOptions),
+        ];
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $subButtons
+     * @return array<int, array<string, mixed>>
+     */
+    protected function actionsCollectionButton(array $subButtons, string $className = 'btn btn-export'): array
+    {
+        return [
+            [
+                'extend' => 'collection',
+                'className' => $className,
+                'text' => 'الإجراءات',
+                'autoClose' => true,
+                'buttons' => $subButtons,
+            ],
+        ];
+    }
+
     protected function parameters(): array
     {
         $params = [
@@ -355,7 +497,9 @@ abstract class AbstractDataTable extends DataTable
     */
     protected function checkbox($row): string
     {
-        return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
+        $value = $row->id ?? $row->ticket_number ?? '';
+
+        return '<input type="checkbox" class="row-checkbox" value="'.e((string) $value).'">';
     }
 
     protected function emptyDataMessage($message = '-'): string

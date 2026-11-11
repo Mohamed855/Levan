@@ -2,15 +2,8 @@
     $customizerHidden = 'customizer-hide';
     $pageConfigs = ['myLayout' => 'blank'];
 
-    $currentHost = request()->getHost();
-    $centralDomains = array_map(function ($domain) {
-        return str_replace(['http://', 'https://', 'www.'], '', $domain);
-    }, config('tenancy.central_domains', []));
-
-    $isCentralDomain = in_array($currentHost, $centralDomains) || in_array('www.' . $currentHost, $centralDomains);
-
-    $loginAction = $isCentralDomain ? url('/admin/login') : url('/login');
-    $tenantId = old('tenant_id', tenant('id'));
+    $loginAction = tenant_route_name('login');
+    $tenantId = tenant('id');
 @endphp
 
 @extends('tenant.layouts.layoutMaster')

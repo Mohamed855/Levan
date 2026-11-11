@@ -80,14 +80,15 @@ class AdminTicketService
     /**
      * Add reply from Admin / Support
      */
-    public function addReply(string $ticketNumber, string $message, array $files = []): array
+    public function addReply(string $ticketNumber, ?string $message, array $files = []): array
     {
+        $cleanMessage = trim((string) $message);
         $admin = auth('admin')->user();
         $senderName = $admin?->name ?? 'الدعم الفني';
 
         // Check if external Etmam is configured
         if ($this->etmamService->isEtmamConfigured()) {
-            $response = $this->etmamService->addReply($ticketNumber, $message, $files, 'support_user', $senderName);
+            $response = $this->etmamService->addReply($ticketNumber, $cleanMessage, $files, 'support_user', $senderName);
 
             return $response;
         }
@@ -108,13 +109,17 @@ class AdminTicketService
             }
         }
 
+        if ($cleanMessage === '' && empty($uploadedAttachments)) {
+            return ['success' => false, 'message' => 'يجب كتابة رد أو إرفاق ملف واحد على الأقل'];
+        }
+
         $reply = TicketReply::create([
             'ticket_id' => $ticket->id,
             'ticket_number' => $ticketNumber,
             'sender_type' => 'support_user',
             'user_id' => $admin?->id,
             'user_name' => $senderName,
-            'message' => $message,
+            'message' => $cleanMessage,
             'attachments' => $uploadedAttachments,
         ]);
 

@@ -141,7 +141,7 @@ class AdminUserDataTable extends AbstractDataTable
 
     protected function getCustomOrder(): array
     {
-        return [1, 'desc'];
+        return [7, 'desc'];
     }
 
     // Buttons
@@ -156,10 +156,8 @@ class AdminUserDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         $buttons = [
-            ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
-                'columns' => [9, 8, 7, 6, 5, 4],
-            ]],
+            $this->copyActionButton(),
+            $this->excelActionButton(),
         ];
 
         if (auth()->user()?->can('users.delete')) {

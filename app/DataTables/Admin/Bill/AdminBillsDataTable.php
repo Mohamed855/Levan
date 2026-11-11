@@ -153,10 +153,8 @@ class AdminBillsDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         $buttons = [
-            ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
-                'columns' => [11, 10, 9, 8, 7, 6, 5, 4, 3],
-            ]],
+            $this->copyActionButton(),
+            $this->excelActionButton(),
             [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',

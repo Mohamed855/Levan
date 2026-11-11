@@ -4,7 +4,6 @@ namespace App\DataTables\Tenants\Auctions;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\Auctions\Auction;
-use Carbon\Carbon;
 
 class AuctionArchiveDataTable extends AbstractDataTable
 {
@@ -31,6 +30,7 @@ class AuctionArchiveDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
+            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'width' => '10px', 'className' => 'custom-checkbox'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم المزاد', 'className' => 'text-center'],
             ['data' => 'assignment_name', 'name' => 'assignment.name', 'title' => 'الإسناد المرتبط', 'className' => 'text-center'],
             ['data' => 'city', 'name' => 'city', 'title' => 'المدينة', 'className' => 'text-center'],
@@ -42,6 +42,7 @@ class AuctionArchiveDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable): void
     {
         $datatable
+            ->addColumn('checkbox', fn ($row): string => $this->checkbox($row))
             ->addColumn('assignment_name', function ($row) {
                 return $row->assignment?->name ?? '-';
             })
@@ -55,7 +56,12 @@ class AuctionArchiveDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['actions'];
+        return ['checkbox', 'actions'];
+    }
+
+    protected function getCustomOrder(): array
+    {
+        return [4, 'desc'];
     }
 
     protected function buttons(): array
@@ -68,17 +74,10 @@ class AuctionArchiveDataTable extends AbstractDataTable
 
     private function getActionsDropdownButton(): array
     {
-        $buttons = [
-            ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل'],
-        ];
-
-        return [
-            'extend' => 'collection',
-            'className' => 'btn btn-export',
-            'text' => 'الإجراءات',
-            'buttons' => $buttons,
-        ];
+        return $this->actionsCollectionButton([
+            $this->copyActionButton(),
+            $this->excelActionButton(),
+        ])[0];
     }
 
     private function getAddButton(): array

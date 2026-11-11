@@ -105,7 +105,7 @@ class AdminTicketController extends Controller
 
             $result = $this->ticketService->addReply(
                 $ticketNumber,
-                $request->input('message'),
+                $request->validated('message') ?? '',
                 $request->file('attachments', [])
             );
 

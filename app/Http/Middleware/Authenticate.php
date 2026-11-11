@@ -33,22 +33,10 @@ class Authenticate extends Middleware
         }
 
         if (tenant()) {
-            $currentHost = $request->getHost();
-            $centralDomains = array_map(function ($domain) {
-                return str_replace(['http://', 'https://', 'www.'], '', $domain);
-            }, config('tenancy.central_domains', []));
+            session()->put('tenant_login_context', tenant('id'));
+            cookie()->queue(cookie('tenant_login_hint', tenant('id'), 60 * 24 * 30));
 
-            $isCentralDomain = in_array($currentHost, $centralDomains) ||
-                in_array('www.'.$currentHost, $centralDomains);
-
-            if ($isCentralDomain) {
-                session()->put('tenant_login_context', tenant('id'));
-                cookie()->queue(cookie('tenant_login_hint', tenant('id'), 60 * 24 * 30));
-
-                return '/admin/login';
-            }
-
-            return '/login';
+            return tenant_route_name('login', [], false);
         }
 
         if ($request->is('superadmin*')) {
@@ -56,7 +44,9 @@ class Authenticate extends Middleware
         }
 
         if ($request->is('admin*')) {
-            return '/admin/login';
+            $tenantId = session('auth_tenant_id') ?? session('tenant_login_context');
+
+            return $tenantId ? route('path.login', ['tenant' => $tenantId], false) : '/';
         }
 
         return '/';

@@ -66,14 +66,11 @@ class AdminAuthenticationValidationFeatureTest extends TestCase
         $this->get('/admin/login')->assertNotFound();
     }
 
-    public function test_legacy_tenant_login_redirects_to_admin_login_and_renders_hidden_tenant_input(): void
+    public function test_scoped_tenant_login_renders_hidden_tenant_input(): void
     {
         $response = $this->get('/test/login');
-        $response->assertRedirect('/admin/login');
-
-        $followed = $this->followRedirects($response);
-        $followed->assertOk();
-        $followed->assertSee('name="tenant_id" value="test"', false);
+        $response->assertOk();
+        $response->assertSee('name="tenant_id" value="test"', false);
     }
 
     public function test_unknown_tenant_id_in_legacy_route_returns_404(): void
@@ -119,10 +116,10 @@ class AdminAuthenticationValidationFeatureTest extends TestCase
         Auth::guard('tenant')->logout();
     }
 
-    public function test_guest_visiting_legacy_dashboard_redirects_to_admin_login(): void
+    public function test_guest_visiting_tenant_dashboard_redirects_to_scoped_login(): void
     {
         $response = $this->get('/test/dashboard');
-        $response->assertRedirect('/admin/login');
+        $response->assertRedirect('/test/login');
         $this->assertSame(url('/test/dashboard'), session('url.intended'));
     }
 
@@ -138,17 +135,17 @@ class AdminAuthenticationValidationFeatureTest extends TestCase
         tenancy()->end();
     }
 
-    public function test_tenant_logout_redirects_to_admin_login_preserving_tenant_context(): void
+    public function test_tenant_logout_redirects_to_scoped_login_preserving_tenant_context(): void
     {
         $tenant = Tenant::findOrFail('test');
         tenancy()->initialize($tenant);
         $user = User::where('email', 'demo@lot.com')->firstOrFail();
 
         $response = $this->actingAs($user, 'tenant')->post('/test/logout');
-        $response->assertRedirect('/admin/login');
+        $response->assertRedirect('/test/login');
 
-        // Accessing /admin/login now should render with the preserved tenant context
-        $loginPage = $this->get('/admin/login');
+        // The scoped login renders with the preserved tenant context.
+        $loginPage = $this->get('/test/login');
         $loginPage->assertOk();
         $loginPage->assertSee('name="tenant_id" value="test"', false);
 

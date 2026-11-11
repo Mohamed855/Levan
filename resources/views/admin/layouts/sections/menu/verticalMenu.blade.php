@@ -199,7 +199,7 @@
                 @endphp
                 <li class="menu-item @if (Route::is('admin.tickets.*')) active open @endif">
                     <a href="{{ route('admin.tickets.index') }}" class="menu-link">
-                        <i class="menu-icon tf-icons ti ti-messages"></i>
+                        <i class="menu-icon tf-icons ti ti-headset"></i>
                         <div>الدعم الفني</div>
                         <div class="badge bg-light text-primary rounded-pill ms-auto @if ($openTicketsCount <= 0) d-none @endif"
                             data-sidebar-counter="tickets_open">{{ $openTicketsCount }}</div>

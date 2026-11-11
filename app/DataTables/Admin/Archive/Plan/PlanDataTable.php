@@ -25,7 +25,6 @@ class PlanDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             ['data' => 'checkbox',  'name' => 'checkbox',   'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
 
             ['data' => 'name',               'name' => 'name',                      'title' => 'اسم الباقة',    'className' => 'text-center'],
@@ -124,7 +123,7 @@ class PlanDataTable extends AbstractDataTable
 
     protected function getCustomOrder(): array
     {
-        return [1, 'desc'];
+        return [8, 'desc'];
     }
 
     // Buttons
@@ -139,10 +138,8 @@ class PlanDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         $buttons = [
-            ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
-                'columns' => [11, 10, 9, 8, 7, 6, 5, 4, 3],
-            ]],
+            $this->copyActionButton(),
+            $this->excelActionButton(),
         ];
 
         if (auth()->user()?->can('plans.delete')) {

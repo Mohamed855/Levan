@@ -164,10 +164,8 @@ class CouponDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         $buttons = [
-            ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
-                'columns' => [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
-            ]],
+            $this->copyActionButton(),
+            $this->excelActionButton(),
         ];
 
         if (auth()->user()?->can('coupons.delete')) {

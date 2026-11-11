@@ -21,23 +21,11 @@ class AuthenticatedSessionController extends Controller
 
     public function create(): View|RedirectResponse
     {
-        $currentHost = request()->getHost();
-        $centralDomains = array_map(function ($domain) {
-            return str_replace(['http://', 'https://', 'www.'], '', $domain);
-        }, config('tenancy.central_domains', []));
-
-        $isCentralDomain = in_array($currentHost, $centralDomains) || in_array('www.'.$currentHost, $centralDomains);
-
-        // Tenant-specific entry links resolve context before opening the shared login.
-        if ($isCentralDomain && request()->routeIs('path.login', '*.path.login', 'central-domain-*.path.login')) {
-            $tenantId = tenant('id') ?? request()->route('tenant');
-            if ($tenantId) {
-                session()->put('tenant_login_context', $tenantId);
-                cookie()->queue(cookie('tenant_login_hint', $tenantId, 60 * 24 * 30));
-            }
+        // Keep old shared entry links compatible without rendering an unscoped login.
+        if (request()->routeIs('tenant.login', 'central-domain-*.tenant.login')) {
             session()->reflash();
 
-            return redirect('/admin/login');
+            return redirect()->to(tenant_route_name('login', [], false));
         }
 
         return view('tenant.auth.login');
@@ -116,31 +104,6 @@ class AuthenticatedSessionController extends Controller
     */
     protected function redirectAfterLogout(Request $request): RedirectResponse
     {
-        if (! tenant()) {
-            return redirect('/login');
-        }
-
-        $currentHost = $request->getHost();
-        $centralDomains = $this->getCentralDomains();
-        $isCentralDomain = in_array($currentHost, $centralDomains);
-
-        if ($isCentralDomain) {
-            return redirect('/admin/login');
-        }
-
-        return redirect('/login');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get Cleaned Central Domains
-    |--------------------------------------------------------------------------
-    | الحصول على قائمة النطاقات المركزية بعد تنظيفها
-    */
-    protected function getCentralDomains(): array
-    {
-        return array_map(function ($domain) {
-            return str_replace(['http://', 'https://', 'www.'], '', $domain);
-        }, config('tenancy.central_domains', []));
+        return redirect()->to(tenant() ? tenant_route_name('login', [], false) : '/');
     }
 }
