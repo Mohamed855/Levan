@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\DataTables\Admin\Subscriptions\SubscriptionDataTable;
 use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
@@ -227,6 +228,137 @@ class AdminSubscriptionsFixesTest extends TestCase
             Bill::where('tenant_id', $tenant->id)->forceDelete();
             Subscription::where('tenant_id', $tenant->id)->forceDelete();
             Tenant::withTrashed()->whereKey($tenant->id)->forceDelete();
+            Plan::withTrashed()->whereKey($plan->id)->forceDelete();
+        }
+    }
+
+    public function test_subscription_datatable_preserves_id_and_handles_created_at_when_sorted_by_relations(): void
+    {
+        $tenant = $this->makeTenant(['company_name' => 'ZZZ Unique Sub Company']);
+        $plan = $this->makePlan(['name' => 'ZZZ Unique Sub Plan']);
+        $subscription = Subscription::create([
+            'tenant_id' => $tenant->id,
+            'plan_id' => $plan->id,
+            'billing_cycle' => 'monthly',
+            'price' => 100.00,
+            'status' => SubscriptionStatus::EXPIRED,
+            'total_users' => 5,
+            'used_users' => 0,
+            'starts_at' => now()->subDays(40),
+            'ends_at' => now()->subDays(10),
+            'auto_renew' => false,
+        ]);
+
+        try {
+            $dt = app(SubscriptionDataTable::class);
+            $colsMethod = new \ReflectionMethod($dt, 'getColumns');
+            $colsMethod->setAccessible(true);
+            $reqCols = array_map(fn (array $c): array => [
+                'data' => $c['data'],
+                'name' => $c['name'],
+                'searchable' => ($c['searchable'] ?? true) ? 'true' : 'false',
+                'orderable' => ($c['orderable'] ?? true) ? 'true' : 'false',
+                'search' => ['value' => '', 'regex' => 'false'],
+            ], $colsMethod->invoke($dt));
+
+            foreach ([2, 3, 4] as $colIndex) {
+                $response = $this->withHeaders([
+                    'X-Requested-With' => 'XMLHttpRequest',
+                    'Accept' => 'application/json',
+                ])->get('http://localhost/superadmin/subscriptions?'.http_build_query([
+                    'draw' => 1,
+                    'start' => 0,
+                    'length' => 10,
+                    'columns' => $reqCols,
+                    'order' => [['column' => $colIndex, 'dir' => 'desc']],
+                    'search' => ['value' => $subscription->subscription_number],
+                    'created_from' => now()->subDay()->toDateString(),
+                    'created_to' => now()->addDay()->toDateString(),
+                ]));
+
+                $response->assertOk();
+                $json = $response->json();
+                $this->assertArrayNotHasKey('error', $json);
+                $this->assertCount(1, $json['data']);
+
+                $row = $json['data'][0];
+                $this->assertSame($subscription->id, $row['id']);
+                $this->assertArrayNotHasKey('db_password', $row);
+                $this->assertArrayNotHasKey('api_token', $row);
+                $this->assertStringContainsString('منتهي', $row['status']);
+                $this->assertStringNotContainsString('js-table-status-toggle', $row['status']);
+            }
+        } finally {
+            $subscription->forceDelete();
+            Tenant::withTrashed()->whereKey($tenant->id)->forceDelete();
+            Plan::withTrashed()->whereKey($plan->id)->forceDelete();
+        }
+    }
+
+    public function test_subscription_datatable_expiring_filter_only_includes_active_subscriptions(): void
+    {
+        $tenantA = $this->makeTenant();
+        $tenantB = $this->makeTenant();
+        $plan = $this->makePlan();
+
+        $activeExpiring = Subscription::create([
+            'tenant_id' => $tenantA->id,
+            'plan_id' => $plan->id,
+            'billing_cycle' => 'monthly',
+            'price' => 100.00,
+            'status' => SubscriptionStatus::ACTIVE,
+            'total_users' => 5,
+            'used_users' => 0,
+            'starts_at' => now()->subDays(20),
+            'ends_at' => now()->addDays(10),
+            'auto_renew' => false,
+        ]);
+
+        $cancelledSub = Subscription::create([
+            'tenant_id' => $tenantB->id,
+            'plan_id' => $plan->id,
+            'billing_cycle' => 'monthly',
+            'price' => 100.00,
+            'status' => SubscriptionStatus::CANCELLED,
+            'total_users' => 5,
+            'used_users' => 0,
+            'starts_at' => now()->subDays(20),
+            'ends_at' => now()->addDays(10),
+            'auto_renew' => false,
+        ]);
+
+        try {
+            $dt = app(SubscriptionDataTable::class);
+            $colsMethod = new \ReflectionMethod($dt, 'getColumns');
+            $colsMethod->setAccessible(true);
+            $reqCols = array_map(fn (array $c): array => [
+                'data' => $c['data'],
+                'name' => $c['name'],
+                'searchable' => ($c['searchable'] ?? true) ? 'true' : 'false',
+                'orderable' => ($c['orderable'] ?? true) ? 'true' : 'false',
+                'search' => ['value' => '', 'regex' => 'false'],
+            ], $colsMethod->invoke($dt));
+
+            $response = $this->withHeaders([
+                'X-Requested-With' => 'XMLHttpRequest',
+                'Accept' => 'application/json',
+            ])->get('http://localhost/superadmin/subscriptions?'.http_build_query([
+                'draw' => 1,
+                'start' => 0,
+                'length' => 100,
+                'columns' => $reqCols,
+                'expiring_in' => '30',
+            ]));
+
+            $response->assertOk();
+            $ids = collect($response->json('data'))->pluck('id')->all();
+            $this->assertContains($activeExpiring->id, $ids);
+            $this->assertNotContains($cancelledSub->id, $ids);
+        } finally {
+            $activeExpiring->forceDelete();
+            $cancelledSub->forceDelete();
+            Tenant::withTrashed()->whereKey($tenantA->id)->forceDelete();
+            Tenant::withTrashed()->whereKey($tenantB->id)->forceDelete();
             Plan::withTrashed()->whereKey($plan->id)->forceDelete();
         }
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DataTables\Admin\Subscriptions;
 
 use App\DataTables\Abstract\AbstractDataTable;
+use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\Subscription\Subscription;
 use App\Services\Shared\Subscription\SubscriptionManager;
@@ -18,17 +19,26 @@ class SubscriptionDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        $query = Subscription::query()
-            ->with(['tenant.city', 'plan', 'currentPeriod', 'periods']);
+        return Subscription::query()
+            ->select('subscriptions.*')
+            ->with([
+                'tenant' => fn ($q) => $q->withTrashed()->with('city'),
+                'plan' => fn ($q) => $q->withTrashed(),
+                'currentPeriod',
+                'periods',
+            ]);
+    }
 
+    protected function applyCustomFilters($query)
+    {
         // Filter: status
         if (request()->filled('status')) {
-            $query->where('status', request('status'));
+            $query->where('subscriptions.status', request('status'));
         }
 
         // Filter: plan
         if (request()->filled('plan_id')) {
-            $query->where('plan_id', request('plan_id'));
+            $query->where('subscriptions.plan_id', request('plan_id'));
         }
 
         // Filter: company's city
@@ -47,27 +57,27 @@ class SubscriptionDataTable extends AbstractDataTable
 
         // Filter: start date & end date
         if (request()->filled('start_from')) {
-            $query->whereDate('starts_at', '>=', request('start_from'));
+            $query->whereDate('subscriptions.starts_at', '>=', request('start_from'));
         }
         if (request()->filled('end_to')) {
-            $query->whereDate('ends_at', '<=', request('end_to'));
-        }
-
-        // Filter: creation date
-        if (request()->filled('created_from')) {
-            $query->whereDate('created_at', '>=', request('created_from'));
-        }
-        if (request()->filled('created_to')) {
-            $query->whereDate('created_at', '<=', request('created_to'));
+            $query->whereDate('subscriptions.ends_at', '<=', request('end_to'));
         }
 
         // Filter: expiring soon (7 or 30 days)
         if (request()->filled('expiring_in')) {
             $days = (int) request('expiring_in');
-            $query->whereHas('currentPeriod', function ($q) use ($days) {
-                $q->where('period_end', '<=', now()->addDays($days))
-                    ->where('period_end', '>=', now()->startOfDay());
-            });
+            $query->where('subscriptions.status', SubscriptionStatus::ACTIVE)
+                ->where(function ($q) use ($days) {
+                    $q->whereHas('currentPeriod', function ($periodQuery) use ($days) {
+                        $periodQuery->where('status', SubscriptionPeriodStatus::ACTIVE)
+                            ->where('period_end', '<=', now()->addDays($days))
+                            ->where('period_end', '>=', now()->startOfDay());
+                    })->orWhere(function ($periodQuery) use ($days) {
+                        $periodQuery->whereDoesntHave('periods')
+                            ->where('subscriptions.ends_at', '<=', now()->addDays($days))
+                            ->where('subscriptions.ends_at', '>=', now()->startOfDay());
+                    });
+                });
         }
 
         return $query;
@@ -163,20 +173,22 @@ class SubscriptionDataTable extends AbstractDataTable
             })
             ->editColumn('created_at', fn (Subscription $row): string => $this->formatDate($row->created_at))
             ->editColumn('status', function (Subscription $row) {
-                $isActive = $row->status === SubscriptionStatus::ACTIVE;
-                $checked = $isActive ? 'checked' : '';
+                $statusBadge = '<span class="badge bg-'.$row->status->color().'">'.e($row->status->label()).'</span>';
+                $isToggleable = in_array($row->status, [SubscriptionStatus::ACTIVE, SubscriptionStatus::SUSPENDED], true);
 
-                if (auth()->user()?->can('subscriptions.toggle_status')) {
+                if ($isToggleable && auth('admin')->user()?->can('subscriptions.toggle_status')) {
+                    $checked = $row->status === SubscriptionStatus::ACTIVE ? 'checked' : '';
                     $url = route('admin.subscriptions.toggle-status', $row->id);
 
                     return '
-                        <div class="d-flex justify-content-center">
+                        <div class="d-flex justify-content-center align-items-center gap-2">
+                            '.$statusBadge.'
                             <div class="form-check form-switch mb-0">
                                 <input
                                     type="checkbox"
                                     class="form-check-input js-table-status-toggle"
                                     id="sub_status_'.$row->id.'"
-                                    data-url="'.$url.'"
+                                    data-url="'.e($url).'"
                                     '.$checked.'
                                     aria-label="تبديل حالة الاشتراك"
                                 >
@@ -185,7 +197,7 @@ class SubscriptionDataTable extends AbstractDataTable
                     ';
                 }
 
-                return '<span class="badge bg-'.$row->status->color().'">'.$row->status->label().'</span>';
+                return '<div class="d-flex justify-content-center">'.$statusBadge.'</div>';
             })
             ->addColumn('actions', fn (Subscription $row) => view('admin.subscriptions.action', ['row' => $row])->render());
     }
@@ -207,24 +219,29 @@ class SubscriptionDataTable extends AbstractDataTable
 
     protected function buttons(): array
     {
-        $buttons = [
-            ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل'],
-            ['text' => 'حذف المحدد', 'className' => 'btn btn-default btn-delete-selected', 'action' => 'function() { handleMassDelete(); }'],
+        $subButtons = [
+            $this->copyActionButton(),
+            $this->excelActionButton(),
         ];
 
-        return [
-            [
-                'extend' => 'collection',
-                'className' => 'btn btn-export',
-                'text' => 'الإجراءات',
-                'buttons' => $buttons,
-            ],
-            [
-                'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة اشتراك',
+        if (auth('admin')->user()?->can('subscriptions.delete')) {
+            $subButtons[] = [
+                'text' => 'حذف المحدد',
+                'className' => 'btn btn-default btn-delete-selected',
+                'action' => 'function() { handleMassDelete(); }',
+            ];
+        }
+
+        $buttons = $this->actionsCollectionButton($subButtons);
+
+        if (auth('admin')->user()?->can('subscriptions.create')) {
+            $buttons[] = [
+                'text' => '<i class="ti ti-plus me-1"></i> إضافة اشتراك',
                 'className' => 'btn btn-primary btn-add',
                 'action' => "function(){ window.location.href='".route('admin.subscriptions.create')."'; }",
-            ],
-        ];
+            ];
+        }
+
+        return $buttons;
     }
 }
