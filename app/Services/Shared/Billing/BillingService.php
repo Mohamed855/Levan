@@ -91,64 +91,6 @@ class BillingService
     //     });
     // }
 
-    public function createRenewalDomainBill($subscription, $period, $payment, $paidAmount, $tenant_id, $paymentMethod = PaymentMethod::ONLINE, $status = BillStatus::PAID)
-    {
-        return Tenancy::central(function () use ($subscription, $period, $payment, $paidAmount, $tenant_id, $paymentMethod, $status) {
-            // $sessionData = session('subscription_data');
-
-            return Bill::create([
-                'gateway_payment_id' => data_get($payment, 'id'),
-                'tenant_id' => $tenant_id,
-                'subscription_id' => $subscription->id,
-                'period_id' => $period->id,
-                'amount' => $paidAmount / 100,
-
-                'original_amount' => $paidAmount / 100,
-                'discount_amount' => 0,
-
-                // الكوبون
-                'coupon_id' => $sessionData['coupon_id'] ?? null,
-                'coupon_code' => $sessionData['coupon_code'] ?? null,
-                'coupon_value' => $sessionData['coupon_value'] ?? null,
-                'coupon_type' => $sessionData['coupon_type'] ?? null,
-
-                'payment_method' => $paymentMethod,
-                'status' => $status,
-                'paid_at' => now(),
-                'type' => BillType::RENEWAL_DOMAIN,
-            ]);
-        });
-    }
-
-    public function createNewDomainBill($subscription, $period, $payment, $paidAmount, $tenant_id, $paymentMethod = PaymentMethod::ONLINE, $status = BillStatus::PAID)
-    {
-        return Tenancy::central(function () use ($subscription, $period, $payment, $paidAmount, $tenant_id, $paymentMethod, $status) {
-            // $sessionData = session('subscription_data');
-
-            return Bill::create([
-                'gateway_payment_id' => data_get($payment, 'id'),
-                'tenant_id' => $tenant_id,
-                'subscription_id' => $subscription->id,
-                'period_id' => $period->id,
-                'amount' => $paidAmount / 100,
-
-                'original_amount' => $paidAmount / 100,
-                'discount_amount' => 0,
-
-                // الكوبون
-                'coupon_id' => $sessionData['coupon_id'] ?? null,
-                'coupon_code' => $sessionData['coupon_code'] ?? null,
-                'coupon_value' => $sessionData['coupon_value'] ?? null,
-                'coupon_type' => $sessionData['coupon_type'] ?? null,
-
-                'payment_method' => $paymentMethod,
-                'status' => $status,
-                'paid_at' => now(),
-                'type' => BillType::NEW_DOMAIN,
-            ]);
-        });
-    }
-
     // // للانشاء اول مرة
     // public function createPeriodBill($subscription, $period, $payment, $paidAmount, $paymentMethod = PaymentMethod::ONLINE, $status = BillStatus::PAID): Bill
     // {

@@ -34,13 +34,6 @@ class TenantPermissionSeeder implements TenantSeeder
             'subscriptions.upgrade'
         ],
 
-        'domain_management' => [
-            'domain.view',
-            'domain.reserve',
-            'domain.connect',
-            'domain.transfer',
-        ],
-
         'bills_management' => [
             'bills.view',
             'bills.pay'

@@ -49,7 +49,7 @@ enum BillType: string
                 'label' => $case->label(),
                 'color' => $case->color(),
             ],
-            self::cases()
+            array_values(array_filter(self::cases(), fn (self $case): bool => ! in_array($case, [self::NEW_DOMAIN, self::TRANSFER_DOMAIN, self::RENEWAL_DOMAIN], true)))
         );
     }
 }

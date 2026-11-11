@@ -17,7 +17,7 @@ after(async () => { await browser?.close(); });
 function render(module) {
     const model = module === 'banks'
         ? 'App\\Models\\Admin\\Bank\\Bank'
-        : (module === 'faqs' ? 'App\\Models\\Admin\\Faq' : 'App\\Models\\Admin\\ControlDomain\\ControlDomain');
+        : 'App\\Models\\Admin\\Faq';
     const viewName = module === 'faqs' ? 'admin.faqs.action' : `admin.settings.${module}.action`;
     const routeName = module === 'faqs' ? 'admin.faqs' : `admin.settings.${module}`;
     return JSON.parse(execFileSync('php', ['-r', `
@@ -35,7 +35,7 @@ function render(module) {
     `], { cwd: root, encoding: 'utf8' }));
 }
 
-for (const module of ['banks', 'domains', 'faqs']) {
+for (const module of ['banks', 'faqs']) {
     test(`${module}: the rendered delete button opens the shared modal under the application's strict CSP`, async () => {
         const page = await browser.newPage();
         const fixture = render(module);

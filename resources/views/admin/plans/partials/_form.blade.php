@@ -187,7 +187,6 @@
             'properties_limit',
             'storage_quota_gb',
             'active_auctions_limit',
-            'domain_management_enabled',
         ]">
             <div class="row g-4">
                 @if ($is_edit && $hasSubscriptions)
@@ -223,8 +222,6 @@
                     id="active_auctions_limit" label="حد المزادات النشطة" :value="old('active_auctions_limit', $target?->active_auctions_limit ?? 10)" required
                     col="col-md-6 limits-field" />
 
-                <x-form.controls.select name="domain_management_enabled" id="domain_management_enabled"
-                    label="إدارة الدومينات" required :value="old('domain_management_enabled', $target?->domain_management_enabled ?? 1)" col="col-md-6" :enum="\App\Enums\Shared\ActivationStatus::class" />
             </div>
 
             <x-form.wizard.actions>
@@ -352,9 +349,6 @@
                                     <dt class="col-5 text-muted">حد المزادات النشطة</dt>
                                     <dd class="col-7 fw-semibold" id="plan-review-auctions">
                                         {{ $target?->active_auctions_limit ?? '-' }}</dd>
-                                    <dt class="col-5 text-muted">إدارة الدومينات</dt>
-                                    <dd class="col-7 fw-semibold" id="plan-review-domain">
-                                        {{ $target?->domain_management_enabled ?? true ? 'مفعلة' : 'معطلة' }}</dd>
                                 </dl>
                             </x-form.wizard.review-card>
                         </div>

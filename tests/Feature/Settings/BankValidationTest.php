@@ -8,17 +8,15 @@ use App\Http\Middleware\EnsureAdminTwoFactorIsEnforced;
 use App\Http\Middleware\EnsureAuthenticatedAndActiveAdmin;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Bank\Bank;
-use App\Models\Admin\ControlDomain\ControlDomain;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use PHPUnit\Framework\Attributes\DataProvider;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
-final class BankDomainValidationTest extends TestCase
+final class BankValidationTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -46,13 +44,6 @@ final class BankDomainValidationTest extends TestCase
             $table->string('iban');
             $table->string('account_number');
             $table->string('icon');
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-        });
-        Schema::connection('mysql')->create('control_domains', function (Blueprint $table): void {
-            $table->id();
-            $table->string('domain_extension')->unique();
-            $table->decimal('price', 8, 2);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
@@ -126,64 +117,5 @@ final class BankDomainValidationTest extends TestCase
         $this->post('/superadmin/settings/banks', $this->bank(['icon' => UploadedFile::fake()->create('bank.pdf', 10, 'application/pdf')]), ['Accept' => 'application/json'])
             ->assertUnprocessable()->assertJsonValidationErrors(['icon']);
         self::assertSame(0, Bank::count());
-    }
-
-    public function test_domain_create_and_edit_require_an_extension_and_non_negative_price(): void
-    {
-        $domain = ControlDomain::withoutEvents(fn () => ControlDomain::create(['domain_extension' => '.com', 'price' => 100]));
-        foreach ([['POST', '/superadmin/settings/domains'], ['PUT', "/superadmin/settings/domains/{$domain->id}"]] as [$method, $path]) {
-            $this->postJson('/superadmin/wizard-drafts/validate-step', [
-                'target_path' => $path,
-                'target_method' => $method,
-                'fields' => ['domain_extension', 'price'],
-            ])->assertUnprocessable()->assertJsonValidationErrors(['domain_extension', 'price']);
-        }
-    }
-
-    public static function invalidDomains(): array
-    {
-        return [
-            'missing leading dot' => [['domain_extension' => 'com', 'price' => 100], ['domain_extension']],
-            'URL instead of extension' => [['domain_extension' => 'https://example.com', 'price' => 100], ['domain_extension']],
-            'invalid characters' => [['domain_extension' => '.bad_extension', 'price' => 100], ['domain_extension']],
-            'too long' => [['domain_extension' => '.'.str_repeat('a', 256), 'price' => 100], ['domain_extension']],
-            'negative price' => [['domain_extension' => '.com', 'price' => -1], ['price']],
-            'price exceeds storage precision' => [['domain_extension' => '.com', 'price' => 1000000], ['price']],
-            'too many decimal places' => [['domain_extension' => '.com', 'price' => '100.123'], ['price']],
-        ];
-    }
-
-    #[DataProvider('invalidDomains')]
-    public function test_invalid_domain_details_are_rejected_before_creation(array $payload, array $fields): void
-    {
-        $this->postJson('/superadmin/settings/domains', $payload)
-            ->assertUnprocessable()->assertJsonValidationErrors($fields);
-        self::assertSame(0, ControlDomain::count());
-    }
-
-    public function test_domain_validation_checks_duplicates_and_accepts_a_compound_extension(): void
-    {
-        $domain = ControlDomain::withoutEvents(fn () => ControlDomain::create(['domain_extension' => '.com', 'price' => 100]));
-        $this->postJson('/superadmin/settings/domains', ['domain_extension' => '.com', 'price' => 100])
-            ->assertUnprocessable()->assertJsonValidationErrors(['domain_extension']);
-
-        foreach ([['POST', '/superadmin/settings/domains', '.com.sa'], ['PUT', "/superadmin/settings/domains/{$domain->id}", '.com']] as [$method, $path, $extension]) {
-            $this->postJson('/superadmin/wizard-drafts/validate-step', [
-                'target_path' => $path,
-                'target_method' => $method,
-                'fields' => ['domain_extension', 'price'],
-                'domain_extension' => $extension,
-                'price' => '0.00',
-            ])->assertOk()->assertJson(['success' => true]);
-        }
-    }
-
-    public function test_editing_a_domain_cannot_change_its_readonly_extension(): void
-    {
-        $domain = ControlDomain::withoutEvents(fn () => ControlDomain::create(['domain_extension' => '.com', 'price' => 100]));
-        $this->putJson("/superadmin/settings/domains/{$domain->id}", ['domain_extension' => '.net', 'price' => 200])
-            ->assertUnprocessable()->assertJsonValidationErrors(['domain_extension']);
-        self::assertSame('.com', $domain->refresh()->domain_extension);
-        self::assertSame(100.0, (float) $domain->price);
     }
 }

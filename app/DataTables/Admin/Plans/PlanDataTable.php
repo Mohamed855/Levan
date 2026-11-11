@@ -47,7 +47,6 @@ class PlanDataTable extends AbstractDataTable
             ['data' => 'storage_quota_gb', 'name' => 'storage_quota_gb', 'title' => 'التخزين', 'className' => 'text-center'],
             ['data' => 'active_auctions_limit', 'name' => 'active_auctions_limit', 'title' => 'المزادات', 'className' => 'text-center'],
             ['data' => 'available_from', 'name' => 'available_from', 'title' => 'الإتاحة', 'className' => 'text-center'],
-            ['data' => 'domain_management', 'name' => 'domain_management_enabled', 'title' => 'الدومينات', 'className' => 'text-center'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'is_active', 'name' => 'is_active', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
@@ -187,14 +186,6 @@ class PlanDataTable extends AbstractDataTable
                 return '<span class="badge bg-info">'.e($this->formatDate($row->available_from)).'</span>';
             })
 
-            ->addColumn('domain_management', function ($row) {
-                if ($row->domain_management_enabled) {
-                    return '<span class="badge bg-success">مفعّلة</span>';
-                }
-
-                return '<span class="badge bg-secondary">غير مفعّلة</span>';
-            })
-
             ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
 
             ->editColumn('is_active', function ($row) {
@@ -243,7 +234,6 @@ class PlanDataTable extends AbstractDataTable
             'storage_quota_gb',
             'active_auctions_limit',
             'available_from',
-            'domain_management',
             'is_active',
             'actions',
         ];
@@ -272,15 +262,6 @@ class PlanDataTable extends AbstractDataTable
 
         if ($request->filled('limits_mode')) {
             $query->where('limits_mode', $request->limits_mode);
-        }
-
-        if ($request->filled('domain_management_enabled')) {
-            $val = $request->domain_management_enabled;
-            if ($val === 'active' || $val === '1') {
-                $query->where('domain_management_enabled', true);
-            } elseif ($val === 'inactive' || $val === '0') {
-                $query->where('domain_management_enabled', false);
-            }
         }
 
         if ($request->filled('availability')) {

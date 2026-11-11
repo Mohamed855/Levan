@@ -122,7 +122,6 @@ class PermissionsRolesSeeder extends Seeder
                 'roles.delete',
                 'roles.assign',
                 'activity_log.view',
-                'domain_extension_prices.settings',
                 'bank_settings.view',
             ],
         ];

@@ -32,13 +32,6 @@ use App\Http\Controllers\Tenants\Bills\BillsController;
 use App\Http\Controllers\Tenants\ChartSetting\ChartSettingController;
 use App\Http\Controllers\Tenants\Dashboard\DashboardController;
 use App\Http\Controllers\Tenants\DeleteBulk\MassDeleteController;
-use App\Http\Controllers\Tenants\Domains\CheckMultipleDomainController as DomainsCheckMultipleDomainController;
-use App\Http\Controllers\Tenants\Domains\CpanelController;
-use App\Http\Controllers\Tenants\Domains\DomainController;
-use App\Http\Controllers\Tenants\Domains\DomainLookupController;
-use App\Http\Controllers\Tenants\Domains\DomainPaymentController;
-use App\Http\Controllers\Tenants\Domains\GetDomainInfoController;
-use App\Http\Controllers\Tenants\Domains\RenewalDomainController;
 use App\Http\Controllers\Tenants\License\LicenseController;
 use App\Http\Controllers\Tenants\Locations\LocationController;
 use App\Http\Controllers\Tenants\MarketingCampaigns\MarketingCampaignsController;
@@ -199,73 +192,6 @@ Route::middleware(['auth:tenant', \App\Http\Middleware\EnsureInitialPasswordChan
 
         Route::prefix('chartSetting')->name('charSetting.')->group(function () {
             Route::name('update')->post('/dashboard/chart-visibility', [ChartSettingController::class, 'updateChartVisibility']);
-        });
-
-        /*
-        |--------------------------------------------------------------------------
-        | إعدادات النطاقات (Domains)
-        |--------------------------------------------------------------------------
-        */
-        Route::prefix('domains')->name('domains.')->group(function () {
-            Route::name('setting')->get('setting', [DomainController::class, 'domainSetting']);
-            Route::name('newdomain')->get('newdomain', [DomainController::class, 'newdomain']);
-            Route::name('link-domain')->get('link-domain', [DomainController::class, 'linkDomain']);
-            Route::name('link-sub-domain')->get('link-sub-domain', [DomainController::class, 'linkSubDomain']);
-            Route::name('faq')->get('faq', [DomainController::class, 'faq']);
-            Route::name('explain')->get('explain', [DomainController::class, 'explain']);
-            Route::name('subdomainblade')->get('subdomain', [DomainController::class, 'subdomainblade']);
-            Route::name('transfer-domain')->match(['get', 'post'], 'transfer-domain', [DomainController::class, 'transferDom']);
-
-            Route::name('get-domain-info')->get('getInfo/{domain}', [GetDomainInfoController::class, 'getDomainInfo']);
-
-            Route::name('payment.renewal')->match(['post', 'get'], 'renewal/payment', [RenewalDomainController::class, 'renewalDomainBlade']);
-            Route::name('renewal')->post('renewal', [DomainPaymentController::class, 'startRenewal']);
-
-            Route::name('moyasar.renewal.callback')->get('renewal/payment/domain/callback', [DomainPaymentController::class, 'renewalCallback']);
-            Route::name('moyasar.renewal')->post('renewal/payment/domain', [DomainPaymentController::class, 'startRenewal']);
-
-            Route::name('check')->get('/check/{domain}', [DomainsCheckMultipleDomainController::class, 'checkSingle'])
-                ->where('domain', '[a-zA-Z0-9.-]+');
-
-            Route::post('/check-multiple', [DomainsCheckMultipleDomainController::class, 'checkMultiple'])
-                ->name('check-multiple');
-
-            Route::get('/suggest-alternatives', [DomainsCheckMultipleDomainController::class, 'suggestAlternatives'])
-                ->name('suggest-alternatives');
-
-            Route::get('/suggest-names', [DomainsCheckMultipleDomainController::class, 'suggestNames'])
-                ->name('suggest-names');
-
-            Route::delete('/cache/{domain}', [DomainsCheckMultipleDomainController::class, 'clearCache'])
-                ->name('cache.clear')
-                ->where('domain', '[a-zA-Z0-9.-]+');
-
-            Route::delete('/cache', [DomainsCheckMultipleDomainController::class, 'clearAllCache'])
-                ->name('cache.clear-all');
-
-            Route::name('apilayer')->match(['get', 'post'], 'check-domain/{domain}', [DomainLookupController::class, 'checkAvailability']);
-            Route::name('check-domain')->match(['get', 'post'], 'check-domainss/{domain}', [DomainLookupController::class, 'inspectDns']);
-            Route::name('checkSubDomain')->get('checkSubdomain/{subdomain}', [DomainLookupController::class, 'checkSubDomain']);
-
-            Route::name('payment.new')->post('payment', [DomainPaymentController::class, 'startRegistration'])->middleware('check.domain.balance');
-            Route::name('payment.callbacknewdomain')->get('payment/callbacknewDomain', [DomainPaymentController::class, 'registrationCallback']);
-            Route::name('process-transfer-payment')->post('process-transfer-payment', [DomainPaymentController::class, 'startTransfer']);
-            Route::name('payment.callback.transfer')->get('process-transfer-payment-callback', [DomainPaymentController::class, 'transferCallback']);
-
-            Route::name('checkExistTransferDomain')->post('checkExistTransferDomain/{domain}', [DomainLookupController::class, 'checkTransferAvailability']);
-
-            Route::name('linkDomainproccess')->post('link-domain-proccess', [DomainController::class, 'setupdnsForDomain']);
-            Route::post('/verify-dns', [DomainController::class, 'verifyDNS'])->name('domains.verify-dns');
-            Route::name('check-domain-exists')->post('check-domain-exists', [DomainController::class, 'checkDomainExists']);
-            Route::name('switch.active')->post('/switch-active', [DomainController::class, 'switchActiveDomain']);
-            Route::name('modifyaccount')->post('modifyaccount', [DomainController::class, 'modifyaccount']);
-            Route::name('testverify')->get('verifydns/{domain}/{method}', [DomainController::class, 'verifyDNSTest']);
-
-            Route::name('check.balance')->get('/check-balance', [DomainController::class, 'getBalance']);
-            Route::name('get.info.domain')->get('/get-domain-info/{domain}', [GetDomainInfoController::class, 'getDomainInfo']);
-            Route::name('get.result')->post('/check-domain-result/{domain}', [DomainController::class, 'calculateResults']);
-
-            Route::name('cpanel.limits')->get('check-cpanel-limits', [CpanelController::class, 'checkLimits']);
         });
 
         // التراخيص

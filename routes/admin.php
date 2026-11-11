@@ -24,7 +24,6 @@ use App\Http\Controllers\Admin\Profile\ProfileController;
 use App\Http\Controllers\Admin\PublicRequests\ContactRequestController;
 use App\Http\Controllers\Admin\PublicRequests\TrialRequestController;
 use App\Http\Controllers\Admin\Settings\Bank\SettingsBankController;
-use App\Http\Controllers\Admin\Settings\Domain\SettingsDomainController;
 use App\Http\Controllers\Admin\Settings\SettingsController;
 use App\Http\Controllers\Admin\SubscriptionManagement\SubscriptionManagementController;
 use App\Http\Controllers\Admin\Subscriptions\SubscriptionController as CentralSubscriptionController;
@@ -71,11 +70,6 @@ Route::prefix('superadmin')->name('admin.')->middleware(['auth:admin', \App\Http
         Route::prefix('banks')->name('banks.')->group(function () {
             Route::resource('/', SettingsBankController::class)->except('show')->parameters(['' => 'bank']);
             Route::patch('{bank}/toggle-status', [SettingsBankController::class, 'toggleStatus'])->name('toggle-status');
-        });
-
-        Route::prefix('domains')->name('domains.')->group(function () {
-            Route::resource('/', SettingsDomainController::class)->except('show')->parameters(['' => 'domain']);
-            Route::patch('{domain}/toggle-status', [SettingsDomainController::class, 'toggleStatus'])->name('toggle-status');
         });
 
         Route::get('/', [SettingsController::class, 'index'])->name('index');

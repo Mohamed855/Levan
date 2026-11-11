@@ -6,7 +6,6 @@ use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\City;
 use App\Models\Admin\Licenses\LicenseSeat;
 use App\Models\Admin\Subscription\Subscription;
-use App\Models\Tenants\Settings\TransferDomain;
 use App\Models\Tenants\Ticket\Ticket;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -235,10 +234,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         return $this->hasMany(Bill::class);
     }
 
-    public function transferdomains()
-    {
-        return $this->hasMany(TransferDomain::class, 'tenant_id');
-    }
 
     public function city()
     {

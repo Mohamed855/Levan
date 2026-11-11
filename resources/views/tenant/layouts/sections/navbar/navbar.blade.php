@@ -50,16 +50,8 @@
             </li>
         @endif
 
-        {{-- @can('domain.view')
-            <li class="nav-item dropdown me-2 me-xl-2">
-                <a href="{{ tenant_route_name('domains.setting') }}" class="menu-link" title="إدارة النطاقات"
-                    data-bs-toggle="tooltip" data-bs-placement="bottom">
-                    <i class="menu-icon tf-icons ti ti-world"></i>
-                </a>
-            </li>
-        @endcan --}}
 
-        @canany(['system.settings', 'users.view', 'roles.view', 'activity_log.view', 'domain.view', 'user_archive.view',
+        @canany(['system.settings', 'users.view', 'roles.view', 'activity_log.view', 'user_archive.view',
             'properties_archive.view', 'assignments_archive.view', 'auctions_archive.view'])
             <li class="nav-item dropdown me-2 me-xl-2">
                 <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
@@ -124,19 +116,6 @@
                             </div>
                         @endcan
 
-                        @can('domain.view')
-                            <div class="col-6">
-                                <a href="{{ tenant_route_name('domains.setting') }}"
-                                    class="d-block p-3 text-center border rounded text-decoration-none">
-                                    <div class="avatar avatar-md mx-auto mb-2">
-                                        <span class="avatar-initial rounded bg-secondary">
-                                            <i class="ti ti-world ti-lg"></i>
-                                        </span>
-                                    </div>
-                                    <small class="text-muted fw-medium">إدارة النطاقات</small>
-                                </a>
-                            </div>
-                        @endcan
 
                         @canany(['user_archive.view', 'properties_archive.view', 'assignments_archive.view',
                             'auctions_archive.view'])

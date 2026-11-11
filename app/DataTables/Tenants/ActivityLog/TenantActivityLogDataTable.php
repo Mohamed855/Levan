@@ -20,12 +20,12 @@ class TenantActivityLogDataTable extends AbstractActivityLogDataTable
 
     protected function buttons(): array
     {
-        return [
+        return $this->actionsCollectionButton([
+            $this->copyActionButton(),
             [
-                'text' => '<i class="ti ti-file-spreadsheet me-1"></i> تصدير Excel',
-                'className' => 'btn btn-export',
+                'text' => 'إكسل',
                 'action' => 'function() { handleExportActivityLogs(); }',
             ],
-        ];
+        ]);
     }
 }

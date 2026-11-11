@@ -36,7 +36,6 @@ return [
         'versions_management' => 'Versions Management',
         'version_testers_management' => 'Version Testers Management',
         'system_management' => 'System Management',
-        'domain_management' => 'Domain Management',
         'bills_management' => 'Bills Management',
         'archive_management' => 'Archive Management',
         'communication_management' => 'Communication Management',
@@ -156,14 +155,9 @@ return [
     'roles.assign' => 'Assign Role to User',
 
     'activity_log.view' => 'Activity Log',
-    'domain_extension_prices.settings' => 'Domain Extension Prices Settings',
     'bank_settings.view' => 'Bank Settings',
 
     // Domain
-    'domain.view' => 'Domain Settings',
-    'domain.reserve' => 'Reserve Domain',
-    'domain.connect' => 'Connect Domain',
-    'domain.transfer' => 'Transfer Domain',
 
     // Bills
     'bills.view' => 'Bills',

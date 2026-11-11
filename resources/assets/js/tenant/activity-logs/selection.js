@@ -55,27 +55,35 @@ const ActivityLogSelection = {
     },
 
     bindEvents() {
-        $(document).on('change', '.row-checkbox', (e) => {
-            this.handleSingleRow(e.target);
-        });
+        $(document)
+            .off('change.activityLogSelection', '#activity-logs-table tbody .row-checkbox')
+            .on('change.activityLogSelection', '#activity-logs-table tbody .row-checkbox', (e) => {
+                this.handleSingleRow(e.target);
+            });
 
-        $('#select-page').on('click', (e) => {
-            e.preventDefault();
-            this.togglePageSelection();
-        });
+        $('#select-page')
+            .off('click.activityLogSelection')
+            .on('click.activityLogSelection', (e) => {
+                e.preventDefault();
+                this.togglePageSelection();
+            });
 
-        $('#select-all-items').on('click', (e) => {
-            e.preventDefault();
-            this.toggleAllSelection();
-        });
+        $('#select-all-items')
+            .off('click.activityLogSelection')
+            .on('click.activityLogSelection', (e) => {
+                e.preventDefault();
+                this.toggleAllSelection();
+            });
 
-        $('#select-all').on('change', (e) => {
-            if (e.target.checked) {
-                this.selectPage();
-            } else {
-                this.deselectPage();
-            }
-        });
+        $('#select-all')
+            .off('change.activityLogSelection')
+            .on('change.activityLogSelection', (e) => {
+                if (e.target.checked) {
+                    this.selectPage();
+                } else {
+                    this.deselectPage();
+                }
+            });
     },
 
     handleSingleRow(checkbox) {
@@ -99,21 +107,25 @@ const ActivityLogSelection = {
 
     selectPage() {
         this.state.reset();
-        $('.row-checkbox').prop('checked', true);
+        $('#activity-logs-table tbody .row-checkbox').prop('checked', true);
 
         this.state.setPageSelected();
         this.elements.ensureInit();
-        this.elements.selectAll.prop('checked', true);
+        this.elements.selectAll.prop({ indeterminate: false, checked: true });
         this.elements.pageCheckbox.prop('checked', true);
         this.elements.allCheckbox.prop('checked', false);
     },
 
     deselectPage() {
-        $('.row-checkbox, #select-all').prop('checked', false);
+        $('#activity-logs-table tbody .row-checkbox, #select-all').prop({
+            checked: false,
+            indeterminate: false
+        });
 
         this.state.reset();
         this.elements.ensureInit();
         this.elements.pageCheckbox.prop('checked', false);
+        this.elements.allCheckbox.prop('checked', false);
     },
 
     toggleAllSelection() {
@@ -163,16 +175,21 @@ const ActivityLogSelection = {
     },
 
     handleFetchSuccess(ids, truncated, total) {
+        if (!Array.isArray(ids) || ids.length === 0) {
+            this.clearAll();
+            toastr.warning('لا توجد سجلات مطابقة للتحديد حالياً');
+            return;
+        }
+
         this.state.setAllSelected(ids);
 
-        $('.row-checkbox').prop('checked', true);
+        $('#activity-logs-table tbody .row-checkbox').prop('checked', true);
         this.elements.ensureInit();
-        this.elements.selectAll.prop('checked', true);
+        this.elements.selectAll.prop({ indeterminate: false, checked: true });
         this.elements.allCheckbox.prop('checked', true);
+        this.elements.pageCheckbox.prop('checked', false);
 
-        if (ids.length === 0) {
-            toastr.warning('لا توجد سجلات مطابقة للتحديد حالياً');
-        } else if (truncated) {
+        if (truncated) {
             toastr.warning(`تم تحديد أول ${ids.length} سجل من أصل ${total} (تم تجاوز الحد الأقصى للتصدير دفعة واحدة)`);
         } else {
             toastr.success(`تم تحديد ${ids.length} سجل بنجاح`, '', { timeOut: 2000 });
@@ -188,7 +205,7 @@ const ActivityLogSelection = {
     },
 
     showLoadingState() {
-        $('#select-all-items span').html('<i class="fas fa-spinner fa-spin me-2"></i>جاري التحميل...');
+        $('#select-all-items span').html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>جاري التحميل...');
         $('#select-all-items').addClass('disabled');
     },
 
@@ -200,7 +217,7 @@ const ActivityLogSelection = {
     updateMainCheckbox() {
         this.elements.ensureInit();
 
-        const checkboxes = $('.row-checkbox');
+        const checkboxes = $('#activity-logs-table tbody .row-checkbox');
         const total = checkboxes.length;
         const checked = checkboxes.filter(':checked').length;
 
@@ -222,8 +239,10 @@ const ActivityLogSelection = {
         this.elements.init();
 
         if (this.state.isSelectingAll || this.state.isPageSelected) {
-            $('.row-checkbox').prop('checked', true);
-            this.elements.selectAll.prop('checked', true);
+            $('#activity-logs-table tbody .row-checkbox').prop('checked', true);
+            this.elements.selectAll.prop({ indeterminate: false, checked: true });
+            this.elements.allCheckbox.prop('checked', this.state.isSelectingAll);
+            this.elements.pageCheckbox.prop('checked', this.state.isPageSelected);
         } else {
             this.updateMainCheckbox();
         }
@@ -231,7 +250,10 @@ const ActivityLogSelection = {
 
     clearAll() {
         this.state.reset();
-        $('.row-checkbox, #select-all, #selectAllCheckbox, #selectPageCheckbox').prop('checked', false);
+        $('#activity-logs-table tbody .row-checkbox, #select-all, #selectAllCheckbox, #selectPageCheckbox').prop({
+            checked: false,
+            indeterminate: false
+        });
     },
 
     getSelectedIds() {
@@ -240,7 +262,7 @@ const ActivityLogSelection = {
         }
 
         const ids = [];
-        $('.row-checkbox:checked').each(function () {
+        $('#activity-logs-table tbody .row-checkbox:checked').each(function () {
             const id = $(this).val();
             if (id) ids.push(id);
         });

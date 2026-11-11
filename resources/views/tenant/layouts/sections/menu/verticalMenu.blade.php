@@ -31,7 +31,7 @@
         {{-- لوحة القيادة --}}
         <li class="menu-item @if (Helpers::isActiveRoute('dashboard')) active open @endif">
             <a href="{{ tenant_route_name('dashboard') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-smart-home"></i>
+                <i class="menu-icon tf-icons ti ti-layout-dashboard"></i>
                 <div>لوحة القيادة</div>
             </a>
         </li>
@@ -71,7 +71,8 @@
         @endcanany
 
         {{-- المزادات والإعلانات --}}
-        @canany(['auctions.view', 'auction_establishment_requests.view', 'marketing_campaigns.view', 'auction_closings.view', 'auction_reports.view'])
+        @canany(['auctions.view', 'auction_establishment_requests.view', 'marketing_campaigns.view',
+            'auction_closings.view', 'auction_reports.view'])
             <li class="menu-header small">
                 <span class="menu-header-text">المزادات والتقارير</span>
             </li>
@@ -87,9 +88,10 @@
 
             @foreach ([['auction_establishment_requests.view', 'auction-establishment-requests', 'ti-file-certificate', 'طلب إقامة مزاد'], ['marketing_campaigns.view', 'marketing-campaigns', 'ti-speakerphone', 'الحملات التسويقية'], ['auction_closings.view', 'auction-closings', 'ti-lock', 'إقفال المزاد'], ['auction_reports.view', 'auction-reports', 'ti-file-analytics', 'تقارير المزادات']] as [$permission, $resource, $icon, $label])
                 @can($permission)
-                    <li class="menu-item @if (Helpers::isActiveRoute($resource.'.*')) active @endif">
-                        <a href="{{ tenant_route_name($resource.'.index') }}" class="menu-link">
-                            <i class="menu-icon tf-icons ti {{ $icon }}"></i><div>{{ $label }}</div>
+                    <li class="menu-item @if (Helpers::isActiveRoute($resource . '.*')) active @endif">
+                        <a href="{{ tenant_route_name($resource . '.index') }}" class="menu-link">
+                            <i class="menu-icon tf-icons ti {{ $icon }}"></i>
+                            <div>{{ $label }}</div>
                         </a>
                     </li>
                 @endcan

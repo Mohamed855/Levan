@@ -17,7 +17,7 @@ final class WizardDraftUploads
         'admin.user-create' => 'users.store', 'admin.role-create' => 'roles.store',
         'admin.client-create' => 'clients.store', 'admin.plan-create' => 'plans.store',
         'admin.coupon-create' => 'coupons.store', 'admin.subscription-create' => 'subscriptions.store',
-        'admin.bank-create' => 'settings.banks.store', 'admin.domain-create' => 'settings.domains.store',
+        'admin.bank-create' => 'settings.banks.store',
         'admin.auction-templates.create' => 'auction-templates.store',
         'tenant.user-create' => 'users.store', 'tenant.role-create' => 'roles.store',
         'tenant.assignment-create' => 'assignments.store', 'tenant.property-create' => 'properties.store',

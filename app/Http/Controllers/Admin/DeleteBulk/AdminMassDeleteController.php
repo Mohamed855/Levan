@@ -11,7 +11,6 @@ use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\AuctionTemplates\AuctionTemplate;
 use App\Models\Admin\Bank\Bank;
 use App\Models\Admin\Bills\Bill;
-use App\Models\Admin\ControlDomain\ControlDomain;
 use App\Models\Admin\Coupons\Coupon;
 use App\Models\Admin\Faq;
 use App\Models\Admin\Plans\Plan;
@@ -75,10 +74,6 @@ class AdminMassDeleteController extends Controller
         'Bank' => [
             'class' => Bank::class,
             'permission' => 'bank_settings.view',
-        ],
-        'ControlDomain' => [
-            'class' => ControlDomain::class,
-            'permission' => 'domain_extension_prices.settings',
         ],
         'Activity' => [
             'class' => Activity::class,

@@ -58,7 +58,8 @@
 
         <x-ui.stat-card title="إجمالي المزادات" :value="number_format($kpis['total_auctions'])" icon="ti-gavel" color="info" />
 
-        <x-ui.stat-card title="مزادات قيد الانتظار" :value="number_format($kpis['pending_auctions'])" icon="ti-calendar-event" color="label-dark text-dark" />
+        <x-ui.stat-card title="مزادات قيد الانتظار" :value="number_format($kpis['pending_auctions'])" icon="ti-calendar-event"
+            color="label-dark text-dark" />
     </div>
 
     <div class="row g-4 mb-4">
@@ -78,7 +79,7 @@
         </div>
 
         <div class="col-lg-6">
-            <x-ui.dashboard-panel class="h-100" title="توزيع حالات العقارات" icon="ti-donut" icon-color="info">
+            <x-ui.dashboard-panel class="h-100" title="توزيع حالات العقارات" icon="ti-chart-donut" icon-color="primary">
                 <div class="row g-0 row-gap-3 h-100 align-items-center">
                     <div class="col-sm-6 col-lg-12 col-xxl-6 d-flex flex-column justify-content-center pe-md-3">
                         @foreach ($propertyStatus as $item)
@@ -198,8 +199,11 @@
                         <thead class="table-light">
                             <tr>
                                 <th>المستخدم</th>
-                                <th>النشاط</th>
+                                <th>الوصف</th>
                                 <th>الوقت</th>
+                                @can('activity_log.view')
+                                    <th class="text-center">الإجراء</th>
+                                @endcan
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
@@ -212,11 +216,17 @@
                                                 $hasImage = filled($causer?->image);
                                             @endphp
                                             <div class="avatar avatar-xs me-2">
-                                                @if ($hasImage)
-                                                    <img src="{{ tasset($causer->image) }}" alt=""
-                                                        class="rounded-circle object-fit-cover">
+                                                @if (!$causer)
+                                                    <span class="avatar-initial rounded-circle bg-label-info"
+                                                        title="النظام">
+                                                        <i class="ti ti-settings ti-xs"></i>
+                                                    </span>
+                                                @elseif ($hasImage)
+                                                    <img src="{{ tasset($causer->image) }}"
+                                                        alt="{{ $activity->causer_name }}"
+                                                        class="rounded-circle object-fit-cover w-100 h-100 border">
                                                 @else
-                                                    <span class="avatar-initial rounded-circle bg-primary">
+                                                    <span class="avatar-initial rounded-circle bg-label-primary">
                                                         <i class="ti ti-user ti-xs"></i>
                                                     </span>
                                                 @endif
@@ -225,32 +235,27 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="d-flex align-items-center gap-1">
-                                            @php
-                                                $eventClass = match ($activity->event) {
-                                                    'created' => 'bg-label-success',
-                                                    'updated' => 'bg-label-info',
-                                                    'deleted' => 'bg-label-danger',
-                                                    'login' => 'bg-label-primary',
-                                                    default => 'bg-label-secondary',
-                                                };
-                                            @endphp
-                                            <span class="badge {{ $eventClass }} small dashboard-activity-event"
-                                                title="{{ $activity->formatted_event }}">
-                                                {{ $activity->formatted_event }}
-                                            </span>
-                                            @if ($activity->formatted_module)
-                                                <span class="text-muted small">({{ $activity->formatted_module }})</span>
-                                            @endif
-                                        </div>
+                                        <span class="text-heading small d-inline-block text-truncate"
+                                            style="max-width: 220px;" title="{{ $activity->description ?: '-' }}">
+                                            {{ $activity->description ?: '-' }}
+                                        </span>
                                     </td>
                                     <td>
                                         <small class="text-muted">{{ $activity->time_ago }}</small>
                                     </td>
+                                    @can('activity_log.view')
+                                        <td class="text-center">
+                                            <x-actions.row>
+                                                <x-actions.show :url="tenant_route_name('activity-logs.show', $activity->id)" title="عرض التفاصيل"
+                                                    permission="activity_log.view" />
+                                            </x-actions.row>
+                                        </td>
+                                    @endcan
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="text-center py-4 text-muted">
+                                    <td colspan="@can('activity_log.view'){{ 4 }}@else{{ 3 }}@endcan"
+                                        class="text-center py-4 text-muted">
                                         <i class="ti ti-info-circle fs-4 d-block mb-1"></i>
                                         لا توجد أنشطة مسجلة حديثاً
                                     </td>
@@ -272,8 +277,11 @@
                     @endcan
                 </x-slot:headerAction>
 
-                <div class="table-responsive text-nowrap">
-                    <table class="table table-hover mb-0">
+                <div class="table-responsive text-nowrap h-100">
+                    <table @class([
+                        'table table-hover mb-0',
+                        'h-100' => $latestAuctions->isEmpty() || $latestAuctions->count() >= 8,
+                    ])>
                         <thead class="table-light">
                             <tr>
                                 <th>اسم المزاد</th>
@@ -304,8 +312,7 @@
                                         <span class="fw-bold">{{ $auction->properties_count }}</span>
                                     </td>
                                     <td>
-                                        <small
-                                            class="text-muted">@date($auction->start_date)</small>
+                                        <small class="text-muted">@date($auction->start_date)</small>
                                     </td>
                                     <td>
                                         <span class="badge {{ $auction->status_badge_class }}">

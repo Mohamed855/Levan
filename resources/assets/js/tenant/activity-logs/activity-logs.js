@@ -30,6 +30,10 @@ function setupActivityLogTable() {
         $table.on('init.dt.activityLogSelection', initializeSelectionHeader);
     }
 
+    let lastFilterSignature = window.ActivityLogSelection
+        ? JSON.stringify(window.ActivityLogSelection.getCurrentFilters())
+        : '';
+
     // Bind on document after shared datatable-page-defaults so ActivityLogSelection state wins.
     $(document)
         .off('draw.dt.activityLogSelection', '#activity-logs-table')
@@ -38,7 +42,18 @@ function setupActivityLogTable() {
         })
         .off('preXhr.dt.activityLogSelection', '#activity-logs-table')
         .on('preXhr.dt.activityLogSelection', '#activity-logs-table', function () {
-            window.ActivityLogSelection?.clearAll();
+            if (!window.ActivityLogSelection) return;
+
+            const currentSignature = JSON.stringify(window.ActivityLogSelection.getCurrentFilters());
+            if (currentSignature !== lastFilterSignature) {
+                lastFilterSignature = currentSignature;
+                window.ActivityLogSelection.clearAll();
+                return;
+            }
+
+            if (!window.ActivityLogSelection.state.isSelectingAll) {
+                window.ActivityLogSelection.clearAll();
+            }
         });
 }
 
@@ -54,13 +69,13 @@ function injectCheckboxHeader() {
         <ul class="dropdown-menu p-2" aria-labelledby="selectAllDropdownCell" style="min-width: 150px;">
             <li>
                 <a href="#" class="dropdown-item d-flex align-items-center" id="select-page">
-                    <input type="checkbox" class="row-checkbox me-2" id="selectPageCheckbox" disabled>
+                    <input type="checkbox" class="selection-option-checkbox me-2" id="selectPageCheckbox" disabled>
                     <span>الصفحة</span>
                 </a>
             </li>
             <li>
                 <a href="#" class="dropdown-item d-flex align-items-center" id="select-all-items">
-                    <input type="checkbox" class="row-checkbox me-2" id="selectAllCheckbox" disabled>
+                    <input type="checkbox" class="selection-option-checkbox me-2" id="selectAllCheckbox" disabled>
                     <span>الكل</span>
                 </a>
             </li>

@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -814,7 +815,7 @@ final class OverviewAndSecurityDualReviewTest extends TestCase
         $this->assertSame(1, $data['kpis']['sold_properties']);
         $this->assertSame(1, $data['kpis']['active_users']);
         $this->assertSame(1, $data['kpis']['total_assignments']);
-        $this->assertCount(5, $data['latestAuctions']);
+        $this->assertCount(6, $data['latestAuctions']);
         $this->assertNotContains('deleted', $data['latestAuctions']->pluck('name')->all());
 
         // Activity counts auction creation regardless of approval, including closed auctions.
@@ -861,6 +862,126 @@ final class OverviewAndSecurityDualReviewTest extends TestCase
         $distributionA = $serviceA->getPropertyStatusDistribution();
         $totalA = array_sum(array_column($distributionA, 'count'));
         $this->assertEquals(0, $totalA, 'Tenant A must NOT see Tenant B properties.');
+    }
+
+    public function test_admin_and_tenant_overview_recent_activities_table_columns_and_system_avatar(): void
+    {
+        // Central Admin Overview
+        $this->actingAs($this->superAdmin, 'admin');
+
+        $systemAdminActivity = Activity::on('mysql')->create([
+            'log_name' => 'subscriptions',
+            'description' => 'تحديث تلقائي للاشتراكات من النظام',
+            'causer_type' => null,
+            'causer_id' => null,
+            'event' => 'updated',
+            'created_at' => now(),
+        ]);
+
+        $userAdminActivity = Activity::on('mysql')->create([
+            'log_name' => 'users',
+            'description' => 'إنشاء مستخدم إداري جديد',
+            'causer_type' => AdminUser::class,
+            'causer_id' => $this->limitedAdmin->id,
+            'event' => 'created',
+            'created_at' => now()->subMinute(),
+        ]);
+
+        $adminHtml = $this->get(route('admin.dashboard'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('ti-chart-donut', $adminHtml);
+        $this->assertStringContainsString('<th>الوصف</th>', $adminHtml);
+        $this->assertStringNotContainsString('<th>النشاط</th>', $adminHtml);
+        $this->assertStringContainsString('<th class="text-center">الإجراء</th>', $adminHtml);
+        $this->assertStringContainsString('تحديث تلقائي للاشتراكات من النظام', $adminHtml);
+        $this->assertStringContainsString('إنشاء مستخدم إداري جديد', $adminHtml);
+        $this->assertStringContainsString('ti-settings ti-xs', $adminHtml);
+        $this->assertStringContainsString('bg-label-info', $adminHtml);
+        $this->assertStringContainsString('ti-user ti-xs', $adminHtml);
+        $this->assertStringContainsString(route('admin.activity-logs.show', $systemAdminActivity->id), $adminHtml);
+        $this->assertStringContainsString(route('admin.activity-logs.show', $userAdminActivity->id), $adminHtml);
+
+        // Limited admin without activity_log.view should not see the action link
+        $this->actingAs($this->limitedAdmin, 'admin');
+        $limitedAdminHtml = $this->get(route('admin.dashboard'))
+            ->assertOk()
+            ->getContent();
+        $this->assertStringNotContainsString(route('admin.activity-logs.show', $systemAdminActivity->id), $limitedAdminHtml);
+
+        // Tenant Overview
+        tenancy()->initialize($this->tenantA);
+        Permission::firstOrCreate(['name' => 'activity_log.view', 'guard_name' => 'tenant']);
+        $this->tenantUser->givePermissionTo('activity_log.view');
+        $this->actingAs($this->tenantUser, 'tenant');
+
+        $systemTenantActivity = Activity::on('tenant')->create([
+            'log_name' => 'settings',
+            'description' => 'أرشفة تلقائية لسجل النشاطات',
+            'causer_type' => null,
+            'causer_id' => null,
+            'event' => 'updated',
+            'created_at' => now(),
+        ]);
+
+        $userTenantActivity = Activity::on('tenant')->create([
+            'log_name' => 'properties',
+            'description' => 'إضافة عقار سكني جديد',
+            'causer_type' => User::class,
+            'causer_id' => $this->tenantUser->id,
+            'event' => 'created',
+            'created_at' => now()->subMinute(),
+        ]);
+
+        $tenantService = app(TenantDashboardService::class);
+        $tenantHtml = view('tenant.dashboard.index', $tenantService->getDashboardData())->render();
+
+        $this->assertStringContainsString('ti-chart-donut', $tenantHtml);
+        $this->assertStringContainsString('<th>الوصف</th>', $tenantHtml);
+        $this->assertStringNotContainsString('<th>النشاط</th>', $tenantHtml);
+        $this->assertStringContainsString('<th class="text-center">الإجراء</th>', $tenantHtml);
+        $this->assertStringContainsString('أرشفة تلقائية لسجل النشاطات', $tenantHtml);
+        $this->assertStringContainsString('إضافة عقار سكني جديد', $tenantHtml);
+        $this->assertStringContainsString('ti-settings ti-xs', $tenantHtml);
+        $this->assertStringContainsString('bg-label-info', $tenantHtml);
+        $this->assertStringContainsString('ti-user ti-xs', $tenantHtml);
+        $this->assertStringContainsString(tenant_route_name('activity-logs.show', $systemTenantActivity->id), $tenantHtml);
+        $this->assertStringContainsString(tenant_route_name('activity-logs.show', $userTenantActivity->id), $tenantHtml);
+    }
+
+    public function test_admin_latest_subscriptions_and_tenant_latest_auctions_return_latest_ten_records(): void
+    {
+        $this->actingAs($this->superAdmin, 'admin');
+
+        for ($i = 1; $i <= 12; $i++) {
+            Subscription::create([
+                'tenant_id' => 'tenant-a',
+                'plan_id' => 1,
+                'status' => SubscriptionStatus::ACTIVE->value,
+                'price' => 1000 + $i,
+                'starts_at' => now()->subDays(20 - $i),
+                'expires_at' => now()->addYear(),
+                'created_at' => now()->subMinutes(20 - $i),
+            ]);
+        }
+
+        $adminData = app(AdminDashboardService::class)->getDashboardData();
+        $this->assertCount(10, $adminData['latestSubscriptionRequests']);
+
+        tenancy()->initialize($this->tenantA);
+        $this->actingAs($this->tenantUser, 'tenant');
+
+        for ($i = 1; $i <= 12; $i++) {
+            Auction::query()->forceCreate([
+                'name' => "Auction {$i}",
+                'created_at' => now()->subMinutes(20 - $i),
+            ]);
+        }
+
+        $tenantData = app(TenantDashboardService::class)->getDashboardData();
+        $this->assertCount(10, $tenantData['latestAuctions']);
+        $this->assertSame('Auction 12', $tenantData['latestAuctions']->first()->name);
     }
 }
 

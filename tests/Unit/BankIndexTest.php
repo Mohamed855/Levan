@@ -6,18 +6,16 @@ namespace Tests\Unit;
 
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Bank\Bank;
-use App\Models\Admin\ControlDomain\ControlDomain;
 use Illuminate\Support\Facades\Gate;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
-final class BankDomainIndexTest extends TestCase
+final class BankIndexTest extends TestCase
 {
     public static function settingsIndexes(): array
     {
         return [
             'banks' => ['banks', Bank::class],
-            'domains' => ['domains', ControlDomain::class],
         ];
     }
 

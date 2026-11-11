@@ -93,7 +93,6 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware([
                 'web',
                 'tenant.session',
-                'tenant.redirect',
                 'tenant.maintenance',
             ])
                 ->domain($cleanDomain)
@@ -109,7 +108,6 @@ class RouteServiceProvider extends ServiceProvider
                 'web',
                 'tenant.path',
                 'tenant.session',
-                'tenant.redirect',
                 'tenant.maintenance',
             ])
                 ->domain($cleanDomain)

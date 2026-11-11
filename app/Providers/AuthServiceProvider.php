@@ -9,7 +9,6 @@ use App\Models\Admin\AuctionTemplates\AuctionTemplate;
 use App\Models\Admin\Bank\Bank;
 use App\Models\Admin\Faq;
 use App\Models\Admin\Bills\Bill;
-use App\Models\Admin\ControlDomain\ControlDomain;
 use App\Models\Admin\Coupons\Coupon;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\PublicRequests\ContactRequest;
@@ -31,7 +30,6 @@ use App\Policies\Admin\Plans\PlanPolicy;
 use App\Policies\Admin\PublicRequests\ContactRequestPolicy;
 use App\Policies\Admin\PublicRequests\TrialRequestPolicy;
 use App\Policies\Admin\Settings\BankPolicy;
-use App\Policies\Admin\Settings\ControlDomainPolicy;
 use App\Policies\Admin\Subscriptions\SubscriptionPolicy;
 use App\Policies\Admin\Tenants\TenantPolicy;
 use App\Policies\Admin\Tickets\TicketPolicy;
@@ -63,7 +61,6 @@ class AuthServiceProvider extends ServiceProvider
         AdminUser::class => AdminUserPolicy::class,
         Coupon::class => CouponPolicy::class,
         Bank::class => BankPolicy::class,
-        ControlDomain::class => ControlDomainPolicy::class,
         Bill::class => BillPolicy::class,
         Subscription::class => SubscriptionPolicy::class,
         Ticket::class => TicketPolicy::class,

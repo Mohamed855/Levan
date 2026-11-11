@@ -227,7 +227,6 @@ final class ArchivesDualReviewTest extends TestCase
             $table->decimal('yearly_renewal_price', 10, 2)->default(0);
             $table->integer('included_users')->default(1);
             $table->decimal('extra_user_license_price', 10, 2)->default(0);
-            $table->boolean('domain_management_enabled')->default(false);
             $table->boolean('is_active')->default(true);
             $table->softDeletes();
             $table->timestamps();

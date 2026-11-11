@@ -54,7 +54,7 @@ class DashboardService
 
             // العمليات والأحداث الأخيرة
             'recentActivities' => $this->getRecentActivities(5),
-            'latestAuctions' => $this->getLatestAuctions(5),
+            'latestAuctions' => $this->getLatestAuctions(10),
 
             // سياق المنشأة والاشتراك
             'subscription' => $subscription,
@@ -265,7 +265,7 @@ class DashboardService
             });
     }
 
-    public function getLatestAuctions(int $limit = 5): Collection
+    public function getLatestAuctions(int $limit = 10): Collection
     {
         return Auction::query()
             ->with(['establishmentRequest', 'properties:id'])

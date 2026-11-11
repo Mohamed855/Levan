@@ -37,7 +37,6 @@ class PlanDataTable extends AbstractDataTable
 
             ['data' => 'included_users',     'name' => 'included_users',            'title' => 'عدد المستخدمين'],
             ['data' => 'extra_user_license_price',     'name' => 'extra_user_license_price',            'title' => 'سعر الترخيص الاضافي'],
-            ['data' => 'domain_management',  'name' => 'domain_management_enabled', 'title' => 'إعدادات الدومينات'],
             ['data' => 'deleted_at',         'name' => 'deleted_at',                'title' => 'تاريخ الحذف', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'is_active',          'name' => 'is_active',                 'title' => 'الحالة'],
             ['data' => 'actions',            'name' => 'actions',                   'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
@@ -79,14 +78,6 @@ class PlanDataTable extends AbstractDataTable
                 return number_format($row->yearly_renewal_price);
             })
 
-            ->addColumn('domain_management', function ($row) {
-                if ($row->domain_management_enabled) {
-                    return '<span class="badge bg-success">مفعّلة</span>';
-                }
-
-                return '<span class="badge bg-secondary">غير مفعّلة</span>';
-            })
-
             ->editColumn('deleted_at', fn ($row): string => $this->formatDate($row->deleted_at))
 
             ->editColumn('is_active', function ($row) {
@@ -102,7 +93,7 @@ class PlanDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'name', 'domain_management', 'is_active', 'status', 'actions'];
+        return ['checkbox', 'name', 'is_active', 'status', 'actions'];
     }
 
     protected function applyCustomFilters($query)
@@ -117,16 +108,6 @@ class PlanDataTable extends AbstractDataTable
                 $query->where('is_active', 0);
             } else {
                 $query->where('is_active', $val);
-            }
-        }
-        if ($request->filled('domain_management_enabled')) {
-            $val = $request->domain_management_enabled;
-            if ($val === 'active' || $val === '1' || $val === 1) {
-                $query->where('domain_management_enabled', 1);
-            } elseif ($val === 'inactive' || $val === '0' || $val === 0) {
-                $query->where('domain_management_enabled', 0);
-            } else {
-                $query->where('domain_management_enabled', $val);
             }
         }
 
@@ -160,7 +141,7 @@ class PlanDataTable extends AbstractDataTable
         $buttons = [
             ['extend' => 'copy', 'text' => 'نسخ'],
             ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
-                'columns' => [12, 11, 10, 9, 8, 7, 6, 5, 4, 3],
+                'columns' => [11, 10, 9, 8, 7, 6, 5, 4, 3],
             ]],
         ];
 

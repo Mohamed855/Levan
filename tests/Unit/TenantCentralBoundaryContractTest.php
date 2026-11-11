@@ -49,17 +49,4 @@ final class TenantCentralBoundaryContractTest extends TestCase
             }
         }
     }
-
-    public function test_tenant_domain_lookup_uses_the_tenant_controller_and_explicit_central_gateway(): void
-    {
-        $projectRoot = dirname(__DIR__, 2);
-        $source = file_get_contents($projectRoot.'/app/Http/Controllers/Tenants/Domains/DomainLookupController.php');
-        $routes = file_get_contents($projectRoot.'/routes/tenant.php');
-
-        $this->assertStringContainsString('CentralDomainGateway', $source);
-        $this->assertStringContainsString("middleware('can:domain.view')", $source);
-        $this->assertStringContainsString('findTransferred($domain)', $source);
-        $this->assertStringNotContainsString('App\\Http\\Controllers\\Admin\\APILayer\\APILayerController', $routes);
-        $this->assertStringContainsString('DomainLookupController::class', $routes);
-    }
 }

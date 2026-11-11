@@ -830,7 +830,10 @@ final class ActivityLogsDualReviewTest extends TestCase
         $this->assertStringContainsString('id="card-activity-logs"', $adminHtml);
         $this->assertStringContainsString('id="activity-logs-table"', $adminHtml);
         $this->assertStringContainsString('id="select-all"', $adminHtml);
-        $this->assertStringContainsString('row-checkbox:checked', $adminHtml);
+        $this->assertStringContainsString('tbody .row-checkbox:checked', $adminHtml);
+        $this->assertStringContainsString('"extend":"collection"', $adminHtml);
+        $this->assertStringContainsString('"extend":"copy"', $adminHtml);
+        $this->assertStringContainsString('"extend":"excel"', $adminHtml);
         $this->assertStringContainsString('btn-reset-datatable-filters', $adminHtml);
         $this->assertStringNotContainsString('massDelete', $adminHtml);
         $this->assertStringNotContainsString('حذف المحدد', $adminHtml);
@@ -869,6 +872,12 @@ final class ActivityLogsDualReviewTest extends TestCase
         $this->assertStringContainsString('value="auctions"', $tenantHtml);
         $this->assertStringContainsString('المزادات', $tenantHtml);
         $this->assertStringContainsString('btn-reset-datatable-filters', $tenantHtml);
+        $this->assertStringContainsString('"extend":"collection"', $tenantHtml);
+        $this->assertStringContainsString('"text":"\u0627\u0644\u0625\u062c\u0631\u0627\u0621\u0627\u062a"', $tenantHtml);
+        $this->assertStringContainsString('"extend":"copy"', $tenantHtml);
+        $this->assertStringContainsString('tbody .row-checkbox:checked', $tenantHtml);
+        $this->assertStringContainsString('handleExportActivityLogs()', $tenantHtml);
+        $this->assertStringNotContainsString('تصدير Excel', $tenantHtml);
 
         $tenantJson = $this->actingAs($this->tenantUserA, 'tenant')
             ->getJson(tenant_route_name('activity-logs.index'))

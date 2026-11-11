@@ -2,18 +2,15 @@
 
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\changeEnvAttributes;
-use App\Http\Middleware\CheckDomainBalance;
 use App\Http\Middleware\DiscardCompletedWizardDraft;
 use App\Http\Middleware\EnsureAdminTwoFactorIsEnforced;
 use App\Http\Middleware\EnsureAuthenticatedAndActiveAdmin;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\SecurityHeadersMiddleware;
-use App\Http\Middleware\Tenancy\CheckLimits\CheckDomainManagement;
 use App\Http\Middleware\Tenancy\CheckSubscription;
 use App\Http\Middleware\Tenancy\EnsureTenantTwoFactorIsEnforced;
 use App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense;
 use App\Http\Middleware\Tenancy\InitializeTenancyBySession;
-use App\Http\Middleware\Tenancy\TenantDomainRedirect;
 use App\Http\Middleware\Tenancy\TenantMaintenance;
 use App\Http\Middleware\Tenancy\VerifyTenantToken;
 use App\Http\Middleware\VerifyTenantUpgradeRequest;
@@ -83,12 +80,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.subscription' => CheckSubscription::class,
             'tenant.license' => EnsureUserHasActiveLicense::class,
             'tenant.maintenance' => TenantMaintenance::class,
-            'tenant.redirect' => TenantDomainRedirect::class,
             'tenant.2fa.force' => EnsureTenantTwoFactorIsEnforced::class,
             'prevent.central' => PreventAccessFromCentralDomains::class,
-
-            'check.domain.management' => CheckDomainManagement::class,
-            'check.domain.balance' => CheckDomainBalance::class,
 
             // Tenant API Middleware
             'tenant.token' => VerifyTenantToken::class,

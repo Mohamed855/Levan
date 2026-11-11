@@ -201,7 +201,6 @@ class SuperAdminContractTest extends TestCase
         foreach ([
             'app/Http/Requests/Admin/Plans/PlanRequest.php' => 'plans.create',
             'app/Http/Requests/Admin/Settings/Bank/StoreBankRequest.php' => 'bank_settings.view',
-            'app/Http/Requests/Admin/Settings/Domain/StoreControlDomainRequest.php' => 'domain_extension_prices.settings',
             'app/Http/Requests/Admin/Settings/AdminMainSettingsRequest.php' => 'system.settings',
         ] as $path => $permission) {
             $request = file_get_contents($projectRoot.'/'.$path);

@@ -4,18 +4,15 @@ namespace App\Http;
 
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\changeEnvAttributes;
-use App\Http\Middleware\CheckDomainBalance;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\EnsureAdminTwoFactorIsEnforced;
 use App\Http\Middleware\EnsureAuthenticatedAndActiveAdmin;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\SecurityHeadersMiddleware;
-use App\Http\Middleware\Tenancy\CheckLimits\CheckDomainManagement;
 use App\Http\Middleware\Tenancy\CheckSubscription;
 use App\Http\Middleware\Tenancy\EnsureTenantTwoFactorIsEnforced;
 use App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense;
-use App\Http\Middleware\Tenancy\TenantDomainRedirect;
 use App\Http\Middleware\Tenancy\TenantMaintenance;
 use App\Http\Middleware\Tenancy\VerifyTenantToken;
 use App\Http\Middleware\TrimStrings;
@@ -124,12 +121,8 @@ class Kernel extends HttpKernel
         'tenant.subscriptions' => CheckSubscription::class, // لتاكد من الاشتراك
         'tenant.license' => EnsureUserHasActiveLicense::class, // للتأكد من وجود ترخيص نشط
         'tenant.maintenance' => TenantMaintenance::class, // وضع الصيانة للtenant
-        'tenant.redirect' => TenantDomainRedirect::class, // إعادة التوجيه من Path إلى Domain إذا كان Domain مفعّل
         'tenant.2fa.force' => EnsureTenantTwoFactorIsEnforced::class, // فرض المصادقة الثنائية على مستخدمي المستأجر
         'prevent.central' => PreventAccessFromCentralDomains::class, // منع الوصول من الدومينات المركزية
-
-        'check.domain.management' => CheckDomainManagement::class,
-        'check.domain.balance' => CheckDomainBalance::class, // للتأكد من وجود رصيد كافي لتسجيل الدومين
 
         // TENANT API MIDDLEWARE
         'tenant.token' => VerifyTenantToken::class,  // انشاء توكن للtenant

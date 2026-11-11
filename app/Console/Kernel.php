@@ -3,7 +3,6 @@
 namespace App\Console;
 
 use App\Jobs\Admin\ProcessSubscriptionPeriods;
-use App\Jobs\Tenants\TransferDomain\TransferDomainJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -42,11 +41,6 @@ class Kernel extends ConsoleKernel
         // حذف ملفات Message القديمة (+12 شهر) - يومياً الساعة 03:00
         $schedule->command('message-logs:delete-old')->dailyAt('03:00');
 
-        // ============ SMS Credit Top-Up ============
-
-        $schedule->job(new TransferDomainJob)
-            ->hourly()
-            ->withoutOverlapping();
     }
 
     /*

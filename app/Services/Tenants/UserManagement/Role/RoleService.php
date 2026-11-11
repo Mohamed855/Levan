@@ -24,7 +24,6 @@ class RoleService
     public const PERMISSION_SECTIONS = [
         'dashboard',
         'subscriptions_management',
-        'domain_management',
         'bills_management',
         'users_management',
         'business_center',

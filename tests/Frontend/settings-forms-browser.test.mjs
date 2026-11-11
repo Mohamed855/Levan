@@ -15,8 +15,7 @@ function renderForm(resource, editing) {
         $app->make(Illuminate\\Contracts\\Console\\Kernel::class)->bootstrap();
         view()->share('errors', new Illuminate\\Support\\ViewErrorBag);
         $bank = (new App\\Models\\Admin\\Bank\\Bank)->forceFill(['id'=>7, 'bank_name'=>'Bank', 'account_name'=>'Account', 'iban'=>'SA0380000000608010167519', 'account_number'=>'608010167519']);
-        $domain = (new App\\Models\\Admin\\ControlDomain\\ControlDomain)->forceFill(['id'=>8, 'domain_extension'=>'.com', 'price'=>100]);
-        echo view('admin.settings.${resource}.partials._form', ['is_edit'=>${editing ? 'true' : 'false'}, 'bank'=>$bank, 'domain'=>$domain])->render();`;
+        echo view('admin.settings.${resource}.partials._form', ['is_edit'=>${editing ? 'true' : 'false'}, 'bank'=>$bank])->render();`;
     return execFileSync('php', ['-r', php], { encoding: 'utf8' });
 }
 
@@ -44,29 +43,24 @@ async function fixture(resource, editing) {
     return page;
 }
 
-for (const resource of ['banks', 'domains']) {
+for (const resource of ['banks']) {
     for (const editing of [false, true]) {
         test(`${resource} ${editing ? 'edit' : 'create'} renders required controls and immediate validation`, async () => {
             const page = await fixture(resource, editing);
             try {
-                const names = resource === 'banks' ? ['bank_name', 'account_name', 'iban', 'account_number'] : ['domain_extension', 'price'];
+                const names = ['bank_name', 'account_name', 'iban', 'account_number'];
                 for (const name of names) {
                     assert.equal(await page.$eval(`[name="${name}"]`, (input) => input.getAttribute('aria-required')), 'true', `${name} required contract`);
                 }
-                const field = resource === 'banks' ? 'bank_name' : 'price';
+                const field = 'bank_name';
                 await page.$eval(`[name="${field}"]`, (input) => { input.value = ''; input.focus(); input.blur(); });
                 assert.equal(await page.$eval(`[name="${field}"]`, (input) => input.getAttribute('aria-invalid')), 'true');
                 assert.equal(await page.$eval(`[data-field-name="${field}"] [data-form-error]`, (error) => error.hidden), false);
                 const request = await page.evaluate(() => window.validationRequests.at(-1) && ({ method: window.validationRequests.at(-1).method, path: window.validationRequests.at(-1).path }));
                 assert.equal(request.method, editing ? 'PUT' : 'POST');
-                assert.equal(request.path, `/superadmin/settings/${resource}${editing ? resource === 'banks' ? '/7' : '/8' : ''}`);
-                if (resource === 'banks') {
-                    await page.$eval('[name="iban"]', (input) => { input.value = 'bad-iban'; input.focus(); input.blur(); });
-                    assert.equal(await page.$eval('[name="iban"]', (input) => input.getAttribute('aria-invalid')), 'true');
-                } else {
-                    await page.$eval('[name="price"]', (input) => { input.value = '-1'; input.focus(); input.blur(); });
-                    assert.equal(await page.$eval('[name="price"]', (input) => input.getAttribute('aria-invalid')), 'true');
-                }
+                assert.equal(request.path, `/superadmin/settings/${resource}${editing ? '/7' : ''}`);
+                await page.$eval('[name="iban"]', (input) => { input.value = 'bad-iban'; input.focus(); input.blur(); });
+                assert.equal(await page.$eval('[name="iban"]', (input) => input.getAttribute('aria-invalid')), 'true');
             } finally { await page.close(); }
         });
     }

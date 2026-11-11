@@ -129,21 +129,6 @@
                     @endcan
 
 
-                    @can('domain_extension_prices.settings')
-                        <div class="col-6">
-                            <a href="{{ route('admin.settings.domains.index') }}"
-                                class="d-block p-3 text-center border rounded text-decoration-none">
-                                <div class="avatar avatar-md mx-auto mb-2">
-                                    <span class="avatar-initial rounded bg-secondary">
-                                        <i class="ti ti-world ti-lg"></i>
-                                    </span>
-                                </div>
-                                <small class="text-muted fw-medium"> إعدادات النطاقات </small>
-                            </a>
-                        </div>
-                    @endcan
-
-
                     @can('bank_settings.view')
                         <div class="col-6">
                             <a href="{{ route('admin.settings.banks.index') }}"

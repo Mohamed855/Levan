@@ -89,7 +89,6 @@ class PlanRequest extends WizardFormRequest
             'available_from' => ['nullable', 'date'],
             'admin_notes' => ['nullable', 'string', 'max:2000'],
             'is_active' => ['required', 'boolean'],
-            'domain_management_enabled' => ['required', 'boolean'],
             'limits_mode' => ['required', 'string', Rule::in(PlanLimitsMode::values())],
             'features' => ['required', 'array', 'min:1'],
             'features.*' => ['required', 'string', 'max:255'],
@@ -127,7 +126,6 @@ class PlanRequest extends WizardFormRequest
             'available_from' => 'تاريخ بدء الإتاحة',
             'admin_notes' => 'ملاحظات إدارية',
             'is_active' => 'حالة تفعيل الباقة',
-            'domain_management_enabled' => 'إدارة الدومينات',
             'limits_mode' => 'وضع الحدود',
             'features' => 'ميزات الباقة',
             'features.*' => 'ميزات الباقة',
@@ -194,7 +192,6 @@ class PlanRequest extends WizardFormRequest
             'active_auctions_limit.min' => 'حد المزادات النشطة يجب أن يكون 1 على الأقل.',
 
             'is_active.required' => 'حالة تفعيل الباقة مطلوبة.',
-            'domain_management_enabled.required' => 'حالة إدارة الدومينات مطلوبة.',
 
             'features.required' => 'يجب إضافة ميزة واحدة على الأقل للباقة.',
             'features.min' => 'يجب إضافة ميزة واحدة على الأقل للباقة.',

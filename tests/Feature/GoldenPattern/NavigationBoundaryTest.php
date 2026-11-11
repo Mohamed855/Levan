@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature\GoldenPattern;
 
 use App\Http\Controllers\Tenants\Auth\EmailVerificationPromptController;
-use App\Http\Controllers\Tenants\Domains\DomainPaymentController;
 use App\Http\Controllers\Tenants\Notification\NotificationController;
 use App\Actions\Tenants\Notification\ManageUserNotificationsAction;
 use App\DataTables\Tenants\Notifications\NotificationsDataTable;
@@ -53,12 +52,6 @@ final class NavigationBoundaryTest extends TestCase
         $this->assertTrue(View::exists('tenant.notifications.all'));
     }
 
-    public function test_legacy_renewal_uses_the_authorized_payment_flow(): void
-    {
-        $route = Route::getRoutes()->getByName('domain.domains.renewal');
-        $this->assertNotNull($route);
-        $this->assertSame(DomainPaymentController::class.'@startRenewal', ltrim($route->getActionName(), '\\'));
-    }
 
     public function test_activity_id_selection_uses_its_validated_filter_request(): void
     {

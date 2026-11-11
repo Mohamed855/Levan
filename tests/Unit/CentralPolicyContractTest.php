@@ -12,13 +12,11 @@ use App\Http\Controllers\Admin\Clients\ClientController;
 use App\Http\Controllers\Admin\Coupons\AdminCouponController;
 use App\Http\Controllers\Admin\Plans\PlanController;
 use App\Http\Controllers\Admin\Settings\Bank\SettingsBankController;
-use App\Http\Controllers\Admin\Settings\Domain\SettingsDomainController;
 use App\Http\Controllers\Admin\Subscriptions\SubscriptionController;
 use App\Policies\Admin\Bills\BillPolicy;
 use App\Policies\Admin\Coupons\CouponPolicy;
 use App\Policies\Admin\Plans\PlanPolicy;
 use App\Policies\Admin\Settings\BankPolicy;
-use App\Policies\Admin\Settings\ControlDomainPolicy;
 use App\Policies\Admin\Subscriptions\SubscriptionPolicy;
 use App\Policies\Admin\Tenants\TenantPolicy;
 use App\Policies\Admin\Users\AdminUserPolicy;
@@ -37,7 +35,6 @@ class CentralPolicyContractTest extends TestCase
             AdminUserPolicy::class,
             CouponPolicy::class,
             BankPolicy::class,
-            ControlDomainPolicy::class,
             BillPolicy::class,
             SubscriptionPolicy::class,
         ] as $policy) {
@@ -57,7 +54,6 @@ class CentralPolicyContractTest extends TestCase
             AdminUserController::class,
             AdminCouponController::class,
             SettingsBankController::class,
-            SettingsDomainController::class,
             AdminBillsController::class,
             SubscriptionController::class,
         ] as $controller) {

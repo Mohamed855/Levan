@@ -82,11 +82,6 @@
                                 <span class="fw-bold me-2">حصة التخزين:</span>
                                 <span>{{ $plan->isUnlimited() ? 'غير محدود (∞)' : ($plan->storage_quota_gb ? $plan->storage_quota_gb . ' GB' : '-') }}</span>
                             </li>
-                            <li class="mb-3 d-flex align-items-center">
-                                <i class="ti ti-world text-primary me-2 fs-5"></i>
-                                <span class="fw-bold me-2">إدارة الدومينات:</span>
-                                <span>{{ $plan->domain_management_enabled ? 'مفعّلة' : 'غير مفعّلة' }}</span>
-                            </li>
                             <li class="mb-2 d-flex align-items-center">
                                 <i class="ti ti-calendar text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">تاريخ الإتاحة:</span>

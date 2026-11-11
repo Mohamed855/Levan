@@ -62,7 +62,6 @@ class TestTenantSeeder extends Seeder
                 'included_users' => 10,
                 'subscription_duration_type' => 'limited',
                 'subscription_billing_cycle' => 'yearly',
-                'domain_management_enabled' => true,
                 'created_by' => $adminUser?->id ?? 1,
             ]
         );

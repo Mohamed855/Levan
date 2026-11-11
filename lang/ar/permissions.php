@@ -20,7 +20,6 @@ return [
         'subscriptions_management' => 'إدارة الإشتراكات',
         'financial_transactions_management' => 'إدارة المعاملات المالية',
         'bills_management' => 'إدارة الفواتير',
-        'domain_management' => 'إعدادات الدومين',
         'tickets_management' => 'إدارة التذاكر والدعم الفني',
         'public_requests_management' => 'إدارة طلبات التواصل والتجربة',
         'clients_management' => 'إدارة العملاء',
@@ -184,11 +183,6 @@ return [
     'faqs.delete' => 'حذف سؤال شائع',
 
     // إعدادات النطاقات
-    'domain.view' => 'إعدادات الدومين',
-    'domain.reserve' => 'حجز دومين',
-    'domain.connect' => 'ربط دومين',
-    'domain.transfer' => 'نقل دومين',
-    'domain_extension_prices.settings' => 'إعدادات أسعار الامتدادات',
 
     // إعدادات النظام والأدوار
     'system.settings' => 'إعدادات النظام',

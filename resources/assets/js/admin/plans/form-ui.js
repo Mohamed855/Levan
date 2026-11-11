@@ -379,13 +379,6 @@ function initPlanFormUI() {
             "plan-review-auctions",
             limitValue("active_auctions_limit", "مزاد"),
         );
-        setReview(
-            "plan-review-domain",
-            getSelectLabel(
-                "domain_management_enabled",
-                getValue("domain_management_enabled") === "1" ? "مفعل" : "معطل",
-            ),
-        );
     }
 
     function updatePackageCards(event) {

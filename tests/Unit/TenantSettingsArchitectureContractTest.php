@@ -7,12 +7,9 @@ namespace Tests\Unit;
 use App\Actions\Admin\Settings\UpdatePlatformSettingsAction;
 use App\Actions\Tenants\Settings\UpdateTenantSettingsAction;
 use App\Http\Controllers\Admin\Settings\SettingsController as AdminSettingsController;
-use App\Http\Controllers\Tenants\Domains\CheckMultipleDomainController;
 use App\Http\Controllers\Tenants\License\LicenseController;
 use App\Http\Controllers\Tenants\Settings\ApiTokenSettingsController;
 use App\Http\Controllers\Tenants\Settings\SettingsController as TenantSettingsController;
-use App\Http\Requests\Tenants\Domains\SuggestDomainAlternativesRequest;
-use App\Http\Requests\Tenants\Domains\SuggestDomainNamesRequest;
 use App\Http\Requests\Tenants\License\ManageLicenseRequest;
 use App\Services\Tenants\Shared\CentralTenantApiTokenGateway;
 use PHPUnit\Framework\TestCase;
@@ -66,48 +63,5 @@ final class TenantSettingsArchitectureContractTest extends TestCase
                 $parameter->getType()?->getName(),
             );
         }
-    }
-
-    public function test_domain_suggestions_use_dedicated_form_requests(): void
-    {
-        $controller = new ReflectionClass(CheckMultipleDomainController::class);
-
-        $this->assertSame(
-            SuggestDomainAlternativesRequest::class,
-            $controller->getMethod('suggestAlternatives')->getParameters()[0]->getType()?->getName(),
-        );
-        $this->assertSame(
-            SuggestDomainNamesRequest::class,
-            $controller->getMethod('suggestNames')->getParameters()[0]->getType()?->getName(),
-        );
-
-        $source = file_get_contents($controller->getFileName());
-        $this->assertStringNotContainsString('Validator::make(', $source);
-    }
-
-
-    public function test_domain_controller_reads_provider_configuration_through_services_config(): void
-    {
-        $projectRoot = dirname(__DIR__, 2);
-        $controller = file_get_contents($projectRoot.'/app/Http/Controllers/Tenants/Domains/DomainController.php');
-
-        $this->assertStringNotContainsString('env(', $controller);
-        $this->assertStringContainsString("config('services.namecheap.user')", $controller);
-        $this->assertStringContainsString("config('services.domains.server_ip')", $controller);
-    }
-
-    public function test_domain_payment_operations_require_their_matching_permissions(): void
-    {
-        $projectRoot = dirname(__DIR__, 2);
-        $controller = file_get_contents($projectRoot.'/app/Http/Controllers/Tenants/Domains/DomainPaymentController.php');
-        $registration = file_get_contents($projectRoot.'/app/Http/Requests/Tenants/Domains/StartDomainRegistrationPaymentRequest.php');
-        $renewal = file_get_contents($projectRoot.'/app/Http/Requests/Tenants/Domains/StartDomainRenewalPaymentRequest.php');
-        $transfer = file_get_contents($projectRoot.'/app/Http/Requests/Tenants/Domains/StartDomainTransferPaymentRequest.php');
-
-        $this->assertStringContainsString("middleware('can:domain.reserve')", $controller);
-        $this->assertStringContainsString("middleware('can:domain.transfer')", $controller);
-        $this->assertStringContainsString("can('domain.reserve')", $registration);
-        $this->assertStringContainsString("can('domain.reserve')", $renewal);
-        $this->assertStringContainsString("can('domain.transfer')", $transfer);
     }
 }

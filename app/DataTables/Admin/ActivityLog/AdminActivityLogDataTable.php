@@ -20,32 +20,16 @@ class AdminActivityLogDataTable extends AbstractActivityLogDataTable
 
     protected function buttons(): array
     {
-        $selectedRowsFilter = 'function (idx, data, node) { var table = node && node.closest("table"); var hasChecked = table ? table.querySelectorAll(".row-checkbox:checked").length > 0 : false; return hasChecked ? Boolean(node.querySelector(".row-checkbox:checked")) : true; }';
-
-        return [
+        return $this->actionsCollectionButton([
+            $this->copyActionButton(),
             [
-                'extend' => 'collection',
-                'className' => 'btn btn-export',
-                'text' => 'الإجراءات',
-                'buttons' => [
-                    [
-                        'extend' => 'copy',
-                        'text' => 'نسخ',
-                        'exportOptions' => [
-                            'columns' => [2, 3, 4, 5],
-                            'rows' => $selectedRowsFilter,
-                        ],
-                    ],
-                    [
-                        'extend' => 'excel',
-                        'text' => 'إكسل',
-                        'exportOptions' => [
-                            'columns' => [5, 4, 3, 2],
-                            'rows' => $selectedRowsFilter,
-                        ],
-                    ],
+                'extend' => 'excel',
+                'text' => 'إكسل',
+                'exportOptions' => [
+                    'columns' => [5, 4, 3, 2],
+                    'rows' => $this->selectedRowsFilterCallback(),
                 ],
             ],
-        ];
+        ]);
     }
 }

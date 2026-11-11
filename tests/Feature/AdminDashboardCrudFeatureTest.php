@@ -10,7 +10,6 @@ use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Bank\Bank;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\City;
-use App\Models\Admin\ControlDomain\ControlDomain;
 use App\Models\Admin\Coupons\Coupon;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Settings\Settings;
@@ -517,9 +516,9 @@ class AdminDashboardCrudFeatureTest extends TestCase
     }
 
     /**
-     * Test 4: General Settings, Banks & Domains CRUD Lifecycle
+     * Test 4: General Settings & Banks CRUD Lifecycle
      */
-    public function test_admin_settings_banks_and_domains_crud_lifecycle(): void
+    public function test_admin_settings_and_banks_crud_lifecycle(): void
     {
         Storage::fake('public');
 
@@ -569,30 +568,6 @@ class AdminDashboardCrudFeatureTest extends TestCase
 
         $this->delete($this->adminUrl("settings/banks/{$bank->id}"))->assertStatus(302);
         $this->assertDatabaseMissing('banks', ['id' => $bank->id]);
-
-        // === C. Control Domains Management ===
-        $this->get($this->adminUrl('settings/domains'))->assertStatus(200);
-        $this->get($this->adminUrl('settings/domains/create'))->assertStatus(200);
-
-        $ext = '.lot'.rand(10, 99);
-        $storeDomainResponse = $this->post($this->adminUrl('settings/domains'), [
-            'domain_extension' => $ext,
-            'price' => 150.00,
-        ]);
-        $storeDomainResponse->assertStatus(302);
-
-        $controlDomain = ControlDomain::where('domain_extension', $ext)->first();
-        $this->assertNotNull($controlDomain, 'ControlDomain was not created.');
-
-        $this->get($this->adminUrl("settings/domains/{$controlDomain->id}/edit"))->assertStatus(200);
-
-        $this->put($this->adminUrl("settings/domains/{$controlDomain->id}"), [
-            'domain_extension' => $ext,
-            'price' => 180.00,
-        ])->assertStatus(302);
-
-        $this->delete($this->adminUrl("settings/domains/{$controlDomain->id}"))->assertStatus(302);
-        $this->assertDatabaseMissing('control_domains', ['id' => $controlDomain->id]);
     }
 
     /**
@@ -625,7 +600,6 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'subscription_billing_cycle' => 'monthly',
             'description' => 'باقة مخصصة لإدارة المزادات العقارية',
             'discount_percentage' => 10,
-            'domain_management_enabled' => 1,
             'features' => [
                 'إدارة المزادات والمحافظ',
                 'بوابة الدفع الإلكتروني',
@@ -671,7 +645,6 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'storage_quota_gb' => 10,
             'active_auctions_limit' => 10,
             'subscription_billing_cycle' => 'monthly',
-            'domain_management_enabled' => 1,
             'features' => ['ميزة محدثة'],
         ]);
         $updateResponse->assertStatus(302);
@@ -718,7 +691,6 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'properties_limit' => 10,
             'storage_quota_gb' => 5,
             'active_auctions_limit' => 5,
-            'domain_management_enabled' => 1,
             'features' => ['اختبار الحذف الجماعي'],
         ])->assertStatus(302);
 
@@ -1151,7 +1123,6 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'users',
             'roles',
             'settings/banks',
-            'settings/domains',
             'plans',
             'companies',
             'coupons',

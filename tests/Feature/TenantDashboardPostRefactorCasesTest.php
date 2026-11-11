@@ -2,13 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Http\Middleware\Tenancy\CheckLimits\CheckDomainManagement;
 use App\Models\Admin\Tenants\CompanySetting;
 use App\Models\Admin\Subscription\Subscription;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\UserMangment\User\User;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
@@ -50,18 +48,6 @@ class TenantDashboardPostRefactorCasesTest extends TestCase
         $response->assertSee('حد العقارات');
         $response->assertSee('المساحة التخزينية');
         $response->assertSee('المزادات النشطة');
-    }
-
-    public function test_check_domain_management_respects_latest_subscription(): void
-    {
-        $middleware = new CheckDomainManagement();
-        $request = Request::create('http://test.localhost/domains/setting', 'GET');
-
-        $response = $middleware->handle($request, function ($req) {
-            return new Response('OK');
-        });
-
-        $this->assertTrue(in_array($response->getStatusCode(), [200, 302]));
     }
 
     public function test_check_subscription_blocks_suspended_tenant(): void

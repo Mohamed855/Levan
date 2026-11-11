@@ -57,23 +57,6 @@ return [
         'map_id' => env('GOOGLE_MAPS_MAP_ID'),
     ],
 
-    'namecheap' => [
-        'user' => env('NAMECHEAP_API_USER'),
-        'api_key' => env('NAMECHEAP_API_KEY'),
-        'client_ip' => env('NAMECHEAP_CLIENT_IP'),
-        'base_url' => env('NAMECHEAP_URL', 'https://api.namecheap.com/xml.response'),
-        'whm_api_url' => env('WHM_API_URL'),
-        'whm_host' => env('WHM_HOST', env('WHM_API_URL')),
-        'whm_token' => env('WHM_TOKEN'),
-        'server_ip' => env('SERVER_IP'),
-    ],
-
-    'domains' => [
-        'server_ip' => env('SERVER_IP', '135.181.215.105'),
-        'name_servers' => ['ns1.lot.sa', 'ns2.lot.sa'],
-        'server_domain' => env('SERVER_DOMAIN', 'lot.sa'),
-    ],
-
     'ticket_api' => [
         'base_url' => env('TICKET_API_BASE_URL'),
         'key' => env('TICKET_API_KEY'),
