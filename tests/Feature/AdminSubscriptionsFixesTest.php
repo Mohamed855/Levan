@@ -5,16 +5,23 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\DataTables\Admin\Subscriptions\SubscriptionDataTable;
+use App\Enums\Admin\Billing\BillStatus;
+use App\Enums\Admin\Coupons\CouponDiscountType;
 use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
+use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\City;
+use App\Models\Admin\Coupons\Coupon;
+use App\Models\Admin\Licenses\LicenseSeat;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
+use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Models\Admin\Tenants\Tenant;
 use App\Services\Admin\Subscriptions\AdminSubscriptionService;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class AdminSubscriptionsFixesTest extends TestCase
@@ -359,6 +366,202 @@ class AdminSubscriptionsFixesTest extends TestCase
             $cancelledSub->forceDelete();
             Tenant::withTrashed()->whereKey($tenantA->id)->forceDelete();
             Tenant::withTrashed()->whereKey($tenantB->id)->forceDelete();
+            Plan::withTrashed()->whereKey($plan->id)->forceDelete();
+        }
+    }
+
+    public function test_create_page_omits_sensitive_tenant_secrets_duplicate_scripts_and_preselects_company(): void
+    {
+        $tenant = $this->makeTenant([
+            'db_password' => 'secret-pw-leak-999',
+            'db_username' => 'secret-user-leak-999',
+            'api_token' => 'secret-token-leak-999',
+        ]);
+
+        try {
+            $response = $this->get('http://localhost/superadmin/subscriptions/create?company_id='.$tenant->id);
+
+            $response->assertOk();
+            $html = $response->getContent();
+
+            $this->assertStringNotContainsString('secret-pw-leak-999', $html);
+            $this->assertStringNotContainsString('secret-user-leak-999', $html);
+            $this->assertStringNotContainsString('secret-token-leak-999', $html);
+            $this->assertSame(
+                1,
+                preg_match_all('/<script[^>]*src="[^"]*form-validation[^"]*"/i', $html)
+            );
+            $this->assertStringNotContainsString('payment_proof', $html);
+            $this->assertMatchesRegularExpression(
+                '/<option[^>]*value="'.preg_quote($tenant->id, '/').'"[^>]*selected/s',
+                $html
+            );
+        } finally {
+            Tenant::withTrashed()->whereKey($tenant->id)->forceDelete();
+        }
+    }
+
+    public function test_wizard_validate_step_two_does_not_require_duplicate_payment_proof_field(): void
+    {
+        $response = $this->postJson('http://localhost/superadmin/wizard-drafts/validate-step', [
+            'target_path' => '/superadmin/subscriptions',
+            'target_method' => 'POST',
+            'fields' => [
+                'start_date',
+                'end_date',
+                'period_months',
+                'coupon_code',
+                'payment_method',
+                'payment_status',
+                'payment_type',
+                'transaction_id',
+                'receipt_upload',
+                'payment_proof',
+            ],
+            'start_date' => '2026-11-11',
+            'end_date' => '2026-12-11',
+            'period_months' => 1,
+            'payment_method' => 'bank_transfer',
+            'payment_status' => 'completed',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['receipt_upload'])
+            ->assertJsonMissingValidationErrors(['payment_proof']);
+    }
+
+    public function test_validate_coupon_endpoint_returns_discount_math_for_valid_coupon_and_422_for_invalid(): void
+    {
+        $plan = $this->makePlan([
+            'price' => 100.00,
+            'discount_percentage' => 0,
+            'subscription_billing_cycle' => SubscriptionBillingCycle::MONTHLY,
+            'is_active' => true,
+        ]);
+
+        $coupon = Coupon::create([
+            'name' => 'خصم اختبار',
+            'code' => 'FIX20_'.uniqid(),
+            'discount_type' => CouponDiscountType::PERCENTAGE,
+            'discount_value' => 20,
+            'start_date' => now()->subDay()->toDateString(),
+            'expiry_date' => now()->addDay()->toDateString(),
+            'usage_limit' => 10,
+            'used_count' => 0,
+            'is_active' => true,
+            'created_by' => $this->admin->id,
+        ]);
+
+        try {
+            $okResponse = $this->postJson('http://localhost/superadmin/subscriptions/validate-coupon', [
+                'plan_id' => $plan->id,
+                'period_months' => 6,
+                'coupon_code' => $coupon->code,
+            ]);
+
+            $okResponse->assertOk()
+                ->assertJson([
+                    'success' => true,
+                    'coupon_code' => $coupon->code,
+                    'original_total' => 600.0,
+                    'discount_amount' => 120.0,
+                    'final_total' => 480.0,
+                ]);
+
+            $badResponse = $this->postJson('http://localhost/superadmin/subscriptions/validate-coupon', [
+                'plan_id' => $plan->id,
+                'period_months' => 6,
+                'coupon_code' => 'NONEXISTENT-999',
+            ]);
+
+            $badResponse->assertStatus(422);
+        } finally {
+            $coupon->forceDelete();
+            Plan::withTrashed()->whereKey($plan->id)->forceDelete();
+        }
+    }
+
+    public function test_create_subscription_scales_period_applies_coupon_respects_pending_status_and_records_transaction_metadata(): void
+    {
+        $tenant = $this->makeTenant();
+        $plan = $this->makePlan([
+            'price' => 100.00,
+            'discount_percentage' => 0,
+            'subscription_billing_cycle' => SubscriptionBillingCycle::MONTHLY,
+            'is_active' => true,
+        ]);
+        $coupon = Coupon::create([
+            'name' => 'خصم انشاء اشتراك',
+            'code' => 'SUB20_'.uniqid(),
+            'discount_type' => CouponDiscountType::PERCENTAGE,
+            'discount_value' => 20,
+            'start_date' => now()->subDay()->toDateString(),
+            'expiry_date' => now()->addDay()->toDateString(),
+            'usage_limit' => 5,
+            'used_count' => 0,
+            'is_active' => true,
+            'created_by' => $this->admin->id,
+        ]);
+
+        $createdSub = null;
+        try {
+            $service = app(AdminSubscriptionService::class);
+
+            try {
+                $service->createSubscription($tenant, [
+                    'plan_id' => $plan->id,
+                    'start_date' => '2026-11-11',
+                    'period_months' => 6,
+                    'coupon_code' => 'INVALID-COUPON-CODE',
+                    'payment_method' => 'bank_transfer',
+                    'payment_status' => 'pending',
+                ]);
+                $this->fail('Expected ValidationException for invalid coupon_code.');
+            } catch (ValidationException $e) {
+                $this->assertArrayHasKey('coupon_code', $e->errors());
+            }
+
+            $createdSub = $service->createSubscription($tenant, [
+                'plan_id' => $plan->id,
+                'start_date' => '2026-11-11',
+                'period_months' => 6,
+                'coupon_code' => $coupon->code,
+                'payment_method' => 'bank_transfer',
+                'payment_status' => 'pending',
+                'transaction_id' => 'TRX-999',
+                'admin_notes' => 'note',
+            ]);
+
+            $createdSub->refresh();
+            $period = $createdSub->currentPeriod;
+            $bill = Bill::where('subscription_id', $createdSub->id)->firstOrFail();
+
+            $this->assertSame(480.0, (float) $createdSub->price);
+            $this->assertSame(SubscriptionStatus::SUSPENDED, $createdSub->status);
+            $this->assertSame('2027-05-11', $createdSub->ends_at->format('Y-m-d'));
+            $this->assertNotNull($period);
+            $this->assertSame(SubscriptionPeriodStatus::PENDING_PAYMENT, $period->status);
+
+            $this->assertSame(480.0, (float) $bill->amount);
+            $this->assertSame(600.0, (float) $bill->original_amount);
+            $this->assertSame(120.0, (float) $bill->discount_amount);
+            $this->assertSame(BillStatus::UNPAID, $bill->status);
+            $this->assertNull($bill->paid_at);
+            $this->assertSame('note', $bill->transfer_notes);
+            $this->assertSame('TRX-999', $bill->metadata['transaction_id'] ?? null);
+            $this->assertSame('note', $bill->metadata['admin_notes'] ?? null);
+            $this->assertSame($coupon->id, $bill->coupon_id);
+            $this->assertSame($coupon->code, $bill->coupon_code);
+            $this->assertSame(1, $coupon->fresh()->used_count);
+        } finally {
+            if ($createdSub) {
+                LicenseSeat::where('subscription_id', $createdSub->id)->delete();
+                Bill::withTrashed()->where('subscription_id', $createdSub->id)->forceDelete();
+                SubscriptionPeriod::withTrashed()->where('subscription_id', $createdSub->id)->forceDelete();
+                $createdSub->forceDelete();
+            }
+            $coupon->forceDelete();
+            Tenant::withTrashed()->whereKey($tenant->id)->forceDelete();
             Plan::withTrashed()->whereKey($plan->id)->forceDelete();
         }
     }

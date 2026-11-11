@@ -10,12 +10,14 @@ use App\Enums\Admin\Billing\PaymentMethod;
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\Bills\Bill;
+use App\Models\Admin\Coupons\Coupon;
 use App\Models\Admin\Licenses\LicenseSeat;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Models\Admin\Tenants\Tenant;
 use App\Services\Shared\Bills\BillService;
+use App\Services\Shared\Coupons\CouponService;
 use App\Services\Shared\Subscription\SubscriptionPeriod\SubscriptionPeriodService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -27,8 +29,28 @@ class AdminSubscriptionService
 {
     public function __construct(
         private readonly BillService $billService,
-        private readonly SubscriptionPeriodService $subscriptionPeriodService
+        private readonly SubscriptionPeriodService $subscriptionPeriodService,
+        private readonly ?CouponService $couponService = null,
     ) {}
+
+    public function calculatePeriodBasePrice(Plan $plan, ?int $periodMonths = null, ?string $billingCycle = null): float
+    {
+        if ($plan->isTrial()) {
+            return 0.00;
+        }
+
+        $cycle = $billingCycle ?? ($plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle ?: 'monthly');
+        $cycleMonths = match ($cycle) {
+            'quarterly' => 3,
+            'yearly' => 12,
+            default => 1,
+        };
+
+        $months = ($periodMonths !== null && $periodMonths > 0) ? $periodMonths : $cycleMonths;
+        $unitPrice = (float) ($plan->price_after_discount ?? $plan->price ?? 0);
+
+        return max(0.00, round($unitPrice * ($months / $cycleMonths), 2));
+    }
 
     public function getSubscriptionStatistics(): array
     {
@@ -85,28 +107,76 @@ class AdminSubscriptionService
 
         return DB::connection('mysql')->transaction(function () use ($company, $data) {
             $plan = Plan::findOrFail($data['plan_id']);
-            $activateImmediately = ! empty($data['activate_immediately']);
 
             $billingCycle = $data['billing_cycle'] ?? $plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle ?: 'monthly';
+            $periodMonths = ! empty($data['period_months']) ? (int) $data['period_months'] : null;
             $startDate = ! empty($data['start_date']) ? Carbon::parse($data['start_date']) : now();
             $endDate = ! empty($data['end_date'])
                 ? Carbon::parse($data['end_date'])
                 : (! empty($data['trial_end_date'])
                     ? Carbon::parse($data['trial_end_date'])
-                    : $this->calculatePeriodEndForPlan($startDate, $plan, $billingCycle));
+                    : ($periodMonths && ! $plan->isTrial()
+                        ? $startDate->copy()->addMonthsNoOverflow($periodMonths)
+                        : $this->calculatePeriodEndForPlan($startDate, $plan, $billingCycle)));
 
-            $paymentType = $data['payment_type'] ?? $data['payment_status'] ?? 'paid';
-            $isTrial = $paymentType === 'trial' || $plan->isTrial();
+            $paymentStatusInput = $data['payment_status'] ?? null;
+            $paymentType = $data['payment_type'] ?? $paymentStatusInput ?? 'paid';
+            $isTrial = $paymentType === 'trial'
+                || $paymentStatusInput === 'trial'
+                || $plan->isTrial();
+            $isPendingPayment = ! $isTrial
+                && in_array($paymentStatusInput ?? $paymentType, ['pending', 'unpaid'], true);
 
-            // Subscriptions are created active immediately (no requests / pending status)
-            $subStatus = $isTrial ? SubscriptionStatus::TRIAL : SubscriptionStatus::ACTIVE;
-            $periodStatus = SubscriptionPeriodStatus::ACTIVE;
+            if ($isTrial) {
+                $subStatus = SubscriptionStatus::TRIAL;
+                $periodStatus = SubscriptionPeriodStatus::ACTIVE;
+            } elseif ($isPendingPayment) {
+                $subStatus = SubscriptionStatus::SUSPENDED;
+                $periodStatus = SubscriptionPeriodStatus::PENDING_PAYMENT;
+            } else {
+                $subStatus = SubscriptionStatus::ACTIVE;
+                $periodStatus = SubscriptionPeriodStatus::ACTIVE;
+            }
 
-            $basePrice = ($billingCycle === 'yearly' && $plan->annual_offer_enabled)
-                ? (float) $plan->calculateAnnualOfferPrice()
-                : (float) $plan->price_after_discount;
-            $discount = (($data['has_discount'] ?? 'no') === 'yes') ? (float) ($data['discount_value'] ?? 0) : 0;
-            $amount = ($isTrial) ? 0.00 : max(0.00, $basePrice - $discount);
+            $basePrice = $this->calculatePeriodBasePrice($plan, $periodMonths, $billingCycle);
+            $couponService = $this->couponService ?? app(CouponService::class);
+            $couponCode = trim((string) ($data['coupon_code'] ?? ''));
+            $appliedCoupon = null;
+            $couponData = [
+                'discount_amount' => 0.0,
+                'coupon_id' => null,
+                'coupon_code' => null,
+                'coupon_value' => null,
+                'coupon_type' => null,
+            ];
+
+            if (! $isTrial && $couponCode !== '') {
+                $couponResult = $couponService->processCoupon($couponCode, $basePrice);
+                if (isset($couponResult['error'])) {
+                    throw ValidationException::withMessages([
+                        'coupon_code' => $couponResult['error'],
+                    ]);
+                }
+
+                $couponData = [
+                    'discount_amount' => (float) ($couponResult['discount_amount'] ?? 0),
+                    'coupon_id' => $couponResult['coupon_id'] ?? null,
+                    'coupon_code' => $couponResult['coupon_code'] ?? $couponCode,
+                    'coupon_value' => $couponResult['coupon_value'] ?? null,
+                    'coupon_type' => $couponResult['coupon_type'] ?? null,
+                ];
+
+                if (! empty($couponData['coupon_id'])) {
+                    $appliedCoupon = Coupon::find($couponData['coupon_id']);
+                }
+            }
+
+            $manualDiscount = (! $isTrial && ($data['has_discount'] ?? 'no') === 'yes')
+                ? (float) ($data['discount_value'] ?? 0)
+                : 0.0;
+            $discount = min($basePrice, (float) $couponData['discount_amount'] + $manualDiscount);
+            $couponData['discount_amount'] = round($discount, 2);
+            $amount = $isTrial ? 0.00 : max(0.00, round($basePrice - $discount, 2));
 
             $subscription = Subscription::create([
                 'tenant_id' => $company->id,
@@ -145,29 +215,40 @@ class AdminSubscriptionService
             $bill = $this->billService->createPendingBill(
                 amount: $amount,
                 paymentMethod: $paymentMethod,
-                originalAmount: (float) $plan->price_after_discount,
+                originalAmount: $basePrice,
                 type: BillType::NEW_SUBSCRIPTION,
-                couponData: [
-                    'discount_amount' => $discount,
-                    'coupon_id' => null,
-                    'coupon_code' => $data['coupon_code'] ?? null,
-                    'coupon_value' => null,
-                    'coupon_type' => null,
-                ],
-                metadata: [
+                couponData: $couponData,
+                metadata: array_filter([
                     'tenant_id' => $company->id,
                     'subscription_id' => $subscription->id,
                     'plan_id' => $plan->id,
-                ]
+                    'period_months' => $periodMonths,
+                    'transaction_id' => ! empty($data['transaction_id']) ? (string) $data['transaction_id'] : null,
+                    'admin_notes' => ! empty($data['admin_notes']) ? (string) $data['admin_notes'] : null,
+                ], fn ($value): bool => $value !== null)
             );
 
+            $billStatus = $isTrial
+                ? BillStatus::TRIAL
+                : ($isPendingPayment ? BillStatus::UNPAID : BillStatus::PAID);
+
             if ($bill) {
-                $bill->update([
+                $billUpdates = [
                     'tenant_id' => $company->id,
                     'subscription_id' => $subscription->id,
-                    'status' => BillStatus::PAID,
-                    'paid_at' => now(),
-                ]);
+                    'status' => $billStatus,
+                    'paid_at' => $billStatus === BillStatus::PAID ? now() : null,
+                ];
+
+                if (! empty($data['admin_notes'])) {
+                    $billUpdates['transfer_notes'] = (string) $data['admin_notes'];
+                }
+
+                $bill->update($billUpdates);
+            }
+
+            if ($appliedCoupon) {
+                $couponService->applyCoupon($appliedCoupon);
             }
 
             // Provision license seats for the plan quota

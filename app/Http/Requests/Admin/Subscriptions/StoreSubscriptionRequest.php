@@ -41,14 +41,13 @@ class StoreSubscriptionRequest extends WizardFormRequest
             'transaction_id' => ['nullable', 'string', 'max:255'],
             'payment_proof' => [
                 'nullable',
-                Rule::requiredIf(fn () => in_array($this->input('payment_type') ?? $this->input('payment_status'), ['paid', 'completed']) && $this->input('payment_method') === 'bank_transfer' && ! $this->hasFile('receipt_upload')),
                 'file',
                 'mimes:jpeg,jpg,png,pdf',
                 'max:10240',
             ],
             'receipt_upload' => [
                 'nullable',
-                Rule::requiredIf(fn () => in_array($this->input('payment_type') ?? $this->input('payment_status'), ['paid', 'completed']) && $this->input('payment_method') === 'bank_transfer' && ! $this->hasFile('payment_proof')),
+                Rule::requiredIf(fn () => in_array($this->input('payment_status') ?? $this->input('payment_type'), ['paid', 'completed']) && $this->input('payment_method') === 'bank_transfer' && ! $this->hasFile('payment_proof')),
                 'file',
                 'mimes:jpeg,jpg,png,pdf',
                 'max:10240',

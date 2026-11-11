@@ -14,8 +14,10 @@ use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
 use App\Services\Admin\Subscriptions\AdminSubscriptionService;
+use App\Services\Shared\Coupons\CouponService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -26,7 +28,7 @@ class SubscriptionController extends Controller
     ) {
         $this->authorizeResource(Subscription::class, 'subscription');
         $this->middleware('can:subscriptions.view')->only(['index']);
-        $this->middleware('can:subscriptions.create')->only(['create', 'store', 'planDuration', 'companyDetails']);
+        $this->middleware('can:subscriptions.create')->only(['create', 'store', 'planDuration', 'companyDetails', 'validateCoupon']);
         $this->middleware('can:subscriptions.delete')->only(['destroy']);
         $this->middleware('can:subscriptions.toggle_status')->only(['toggleStatus']);
     }
@@ -87,9 +89,47 @@ class SubscriptionController extends Controller
 
         $plans = Plan::active()->get();
 
+        $companiesPayload = $companies->map(fn (Tenant $company): array => [
+            'id' => $company->id,
+            'company_name' => $company->company_name,
+            'commercial_number' => $company->commercial_number,
+            'tax_number' => $company->tax_number,
+            'address' => $company->address,
+            'city' => $company->city ? [
+                'id' => $company->city->id,
+                'name' => $company->city->name,
+            ] : null,
+            'last_subscription' => $company->lastSubscription ? [
+                'id' => $company->lastSubscription->id,
+                'status' => $company->lastSubscription->status?->label() ?? (string) $company->lastSubscription->status,
+                'ends_at' => $company->lastSubscription->ends_at?->toDateString(),
+                'plan' => $company->lastSubscription->plan ? [
+                    'id' => $company->lastSubscription->plan->id,
+                    'name' => $company->lastSubscription->plan->name,
+                ] : null,
+            ] : null,
+        ])->values()->all();
+
+        $plansPayload = $plans->map(fn (Plan $plan): array => [
+            'id' => $plan->id,
+            'name' => $plan->name,
+            'code' => $plan->code,
+            'is_trial' => $plan->isTrial(),
+            'price' => (float) ($plan->price ?? 0),
+            'price_after_discount' => (float) ($plan->price_after_discount ?? $plan->price ?? 0),
+            'subscription_billing_cycle' => $plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle,
+            'included_users' => (int) ($plan->included_users ?? 1),
+            'properties_limit' => $plan->properties_limit,
+            'storage_quota_gb' => $plan->storage_quota_gb,
+            'active_auctions_limit' => $plan->active_auctions_limit,
+            'features' => is_array($plan->features) ? $plan->features : [],
+        ])->values()->all();
+
         return view('admin.subscriptions.create', [
             'companies' => $companies,
             'plans' => $plans,
+            'companiesPayload' => $companiesPayload,
+            'plansPayload' => $plansPayload,
         ]);
     }
 
@@ -218,6 +258,47 @@ class SubscriptionController extends Controller
                 'status' => $lastSub->status->label(),
                 'ends_at' => system_date($lastSub->ends_at),
             ] : null,
+        ]);
+    }
+
+    public function validateCoupon(Request $request, CouponService $couponService): JsonResponse
+    {
+        $validated = $request->validate([
+            'plan_id' => ['required', 'integer', 'exists:plans,id'],
+            'period_months' => ['nullable', 'integer', 'min:1', 'max:120'],
+            'coupon_code' => ['required', 'string', 'max:50'],
+        ]);
+
+        $plan = Plan::findOrFail($validated['plan_id']);
+        $periodMonths = isset($validated['period_months']) ? (int) $validated['period_months'] : null;
+        $basePrice = $this->subscriptionService->calculatePeriodBasePrice($plan, $periodMonths);
+
+        if ($plan->isTrial() || $basePrice <= 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لا يمكن تطبيق كوبون خصم على الباقة المجانية أو التجريبية.',
+            ], 422);
+        }
+
+        $couponCode = trim((string) $validated['coupon_code']);
+        $result = $couponService->validateAndCalculate($couponCode, $basePrice);
+
+        if (empty($result['success'])) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'] ?? 'كود الخصم غير صالح.',
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $result['message'] ?? 'تم تطبيق كود الخصم بنجاح.',
+            'coupon_code' => $result['coupon']['code'],
+            'discount_type' => $result['coupon']['discount_type'],
+            'discount_value' => (float) $result['coupon']['discount_value'],
+            'original_total' => round($basePrice, 2),
+            'discount_amount' => round((float) $result['raw_discount'], 2),
+            'final_total' => round((float) $result['raw_total_after_discount'], 2),
         ]);
     }
 }

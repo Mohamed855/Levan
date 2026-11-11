@@ -120,6 +120,7 @@ Route::prefix('superadmin')->name('admin.')->middleware(['auth:admin', \App\Http
         Route::patch('{subscription}/toggle-status', [CentralSubscriptionController::class, 'toggleStatus'])->name('toggle-status');
         Route::get('plans/{plan}/duration', [CentralSubscriptionController::class, 'planDuration'])->name('plan-duration');
         Route::get('companies/{company}/details', [CentralSubscriptionController::class, 'companyDetails'])->name('company-details');
+        Route::post('validate-coupon', [CentralSubscriptionController::class, 'validateCoupon'])->name('validate-coupon');
         Route::resource('/', CentralSubscriptionController::class)
             ->only(['index', 'create', 'store', 'destroy'])
             ->parameters(['' => 'subscription']);

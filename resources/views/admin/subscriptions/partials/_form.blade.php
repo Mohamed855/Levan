@@ -46,7 +46,8 @@
                     <div class="row g-4">
                         <!-- اختيار الشركة -->
                         <x-form.controls.select name="company_id" id="company_id" label="الشركة المستفيدة" required
-                            :options="$companyOptions" placeholder="اختر الشركة (فقط الشركات ذات الاشتراكات المنتهية)"
+                            :options="$companyOptions" :value="old('company_id', request('company_id'))"
+                            placeholder="اختر الشركة (فقط الشركات ذات الاشتراكات المنتهية)"
                             help="يتم عرض الشركات التي ليس لها اشتراك حالي أو انتهت صلاحية آخر اشتراك لها فقط."
                             col="col-md-6" />
 
@@ -148,7 +149,6 @@
                     'payment_type',
                     'transaction_id',
                     'receipt_upload',
-                    'payment_proof',
                 ]">
                     <input type="hidden" name="payment_type" id="payment_type" value="paid">
                     <div class="row g-4">
@@ -221,7 +221,7 @@
                                             <span class="fw-bold fs-6 text-danger" id="calc-discount">0.00 ر.س</span>
                                         </div>
                                         <div class="col-sm-6 col-md-3">
-                                            <span class="text-muted d-block small">ضريبة القيمة المضافة (15%):</span>
+                                            <span class="text-muted d-block small">ضريبة القيمة المضافة (15% مشمولة):</span>
                                             <span class="fw-bold fs-6" id="calc-tax">0.00 ر.س</span>
                                         </div>
                                         <div class="col-sm-6 col-md-3">

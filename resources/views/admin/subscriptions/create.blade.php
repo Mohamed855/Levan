@@ -35,10 +35,14 @@
 
 @section('page-script')
     <script>
-        window.companiesData = @json($companies);
-        window.plansData = @json($plans);
+        window.companiesData = @json($companiesPayload);
+        window.plansData = @json($plansPayload);
+        window.routes = {
+            companyDetails: @json(route('admin.subscriptions.company-details', ['company' => '__ID__'])),
+            validateCoupon: @json(route('admin.subscriptions.validate-coupon')),
+        };
     </script>
-    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/admin/subscriptions/create-wizard.js'])
+    @vite(['resources/assets/js/admin/subscriptions/create-wizard.js'])
 @endsection
 
 @section('content')
