@@ -18,7 +18,7 @@ return [
         'coupons_management' => 'إدارة الكوبونات',
         'companies_management' => 'إدارة الشركات',
         'subscriptions_management' => 'إدارة الإشتراكات',
-        'financial_transactions_management' => 'إدارة المعاملات المالية',
+        'financial_transactions_management' => 'إدارة الفواتير',
         'bills_management' => 'إدارة الفواتير',
         'tickets_management' => 'إدارة التذاكر والدعم الفني',
         'public_requests_management' => 'إدارة طلبات التواصل والتجربة',
@@ -146,8 +146,8 @@ return [
     'subscriptions.add_licenses' => 'شراء تراخيص إضافية',
     'subscriptions.upgrade' => 'ترقية الاشتراك',
 
-    // المعاملات المالية والفواتير
-    'financial_transactions.view' => 'المعاملات المالية',
+    // الفواتير
+    'financial_transactions.view' => 'الفواتير',
     'financial_transactions.restore' => 'استعادة معاملة مالية',
     'financial_transactions.force_delete' => 'حذف معاملة مالية نهائيًا',
     'bills.view' => 'الفواتير',

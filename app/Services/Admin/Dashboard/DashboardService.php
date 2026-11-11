@@ -245,7 +245,7 @@ class DashboardService
             'users' => 'المستخدمين',
             'auth' => 'تسجيل الدخول',
             'subscriptions' => 'الاشتراكات',
-            'bills' => 'المعاملات المالية',
+            'bills' => 'الفواتير',
             'tickets' => 'التذاكر',
         ];
 

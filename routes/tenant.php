@@ -249,7 +249,7 @@ Route::middleware(['auth:tenant', \App\Http\Middleware\EnsureInitialPasswordChan
             Route::name('user.get')->get('users/{id}/get-roles', [RoleController::class, 'getUserRoles']);
             Route::name('user.update')->post('users/{id}/update-roles', [RoleController::class, 'updateUserRoles']);
             Route::name('user.status')->patch('users/{userId}/status', [RoleController::class, 'updateStatus']);
-            Route::resource('/', RoleController::class)->parameters(['' => 'role']);
+            Route::resource('/', RoleController::class)->except('show')->parameters(['' => 'role']);
         });
 
         /*

@@ -15,7 +15,6 @@ use App\Services\Tenants\UserManagement\User\UserService;
 use App\Support\AccessLabels;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 
@@ -38,7 +37,7 @@ class RoleController extends Controller
         $this->roleService = $roleService;
         $this->authorizeResource(Role::class, 'role');
 
-        $this->middleware('can:roles.view')->only(['index', 'show']);
+        $this->middleware('can:roles.view')->only(['index']);
         $this->middleware('can:roles.create')->only(['create', 'store']);
         $this->middleware('can:roles.edit')->only(['edit', 'update']);
         $this->middleware('can:roles.delete')->only(['destroy']);
@@ -109,23 +108,6 @@ class RoleController extends Controller
                 ->back()
                 ->withInput()
                 ->with('error', 'حدث خطأ أثناء إنشاء الدور');
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Show Role Details
-    |--------------------------------------------------------------------------
-    | Display the specified role.
-    */
-    public function show(Role $role): View|RedirectResponse
-    {
-        try {
-            $roleData = $this->roleService->getRoleWithDetails($role);
-
-            return view('tenant.user-management.roles.show', compact('role', 'roleData'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'حدث خطأ أثناء عرض الدور.');
         }
     }
 

@@ -134,7 +134,7 @@
                 <li class="menu-item @if (Route::is('admin.bills.*')) active open @endif">
                     <a href="{{ route('admin.bills.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons ti ti-credit-card"></i>
-                        <div>المعاملات المالية</div>
+                        <div>الفواتير</div>
                     </a>
                 </li>
             @endcan

@@ -14,6 +14,7 @@ use App\Services\Tenants\UserManagement\Role\RoleService as TenantRoleService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use LogicException;
 use Spatie\Permission\Models\Permission;
@@ -1090,29 +1091,18 @@ final class RolesAndPermissionsDualReviewTest extends TestCase
         $this->assertNotNull($customTenantRow);
         $this->assertStringContainsString('تعديل الدور', $customTenantRow['actions']);
 
-        // Tenant role show page hides edit button and shows protected badge for Admin, while keeping edit button for custom role
-        if (! Schema::connection('mysql')->hasTable('subscription_periods')) {
-            Schema::connection('mysql')->create('subscription_periods', function (Blueprint $table): void {
-                $table->id();
-                $table->unsignedBigInteger('subscription_id');
-                $table->string('status')->default('active');
-                $table->timestamp('period_start')->nullable();
-                $table->timestamp('period_end')->nullable();
-                $table->timestamps();
-                $table->softDeletes();
-            });
-        }
+        // Tenant roles do not expose a show route or view (matching admin roles)
+        $this->assertFalse(Route::has('path.roles.show'));
+        $this->assertFalse(Route::has('domain.roles.show'));
+        $this->assertFalse(Route::has('admin.roles.show'));
 
         $this->actingAs($tenantUser, 'tenant')
-            ->get(tenant_route_name('roles.show', $primaryAdminRole->id))
-            ->assertOk()
-            ->assertSee('محمي')
-            ->assertDontSee('تعديل الدور');
+            ->getJson("/{$tenant->id}/roles/{$primaryAdminRole->id}")
+            ->assertStatus(405);
 
         $this->actingAs($tenantUser, 'tenant')
-            ->get(tenant_route_name('roles.show', $customTenantRole->id))
-            ->assertOk()
-            ->assertSee('تعديل الدور');
+            ->getJson("/{$tenant->id}/roles/{$customTenantRole->id}")
+            ->assertStatus(405);
 
         tenancy()->end();
     }

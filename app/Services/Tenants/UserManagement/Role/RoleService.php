@@ -130,21 +130,6 @@ class RoleService
 
     /*
     |--------------------------------------------------------------------------
-    | Get Role With Details
-    |--------------------------------------------------------------------------
-    | Get role with additional details for display.
-    */
-    public function getRoleWithDetails(Role $role): array
-    {
-        return [
-            'role' => $role->load('permissions', 'users'),
-            'permissions_count' => $role->permissions()->count(),
-            'users_count' => $role->users()->count(),
-        ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
     | Get Permissions From Data
     |--------------------------------------------------------------------------
     | Extract permissions from request data.

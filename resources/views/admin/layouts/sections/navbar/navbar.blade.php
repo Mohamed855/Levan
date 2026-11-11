@@ -191,7 +191,7 @@
                                 <div class="col-6">
                                     <a href="{{ route('admin.archives.bills.index') }}"
                                         class="d-block p-2 text-center border rounded text-decoration-none">
-                                        <small>المعاملات المالية</small>
+                                        <small>الفواتير</small>
                                     </a>
                                 </div>
                             </div>
