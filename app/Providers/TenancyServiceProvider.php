@@ -182,8 +182,11 @@ class TenancyServiceProvider extends ServiceProvider
     protected function makeTenancyMiddlewareHighestPriority()
     {
         $tenancyMiddleware = [
+            // Load the correct panel session before resolving tenant identity.
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \App\Http\Middleware\IsolatePanelSession::class,
+            \Illuminate\Session\Middleware\StartSession::class,
 
-            // Even higher priority than the initialization middleware
             Middleware\PreventAccessFromCentralDomains::class,
 
             Middleware\InitializeTenancyByDomain::class,

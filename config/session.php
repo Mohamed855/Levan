@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Str;
 
+$sessionCookie = env('SESSION_COOKIE', Str::slug((string) env('APP_NAME', 'laravel')).'-session');
+
 return [
 
     /*
@@ -127,10 +129,12 @@ return [
     |
     */
 
-    'cookie' => env(
-        'SESSION_COOKIE',
-        Str::slug((string) env('APP_NAME', 'laravel')).'-session'
-    ),
+    'cookie' => $sessionCookie,
+
+    'panel_cookies' => [
+        'admin' => $sessionCookie.'_admin',
+        'tenant' => $sessionCookie.'_tenant',
+    ],
 
     /*
     |--------------------------------------------------------------------------

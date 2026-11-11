@@ -5,6 +5,7 @@ use App\Http\Middleware\changeEnvAttributes;
 use App\Http\Middleware\DiscardCompletedWizardDraft;
 use App\Http\Middleware\EnsureAdminTwoFactorIsEnforced;
 use App\Http\Middleware\EnsureAuthenticatedAndActiveAdmin;
+use App\Http\Middleware\IsolatePanelSession;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\SecurityHeadersMiddleware;
 use App\Http\Middleware\Tenancy\CheckSubscription;
@@ -49,10 +50,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->group('admin', [
             'web',
         ]);
+        $middleware->web(prepend: [IsolatePanelSession::class]);
 
         // Middleware aliases
         $middleware->priority([
             \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            IsolatePanelSession::class,
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class,
