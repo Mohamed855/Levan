@@ -1,26 +1,7 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h4 class="fw-bold mb-1">
-            <i class="ti ti-activity me-2 text-primary"></i>تفاصيل النشاط
-        </h4>
-        <div class="d-flex align-items-center gap-2 flex-wrap">
-            <span class="copyable-code-wrapper" data-code="#{{ $activity->id }}" role="button" tabindex="0"
-                title="اضغط لنسخ معرف النشاط">
-                <code class="copyable-code fs-6">#{{ $activity->id }}</code>
-            </span>
-            <span class="badge {{ $activityData['event_badge_class'] ?? 'bg-primary' }}">
-                {{ $activityData['event_arabic'] ?? 'نشاط' }}
-            </span>
-            <span class="badge bg-primary">
-                {{ $activityData['log_name_arabic'] ?? $activity->log_name }}
-            </span>
-        </div>
-    </div>
-    <div class="d-flex gap-2">
-        <a href="{{ $backUrl }}" class="btn btn-secondary">
-            <i class="ti ti-arrow-right me-1"></i> العودة
-        </a>
-    </div>
+<div class="d-flex justify-content-end align-items-center mb-4">
+    <a href="{{ $backUrl }}" class="btn btn-secondary">
+        <i class="ti ti-arrow-right me-1"></i> العودة
+    </a>
 </div>
 
 <div class="row">
@@ -30,13 +11,45 @@
             <div class="card-body text-center">
                 <div class="mx-auto mb-3">
                     @php
-                        $avatar =
-                            $activity->causer && method_exists($activity->causer, 'getProfilePhotoUrlAttribute')
-                                ? $activity->causer->profile_photo_url
-                                : asset('static/brand/logos/logo.svg');
+                        $causer = $activity->causer;
+                        $avatarUrl = null;
+                        if ($causer) {
+                            $rawImage = $causer->image ?: $causer->profile_picture ?? null;
+                            if ($rawImage) {
+                                if (\Illuminate\Support\Str::startsWith($rawImage, ['http://', 'https://'])) {
+                                    $avatarUrl = $rawImage;
+                                } elseif (function_exists('tenant') && tenant()) {
+                                    $normalized = ltrim($rawImage, '/');
+                                    if (
+                                        \Illuminate\Support\Facades\Storage::disk('tenant_public')->exists($normalized)
+                                        || \Illuminate\Support\Facades\Storage::disk('public')->exists($normalized)
+                                    ) {
+                                        $avatarUrl = tasset($rawImage);
+                                    }
+                                } else {
+                                    $cleanPath = ltrim(\Illuminate\Support\Str::after($rawImage, 'storage/'), '/');
+                                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($cleanPath)) {
+                                        $avatarUrl = asset('storage/' . $cleanPath);
+                                    }
+                                }
+                            }
+                        }
                     @endphp
-                    <img src="{{ $avatar }}" alt="{{ $activityData['user_name'] }}" class="rounded-circle"
-                        style="width: 100px; height: 100px; object-fit: cover;">
+                    <div class="avatar mx-auto" style="width: 100px; height: 100px;">
+                        @if (!$causer)
+                            <span class="avatar-initial rounded-circle bg-label-info w-100 h-100 d-flex align-items-center justify-content-center"
+                                title="النظام">
+                                <i class="ti ti-settings" style="font-size: 2.75rem;"></i>
+                            </span>
+                        @elseif ($avatarUrl)
+                            <img src="{{ $avatarUrl }}" alt="{{ $activityData['user_name'] }}"
+                                class="rounded-circle object-fit-cover w-100 h-100 border">
+                        @else
+                            <span class="avatar-initial rounded-circle bg-label-primary w-100 h-100 d-flex align-items-center justify-content-center">
+                                <i class="ti ti-user" style="font-size: 2.75rem;"></i>
+                            </span>
+                        @endif
+                    </div>
                 </div>
                 <h5 class="mb-1">{{ $activityData['user_name'] }}</h5>
                 <span class="badge {{ $activityData['event_badge_class'] ?? 'bg-primary' }} mb-3">
@@ -228,7 +241,7 @@
             <div class="card-header pb-2">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">
-                        <i class="ti ti-code text-secondary me-2"></i>البيانات الخام (JSON)
+                        <i class="ti ti-code text-primary me-2"></i>البيانات الخام (JSON)
                     </h5>
                     <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
                         data-bs-target="#rawJsonCollapse" aria-expanded="false" aria-controls="rawJsonCollapse">

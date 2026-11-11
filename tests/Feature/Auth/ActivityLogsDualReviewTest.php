@@ -480,8 +480,11 @@ final class ActivityLogsDualReviewTest extends TestCase
         $this->assertStringContainsString('وصف النشاط', $adminContent);
         $this->assertStringContainsString('تفاصيل التغييرات والبيانات', $adminContent);
         $this->assertStringContainsString('البيانات الخام (JSON)', $adminContent);
-        $this->assertStringContainsString('copyable-code', $adminContent);
         $this->assertStringContainsString('192.168.1.1', $adminContent);
+        $this->assertStringContainsString('ti ti-user', $adminContent);
+        $this->assertStringContainsString('bg-label-primary', $adminContent);
+        $this->assertStringContainsString('ti ti-code text-primary', $adminContent);
+        $this->assertStringNotContainsString('ti ti-code text-secondary', $adminContent);
 
         // Verify legacy tabs are completely removed
         $this->assertStringNotContainsString('nav nav-tabs flex-column', $adminContent);
@@ -521,7 +524,26 @@ final class ActivityLogsDualReviewTest extends TestCase
         $this->assertStringContainsString('البيانات الخام (JSON)', $tenantContent);
         $this->assertStringContainsString('القيمة السابقة', $tenantContent);
         $this->assertStringContainsString('القيمة الجديدة', $tenantContent);
+        $this->assertStringContainsString('ti ti-user', $tenantContent);
+        $this->assertStringContainsString('ti ti-code text-primary', $tenantContent);
         $this->assertStringNotContainsString('nav nav-tabs flex-column', $tenantContent);
+
+        // System activity (causer null) renders system icon instead of user default or logo.svg
+        $systemTenantActivity = Activity::on('tenant')->create([
+            'log_name' => 'settings',
+            'description' => 'تحديث تلقائي من النظام',
+            'event' => 'updated',
+            'causer_type' => null,
+            'causer_id' => null,
+        ]);
+
+        $systemTenantContent = $this->actingAs($this->tenantUserA, 'tenant')
+            ->get(tenant_route_name('activity-logs.show', $systemTenantActivity->id))
+            ->assertOk()
+            ->getContent();
+        $this->assertStringContainsString('ti ti-settings', $systemTenantContent);
+        $this->assertStringContainsString('bg-label-info', $systemTenantContent);
+        $this->assertStringNotContainsString('logo.svg" alt="النظام"', $systemTenantContent);
         tenancy()->end();
     }
 
