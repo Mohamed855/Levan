@@ -31,7 +31,7 @@ enum TicketStatus: string
             self::RESOLVED_PENDING_SURVEY => 'info',
             self::RESOLVED => 'success',
             self::REOPENED => 'secondary',
-            self::CLOSED => 'dark',
+            self::CLOSED => 'danger',
         };
     }
 

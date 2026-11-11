@@ -290,6 +290,49 @@ body:has(.tenant-login-container) {
     caret-color: var(--auth-primary) !important;
 }
 
+.auth-form-side .form-control:disabled,
+.tenant-login-form-side .form-control:disabled,
+.auth-form-side .form-control[disabled],
+.tenant-login-form-side .form-control[disabled],
+.auth-form-side .form-control[readonly]:not([type="search"]),
+.tenant-login-form-side .form-control[readonly]:not([type="search"]),
+.auth-form-side input:-webkit-autofill:disabled,
+.auth-form-side input:-webkit-autofill[disabled],
+.auth-form-side input:-webkit-autofill[readonly]:not([type="search"]) {
+    background-color: #f8f9fa !important;
+    -webkit-box-shadow: 0 0 0 50px #f8f9fa inset !important;
+    box-shadow: 0 0 0 50px #f8f9fa inset !important;
+    border-color: rgba(29, 79, 68, 0.14) !important;
+    color: #495057 !important;
+    -webkit-text-fill-color: #495057 !important;
+    opacity: 1 !important;
+    cursor: not-allowed !important;
+}
+
+.auth-form-side .form-control:disabled::placeholder,
+.tenant-login-form-side .form-control:disabled::placeholder,
+.auth-form-side .form-control[readonly]:not([type="search"])::placeholder,
+.tenant-login-form-side .form-control[readonly]:not([type="search"])::placeholder {
+    color: #7b818a !important;
+    -webkit-text-fill-color: #7b818a !important;
+    opacity: 1 !important;
+}
+
+.auth-form-side .input-group-merge:has(.form-control:disabled),
+.tenant-login-form-side .input-group-merge:has(.form-control:disabled),
+.auth-form-side .input-group-merge:has(.form-control[readonly]:not([type="search"])),
+.tenant-login-form-side .input-group-merge:has(.form-control[readonly]:not([type="search"])) {
+    background-color: #f8f9fa !important;
+}
+
+.auth-form-side .input-group-merge:has(.form-control:disabled) .input-group-text,
+.tenant-login-form-side .input-group-merge:has(.form-control:disabled) .input-group-text,
+.auth-form-side .input-group-merge:has(.form-control[readonly]:not([type="search"])) .input-group-text,
+.tenant-login-form-side .input-group-merge:has(.form-control[readonly]:not([type="search"])) .input-group-text {
+    color: #495057 !important;
+    cursor: not-allowed !important;
+}
+
 /* Options / Checkbox / Links */
 .auth-options,
 .tenant-login-options {

@@ -45,6 +45,10 @@
         }
     }
     $ext = strtolower($extension ?: 'file');
+    $downloadName = $name;
+    if ($ext && $ext !== 'file' && !str_ends_with(strtolower((string) $downloadName), '.' . $ext)) {
+        $downloadName .= '.' . $ext;
+    }
 
     // Detect if image
     if ($isImage === null) {
@@ -114,13 +118,28 @@
             </div>
         @endif
 
-        @if ($url)
-            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="assignment-file-card__action" title="معاينة الملف" aria-label="معاينة">
-                <i class="ti ti-eye"></i>
-            </a>
+        @if ($url || $downloadUrl)
+            <div class="assignment-file-card__actions app-file-card__actions">
+                @if ($url)
+                    <a href="{{ $url }}" target="_blank" rel="noopener noreferrer"
+                        class="assignment-file-card__action app-file-card__action assignment-file-card__action--preview"
+                        title="معاينة الملف" aria-label="معاينة">
+                        <i class="ti ti-eye"></i>
+                    </a>
+                @endif
+                @if ($downloadUrl)
+                    <a href="{{ $downloadUrl }}" download="{{ $downloadName }}"
+                        class="assignment-file-card__action app-file-card__action assignment-file-card__action--download"
+                        title="تحميل الملف" aria-label="تحميل">
+                        <i class="ti ti-download"></i>
+                    </a>
+                @endif
+            </div>
         @endif
         @if ($removable && $deleteAction)
-            <button type="button" class="assignment-file-card__action text-danger" {!! $deleteAction !!} title="حذف الملف" aria-label="حذف" style="left: auto; right: 8px;">
+            <button type="button"
+                class="assignment-file-card__action app-file-card__action assignment-file-card__action--delete text-danger"
+                {!! $deleteAction !!} title="حذف الملف" aria-label="حذف">
                 <i class="ti ti-trash"></i>
             </button>
         @endif

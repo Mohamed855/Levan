@@ -493,6 +493,66 @@ textarea.form-control,
   min-height: 120px;
 }
 
+// Disabled & Readonly Form Controls (Site)
+.form-control:disabled,
+.form-control[disabled],
+.form-control[readonly]:not([type="search"]):not(.flatpickr-input),
+.site-input:disabled,
+.site-input[disabled],
+.site-input[readonly]:not([type="search"]),
+textarea.form-control[readonly],
+.site-textarea:disabled,
+.site-textarea[disabled],
+.site-textarea[readonly],
+.form-select:disabled,
+.form-select[disabled],
+.form-select[readonly],
+.site-select:disabled,
+.site-select[disabled],
+.site-select[readonly] {
+  background-color: #f8f9fa !important;
+  border-color: rgba(29, 79, 68, 0.14) !important;
+  color: #495057 !important;
+  -webkit-text-fill-color: #495057 !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  outline: none !important;
+
+  &::placeholder {
+    color: #7b818a !important;
+    -webkit-text-fill-color: #7b818a !important;
+    opacity: 1 !important;
+  }
+}
+
+.select2-container.select2-container--disabled,
+select[disabled] ~ .select2-container,
+select[readonly] ~ .select2-container {
+  pointer-events: none;
+  cursor: not-allowed !important;
+
+  .select2-selection--single,
+  .select2-selection--multiple {
+    background-color: #f8f9fa !important;
+    border-color: rgba(29, 79, 68, 0.14) !important;
+    cursor: not-allowed !important;
+
+    .select2-selection__rendered,
+    .select2-selection__choice {
+      color: #495057 !important;
+      -webkit-text-fill-color: #495057 !important;
+      opacity: 1 !important;
+    }
+
+    .select2-selection__placeholder {
+      color: #7b818a !important;
+      -webkit-text-fill-color: #7b818a !important;
+      opacity: 1 !important;
+    }
+  }
+}
+
 // Error Feedback message
 .invalid-feedback,
 .field-error {

@@ -23,8 +23,7 @@
                 <div class="card-body text-center">
                     <div class="mx-auto mb-3">
                         <img src="{{ $assignment->assignmentImage ? tasset($assignment->assignmentImage->file_path) : asset('static/brand/logos/logo.svg') }}"
-                            alt="{{ $assignment->name }}"
-                            class="rounded-circle border shadow-sm"
+                            alt="{{ $assignment->name }}" class="rounded-circle border shadow-sm"
                             style="width: 100px; height: 100px; object-fit: cover;">
                     </div>
                     <h4 class="mb-1 fw-bold text-primary">{{ $assignment->name }}</h4>
@@ -92,6 +91,23 @@
                     '!=',
                     \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::IMAGE->value,
                 );
+                $knownCategories = [
+                    \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::LETTER->value => ['label' => 'خطاب الإسناد', 'icon' => 'ti-mail'],
+                    \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::GENERAL_DOCUMENT->value => ['label' => 'المستندات العامة', 'icon' => 'ti-files'],
+                    \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::ADDITIONAL_ATTACHMENT->value => ['label' => 'مرفقات إضافية', 'icon' => 'ti-paperclip'],
+                ];
+                $assignmentFileGroups = collect($knownCategories)
+                    ->map(fn (array $meta, string $category) => [
+                        'label' => $meta['label'],
+                        'icon' => $meta['icon'],
+                        'items' => $assignmentDocuments->where('category', $category)->values(),
+                    ])
+                    ->values()
+                    ->all();
+                $otherDocs = $assignmentDocuments->whereNotIn('category', array_keys($knownCategories))->values();
+                if ($otherDocs->isNotEmpty()) {
+                    $assignmentFileGroups[] = ['label' => 'مرفقات أخرى', 'icon' => 'ti-folder', 'items' => $otherDocs];
+                }
             @endphp
             @if ($assignmentDocuments->isNotEmpty())
                 <div class="card mb-4">
@@ -102,11 +118,7 @@
                         <span class="badge bg-label-primary">{{ $assignmentDocuments->count() }}</span>
                     </div>
                     <div class="card-body">
-                        <div class="assignment-file-list">
-                            @foreach ($assignmentDocuments as $doc)
-                                <x-ui.file-card :file="$doc" layout="card" />
-                            @endforeach
-                        </div>
+                        <x-ui.file-groups :groups="$assignmentFileGroups" />
                     </div>
                 </div>
             @endif
@@ -118,18 +130,13 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
                     <h5 class="card-title mb-0">
-                        <i class="ti ti-building-estate text-primary me-2"></i>العقارات المسجلة ضمن هذا الإسناد ({{ $assignment->properties->count() }})
+                        <i class="ti ti-building-estate text-primary me-2"></i>العقارات المسجلة ضمن هذا الإسناد
+                        ({{ $assignment->properties->count() }})
                     </h5>
                     <div class="d-flex align-items-center gap-2">
                         @if ($assignment->properties->count() > 0)
                             <span class="badge bg-label-primary">{{ $assignment->properties->count() }} عقار</span>
                         @endif
-                        @can('properties.create')
-                            <a href="{{ tenant_route_name('properties.create') }}?assignment_id={{ $assignment->id }}"
-                                class="btn btn-sm btn-primary">
-                                <i class="ti ti-plus me-1"></i> إضافة عقار
-                            </a>
-                        @endcan
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -174,17 +181,13 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
                     <h5 class="card-title mb-0">
-                        <i class="ti ti-gavel text-primary me-2"></i>المزادات المرتبطة ({{ $assignment->auctions->count() }})
+                        <i class="ti ti-gavel text-primary me-2"></i>المزادات المرتبطة
+                        ({{ $assignment->auctions->count() }})
                     </h5>
                     <div class="d-flex align-items-center gap-2">
                         @if ($assignment->auctions->count() > 0)
                             <span class="badge bg-label-primary">{{ $assignment->auctions->count() }} مزاد</span>
                         @endif
-                        @can('auctions.create')
-                            <a href="{{ tenant_route_name('auctions.create') }}" class="btn btn-sm btn-primary">
-                                <i class="ti ti-plus me-1"></i> إنشاء مزاد
-                            </a>
-                        @endcan
                     </div>
                 </div>
                 <div class="table-responsive">

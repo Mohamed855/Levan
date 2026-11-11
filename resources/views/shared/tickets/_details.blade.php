@@ -223,11 +223,18 @@
             </div>
             <div class="card-body">
                 @if (count($allAttachments) > 0)
-                    <div class="d-flex flex-wrap gap-3">
-                        @foreach ($allAttachments as $attachment)
-                            <x-ui.file-card :name="$attachment['name']" :url="$attachment['url']" :meta="$attachment['source']" />
-                        @endforeach
-                    </div>
+                    @php
+                        $ticketFileGroups = collect($allAttachments)
+                            ->groupBy(fn (array $att) => $att['source'] ?: 'مرفقات التذكرة')
+                            ->map(fn ($items, string $source) => [
+                                'label' => $source,
+                                'icon' => $source === 'التذكرة الأصلية' ? 'ti-ticket' : 'ti-message-reply',
+                                'items' => $items->values()->all(),
+                            ])
+                            ->values()
+                            ->all();
+                    @endphp
+                    <x-ui.file-groups :groups="$ticketFileGroups" empty-text="لا توجد مرفقات لهذه التذكرة." />
                 @else
                     <p class="text-muted text-center mb-0 small">لا توجد مرفقات لهذه التذكرة.</p>
                 @endif

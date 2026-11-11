@@ -1,6 +1,7 @@
 "use strict";
 
 import { initCityDistrictSelector } from "../../shared/city-district-selector.js";
+import { renderFileCardHtml } from "../../shared/file-card.js";
 import { initPropertyLocationMap } from "./location-map.js";
 import {
     bindBoundaryDragEndListeners,
@@ -9,7 +10,9 @@ import {
 } from "./boundary-drawing.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-    const form = document.querySelector("#property-create-form, #property-edit-form");
+    const form = document.querySelector(
+        "#property-create-form, #property-edit-form",
+    );
     if (!form) return;
 
     void initPropertyLocationMap(form);
@@ -486,7 +489,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function drawOutsideSelectionOverlay(context, width, height, opacity = outsideDimOpacity ?? 0.5) {
+    function drawOutsideSelectionOverlay(
+        context,
+        width,
+        height,
+        opacity = outsideDimOpacity ?? 0.5,
+    ) {
         if (!isBoundaryClosed || points.length < 3) return;
 
         context.save();
@@ -494,8 +502,11 @@ document.addEventListener("DOMContentLoaded", () => {
         context.rect(0, 0, width, height);
         appendPolygonPath(context, width, height);
         context.closePath();
-        context.fillStyle = opacity !== undefined ? `rgba(0, 0, 0, ${opacity})` : "rgba(0, 0, 0, 0.5)";
-        context.fill('evenodd');
+        context.fillStyle =
+            opacity !== undefined
+                ? `rgba(0, 0, 0, ${opacity})`
+                : "rgba(0, 0, 0, 0.5)";
+        context.fill("evenodd");
         context.restore();
     }
 
@@ -585,7 +596,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!statusBar || !pointsBadge || !statusText) return;
         pointsBadge.textContent = `${points.length} نقاط محددة`;
         if (isLegacyAnnotatedImage) {
-            statusText.textContent = "الصورة محفوظة بالحدود المرسومة. لتعديل الحدود، ارفع الصورة الأصلية من زر تغيير الصورة.";
+            statusText.textContent =
+                "الصورة محفوظة بالحدود المرسومة. لتعديل الحدود، ارفع الصورة الأصلية من زر تغيير الصورة.";
             return;
         }
         if (points.length === 0) {
@@ -595,7 +607,8 @@ document.addEventListener("DOMContentLoaded", () => {
             statusText.textContent = `حدد ${3 - points.length} نقاط إضافية على الأقل لإغلاق المضلع`;
             pointsBadge.className = "badge bg-warning";
         } else if (!isBoundaryClosed) {
-            statusText.textContent = "انقر على النقطة الأولى لإغلاق حدود العقار.";
+            statusText.textContent =
+                "انقر على النقطة الأولى لإغلاق حدود العقار.";
             pointsBadge.className = "badge bg-warning";
         } else {
             statusText.textContent =
@@ -721,7 +734,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function loadImageSrc(src, existingGeoJson = null, preserveAnnotation = false) {
+    function loadImageSrc(
+        src,
+        existingGeoJson = null,
+        preserveAnnotation = false,
+    ) {
         if (!src) return;
         const version = ++imageLoadVersion;
         const img = new Image();
@@ -731,7 +748,8 @@ document.addEventListener("DOMContentLoaded", () => {
             loadedImage = img;
             isLegacyAnnotatedImage = preserveAnnotation;
             setImageActionVisibility(true);
-            if (btnClearBoundary) btnClearBoundary.disabled = preserveAnnotation;
+            if (btnClearBoundary)
+                btnClearBoundary.disabled = preserveAnnotation;
             if (dimmingInput) dimmingInput.disabled = preserveAnnotation;
             if (emptyPlaceholder) emptyPlaceholder.classList.add("d-none");
             if (canvasWrapper) canvasWrapper.classList.remove("d-none");
@@ -829,7 +847,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const reader = new FileReader();
         reader.onload = async (event) => {
             const originalDataUrl = event.target.result;
-            const optimizedDataUrl = await optimizeImage(originalDataUrl, 1600, 0.85);
+            const optimizedDataUrl = await optimizeImage(
+                originalDataUrl,
+                1600,
+                0.85,
+            );
             if (version !== imageLoadVersion) return;
             rawImageDataUrl = optimizedDataUrl;
             if (rawAerialImageInput) {
@@ -932,7 +954,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function handleBoundaryPointerDown(coords, nearPointIndex) {
         if (isLegacyAnnotatedImage) {
-            notifyUser("info", "لتعديل الحدود ارفع الصورة الأصلية من زر تغيير الصورة.");
+            notifyUser(
+                "info",
+                "لتعديل الحدود ارفع الصورة الأصلية من زر تغيير الصورة.",
+            );
             return;
         }
         const action = getBoundaryPointerAction({
@@ -990,10 +1015,12 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!loadedImage || draggedPointIndex !== null) return;
             const coords = getCanvasCoords(e);
             const nearIndex = findPointNear(coords.pixelX, coords.pixelY);
-            previewPoint = isBoundaryClosed ? null : {
-                x: coords.x,
-                y: coords.y,
-            };
+            previewPoint = isBoundaryClosed
+                ? null
+                : {
+                      x: coords.x,
+                      y: coords.y,
+                  };
             if (nearIndex !== hoveredPointIndex || !isBoundaryClosed) {
                 hoveredPointIndex = nearIndex;
                 const canCloseAtFirstPoint =
@@ -1015,7 +1042,9 @@ document.addEventListener("DOMContentLoaded", () => {
             hoveredPointIndex = null;
             previewPoint = null;
             if (canvas) {
-                canvas.style.cursor = isBoundaryClosed ? "default" : "crosshair";
+                canvas.style.cursor = isBoundaryClosed
+                    ? "default"
+                    : "crosshair";
             }
             requestDraw();
         });
@@ -1065,7 +1094,6 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             { passive: false },
         );
-
     }
 
     if (btnClearBoundary) {
@@ -1127,18 +1155,27 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", () => {
         flushSyncAnnotatedImage();
     });
-    form.addEventListener("click", (event) => {
-        if (event.target.closest("[data-save-draft], .btn-next")) {
-            flushSyncAnnotatedImage();
-        }
-    }, true);
+    form.addEventListener(
+        "click",
+        (event) => {
+            if (event.target.closest("[data-save-draft], .btn-next")) {
+                flushSyncAnnotatedImage();
+            }
+        },
+        true,
+    );
 
     const initialAerialSrc =
-        rawAerialImageInput?.value || aerialImageInput?.dataset.imageSrc || aerialImageInput?.value;
+        rawAerialImageInput?.value ||
+        aerialImageInput?.dataset.imageSrc ||
+        aerialImageInput?.value;
     if (initialAerialSrc) {
         rawImageDataUrl = initialAerialSrc;
-        loadImageSrc(initialAerialSrc, boundaryGeoJsonInput?.value || null,
-            !rawAerialImageInput?.value && Boolean(boundaryGeoJsonInput?.value));
+        loadImageSrc(
+            initialAerialSrc,
+            boundaryGeoJsonInput?.value || null,
+            !rawAerialImageInput?.value && Boolean(boundaryGeoJsonInput?.value),
+        );
     }
 
     // =========================================================================
@@ -1153,109 +1190,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return select?.selectedOptions?.[0]?.textContent?.trim() || "-";
     }
 
-    function formatFileSize(bytes) {
-        if (!bytes || bytes <= 0) return "";
-        const units = ["B", "KB", "MB", "GB"];
-        const index = Math.floor(Math.log(bytes) / Math.log(1024));
-        return (
-            Math.round((bytes / Math.pow(1024, index)) * 10) / 10 +
-            " " +
-            units[index]
-        );
-    }
-
-    function renderFileCardHtml({
-        name,
-        file = null,
-        url = null,
-        metaLabel = "",
-    }) {
-        const fileName = name || file?.name || "ملف مرفق";
-        const ext = (fileName.split(".").pop() || "").toLowerCase();
-        const isImage =
-            (file && file.type && file.type.startsWith("image/")) ||
-            ["jpg", "jpeg", "png", "webp", "gif", "svg"].includes(ext) ||
-            (typeof url === "string" && url.startsWith("data:image/"));
-
-        let previewUrl = url;
-        if (
-            !previewUrl &&
-            file &&
-            isImage &&
-            window.URL &&
-            typeof window.URL.createObjectURL === "function"
-        ) {
-            try {
-                previewUrl = URL.createObjectURL(file);
-            } catch (e) {
-                previewUrl = null;
-            }
-        }
-
-        let typeCategory = "generic";
-        let iconClass = "ti-file";
-        let badgeColor = "secondary";
-        let typeName = "مستند";
-
-        if (isImage) {
-            typeName = "صورة";
-            badgeColor = "info";
-        } else if (ext === "pdf") {
-            typeCategory = "pdf";
-            iconClass = "ti-file-type-pdf";
-            badgeColor = "danger";
-            typeName = "مستند PDF";
-        } else if (["doc", "docx"].includes(ext)) {
-            typeCategory = "word";
-            iconClass = "ti-file-description";
-            badgeColor = "primary";
-            typeName = "مستند Word";
-        } else if (["xls", "xlsx", "csv"].includes(ext)) {
-            typeCategory = "excel";
-            iconClass = "ti-file-spreadsheet";
-            badgeColor = "success";
-            typeName = "جدول بيانات";
-        } else if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) {
-            typeCategory = "zip";
-            iconClass = "ti-file-zip";
-            badgeColor = "warning";
-            typeName = "أرشيف مضغوط";
-        }
-
-        const actionMarkup = previewUrl
-            ? `<a href="${escapeHtml(previewUrl)}" target="_blank" rel="noopener noreferrer" class="assignment-file-card__action" title="معاينة الملف" aria-label="معاينة"><i class="ti ti-eye"></i></a>`
-            : "";
-
-        const previewMarkup =
-            isImage && previewUrl
-                ? `<img src="${escapeHtml(previewUrl)}" alt="${escapeHtml(fileName)}" class="assignment-file-card__img" loading="lazy">
-           <span class="assignment-file-card__type-pill">${escapeHtml((ext || "IMG").toUpperCase())}</span>`
-                : `<div class="assignment-file-card__doc-wrap type-${typeCategory}">
-             <div class="assignment-file-card__icon-circle">
-               <i class="ti ${iconClass}"></i>
-             </div>
-             <span class="assignment-file-card__type-pill">${escapeHtml((ext || "FILE").toUpperCase())}</span>
-           </div>`;
-
-        const sizeFormatted = file?.size
-            ? formatFileSize(file.size)
-            : metaLabel || typeName;
-
-        return `
-      <article class="assignment-file-card" data-file-type="${escapeHtml(ext)}">
-        <div class="assignment-file-card__preview">
-          ${previewMarkup}
-          ${actionMarkup}
-        </div>
-        <div class="assignment-file-card__info">
-          <span class="assignment-file-card__name" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</span>
-          <div class="assignment-file-card__meta">
-            <span class="text-muted text-truncate me-1">${escapeHtml(sizeFormatted)}</span>
-            <span class="badge bg-label-${badgeColor}">${escapeHtml((ext || "FILE").toUpperCase())}</span>
-          </div>
-        </div>
-      </article>`;
-    }
+    // Card rendering imported from shared/file-card.js
 
     function safeAerialReviewMarkup(value) {
         const source = String(value || "");
@@ -1303,8 +1238,18 @@ document.addEventListener("DOMContentLoaded", () => {
             const googleMapsUrl = getVal("google_maps_url");
             const locationFields = [
                 ["المدينة", getSelectedText("city")],
-                ["الحي", getSelectedText("district") !== "-" ? getSelectedText("district") : getVal("district")],
-                ["المنطقة الإدارية", getSelectedText("administrative_region") !== "-" ? getSelectedText("administrative_region") : getVal("administrative_region")],
+                [
+                    "الحي",
+                    getSelectedText("district") !== "-"
+                        ? getSelectedText("district")
+                        : getVal("district"),
+                ],
+                [
+                    "المنطقة الإدارية",
+                    getSelectedText("administrative_region") !== "-"
+                        ? getSelectedText("administrative_region")
+                        : getVal("administrative_region"),
+                ],
                 ["رقم المخطط", getVal("plan_number")],
                 ["رقم القطعة", getVal("parcel_number")],
                 [
@@ -1334,7 +1279,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 )
                 .join(
                     "",
-                )}</dl>${safeAerialReviewMarkup(/^(data:image\/|https?:\/\/)/.test(aerialImageInput?.value || '') ? aerialImageInput?.value : aerialImageInput?.dataset.imageSrc)}`;
+                )}</dl>${safeAerialReviewMarkup(/^(data:image\/|https?:\/\/)/.test(aerialImageInput?.value || "") ? aerialImageInput?.value : aerialImageInput?.dataset.imageSrc)}`;
         }
 
         // Review Ownership
@@ -1349,7 +1294,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const ownershipFields = [
                 ["رقم الأصل", getVal("property_number")],
                 ["رقم الصك", getVal("deed_number")],
-                ["تاريخ الصك", typeof window.formatSystemDate === "function" ? window.formatSystemDate(getVal("deed_date")) : getVal("deed_date")],
+                [
+                    "تاريخ الصك",
+                    typeof window.formatSystemDate === "function"
+                        ? window.formatSystemDate(getVal("deed_date"))
+                        : getVal("deed_date"),
+                ],
                 ["جهة الإصدار", getVal("issuing_authority")],
                 ["نوع الملكية", getSelectedText("ownership_type")],
                 ["عدد الملاك", `${ownersCount} مالك`],
@@ -1397,12 +1347,21 @@ document.addEventListener("DOMContentLoaded", () => {
                     const wrapper =
                         input?.closest("[data-file-upload-wrapper]") ||
                         input?.parentElement;
-                    const existingCard = wrapper?.querySelector("[data-existing-file-card]");
-                    const existingName = existingCard?.querySelector(".file-item-name")?.textContent?.trim()
-                        || wrapper?.querySelector(".file-item-name")?.textContent?.trim();
-                    const existingImg = existingCard?.querySelector("img.file-item-preview")?.src
-                        || existingCard?.querySelector("a.btn-view-file")?.href
-                        || wrapper?.querySelector("img.file-item-preview")?.src;
+                    const existingCard = wrapper?.querySelector(
+                        "[data-existing-file-card]",
+                    );
+                    const existingName =
+                        existingCard
+                            ?.querySelector(".file-item-name")
+                            ?.textContent?.trim() ||
+                        wrapper
+                            ?.querySelector(".file-item-name")
+                            ?.textContent?.trim();
+                    const existingImg =
+                        existingCard?.querySelector("img.file-item-preview")
+                            ?.src ||
+                        existingCard?.querySelector("a.btn-view-file")?.href ||
+                        wrapper?.querySelector("img.file-item-preview")?.src;
                     if (existingName) {
                         legalItems.push({
                             name: existingName,
@@ -1445,12 +1404,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 const wrapper =
                     mainImgInput?.closest("[data-file-upload-wrapper]") ||
                     mainImgInput?.parentElement;
-                const existingCard = wrapper?.querySelector("[data-existing-file-card]");
-                const existingName = existingCard?.querySelector(".file-item-name")?.textContent?.trim()
-                    || wrapper?.querySelector(".file-item-name")?.textContent?.trim();
-                const existingImg = existingCard?.querySelector("img.file-item-preview")?.src
-                    || existingCard?.querySelector("a.btn-view-file")?.href
-                    || wrapper?.querySelector("img.file-item-preview")?.src;
+                const existingCard = wrapper?.querySelector(
+                    "[data-existing-file-card]",
+                );
+                const existingName =
+                    existingCard
+                        ?.querySelector(".file-item-name")
+                        ?.textContent?.trim() ||
+                    wrapper
+                        ?.querySelector(".file-item-name")
+                        ?.textContent?.trim();
+                const existingImg =
+                    existingCard?.querySelector("img.file-item-preview")?.src ||
+                    existingCard?.querySelector("a.btn-view-file")?.href ||
+                    wrapper?.querySelector("img.file-item-preview")?.src;
                 if (existingName) {
                     galleryItems.push({
                         name: existingName,
@@ -1471,9 +1438,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     const name = card
                         .querySelector(".file-item-name")
                         ?.textContent?.trim();
-                    const url = card.querySelector(
-                        "img.file-item-preview",
-                    )?.src || card.querySelector("a.btn-view-file")?.href;
+                    const url =
+                        card.querySelector("img.file-item-preview")?.src ||
+                        card.querySelector("a.btn-view-file")?.href;
                     if (name)
                         galleryItems.push({
                             name,
@@ -1524,9 +1491,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     const name = card
                         .querySelector(".file-item-name")
                         ?.textContent?.trim();
-                    const url = card.querySelector(
-                        "img.file-item-preview",
-                    )?.src || card.querySelector("a.btn-view-file")?.href;
+                    const url =
+                        card.querySelector("img.file-item-preview")?.src ||
+                        card.querySelector("a.btn-view-file")?.href;
                     if (name)
                         addItems.push({
                             name,
@@ -1677,8 +1644,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (restoredImage) {
             rawImageDataUrl = data.raw_aerial_image || data.aerial_image;
             if (rawAerialImageInput)
-                rawAerialImageInput.value =
-                    data.raw_aerial_image || "";
+                rawAerialImageInput.value = data.raw_aerial_image || "";
             if (aerialImageInput)
                 aerialImageInput.value = data.aerial_image || restoredImage;
             if (boundaryGeoJsonInput) {
@@ -1688,8 +1654,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         : JSON.stringify(data.boundary_geojson)
                     : "";
             }
-            loadImageSrc(restoredImage, data.boundary_geojson || null,
-                !data.raw_aerial_image && Boolean(data.boundary_geojson));
+            loadImageSrc(
+                restoredImage,
+                data.boundary_geojson || null,
+                !data.raw_aerial_image && Boolean(data.boundary_geojson),
+            );
         } else if (data.boundary_geojson && aerialImageInput?.value) {
             loadImageSrc(aerialImageInput.value, data.boundary_geojson);
         }

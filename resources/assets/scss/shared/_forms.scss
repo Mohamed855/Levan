@@ -120,18 +120,37 @@ textarea.form-control {
     }
 }
 
-// Disabled & Readonly Form Controls (Inputs, Textareas, Selects)
-// Gives readonly inputs the exact visual cues of disabled inputs (subtle light gray)
-// Explicitly excludes DataTable search inputs (which use readonly trick for autocomplete) and flatpickr pickers
-.form-control:disabled,
-.form-control[disabled],
-.form-control[readonly]:not([type="search"]):not(.flatpickr-input):not(.dataTables_filter input),
+// Disabled & Readonly Form Controls (Inputs, Textareas, Selects, Select2, Flatpickr)
+// Gives disabled and readonly inputs crisp dark-gray text on a subtle light-gray surface
+// Explicitly excludes DataTable/Select2 search inputs (which use readonly for autocomplete) and active flatpickr pickers
+$disabled-control-bg: #f8f9fa;
+$disabled-control-border: rgba(29, 79, 68, 0.14);
+$disabled-control-color: #495057;
+$disabled-control-placeholder: #7b818a;
+
+.form-control:disabled:not(.form-control-plaintext),
+.form-control[disabled]:not(.form-control-plaintext),
+.form-control[readonly]:not([type="search"]):not(.flatpickr-input):not(.dataTables_filter input):not(.select2-search__field):not(.form-control-plaintext),
+textarea:disabled,
+textarea[disabled],
+textarea[readonly],
 textarea.form-control[readonly],
 .form-select:disabled,
-.form-select[disabled] {
-    background-color: #f8f9fa !important;
-    border-color: rgba(29, 79, 68, 0.10) !important;
-    color: #6d6b77 !important;
+.form-select[disabled],
+.form-select[readonly],
+select:disabled,
+select[disabled],
+select[readonly],
+input:disabled:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not(.flatpickr-input):not(.form-control-plaintext),
+input[disabled]:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not(.flatpickr-input):not(.form-control-plaintext),
+input[readonly]:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([type="search"]):not(.flatpickr-input):not(.dataTables_filter input):not(.select2-search__field):not(.form-control-plaintext),
+.form-control.bg-light:not(input):not(textarea):not(select),
+.flatpickr-input.bg-light[readonly] {
+    background-color: $disabled-control-bg !important;
+    border-color: $disabled-control-border !important;
+    color: $disabled-control-color !important;
+    -webkit-text-fill-color: $disabled-control-color !important;
+    opacity: 1 !important;
     cursor: not-allowed !important;
     box-shadow: none !important;
     outline: none !important;
@@ -139,26 +158,144 @@ textarea.form-control[readonly],
     &:hover,
     &:focus,
     &:active {
-        background-color: #f8f9fa !important;
-        border-color: rgba(29, 79, 68, 0.10) !important;
-        color: #6d6b77 !important;
+        background-color: $disabled-control-bg !important;
+        border-color: $disabled-control-border !important;
+        color: $disabled-control-color !important;
+        -webkit-text-fill-color: $disabled-control-color !important;
+        opacity: 1 !important;
         box-shadow: none !important;
         outline: none !important;
         cursor: not-allowed !important;
     }
 
     &::placeholder {
-        color: #a5a3ae !important;
+        color: $disabled-control-placeholder !important;
+        -webkit-text-fill-color: $disabled-control-placeholder !important;
+        opacity: 1 !important;
     }
+}
+
+.form-control-plaintext:disabled,
+.form-control-plaintext[disabled],
+.form-control-plaintext[readonly] {
+    color: $disabled-control-color !important;
+    -webkit-text-fill-color: $disabled-control-color !important;
+    opacity: 1 !important;
+}
+
+input:-webkit-autofill:disabled,
+input:-webkit-autofill[disabled],
+input:-webkit-autofill[readonly]:not([type="search"]):not(.flatpickr-input):not(.dataTables_filter input):not(.select2-search__field) {
+    -webkit-box-shadow: 0 0 0 100px $disabled-control-bg inset !important;
+    box-shadow: 0 0 0 100px $disabled-control-bg inset !important;
+    -webkit-text-fill-color: $disabled-control-color !important;
+    color: $disabled-control-color !important;
+    background-color: $disabled-control-bg !important;
 }
 
 // Flatpickr input when genuinely disabled
 .flatpickr-input:disabled,
-.flatpickr-input[disabled] {
-    background-color: #f8f9fa !important;
-    border-color: rgba(29, 79, 68, 0.10) !important;
-    color: #6d6b77 !important;
+.flatpickr-input[disabled],
+.light-style .flatpickr-input:disabled,
+.light-style .flatpickr-input[disabled] {
+    background-color: $disabled-control-bg !important;
+    border-color: $disabled-control-border !important;
+    color: $disabled-control-color !important;
+    -webkit-text-fill-color: $disabled-control-color !important;
+    opacity: 1 !important;
     cursor: not-allowed !important;
+    box-shadow: none !important;
+    outline: none !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: $disabled-control-bg !important;
+        border-color: $disabled-control-border !important;
+        color: $disabled-control-color !important;
+        -webkit-text-fill-color: $disabled-control-color !important;
+        opacity: 1 !important;
+        box-shadow: none !important;
+        outline: none !important;
+        cursor: not-allowed !important;
+    }
+
+    &::placeholder {
+        color: $disabled-control-placeholder !important;
+        -webkit-text-fill-color: $disabled-control-placeholder !important;
+        opacity: 1 !important;
+    }
+}
+
+// Select2 disabled & readonly controls (single & multiple)
+.select2-container.select2-container--disabled,
+.light-style .select2-container--default.select2-container--disabled,
+select[disabled] ~ .select2-container,
+select[readonly] ~ .select2-container {
+    pointer-events: none;
+    cursor: not-allowed !important;
+
+    .select2-selection,
+    .select2-selection--single,
+    .select2-selection--multiple {
+        background-color: $disabled-control-bg !important;
+        border-color: $disabled-control-border !important;
+        color: $disabled-control-color !important;
+        -webkit-text-fill-color: $disabled-control-color !important;
+        opacity: 1 !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
+        outline: none !important;
+
+        &:hover,
+        &:focus,
+        &:active {
+            background-color: $disabled-control-bg !important;
+            border-color: $disabled-control-border !important;
+            color: $disabled-control-color !important;
+            -webkit-text-fill-color: $disabled-control-color !important;
+            opacity: 1 !important;
+            box-shadow: none !important;
+            outline: none !important;
+            cursor: not-allowed !important;
+        }
+    }
+
+    .select2-selection__rendered {
+        color: $disabled-control-color !important;
+        -webkit-text-fill-color: $disabled-control-color !important;
+        opacity: 1 !important;
+    }
+
+    .select2-selection__placeholder {
+        color: $disabled-control-placeholder !important;
+        -webkit-text-fill-color: $disabled-control-placeholder !important;
+        opacity: 1 !important;
+    }
+
+    .select2-selection--multiple .select2-selection__choice {
+        background-color: #e9ecef !important;
+        border-color: $disabled-control-border !important;
+        color: $disabled-control-color !important;
+        -webkit-text-fill-color: $disabled-control-color !important;
+        opacity: 1 !important;
+    }
+
+    .select2-search__field {
+        color: $disabled-control-color !important;
+        -webkit-text-fill-color: $disabled-control-color !important;
+        opacity: 1 !important;
+
+        &::placeholder {
+            color: $disabled-control-placeholder !important;
+            -webkit-text-fill-color: $disabled-control-placeholder !important;
+            opacity: 1 !important;
+        }
+    }
+
+    .select2-selection--single .select2-selection__arrow b {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 22' fill='none'%3E%3Cpath d='M10.9999 12.0743L15.5374 7.53676L16.8336 8.83292L10.9999 14.6666L5.16626 8.83292L6.46243 7.53676L10.9999 12.0743Z' fill='%23495057' fill-opacity='0.9'/%3E%3C/svg%3E") !important;
+    }
 }
 
 // Ensure DataTable search input and length select are completely unaffected
@@ -222,11 +359,19 @@ div.dataTables_length select {
     }
 
     &:has(.form-control:disabled),
-    &:has(.form-control[readonly]:not([type="search"]):not(.flatpickr-input)) {
-        .input-group-text {
-            background-color: #f8f9fa !important;
-            border-color: rgba(29, 79, 68, 0.10) !important;
-            color: #6d6b77 !important;
+    &:has(.form-control[readonly]:not([type="search"]):not(.flatpickr-input):not(.select2-search__field)),
+    &:has(textarea:disabled),
+    &:has(textarea[readonly]),
+    &:has(select:disabled),
+    &:has(select[readonly]),
+    &:has(.select2-container--disabled) {
+        .input-group-text,
+        button.input-group-text {
+            background-color: $disabled-control-bg !important;
+            border-color: $disabled-control-border !important;
+            color: $disabled-control-color !important;
+            -webkit-text-fill-color: $disabled-control-color !important;
+            opacity: 1 !important;
             cursor: not-allowed !important;
         }
     }

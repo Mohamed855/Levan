@@ -30,7 +30,8 @@
                     <p class="mb-2 text-muted fw-medium">{{ $property->property_number }}</p>
                     <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
                         <span class="badge bg-label-primary fs-6">{{ $property->type_label }}</span>
-                        <span class="badge {{ $property->data_status_badge_class }} fs-6">{{ $property->data_status_label }}</span>
+                        <span
+                            class="badge {{ $property->data_status_badge_class }} fs-6">{{ $property->data_status_label }}</span>
                     </div>
 
                     <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
@@ -166,8 +167,8 @@
                         </h6>
                         <a href="{{ tasset($property->aerial_image) }}"
                             download="property-{{ $property->property_number }}-boundary.png"
-                            class="btn btn-xs btn-primary">
-                            <i class="ti ti-download me-1"></i> تحميل
+                            class="btn btn-sm btn-primary">
+                            <i class="ti ti-download me-1"></i>
                         </a>
                     </div>
                     <div class="card-body text-center">
@@ -181,6 +182,37 @@
 
             {{-- كارت المستندات والمرفقات --}}
             @if ($property->attachments->isNotEmpty())
+                @php
+                    $propertyGroupDefs = [
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::DEED_DOCUMENT->value], 'صك الملكية', 'ti-file-certificate',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::CADASTRAL_PLAN->value], 'مخطط العقار', 'ti-map-2',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::BUILDING_PERMIT->value], 'رخصة البناء', 'ti-building',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::COORDINATES_STATEMENT->value], 'كشف الإحداثيات', 'ti-compass',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::ASSIGNMENT_LETTER_IMAGE->value], 'صورة الإسناد', 'ti-mail',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::ADDITIONAL_DOCUMENT->value], 'مستندات إضافية', 'ti-paperclip',
+                        [
+                            \App\Enums\Tenants\Properties\PropertyAttachmentCategory::MAIN_IMAGE->value,
+                            \App\Enums\Tenants\Properties\PropertyAttachmentCategory::GALLERY_IMAGE->value,
+                        ], 'صور العقار', 'ti-photo',
+                        [
+                            \App\Enums\Tenants\Properties\PropertyAttachmentCategory::AERIAL_ORIGINAL->value,
+                            \App\Enums\Tenants\Properties\PropertyAttachmentCategory::AERIAL_PHOTO->value,
+                        ], 'الصورة الجوية والتحديد', 'ti-map-pin',
+                    ];
+                    $propertyFileGroups = [];
+                    $coveredCategories = [];
+                    foreach (array_chunk($propertyGroupDefs, 3) as [$cats, $label, $icon]) {
+                        $coveredCategories = array_merge($coveredCategories, $cats);
+                        $items = $property->attachments->whereIn('category', $cats)->values();
+                        if ($items->isNotEmpty()) {
+                            $propertyFileGroups[] = ['label' => $label, 'icon' => $icon, 'items' => $items];
+                        }
+                    }
+                    $otherPropertyDocs = $property->attachments->whereNotIn('category', $coveredCategories)->values();
+                    if ($otherPropertyDocs->isNotEmpty()) {
+                        $propertyFileGroups[] = ['label' => 'مرفقات أخرى', 'icon' => 'ti-folder', 'items' => $otherPropertyDocs];
+                    }
+                @endphp
                 <div class="card mb-4">
                     <div class="card-header pb-2 mb-3 d-flex justify-content-between align-items-center">
                         <h6 class="card-title mb-0">
@@ -189,11 +221,7 @@
                         <span class="badge bg-label-primary">{{ $property->attachments->count() }}</span>
                     </div>
                     <div class="card-body">
-                        <div class="assignment-file-list">
-                            @foreach ($property->attachments as $doc)
-                                <x-ui.file-card :file="$doc" layout="card" />
-                            @endforeach
-                        </div>
+                        <x-ui.file-groups :groups="$propertyFileGroups" />
                     </div>
                 </div>
             @endif
@@ -201,43 +229,6 @@
 
         {{-- تفاصيل الجداول المرتبطة (العمود الأيسر) --}}
         <div class="col-xl-8 col-lg-7 col-md-7">
-            {{-- حدود وأطوال العقار --}}
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="card-title mb-0">
-                        <i class="ti ti-ruler-measure text-primary me-2"></i>حدود العقار وأطوالها ({{ $property->boundaries->count() }})
-                    </h5>
-                    @if ($property->boundaries->count() > 0)
-                        <span class="badge bg-label-primary">{{ $property->boundaries->count() }} حد</span>
-                    @endif
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>الجهة</th>
-                                <th>نوع الحد</th>
-                                <th>وصف الحد</th>
-                                <th>الطول (م)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($property->boundaries as $boundary)
-                                <tr>
-                                    <td><span class="badge bg-label-primary">{{ $boundary->direction_label }}</span></td>
-                                    <td>{{ $boundary->border_type ?: '-' }}</td>
-                                    <td>{{ $boundary->border_description ?: '-' }}</td>
-                                    <td>{{ number_format((float) $boundary->length, 2) }} م</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">لم يتم إدخال حدود للعقار.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
             {{-- ملاك العقار --}}
             <div class="card mb-4">
@@ -278,7 +269,8 @@
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center mb-3">
                         <h5 class="card-title mb-0">
-                            <i class="ti ti-layout-grid text-primary me-2"></i>وحدات العقار ({{ $property->units->count() }})
+                            <i class="ti ti-layout-grid text-primary me-2"></i>وحدات العقار
+                            ({{ $property->units->count() }})
                         </h5>
                         <span class="badge bg-label-primary">{{ $property->units->count() }} وحدة</span>
                     </div>
@@ -300,7 +292,8 @@
                                         <td>{{ $unit->unit_type ?: '-' }}</td>
                                         <td>{{ number_format((float) $unit->area, 2) }} م²</td>
                                         <td>{{ $unit->current_use ?: '-' }}</td>
-                                        <td><span class="badge bg-label-info">{{ $unit->status?->label() ?? 'متاح' }}</span>
+                                        <td><span
+                                                class="badge bg-label-info">{{ $unit->status?->label() ?? 'متاح' }}</span>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -310,11 +303,51 @@
                 </div>
             @endif
 
+            {{-- حدود وأطوال العقار --}}
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-ruler-measure text-primary me-2"></i>حدود العقار وأطوالها
+                        ({{ $property->boundaries->count() }})
+                    </h5>
+                    @if ($property->boundaries->count() > 0)
+                        <span class="badge bg-label-primary">{{ $property->boundaries->count() }} حد</span>
+                    @endif
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>الجهة</th>
+                                <th>نوع الحد</th>
+                                <th>وصف الحد</th>
+                                <th>الطول (م)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($property->boundaries as $boundary)
+                                <tr>
+                                    <td><span class="badge bg-label-primary">{{ $boundary->direction_label }}</span></td>
+                                    <td>{{ $boundary->border_type ?: '-' }}</td>
+                                    <td>{{ $boundary->border_description ?: '-' }}</td>
+                                    <td>{{ number_format((float) $boundary->length, 2) }} م</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">لم يتم إدخال حدود للعقار.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             {{-- المزادات المرتبطة --}}
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title mb-0">
-                        <i class="ti ti-gavel text-primary me-2"></i>المزادات المرتبطة بهذا العقار ({{ $property->auctions->count() }})
+                        <i class="ti ti-gavel text-primary me-2"></i>المزادات المرتبطة بهذا العقار
+                        ({{ $property->auctions->count() }})
                     </h5>
                     @if ($property->auctions->count() > 0)
                         <span class="badge bg-label-primary">{{ $property->auctions->count() }} مزاد</span>

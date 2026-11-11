@@ -109,8 +109,6 @@
                 </div>
             </div>
 
-            @include('tenant.auctions.partials.establishment-request')
-
             {{-- كارت ملفات وتقارير المزاد --}}
             @php
                 $gen = $auction->latestReportGeneration;
@@ -203,28 +201,138 @@
             @include('tenant.auctions.partials.regulatory-forms')
 
             @php
-                $auctionDocs = $auction->attachments->where('category', 'auction_doc');
+                $auctionFileGroups = [];
+
+                $coverItems = [];
+                if ($auction->cover_image) {
+                    $coverExt = pathinfo($auction->cover_image, PATHINFO_EXTENSION) ?: 'jpg';
+                    $coverItems[] = [
+                        'name' => 'صورة غلاف المزاد.' . $coverExt,
+                        'url' => tasset($auction->cover_image),
+                        'meta' => 'غلاف المزاد',
+                        'isImage' => true,
+                    ];
+                }
+                if ($auction->report_image) {
+                    $reportExt = pathinfo($auction->report_image, PATHINFO_EXTENSION) ?: 'jpg';
+                    $coverItems[] = [
+                        'name' => 'صورة غلاف التقرير.' . $reportExt,
+                        'url' => tasset($auction->report_image),
+                        'meta' => 'غلاف التقرير',
+                        'isImage' => true,
+                    ];
+                }
+                if (!empty($coverItems)) {
+                    $auctionFileGroups[] = [
+                        'label' => 'أغلفة المزاد والتقرير',
+                        'icon' => 'ti-photo',
+                        'items' => $coverItems,
+                    ];
+                }
+
+                $allAuctionAttachments = $auction->attachments;
+                $docItems = $allAuctionAttachments->where('category', 'auction_doc')->values();
+                if ($docItems->isNotEmpty()) {
+                    $auctionFileGroups[] = [
+                        'label' => 'وثائق ومرفقات المزاد',
+                        'icon' => 'ti-file-text',
+                        'items' => $docItems,
+                    ];
+                }
+
+                $boardBeforeItems = $allAuctionAttachments
+                    ->where('report_section', 'board_before')
+                    ->map(fn ($att) => [
+                        'file' => $att,
+                        'meta' => $att->property?->name ?: 'لوحة قبل المزاد',
+                    ])
+                    ->values()
+                    ->all();
+                if (!empty($boardBeforeItems)) {
+                    $auctionFileGroups[] = [
+                        'label' => 'صور اللوحات قبل المزاد',
+                        'icon' => 'ti-ad-2',
+                        'items' => $boardBeforeItems,
+                    ];
+                }
+
+                $boardAfterItems = $allAuctionAttachments
+                    ->where('report_section', 'board_after')
+                    ->map(fn ($att) => [
+                        'file' => $att,
+                        'meta' => $att->property?->name ?: 'لوحة بعد المزاد',
+                    ])
+                    ->values()
+                    ->all();
+                if (!empty($boardAfterItems)) {
+                    $auctionFileGroups[] = [
+                        'label' => 'صور اللوحات بعد المزاد',
+                        'icon' => 'ti-ad-off',
+                        'items' => $boardAfterItems,
+                    ];
+                }
+
+                $channelLabels = __('auction_reports.channels', [], 'ar') ?: [];
+                $marketingItems = $allAuctionAttachments
+                    ->filter(fn ($att) => $att->report_section === 'marketing_evidence'
+                        || ($att->category === 'marketing' && !in_array($att->report_section, ['board_before', 'board_after'], true)))
+                    ->map(function ($att) use ($channelLabels) {
+                        $channelKey = $att->report_metadata['channel'] ?? null;
+                        return [
+                            'file' => $att,
+                            'meta' => ($channelKey && isset($channelLabels[$channelKey])) ? $channelLabels[$channelKey] : $att->category_label,
+                        ];
+                    })
+                    ->values()
+                    ->all();
+                if (!empty($marketingItems)) {
+                    $auctionFileGroups[] = [
+                        'label' => 'الشواهد التسويقية',
+                        'icon' => 'ti-speakerphone',
+                        'items' => $marketingItems,
+                    ];
+                }
+
+                $handledAttachmentIds = $docItems->pluck('id')
+                    ->merge($allAuctionAttachments->whereIn('report_section', ['board_before', 'board_after', 'marketing_evidence'])->pluck('id'))
+                    ->merge($allAuctionAttachments->where('category', 'marketing')->pluck('id'))
+                    ->unique();
+
+                $remainingAttachments = $allAuctionAttachments
+                    ->reject(fn ($att) => $handledAttachmentIds->contains($att->id))
+                    ->map(fn ($att) => [
+                        'file' => $att,
+                        'meta' => $att->category_label,
+                    ])
+                    ->values()
+                    ->all();
+                if (!empty($remainingAttachments)) {
+                    $auctionFileGroups[] = [
+                        'label' => 'ملفات ومرفقات أخرى',
+                        'icon' => 'ti-folder',
+                        'items' => $remainingAttachments,
+                    ];
+                }
+
+                $totalAuctionFilesCount = collect($auctionFileGroups)->sum(fn ($group) => count($group['items']));
             @endphp
-            @if ($auctionDocs->isNotEmpty())
+
+            @if ($totalAuctionFilesCount > 0)
                 <div class="card mb-4">
                     <div class="card-header pb-2 mb-3 d-flex justify-content-between align-items-center">
                         <h6 class="card-title mb-0">
-                            <i class="ti ti-paperclip text-primary me-2"></i>وثائق ومرفقات المزاد
+                            <i class="ti ti-paperclip text-primary me-2"></i>ملفات ومرفقات المزاد
                         </h6>
-                        <span class="badge bg-label-primary">{{ $auctionDocs->count() }}</span>
+                        <span class="badge bg-label-primary">{{ $totalAuctionFilesCount }}</span>
                     </div>
                     <div class="card-body">
-                        <div class="assignment-file-list d-flex flex-wrap gap-2">
-                            @foreach ($auctionDocs as $attachment)
-                                <x-ui.file-card :file="$attachment" layout="card" />
-                            @endforeach
-                        </div>
+                        <x-ui.file-groups :groups="$auctionFileGroups" layout="card" />
                     </div>
                 </div>
             @endif
         </div>
 
-        {{-- تفاصيل العقارات المشمولة (العمود الأيسر) --}}
+            {{-- تفاصيل المزاد والدورة (العمود الأيسر) --}}
         <div class="col-xl-8 col-lg-7 col-md-7">
             {{-- العقارات المدرجة --}}
             <div class="card mb-4">
@@ -270,6 +378,8 @@
                     </table>
                 </div>
             </div>
+
+            @include('tenant.auctions.partials.establishment-request')
 
             @include('tenant.auctions.partials.cycle-details')
 
@@ -332,7 +442,7 @@
                 }
                 if (headerBadge) {
                     headerBadge.innerHTML =
-                        '<span class="badge bg-info"><i class="ti ti-loader ti-spin me-1"></i>قيد التوليد</span>';
+                        '<span class="badge bg-label-info"><i class="ti ti-loader ti-spin me-1"></i>قيد التوليد</span>';
                 }
                 disableDownloadButtons();
             }
@@ -397,7 +507,7 @@
                         resetRetryButton('توليد ملفات المزاد الآن');
                         if (headerBadge) {
                             headerBadge.innerHTML =
-                                '<span class="badge bg-danger text-white">انتهت المهلة</span>';
+                                '<span class="badge bg-label-danger">انتهت المهلة</span>';
                         }
 
                         return;
@@ -422,7 +532,7 @@
 
                                 if (headerBadge) {
                                     headerBadge.innerHTML =
-                                        '<span class="badge bg-success">جاهز للتحميل</span>';
+                                        '<span class="badge bg-label-success">جاهز للتحميل</span>';
                                 }
 
                                 if (window.toastr) {
@@ -449,7 +559,7 @@
                                 resetRetryButton('إعادة محاولة الإعداد');
                                 if (headerBadge) {
                                     headerBadge.innerHTML =
-                                        '<span class="badge bg-danger">فشل الإعداد</span>';
+                                        '<span class="badge bg-label-danger">فشل الإعداد</span>';
                                 }
                             }
                         })
@@ -492,7 +602,7 @@
                             if (data.status === 'ready') {
                                 if (headerBadge) {
                                     headerBadge.innerHTML =
-                                        '<span class="badge bg-success">جاهز للتحميل</span>';
+                                        '<span class="badge bg-label-success">جاهز للتحميل</span>';
                                 }
                                 updateProgressUI(100);
                                 if (window.toastr) {
