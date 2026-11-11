@@ -81,7 +81,7 @@
 
         @canany(['subscriptions.view', 'financial_transactions.view'])
             <li class="menu-header small">
-                <span class="menu-header-text">الإشتراكات والمالية</span>
+                <span class="menu-header-text">الإشتراكات والفواتير</span>
             </li>
 
             @can('subscriptions.view')

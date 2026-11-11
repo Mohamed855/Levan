@@ -2,23 +2,9 @@
 
 @section('title', 'تفاصيل الإسناد - ' . $assignment->name)
 
-
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-1">
-                <i class="ti ti-file-certificate me-2 text-primary"></i>تفاصيل الإسناد: {{ $assignment->name }}
-            </h4>
-            <div class="d-flex align-items-center gap-2">
-                <code class="copyable-code fs-6"
-                    onclick="navigator.clipboard.writeText('{{ $assignment->assignment_number }}'); toastr.success('تم نسخ الرقم');">
-                    {{ $assignment->assignment_number }}
-                </code>
-                <span
-                    class="badge {{ $assignment->is_active ? 'bg-success' : 'bg-danger' }}">{{ $assignment->is_active ? 'نشط' : 'متوقف' }}</span>
-            </div>
-        </div>
-        <div class="d-flex gap-2">
+    <div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-2">
+        <div class="d-flex gap-2 flex-wrap">
             <a href="{{ tenant_route_name('assignments.index') }}" class="btn btn-secondary">
                 <i class="ti ti-arrow-right me-1"></i> العودة
             </a>
@@ -31,16 +17,24 @@
     </div>
 
     <div class="row">
-        {{-- كارت معلومات الإسناد --}}
+        {{-- كارت معلومات الإسناد (العمود الأيمن) --}}
         <div class="col-xl-4 col-lg-5 col-md-5 mb-4">
             <div class="card mb-4">
                 <div class="card-body text-center">
                     <div class="mx-auto mb-3">
-                        <img src="{{ $assignment->assignmentImage ? tasset($assignment->assignmentImage->file_path) : asset('assets/img/illustrations/page-pricing-enterprise.png') }}"
-                            alt="Logo" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                        <img src="{{ $assignment->assignmentImage ? tasset($assignment->assignmentImage->file_path) : asset('static/brand/logos/logo.svg') }}"
+                            alt="{{ $assignment->name }}"
+                            class="rounded-circle border shadow-sm"
+                            style="width: 100px; height: 100px; object-fit: cover;">
                     </div>
-                    <h5 class="mb-1">{{ $assignment->name }}</h5>
-                    <span class="badge bg-primary mb-3">{{ $assignment->category_label }}</span>
+                    <h4 class="mb-1 fw-bold text-primary">{{ $assignment->name }}</h4>
+                    <p class="mb-2 text-muted fw-medium">{{ $assignment->assignment_number }}</p>
+                    <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
+                        <span class="badge bg-label-primary fs-6">{{ $assignment->category_label }}</span>
+                        <span class="badge bg-label-{{ $assignment->is_active ? 'success' : 'danger' }} fs-6">
+                            {{ $assignment->is_active ? 'نشط' : 'متوقف' }}
+                        </span>
+                    </div>
 
                     <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
                         <div>
@@ -48,28 +42,43 @@
                             <small class="text-muted">العقارات</small>
                         </div>
                         <div>
-                            <h5 class="mb-0">{{ $assignment->auctions->count() }}</h5>
+                            <h5 class="mb-0 text-success">{{ $assignment->auctions->count() }}</h5>
                             <small class="text-muted">المزادات</small>
                         </div>
                     </div>
 
                     <div class="info-container text-start">
-                        <ul class="list-unstyled">
-                            <li class="mb-2"><span class="fw-bold me-1">الجهة المسندة:</span>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-hash text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">رقم الإسناد:</span>
+                                <span>{{ $assignment->assignment_number }}</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-building text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">الجهة المسندة:</span>
                                 <span>{{ $assignment->issuing_entity }}</span>
                             </li>
-                            <li class="mb-2"><span class="fw-bold me-1">المدينة:</span>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-map-pin text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">المدينة:</span>
                                 <span>{{ $assignment->city ?? '-' }}</span>
                             </li>
                             @if ($assignment->district)
-                                <li class="mb-2"><span class="fw-bold me-1">النطاق/الحي:</span>
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="ti ti-map text-primary me-2 fs-5"></i>
+                                    <span class="fw-bold me-2">النطاق/الحي:</span>
                                     <span>{{ $assignment->district }}</span>
                                 </li>
                             @endif
-                            <li class="mb-2"><span class="fw-bold me-1">تاريخ البداية:</span>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-calendar-plus text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">تاريخ البداية:</span>
                                 <span>@date($assignment->start_date)</span>
                             </li>
-                            <li class="mb-2"><span class="fw-bold me-1">تاريخ الانتهاء:</span>
+                            <li class="mb-2 d-flex align-items-center">
+                                <i class="ti ti-calendar-due text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">تاريخ الانتهاء:</span>
                                 <span>@date($assignment->end_date)</span>
                             </li>
                         </ul>
@@ -86,8 +95,11 @@
             @endphp
             @if ($assignmentDocuments->isNotEmpty())
                 <div class="card mb-4">
-                    <div class="card-header pb-2">
-                        <h6 class="card-title mb-0">المستندات والمرفقات</h6>
+                    <div class="card-header pb-2 mb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0">
+                            <i class="ti ti-paperclip text-primary me-2"></i>المستندات والمرفقات
+                        </h6>
+                        <span class="badge bg-label-primary">{{ $assignmentDocuments->count() }}</span>
                     </div>
                     <div class="card-body">
                         <div class="assignment-file-list">
@@ -100,22 +112,28 @@
             @endif
         </div>
 
-        {{-- تفاصيل العقارات والمزادات --}}
+        {{-- تفاصيل العقارات والمزادات (العمود الأيسر) --}}
         <div class="col-xl-8 col-lg-7 col-md-7">
             {{-- العقارات التابعة --}}
             <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">العقارات المسجلة ضمن هذا الإسناد ({{ $assignment->properties->count() }})
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-building-estate text-primary me-2"></i>العقارات المسجلة ضمن هذا الإسناد ({{ $assignment->properties->count() }})
                     </h5>
-                    @can('properties.create')
-                        <a href="{{ tenant_route_name('properties.create') }}?assignment_id={{ $assignment->id }}"
-                            class="btn btn-sm btn-primary">
-                            <i class="ti ti-plus me-1"></i> إضافة عقار
-                        </a>
-                    @endcan
+                    <div class="d-flex align-items-center gap-2">
+                        @if ($assignment->properties->count() > 0)
+                            <span class="badge bg-label-primary">{{ $assignment->properties->count() }} عقار</span>
+                        @endif
+                        @can('properties.create')
+                            <a href="{{ tenant_route_name('properties.create') }}?assignment_id={{ $assignment->id }}"
+                                class="btn btn-sm btn-primary">
+                                <i class="ti ti-plus me-1"></i> إضافة عقار
+                            </a>
+                        @endcan
+                    </div>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover mb-0">
                         <thead>
                             <tr>
                                 <th>رقم الأصل</th>
@@ -135,7 +153,7 @@
                                             {{ $prop->name }}
                                         </a>
                                     </td>
-                                    <td><span class="badge bg-info">{{ $prop->type_label }}</span></td>
+                                    <td><span class="badge bg-label-info">{{ $prop->type_label }}</span></td>
                                     <td>{{ number_format((float) $prop->area) }} م²</td>
                                     <td><span
                                             class="badge {{ $prop->data_status_badge_class }}">{{ $prop->data_status_label }}</span>
@@ -154,16 +172,23 @@
 
             {{-- المزادات التابعة --}}
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">المزادات المرتبطة ({{ $assignment->auctions->count() }})</h5>
-                    @can('auctions.create')
-                        <a href="{{ tenant_route_name('auctions.create') }}" class="btn btn-sm btn-primary">
-                            <i class="ti ti-plus me-1"></i> إنشاء مزاد
-                        </a>
-                    @endcan
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-gavel text-primary me-2"></i>المزادات المرتبطة ({{ $assignment->auctions->count() }})
+                    </h5>
+                    <div class="d-flex align-items-center gap-2">
+                        @if ($assignment->auctions->count() > 0)
+                            <span class="badge bg-label-primary">{{ $assignment->auctions->count() }} مزاد</span>
+                        @endif
+                        @can('auctions.create')
+                            <a href="{{ tenant_route_name('auctions.create') }}" class="btn btn-sm btn-primary">
+                                <i class="ti ti-plus me-1"></i> إنشاء مزاد
+                            </a>
+                        @endcan
+                    </div>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover mb-0">
                         <thead>
                             <tr>
                                 <th>اسم المزاد</th>
@@ -182,9 +207,9 @@
                                         </a>
                                     </td>
                                     <td>@date($auc->start_date)</td>
-                                    <td><span class="badge bg-secondary">{{ $auc->type_label }}</span></td>
+                                    <td><span class="badge bg-label-secondary">{{ $auc->type_label }}</span></td>
                                     <td><span
-                                            class="badge {{ $auc->is_active ? 'bg-success' : 'bg-danger' }}">{{ $auc->is_active ? 'نشط' : 'متوقف' }}</span>
+                                            class="badge bg-label-{{ $auc->is_active ? 'success' : 'danger' }}">{{ $auc->is_active ? 'نشط' : 'متوقف' }}</span>
                                     </td>
                                 </tr>
                             @empty

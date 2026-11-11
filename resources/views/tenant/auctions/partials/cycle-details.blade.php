@@ -20,15 +20,22 @@
         $hasCampaigns = $auction->marketingCampaigns->isNotEmpty();
     @endphp
     <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">الحملات التسويقية ({{ $auction->marketingCampaigns->count() }})</h5>
-            @if (!$isLocked && auth('tenant')->user()?->can('marketing_campaigns.edit'))
-                <x-actions.edit :url="tenant_route_name('marketing-campaigns.edit', $auction->id)" :title="$hasCampaigns ? 'تعديل الحملات التسويقية' : 'إضافة حملات تسويقية'" />
-            @endif
+        <div class="card-header d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">
+                <i class="ti ti-speakerphone text-primary me-2"></i>الحملات التسويقية ({{ $auction->marketingCampaigns->count() }})
+            </h5>
+            <div class="d-flex align-items-center gap-2">
+                @if ($hasCampaigns)
+                    <span class="badge bg-label-primary">{{ $auction->marketingCampaigns->count() }} حملة</span>
+                @endif
+                @if (!$isLocked && auth('tenant')->user()?->can('marketing_campaigns.edit'))
+                    <x-actions.edit :url="tenant_route_name('marketing-campaigns.edit', $auction->id)" :title="$hasCampaigns ? 'تعديل الحملات التسويقية' : 'إضافة حملات تسويقية'" />
+                @endif
+            </div>
         </div>
         @if ($hasCampaigns)
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover mb-0">
                     <thead>
                         <tr>
                             <th>نوع الحملة</th>
@@ -58,14 +65,16 @@
                 </table>
             </div>
         @else
-            <div class="card-body text-muted pt-3">لم تُضف حملات تسويقية لهذا المزاد بعد.</div>
+            <div class="card-body text-muted">لم تُضف حملات تسويقية لهذا المزاد بعد.</div>
         @endif
     </div>
 @endcan
 @can('auction_closings.view')
-    <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">إقفال المزاد</h5>
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">
+                <i class="ti ti-lock-check text-primary me-2"></i>إقفال المزاد
+            </h5>
             @if (
                 !$auction->isClosed() &&
                     $auction->establishmentRequest?->isApproved() &&
@@ -75,7 +84,7 @@
         </div>
         @if ($auction->closing)
             <div class="table-responsive">
-                <table class="table">
+                <table class="table table-hover mb-0">
                     <thead>
                         <tr>
                             <th>العقار</th>
@@ -101,7 +110,7 @@
                 </table>
             </div>
         @else
-            <div class="card-body text-muted pt-3">لم تُسجل بيانات الإقفال بعد.</div>
+            <div class="card-body text-muted">لم تُسجل بيانات الإقفال بعد.</div>
         @endif
     </div>
 @endcan

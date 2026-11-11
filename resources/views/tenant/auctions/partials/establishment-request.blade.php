@@ -1,27 +1,26 @@
 @can('auction_establishment_requests.view')
     @php($establishment = $auction->establishmentRequest)
-    <div class="card mb-4 shadow-sm border-primary" id="auction-establishment-card">
-        <div class="card-header text-primary py-3 d-flex justify-content-between align-items-center">
-            <h6 class="card-title mb-0 fw-bold">
-                <i class="ti ti-file-description me-1"></i>طلب إقامة المزاد
+    <div class="card mb-4" id="auction-establishment-card">
+        <div class="card-header pb-2 mb-3 d-flex justify-content-between align-items-center">
+            <h6 class="card-title mb-0">
+                <i class="ti ti-file-description text-primary me-2"></i>طلب إقامة المزاد
             </h6>
             <div>
                 @if ($establishment?->isApproved())
-                    <span class="badge bg-success">معتمد</span>
+                    <span class="badge bg-label-success">معتمد</span>
                 @elseif ($establishment)
-                    <span class="badge bg-warning">قيد المراجعة</span>
+                    <span class="badge bg-label-warning">قيد المراجعة</span>
                 @else
-                    <span class="badge bg-secondary">لم يقدم بعد</span>
+                    <span class="badge bg-label-secondary">لم يقدم بعد</span>
                 @endif
             </div>
         </div>
-        <div class="card-body pt-3">
+        <div class="card-body">
             @if ($establishment)
                 <div class="p-3 mb-3 border rounded bg-light-subtle">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-muted small">تاريخ تقديم الطلب:</span>
-                        <span
-                            class="fw-semibold small">@datetime($establishment->submitted_at)</span>
+                        <span class="fw-semibold small">@datetime($establishment->submitted_at)</span>
                     </div>
                     @if ($establishment->isApproved())
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -30,8 +29,7 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="text-muted small">تاريخ الاعتماد:</span>
-                            <span
-                                class="small text-muted">@datetime($establishment->approved_at)</span>
+                            <span class="small text-muted">@datetime($establishment->approved_at)</span>
                         </div>
                     @else
                         <div class="alert alert-warning p-2 small mb-0 mt-2">
@@ -41,7 +39,7 @@
                     @endif
                 </div>
             @else
-                <div class="alert alert-info p-2 small mb-3">
+                <div class="alert alert-info p-2 small mb-0">
                     <i class="ti ti-info-circle me-1"></i>استكمل طلب إقامة المزاد لحفظ بيانات النموذج وإرساله للمراجعة.
                 </div>
             @endif
@@ -76,7 +74,7 @@
                             required maxlength="255" col="col-12" />
                     </div>
                     <div class="d-flex justify-content-end gap-2 mt-4">
-                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                         <button type="submit" class="btn btn-success">اعتماد الطلب</button>
                     </div>
                 </form>

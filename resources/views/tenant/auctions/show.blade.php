@@ -4,8 +4,8 @@
 
 
 @section('content')
-    <div class="d-flex justify-content-end align-items-center mb-4">
-        <div class="d-flex gap-2">
+    <div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-2">
+        <div class="d-flex gap-2 flex-wrap">
             <a href="{{ tenant_route_name(auth('tenant')->user()->can('auctions.view') ? 'auctions.index' : (auth('tenant')->user()->can('auction_establishment_requests.view') ? 'auction-establishment-requests.index' : 'auction-closings.index')) }}" class="btn btn-secondary">
                 <i class="ti ti-arrow-right me-1"></i> العودة
             </a>
@@ -20,19 +20,21 @@
     </div>
 
     <div class="row">
-        {{-- كارت الغلاف والمعلومات الرئيسية --}}
+        {{-- كارت الغلاف والمعلومات الرئيسية (العمود الأيمن) --}}
         <div class="col-xl-4 col-lg-5 col-md-5 mb-4">
             <div class="card mb-4">
                 <div class="card-body text-center">
                     <div class="mb-3 text-center">
-                        <img src="{{ $auction->cover_image ? tasset($auction->cover_image) : asset('assets/img/illustrations/page-pricing-enterprise.png') }}"
-                            alt="{{ $auction->name }}" class="rounded-circle"
+                        <img src="{{ $auction->cover_image ? tasset($auction->cover_image) : asset('static/brand/logos/logo.svg') }}"
+                            alt="{{ $auction->name }}" class="rounded-circle border shadow-sm"
                             style="width: 100px; height: 100px; object-fit: cover;">
                     </div>
-                    <h5 class="mb-1">{{ $auction->name }}</h5>
-                    <span class="badge bg-primary mb-3">{{ $auction->category_label }}</span>
-                    <span class="badge {{ $auction->status_badge_class }} mb-3">{{ $auction->status_label }}</span>
-                    <span class="badge bg-label-{{ $auction->completion_status->color() }} mb-3">حالة الاكتمال: {{ $auction->completion_status->label() }}</span>
+                    <h4 class="mb-1 fw-bold text-primary">{{ $auction->name }}</h4>
+                    <div class="d-flex justify-content-center flex-wrap gap-2 my-2 mb-3">
+                        <span class="badge bg-label-primary fs-6">{{ $auction->category_label }}</span>
+                        <span class="badge {{ $auction->status_badge_class }} fs-6">{{ $auction->status_label }}</span>
+                        <span class="badge bg-label-{{ $auction->completion_status->color() }} fs-6">حالة الاكتمال: {{ $auction->completion_status->label() }}</span>
+                    </div>
 
                     <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
                         <div>
@@ -40,7 +42,7 @@
                             <small class="text-muted">العقارات</small>
                         </div>
                         <div>
-                            <h5 class="mb-0">{{ number_format((float) $auction->properties->sum('estimated_value')) }}
+                            <h5 class="mb-0 text-success">{{ number_format((float) $auction->properties->sum('estimated_value')) }}
                             </h5>
                             <small class="text-muted">إجمالي التقدير (ر.س)</small>
                         </div>
@@ -49,11 +51,17 @@
                     <div class="info-container text-start">
                         <ul class="list-unstyled mb-0">
                             @if ($auction->description)
-                                <li class="mb-2"><span class="fw-bold me-1">الوصف:</span>
-                                    <span class="text-muted small">{{ $auction->description }}</span>
+                                <li class="mb-3 d-flex align-items-start">
+                                    <i class="ti ti-notes text-primary me-2 fs-5"></i>
+                                    <div>
+                                        <span class="fw-bold me-2">الوصف:</span>
+                                        <span class="text-muted small">{{ $auction->description }}</span>
+                                    </div>
                                 </li>
                             @endif
-                            <li class="mb-2"><span class="fw-bold me-1">الإسناد المرتبط:</span>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-file-certificate text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">الإسناد المرتبط:</span>
                                 @if ($auction->assignment)
                                     <a href="{{ tenant_route_name('assignments.show', $auction->assignment_id) }}"
                                         class="text-primary fw-medium">
@@ -63,25 +71,37 @@
                                     <span class="text-muted">-</span>
                                 @endif
                             </li>
-                            <li class="mb-2"><span class="fw-bold me-1">الجهة المشرفة:</span>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-building text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">الجهة المشرفة:</span>
                                 <span>{{ $auction->supervising_entity ?? '-' }}</span>
                             </li>
-                            <li class="mb-2"><span class="fw-bold me-1">مدير المشروع:</span>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-user-check text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">مدير المشروع:</span>
                                 <span>{{ $auction->project_manager_name ?? '-' }}</span>
                             </li>
-                            <li class="mb-2"><span class="fw-bold me-1">منصة المزاد:</span>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-device-laptop text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">منصة المزاد:</span>
                                 <span>{{ $auction->platform_name ?? '-' }}</span>
                             </li>
                             @if ($auction->platform_url)
-                                <li class="mb-2"><span class="fw-bold me-1">رابط المزاد:</span>
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="ti ti-world text-primary me-2 fs-5"></i>
+                                    <span class="fw-bold me-2">رابط المزاد:</span>
                                     <a href="{{ $auction->platform_url }}" target="_blank" class="text-primary">زيارة
                                         المنصة <i class="ti ti-external-link"></i></a>
                                 </li>
                             @endif
-                            <li class="mb-2"><span class="fw-bold me-1">تاريخ البداية:</span>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-calendar-plus text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">تاريخ البداية:</span>
                                 <span>@date($auction->start_date) {{ $auction->start_time }}</span>
                             </li>
-                            <li class="mb-0"><span class="fw-bold me-1">تاريخ النهاية:</span>
+                            <li class="mb-2 d-flex align-items-center">
+                                <i class="ti ti-calendar-due text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">تاريخ النهاية:</span>
                                 <span>@date($auction->end_date) {{ $auction->end_time }}</span>
                             </li>
                         </ul>
@@ -100,24 +120,24 @@
                 $isFailed = ! $isProcessing && (bool) $gen?->isFailed();
                 $initialProgress = $gen ? (int) ($gen->progress ?? 0) : 0;
             @endphp
-            <div class="card mb-4 shadow-sm border-primary" id="auction-reports-card">
-                <div class="card-header text-primary py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="card-title mb-0 fw-bold">
-                        <i class="ti ti-file-analytics me-1"></i>ملفات وتقارير المزاد
+            <div class="card mb-4" id="auction-reports-card">
+                <div class="card-header pb-2 mb-3 d-flex justify-content-between align-items-center">
+                    <h6 class="card-title mb-0">
+                        <i class="ti ti-file-analytics text-primary me-2"></i>ملفات وتقارير المزاد
                     </h6>
                     <div id="reports-header-badge">
                         @if ($isProcessing)
-                            <span class="badge bg-info"><i class="ti ti-loader ti-spin me-1"></i>قيد التوليد</span>
+                            <span class="badge bg-label-info"><i class="ti ti-loader ti-spin me-1"></i>قيد التوليد</span>
                         @elseif ($isReady)
-                            <span class="badge bg-success">جاهز للتحميل</span>
+                            <span class="badge bg-label-success">جاهز للتحميل</span>
                         @elseif ($isFailed)
-                            <span class="badge bg-danger">فشل الإعداد</span>
+                            <span class="badge bg-label-danger">فشل الإعداد</span>
                         @else
-                            <span class="badge bg-secondary">غير مجهز بعد</span>
+                            <span class="badge bg-label-secondary">غير مجهز بعد</span>
                         @endif
                     </div>
                 </div>
-                <div class="card-body pt-3">
+                <div class="card-body">
                     {{-- تنبيه الفشل --}}
                     <div id="reports-error-alert"
                         class="text-danger small mb-3 {{ $isFailed ? '' : 'd-none' }}">
@@ -187,8 +207,11 @@
             @endphp
             @if ($auctionDocs->isNotEmpty())
                 <div class="card mb-4">
-                    <div class="card-header pb-2">
-                        <h6 class="card-title mb-0">وثائق ومرفقات المزاد</h6>
+                    <div class="card-header pb-2 mb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0">
+                            <i class="ti ti-paperclip text-primary me-2"></i>وثائق ومرفقات المزاد
+                        </h6>
+                        <span class="badge bg-label-primary">{{ $auctionDocs->count() }}</span>
                     </div>
                     <div class="card-body">
                         <div class="assignment-file-list d-flex flex-wrap gap-2">
@@ -201,15 +224,18 @@
             @endif
         </div>
 
-        {{-- تفاصيل العقارات المشمولة --}}
+        {{-- تفاصيل العقارات المشمولة (العمود الأيسر) --}}
         <div class="col-xl-8 col-lg-7 col-md-7">
             {{-- العقارات المدرجة --}}
             <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">العقارات المدرجة في المزاد ({{ $auction->properties->count() }})</h5>
+                <div class="card-header d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-building-estate text-primary me-2"></i>العقارات المدرجة في المزاد ({{ $auction->properties->count() }})
+                    </h5>
+                    <span class="badge bg-label-primary">{{ $auction->properties->count() }} عقار</span>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover mb-0">
                         <thead>
                             <tr>
                                 <th>رقم الأصل</th>
@@ -229,7 +255,7 @@
                                             {{ $prop->name }}
                                         </a>
                                     </td>
-                                    <td><span class="badge bg-info">{{ $prop->type_label }}</span></td>
+                                    <td><span class="badge bg-label-info">{{ $prop->type_label }}</span></td>
                                     <td>{{ number_format((float) $prop->area) }} م²</td>
                                     <td>{{ number_format((float) $prop->estimated_value) }} ر.س</td>
                                 </tr>

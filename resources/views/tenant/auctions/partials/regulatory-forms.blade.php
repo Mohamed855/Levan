@@ -16,17 +16,17 @@
                 $formProgress = (int) ($formGeneration?->progress ?? 0);
                 $formDownload = tenant_route_name('auctions.forms.download', ['auction' => $auction->id, 'type' => $formType]);
             @endphp
-            <div class="card mb-4 shadow-sm border-primary" data-regulatory-form="{{ $formType }}"
+            <div class="card mb-4" data-regulatory-form="{{ $formType }}"
                 data-status="{{ $formGeneration?->status ?? 'none' }}"
                 data-status-url="{{ tenant_route_name('auctions.forms.status', ['auction' => $auction->id, 'type' => $formType]) }}"
                 data-retry-url="{{ tenant_route_name('auctions.forms.retry', ['auction' => $auction->id, 'type' => $formType]) }}">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="card-title mb-0 fw-bold text-primary"><i class="ti ti-file-text me-1"></i>{{ $formOptions['label'] }}</h6>
-                    <span data-form-badge class="badge {{ $formProcessing ? 'bg-info' : ($formGeneration?->status === 'failed' ? 'bg-danger' : ($publishedForm ? 'bg-success' : 'bg-secondary')) }}">
+                <div class="card-header pb-2 mb-3 d-flex justify-content-between align-items-center">
+                    <h6 class="card-title mb-0"><i class="ti ti-file-text text-primary me-2"></i>{{ $formOptions['label'] }}</h6>
+                    <span data-form-badge class="badge {{ $formProcessing ? 'bg-label-info' : ($formGeneration?->status === 'failed' ? 'bg-label-danger' : ($publishedForm ? 'bg-label-success' : 'bg-label-secondary')) }}">
                         {{ $formProcessing ? 'قيد التوليد' : ($formGeneration?->status === 'failed' ? 'فشل الإعداد' : ($publishedForm ? 'جاهز للتحميل' : 'غير مجهز بعد')) }}
                     </span>
                 </div>
-                <div class="card-body pt-3">
+                <div class="card-body">
                     <div data-form-error class="text-danger small mb-2 {{ $formGeneration?->status === 'failed' ? '' : 'd-none' }}">{{ $formGeneration?->publicErrorMessage() }}</div>
                     <div data-form-loading class="p-3 mb-3 border rounded bg-light-subtle {{ $formProcessing ? '' : 'd-none' }}">
                         <div class="d-flex justify-content-between align-items-center mb-2 small text-primary">
@@ -74,7 +74,7 @@
                     error.classList.remove('d-none');
                     loading.classList.add('d-none');
                     badge.textContent = 'تعذر الإعداد';
-                    badge.className = 'badge bg-danger';
+                    badge.className = 'badge bg-label-danger';
                     if (retry) {
                         retry.classList.remove('d-none');
                         retry.disabled = false;
@@ -96,7 +96,7 @@
                         window.toastr?.error?.(state.error_message || 'تعذر تجهيز النموذج.');
                     }
                     badge.textContent = pending ? 'قيد التوليد' : (state.status === 'failed' ? 'فشل الإعداد' : (state.has_file ? 'جاهز للتحميل' : 'غير مجهز بعد'));
-                    badge.className = 'badge ' + (pending ? 'bg-info' : (state.status === 'failed' ? 'bg-danger' : (state.has_file ? 'bg-success' : 'bg-secondary')));
+                    badge.className = 'badge ' + (pending ? 'bg-label-info' : (state.status === 'failed' ? 'bg-label-danger' : (state.has_file ? 'bg-label-success' : 'bg-label-secondary')));
                     download.classList.toggle('disabled', !state.has_file);
                     download.setAttribute('aria-disabled', state.has_file ? 'false' : 'true');
                     download.href = state.download_url || '#';
