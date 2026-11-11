@@ -187,10 +187,12 @@
 
                         @can('auctions.edit')
                             <button type="button" id="btn-retry-reports"
-                                class="btn btn-outline-primary mt-2 {{ $isProcessing ? 'd-none' : '' }}">
-                                <i id="btn-retry-icon" class="ti ti-refresh me-1"></i>
+                                class="btn btn-outline-primary mt-2"
+                                @disabled($isProcessing)
+                                @if ($isProcessing) aria-disabled="true" @endif>
+                                <i id="btn-retry-icon" class="ti {{ $isProcessing ? 'ti-loader ti-spin' : 'ti-refresh' }} me-1"></i>
                                 <span id="btn-retry-text">
-                                    {{ $isReady ? 'إعادة توليد الملفات' : ($isFailed ? 'إعادة محاولة الإعداد' : 'بدء تجهيز ملفات المزاد') }}
+                                    {{ $isProcessing ? 'جارٍ التوليد...' : ($isReady ? 'إعادة توليد الملفات' : ($isFailed ? 'إعادة محاولة الإعداد' : 'بدء تجهيز ملفات المزاد')) }}
                                 </span>
                             </button>
                         @endcan
@@ -199,140 +201,9 @@
             </div>
 
             @include('tenant.auctions.partials.regulatory-forms')
-
-            @php
-                $auctionFileGroups = [];
-
-                $coverItems = [];
-                if ($auction->cover_image) {
-                    $coverExt = pathinfo($auction->cover_image, PATHINFO_EXTENSION) ?: 'jpg';
-                    $coverItems[] = [
-                        'name' => 'صورة غلاف المزاد.' . $coverExt,
-                        'url' => tasset($auction->cover_image),
-                        'meta' => 'غلاف المزاد',
-                        'isImage' => true,
-                    ];
-                }
-                if ($auction->report_image) {
-                    $reportExt = pathinfo($auction->report_image, PATHINFO_EXTENSION) ?: 'jpg';
-                    $coverItems[] = [
-                        'name' => 'صورة غلاف التقرير.' . $reportExt,
-                        'url' => tasset($auction->report_image),
-                        'meta' => 'غلاف التقرير',
-                        'isImage' => true,
-                    ];
-                }
-                if (!empty($coverItems)) {
-                    $auctionFileGroups[] = [
-                        'label' => 'أغلفة المزاد والتقرير',
-                        'icon' => 'ti-photo',
-                        'items' => $coverItems,
-                    ];
-                }
-
-                $allAuctionAttachments = $auction->attachments;
-                $docItems = $allAuctionAttachments->where('category', 'auction_doc')->values();
-                if ($docItems->isNotEmpty()) {
-                    $auctionFileGroups[] = [
-                        'label' => 'وثائق ومرفقات المزاد',
-                        'icon' => 'ti-file-text',
-                        'items' => $docItems,
-                    ];
-                }
-
-                $boardBeforeItems = $allAuctionAttachments
-                    ->where('report_section', 'board_before')
-                    ->map(fn ($att) => [
-                        'file' => $att,
-                        'meta' => $att->property?->name ?: 'لوحة قبل المزاد',
-                    ])
-                    ->values()
-                    ->all();
-                if (!empty($boardBeforeItems)) {
-                    $auctionFileGroups[] = [
-                        'label' => 'صور اللوحات قبل المزاد',
-                        'icon' => 'ti-ad-2',
-                        'items' => $boardBeforeItems,
-                    ];
-                }
-
-                $boardAfterItems = $allAuctionAttachments
-                    ->where('report_section', 'board_after')
-                    ->map(fn ($att) => [
-                        'file' => $att,
-                        'meta' => $att->property?->name ?: 'لوحة بعد المزاد',
-                    ])
-                    ->values()
-                    ->all();
-                if (!empty($boardAfterItems)) {
-                    $auctionFileGroups[] = [
-                        'label' => 'صور اللوحات بعد المزاد',
-                        'icon' => 'ti-ad-off',
-                        'items' => $boardAfterItems,
-                    ];
-                }
-
-                $channelLabels = __('auction_reports.channels', [], 'ar') ?: [];
-                $marketingItems = $allAuctionAttachments
-                    ->filter(fn ($att) => $att->report_section === 'marketing_evidence'
-                        || ($att->category === 'marketing' && !in_array($att->report_section, ['board_before', 'board_after'], true)))
-                    ->map(function ($att) use ($channelLabels) {
-                        $channelKey = $att->report_metadata['channel'] ?? null;
-                        return [
-                            'file' => $att,
-                            'meta' => ($channelKey && isset($channelLabels[$channelKey])) ? $channelLabels[$channelKey] : $att->category_label,
-                        ];
-                    })
-                    ->values()
-                    ->all();
-                if (!empty($marketingItems)) {
-                    $auctionFileGroups[] = [
-                        'label' => 'الشواهد التسويقية',
-                        'icon' => 'ti-speakerphone',
-                        'items' => $marketingItems,
-                    ];
-                }
-
-                $handledAttachmentIds = $docItems->pluck('id')
-                    ->merge($allAuctionAttachments->whereIn('report_section', ['board_before', 'board_after', 'marketing_evidence'])->pluck('id'))
-                    ->merge($allAuctionAttachments->where('category', 'marketing')->pluck('id'))
-                    ->unique();
-
-                $remainingAttachments = $allAuctionAttachments
-                    ->reject(fn ($att) => $handledAttachmentIds->contains($att->id))
-                    ->map(fn ($att) => [
-                        'file' => $att,
-                        'meta' => $att->category_label,
-                    ])
-                    ->values()
-                    ->all();
-                if (!empty($remainingAttachments)) {
-                    $auctionFileGroups[] = [
-                        'label' => 'ملفات ومرفقات أخرى',
-                        'icon' => 'ti-folder',
-                        'items' => $remainingAttachments,
-                    ];
-                }
-
-                $totalAuctionFilesCount = collect($auctionFileGroups)->sum(fn ($group) => count($group['items']));
-            @endphp
-
-            @if ($totalAuctionFilesCount > 0)
-                <div class="card mb-4">
-                    <div class="card-header pb-2 mb-3 d-flex justify-content-between align-items-center">
-                        <h6 class="card-title mb-0">
-                            <i class="ti ti-paperclip text-primary me-2"></i>ملفات ومرفقات المزاد
-                        </h6>
-                        <span class="badge bg-label-primary">{{ $totalAuctionFilesCount }}</span>
-                    </div>
-                    <div class="card-body">
-                        <x-ui.file-groups :groups="$auctionFileGroups" layout="card" />
-                    </div>
-                </div>
-            @endif
         </div>
 
-            {{-- تفاصيل المزاد والدورة (العمود الأيسر) --}}
+        {{-- تفاصيل المزاد والدورة (العمود الأيسر) --}}
         <div class="col-xl-8 col-lg-7 col-md-7">
             {{-- العقارات المدرجة --}}
             <div class="card mb-4">
@@ -381,8 +252,163 @@
 
             @include('tenant.auctions.partials.establishment-request')
 
-            @include('tenant.auctions.partials.cycle-details')
+            @php
+                $auctionFileGroups = [];
 
+                $coverItems = [];
+                if ($auction->cover_image) {
+                    $coverExt = pathinfo($auction->cover_image, PATHINFO_EXTENSION) ?: 'jpg';
+                    $coverItems[] = [
+                        'name' => 'صورة غلاف المزاد.' . $coverExt,
+                        'url' => tasset($auction->cover_image),
+                        'meta' => 'غلاف المزاد',
+                        'isImage' => true,
+                    ];
+                }
+                if ($auction->report_image) {
+                    $reportExt = pathinfo($auction->report_image, PATHINFO_EXTENSION) ?: 'jpg';
+                    $coverItems[] = [
+                        'name' => 'صورة غلاف التقرير.' . $reportExt,
+                        'url' => tasset($auction->report_image),
+                        'meta' => 'غلاف التقرير',
+                        'isImage' => true,
+                    ];
+                }
+                if (!empty($coverItems)) {
+                    $auctionFileGroups[] = [
+                        'label' => 'أغلفة المزاد والتقرير',
+                        'items' => $coverItems,
+                    ];
+                }
+
+                $allAuctionAttachments = $auction->attachments;
+                $docItems = $allAuctionAttachments->where('category', 'auction_doc')->values();
+                if ($docItems->isNotEmpty()) {
+                    $auctionFileGroups[] = [
+                        'label' => 'وثائق ومرفقات المزاد',
+                        'items' => $docItems,
+                    ];
+                }
+
+                $boardBeforeItems = $allAuctionAttachments
+                    ->where('report_section', 'board_before')
+                    ->map(fn ($att) => [
+                        'file' => $att,
+                        'meta' => $att->property?->name ?: 'لوحة قبل المزاد',
+                    ])
+                    ->values()
+                    ->all();
+                if (!empty($boardBeforeItems)) {
+                    $auctionFileGroups[] = [
+                        'label' => 'صور اللوحات قبل المزاد',
+                        'items' => $boardBeforeItems,
+                    ];
+                }
+
+                $boardAfterItems = $allAuctionAttachments
+                    ->where('report_section', 'board_after')
+                    ->map(fn ($att) => [
+                        'file' => $att,
+                        'meta' => $att->property?->name ?: 'لوحة بعد المزاد',
+                    ])
+                    ->values()
+                    ->all();
+                if (!empty($boardAfterItems)) {
+                    $auctionFileGroups[] = [
+                        'label' => 'صور اللوحات بعد المزاد',
+                        'items' => $boardAfterItems,
+                    ];
+                }
+
+                $channelLabels = __('auction_reports.channels', [], 'ar') ?: [];
+                $marketingItems = $allAuctionAttachments
+                    ->filter(fn ($att) => $att->report_section === 'marketing_evidence'
+                        || ($att->category === 'marketing' && !in_array($att->report_section, ['board_before', 'board_after'], true)))
+                    ->map(function ($att) use ($channelLabels) {
+                        $channelKey = $att->report_metadata['channel'] ?? null;
+                        return [
+                            'file' => $att,
+                            'meta' => ($channelKey && isset($channelLabels[$channelKey])) ? $channelLabels[$channelKey] : $att->category_label,
+                        ];
+                    })
+                    ->values()
+                    ->all();
+                if (!empty($marketingItems)) {
+                    $auctionFileGroups[] = [
+                        'label' => 'الشواهد التسويقية',
+                        'items' => $marketingItems,
+                    ];
+                }
+
+                $handledAttachmentIds = $docItems->pluck('id')
+                    ->merge($allAuctionAttachments->whereIn('report_section', ['board_before', 'board_after', 'marketing_evidence'])->pluck('id'))
+                    ->merge($allAuctionAttachments->where('category', 'marketing')->pluck('id'))
+                    ->unique();
+
+                $remainingAttachments = $allAuctionAttachments
+                    ->reject(fn ($att) => $handledAttachmentIds->contains($att->id))
+                    ->map(fn ($att) => [
+                        'file' => $att,
+                        'meta' => $att->category_label,
+                    ])
+                    ->values()
+                    ->all();
+                if (!empty($remainingAttachments)) {
+                    $auctionFileGroups[] = [
+                        'label' => 'ملفات ومرفقات أخرى',
+                        'items' => $remainingAttachments,
+                    ];
+                }
+
+                $establishmentRecord = $auction->establishmentRequest;
+                if ($establishmentRecord && !empty($establishmentRecord->data['attachments']) && auth('tenant')->user()?->can('auction_establishment_requests.view')) {
+                    $estTypeLabels = app(\App\Services\Tenants\AuctionEstablishments\AuctionEstablishmentRequestData::class)->attachmentTypes();
+                    $rawEstAttachments = $establishmentRecord->data['attachments'];
+                    $orderedEstTypes = array_unique(array_merge(array_keys($estTypeLabels), array_keys($rawEstAttachments)));
+                    $establishmentItems = [];
+
+                    foreach ($orderedEstTypes as $estType) {
+                        foreach ($rawEstAttachments[$estType] ?? [] as $propertyId => $estFile) {
+                            $estUrl = tenant_route_name('auction-establishment-requests.attachment', [
+                                'auction' => $auction,
+                                'type' => $estType,
+                                'property' => $propertyId ?: null,
+                            ]);
+                            $estTypeLabel = $estTypeLabels[$estType] ?? $estType;
+                            $estPropName = $propertyId ? $auction->properties->firstWhere('id', (int) $propertyId)?->name : null;
+                            $establishmentItems[] = [
+                                'name' => $estFile['name'] ?? $estTypeLabel,
+                                'url' => $estUrl,
+                                'downloadUrl' => $estUrl,
+                                'meta' => $estPropName ? ($estTypeLabel . ' — ' . $estPropName) : $estTypeLabel,
+                            ];
+                        }
+                    }
+
+                    if (!empty($establishmentItems)) {
+                        $auctionFileGroups[] = [
+                            'label' => 'مرفقات طلب إقامة المزاد',
+                            'items' => $establishmentItems,
+                        ];
+                    }
+                }
+
+                $totalAuctionFilesCount = collect($auctionFileGroups)->sum(fn ($group) => count($group['items']));
+            @endphp
+
+            @include('tenant.auctions.partials.cycle-details', ['hasFollowingCard' => $totalAuctionFilesCount > 0])
+
+            @if ($totalAuctionFilesCount > 0)
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-paperclip text-primary me-2"></i>ملفات ومرفقات المزاد
+                        </h5>
+                        <span class="badge bg-label-primary">{{ $totalAuctionFilesCount }}</span>
+                    </div>
+                    <x-ui.file-groups :groups="$auctionFileGroups" layout="card" />
+                </div>
+            @endif
         </div>
     </div>
 @endsection
@@ -429,7 +455,13 @@
             function setProcessingUI() {
                 if (retryBtn) {
                     retryBtn.disabled = true;
-                    retryBtn.classList.add('d-none');
+                    retryBtn.setAttribute('aria-disabled', 'true');
+                }
+                if (retryIcon) {
+                    retryIcon.className = 'ti ti-loader ti-spin me-1';
+                }
+                if (retryText) {
+                    retryText.textContent = 'جارٍ التوليد...';
                 }
                 if (timeoutAlert) {
                     timeoutAlert.classList.add('d-none');
@@ -450,7 +482,7 @@
             function resetRetryButton(text = 'إعادة المحاولة') {
                 if (retryBtn) {
                     retryBtn.disabled = false;
-                    retryBtn.classList.remove('d-none');
+                    retryBtn.removeAttribute('aria-disabled');
                 }
                 if (retryIcon) {
                     retryIcon.className = 'ti ti-refresh me-1';

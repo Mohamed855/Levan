@@ -160,7 +160,7 @@
 
             {{-- كارت صورة العقار المحددة --}}
             @if ($property->aerial_image)
-                <div class="card mb-4">
+                <div class="card">
                     <div class="card-header pb-2 mb-3 d-flex justify-content-between align-items-center">
                         <h6 class="card-title mb-0">
                             <i class="ti ti-photo-edit text-primary me-2"></i>صورة العقار المحددة
@@ -176,52 +176,6 @@
                             <img src="{{ tasset($property->aerial_image) }}" alt="تحديد العقار على الصورة"
                                 class="img-fluid rounded border" style="max-height: 280px; object-fit: contain;">
                         </a>
-                    </div>
-                </div>
-            @endif
-
-            {{-- كارت المستندات والمرفقات --}}
-            @if ($property->attachments->isNotEmpty())
-                @php
-                    $propertyGroupDefs = [
-                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::DEED_DOCUMENT->value], 'صك الملكية', 'ti-file-certificate',
-                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::CADASTRAL_PLAN->value], 'مخطط العقار', 'ti-map-2',
-                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::BUILDING_PERMIT->value], 'رخصة البناء', 'ti-building',
-                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::COORDINATES_STATEMENT->value], 'كشف الإحداثيات', 'ti-compass',
-                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::ASSIGNMENT_LETTER_IMAGE->value], 'صورة الإسناد', 'ti-mail',
-                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::ADDITIONAL_DOCUMENT->value], 'مستندات إضافية', 'ti-paperclip',
-                        [
-                            \App\Enums\Tenants\Properties\PropertyAttachmentCategory::MAIN_IMAGE->value,
-                            \App\Enums\Tenants\Properties\PropertyAttachmentCategory::GALLERY_IMAGE->value,
-                        ], 'صور العقار', 'ti-photo',
-                        [
-                            \App\Enums\Tenants\Properties\PropertyAttachmentCategory::AERIAL_ORIGINAL->value,
-                            \App\Enums\Tenants\Properties\PropertyAttachmentCategory::AERIAL_PHOTO->value,
-                        ], 'الصورة الجوية والتحديد', 'ti-map-pin',
-                    ];
-                    $propertyFileGroups = [];
-                    $coveredCategories = [];
-                    foreach (array_chunk($propertyGroupDefs, 3) as [$cats, $label, $icon]) {
-                        $coveredCategories = array_merge($coveredCategories, $cats);
-                        $items = $property->attachments->whereIn('category', $cats)->values();
-                        if ($items->isNotEmpty()) {
-                            $propertyFileGroups[] = ['label' => $label, 'icon' => $icon, 'items' => $items];
-                        }
-                    }
-                    $otherPropertyDocs = $property->attachments->whereNotIn('category', $coveredCategories)->values();
-                    if ($otherPropertyDocs->isNotEmpty()) {
-                        $propertyFileGroups[] = ['label' => 'مرفقات أخرى', 'icon' => 'ti-folder', 'items' => $otherPropertyDocs];
-                    }
-                @endphp
-                <div class="card mb-4">
-                    <div class="card-header pb-2 mb-3 d-flex justify-content-between align-items-center">
-                        <h6 class="card-title mb-0">
-                            <i class="ti ti-paperclip text-primary me-2"></i>المستندات والمرفقات
-                        </h6>
-                        <span class="badge bg-label-primary">{{ $property->attachments->count() }}</span>
-                    </div>
-                    <div class="card-body">
-                        <x-ui.file-groups :groups="$propertyFileGroups" />
                     </div>
                 </div>
             @endif
@@ -343,7 +297,7 @@
             </div>
 
             {{-- المزادات المرتبطة --}}
-            <div class="card">
+            <div class="card {{ $property->attachments->isNotEmpty() ? 'mb-4' : '' }}">
                 <div class="card-header d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title mb-0">
                         <i class="ti ti-gavel text-primary me-2"></i>المزادات المرتبطة بهذا العقار
@@ -388,6 +342,50 @@
                     </table>
                 </div>
             </div>
+
+            {{-- كارت المستندات والمرفقات --}}
+            @if ($property->attachments->isNotEmpty())
+                @php
+                    $propertyGroupDefs = [
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::DEED_DOCUMENT->value], 'صك الملكية', 'ti-file-certificate',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::CADASTRAL_PLAN->value], 'مخطط العقار', 'ti-map-2',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::BUILDING_PERMIT->value], 'رخصة البناء', 'ti-building',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::COORDINATES_STATEMENT->value], 'كشف الإحداثيات', 'ti-compass',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::ASSIGNMENT_LETTER_IMAGE->value], 'صورة الإسناد', 'ti-mail',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::ADDITIONAL_DOCUMENT->value], 'مستندات إضافية', 'ti-paperclip',
+                        [
+                            \App\Enums\Tenants\Properties\PropertyAttachmentCategory::MAIN_IMAGE->value,
+                            \App\Enums\Tenants\Properties\PropertyAttachmentCategory::GALLERY_IMAGE->value,
+                        ], 'صور العقار', 'ti-photo',
+                        [
+                            \App\Enums\Tenants\Properties\PropertyAttachmentCategory::AERIAL_ORIGINAL->value,
+                            \App\Enums\Tenants\Properties\PropertyAttachmentCategory::AERIAL_PHOTO->value,
+                        ], 'الصورة الجوية والتحديد', 'ti-map-pin',
+                    ];
+                    $propertyFileGroups = [];
+                    $coveredCategories = [];
+                    foreach (array_chunk($propertyGroupDefs, 3) as [$cats, $label, $icon]) {
+                        $coveredCategories = array_merge($coveredCategories, $cats);
+                        $items = $property->attachments->whereIn('category', $cats)->values();
+                        if ($items->isNotEmpty()) {
+                            $propertyFileGroups[] = ['label' => $label, 'icon' => $icon, 'items' => $items];
+                        }
+                    }
+                    $otherPropertyDocs = $property->attachments->whereNotIn('category', $coveredCategories)->values();
+                    if ($otherPropertyDocs->isNotEmpty()) {
+                        $propertyFileGroups[] = ['label' => 'مرفقات أخرى', 'icon' => 'ti-folder', 'items' => $otherPropertyDocs];
+                    }
+                @endphp
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-paperclip text-primary me-2"></i>المستندات والمرفقات
+                        </h5>
+                        <span class="badge bg-label-primary">{{ $property->attachments->count() }}</span>
+                    </div>
+                    <x-ui.file-groups :groups="$propertyFileGroups" />
+                </div>
+            @endif
         </div>
     </div>
 @endsection

@@ -85,10 +85,12 @@
                         </a>
                         @can($formOptions['permission'] . '.regenerate')
                             <button type="button" data-form-retry
-                                class="btn btn-outline-primary mt-2 {{ $formProcessing ? 'd-none' : '' }}">
-                                <i data-form-retry-icon class="ti ti-refresh me-1"></i>
+                                class="btn btn-outline-primary mt-2"
+                                @disabled($formProcessing)
+                                @if ($formProcessing) aria-disabled="true" @endif>
+                                <i data-form-retry-icon class="ti {{ $formProcessing ? 'ti-loader ti-spin' : 'ti-refresh' }} me-1"></i>
                                 <span data-form-retry-text>
-                                    {{ $publishedForm ? 'إعادة توليد النموذج' : ($formFailed ? 'إعادة محاولة الإعداد' : 'بدء تجهيز النموذج') }}
+                                    {{ $formProcessing ? 'جارٍ التوليد...' : ($publishedForm ? 'إعادة توليد النموذج' : ($formFailed ? 'إعادة محاولة الإعداد' : 'بدء تجهيز النموذج')) }}
                                 </span>
                             </button>
                         @endcan
@@ -151,7 +153,7 @@
                 function resetRetryButton(text = 'إعادة محاولة الإعداد') {
                     if (retryBtn) {
                         retryBtn.disabled = false;
-                        retryBtn.classList.remove('d-none');
+                        retryBtn.removeAttribute('aria-disabled');
                     }
                     if (retryIcon) {
                         retryIcon.className = 'ti ti-refresh me-1';
@@ -164,7 +166,13 @@
                 function setProcessingUI() {
                     if (retryBtn) {
                         retryBtn.disabled = true;
-                        retryBtn.classList.add('d-none');
+                        retryBtn.setAttribute('aria-disabled', 'true');
+                    }
+                    if (retryIcon) {
+                        retryIcon.className = 'ti ti-loader ti-spin me-1';
+                    }
+                    if (retryText) {
+                        retryText.textContent = 'جارٍ التوليد...';
                     }
                     if (timeoutBox) timeoutBox.classList.add('d-none');
                     if (errorBox) errorBox.classList.add('d-none');

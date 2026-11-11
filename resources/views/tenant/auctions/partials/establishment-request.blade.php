@@ -14,53 +14,6 @@
             !$establishment->isApproved() &&
             !$auction->isClosed() &&
             auth('tenant')->user()?->can('auction_establishment_requests.approve');
-
-        $establishmentFileGroups = [];
-        if ($establishment && !empty($establishment->data['attachments'])) {
-            $attachmentTypeLabels = app(
-                \App\Services\Tenants\AuctionEstablishments\AuctionEstablishmentRequestData::class,
-            )->attachmentTypes();
-            $attachmentIcons = [
-                'manager_certificate' => 'ti-certificate',
-                'auctioneer_certificate' => 'ti-certificate-2',
-                'deed' => 'ti-file-certificate',
-                'valuation' => 'ti-report-money',
-                'representative_authority' => 'ti-user-check',
-            ];
-            $rawAttachments = $establishment->data['attachments'];
-            $orderedTypes = array_unique(array_merge(array_keys($attachmentTypeLabels), array_keys($rawAttachments)));
-
-            foreach ($orderedTypes as $type) {
-                $files = $rawAttachments[$type] ?? [];
-                if (empty($files)) {
-                    continue;
-                }
-                $items = [];
-                foreach ($files as $propertyId => $file) {
-                    $attachmentUrl = tenant_route_name('auction-establishment-requests.attachment', [
-                        'auction' => $auction,
-                        'type' => $type,
-                        'property' => $propertyId ?: null,
-                    ]);
-                    $propertyName = $propertyId
-                        ? $auction->properties->firstWhere('id', (int) $propertyId)?->name
-                        : null;
-                    $items[] = [
-                        'name' => $file['name'] ?? ($attachmentTypeLabels[$type] ?? $type),
-                        'url' => $attachmentUrl,
-                        'downloadUrl' => $attachmentUrl,
-                        'meta' => $propertyName ?: $attachmentTypeLabels[$type] ?? null,
-                    ];
-                }
-                if (!empty($items)) {
-                    $establishmentFileGroups[] = [
-                        'label' => $attachmentTypeLabels[$type] ?? $type,
-                        'icon' => $attachmentIcons[$type] ?? 'ti-paperclip',
-                        'items' => $items,
-                    ];
-                }
-            }
-        }
     @endphp
 
     <div class="card mb-4" id="auction-establishment-card">
@@ -69,9 +22,10 @@
                 <i class="ti ti-file-description text-primary me-2"></i>طلب إقامة المزاد
             </h5>
             <div class="d-flex align-items-center flex-wrap gap-2">
-
                 @if ($canEditEstablishment)
-                    <x-actions.edit :url="tenant_route_name('auction-establishment-requests.edit', $auction)" :title="$establishment ? 'تعديل طلب إقامة المزاد' : 'تقديم طلب إقامة المزاد'" :icon="$establishment ? 'ti ti-edit' : 'ti ti-file-plus'" />
+                    <x-actions.edit :url="tenant_route_name('auction-establishment-requests.edit', $auction)"
+                        :title="$establishment ? 'تعديل طلب إقامة المزاد' : 'تقديم طلب إقامة المزاد'"
+                        :icon="$establishment ? 'ti ti-edit' : 'ti ti-file-plus'" />
                 @endif
 
                 @if ($canApproveEstablishment)
@@ -106,8 +60,7 @@
                             <td>@datetime($establishment->submitted_at)</td>
                             <td>
                                 @if ($establishment->isApproved())
-                                    <span
-                                        class="badge bg-label-success fw-bold">{{ $establishment->approval_number }}</span>
+                                    <span class="badge bg-label-success fw-bold">{{ $establishment->approval_number }}</span>
                                 @else
                                     <span class="text-muted">بانتظار المراجعة</span>
                                 @endif
@@ -123,19 +76,6 @@
                     </tbody>
                 </table>
             </div>
-
-            @if (!empty($establishmentFileGroups))
-                <div class="card-body border-top">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="card-title mb-0">
-                            <i class="ti ti-paperclip text-primary me-2"></i>مرفقات الطلب
-                        </h6>
-                        <span
-                            class="badge bg-label-primary">{{ collect($establishmentFileGroups)->sum(fn($g) => count($g['items'])) }}</span>
-                    </div>
-                    <x-ui.file-groups :groups="$establishmentFileGroups" />
-                </div>
-            @endif
         @else
             <div class="card-body text-muted">
                 لم يُقدّم طلب إقامة المزاد بعد. استكمل الطلب لحفظ بيانات النموذج وإرساله للمراجعة.

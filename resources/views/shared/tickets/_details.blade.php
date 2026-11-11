@@ -211,36 +211,6 @@
             </div>
         @endif
 
-        {{-- كارت المرفقات الشامل --}}
-        <div class="card {{ !empty($ticket->survey_result) ? 'mb-4' : '' }}">
-            <div class="card-header d-flex justify-content-between align-items-center pb-2 mb-3">
-                <h6 class="card-title mb-0">
-                    <i class="ti ti-paperclip text-primary me-2"></i>المرفقات
-                </h6>
-                @if (count($allAttachments) > 0)
-                    <span class="badge bg-label-primary">{{ count($allAttachments) }}</span>
-                @endif
-            </div>
-            <div class="card-body">
-                @if (count($allAttachments) > 0)
-                    @php
-                        $ticketFileGroups = collect($allAttachments)
-                            ->groupBy(fn (array $att) => $att['source'] ?: 'مرفقات التذكرة')
-                            ->map(fn ($items, string $source) => [
-                                'label' => $source,
-                                'icon' => $source === 'التذكرة الأصلية' ? 'ti-ticket' : 'ti-message-reply',
-                                'items' => $items->values()->all(),
-                            ])
-                            ->values()
-                            ->all();
-                    @endphp
-                    <x-ui.file-groups :groups="$ticketFileGroups" empty-text="لا توجد مرفقات لهذه التذكرة." />
-                @else
-                    <p class="text-muted text-center mb-0 small">لا توجد مرفقات لهذه التذكرة.</p>
-                @endif
-            </div>
-        </div>
-
         {{-- نتيجة التقييم --}}
         @if (!empty($ticket->survey_result))
             <div class="card border-warning-subtle">
@@ -317,7 +287,7 @@
         </div>
 
         {{-- المحادثة والردود --}}
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center mb-3">
                 <h5 class="card-title mb-0">
                     <i class="ti ti-messages text-primary me-2"></i>المحادثة والردود ({{ $repliesCount }})
@@ -501,6 +471,29 @@
                     </div>
                 @endif
             </div>
+        </div>
+
+        {{-- كارت المرفقات الشامل --}}
+        @php
+            $ticketFileGroups = collect($allAttachments)
+                ->groupBy(fn (array $att) => $att['source'] ?: 'مرفقات التذكرة')
+                ->map(fn ($items, string $source) => [
+                    'label' => $source,
+                    'items' => $items->values()->all(),
+                ])
+                ->values()
+                ->all();
+        @endphp
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">
+                    <i class="ti ti-paperclip text-primary me-2"></i>المرفقات
+                </h5>
+                @if (count($allAttachments) > 0)
+                    <span class="badge bg-label-primary">{{ count($allAttachments) }}</span>
+                @endif
+            </div>
+            <x-ui.file-groups :groups="$ticketFileGroups" empty-text="لا توجد مرفقات لهذه التذكرة." />
         </div>
     </div>
 </div>

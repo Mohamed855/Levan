@@ -109,19 +109,6 @@
                     $assignmentFileGroups[] = ['label' => 'مرفقات أخرى', 'icon' => 'ti-folder', 'items' => $otherDocs];
                 }
             @endphp
-            @if ($assignmentDocuments->isNotEmpty())
-                <div class="card mb-4">
-                    <div class="card-header pb-2 mb-3 d-flex justify-content-between align-items-center">
-                        <h6 class="card-title mb-0">
-                            <i class="ti ti-paperclip text-primary me-2"></i>المستندات والمرفقات
-                        </h6>
-                        <span class="badge bg-label-primary">{{ $assignmentDocuments->count() }}</span>
-                    </div>
-                    <div class="card-body">
-                        <x-ui.file-groups :groups="$assignmentFileGroups" />
-                    </div>
-                </div>
-            @endif
         </div>
 
         {{-- تفاصيل العقارات والمزادات (العمود الأيسر) --}}
@@ -178,7 +165,7 @@
             </div>
 
             {{-- المزادات التابعة --}}
-            <div class="card">
+            <div class="card {{ $assignmentDocuments->isNotEmpty() ? 'mb-4' : '' }}">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
                     <h5 class="card-title mb-0">
                         <i class="ti ti-gavel text-primary me-2"></i>المزادات المرتبطة
@@ -225,6 +212,18 @@
                     </table>
                 </div>
             </div>
+
+            @if ($assignmentDocuments->isNotEmpty())
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">
+                            <i class="ti ti-paperclip text-primary me-2"></i>المستندات والمرفقات
+                        </h5>
+                        <span class="badge bg-label-primary">{{ $assignmentDocuments->count() }}</span>
+                    </div>
+                    <x-ui.file-groups :groups="$assignmentFileGroups" />
+                </div>
+            @endif
         </div>
     </div>
 @endsection
