@@ -983,5 +983,60 @@ final class OverviewAndSecurityDualReviewTest extends TestCase
         $this->assertCount(10, $tenantData['latestAuctions']);
         $this->assertSame('Auction 12', $tenantData['latestAuctions']->first()->name);
     }
+
+    public function test_moved_navigation_links_render_in_navbar_box_and_are_removed_from_sidebar(): void
+    {
+        // 1. Admin layout renders FAQs in navbar box before Bank Settings and omits it from sidebar
+        $this->actingAs($this->superAdmin, 'admin');
+        $adminSidebar = view('admin.layouts.sections.menu.verticalMenu')->render();
+        $adminNavbar = view('admin.layouts.sections.navbar.navbar')->render();
+
+        $this->assertStringNotContainsString(route('admin.faqs.index'), $adminSidebar);
+        $this->assertStringNotContainsString('الأسئلة الشائعة', $adminSidebar);
+
+        $faqsPos = strpos($adminNavbar, route('admin.faqs.index'));
+        $banksPos = strpos($adminNavbar, route('admin.settings.banks.index'));
+        $this->assertNotFalse($faqsPos);
+        $this->assertNotFalse($banksPos);
+        $this->assertLessThan($banksPos, $faqsPos);
+        $this->assertStringContainsString('الأسئلة الشائعة', $adminNavbar);
+
+        // 2. Tenant layout moves subscriptions and bills to navbar box and keeps tickets in sidebar
+        tenancy()->initialize($this->tenantA);
+        $subPerm = Permission::firstOrCreate(['name' => 'subscriptions.view', 'guard_name' => 'tenant']);
+        $billPerm = Permission::firstOrCreate(['name' => 'bills.view', 'guard_name' => 'tenant']);
+        $ticketPerm = Permission::firstOrCreate(['name' => 'tickets.view', 'guard_name' => 'tenant']);
+
+        $billingOnlyUser = User::create([
+            'name' => 'Billing Support User',
+            'email' => 'billing@tenant-a.com',
+            'password' => 'BillingPass123!',
+            'status' => 'active',
+            'is_super_admin' => false,
+        ]);
+        $billingRole = Role::firstOrCreate(['name' => 'BillingOnly', 'guard_name' => 'tenant']);
+        $billingRole->syncPermissions([$subPerm, $billPerm, $ticketPerm]);
+        $billingOnlyUser->assignRole($billingRole);
+
+        $this->actingAs($billingOnlyUser, 'tenant');
+        $tenantSidebar = view('tenant.layouts.sections.menu.verticalMenu')->render();
+        $tenantNavbar = view('tenant.layouts.sections.navbar.navbar')->render();
+
+        foreach (['subscriptions.index', 'bills.index'] as $routeName) {
+            $url = tenant_route_name($routeName);
+            $this->assertStringNotContainsString($url, $tenantSidebar);
+            $this->assertStringContainsString($url, $tenantNavbar);
+        }
+
+        $ticketsUrl = tenant_route_name('tickets.index');
+        $this->assertStringContainsString($ticketsUrl, $tenantSidebar);
+        $this->assertStringContainsString('data-sidebar-counter="tickets_open"', $tenantSidebar);
+        $this->assertStringNotContainsString($ticketsUrl, $tenantNavbar);
+        $this->assertStringNotContainsString('الدعم الفني', $tenantNavbar);
+
+        $this->assertStringContainsString('إدارة الاشتراك', $tenantNavbar);
+        $this->assertStringContainsString('الفواتير', $tenantNavbar);
+        $this->assertStringContainsString('الدعم الفني', $tenantSidebar);
+    }
 }
 

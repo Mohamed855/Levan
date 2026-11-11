@@ -16,7 +16,6 @@ use App\Models\Admin\Bank\Bank;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
-use App\Models\Admin\Tenants\Tenant;
 use App\Services\Shared\Bills\BillService;
 use App\Services\Shared\Coupons\CouponService;
 use App\Services\Shared\Payment\Moyasar\MoyasarCallbackHandler;
@@ -304,14 +303,6 @@ class SubscriptionController extends Controller
     {
         request()->session()->put('tenant_login_context', $tenantId);
         cookie()->queue(cookie('tenant_login_hint', $tenantId, 60 * 24 * 30));
-
-        $tenant = Tenant::find($tenantId);
-        if ($tenant && $tenant->access_type === 'domain' && $tenant->custom_domain_active && $domain = $tenant->domains()->first()) {
-            $scheme = request()->getScheme() ?: (app()->environment('local') ? 'http' : 'https');
-
-            return redirect()->away("{$scheme}://{$domain->domain}/login")
-                ->with('success', 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول');
-        }
 
         return redirect()->to(url('/admin/login'))
             ->with('success', 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول');

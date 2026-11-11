@@ -70,4 +70,34 @@ class AdminSidebarCoverageTest extends TestCase
         $this->assertStringContainsString('syncPermissions(Permission::where("guard_name", "admin")->get())', $seeder);
         $this->assertStringContainsString('$roleSuperAdmin->syncPermissions(Permission::where(\'guard_name\', \'admin\')->get())', $permissionsSeeder);
     }
+
+    public function test_faqs_and_tenant_billing_support_links_are_moved_from_sidebar_to_navbar_box(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $adminSidebar = file_get_contents($root.'/resources/views/admin/layouts/sections/menu/verticalMenu.blade.php');
+        $adminNavbar = file_get_contents($root.'/resources/views/admin/layouts/sections/navbar/navbar.blade.php');
+        $tenantSidebar = file_get_contents($root.'/resources/views/tenant/layouts/sections/menu/verticalMenu.blade.php');
+        $tenantNavbar = file_get_contents($root.'/resources/views/tenant/layouts/sections/navbar/navbar.blade.php');
+
+        $this->assertStringNotContainsString("route('admin.faqs.index')", $adminSidebar);
+        $this->assertStringNotContainsString('الأسئلة الشائعة', $adminSidebar);
+
+        $faqsPos = strpos($adminNavbar, "route('admin.faqs.index')");
+        $banksPos = strpos($adminNavbar, "route('admin.settings.banks.index')");
+        $this->assertNotFalse($faqsPos);
+        $this->assertNotFalse($banksPos);
+        $this->assertLessThan($banksPos, $faqsPos, 'FAQs tile must appear before bank settings in admin navbar.');
+
+        foreach (['subscriptions.index', 'bills.index', 'tickets.index'] as $tenantRoute) {
+            $this->assertStringNotContainsString("tenant_route_name('{$tenantRoute}')", $tenantSidebar);
+            $this->assertStringContainsString("tenant_route_name('{$tenantRoute}')", $tenantNavbar);
+        }
+
+        $this->assertStringContainsString('إدارة الاشتراك', $tenantNavbar);
+        $this->assertStringContainsString('الفواتير', $tenantNavbar);
+        $this->assertStringContainsString('الدعم الفني', $tenantNavbar);
+        $this->assertStringContainsString("'subscriptions.view'", $tenantNavbar);
+        $this->assertStringContainsString("'bills.view'", $tenantNavbar);
+        $this->assertStringContainsString("'tickets.view'", $tenantNavbar);
+    }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Enums\Admin\Billing\BillType;
+use App\Enums\Tenants\Billing\BillOperationType;
 use App\Services\Shared\Cpanel\CpanelService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -36,12 +37,14 @@ final class DomainManagementRemovalTest extends TestCase
         $this->assertFalse(method_exists($service, 'writeFileContentForUser'));
     }
 
-    public function test_historical_domain_invoices_remain_readable_without_offering_new_domain_bill_types(): void
+    public function test_retired_domain_bill_types_cannot_be_deserialized_or_offered(): void
     {
         $retiredTypes = ['new_domain', 'transfer_domain', 'renewal_domain'];
         foreach ($retiredTypes as $type) {
-            $this->assertNotEmpty(BillType::from($type)->label());
+            $this->assertNull(BillType::tryFrom($type));
         }
+        $this->assertNull(BillOperationType::tryFrom('domain'));
+        $this->assertSame([], array_values(array_intersect($retiredTypes, array_column(BillType::cases(), 'value'))));
         $this->assertSame([], array_values(array_intersect($retiredTypes, array_column(BillType::options(), 'value'))));
     }
 }

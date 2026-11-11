@@ -9,7 +9,6 @@ enum BillOperationType: string
     case SUBSCRIPTION = 'subscription';
     case RENEWAL = 'renewal';
     case EXTRA_USERS = 'extra_users';
-    case DOMAIN = 'domain';
 
     public function label(): string
     {
@@ -17,7 +16,6 @@ enum BillOperationType: string
             self::SUBSCRIPTION => 'اشتراك',
             self::RENEWAL => 'تجديد',
             self::EXTRA_USERS => 'مستخدمين إضافيين',
-            self::DOMAIN => 'دومين',
         };
     }
 }

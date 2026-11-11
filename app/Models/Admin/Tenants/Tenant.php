@@ -52,8 +52,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         'tax_number',
         'city_id',
         'address',
-        'custom_domain_active',
-        'domain_activated_at',
     ];
 
     public static function getCustomColumns(): array
@@ -80,8 +78,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'city_id',
             'address',
             'access_type',
-            'custom_domain_active',
-            'domain_activated_at',
             'deleted_at',
         ];
     }
@@ -159,8 +155,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     //         'folderName'           => 'اسم المجلد',
     //         'version_id'           => 'الإصدار',
     //         'access_type'          => 'نوع الوصول',
-    //         'custom_domain_active' => 'تفعيل النطاق المخصص',
-    //         'domain_activated_at'  => 'تاريخ تفعيل النطاق',
     //     ];
     // }
 
@@ -179,10 +173,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     //         'access_type' => [
     //             'path'   => 'مسار',
     //             'domain' => 'نطاق',
-    //         ],
-    //         'custom_domain_active' => [
-    //             0 => 'غير مفعل',
-    //             1 => 'مفعل',
     //         ],
     //     ];
     // }
@@ -285,12 +275,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
      */
     public function getLoginUrl(): string
     {
-        if ($this->access_type === 'domain' && $this->custom_domain_active && $domain = $this->domains()->first()) {
-            $scheme = request()->getScheme() ?: (app()->environment('local') ? 'http' : 'https');
-
-            return "{$scheme}://{$domain->domain}/login";
-        }
-
         $url = route('path.login', ['tenant' => $this->id], false);
 
         return str_starts_with($url, 'http') ? $url : url($url);

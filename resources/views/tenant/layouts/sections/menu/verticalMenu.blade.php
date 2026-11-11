@@ -107,31 +107,6 @@
             @endcanany --}}
         @endcanany
 
-        {{-- الاشتراكات والفوترة --}}
-        @canany(['subscriptions.view', 'bills.view'])
-            <li class="menu-header small">
-                <span class="menu-header-text">الاشتراك والفوترة</span>
-            </li>
-
-            @can('subscriptions.view')
-                <li class="menu-item @if (Helpers::isActiveRoute('subscriptions.*')) active @endif">
-                    <a href="{{ tenant_route_name('subscriptions.index') }}" class="menu-link">
-                        <i class="menu-icon tf-icons ti ti-award"></i>
-                        <div>إدارة الاشتراك</div>
-                    </a>
-                </li>
-            @endcan
-
-            @can('bills.view')
-                <li class="menu-item @if (Helpers::isActiveRoute('bills.*')) active @endif">
-                    <a href="{{ tenant_route_name('bills.index') }}" class="menu-link">
-                        <i class="menu-icon tf-icons ti ti-credit-card"></i>
-                        <div>الفواتير</div>
-                    </a>
-                </li>
-            @endcan
-        @endcanany
-
         @can('tickets.view')
             <li class="menu-header small">
                 <span class="menu-header-text">التذاكر والدعم</span>

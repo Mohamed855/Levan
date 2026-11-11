@@ -25,7 +25,6 @@ class BillArchiveController extends Controller
                 ['value' => 'subscription', 'label' => 'اشتراك'],
                 ['value' => 'renewal', 'label' => 'تجديد'],
                 ['value' => 'extra_users', 'label' => 'مستخدمين إضافيين'],
-                ['value' => 'domain', 'label' => 'دومين'],
             ],
             'statuses' => [
                 ['value' => 'paid', 'label' => 'مدفوعة'],

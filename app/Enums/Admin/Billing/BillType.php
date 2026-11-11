@@ -8,9 +8,6 @@ enum BillType: string
     case RENEWAL = 'renewal';          // تجديد
     case LICENSE_PURCHASE = 'license_purchase';  // شراء تراخيص
     case BILLING_CYCLE_CHANGE = 'billing_cycle_change';  //  تحويل دورة الفوترة
-    case NEW_DOMAIN = 'new_domain';
-    case TRANSFER_DOMAIN = 'transfer_domain';
-    case RENEWAL_DOMAIN = 'renewal_domain';
     case UPDATE_SUBSCRIPTION = 'update_subscription';
 
     public function label(): string
@@ -20,9 +17,6 @@ enum BillType: string
             self::RENEWAL => 'تجديد الاشتراك',
             self::LICENSE_PURCHASE => 'شراء مستخدمين إضافيين',
             self::BILLING_CYCLE_CHANGE => 'تحويل دورة الفوترة',
-            self::NEW_DOMAIN => 'دومين جديد',
-            self::TRANSFER_DOMAIN => 'نقل دومين',
-            self::RENEWAL_DOMAIN => 'تجديد دومين',
             self::UPDATE_SUBSCRIPTION => 'تعديل اشتراك',
         };
     }
@@ -34,9 +28,6 @@ enum BillType: string
             self::RENEWAL => 'success',
             self::LICENSE_PURCHASE => 'info',
             self::BILLING_CYCLE_CHANGE => 'warning',
-            self::NEW_DOMAIN => 'success',
-            self::TRANSFER_DOMAIN => 'warning',
-            self::RENEWAL_DOMAIN => 'info',
             self::UPDATE_SUBSCRIPTION => 'info',
         };
     }
@@ -49,7 +40,7 @@ enum BillType: string
                 'label' => $case->label(),
                 'color' => $case->color(),
             ],
-            array_values(array_filter(self::cases(), fn (self $case): bool => ! in_array($case, [self::NEW_DOMAIN, self::TRANSFER_DOMAIN, self::RENEWAL_DOMAIN], true)))
+            self::cases()
         );
     }
 }

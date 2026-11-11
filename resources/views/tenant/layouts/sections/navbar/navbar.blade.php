@@ -51,8 +51,9 @@
         @endif
 
 
-        @canany(['system.settings', 'users.view', 'roles.view', 'activity_log.view', 'user_archive.view',
-            'properties_archive.view', 'assignments_archive.view', 'auctions_archive.view'])
+        @canany(['system.settings', 'users.view', 'roles.view', 'activity_log.view', 'subscriptions.view', 'bills.view',
+            'user_archive.view', 'properties_archive.view', 'assignments_archive.view',
+            'auctions_archive.view'])
             <li class="nav-item dropdown me-2 me-xl-2">
                 <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
                     href="javascript:void(0);" data-bs-toggle="dropdown">
@@ -112,6 +113,34 @@
                                         </span>
                                     </div>
                                     <small class="text-muted fw-medium">سجل النشاطات</small>
+                                </a>
+                            </div>
+                        @endcan
+
+                        @can('subscriptions.view')
+                            <div class="col-6">
+                                <a href="{{ tenant_route_name('subscriptions.index') }}"
+                                    class="d-block p-3 text-center border rounded text-decoration-none">
+                                    <div class="avatar avatar-md mx-auto mb-2">
+                                        <span class="avatar-initial rounded bg-secondary">
+                                            <i class="ti ti-award ti-lg"></i>
+                                        </span>
+                                    </div>
+                                    <small class="text-muted fw-medium">إدارة الاشتراك</small>
+                                </a>
+                            </div>
+                        @endcan
+
+                        @can('bills.view')
+                            <div class="col-6">
+                                <a href="{{ tenant_route_name('bills.index') }}"
+                                    class="d-block p-3 text-center border rounded text-decoration-none">
+                                    <div class="avatar avatar-md mx-auto mb-2">
+                                        <span class="avatar-initial rounded bg-label-dark">
+                                            <i class="ti ti-credit-card ti-lg"></i>
+                                        </span>
+                                    </div>
+                                    <small class="text-muted fw-medium">الفواتير</small>
                                 </a>
                             </div>
                         @endcan
@@ -207,8 +236,8 @@
             <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
                 <div class="avatar avatar-online">
 
-                    <img src="{{ tasset(Auth::user()->image) }}" alt="{{ Auth::user()->name }}" class="rounded-circle"
-                        width="40" height="40">
+                    <img src="{{ tasset(Auth::user()->image) }}" alt="{{ Auth::user()->name }}"
+                        class="rounded-circle" width="40" height="40">
 
                 </div>
             </a>

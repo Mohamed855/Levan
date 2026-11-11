@@ -19,13 +19,8 @@ class CreateDomainsTable extends Migration
             $table->increments('id');
             $table->string('domain', 255)->unique();
             $table->string('tenant_id');
-            $table->enum('is_active', [0, 1])->default(0);
-            $table->enum('type', ['registered', 'transfered', 'linked']);
-            $table->string('transfer_code')->nullable();
-            $table->string('trasnfer_status')->default('pending')->nullable();
             $table->timestamps();
             $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
-
         });
     }
 

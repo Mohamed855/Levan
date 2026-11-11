@@ -12,7 +12,6 @@ use App\Models\Admin\Licenses\LicenseSeat;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Subscription\SubscriptionPeriod;
-use App\Models\Admin\Tenants\Domain;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\UserMangment\User\User;
 use Database\Seeders\tenant\AuctionsAndPropertiesSeeder;
@@ -82,23 +81,12 @@ class TestTenantSeeder extends Seeder
                 'city_id' => City::firstOrCreate(['name' => 'الرياض'])->id,
                 'address' => 'حي العليا، الرياض',
                 'access_type' => 'path',
-                'custom_domain_active' => 0,
                 'api_token' => hash('sha256', 'test-tenant-token'),
                 'data' => [],
             ]
         );
 
         Cache::forget("tenant_connection_{$tenant->id}");
-
-        // 3. Create Domain mapping
-        Domain::updateOrCreate(
-            ['domain' => 'test.localhost'],
-            [
-                'tenant_id' => $tenant->id,
-                'is_active' => '1',
-                'type' => 'linked',
-            ]
-        );
 
         // 4. Run Tenant Migrations and Seeders
         $migrationPath = database_path('migrations/tenant');

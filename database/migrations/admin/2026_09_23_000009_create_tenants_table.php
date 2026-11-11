@@ -37,14 +37,8 @@ class CreateTenantsTable extends Migration
             $table->string('address')->nullable();
             $table->enum('access_type', ['path', 'domain'])->default('path');
 
-            // هل تم تفعيل الدومين المخصص؟
-            $table->boolean('custom_domain_active')->default(false);
-
             $table->string('api_token', 80)->unique()->nullable();
             $table->timestamp('api_token_regenerated_at')->nullable();
-
-            // تاريخ تفعيل الدومين
-            $table->timestamp('domain_activated_at')->nullable();
 
             $table->softDeletes();
 
