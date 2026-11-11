@@ -147,12 +147,30 @@
                                     $period =
                                         $sub->currentPeriod ??
                                         $sub->periods->sortByDesc('period_end')->first();
-                                    $days = app(
-                                        \App\Services\Shared\Subscription\SubscriptionManager::class,
-                                    )->calculateDaysRemaining($period);
+                                    $isTerminated = in_array(
+                                        $sub->status,
+                                        [
+                                            \App\Enums\Admin\Subscriptions\SubscriptionStatus::EXPIRED,
+                                            \App\Enums\Admin\Subscriptions\SubscriptionStatus::CANCELLED,
+                                        ],
+                                        true,
+                                    );
+                                    $days = $isTerminated
+                                        ? 0
+                                        : app(
+                                            \App\Services\Shared\Subscription\SubscriptionManager::class,
+                                        )->calculateDaysRemaining($period, $sub->ends_at ?? $sub->trial_end_date);
                                     $isActive =
                                         $sub->status ===
                                         \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE;
+                                    $canToggleStatus = in_array(
+                                        $sub->status,
+                                        [
+                                            \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE,
+                                            \App\Enums\Admin\Subscriptions\SubscriptionStatus::SUSPENDED,
+                                        ],
+                                        true,
+                                    );
                                 @endphp
                                 <tr>
                                     <td>
@@ -189,12 +207,16 @@
                                     </td>
                                     <td>
                                         @can('subscriptions.toggle_status')
-                                            <div class="form-check form-switch mb-0 d-flex justify-content-center">
-                                                <input type="checkbox"
-                                                    class="form-check-input js-sub-toggle text-center"
-                                                    data-url="{{ route('admin.subscriptions.toggle-status', $sub->id) }}"
-                                                    {{ $isActive ? 'checked' : '' }}>
-                                            </div>
+                                            @if ($canToggleStatus)
+                                                <div class="form-check form-switch mb-0 d-flex justify-content-center">
+                                                    <input type="checkbox"
+                                                        class="form-check-input js-sub-toggle text-center"
+                                                        data-url="{{ route('admin.subscriptions.toggle-status', $sub->id) }}"
+                                                        {{ $isActive ? 'checked' : '' }}>
+                                                </div>
+                                            @else
+                                                <span class="text-muted small">-</span>
+                                            @endif
                                         @else
                                             -
                                         @endcan
@@ -262,7 +284,7 @@
     </div>
 @endsection
 
-@push('scripts')
+@section('page-script')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Subscription status toggle
@@ -310,4 +332,4 @@
             });
         });
     </script>
-@endpush
+@endsection

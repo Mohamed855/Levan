@@ -565,4 +565,85 @@ class AdminSubscriptionsFixesTest extends TestCase
             Plan::withTrashed()->whereKey($plan->id)->forceDelete();
         }
     }
+
+    public function test_client_show_renders_subscription_scripts_and_handles_expired_days_and_periodless_dates(): void
+    {
+        $tenant = $this->makeTenant();
+        $plan = $this->makePlan(['is_active' => true]);
+
+        $expiredSub = Subscription::create([
+            'tenant_id' => $tenant->id,
+            'plan_id' => $plan->id,
+            'subscription_number' => 'SUB-EXP-'.uniqid(),
+            'billing_cycle' => SubscriptionBillingCycle::MONTHLY,
+            'price' => 100.00,
+            'status' => SubscriptionStatus::EXPIRED,
+            'total_users' => 1,
+            'used_users' => 0,
+            'starts_at' => now()->subMonth(),
+            'ends_at' => now()->addDays(10),
+        ]);
+
+        $activePeriodlessSub = Subscription::create([
+            'tenant_id' => $tenant->id,
+            'plan_id' => $plan->id,
+            'subscription_number' => 'SUB-ACT-'.uniqid(),
+            'billing_cycle' => SubscriptionBillingCycle::MONTHLY,
+            'price' => 100.00,
+            'status' => SubscriptionStatus::ACTIVE,
+            'total_users' => 1,
+            'used_users' => 0,
+            'starts_at' => now()->subDays(5),
+            'ends_at' => now()->addDays(20),
+        ]);
+
+        try {
+            $response = $this->get('http://localhost/superadmin/clients/'.$tenant->id);
+            $response->assertOk();
+
+            $html = $response->getContent();
+
+            $this->assertStringContainsString('window.confirmRecordDelete', $html);
+            $this->assertStringContainsString("$(document).on('change', '.js-sub-toggle'", $html);
+            $this->assertStringContainsString('يوماً', $html);
+            $this->assertSame(1, substr_count($html, 'js-sub-toggle text-center'));
+            $this->assertMatchesRegularExpression('/<span class="badge bg-label-danger">منتهي<\/span>/', $html);
+        } finally {
+            $expiredSub->forceDelete();
+            $activePeriodlessSub->forceDelete();
+            Tenant::withTrashed()->whereKey($tenant->id)->forceDelete();
+            Plan::withTrashed()->whereKey($plan->id)->forceDelete();
+        }
+    }
+
+    public function test_plan_show_renders_subscription_starts_at_and_ends_at_dates(): void
+    {
+        $tenant = $this->makeTenant();
+        $plan = $this->makePlan(['is_active' => true]);
+
+        $sub = Subscription::create([
+            'tenant_id' => $tenant->id,
+            'plan_id' => $plan->id,
+            'subscription_number' => 'SUB-PLN-'.uniqid(),
+            'billing_cycle' => SubscriptionBillingCycle::YEARLY,
+            'price' => 500.00,
+            'status' => SubscriptionStatus::ACTIVE,
+            'total_users' => 1,
+            'used_users' => 0,
+            'starts_at' => '2026-06-15 10:00:00',
+            'ends_at' => '2027-06-15 10:00:00',
+        ]);
+
+        try {
+            $response = $this->get('http://localhost/superadmin/plans/'.$plan->id);
+            $response->assertOk();
+
+            $response->assertSee('15-06-2026', false);
+            $response->assertSee('15-06-2027', false);
+        } finally {
+            $sub->forceDelete();
+            Tenant::withTrashed()->whereKey($tenant->id)->forceDelete();
+            Plan::withTrashed()->whereKey($plan->id)->forceDelete();
+        }
+    }
 }

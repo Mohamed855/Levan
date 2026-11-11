@@ -283,8 +283,8 @@
                                         <small class="text-muted">{{ $primaryEmail ?: '-' }}</small>
                                     </td>
                                     <td>
-                                        <div>@date($sub->start_date)</div>
-                                        <small class="text-muted">إلى @date($sub->end_date)</small>
+                                        <div>@date($sub->starts_at)</div>
+                                        <small class="text-muted">إلى @date($sub->ends_at)</small>
                                     </td>
                                     <td>
                                         <span class="badge bg-label-{{ $sub->status?->color() ?? 'secondary' }}">

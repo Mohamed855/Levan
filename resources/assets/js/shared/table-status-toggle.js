@@ -28,7 +28,7 @@ function responseStatusValue(response) {
             return true;
         }
 
-        if (['inactive', '0', 'false'].includes(value.toLowerCase())) {
+        if (['inactive', 'suspended', '0', 'false'].includes(value.toLowerCase())) {
             return false;
         }
     }
