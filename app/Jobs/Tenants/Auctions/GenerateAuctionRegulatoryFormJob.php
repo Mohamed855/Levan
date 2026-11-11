@@ -111,6 +111,7 @@ final class GenerateAuctionRegulatoryFormJob implements ShouldQueue
             if (! $disk->put($path, file_get_contents($temporary)) || ! $disk->exists($path)) {
                 throw new RuntimeException('Could not save the regulatory PDF in private storage.');
             }
+            $generation->update(['progress' => 95]);
             $published = DB::transaction(function () use ($generation, $path): bool {
                 $auction = Auction::query()->whereKey($this->auctionId)->lockForUpdate()->first();
                 if (! $auction || ! $this->isLatest($generation)) {

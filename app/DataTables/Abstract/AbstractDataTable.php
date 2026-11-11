@@ -554,4 +554,29 @@ abstract class AbstractDataTable extends DataTable
 
         return '<div>'.e($formattedDate).'</div><small class="text-muted">'.e($formattedTime).'</small>';
     }
+
+    /**
+     * Resolve the display name of an assignment's issuing entity as plain text.
+     */
+    protected function resolveAssignmentIssuingEntity(object $row, bool $fallbackToAssignmentName = true): string
+    {
+        $assignment = data_get($row, 'assignment');
+        if (! is_object($assignment)) {
+            return '-';
+        }
+
+        $candidates = [
+            data_get($assignment, 'issuingEntity.name'),
+            data_get($assignment, 'issuing_entity'),
+            $fallbackToAssignmentName ? data_get($assignment, 'name') : null,
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (filled($candidate)) {
+                return (string) $candidate;
+            }
+        }
+
+        return '-';
+    }
 }

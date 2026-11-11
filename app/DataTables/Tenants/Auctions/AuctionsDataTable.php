@@ -62,21 +62,7 @@ class AuctionsDataTable extends AbstractDataTable
                     <small class="text-muted">'.e($row->type_label).' - '.e($row->city).'</small>
                 </div>';
             })
-            ->addColumn('issuing_entity', function ($row) {
-                if (! $row->assignment) {
-                    return '-';
-                }
-
-                $entityName = $row->assignment->issuingEntity?->name
-                    ?? $row->assignment->issuing_entity
-                    ?? $row->assignment->name;
-
-                if (blank($entityName)) {
-                    return '-';
-                }
-
-                return '<a href="'.tenant_route_name('assignments.show', $row->assignment_id).'" class="text-body fw-medium" title="'.e((string) $row->assignment->name).'">'.e((string) $entityName).'</a>';
-            })
+            ->addColumn('issuing_entity', fn ($row): string => $this->resolveAssignmentIssuingEntity($row))
             ->editColumn('city', fn ($row): string => $row->city ? e($row->city) : '-')
             ->addColumn('assignment', function ($row) {
                 if (! $row->assignment) {
@@ -146,7 +132,7 @@ class AuctionsDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'image', 'name', 'assignment', 'issuing_entity', 'start_date', 'end_date', 'properties_count', 'outputs', 'status_badge', 'completion_status', 'actions'];
+        return ['checkbox', 'image', 'name', 'assignment', 'start_date', 'end_date', 'properties_count', 'outputs', 'status_badge', 'completion_status', 'actions'];
     }
 
     protected function filterableColumns(): array

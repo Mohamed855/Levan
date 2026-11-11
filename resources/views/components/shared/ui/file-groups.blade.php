@@ -55,23 +55,20 @@
                 @foreach ($singleFileGroups as $group)
                     @php($card = $mapFileCardProps($group['items'][0]))
                     <div class="col-md-6">
-                        <div class="app-file-group app-file-group--single">
-                            <div class="app-file-group__header bg-label-primary text-primary d-flex align-items-center">
-                                <span class="app-file-group__title">{{ $group['label'] }}</span>
-                            </div>
-                            <x-ui.file-card
-                                :file="$card['file']"
-                                :name="$card['name']"
-                                :url="$card['url']"
-                                :downloadUrl="$card['downloadUrl']"
-                                :size="$card['size']"
-                                :meta="$card['meta']"
-                                :extension="$card['extension']"
-                                :isImage="$card['isImage']"
-                                :layout="$layout"
-                                class="app-file-card--wide"
-                            />
-                        </div>
+                        <x-ui.file-card
+                            :file="$card['file']"
+                            :name="$card['name']"
+                            :url="$card['url']"
+                            :downloadUrl="$card['downloadUrl']"
+                            :size="$card['size']"
+                            :meta="$card['meta']"
+                            :extension="$card['extension']"
+                            :isImage="$card['isImage']"
+                            :layout="$layout"
+                            variant="tile"
+                            :groupLabel="$group['label']"
+                            class="h-100"
+                        />
                     </div>
                 @endforeach
             </div>

@@ -165,11 +165,9 @@
                         <h6 class="card-title mb-0">
                             <i class="ti ti-photo-edit text-primary me-2"></i>صورة العقار المحددة
                         </h6>
-                        <a href="{{ tasset($property->aerial_image) }}"
-                            download="property-{{ $property->property_number }}-boundary.png"
-                            class="btn btn-sm btn-primary">
-                            <i class="ti ti-download me-1"></i>
-                        </a>
+                        <x-actions.show :url="tasset($property->aerial_image)" title="تحميل الصورة المحددة" icon="ti ti-download"
+                            class="btn-icon btn-label-primary"
+                            download="property-{{ $property->property_number }}-boundary.png" />
                     </div>
                     <div class="card-body text-center">
                         <a href="{{ tasset($property->aerial_image) }}" target="_blank" title="عرض الصورة بالحجم الكامل">

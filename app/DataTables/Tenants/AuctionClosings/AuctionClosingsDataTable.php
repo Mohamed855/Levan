@@ -165,21 +165,7 @@ final class AuctionClosingsDataTable extends AbstractDataTable
             ->addColumn('assignment_number', function ($row): string {
                 return $this->copyableCode($row->assignment?->assignment_number);
             })
-            ->addColumn('issuing_entity', function ($row) {
-                if (! $row->assignment) {
-                    return '-';
-                }
-
-                $entityName = $row->assignment->issuingEntity?->name
-                    ?? $row->assignment->issuing_entity
-                    ?? $row->assignment->name;
-
-                if (blank($entityName)) {
-                    return '-';
-                }
-
-                return '<a href="'.tenant_route_name('assignments.show', $row->assignment_id).'" class="text-body fw-medium" title="'.e((string) $row->assignment->name).'">'.e((string) $entityName).'</a>';
-            })
+            ->addColumn('issuing_entity', fn ($row): string => $this->resolveAssignmentIssuingEntity($row))
             ->editColumn('city', fn ($row): string => $row->city ? e($row->city) : '-')
             ->editColumn('start_date', function ($row) {
                 return $this->formatDateWithSubTime($row->start_date, $row->start_time);
@@ -221,7 +207,6 @@ final class AuctionClosingsDataTable extends AbstractDataTable
             'image',
             'name',
             'assignment_number',
-            'issuing_entity',
             'start_date',
             'end_date',
             'properties_count',

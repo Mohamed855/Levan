@@ -19,10 +19,12 @@
         $isLocked = $isClosed;
         $hasCampaigns = $auction->marketingCampaigns->isNotEmpty();
     @endphp
-    <div class="card {{ (auth('tenant')->user()?->can('auction_closings.view') || ($hasFollowingCard ?? false)) ? 'mb-4' : '' }}">
+    <div
+        class="card {{ auth('tenant')->user()?->can('auction_closings.view') || ($hasFollowingCard ?? false) ? 'mb-4' : '' }}">
         <div class="card-header d-flex justify-content-between align-items-center mb-3">
             <h5 class="card-title mb-0">
-                <i class="ti ti-speakerphone text-primary me-2"></i>الحملات التسويقية ({{ $auction->marketingCampaigns->count() }})
+                <i class="ti ti-speakerphone text-primary me-2"></i>الحملات التسويقية
+                ({{ $auction->marketingCampaigns->count() }})
             </h5>
             <div class="d-flex align-items-center gap-2">
                 @if ($hasCampaigns)
@@ -51,10 +53,10 @@
                             <tr>
                                 <td>
                                     {{ $channelLabel }}
-                                    @if ($campaign->campaign_date)
+                                    {{-- @if ($campaign->campaign_date)
                                         <small class="text-muted"><i
                                                 class="ti ti-calendar me-1"></i>@date($campaign->campaign_date)</small>
-                                    @endif
+                                    @endif --}}
                                 </td>
                                 <td>
                                     <span class="badge bg-label-info">{{ $campaign->evidence->count() }} مرفق</span>
@@ -70,7 +72,7 @@
     </div>
 @endcan
 @can('auction_closings.view')
-    <div class="card {{ ($hasFollowingCard ?? false) ? 'mb-4' : '' }}">
+    <div class="card {{ $hasFollowingCard ?? false ? 'mb-4' : '' }}">
         <div class="card-header d-flex justify-content-between align-items-center mb-3">
             <h5 class="card-title mb-0">
                 <i class="ti ti-lock-check text-primary me-2"></i>إقفال المزاد

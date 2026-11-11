@@ -10,6 +10,8 @@
     'removable' => false,
     'deleteAction' => null,
     'layout' => 'card', // 'card' or 'list'
+    'variant' => 'card', // 'card' or 'tile'
+    'groupLabel' => null,
 ])
 
 @php
@@ -102,9 +104,11 @@
     if (!$sizeFormatted) {
         $sizeFormatted = $typeName;
     }
+
+    $isTile = $variant === 'tile';
 @endphp
 
-<article {{ $attributes->merge(['class' => 'assignment-file-card app-file-card'])->except('data-file-type') }} data-file-type="{{ $ext }}">
+<article {{ $attributes->merge(['class' => 'assignment-file-card app-file-card' . ($isTile ? ' app-file-card--tile' : '')])->except('data-file-type') }} data-file-type="{{ $ext }}">
     <div class="assignment-file-card__preview">
         @if ($isImage && $url)
             <img src="{{ $url }}" alt="{{ $name }}" class="assignment-file-card__img" loading="lazy">
@@ -117,38 +121,40 @@
                 <span class="assignment-file-card__type-pill">{{ strtoupper($ext ?: 'FILE') }}</span>
             </div>
         @endif
-
-        @if ($url || $downloadUrl)
-            <div class="assignment-file-card__actions app-file-card__actions">
-                @if ($url)
-                    <a href="{{ $url }}" target="_blank" rel="noopener noreferrer"
-                        class="assignment-file-card__action app-file-card__action assignment-file-card__action--preview"
-                        title="معاينة الملف" aria-label="معاينة">
-                        <i class="ti ti-eye"></i>
-                    </a>
-                @endif
-                @if ($downloadUrl)
-                    <a href="{{ $downloadUrl }}" download="{{ $downloadName }}"
-                        class="assignment-file-card__action app-file-card__action assignment-file-card__action--download"
-                        title="تحميل الملف" aria-label="تحميل">
-                        <i class="ti ti-download"></i>
-                    </a>
-                @endif
-            </div>
-        @endif
-        @if ($removable && $deleteAction)
-            <button type="button"
-                class="assignment-file-card__action app-file-card__action assignment-file-card__action--delete text-danger"
-                {!! $deleteAction !!} title="حذف الملف" aria-label="حذف">
-                <i class="ti ti-trash"></i>
-            </button>
-        @endif
     </div>
     <div class="assignment-file-card__info">
+        @if ($isTile && filled($groupLabel))
+            <span class="app-file-card__group-label text-primary" title="{{ $groupLabel }}">{{ $groupLabel }}</span>
+        @endif
         <span class="assignment-file-card__name" title="{{ $name }}">{{ $name }}</span>
         <div class="assignment-file-card__meta">
             <span class="text-muted text-truncate me-1">{{ $sizeFormatted }}</span>
             <span class="badge bg-label-{{ $badgeColor }}">{{ strtoupper($ext ?: 'FILE') }}</span>
         </div>
     </div>
+    @if ($url || $downloadUrl)
+        <div class="assignment-file-card__actions app-file-card__actions">
+            @if ($url)
+                <a href="{{ $url }}" target="_blank" rel="noopener noreferrer"
+                    class="assignment-file-card__action app-file-card__action assignment-file-card__action--preview"
+                    title="معاينة الملف" aria-label="معاينة">
+                    <i class="ti ti-eye"></i>
+                </a>
+            @endif
+            @if ($downloadUrl)
+                <a href="{{ $downloadUrl }}" download="{{ $downloadName }}"
+                    class="assignment-file-card__action app-file-card__action assignment-file-card__action--download"
+                    title="تحميل الملف" aria-label="تحميل">
+                    <i class="ti ti-download"></i>
+                </a>
+            @endif
+        </div>
+    @endif
+    @if ($removable && $deleteAction)
+        <button type="button"
+            class="assignment-file-card__action app-file-card__action assignment-file-card__action--delete text-danger"
+            {!! $deleteAction !!} title="حذف الملف" aria-label="حذف">
+            <i class="ti ti-trash"></i>
+        </button>
+    @endif
 </article>

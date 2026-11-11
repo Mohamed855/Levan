@@ -32,7 +32,7 @@
     };
 
     $ticketAttachments = $normalizeAttachments($ticket->attachments ?? [], 'مرفق');
-    $allAttachments = $normalizeAttachments($ticket->attachments ?? [], 'مرفق التذكرة', 'التذكرة الأصلية');
+    $allAttachments = $normalizeAttachments($ticket->attachments ?? [], 'مرفق التذكرة', 'مرفقات التذكرة');
 
     if (!empty($repliesList) && is_iterable($repliesList)) {
         foreach ($repliesList as $reply) {
@@ -40,11 +40,11 @@
             $sender = is_array($reply) ? $reply['sender_type'] ?? '' : $reply->sender_type ?? '';
             $sourceLabel = $isAdmin
                 ? (in_array($sender, ['support_user', 'admin'], true)
-                    ? 'رد الدعم الفني'
-                    : 'رد المستأجر')
+                    ? 'مرفقات الدعم الفني'
+                    : 'مرفقات العميل')
                 : ($sender === 'tenant_user'
-                    ? 'ردك'
-                    : 'رد الدعم الفني');
+                    ? 'مرفقات العميل'
+                    : 'مرفقات الدعم الفني');
 
             $allAttachments = array_merge($allAttachments, $normalizeAttachments($replyAtts, 'مرفق رد', $sourceLabel));
         }
@@ -175,17 +175,9 @@
                 <div class="card-body">
                     <form action="{{ route('admin.tickets.updateStatus', $ticket->ticket_number) }}" method="POST">
                         @csrf
-                        <x-form.controls.select
-                            id="ticketStatusSelect"
-                            name="status"
-                            :enum="\App\Enums\Tenants\Tickets\TicketStatus::class"
-                            :value="$ticketStatusValue"
-                            :select2="true"
-                            :required="true"
-                            col="mb-3"
-                            data-select2-search="false"
-                            data-placeholder="اختر الحالة"
-                        />
+                        <x-form.controls.select id="ticketStatusSelect" name="status" :enum="\App\Enums\Tenants\Tickets\TicketStatus::class"
+                            :value="$ticketStatusValue" :select2="true" :required="true" col="mb-3"
+                            data-select2-search="false" data-placeholder="اختر الحالة" />
                         <button type="submit" class="btn btn-primary w-100">
                             <i class="ti ti-check me-1"></i> تحديث الحالة
                         </button>
@@ -258,7 +250,7 @@
         @endif
     </div>
 
-    {{-- تفاصيل التذكرة والمحادثة والردود (العمود الأيسر) --}}
+    {{-- تفاصيل التذكرة والمحادثة (العمود الأيسر) --}}
     <div class="col-xl-8 col-lg-7 col-md-7">
         {{-- تفاصيل التذكرة --}}
         <div class="card mb-4">
@@ -272,25 +264,14 @@
                 <h6 class="fw-bold mb-2">{{ $ticket->title }}</h6>
                 <div class="p-3 bg-secondary rounded mb-3">
                     {{ $ticket->description }}</div>
-
-                @if (count($ticketAttachments) > 0)
-                    <div class="mt-3">
-                        <h6 class="small text-muted mb-2"><i class="ti ti-paperclip me-1"></i> المرفقات:</h6>
-                        <div class="d-flex flex-wrap gap-3">
-                            @foreach ($ticketAttachments as $file)
-                                <x-ui.file-card :name="$file['name']" :url="$file['url']" />
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
             </div>
         </div>
 
-        {{-- المحادثة والردود --}}
+        {{-- المحادثة --}}
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center mb-3">
                 <h5 class="card-title mb-0">
-                    <i class="ti ti-messages text-primary me-2"></i>المحادثة والردود ({{ $repliesCount }})
+                    <i class="ti ti-messages text-primary me-2"></i>المحادثة ({{ $repliesCount }})
                 </h5>
                 @if ($repliesCount > 0)
                     <span class="badge bg-label-primary">{{ $repliesCount }} رد</span>
@@ -344,7 +325,8 @@
                                         </small>
                                     </div>
                                     @if (filled($message))
-                                        <div style="white-space: pre-wrap; line-height: 1.5;">{{ $message }}</div>
+                                        <div style="white-space: pre-wrap; line-height: 1.5;">{{ $message }}
+                                        </div>
                                     @endif
 
                                     @if (count($replyAttachments) > 0)
@@ -399,22 +381,23 @@
                 {{-- نموذج إضافة رد --}}
                 <hr class="my-4">
                 @if ($canReply)
-                    <form id="ticket-reply-form" action="{{ $replyAction }}" method="POST" enctype="multipart/form-data"
+                    <form id="ticket-reply-form" action="{{ $replyAction }}" method="POST"
+                        enctype="multipart/form-data"
                         @if (!$isAdmin) novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}" @endif>
                         @csrf
                         <div class="mb-3">
                             <div @if (!$isAdmin) data-form-field data-field-name="message" @endif>
-                                <label class="form-label fw-bold" for="replyMessage">إضافة رد على التذكرة:</label>
+                                <label class="form-label fw-bold" for="replyMessage">الرسالة:</label>
                                 <div class="ticket-reply-composer @error('message') border-danger @enderror">
                                     <textarea class="form-control border-0 shadow-none" id="replyMessage" name="message"
                                         @if (!$isAdmin) data-form-control data-validation-dependents="attachments[]" @endif
-                                        rows="4"
-                                        placeholder="{{ $isAdmin ? 'اكتب رد الدعم الفني هنا...' : 'اكتب ردك هنا...' }}">{{ old('message') }}</textarea>
+                                        rows="4" placeholder="{{ $isAdmin ? 'اكتب رد الدعم الفني هنا...' : 'اكتب ردك هنا...' }}">{{ old('message') }}</textarea>
 
                                     {{-- شريط المرفقات المدمج داخل صندوق الرد --}}
                                     <div class="ticket-reply-composer-toolbar px-3 py-2 border-top d-flex justify-content-between align-items-center rounded-bottom"
                                         dir="rtl">
-                                        <div id="attachment-status-container" class="dropdown d-flex align-items-center">
+                                        <div id="attachment-status-container"
+                                            class="dropdown d-flex align-items-center">
                                             <button type="button" id="attachment-status-text"
                                                 class="btn btn-sm badge bg-label-primary small d-none align-items-center gap-1 border-0"
                                                 data-bs-toggle="dropdown" data-bs-auto-close="outside"
@@ -427,7 +410,8 @@
                                             </button>
 
                                             <div class="dropdown-menu dropdown-menu-start ticket-attachments-dropdown-menu"
-                                                id="ticket-attachments-dropdown" aria-labelledby="attachment-status-text">
+                                                id="ticket-attachments-dropdown"
+                                                aria-labelledby="attachment-status-text">
                                                 <ul id="ticket-attachments-list" class="list-unstyled mb-0"></ul>
                                             </div>
                                         </div>
@@ -440,17 +424,18 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div id="replyMessage-error" class="invalid-feedback d-block" data-form-error role="alert"
-                                    @if (! $errors->has('message')) hidden @endif>
+                                <div id="replyMessage-error" class="invalid-feedback d-block" data-form-error
+                                    role="alert" @if (!$errors->has('message')) hidden @endif>
                                     {{ $errors->first('message') }}
                                 </div>
                             </div>
-                            <div @if (!$isAdmin) data-form-field data-field-name="attachments[]" @endif>
+                            <div
+                                @if (!$isAdmin) data-form-field data-field-name="attachments[]" @endif>
                                 <input type="file" id="attachments" name="attachments[]"
                                     @if (!$isAdmin) data-form-control data-validation-dependents="message" @endif
                                     multiple class="d-none" accept="image/*,application/pdf,.doc,.docx">
-                                <div id="attachments-error" class="invalid-feedback d-block" data-form-error role="alert"
-                                    @if (! $errors->has('attachments') && ! $errors->has('attachments.*')) hidden @endif>
+                                <div id="attachments-error" class="invalid-feedback d-block" data-form-error
+                                    role="alert" @if (!$errors->has('attachments') && !$errors->has('attachments.*')) hidden @endif>
                                     {{ $errors->first('attachments') ?: $errors->first('attachments.*') }}
                                 </div>
                             </div>
@@ -476,11 +461,13 @@
         {{-- كارت المرفقات الشامل --}}
         @php
             $ticketFileGroups = collect($allAttachments)
-                ->groupBy(fn (array $att) => $att['source'] ?: 'مرفقات التذكرة')
-                ->map(fn ($items, string $source) => [
-                    'label' => $source,
-                    'items' => $items->values()->all(),
-                ])
+                ->groupBy(fn(array $att) => $att['source'] ?: 'مرفقات التذكرة')
+                ->map(
+                    fn($items, string $source) => [
+                        'label' => $source,
+                        'items' => $items->values()->all(),
+                    ],
+                )
                 ->values()
                 ->all();
         @endphp

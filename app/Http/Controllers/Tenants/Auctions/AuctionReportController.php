@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Tenants\Auctions;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auctions\RetryAuctionReportsRequest;
 use App\Models\Tenants\Auctions\Auction;
+use App\Models\Tenants\Auctions\AuctionReportGeneration;
 use App\Services\Tenants\Auctions\Reports\AuctionReportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -40,15 +41,7 @@ final class AuctionReportController extends Controller
             $generation = $this->reportService->startPendingGeneration($auction, (string) tenant('id')) ?? $generation;
         }
 
-        return response()->json([
-            'status' => $generation->status,
-            'progress' => (int) ($generation->progress ?? 0),
-            'generation_id' => $generation->id,
-            'has_outputs' => $published?->isReady() && filled($published->outputs_path),
-            'has_report' => $published?->isReady() && filled($published->report_path),
-            'error_message' => $generation->publicErrorMessage(),
-            'updated_at' => $generation->updated_at?->toIso8601String(),
-        ]);
+        return response()->json($this->reportStatePayload($auction, $generation, $published));
     }
 
     /**
@@ -124,26 +117,30 @@ final class AuctionReportController extends Controller
 
         try {
             $generation = $this->reportService->retryLatest($auction, $tenantId);
+            if ($generation->status === 'queued') {
+                $generation = $this->reportService->startPendingGeneration($auction, $tenantId) ?? $generation;
+            }
+            $published = ($auction->exists ? $auction->fresh()?->publishedReportGeneration : null)
+                ?? $auction->publishedReportGeneration;
+            $payload = $this->reportStatePayload($auction, $generation, $published);
 
             $isReady = $generation->isReady();
             $isFailed = $generation->isFailed();
 
             if ($isFailed) {
-                return response()->json([
+                return response()->json(array_replace($payload, [
                     'success' => false,
                     'status' => 'failed',
-                    'message' => $generation->error_message ?: 'تعذر تجهيز ملفات المزاد.',
-                ], 422);
+                    'message' => $generation->publicErrorMessage() ?: 'تعذر تجهيز ملفات المزاد.',
+                ]), 422);
             }
 
-            return response()->json([
+            return response()->json(array_replace($payload, [
                 'success' => true,
-                'status' => $generation->status,
-                'progress' => (int) ($generation->progress ?? ($isReady ? 100 : 0)),
                 'message' => $isReady
                     ? 'تم تجهيز ملفات المزاد بنجاح.'
                     : 'تمت جدولة إعادة تجهيز ملفات المزاد.',
-            ], $isReady ? 200 : 202);
+            ]), $isReady ? 200 : 202);
         } catch (\Throwable $e) {
             Log::error('Auction report retry failed.', ['auction_id' => $auction->id, 'exception' => $e]);
 
@@ -152,5 +149,31 @@ final class AuctionReportController extends Controller
                 'message' => 'تعذر تجهيز ملفات المزاد. يُرجى المحاولة مرة أخرى.',
             ], 500);
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function reportStatePayload(Auction $auction, AuctionReportGeneration $generation, ?AuctionReportGeneration $published): array
+    {
+        $hasOutputs = (bool) ($published?->isReady() && filled($published->outputs_path));
+        $hasReport = (bool) ($published?->isReady() && filled($published->report_path));
+        $canBuildUrls = $auction->id !== null;
+
+        return [
+            'status' => $generation->status,
+            'progress' => (int) ($generation->progress ?? ($generation->isReady() ? 100 : 0)),
+            'generation_id' => $generation->id,
+            'has_outputs' => $hasOutputs,
+            'has_report' => $hasReport,
+            'outputs_download_url' => ($hasOutputs && $canBuildUrls)
+                ? tenant_route_name('auctions.reports.download', ['auction' => $auction->id, 'type' => 'outputs'])
+                : null,
+            'report_download_url' => ($hasReport && $canBuildUrls)
+                ? tenant_route_name('auctions.reports.download', ['auction' => $auction->id, 'type' => 'report'])
+                : null,
+            'error_message' => $generation->publicErrorMessage(),
+            'updated_at' => $generation->updated_at?->toIso8601String(),
+        ];
     }
 }

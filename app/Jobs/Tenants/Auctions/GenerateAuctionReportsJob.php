@@ -112,20 +112,22 @@ class GenerateAuctionReportsJob implements ShouldQueue
                 ->findOrFail($this->auctionId);
 
             $snapshot = $generation->snapshot ?? $dataBuilder->build($auction);
-            $generation->update(['progress' => 25]);
+            $generation->update(['progress' => 20]);
 
             $outputsHtml = $renderer->html($snapshot, 'outputs');
+            $generation->update(['progress' => 30]);
             $pdfRenderer->pdf($outputsHtml, $outputsTmp);
             unset($outputsHtml);
             $generation->update(['progress' => 60]);
 
             $reportHtml = $renderer->html($snapshot, 'report');
+            $generation->update(['progress' => 70]);
             $pdfRenderer->pdf($reportHtml, $reportTmp);
             unset($reportHtml);
-            $generation->update(['progress' => 85]);
 
             $this->assertPdfWasWritten($outputsTmp);
             $this->assertPdfWasWritten($reportTmp);
+            $generation->update(['progress' => 90]);
 
             if (! $this->isLatestGeneration()) {
                 $generation->update(['status' => 'superseded', 'completed_at' => now()]);
@@ -139,6 +141,7 @@ class GenerateAuctionReportsJob implements ShouldQueue
             if (! $outputsWritten || ! $reportWritten || ! $disk->exists($outputsPath) || ! $disk->exists($reportPath)) {
                 throw new \RuntimeException('تعذر حفظ ملفي تقرير المزاد في التخزين الخاص.');
             }
+            $generation->update(['progress' => 95]);
 
             if (! $this->isLatestGeneration()) {
                 $disk->delete([$outputsPath, $reportPath]);
@@ -230,6 +233,7 @@ class GenerateAuctionReportsJob implements ShouldQueue
                 ->whereIn('status', ['queued', 'processing'])
                 ->update([
                     'status' => 'failed',
+                    'progress' => 0,
                     'error_message' => $exception?->getMessage() ?? 'Auction report generation failed.',
                     'completed_at' => now(),
                 ]);

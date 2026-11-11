@@ -22,31 +22,29 @@
                 $formGeneration = $formService->latest($auction, $formType);
                 $publishedForm = $formService->published($auction, $formType);
                 $formProcessing = (bool) $formGeneration?->isProcessing();
-                $formReady = !$formProcessing && (bool) $publishedForm;
+                $hasPublishedForm = (bool) $publishedForm?->isReady();
+                $formReadyToDownload = !$formProcessing && $hasPublishedForm;
                 $formFailed = !$formProcessing && $formGeneration?->status === 'failed';
-                $formProgress = (int) ($formGeneration?->progress ?? 0);
+                $formPrepStatus = \App\Enums\Tenants\Auctions\AuctionFilePreparationStatus::resolve(
+                    $formGeneration?->status,
+                    $hasPublishedForm,
+                );
+                $formProgress = $formGeneration ? max(0, min(100, (int) ($formGeneration->progress ?? 0))) : 0;
                 $formDownload = tenant_route_name('auctions.forms.download', ['auction' => $auction->id, 'type' => $formType]);
             @endphp
             <div class="card mb-4" data-regulatory-form="{{ $formType }}"
                 data-status="{{ $formGeneration?->status ?? 'none' }}"
+                data-generation-id="{{ $formGeneration?->id }}"
+                data-progress="{{ $formProgress }}"
+                data-has-file="{{ $hasPublishedForm ? '1' : '0' }}"
+                data-download-url="{{ $formDownload }}"
                 data-status-url="{{ tenant_route_name('auctions.forms.status', ['auction' => $auction->id, 'type' => $formType]) }}"
                 data-retry-url="{{ tenant_route_name('auctions.forms.retry', ['auction' => $auction->id, 'type' => $formType]) }}">
                 <div class="card-header pb-2 mb-3 d-flex justify-content-between align-items-center">
                     <h6 class="card-title mb-0">
                         <i class="ti {{ $formOptions['icon'] }} text-primary me-2"></i>{{ $formOptions['label'] }}
                     </h6>
-                    <span data-form-badge
-                        class="badge {{ $formProcessing ? 'bg-label-info' : ($formFailed ? 'bg-label-danger' : ($formReady ? 'bg-label-success' : 'bg-label-secondary')) }}">
-                        @if ($formProcessing)
-                            <i class="ti ti-loader ti-spin me-1"></i>قيد التوليد
-                        @elseif ($formFailed)
-                            فشل الإعداد
-                        @elseif ($formReady)
-                            جاهز للتحميل
-                        @else
-                            غير مجهز بعد
-                        @endif
-                    </span>
+                    <span data-form-badge class="badge {{ $formPrepStatus->badgeClass() }}">{{ $formPrepStatus->label() }}</span>
                 </div>
                 <div class="card-body">
                     <div data-form-error class="text-danger small mb-3 {{ $formFailed ? '' : 'd-none' }}">
@@ -63,6 +61,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="fw-semibold small text-primary">
                                 <i class="ti ti-loader ti-spin me-1"></i>جارٍ تحضير وتجهيز النموذج...
+                                <span data-form-stage class="text-muted fw-normal"></span>
                             </span>
                             <span data-form-percent class="fw-bold text-primary small">{{ $formProgress }}%</span>
                         </div>
@@ -71,15 +70,15 @@
                             aria-label="تقدم تجهيز النموذج">
                             <div data-form-progress
                                 class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
-                                style="width: {{ max(6, $formProgress) }}%;"></div>
+                                style="width: {{ $formProgress }}%;"></div>
                         </div>
                     </div>
 
                     <div class="d-grid gap-2">
                         <a data-form-download
-                            href="{{ $formReady ? $formDownload : 'javascript:void(0)' }}"
-                            class="btn btn-primary d-flex align-items-center justify-content-between {{ $formReady ? '' : 'disabled' }}"
-                            @if (!$formReady) disabled aria-disabled="true" @else aria-disabled="false" @endif>
+                            href="{{ $formReadyToDownload ? $formDownload : 'javascript:void(0)' }}"
+                            class="btn btn-primary d-flex align-items-center justify-content-between {{ $formReadyToDownload ? '' : 'disabled' }}"
+                            @if (!$formReadyToDownload) disabled aria-disabled="true" @else aria-disabled="false" @endif>
                             <span><i class="ti {{ $formOptions['icon'] }} me-2"></i>تحميل {{ $formOptions['label'] }}</span>
                             <i class="ti ti-download"></i>
                         </a>
@@ -90,7 +89,7 @@
                                 @if ($formProcessing) aria-disabled="true" @endif>
                                 <i data-form-retry-icon class="ti {{ $formProcessing ? 'ti-loader ti-spin' : 'ti-refresh' }} me-1"></i>
                                 <span data-form-retry-text>
-                                    {{ $formProcessing ? 'جارٍ التوليد...' : ($publishedForm ? 'إعادة توليد النموذج' : ($formFailed ? 'إعادة محاولة الإعداد' : 'بدء تجهيز النموذج')) }}
+                                    {{ $formProcessing ? 'جارٍ التوليد...' : ($hasPublishedForm ? 'إعادة توليد النموذج' : ($formFailed ? 'إعادة محاولة التجهيز' : 'بدء تجهيز النموذج')) }}
                                 </span>
                             </button>
                         @endcan
@@ -102,10 +101,21 @@
 @endforeach
 
 @once
+    @include('tenant.auctions.partials._generation-helpers')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const ui = window.AuctionGenerationUI;
             const AUTO_TIMEOUT_MS = 45000;
             const MANUAL_TIMEOUT_MS = 68000;
+            const FORM_STAGES = [
+                { min: 0, label: '(في انتظار بدء المعالجة)' },
+                { min: 5, label: '(تمت الجدولة)' },
+                { min: 10, label: '(بدء المعالجة)' },
+                { min: 30, label: '(توليد ملف النموذج PDF)' },
+                { min: 85, label: '(التحقق من الملف)' },
+                { min: 95, label: '(حفظ النموذج)' },
+                { min: 100, label: '(اكتمل التجهيز)' },
+            ];
 
             document.querySelectorAll('[data-regulatory-form]').forEach(function(card) {
                 const badge = card.querySelector('[data-form-badge]');
@@ -115,23 +125,35 @@
                 const loadingBox = card.querySelector('[data-form-loading]');
                 const progressBar = card.querySelector('[data-form-progress]');
                 const progressPercent = card.querySelector('[data-form-percent]');
+                const stageLabel = card.querySelector('[data-form-stage]');
                 const downloadBtn = card.querySelector('[data-form-download]');
                 const retryBtn = card.querySelector('[data-form-retry]');
                 const retryIcon = card.querySelector('[data-form-retry-icon]');
                 const retryText = card.querySelector('[data-form-retry-text]');
 
+                const tracker = ui.createProgressTracker({
+                    barEl: progressBar,
+                    percentEl: progressPercent,
+                    stageEl: stageLabel,
+                    stages: FORM_STAGES,
+                    initialGenerationId: card.dataset.generationId || null,
+                    initialProgress: card.dataset.progress || 0,
+                });
+
+                let lastKnownFile = {
+                    has_file: card.dataset.hasFile === '1',
+                    download_url: card.dataset.downloadUrl || null,
+                };
                 let pollInterval = null;
+                let pollInFlight = false;
                 let failures = 0;
 
-                function updateProgressUI(pct) {
-                    const safePct = Math.max(5, Math.min(100, Math.round(Number(pct) || 0)));
-                    if (progressBar) {
-                        progressBar.style.width = safePct + '%';
-                        progressBar.parentElement?.setAttribute('aria-valuenow', String(safePct));
+                function stopPolling() {
+                    if (pollInterval) {
+                        clearInterval(pollInterval);
+                        pollInterval = null;
                     }
-                    if (progressPercent) {
-                        progressPercent.textContent = safePct + '%';
-                    }
+                    pollInFlight = false;
                 }
 
                 function disableDownloadButton() {
@@ -150,7 +172,21 @@
                     downloadBtn.href = url || 'javascript:void(0)';
                 }
 
-                function resetRetryButton(text = 'إعادة محاولة الإعداد') {
+                function syncDownloadButton(state) {
+                    if (state && state.has_file !== undefined) {
+                        lastKnownFile = {
+                            has_file: Boolean(state.has_file),
+                            download_url: state.download_url || card.dataset.downloadUrl || null,
+                        };
+                    }
+                    if (lastKnownFile.has_file && lastKnownFile.download_url) {
+                        enableDownloadButton(lastKnownFile.download_url);
+                    } else {
+                        disableDownloadButton();
+                    }
+                }
+
+                function resetRetryButton(text = 'إعادة محاولة التجهيز') {
                     if (retryBtn) {
                         retryBtn.disabled = false;
                         retryBtn.removeAttribute('aria-disabled');
@@ -177,14 +213,11 @@
                     if (timeoutBox) timeoutBox.classList.add('d-none');
                     if (errorBox) errorBox.classList.add('d-none');
                     if (loadingBox) loadingBox.classList.remove('d-none');
-                    if (badge) {
-                        badge.className = 'badge bg-label-info';
-                        badge.innerHTML = '<i class="ti ti-loader ti-spin me-1"></i>قيد التوليد';
-                    }
+                    ui.renderBadge(badge, 'not_prepared');
                     disableDownloadButton();
                 }
 
-                function showError(message, badgeText = 'فشل الإعداد', retryLabel = 'إعادة محاولة الإعداد') {
+                function showError(message, state = null) {
                     window.toastr?.error?.(message);
                     if (errorText) {
                         errorText.textContent = message;
@@ -195,11 +228,9 @@
                     if (loadingBox) {
                         loadingBox.classList.add('d-none');
                     }
-                    if (badge) {
-                        badge.className = 'badge bg-label-danger';
-                        badge.textContent = badgeText;
-                    }
-                    resetRetryButton(retryLabel);
+                    ui.renderBadge(badge, 'failed');
+                    syncDownloadButton(state);
+                    resetRetryButton('إعادة محاولة التجهيز');
                 }
 
                 function render(state) {
@@ -212,15 +243,15 @@
                     if (pending) {
                         setProcessingUI();
                         if (state.progress !== undefined && state.progress !== null) {
-                            updateProgressUI(state.progress);
+                            tracker.update(state.progress, state.generation_id);
                         }
                         return true;
                     }
 
                     if (loadingBox) loadingBox.classList.add('d-none');
 
-                    if (ready && state.status === 'ready') {
-                        updateProgressUI(100);
+                    if (state.status === 'ready') {
+                        tracker.update(100, state.generation_id);
                     }
 
                     if (errorBox) {
@@ -233,34 +264,23 @@
                         window.toastr?.error?.(state.error_message || 'تعذر تجهيز النموذج.');
                     }
 
-                    if (badge) {
-                        badge.className = 'badge ' + (failed ? 'bg-label-danger' : (ready ? 'bg-label-success' : 'bg-label-secondary'));
-                        badge.textContent = failed ? 'فشل الإعداد' : (ready ? 'جاهز للتحميل' : 'غير مجهز بعد');
-                    }
+                    ui.renderBadge(badge, ui.resolveStatusKey(state.status, ready));
+                    syncDownloadButton(state);
 
-                    if (ready && state.download_url) {
-                        enableDownloadButton(state.download_url);
-                    } else {
-                        disableDownloadButton();
-                    }
-
-                    resetRetryButton(ready ? 'إعادة توليد النموذج' : (failed ? 'إعادة محاولة الإعداد' : 'بدء تجهيز النموذج'));
+                    resetRetryButton(ready ? 'إعادة توليد النموذج' : (failed ? 'إعادة محاولة التجهيز' : 'بدء تجهيز النموذج'));
                     return false;
                 }
 
-                function startPolling(timeoutLimit, isManualRetry = false) {
-                    if (pollInterval) {
-                        clearInterval(pollInterval);
-                    }
+                function startPolling(timeoutLimit, isManualRetry = false, pollImmediately = true) {
+                    stopPolling();
                     setProcessingUI();
                     const startTime = Date.now();
                     failures = 0;
 
-                    pollInterval = setInterval(async function() {
+                    async function pollOnce() {
                         const elapsed = Date.now() - startTime;
                         if (elapsed >= timeoutLimit) {
-                            clearInterval(pollInterval);
-                            pollInterval = null;
+                            stopPolling();
                             const timeoutMsg = isManualRetry
                                 ? 'انتهت المهلة المحددة للتوليد اليدوي للنموذج. يمكنك المحاولة مجدداً.'
                                 : 'انتهت المهلة المحددة لتحضير النموذج تلقائياً. يمكنك الضغط على زر إعادة التوليد للمحاولة مرة أخرى.';
@@ -268,13 +288,16 @@
                             window.toastr?.error?.(timeoutMsg);
                             if (loadingBox) loadingBox.classList.add('d-none');
                             if (timeoutBox) timeoutBox.classList.remove('d-none');
-                            if (badge) {
-                                badge.className = 'badge bg-label-danger';
-                                badge.textContent = 'انتهت المهلة';
-                            }
-                            resetRetryButton('توليد النموذج الآن');
+                            ui.renderBadge(badge, 'not_prepared');
+                            syncDownloadButton(null);
+                            resetRetryButton(lastKnownFile.has_file ? 'إعادة توليد النموذج' : 'إعادة محاولة التجهيز');
                             return;
                         }
+
+                        if (pollInFlight) {
+                            return;
+                        }
+                        pollInFlight = true;
 
                         try {
                             const response = await fetch(card.dataset.statusUrl, {
@@ -289,8 +312,7 @@
 
                             const pending = render(state);
                             if (!pending) {
-                                clearInterval(pollInterval);
-                                pollInterval = null;
+                                stopPolling();
                                 if (state.status === 'ready') {
                                     window.toastr?.success?.('تم تحضير وتجهيز النموذج بنجاح!');
                                     setTimeout(() => location.reload(), 900);
@@ -299,31 +321,25 @@
                         } catch (exception) {
                             failures++;
                             if (failures >= 3) {
-                                clearInterval(pollInterval);
-                                pollInterval = null;
+                                stopPolling();
                                 showError('تعذر الاتصال بخدمة تجهيز النموذج. يرجى تحديث الصفحة.');
                             }
+                        } finally {
+                            pollInFlight = false;
                         }
-                    }, 2000);
+                    }
+
+                    if (pollImmediately) {
+                        pollOnce();
+                    }
+                    pollInterval = setInterval(pollOnce, 2000);
                 }
 
                 async function startFormGeneration() {
-                    if (pollInterval) {
-                        clearInterval(pollInterval);
-                        pollInterval = null;
-                    }
+                    stopPolling();
+                    tracker.reset(0, null);
                     setProcessingUI();
-                    if (retryIcon) retryIcon.className = 'ti ti-loader ti-spin me-1';
                     if (retryText) retryText.textContent = 'جارٍ بدء التوليد...';
-                    updateProgressUI(10);
-
-                    let simulatedProgress = 10;
-                    const progressTimer = setInterval(function() {
-                        if (simulatedProgress < 85) {
-                            simulatedProgress += 5;
-                            updateProgressUI(simulatedProgress);
-                        }
-                    }, 400);
 
                     try {
                         const response = await fetch(card.dataset.retryUrl, {
@@ -335,11 +351,10 @@
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
                             }
                         });
-                        clearInterval(progressTimer);
 
                         const state = await response.json().catch(() => ({}));
                         if (!response.ok || state.status === 'failed') {
-                            showError(state.message || state.error_message || 'تعذر إعادة توليد النموذج. يرجى إعادة المحاولة.');
+                            showError(state.message || state.error_message || 'تعذر إعادة توليد النموذج. يرجى إعادة المحاولة.', state);
                             return;
                         }
 
@@ -351,10 +366,9 @@
                         }
 
                         window.toastr?.info?.('تم بدء تجهيز النموذج.');
-                        updateProgressUI(state.progress || 25);
-                        startPolling(MANUAL_TIMEOUT_MS, true);
+                        tracker.update(state.progress ?? 0, state.generation_id);
+                        startPolling(MANUAL_TIMEOUT_MS, true, false);
                     } catch (exception) {
-                        clearInterval(progressTimer);
                         showError('حدث خطأ في الاتصال بالخادم أثناء إعادة توليد النموذج.');
                     }
                 }
@@ -364,15 +378,11 @@
                 }
 
                 if (['queued', 'processing'].includes(card.dataset.status)) {
-                    startPolling(AUTO_TIMEOUT_MS, false);
+                    tracker.reset(card.dataset.progress || 0, card.dataset.generationId || null);
+                    startPolling(AUTO_TIMEOUT_MS, false, true);
                 }
 
-                window.addEventListener('pagehide', function() {
-                    if (pollInterval) {
-                        clearInterval(pollInterval);
-                        pollInterval = null;
-                    }
-                }, { once: true });
+                window.addEventListener('pagehide', stopPolling, { once: true });
             });
         });
     </script>

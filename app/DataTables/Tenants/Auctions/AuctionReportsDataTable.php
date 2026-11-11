@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\DataTables\Tenants\Auctions;
 
 use App\DataTables\Abstract\AbstractDataTable;
+use App\Enums\Tenants\Auctions\AuctionFilePreparationStatus;
 use App\Models\Tenants\Auctions\Auction;
-use App\Services\Tenants\Auctions\Reports\AuctionReportState;
 use App\Services\Tenants\Auctions\Reports\AuctionMarketingCompleteness;
+use App\Services\Tenants\Auctions\Reports\AuctionReportState;
 use Illuminate\Support\Facades\DB;
 
 final class AuctionReportsDataTable extends AbstractDataTable
@@ -107,11 +108,18 @@ final class AuctionReportsDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-label-'.$state->color().'">'.e($state->label()).'</span>';
             })
-            ->addColumn('generation_status', fn ($row) => match ($row->latestReportGeneration?->status) {
-                'ready' => '<span class="badge bg-label-success">جاهز</span>',
-                'failed' => '<span class="badge bg-label-danger">تعذر التجهيز</span>',
-                'queued', 'processing' => '<span class="badge bg-label-info"><i class="ti ti-loader ti-spin me-1"></i>قيد التوليد</span>',
-                default => '<span class="badge bg-label-secondary">لم يجهز بعد</span>',
+            ->addColumn('generation_status', function ($row): string {
+                $published = $row->publishedReportGeneration;
+                $hasPublishedFile = (bool) $published?->isReady() && (
+                    $row->report_kind === 'outputs'
+                        ? filled($published->outputs_path)
+                        : filled($published->report_path)
+                );
+
+                return AuctionFilePreparationStatus::resolve(
+                    $row->latestReportGeneration?->status,
+                    $hasPublishedFile,
+                )->badgeHtml();
             })
             ->addColumn('actions', fn ($row) => view('tenant.auction-reports.action', ['row' => $row, 'route' => $this->route])->render());
     }
