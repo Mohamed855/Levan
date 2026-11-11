@@ -3,6 +3,7 @@
 namespace App\DataTables\Admin\SubscriptionMangment;
 
 use App\DataTables\Abstract\AbstractDataTable;
+use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\Subscription\Subscription;
 use App\Services\Shared\Subscription\SubscriptionManager;
@@ -19,12 +20,19 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        return Subscription::query()->with(['plan', 'currentPeriod', 'tenant.city']);
+        return Subscription::query()
+            ->select('subscriptions.*')
+            ->with([
+                'plan' => fn ($q) => $q->withTrashed(),
+                'currentPeriod',
+                'periods',
+                'tenant' => fn ($q) => $q->withTrashed()->with('city'),
+            ]);
     }
 
     protected function getColumns(): array
     {
-        $columns = [
+        return [
             [
                 'data' => 'checkbox',
                 'name' => 'checkbox',
@@ -34,6 +42,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 'width' => '10px',
                 'className' => 'custom-checkbox',
             ],
+            ['data' => 'subscription_number', 'name' => 'subscription_number', 'title' => 'رقم الاشتراك'],
             ['data' => 'company_name',    'name' => 'tenant.company_name',     'title' => 'اسم الشركة'],
             ['data' => 'city', 'name' => 'tenant.city.name', 'title' => 'المدينة', 'orderable' => false],
             ['data' => 'tax_number', 'name' => 'tenant.tax_number', 'title' => 'الرقم الضريبي'],
@@ -49,9 +58,8 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             ['data' => 'days_remaining',    'name' => 'days_remaining', 'title' => 'الأيام المتبقية', 'orderable' => true],
             ['data' => 'created_at',        'name' => 'created_at',     'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
             ['data' => 'status', 'name' => 'status', 'title' => 'حالة الإشتراك'],
+            ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '100px'],
         ];
-
-        return $columns;
     }
 
     protected function addCustomColumns($datatable)
@@ -61,8 +69,12 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
 
+            ->editColumn('subscription_number', function ($row) {
+                return '<span class="fw-bold text-primary">'.e($row->subscription_number).'</span>';
+            })
+
             ->editColumn('company_name', function ($row) {
-                return $row->tenant->company_name ?? '-';
+                return $row->tenant?->company_name ?? '-';
             })
 
             ->addColumn('city', fn ($row) => $row->tenant?->city?->name ?? '-')
@@ -80,7 +92,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             })
 
             ->editColumn('plan_id', function ($row) {
-                return $row->plan->name ?? '-';
+                return $row->plan?->name ?? '-';
             })
 
             ->editColumn('starts_at', function ($row) {
@@ -91,7 +103,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 return $this->formatDate($row->ends_at ?? $row->currentPeriod?->period_end);
             })
             ->editColumn('period_end', function ($row) {
-                $latestPeriod = $row->currentPeriod ?? $row->periods()->latest('period_end')->first();
+                $latestPeriod = $row->currentPeriod ?? $row->periods->sortByDesc('period_end')->first();
 
                 return $this->formatDate($latestPeriod?->period_end ?? $row->ends_at);
             })
@@ -106,7 +118,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             // عمود الأيام المتبقية
             ->addColumn('days_remaining', function ($row) {
                 $isExpired = $this->isExpiredRoute() || in_array($row->status, [SubscriptionStatus::EXPIRED, SubscriptionStatus::CANCELLED], true);
-                $period = $row->currentPeriod ?? $row->periods()->latest('period_end')->first();
+                $period = $row->currentPeriod ?? $row->periods->sortByDesc('period_end')->first();
                 $service = app(SubscriptionManager::class);
                 $days = $service->calculateDaysRemaining($period, $row->ends_at ?? $row->trial_end_date);
 
@@ -141,8 +153,8 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 return $this->StageBadge($row);
             })
 
-            ->editColumn('price', function ($row) {
-                return number_format($row->price, 2).' ر.س';
+            ->addColumn('actions', function ($row) {
+                return view($this->page.'.action', ['row' => $row])->render();
             });
     }
 
@@ -161,34 +173,37 @@ class subscriptionMangmentDataTable extends AbstractDataTable
         $request = request();
 
         if ($this->isExpiredRoute()) {
-            $query->where(function ($q) use ($request) {
-                if ($request->filled('status')) {
-                    $q->where('status', $request->status);
-                } else {
-                    $q->whereIn('status', [SubscriptionStatus::EXPIRED, SubscriptionStatus::CANCELLED]);
-                }
-            });
+            $allowedExpiredStatuses = [
+                SubscriptionStatus::EXPIRED->value,
+                SubscriptionStatus::CANCELLED->value,
+            ];
+
+            if ($request->filled('status') && in_array($request->status, $allowedExpiredStatuses, true)) {
+                $query->where('subscriptions.status', $request->status);
+            } else {
+                $query->whereIn('subscriptions.status', $allowedExpiredStatuses);
+            }
         } elseif ($this->isExpiringRoute()) {
             $days = $request->filled('expiring_in') ? (int) $request->expiring_in : 30;
-            $query->where('status', SubscriptionStatus::ACTIVE)
+            $query->where('subscriptions.status', SubscriptionStatus::ACTIVE)
                 ->where(function ($q) use ($days) {
                     $q->whereHas('currentPeriod', function ($periodQuery) use ($days) {
-                        $periodQuery->where('status', 'active')
+                        $periodQuery->where('status', SubscriptionPeriodStatus::ACTIVE)
                             ->where('period_end', '<=', now()->addDays($days))
                             ->where('period_end', '>=', now()->startOfDay());
                     })->orWhere(function ($periodQuery) use ($days) {
                         $periodQuery->whereDoesntHave('periods')
-                            ->where('ends_at', '<=', now()->addDays($days))
-                            ->where('ends_at', '>=', now()->startOfDay());
+                            ->where('subscriptions.ends_at', '<=', now()->addDays($days))
+                            ->where('subscriptions.ends_at', '>=', now()->startOfDay());
                     });
                 });
         } elseif ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('subscriptions.status', $request->status);
         }
 
         // Plan filter
         if ($request->filled('plan_id')) {
-            $query->where('plan_id', $request->plan_id);
+            $query->where('subscriptions.plan_id', $request->plan_id);
         }
 
         // City filter (via tenant)
@@ -198,20 +213,12 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             });
         }
 
-        // Date range filters
-        if ($request->filled('created_from')) {
-            $query->whereDate('created_at', '>=', $request->created_from);
-        }
-        if ($request->filled('created_to')) {
-            $query->whereDate('created_at', '<=', $request->created_to);
-        }
-
         return $query;
     }
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'tenant_id', 'plan_id', 'billing_cycle', 'city', 'tax_number', 'days_remaining', 'status'];
+        return ['checkbox', 'subscription_number', 'tenant_id', 'days_remaining', 'status', 'actions'];
     }
 
     protected function getSearchableColumns(): array
@@ -237,12 +244,15 @@ class subscriptionMangmentDataTable extends AbstractDataTable
         $buttons = [
             $this->copyActionButton(),
             $this->excelActionButton(),
-            [
+        ];
+
+        if (auth('admin')->user()?->can('subscriptions.delete')) {
+            $buttons[] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
                 'action' => 'function() { handleMassDelete(); }',
-            ],
-        ];
+            ];
+        }
 
         return [
             'extend' => 'collection',

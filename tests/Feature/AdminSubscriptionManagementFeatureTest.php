@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\DataTables\Admin\SubscriptionMangment\subscriptionMangmentDataTable;
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
@@ -39,6 +40,8 @@ class AdminSubscriptionManagementFeatureTest extends TestCase
         }
 
         $this->admin->givePermissionTo([
+            'subscriptions.view',
+            'subscriptions.delete',
             'subscriptions.pending.view',
             'subscriptions.pending.approve',
             'subscriptions.pending.reject',
@@ -47,8 +50,11 @@ class AdminSubscriptionManagementFeatureTest extends TestCase
         $this->actingAs($this->admin, 'admin');
     }
 
-    private function createPendingSubscription(): Subscription
-    {
+    private function createSubscriptionWithStatus(
+        SubscriptionStatus $status,
+        SubscriptionPeriodStatus $periodStatus,
+        int $daysOffset = 30
+    ): Subscription {
         $plan = Plan::first() ?? Plan::create([
             'name' => 'Test Plan',
             'price' => 100,
@@ -64,15 +70,16 @@ class AdminSubscriptionManagementFeatureTest extends TestCase
             'tax_number' => '300000000000003',
             'db_database' => 'tenant_db_'.uniqid(),
             'db_username' => 'root',
-            'db_password' => '',
+            'db_password' => 'secret_pw',
         ]);
 
+        $endDate = now()->addDays($daysOffset);
         $subscription = Subscription::create([
             'tenant_id' => $tenant->id,
             'plan_id' => $plan->id,
-            'starts_at' => now(),
-            'ends_at' => now()->addMonth(),
-            'status' => SubscriptionStatus::PENDING,
+            'starts_at' => now()->subDays(10),
+            'ends_at' => $endDate,
+            'status' => $status,
             'price' => 100,
             'total_users' => 3,
             'used_users' => 0,
@@ -81,64 +88,117 @@ class AdminSubscriptionManagementFeatureTest extends TestCase
 
         SubscriptionPeriod::create([
             'subscription_id' => $subscription->id,
-            'period_start' => now(),
-            'period_end' => now()->addMonth(),
+            'period_start' => now()->subDays(10),
+            'period_end' => $endDate,
             'plan_id_snapshot' => $plan->id,
             'price_snapshot' => 100,
             'total_users_snapshot' => 3,
             'used_users_snapshot' => 0,
-            'status' => SubscriptionPeriodStatus::PENDING_PAYMENT,
+            'status' => $periodStatus,
             'is_current' => true,
         ]);
 
         return $subscription;
     }
 
-    public function test_pending_page_renders_successfully_with_stats_and_datatable(): void
+    private function createPendingSubscription(): Subscription
     {
-        $this->createPendingSubscription();
-
-        $response = $this->get('http://localhost/superadmin/subscription-manage/pending');
-
-        $response->assertStatus(200);
-        $response->assertSee('طلبات الاشتراك الجديدة');
-        $response->assertSee('subscriptions-table');
-        $response->assertSee('إجمالي الاشتراكات');
-        $response->assertSee('طلبات جديدة معلقة');
+        return $this->createSubscriptionWithStatus(
+            SubscriptionStatus::PENDING,
+            SubscriptionPeriodStatus::PENDING_PAYMENT,
+            30
+        );
     }
 
-    public function test_pending_datatable_ajax_returns_json_data_without_errors(): void
+    private function dataTableColumnQuery(): array
     {
-        $sub = $this->createPendingSubscription();
+        $dt = app(subscriptionMangmentDataTable::class);
+        $method = new \ReflectionMethod($dt, 'getColumns');
+        $method->setAccessible(true);
 
-        $response = $this->withHeaders([
-            'X-Requested-With' => 'XMLHttpRequest',
-            'Accept' => 'application/json, text/javascript, */*',
-        ])->get('http://localhost/superadmin/subscription-manage/pending?draw=1&start=0&length=10');
-
-        $response->assertStatus(200);
-        $response->assertHeader('Content-Type', 'application/json');
-
-        $json = $response->json();
-        $this->assertArrayHasKey('draw', $json);
-        $this->assertArrayHasKey('recordsTotal', $json);
-        $this->assertArrayHasKey('data', $json);
-        $this->assertArrayNotHasKey('error', $json);
-        $this->assertNotEmpty($json['data']);
+        return array_map(fn (array $col): array => [
+            'data' => $col['data'],
+            'name' => $col['name'],
+            'searchable' => ($col['searchable'] ?? true) ? 'true' : 'false',
+            'orderable' => ($col['orderable'] ?? true) ? 'true' : 'false',
+            'search' => ['value' => '', 'regex' => 'false'],
+        ], $method->invoke($dt));
     }
 
-    public function test_pending_datatable_search_works_without_sql_errors(): void
+    public function test_expiring_page_renders_without_status_filter_and_ajax_preserves_id_and_actions(): void
     {
-        $sub = $this->createPendingSubscription();
+        $sub = $this->createSubscriptionWithStatus(SubscriptionStatus::ACTIVE, SubscriptionPeriodStatus::ACTIVE, 10);
 
-        $response = $this->withHeaders([
-            'X-Requested-With' => 'XMLHttpRequest',
-            'Accept' => 'application/json, text/javascript, */*',
-        ])->get('http://localhost/superadmin/subscription-manage/pending?draw=1&start=0&length=10&search[value]='.urlencode($sub->subscription_number));
+        try {
+            $page = $this->get('http://localhost/superadmin/subscription-manage/expiring');
+            $page->assertStatus(200);
+            $page->assertSee('اشتراكات تقارب على الانتهاء');
+            $page->assertSee('subscriptions-table');
+            $page->assertSee('filter-expiring');
+            $page->assertDontSee('filter-sub-status');
 
-        $response->assertStatus(200);
-        $json = $response->json();
-        $this->assertArrayNotHasKey('error', $json);
+            $response = $this->withHeaders([
+                'X-Requested-With' => 'XMLHttpRequest',
+                'Accept' => 'application/json, text/javascript, */*',
+            ])->get('http://localhost/superadmin/subscription-manage/expiring?'.http_build_query([
+                'draw' => 1,
+                'start' => 0,
+                'length' => 10,
+                'columns' => $this->dataTableColumnQuery(),
+                'order' => [['column' => 2, 'dir' => 'desc']],
+                'created_from' => now()->subDay()->toDateString(),
+                'search' => ['value' => $sub->subscription_number],
+            ]));
+
+            $response->assertStatus(200);
+            $json = $response->json();
+            $this->assertArrayNotHasKey('error', $json);
+            $this->assertCount(1, $json['data']);
+
+            $row = $json['data'][0];
+            $this->assertSame($sub->id, $row['id']);
+            $this->assertArrayNotHasKey('db_password', $row);
+            $this->assertArrayHasKey('actions', $row);
+            $this->assertStringContainsString("value=\"{$sub->id}\"", $row['checkbox']);
+            $this->assertStringContainsString('js-delete-btn', $row['actions']);
+        } finally {
+            $sub->forceDelete();
+        }
+    }
+
+    public function test_expired_page_hides_expiring_filter_and_blocks_active_status_leak(): void
+    {
+        $activeSub = $this->createSubscriptionWithStatus(SubscriptionStatus::ACTIVE, SubscriptionPeriodStatus::ACTIVE, 20);
+        $expiredSub = $this->createSubscriptionWithStatus(SubscriptionStatus::EXPIRED, SubscriptionPeriodStatus::ENDED, -5);
+
+        try {
+            $page = $this->get('http://localhost/superadmin/subscription-manage/expired');
+            $page->assertStatus(200);
+            $page->assertSee('الاشتراكات المنتهية');
+            $page->assertDontSee('filter-expiring');
+            $page->assertSee('filter-sub-status');
+
+            $response = $this->withHeaders([
+                'X-Requested-With' => 'XMLHttpRequest',
+                'Accept' => 'application/json, text/javascript, */*',
+            ])->get('http://localhost/superadmin/subscription-manage/expired?'.http_build_query([
+                'draw' => 1,
+                'start' => 0,
+                'length' => 50,
+                'columns' => $this->dataTableColumnQuery(),
+                'status' => 'active',
+                'created_from' => now()->subDay()->toDateString(),
+            ]));
+
+            $response->assertStatus(200);
+            $json = $response->json();
+            $this->assertArrayNotHasKey('error', $json);
+            $ids = collect($json['data'])->pluck('id')->all();
+            $this->assertNotContains($activeSub->id, $ids);
+        } finally {
+            $activeSub->forceDelete();
+            $expiredSub->forceDelete();
+        }
     }
 
     public function test_accept_and_reject_subscription_endpoints(): void
