@@ -59,10 +59,16 @@ class AdminSubscriptionService
     public function getExpiringSoonCount(): int
     {
         return Subscription::where('status', SubscriptionStatus::ACTIVE)
-            ->whereHas('currentPeriod', function ($q) {
-                $q->where('status', SubscriptionPeriodStatus::ACTIVE)
-                    ->where('period_end', '<=', now()->addDays(30))
-                    ->where('period_end', '>=', now()->startOfDay());
+            ->where(function ($query) {
+                $query->whereHas('currentPeriod', function ($q) {
+                    $q->where('status', SubscriptionPeriodStatus::ACTIVE)
+                        ->where('period_end', '<=', now()->addDays(30))
+                        ->where('period_end', '>=', now()->startOfDay());
+                })->orWhere(function ($q) {
+                    $q->whereDoesntHave('periods')
+                        ->where('ends_at', '<=', now()->addDays(30))
+                        ->where('ends_at', '>=', now()->startOfDay());
+                });
             })
             ->count();
     }
@@ -184,10 +190,13 @@ class AdminSubscriptionService
 
     public function toggleStatus(Subscription $subscription): Subscription
     {
-        $newStatus = match ($subscription->status) {
-            SubscriptionStatus::ACTIVE => SubscriptionStatus::SUSPENDED,
-            default => SubscriptionStatus::ACTIVE,
-        };
+        if (! in_array($subscription->status, [SubscriptionStatus::ACTIVE, SubscriptionStatus::SUSPENDED], true)) {
+            throw new \DomainException('لا يمكن تبديل حالة اشتراك منتهي أو ملغي أو قيد المراجعة.');
+        }
+
+        $newStatus = $subscription->status === SubscriptionStatus::ACTIVE
+            ? SubscriptionStatus::SUSPENDED
+            : SubscriptionStatus::ACTIVE;
 
         $subscription->update(['status' => $newStatus]);
 
@@ -220,6 +229,8 @@ class AdminSubscriptionService
     public function clearSubscriptionCache(string $tenantId): void
     {
         Cache::forget("tenant:{$tenantId}:subscription");
+        Cache::forget('admin:expiring_subscriptions_count');
+        Cache::forget('admin:expired_subscriptions_count');
     }
 
     private function calculatePeriodEndForPlan(Carbon $startDate, Plan $plan, ?string $billingCycle = null): Carbon

@@ -121,6 +121,7 @@ class SubscriptionController extends Controller
                 return response()->json([
                     'success' => true,
                     'status' => $updated->status->value,
+                    'is_active' => $updated->status === SubscriptionStatus::ACTIVE,
                     'label' => $updated->status->label(),
                     'color' => $updated->status->color(),
                     'message' => 'تم تغيير حالة الاشتراك بنجاح.',
@@ -128,6 +129,15 @@ class SubscriptionController extends Controller
             }
 
             return redirect()->back()->with('success', 'تم تغيير حالة الاشتراك بنجاح.');
+        } catch (\DomainException $e) {
+            if (request()->wantsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
+            return redirect()->back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             report($e);
 

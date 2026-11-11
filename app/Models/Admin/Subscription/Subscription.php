@@ -105,12 +105,12 @@ class Subscription extends Model
     */
     public function tenant()
     {
-        return $this->belongsTo(Tenant::class, 'tenant_id');
+        return $this->belongsTo(Tenant::class, 'tenant_id')->withTrashed();
     }
 
     public function plan()
     {
-        return $this->belongsTo(Plan::class);
+        return $this->belongsTo(Plan::class)->withTrashed();
     }
 
     // الفترات

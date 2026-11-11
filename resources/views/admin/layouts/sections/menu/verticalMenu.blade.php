@@ -92,9 +92,12 @@
                         )->getExpiringSoonCount();
                     });
                     $expiredCount = cache()->remember('admin:expired_subscriptions_count', 60, function () {
-                        return \App\Models\Admin\Subscription\Subscription::where(
+                        return \App\Models\Admin\Subscription\Subscription::whereIn(
                             'status',
-                            \App\Enums\Admin\Subscriptions\SubscriptionStatus::EXPIRED,
+                            [
+                                \App\Enums\Admin\Subscriptions\SubscriptionStatus::EXPIRED,
+                                \App\Enums\Admin\Subscriptions\SubscriptionStatus::CANCELLED,
+                            ],
                         )->count();
                     });
                     $totalBadgeCount = $expiringCount + $expiredCount;

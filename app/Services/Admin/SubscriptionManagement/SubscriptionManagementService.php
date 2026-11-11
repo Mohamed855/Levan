@@ -80,39 +80,57 @@ class SubscriptionManagementService
     {
         DB::connection('mysql')->transaction(fn () => $this->acceptWithinTransaction($subscription, $adminId));
 
-        cache()->forget('admin:pending_subscriptions_count');
+        $this->forgetSubscriptionCaches([$subscription->tenant_id]);
     }
 
     public function reject(Subscription $subscription, ?string $reason): void
     {
         DB::connection('mysql')->transaction(fn () => $this->rejectWithinTransaction($subscription, $reason));
 
-        cache()->forget('admin:pending_subscriptions_count');
+        $this->forgetSubscriptionCaches([$subscription->tenant_id]);
     }
 
     public function massAccept(array $ids, int|string|null $adminId): void
     {
-        DB::connection('mysql')->transaction(function () use ($ids, $adminId): void {
-            Subscription::query()->whereKey($ids)->get()
-                ->each(fn (Subscription $subscription) => $this->acceptWithinTransaction($subscription, $adminId));
+        $subscriptions = Subscription::query()->whereKey($ids)->get();
+        DB::connection('mysql')->transaction(function () use ($subscriptions, $adminId): void {
+            $subscriptions->each(fn (Subscription $subscription) => $this->acceptWithinTransaction($subscription, $adminId));
         });
 
-        cache()->forget('admin:pending_subscriptions_count');
+        $this->forgetSubscriptionCaches($subscriptions->pluck('tenant_id')->filter()->unique()->all());
     }
 
     public function massReject(array $ids, ?string $reason): void
     {
-        DB::connection('mysql')->transaction(function () use ($ids, $reason): void {
-            Subscription::query()->whereKey($ids)->get()
-                ->each(fn (Subscription $subscription) => $this->rejectWithinTransaction($subscription, $reason));
+        $subscriptions = Subscription::query()->whereKey($ids)->get();
+        DB::connection('mysql')->transaction(function () use ($subscriptions, $reason): void {
+            $subscriptions->each(fn (Subscription $subscription) => $this->rejectWithinTransaction($subscription, $reason));
         });
 
-        cache()->forget('admin:pending_subscriptions_count');
+        $this->forgetSubscriptionCaches($subscriptions->pluck('tenant_id')->filter()->unique()->all());
     }
 
     public function delete(Subscription $subscription): void
     {
+        $tenantId = $subscription->tenant_id;
         DB::connection('mysql')->transaction(fn () => $subscription->delete());
+        $this->forgetSubscriptionCaches([$tenantId]);
+    }
+
+    /**
+     * @param  array<int, string|null>  $tenantIds
+     */
+    private function forgetSubscriptionCaches(array $tenantIds = []): void
+    {
+        cache()->forget('admin:pending_subscriptions_count');
+        cache()->forget('admin:expiring_subscriptions_count');
+        cache()->forget('admin:expired_subscriptions_count');
+
+        foreach ($tenantIds as $tenantId) {
+            if ($tenantId) {
+                cache()->forget("tenant:{$tenantId}:subscription");
+            }
+        }
     }
 
     private function acceptWithinTransaction(Subscription $subscription, int|string|null $adminId): void
