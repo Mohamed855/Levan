@@ -70,11 +70,6 @@ final class TwoFactorAuthenticationClosureTest extends TestCase
             $table->timestamps();
             $table->softDeletes();
         });
-        Schema::connection('mysql')->create('company_settings', function (Blueprint $table): void {
-            $table->id();
-            $table->string('tenant_id');
-            $table->boolean('two_factor_enabled')->default(false);
-        });
     }
 
     protected function tearDown(): void
@@ -109,7 +104,6 @@ final class TwoFactorAuthenticationClosureTest extends TestCase
                 Schema::connection($connection)->create('settings', function (Blueprint $table): void {
                     $table->id();
                     $table->boolean('maintenance_mode')->default(false);
-                    $table->boolean('force_two_factor_auth')->default(false);
                 });
             }
         }
@@ -255,11 +249,6 @@ final class TwoFactorAuthenticationClosureTest extends TestCase
         }
     }
 
-    public function test_forced_setup_validation_stays_available_without_allowing_other_forms(): void
-    {
-        self::markTestSkipped('Forced 2FA policy has been removed permanently from the system.');
-    }
-
     public function test_deactivation_and_deletion_after_password_reject_valid_code(): void
     {
         foreach (['admin', 'path', 'domain'] as $mode) {
@@ -362,20 +351,6 @@ final class TwoFactorAuthenticationClosureTest extends TestCase
             $this->withSession($f['pending'])->postJson($f['root'].'/two-factor-challenge', ['recovery_code' => $f['codes'][0]])
                 ->assertStatus(403);
         }
-    }
-
-    public static function forcedTenantPolicies(): array
-    {
-        return [
-            ['path', true, false], ['path', false, true], ['path', true, true],
-            ['domain', true, false], ['domain', false, true], ['domain', true, true],
-        ];
-    }
-
-    #[DataProvider('forcedTenantPolicies')]
-    public function test_company_and_tenant_policy_combinations_allow_setup_and_logout(string $mode, bool $companyForced, bool $tenantForced): void
-    {
-        self::markTestSkipped('Forced 2FA policy has been removed permanently from the system.');
     }
 
     public static function subscriptionChanges(): array
