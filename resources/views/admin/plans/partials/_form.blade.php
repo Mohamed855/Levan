@@ -91,11 +91,11 @@
                 <x-form.controls.input type="date" name="available_from" id="available_from"
                     label="تاريخ بدء الإتاحة" :value="old('available_from', $target?->available_from?->format('Y-m-d'))" col="col-md-6" help="اتركه فارغاً لإتاحتها فوراً." />
 
-                <x-form.controls.textarea name="admin_notes" id="admin_notes" label="ملاحظات إدارية" :value="old('admin_notes', $target?->admin_notes)"
-                    rows="2" col="col-md-6" />
-
                 <x-form.controls.textarea name="description" id="description" label="وصف الباقة" rows="3"
                     :value="old('description', $target?->description)" placeholder="وصف واضح لقيمة الباقة..." col="col-md-6" />
+
+                <x-form.controls.textarea name="admin_notes" id="admin_notes" label="ملاحظات إدارية" :value="old('admin_notes', $target?->admin_notes)"
+                    rows="2" col="col-md-6" />
 
                 <div class="col-12" data-form-field data-field-name="features">
                     <div class="d-flex justify-content-between align-items-center mb-2">

@@ -111,6 +111,8 @@ final class SystemDateFormatTest extends TestCase
 
     public function test_admin_datatables_format_dates_as_day_month_year(): void
     {
+        $this->travelTo(Carbon::parse('2026-11-09 12:00:00'));
+
         $trialDt = new TrialRequestsDataTable;
         $trialRef = new \ReflectionClass($trialDt);
         $trialFake = new class

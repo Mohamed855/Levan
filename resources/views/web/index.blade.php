@@ -182,7 +182,7 @@
 
         <section id="faq" class="section-area section-area--alt">
             <div class="container">
-                <x-web.section-header title="الأسئلة الشائعة" subtitle="إجابات واضحة"
+                <x-web.section-header title="الأسئلة الشائعة" subtitle="أسئلة وأجوبة"
                     desc="إليك أهم الأسئلة التي يطرحها عملاؤنا، لمساعدتك في التعرف على إمكانات النظام بكل وضوح." />
 
                 <div class="faq-grid">

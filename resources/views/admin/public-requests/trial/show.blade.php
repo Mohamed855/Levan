@@ -116,53 +116,6 @@
                     </div>
                 </div>
             </div>
-
-            @if ($trialRequest->status->value === 'approved' && $trialRequest->tenant)
-                <div class="card mb-4">
-                    <div class="card-header pb-2 mb-3">
-                        <h6 class="card-title mb-0">
-                            <i class="ti ti-clock-play text-primary me-2"></i>تفاصيل التجربة المفعّلة
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-unstyled mb-3">
-                            <li class="mb-3 d-flex align-items-center">
-                                <i class="ti ti-calendar-plus text-primary me-2 fs-5"></i>
-                                <span class="fw-bold me-2">بداية التجربة:</span>
-                                <span>@datetime($trialRequest->subscription?->starts_at)</span>
-                            </li>
-                            <li class="mb-3 d-flex align-items-center">
-                                <i class="ti ti-calendar-due text-primary me-2 fs-5"></i>
-                                <span class="fw-bold me-2">نهاية التجربة:</span>
-                                <span>@datetime($trialRequest->subscription?->ends_at)</span>
-                            </li>
-                            <li class="mb-2 d-flex align-items-center">
-                                <i class="ti ti-user-shield text-primary me-2 fs-5"></i>
-                                <span class="fw-bold me-2">النطاق:</span>
-                                <span>بدون باقة — مستخدم واحد (المدير الأساسي)</span>
-                            </li>
-                        </ul>
-                        <a class="btn btn-success w-100" target="_blank" rel="noopener"
-                            href="{{ route('path.login', ['tenant' => $trialRequest->tenant_id]) }}">
-                            <i class="ti ti-external-link me-1"></i> فتح رابط دخول العميل
-                        </a>
-                    </div>
-                </div>
-            @elseif ($trialRequest->status->value === 'already_subscribed' && $trialRequest->tenant)
-                <div class="card mb-4">
-                    <div class="card-header pb-2 mb-3">
-                        <h6 class="card-title mb-0">
-                            <i class="ti ti-building text-primary me-2"></i>حساب الشركة المرتبط
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <a class="btn btn-outline-primary w-100"
-                            href="{{ route('admin.clients.show', $trialRequest->tenant_id) }}">
-                            <i class="ti ti-building me-1"></i> عرض ملف الشركة المشتركة
-                        </a>
-                    </div>
-                </div>
-            @endif
         </div>
 
         {{-- إجراءات الطلب (العمود الأيسر) --}}
@@ -210,6 +163,53 @@
                     @endif
                 </div>
             </div>
+
+            @if ($trialRequest->status->value === 'approved' && $trialRequest->tenant)
+                <div class="card mb-4">
+                    <div class="card-header pb-2 mb-3">
+                        <h6 class="card-title mb-0">
+                            <i class="ti ti-clock-play text-primary me-2"></i>تفاصيل التجربة المفعّلة
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-3">
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-calendar-plus text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">بداية التجربة:</span>
+                                <span>@datetime($trialRequest->subscription?->starts_at)</span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-calendar-due text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">نهاية التجربة:</span>
+                                <span>@datetime($trialRequest->subscription?->ends_at)</span>
+                            </li>
+                            <li class="mb-2 d-flex align-items-center">
+                                <i class="ti ti-user-shield text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">النطاق:</span>
+                                <span>بدون باقة — مستخدم واحد (المدير الأساسي)</span>
+                            </li>
+                        </ul>
+                        <a class="btn btn-success w-100" target="_blank" rel="noopener"
+                            href="{{ route('path.login', ['tenant' => $trialRequest->tenant_id]) }}">
+                            <i class="ti ti-external-link me-1"></i> فتح رابط دخول العميل
+                        </a>
+                    </div>
+                </div>
+            @elseif ($trialRequest->status->value === 'already_subscribed' && $trialRequest->tenant)
+                <div class="card mb-4">
+                    <div class="card-header pb-2 mb-3">
+                        <h6 class="card-title mb-0">
+                            <i class="ti ti-building text-primary me-2"></i>حساب الشركة المرتبط
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <a class="btn btn-outline-primary w-100"
+                            href="{{ route('admin.clients.show', $trialRequest->tenant_id) }}">
+                            <i class="ti ti-building me-1"></i> عرض ملف الشركة المشتركة
+                        </a>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 

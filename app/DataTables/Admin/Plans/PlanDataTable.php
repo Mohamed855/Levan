@@ -175,15 +175,11 @@ class PlanDataTable extends AbstractDataTable
             })
 
             ->editColumn('available_from', function ($row) {
-                if (! $row->available_from) {
-                    return '<span class="badge bg-success">متاحة فوراً</span>';
+                if ($row->available_from?->isFuture()) {
+                    return '<span class="badge bg-secondary" title="'.e($this->formatDateTime($row->available_from)).'">'.e($this->formatDate($row->available_from)).'</span>';
                 }
 
-                if ($row->available_from->isFuture()) {
-                    return '<span class="badge bg-warning" title="'.e($this->formatDateTime($row->available_from)).'">مجدولة '.e($this->formatDate($row->available_from)).'</span>';
-                }
-
-                return '<span class="badge bg-info">'.e($this->formatDate($row->available_from)).'</span>';
+                return '<span class="badge bg-success">متاحة</span>';
             })
 
             ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
