@@ -26,7 +26,7 @@ return new class extends Migration
     public function up(): void
     {
         if (! app()->environment(['local', 'testing', 'development'])) {
-            throw new LogicException('This irreversible development-data cleanup cannot run in this environment.');
+            return;
         }
 
         $central = DB::connection($this->getConnection());
@@ -78,7 +78,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        throw new LogicException('Permanently deleted domain data cannot be restored by a migration rollback.');
+        // Irreversible cleanup: permanently deleted domain data cannot be restored by a migration rollback.
     }
 
     private function purgeDatabase(Connection $connection): void

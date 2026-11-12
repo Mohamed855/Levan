@@ -206,8 +206,8 @@ class CompanyService
         $dbUser = $company->db_username;
         $tenantId = $company->id;
 
-        return DB::connection('mysql')->transaction(function () use ($company, $dbName, $dbUser, $tenantId) {
-            // Clean up all subscriptions permanently if any left
+        // Step 1: Relational deletions within a clean transaction (no DDL inside transaction)
+        $deleted = DB::connection('mysql')->transaction(function () use ($company) {
             $company->subscriptions()->get()->each(function (Subscription $subscription) {
                 $this->adminSubscriptionService->deleteSubscription($subscription);
             });
@@ -216,35 +216,47 @@ class CompanyService
 
             $this->clearCompanyCache($company->id);
 
-            $result = (bool) $company->forceDelete();
-
-            // Drop tenant database
-            if ($dbName) {
-                try {
-                    $cpanel = $this->cpanelService ?? app(CpanelService::class);
-                    $cpanel->deleteDatabase($dbName, $dbUser);
-                } catch (\Throwable $e) {
-                    Log::warning("Failed to delete database {$dbName}: ".$e->getMessage());
-                }
-            }
-
-            // Clean up tenant storage directories
-            try {
-                $tenantStoragePath = storage_path("app/tenants/{$tenantId}");
-                if (File::isDirectory($tenantStoragePath)) {
-                    File::deleteDirectory($tenantStoragePath);
-                }
-
-                $tenantPublicPath = public_path("tenants/{$tenantId}");
-                if (File::isDirectory($tenantPublicPath)) {
-                    File::deleteDirectory($tenantPublicPath);
-                }
-            } catch (\Throwable $e) {
-                Log::warning("Failed to delete tenant {$tenantId} storage folders: ".$e->getMessage());
-            }
-
-            return $result;
+            return (bool) $company->forceDelete();
         });
+
+        // Step 2: DDL statements (DROP DATABASE) must run OUTSIDE transaction to prevent MySQL implicit commits
+        if ($deleted && $dbName) {
+            try {
+                $cpanel = $this->cpanelService ?? app(CpanelService::class);
+                $cpanel->deleteDatabase($dbName, $dbUser);
+                Log::info("Tenant database {$dbName} dropped successfully for tenant {$tenantId}.");
+            } catch (\Throwable $e) {
+                Log::error("Failed to drop tenant database {$dbName} for tenant {$tenantId}: ".$e->getMessage(), [
+                    'exception' => $e,
+                ]);
+            }
+        }
+
+        // Step 3: Clean up all tenant storage directories (public, private, and app/tenants)
+        if ($deleted) {
+            $pathsToDelete = [
+                'storage_app' => storage_path("app/tenants/{$tenantId}"),
+                'storage_private' => storage_path("app/tenants-private/{$tenantId}"),
+                'public' => public_path("tenants/{$tenantId}"),
+            ];
+
+            foreach ($pathsToDelete as $label => $path) {
+                try {
+                    if (File::isDirectory($path)) {
+                        $success = File::deleteDirectory($path);
+                        if (! $success) {
+                            Log::warning("File::deleteDirectory returned false for tenant {$tenantId} ({$label}): {$path}");
+                        } else {
+                            Log::info("Deleted tenant {$tenantId} directory ({$label}): {$path}");
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    Log::error("Failed to delete tenant {$tenantId} directory ({$label}): {$path}: ".$e->getMessage());
+                }
+            }
+        }
+
+        return $deleted;
     }
 
     public function getShowData(Tenant $company): array

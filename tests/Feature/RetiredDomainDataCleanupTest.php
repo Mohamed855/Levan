@@ -93,6 +93,22 @@ final class RetiredDomainDataCleanupTest extends TestCase
         }
     }
 
+    public function test_cleanup_skips_in_non_development_environments(): void
+    {
+        $originalEnv = app()->environment();
+        $this->app['env'] = 'production';
+
+        try {
+            (require database_path('migrations/admin/2026_11_11_000001_remove_retired_domain_data.php'))->up();
+
+            // When skipped, fixture tables and records remain intact without throwing any exception
+            $this->assertTrue(DB::connection('mysql')->getSchemaBuilder()->hasTable('control_domains'));
+            $this->assertSame(2, DB::connection('mysql')->table('bills')->count());
+        } finally {
+            $this->app['env'] = $originalEnv;
+        }
+    }
+
     private function fixture(Connection $db): void
     {
         $schema = $db->getSchemaBuilder();

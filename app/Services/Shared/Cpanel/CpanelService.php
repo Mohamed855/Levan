@@ -111,27 +111,49 @@ class CpanelService
         }
     }
 
-    public function deleteDatabase(string $databaseName, ?string $userName = null): void
+    public function deleteDatabase(string $databaseName, ?string $userName = null): bool
     {
+        $centralDb = config('database.connections.mysql.database');
+        $cleanDbName = str_replace(['`', ';', ' '], '', trim($databaseName));
+
+        if (empty($cleanDbName) || $cleanDbName === $centralDb) {
+            throw new \InvalidArgumentException("Cannot drop database '{$cleanDbName}' - invalid or central database protected.");
+        }
+
         if (empty($this->cpanelUser) || empty($this->cpanelHost) || empty($this->cpanelToken)) {
             if (app()->environment(['local', 'testing'])) {
-                DB::statement("DROP DATABASE IF EXISTS `{$databaseName}`");
+                DB::statement("DROP DATABASE IF EXISTS `{$cleanDbName}`");
 
-                return;
+                return true;
             }
         }
 
         try {
-            $this->getClient()->get('Mysql/delete_database', [
-                'query' => ['name' => $databaseName],
+            $response = $this->getClient()->get('Mysql/delete_database', [
+                'query' => ['name' => $cleanDbName],
             ]);
-            if ($userName) {
-                $this->getClient()->get('Mysql/delete_user', [
-                    'query' => ['name' => $userName],
-                ]);
+            $database = json_decode((string) $response->getBody(), true);
+
+            if (empty($database['status']) || $database['status'] == 0) {
+                Log::error("Failed to delete cPanel database {$cleanDbName}", $database ?? []);
+                throw new \RuntimeException('Failed to delete database: '.($database['errors'][0] ?? 'Unknown error'));
             }
-        } catch (\Throwable $e) {
-            Log::warning("Failed to delete database {$databaseName} via cPanel API: ".$e->getMessage());
+
+            if ($userName) {
+                $cleanUserName = str_replace(['`', ';', ' '], '', trim($userName));
+                $userResponse = $this->getClient()->get('Mysql/delete_user', [
+                    'query' => ['name' => $cleanUserName],
+                ]);
+                $userResult = json_decode((string) $userResponse->getBody(), true);
+                if (empty($userResult['status']) || $userResult['status'] == 0) {
+                    Log::warning("Failed to delete cPanel user {$cleanUserName}", $userResult ?? []);
+                }
+            }
+
+            return true;
+        } catch (GuzzleException $e) {
+            Log::error("Connection error while deleting cPanel database {$cleanDbName}: ".$e->getMessage());
+            throw new \RuntimeException('Connection error: '.$e->getMessage(), 0, $e);
         }
     }
 
