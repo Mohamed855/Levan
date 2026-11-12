@@ -23,6 +23,7 @@ return new class extends Migration
             $table->unsignedInteger('expected_properties_count')->default(1);
             $table->string('supervising_entity')->nullable();
             $table->string('project_manager_name')->nullable();
+            $table->foreignId('platform_entity_id')->nullable()->constrained('issuing_entities')->nullOnDelete();
             $table->string('platform_name')->nullable();
             $table->string('platform_url')->nullable();
             $table->text('notes')->nullable();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Admin;
 
+use App\Http\Controllers\Admin\Plans\PlanController;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Plans\Plan;
 use Illuminate\Database\Schema\Blueprint;
@@ -33,6 +34,28 @@ final class PlanCreationTest extends TestCase
         Schema::create('admin_users', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
+        });
+        Schema::create('settings', function (Blueprint $table): void {
+            $table->id();
+            $table->string('key')->nullable();
+            $table->text('value')->nullable();
+            $table->timestamps();
+        });
+        Schema::create('subscriptions', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('plan_id');
+            $table->string('status')->nullable();
+            $table->dateTime('ends_at')->nullable();
+            $table->timestamps();
+        });
+        Schema::create('subscription_periods', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('subscription_id');
+            $table->string('status')->nullable();
+            $table->dateTime('period_end')->nullable();
+            $table->boolean('is_current')->default(false);
+            $table->timestamps();
+            $table->softDeletes();
         });
         DB::table('admin_users')->insert(['id' => 1, 'name' => 'Plan administrator']);
         (require database_path('migrations/admin/2026_09_23_000015_create_plans_table.php'))->up();
@@ -94,6 +117,35 @@ final class PlanCreationTest extends TestCase
         self::assertSame('950.50', $plan->yearly_renewal_price);
         self::assertSame(12.5, $plan->discount_percentage);
         self::assertSame('25.75', $plan->extra_user_license_price);
+    }
+
+    public function test_plan_create_passes_generated_code(): void
+    {
+        $view = app(PlanController::class)->create();
+        self::assertTrue(isset($view['generatedCode']));
+        $code = $view['generatedCode'];
+        self::assertIsString($code);
+        self::assertSame(8, strlen($code));
+        self::assertMatchesRegularExpression('/^[A-Z][A-Z0-9_]*$/', $code);
+    }
+
+    public function test_plan_code_cannot_be_modified_on_update(): void
+    {
+        $this->post(route('admin.plans.store'), $this->payload([
+            'code' => 'INITIAL_CODE',
+        ]))->assertRedirect(route('admin.plans.index'))->assertSessionHasNoErrors();
+
+        $plan = Plan::sole();
+        self::assertSame('INITIAL_CODE', $plan->code);
+
+        $this->put(route('admin.plans.update', $plan->id), $this->payload([
+            'name' => 'Updated Plan Name',
+            'code' => 'ATTEMPTED_NEW_CODE',
+        ]))->assertRedirect(route('admin.plans.index'))->assertSessionHasNoErrors();
+
+        $plan->refresh();
+        self::assertSame('Updated Plan Name', $plan->name);
+        self::assertSame('INITIAL_CODE', $plan->code);
     }
 
     private function payload(array $overrides = []): array

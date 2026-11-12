@@ -14,6 +14,7 @@ final class AuctionReportDataBuilder
     {
         $auction->loadMissing([
             'assignment.issuingEntity',
+            'platformEntity',
             'marketingCampaigns',
             'closing',
             'establishmentRequest',

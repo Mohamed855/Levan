@@ -116,6 +116,45 @@ function initPlanFormUI() {
             });
     }
 
+    // ==================== PLAN CODE GENERATOR ====================
+    window.generatePlanCode = function () {
+        const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        let code = letters.charAt(Math.floor(Math.random() * letters.length));
+        for (let i = 1; i < 8; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+
+        const targetInput = document.getElementById("code") || getInput("code");
+        if (targetInput && !targetInput.readOnly) {
+            targetInput.value = code;
+            targetInput.dispatchEvent(new Event("input", { bubbles: true }));
+            targetInput.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+
+        const btn =
+            document.getElementById("btn-generate-code") ||
+            form.querySelector(".btn-generate-code");
+        const icon = btn ? btn.querySelector("i") : null;
+        if (icon) {
+            icon.classList.add("ti-spin");
+            setTimeout(() => icon.classList.remove("ti-spin"), 500);
+        }
+
+        return code;
+    };
+    window.generateCode = window.generatePlanCode;
+
+    const generateBtn =
+        document.getElementById("btn-generate-code") ||
+        form.querySelector(".btn-generate-code");
+    if (generateBtn) {
+        generateBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            window.generatePlanCode();
+        });
+    }
+
     const codeInput = getInput("code");
     if (codeInput && !codeInput.readOnly) {
         codeInput.addEventListener("input", function () {

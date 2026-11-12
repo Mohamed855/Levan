@@ -74,7 +74,7 @@ class UpdateAssignmentRequest extends WizardFormRequest
                 ),
             ],
             'assignment_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:10240'],
-            'assignment_letter' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
+            'assignment_letter' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:10240'],
             'general_documents' => ['nullable', 'array'],
             'general_documents.*' => ['nullable', 'file', 'max:10240'],
             'additional_attachments' => ['nullable', 'array'],
@@ -109,7 +109,7 @@ class UpdateAssignmentRequest extends WizardFormRequest
             'assignment_image.image' => 'صورة الإسناد يجب أن تكون صورة صالحة.',
             'assignment_image.mimes' => 'صيغة صورة الإسناد غير مدعومة.',
             'assignment_image.max' => 'حجم صورة الإسناد يجب ألا يتجاوز 10 ميجابايت.',
-            'assignment_letter.mimes' => 'خطاب الإسناد يجب أن يكون ملف PDF.',
+            'assignment_letter.mimes' => 'خطاب الإسناد يجب أن يكون ملف PDF أو صورة JPG أو PNG أو WebP.',
             'assignment_letter.max' => 'حجم خطاب الإسناد يجب ألا يتجاوز 10 ميجابايت.',
         ];
     }

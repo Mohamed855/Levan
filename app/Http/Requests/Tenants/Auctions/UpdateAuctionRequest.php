@@ -29,6 +29,12 @@ class UpdateAuctionRequest extends WizardFormRequest
 
     public function rules(): array
     {
+        $auction = $this->route('auction');
+        $platformEntityRule = Rule::exists('issuing_entities', 'id');
+        if (! $auction instanceof Auction || (int) $this->input('platform_entity_id') !== $auction->platform_entity_id) {
+            $platformEntityRule->whereNull('deleted_at');
+        }
+
         return [
             // Step 1: Basic Info
             'name' => ['required', 'string', 'max:255'],
@@ -141,7 +147,7 @@ class UpdateAuctionRequest extends WizardFormRequest
             ],
             'supervising_entity' => ['nullable', 'string', 'max:255'],
             'project_manager_name' => ['required', 'string', 'max:255'],
-            'platform_name' => ['nullable', 'string', 'max:255'],
+            'platform_entity_id' => ['required', 'integer', $platformEntityRule],
             'platform_url' => ['nullable', 'url', 'max:255'],
             'notes' => ['nullable', 'string', 'max:500'],
 
@@ -251,7 +257,7 @@ class UpdateAuctionRequest extends WizardFormRequest
             'assignment_id' => 'الإسناد المرتبط بالمزاد',
             'supervising_entity' => 'الجهة المشرفة على المزاد',
             'project_manager_name' => 'اسم مدير المشروع',
-            'platform_name' => 'منصة المزاد',
+            'platform_entity_id' => 'منصة المزاد',
             'platform_url' => 'رابط المزاد على المنصة',
             'property_ids' => 'العقارات المرتبطة بالإسناد المختار',
             'property_ids.*' => 'العقارات المرتبطة بالإسناد المختار',

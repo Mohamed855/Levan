@@ -79,7 +79,7 @@
                 <p class="mb-1">جميع الحقوق محفوظة 2026 ©</p>
                 <a href="https://e-tec.sa" target="_blank" rel="noopener noreferrer" class="auth-footer-link">
                     <span>إتمام لتقنية نظم المعلومات</span>
-                    <img src="{{ asset('static/brand/logos/logo-footer.png') }}" alt="Logo" class="footer-logo">
+                    <img src="{{ asset('static/brand/logos/dark-logo-footer.png') }}" alt="Logo" class="footer-logo">
                 </a>
                 <p class="mb-0 text-muted small">V.{{ config('app.version') }}</p>
             </div>

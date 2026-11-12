@@ -3,8 +3,9 @@
 @endphp
 
 <div class="row g-4">
-    <x-form.controls.input name="platform_name" id="platform_name" label="منصة المزاد"
-        placeholder="مثال: منصة مباشر للمزادات" :value="old('platform_name', $auction->platform_name ?? '')" required col="col-md-6" />
+    <x-form.controls.select name="platform_entity_id" id="platform_entity_id" label="منصة المزاد"
+        placeholder="اختر منصة المزاد" :options="$platformEntityOptions ?? []"
+        :value="old('platform_entity_id', $auction->platform_entity_id ?? '')" required col="col-md-6" />
 
     <x-form.controls.input name="platform_url" id="platform_url" type="url" label="رابط المزاد على المنصة"
         placeholder="https://mubasher.sa/auctions/..." :value="old('platform_url', $auction->platform_url ?? '')" col="col-md-6" />

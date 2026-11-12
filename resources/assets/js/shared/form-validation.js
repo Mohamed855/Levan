@@ -875,7 +875,12 @@ async function resolveDraftTargetStep(form, defaultStep) {
 
 async function restoreDraft(form) {
     const draftUrl = form.dataset.draftUrl;
-    if (!draftUrl || hasVisibleServerErrors(form)) {
+    const wizard = form.closest?.('[data-form-stepper]');
+    const recoveryId = wizard?.dataset?.failedDraftResource === draftResourceKey(form)
+        ? wizard.dataset.failedDraftId
+        : null;
+    const hasServerErrors = hasVisibleServerErrors(form);
+    if (!draftUrl || (hasServerErrors && !recoveryId)) {
         return;
     }
 
@@ -899,6 +904,33 @@ async function restoreDraft(form) {
 
         const draft = await response.json();
         if (!draft.draft_id) {
+            resolved = true;
+            return;
+        }
+
+        if (hasServerErrors) {
+            if (draft.draft_id === recoveryId) {
+                const serverErrors = getFormState(form).lastValidationErrors || {};
+                addHiddenField(form, "_wizard_draft_id", draft.draft_id);
+                addHiddenField(form, "_wizard_resource_key", draftResourceKey(form));
+                await restoreDraftFiles(form, draft.files || {});
+                const restorationTasks = [];
+                form.dispatchEvent(new CustomEvent("wizardDraftRestored", {
+                    detail: {
+                        data: draft.data || {}, files: draft.files || {}, draftId: draft.draft_id,
+                        waitUntil(task) {
+                            if (task && typeof task.then === "function") restorationTasks.push(Promise.resolve(task));
+                        },
+                    },
+                }));
+                await Promise.allSettled(restorationTasks);
+                // File change handlers may clear feedback; keep the server errors authoritative.
+                getFormState(form).lastValidationErrors = serverErrors;
+                Object.entries(serverErrors).forEach(([field, messages]) => {
+                    setFieldError(form, field, Array.isArray(messages) ? messages[0] : messages);
+                });
+                showFirstInvalidStep(form);
+            }
             resolved = true;
             return;
         }
@@ -1769,6 +1801,43 @@ async function validateFields(form, fieldNames, { force = false } = {}) {
     }
 }
 
+function findInvalidStep(form) {
+    const steps = Array.from(form.querySelectorAll('[data-form-step], .bs-stepper-pane, .content'));
+    const errors = Object.keys(getFormState(form).lastValidationErrors || {});
+    for (let index = 0; index < steps.length; index++) {
+        const step = steps[index];
+        let invalid = step.querySelector('.is-invalid, [aria-invalid="true"]');
+        if (!invalid) {
+            invalid = Array.from(step.querySelectorAll('[data-form-error], .invalid-feedback')).find(error =>
+                error.textContent.trim() && !error.hidden && error.style.display !== 'none',
+            );
+        }
+        if (!invalid && errors.length) {
+            invalid = Array.from(step.querySelectorAll('[name]')).find(control =>
+                errors.some(key => fieldMatches(control.name, key)),
+            );
+            if (!invalid && validationFieldsFromStep(step).some(field => errors.some(key => fieldMatches(field, key)))) {
+                invalid = step;
+            }
+        }
+        if (invalid) return { targetStepIndex: index, firstInvalidElement: invalid };
+    }
+    return { targetStepIndex: -1, firstInvalidElement: null };
+}
+
+function showFirstInvalidStep(form) {
+    const { targetStepIndex, firstInvalidElement } = findInvalidStep(form);
+    const state = getFormState(form);
+    if (targetStepIndex >= 0) {
+        if (typeof state.moveTo === 'function') {
+            state.moveTo(targetStepIndex);
+        } else {
+            (state.stepper || form.closest('[data-form-stepper]')?.bsStepper)?.to(targetStepIndex + 1);
+        }
+    }
+    setTimeout(() => scrollToFirstInvalid(form, firstInvalidElement), 150);
+}
+
 function scrollToFirstInvalid(container, preferredInvalidElement = null) {
     if (!container) return;
 
@@ -2215,8 +2284,31 @@ function initForm(form) {
 
     form.dataset.formValidationInitialized = "true";
     form.noValidate = true;
+    const wizard = form.closest('[data-form-stepper]');
+    if (wizard) {
+        form.dataset.draftUrl ||= document.body?.dataset.wizardDraftsUrl || "";
+        if (form.dataset.draftUrl) {
+            form.dataset.validationUrl ||= `${form.dataset.draftUrl.replace(/\/$/, "")}/validate-step`;
+        }
+        form.dataset.draftResourceKey ||= getTargetPath(form);
+        addHiddenField(form, "_wizard_resource_key", draftResourceKey(form));
+    }
     ensureValidationContract(form);
     initStepper(form);
+    if (wizard?.dataset.validationErrors) {
+        try {
+            const errors = JSON.parse(wizard.dataset.validationErrors);
+            if (Object.keys(errors).length) {
+                getFormState(form).lastValidationErrors = errors;
+                Object.entries(errors).forEach(([field, messages]) => {
+                    setFieldError(form, field, Array.isArray(messages) ? messages[0] : messages);
+                });
+                if (!wizard.dataset.failedDraftId || wizard.dataset.failedDraftResource !== draftResourceKey(form)) {
+                    showFirstInvalidStep(form);
+                }
+            }
+        } catch (_) {}
+    }
     initDrafts(form);
     initSelect2Controls(form);
 
@@ -2438,8 +2530,10 @@ function initForm(form) {
             );
     }
 
+    const hasServerValidationErrors = hasVisibleServerErrors(form);
     const hasInitialValue = (control) => {
         if (
+            hasServerValidationErrors ||
             control.disabled ||
             isNonInteractiveControl(control) ||
             control.matches("[data-validation-skip], [data-datatable-filter]")
@@ -2472,6 +2566,7 @@ function initForm(form) {
         if (state.isSubmitting) {
             return;
         }
+        addHiddenField(form, "_wizard_step", String(currentStepNumber(form)));
 
         const submitButton =
             event.submitter ||
@@ -2529,85 +2624,7 @@ function initForm(form) {
                 window.toastr.error(VALIDATION_ERROR_TOAST_MESSAGE);
             }
 
-            const stepperElement =
-                form.closest("[data-form-stepper]") ||
-                form.querySelector("[data-form-stepper]");
-
-            if (stepperElement) {
-                const steps = Array.from(
-                    stepperElement.querySelectorAll("[data-form-step]"),
-                );
-
-                let targetStepIndex = -1;
-                let firstInvalidElement = null;
-
-                for (let i = 0; i < steps.length; i++) {
-                    const step = steps[i];
-                    const invalidEl = step.querySelector(
-                        '.is-invalid, [aria-invalid="true"], [data-form-error]:not([hidden]):not([style*="display: none"]), .invalid-feedback:not([hidden]):not([style*="display: none"])',
-                    );
-                    if (invalidEl) {
-                        targetStepIndex = i;
-                        firstInvalidElement = invalidEl;
-                        break;
-                    }
-                }
-
-                if (!firstInvalidElement && state.lastValidationErrors) {
-                    const errorKeys = Object.keys(state.lastValidationErrors);
-                    for (let i = 0; i < steps.length; i++) {
-                        const step = steps[i];
-                        for (const key of errorKeys) {
-                            const ctrl = Array.from(
-                                step.querySelectorAll("[name]"),
-                            ).find((c) => fieldMatches(c.name, key));
-                            if (ctrl) {
-                                targetStepIndex = i;
-                                firstInvalidElement = ctrl;
-                                break;
-                            }
-                        }
-                        if (firstInvalidElement) break;
-                    }
-                }
-
-                if (targetStepIndex >= 0) {
-                    state.isNavigating = false;
-                    if (typeof state.moveTo === "function") {
-                        state.moveTo(targetStepIndex);
-                    } else if (state.stepper || stepperElement.bsStepper) {
-                        const stepper =
-                            state.stepper || stepperElement.bsStepper;
-                        stepper.to(targetStepIndex + 1);
-                        form.dispatchEvent(
-                            new CustomEvent("stepChanged", {
-                                detail: {
-                                    stepIndex: targetStepIndex,
-                                    step: steps[targetStepIndex],
-                                },
-                            }),
-                        );
-                    }
-                }
-
-                const currentStep =
-                    (targetStepIndex >= 0 ? steps[targetStepIndex] : null) ||
-                    steps.find((s) => s.classList.contains("active")) ||
-                    steps[0];
-                if (currentStep) {
-                    updateStepNextButton(form, currentStep);
-                }
-
-                if (targetStepIndex >= 0) {
-                    setTimeout(() => {
-                        scrollToFirstInvalid(form, firstInvalidElement);
-                    }, 150);
-                } else {
-                    scrollToFirstInvalid(form, firstInvalidElement);
-                }
-            } else {
-                scrollToFirstInvalid(form);
-            }
+            showFirstInvalidStep(form);
             return;
         }
 

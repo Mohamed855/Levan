@@ -8,6 +8,7 @@ use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Enums\Tenants\Auctions\AuctionReportContentStatus;
 use App\Services\Tenants\Auctions\Reports\AuctionReportState;
 use App\Models\Tenants\Assignments\Assignment;
+use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\AuctionClosings\AuctionClosing;
 use App\Models\Tenants\AuctionEstablishments\AuctionEstablishmentRequest;
 use App\Models\Tenants\MarketingCampaigns\MarketingCampaign;
@@ -16,6 +17,7 @@ use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -42,6 +44,7 @@ class Auction extends Model
         'expected_properties_count',
         'supervising_entity',
         'project_manager_name',
+        'platform_entity_id',
         'platform_name',
         'platform_url',
         'notes',
@@ -58,12 +61,25 @@ class Auction extends Model
         'end_date' => 'date',
         'is_active' => 'boolean',
         'expected_properties_count' => 'integer',
+        'platform_entity_id' => 'integer',
         'marketing_data' => 'array',
     ];
 
     public function assignment(): BelongsTo
     {
         return $this->belongsTo(Assignment::class, 'assignment_id');
+    }
+
+    public function platformEntity(): BelongsTo
+    {
+        return $this->belongsTo(IssuingEntity::class, 'platform_entity_id')->withTrashed();
+    }
+
+    protected function platformName(): Attribute
+    {
+        return Attribute::get(fn (?string $value): ?string => $this->platform_entity_id
+            ? $this->platformEntity?->name
+            : $value);
     }
 
     public function properties(): BelongsToMany

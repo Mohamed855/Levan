@@ -166,7 +166,7 @@
 
                 <div class="col-md-6">
                     <x-form.controls.file name="assignment_letter" label="خطاب الإسناد" :required="!$is_edit"
-                        accept="application/pdf" help="PDF فقط، بحد أقصى 10MB" col="col-12" />
+                        accept="application/pdf,image/jpeg,image/png,image/webp" help="PDF أو JPG أو PNG أو WebP، بحد أقصى 10MB" col="col-12" />
                     @if ($is_edit)
                         @php
                             $letter = $assignment->attachments->firstWhere(

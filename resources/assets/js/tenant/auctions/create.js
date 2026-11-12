@@ -1010,7 +1010,11 @@ document.addEventListener("DOMContentLoaded", () => {
         $("#review-project-manager").text(
             $("#project_manager_name").val() || "-",
         );
-        $("#review-platform").text($("#platform_name").val() || "-");
+        $("#review-platform").text(
+            $("#platform_entity_id").val()
+                ? $("#platform_entity_id option:selected").text()
+                : "-",
+        );
         $("#review-platform-url").text($("#platform_url").val() || "-");
         $("#review-notes").text($("#notes").val() || "-");
 
@@ -1138,7 +1142,7 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#type").on("change", updateLivePreview);
     $("#supervising_entity").on("input", updateLivePreview);
     $(
-        "#platform_name, #platform_url, #project_manager_name, #description, #notes, #expected_properties_count",
+        "#platform_entity_id, #platform_url, #project_manager_name, #description, #notes, #expected_properties_count",
     ).on("input change", updateLivePreview);
 
     const retainedReportImageReview =

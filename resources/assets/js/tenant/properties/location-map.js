@@ -84,8 +84,17 @@ async function loadLeaflet() {
     return leaflet;
 }
 
-async function loadGoogleMaps(apiKey) {
+async function loadGoogleMaps(apiKey, onAuthFailure) {
     if (!apiKey) throw new Error("مفتاح خرائط جوجل غير متاح.");
+    const previousAuthFailure = globalThis.gm_authFailure;
+    globalThis.gm_authFailure = () => {
+        mapsPromise = null;
+        try {
+            previousAuthFailure?.();
+        } finally {
+            onAuthFailure();
+        }
+    };
     if (!globalThis.google?.maps?.importLibrary) {
         mapsPromise ??= new Promise((resolve, reject) => {
             const script = document.createElement("script");
@@ -143,6 +152,7 @@ export async function initPropertyLocationMap(
     let backupMarker;
     let mapFailed = false;
     let requestVersion = 0;
+    let initializationVersion = 0;
 
     function message(text, error = false) {
         status.textContent = text;
@@ -151,7 +161,7 @@ export async function initPropertyLocationMap(
 
     function selectPosition(position, pan = true) {
         const point = coordinates(position?.lat, position?.lng);
-        if (!point || (!map && !backupMap)) return;
+        if (!point) return;
         requestVersion++;
         latitude.value = point.lat.toFixed(7);
         longitude.value = point.lng.toFixed(7);
@@ -159,10 +169,12 @@ export async function initPropertyLocationMap(
         if (map) {
             marker.position = point;
             marker.map = map;
-        } else {
+        } else if (backupMap) {
             backupMarker.setLatLng(point).addTo(backupMap);
+        } else if (mapFailed) {
+            showFallback();
         }
-        if (pan) {
+        if (pan && (map || backupMap)) {
             const activeMap = map || backupMap;
             activeMap.panTo(point);
             activeMap.setZoom(18);
@@ -191,7 +203,7 @@ export async function initPropertyLocationMap(
             container.hidden = true;
         }
         message(
-            "تحديد الموقع غير متاح حاليًا. تُعرض خريطة للعرض فقط، ويمكنك إعادة المحاولة.",
+            "تُعرض خريطة للعرض فقط. يمكنك تحديد الموقع بلصق إحداثيات أو رابط يحتوي عليها، أو إعادة تحميل الخريطة.",
             true,
         );
     }
@@ -217,16 +229,22 @@ export async function initPropertyLocationMap(
     }
 
     async function initialize() {
+        const version = ++initializationVersion;
         backupMap?.remove();
         backupMap = null;
         backupMarker = null;
         retry.hidden = true;
-        searchButton.disabled = true;
+        searchButton.disabled = false;
         message("جارٍ تحميل الخريطة...");
         try {
             const { Map, AdvancedMarkerElement } = await loadMaps(
                 container.dataset.apiKey,
+                () => {
+                    if (version === initializationVersion)
+                        void initializeFallback(++initializationVersion);
+                },
             );
+            if (version !== initializationVersion) return;
             container.hidden = false;
             map = new Map(container, {
                 center: riyadhCenter,
@@ -261,59 +279,64 @@ export async function initPropertyLocationMap(
             }
             restoreLocation();
         } catch (error) {
-            if (marker) marker.map = null;
-            marker = null;
-            map = null;
-            mapFailed = true;
-            try {
-                const leaflet = await loadFallbackMaps();
-                container.hidden = false;
-                container.replaceChildren();
-                backupMap = leaflet
-                    .map(container)
-                    .setView(riyadhCenter, defaultZoom);
-                leaflet
-                    .tileLayer(
-                        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-                        {
-                            attribution:
-                                "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
-                            maxZoom: 19,
-                        },
-                    )
-                    .addTo(backupMap);
-                backupMarker = leaflet.marker(riyadhCenter, {
-                    draggable: true,
-                    title: "موقع العقار — اسحب لتعديل الموقع",
-                    icon: leaflet.divIcon({
-                        className: "bg-transparent border-0 text-primary fs-2",
-                        html: '<i class="ti ti-map-pin-filled" aria-hidden="true"></i>',
-                        iconSize: [28, 36],
-                        iconAnchor: [14, 36],
-                    }),
-                });
-                backupMap.on("click", (event) => selectPosition(event.latlng));
-                backupMarker.on("dragend", () =>
-                    selectPosition(backupMarker.getLatLng(), false),
-                );
-                if (fallback) {
-                    fallback.hidden = true;
-                    fallback.removeAttribute?.("src");
-                }
-                restoreLocation();
-                message(
-                    "تعذر تحميل خرائط جوجل. يمكنك تحديد الموقع على الخريطة البديلة أو لصق إحداثيات أو رابط موقع.",
-                );
-            } catch (_) {
-                backupMap?.remove();
-                backupMap = null;
-                backupMarker = null;
-                showFallback();
-            }
-            retry.hidden = false;
-        } finally {
-            searchButton.disabled = !map && !backupMap;
+            if (version === initializationVersion)
+                await initializeFallback(version);
         }
+    }
+
+    async function initializeFallback(version) {
+        if (marker) marker.map = null;
+        marker = null;
+        map = null;
+        mapFailed = true;
+        try {
+            const leaflet = await loadFallbackMaps();
+            if (version !== initializationVersion) return;
+            container.hidden = false;
+            container.replaceChildren();
+            backupMap = leaflet
+                .map(container)
+                .setView(riyadhCenter, defaultZoom);
+            leaflet
+                .tileLayer(
+                    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                    {
+                        attribution:
+                            "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+                        maxZoom: 19,
+                    },
+                )
+                .addTo(backupMap);
+            backupMarker = leaflet.marker(riyadhCenter, {
+                draggable: true,
+                title: "موقع العقار — اسحب لتعديل الموقع",
+                icon: leaflet.divIcon({
+                    className: "bg-transparent border-0 text-primary fs-2",
+                    html: '<i class="ti ti-map-pin-filled" aria-hidden="true"></i>',
+                    iconSize: [28, 36],
+                    iconAnchor: [14, 36],
+                }),
+            });
+            backupMap.on("click", (event) => selectPosition(event.latlng));
+            backupMarker.on("dragend", () =>
+                selectPosition(backupMarker.getLatLng(), false),
+            );
+            if (fallback) {
+                fallback.hidden = true;
+                fallback.removeAttribute?.("src");
+            }
+            restoreLocation();
+            message(
+                "تعذر تحميل خرائط جوجل. يمكنك تحديد الموقع على الخريطة البديلة أو لصق إحداثيات أو رابط موقع.",
+            );
+        } catch (_) {
+            if (version !== initializationVersion) return;
+            backupMap?.remove();
+            backupMap = null;
+            backupMarker = null;
+            showFallback();
+        }
+        retry.hidden = false;
     }
 
     async function searchLocation() {
@@ -324,7 +347,7 @@ export async function initPropertyLocationMap(
             message(error.message, true);
             return;
         }
-        if (!parsed || (!map && !backupMap)) return;
+        if (!parsed) return;
         const version = ++requestVersion;
         searchButton.disabled = true;
         results.replaceChildren();

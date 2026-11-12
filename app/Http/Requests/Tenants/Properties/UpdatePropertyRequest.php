@@ -25,6 +25,10 @@ class UpdatePropertyRequest extends WizardFormRequest
             $data['property_number'] = trim($data['property_number']);
         }
 
+        if (($data['estimated_value'] ?? '') === '') {
+            unset($data['estimated_value']);
+        }
+
         if (is_string($data['boundary_geojson'] ?? null)) {
             $data['boundary_geojson'] = json_decode($data['boundary_geojson'], true);
         }
@@ -60,6 +64,7 @@ class UpdatePropertyRequest extends WizardFormRequest
             'type' => ['required', Rule::enum(PropertyType::class)],
             'usage_classification' => ['required', Rule::enum(PropertyUsageClassification::class)],
             'area' => ['required', 'numeric', 'min:0.01'],
+            'estimated_value' => ['nullable', 'numeric', 'min:0', 'max:9999999999999.99', 'decimal:0,2'],
             'is_active' => ['nullable', 'boolean'],
             'short_description' => ['required', 'string', 'max:500'],
 
@@ -215,6 +220,7 @@ class UpdatePropertyRequest extends WizardFormRequest
             'type' => 'نوع العقار',
             'usage_classification' => 'تصنيف الاستخدام',
             'area' => 'المساحة (م²)',
+            'estimated_value' => 'القيمة التقديرية',
             'is_active' => 'حالة العقار',
             'short_description' => 'وصف العقار',
             'city' => 'المدينة',

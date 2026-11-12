@@ -76,7 +76,7 @@ class PlanDataTable extends AbstractDataTable
             })
 
             ->editColumn('code', function ($row) {
-                return '<span class="badge bg-label-dark text-dark">'.e($row->code ?? '-').'</span>';
+                return $this->copyableCode($row);
             })
 
             ->addColumn('is_most_requested', function ($row) use ($mostRequestedPlanId) {

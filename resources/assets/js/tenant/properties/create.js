@@ -1213,6 +1213,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ["نوع العقار", getSelectedText("type")],
                 ["تصنيف الاستخدام", getSelectedText("usage_classification")],
                 ["المساحة (م²)", getVal("area") + " م²"],
+                ["القيمة التقديرية", getVal("estimated_value")],
                 ["الوصف المختصر", getVal("short_description")],
             ];
             reviewBasic.innerHTML = `<dl class="row mb-0">${basicFields

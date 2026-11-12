@@ -40,9 +40,13 @@ class PlanRequest extends WizardFormRequest
             'limits_mode' => $limitsMode,
         ];
 
+        // Plan code cannot be edited after creation
+        if ($plan instanceof Plan) {
+            $mergeData['code'] = $plan->code;
+        }
+
         // If editing a plan that already has subscriptions, lock down critical contract columns
         if ($plan instanceof Plan && $plan->hasSubscriptions()) {
-            $mergeData['code'] = $plan->code;
             $mergeData['subscription_billing_cycle'] = $plan->subscription_billing_cycle instanceof SubscriptionBillingCycle
                 ? $plan->subscription_billing_cycle->value
                 : (string) $plan->subscription_billing_cycle;
@@ -72,13 +76,13 @@ class PlanRequest extends WizardFormRequest
 
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'code' => [
+            'code' => array_values(array_filter([
                 'required',
                 'string',
                 'max:50',
-                'regex:/^[A-Z][A-Z0-9_]*$/',
+                $planId ? null : 'regex:/^[A-Z][A-Z0-9_]*$/',
                 Rule::unique('plans', 'code')->ignore($planId),
-            ],
+            ])),
             'plan_type' => ['required', 'string', Rule::in(PlanType::values())],
             'color' => ['required', 'string', Rule::in(PlanColor::values())],
             'description' => ['nullable', 'string', 'max:1000'],

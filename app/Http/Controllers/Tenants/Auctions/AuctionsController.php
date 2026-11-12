@@ -16,9 +16,11 @@ use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
+use App\Services\Tenants\Assignments\IssuingEntityService;
 use App\Services\Tenants\Auctions\AuctionService;
 use App\Services\Tenants\Shared\CentralCityOptionsGateway;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -27,6 +29,7 @@ class AuctionsController extends Controller
     public function __construct(
         protected AuctionService $auctionService,
         protected CentralCityOptionsGateway $cityOptionsGateway,
+        protected IssuingEntityService $issuingEntityService,
     ) {
         $this->middleware('auth:tenant');
         $this->authorizeResource(Auction::class, 'auction');
@@ -65,6 +68,7 @@ class AuctionsController extends Controller
 
         return view('tenant.auctions.create', [
             'assignments' => $assignments,
+            'platformEntityOptions' => $this->issuingEntityService->getActiveOptions(),
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
@@ -85,6 +89,8 @@ class AuctionsController extends Controller
 
             return redirect()->to(tenant_route_name('auctions.show', $auction->id))
                 ->with('success', 'تم إنشاء المزاد بنجاح وبدأ تجهيز ملفات التقارير.');
+        } catch (ValidationException $exception) {
+            throw $exception;
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
@@ -94,7 +100,7 @@ class AuctionsController extends Controller
 
     public function show(Auction $auction): View
     {
-        $auction->load(['assignment', 'properties', 'attachments', 'latestReportGeneration', 'publishedReportGeneration', 'marketingCampaigns.evidence', 'closing', 'establishmentRequest']);
+        $auction->load(['assignment', 'platformEntity', 'properties', 'attachments', 'latestReportGeneration', 'publishedReportGeneration', 'marketingCampaigns.evidence', 'closing', 'establishmentRequest']);
 
         return view('tenant.auctions.show', [
             'auction' => $auction,
@@ -104,7 +110,7 @@ class AuctionsController extends Controller
     public function edit(Auction $auction): View
     {
         app(\App\Services\Tenants\Auctions\Reports\AuctionReportLock::class)->assertEditable($auction);
-        $auction->load(['assignment', 'properties', 'attachments']);
+        $auction->load(['assignment', 'platformEntity', 'properties', 'attachments']);
         $assignments = Assignment::where(function ($query) {
             $query->where('is_active', true)
                 ->where(function ($q) {
@@ -121,8 +127,14 @@ class AuctionsController extends Controller
             ->orderBy('property_number')
             ->get();
 
+        $platformEntityOptions = $this->issuingEntityService->getActiveOptions();
+        if ($auction->platform_entity_id && $auction->platformEntity) {
+            $platformEntityOptions[$auction->platform_entity_id] ??= $auction->platformEntity->name;
+        }
+
         return view('tenant.auctions.edit', [
             'auction' => $auction,
+            'platformEntityOptions' => $platformEntityOptions,
             'assignments' => $assignments,
             'properties' => $properties,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
@@ -149,6 +161,8 @@ class AuctionsController extends Controller
 
             return redirect()->to(tenant_route_name('auctions.show', $auction->id))
                 ->with('success', 'تم تحديث المزاد بنجاح وبدأ إعادة تجهيز ملفات التقارير.');
+        } catch (ValidationException $exception) {
+            throw $exception;
         } catch (\Throwable $e) {
             return redirect()->back()
                 ->withInput()

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Symfony\Component\Process\PhpExecutableFinder;
 use Throwable;
 
 final class AuctionReportService
@@ -118,15 +119,22 @@ final class AuctionReportService
 
         $queue = 'auction-reports';
         $artisan = base_path('artisan');
+        $php = config('auction-renderer.php_binary') ?: (new PhpExecutableFinder)->find(false);
+        if (! $php) {
+            Log::warning('AuctionReportService: PHP CLI executable could not be found; configure PHP_CLI_BINARY and rebuild the configuration cache.');
+
+            return;
+        }
+        $workerLog = storage_path('logs/auction-report-worker.log');
 
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $php = PHP_BINARY;
             $cmd = sprintf(
-                'start "" /B "%s" "%s" queue:work %s --queue=%s --stop-when-empty --tries=3 > NUL 2>&1',
-                $php,
-                $artisan,
+                'start "" /B %s %s queue:work %s --queue=%s --stop-when-empty --tries=3 >> %s 2>&1',
+                escapeshellarg($php),
+                escapeshellarg($artisan),
                 escapeshellarg($connection),
-                escapeshellarg($queue)
+                escapeshellarg($queue),
+                escapeshellarg($workerLog),
             );
             pclose(popen('cmd /c '.$cmd, 'r'));
         } else {
@@ -136,35 +144,13 @@ final class AuctionReportService
                 return;
             }
 
-            // على خوادم لينكس والويب، PHP_BINARY داخل PHP-FPM يشير لمسار php-fpm وليس مفسر السطر CLI
-            $php = env('PHP_CLI_BINARY');
-            if (! $php) {
-                $fpmReplacement = str_replace(['sbin/php-fpm', 'sbin/fpm'], ['bin/php', 'bin/php'], PHP_BINARY);
-                if (@file_exists($fpmReplacement) && @is_executable($fpmReplacement)) {
-                    $php = $fpmReplacement;
-                } else {
-                    foreach ([
-                        '/usr/local/bin/ea-php82',
-                        '/opt/cpanel/ea-php82/root/usr/bin/php',
-                        '/usr/local/bin/ea-php83',
-                        '/opt/cpanel/ea-php83/root/usr/bin/php',
-                        '/usr/bin/php8.2',
-                        '/usr/bin/php82',
-                    ] as $candidate) {
-                        if (@file_exists($candidate) && @is_executable($candidate)) {
-                            $php = $candidate;
-                            break;
-                        }
-                    }
-                }
-            }
-            $php = $php ?: (str_contains(PHP_BINARY, 'fpm') ? 'php' : PHP_BINARY);
             $cmd = sprintf(
-                '"%s" "%s" queue:work %s --queue=%s --stop-when-empty --tries=3 > /dev/null 2>&1 &',
-                $php,
-                $artisan,
+                '%s %s queue:work %s --queue=%s --stop-when-empty --tries=3 >> %s 2>&1 &',
+                escapeshellarg($php),
+                escapeshellarg($artisan),
                 escapeshellarg($connection),
-                escapeshellarg($queue)
+                escapeshellarg($queue),
+                escapeshellarg($workerLog),
             );
             exec($cmd);
         }

@@ -56,7 +56,7 @@
         </x-form.wizard.step>
 
         {{-- الخطوة 2: المنصة وإدارة المشروع --}}
-        <x-form.wizard.step id="step-assignment" :fields="['platform_name', 'platform_url', 'project_manager_name', 'notes']">
+        <x-form.wizard.step id="step-assignment" :fields="['platform_entity_id', 'platform_url', 'project_manager_name', 'notes']">
             @include('tenant.auctions.partials.steps.step2-assignment', ['auction' => $auction])
 
             <x-form.wizard.actions>

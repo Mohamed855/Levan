@@ -24,7 +24,7 @@
         @endif
 
         {{-- الخطوة 1: البيانات الأساسية --}}
-        <x-form.wizard.step id="property-basic-validation" :fields="['name', 'type', 'usage_classification', 'area', 'short_description', 'aerial_image', 'raw_aerial_image', 'boundary_geojson']">
+        <x-form.wizard.step id="property-basic-validation" :fields="['name', 'type', 'usage_classification', 'area', 'estimated_value', 'short_description', 'aerial_image', 'raw_aerial_image', 'boundary_geojson']">
             <div class="row g-4">
                 <div class="col-lg-7">
                     <div class="card assignment-properties-table-card h-100">
@@ -46,6 +46,9 @@
                                         : old('usage_classification')" :enum="\App\Enums\Tenants\Properties\PropertyUsageClassification::class" />
                                 <x-form.controls.input name="area" type="number" step="0.01" label="المساحة (م²)"
                                     :value="$is_edit ? $property->area : old('area')" placeholder="مثال: 600" required col="col-md-6" />
+                                <x-form.controls.input name="estimated_value" type="number" step="0.01" min="0"
+                                    max="9999999999999.99" label="القيمة التقديرية"
+                                    :value="old('estimated_value', $is_edit ? $property->estimated_value : null)" col="col-md-6" />
                                 <x-form.controls.textarea name="short_description" label="وصف العقار" placeholder="أدخل وصفاً للعقار..."
                                     :value="$is_edit ? $property->short_description : old('short_description')" required col="col-12" rows="4" maxlength="500" />
                             </div>

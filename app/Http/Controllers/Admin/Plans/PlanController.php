@@ -106,7 +106,9 @@ class PlanController extends Controller
 
     public function create(): View
     {
-        return view($this->page.'.create');
+        $generatedCode = $this->planService->generateUniqueCode();
+
+        return view($this->page.'.create', compact('generatedCode'));
     }
 
     public function store(PlanRequest $request): RedirectResponse

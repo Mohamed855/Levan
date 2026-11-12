@@ -24,7 +24,7 @@
     <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
         <i class="ti ti-alert-triangle fs-3 me-2"></i>
         <div>
-            <strong>هذه الباقة مرتبطة باشتراكات.</strong> تم قفل كود الباقة ودورة الفوترة ووضع الحدود لحماية العقود
+            <strong>هذه الباقة مرتبطة باشتراكات.</strong> تم قفل دورة الفوترة ووضع الحدود لحماية العقود
             التاريخية.
         </div>
     </div>
@@ -58,16 +58,19 @@
                 <x-form.controls.input name="name" label="اسم الباقة" :value="old('name', $target?->name)"
                     placeholder="مثال: الباقة الاحترافية" required col="col-md-6" />
 
-                @if ($is_edit && $hasSubscriptions)
-                    <x-form.controls.input name="code" id="code" label="كود الباقة (English Uppercase)"
-                        :value="$target?->code" maxlength="50" pattern="[A-Z][A-Z0-9_]*" required col="col-md-6"
-                        class="text-uppercase" readonly help="الكود مقفل لارتباط الباقة باشتراكات." />
-                    <input type="hidden" name="code" value="{{ $target?->code }}">
+                @if ($is_edit)
+                    <x-form.controls.input name="code" id="code" label="كود الباقة"
+                        help="كود الباقة ثابت ولا يمكن تعديله بعد إطلاقه." :value="$target?->code" readonly
+                        col="col-md-6" style="text-transform: uppercase;" />
                 @else
-                    <x-form.controls.input name="code" id="code" label="كود الباقة (English Uppercase)"
-                        :value="old('code', $target?->code)" maxlength="50" pattern="[A-Z][A-Z0-9_]*"
-                        title="يبدأ بحرف كبير ويحتوي على أحرف وأرقام وشرطة سفلية فقط" required col="col-md-6"
-                        class="text-uppercase" />
+                    <x-form.controls.input name="code" id="code" label="كود الباقة"
+                        help="سيتم تحويل الكود إلى أحرف كبيرة تلقائيًا" :value="old('code', $generatedCode ?? '')" required
+                        col="col-md-6" :input-group="true" style="text-transform: uppercase;">
+                        <button type="button" class="input-group-text cursor-pointer btn-generate-code"
+                            id="btn-generate-code" title="توليد كود تلقائي">
+                            <i class="ti ti-wand me-1"></i> توليد
+                        </button>
+                    </x-form.controls.input>
                 @endif
 
                 <x-form.controls.select name="plan_type" id="plan_type" label="نوع الباقة" required :value="$currentType"

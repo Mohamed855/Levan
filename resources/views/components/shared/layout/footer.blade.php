@@ -15,7 +15,7 @@
                 <a href="https://e-tec.sa" target="_blank" rel="noopener noreferrer"
                     class="footer-link d-inline-flex align-items-center gap-1">
                     <span>إتمام لتقنية نظم المعلومات</span>
-                    <img src="{{ asset('static/brand/logos/logo-footer.png') }}" alt="إتمام لتقنية نظم المعلومات"
+                    <img src="{{ asset('static/brand/logos/dark-logo-footer.png') }}" alt="إتمام لتقنية نظم المعلومات"
                         class="footer-logo"
                         style="height: 18px; width: auto; object-fit: contain; vertical-align: middle;">
                 </a>

@@ -346,6 +346,104 @@ test("both map loaders failing preserves a saved location and shows a retry acti
     assert.match(f.elements["property-location-fallback"].src, /q=24.5%2C46.5/);
 });
 
+test("coordinates remain searchable while the map loads", async () => {
+    const f = fixture();
+    let resolve;
+    const ready = initPropertyLocationMap(f.form, {
+        loadMaps: () =>
+            new Promise((done) => {
+                resolve = done;
+            }),
+    });
+    try {
+        assert.equal(
+            f.elements["property-location-search-button"].disabled,
+            false,
+        );
+        f.elements["property-location-search"].value = "25.2,47.3";
+        f.elements["property-location-search-button"].dispatchEvent(
+            new Event("click"),
+        );
+        assert.equal(f.controls.latitude.value, "25.2000000");
+        assert.equal(f.controls.longitude.value, "47.3000000");
+    } finally {
+        resolve(f.maps);
+        await ready;
+    }
+    assert.deepEqual(f.state.marker.position, { lat: 25.2, lng: 47.3 });
+});
+
+test("coordinate links can select a location even when both map providers fail", async () => {
+    const f = fixture();
+    await initPropertyLocationMap(f.form, {
+        loadMaps: async () => {
+            throw new Error("offline");
+        },
+        loadFallbackMaps: async () => {
+            throw new Error("offline");
+        },
+    });
+    assert.equal(f.elements["property-location-search-button"].disabled, false);
+    f.elements["property-location-search"].value =
+        "https://maps.google.com/?q=25.2,47.3";
+    f.elements["property-location-search-button"].dispatchEvent(
+        new Event("click"),
+    );
+    assert.equal(f.controls.latitude.value, "25.2000000");
+    assert.equal(f.controls.longitude.value, "47.3000000");
+    assert.match(f.elements["property-location-fallback"].src, /q=25.2%2C47.3/);
+});
+
+test("Google authentication failure after initialization switches to an interactive map", async () => {
+    const f = fallbackFixture({ latitude: "25", longitude: "47" });
+    const previousGoogle = globalThis.google;
+    const previousAuthFailure = globalThis.gm_authFailure;
+    globalThis.google = { maps: { importLibrary: async () => f.maps } };
+    try {
+        await initPropertyLocationMap(f.form, {
+            loadFallbackMaps: f.loaders.loadFallbackMaps,
+        });
+        // Google invokes this separately from the successful script load callback.
+        globalThis.gm_authFailure?.();
+        await new Promise(setImmediate);
+        assert.equal(f.elements["property-location-retry"].hidden, false);
+        assert.deepEqual(f.fallbackMarker.position, { lat: 25, lng: 47 });
+        f.fallbackEvents.click({ latlng: { lat: 26, lng: 48 } });
+        assert.equal(f.controls.latitude.value, "26.0000000");
+    } finally {
+        globalThis.google = previousGoogle;
+        globalThis.gm_authFailure = previousAuthFailure;
+    }
+});
+
+test("an authentication failure while Google loads cannot replace the working backup map later", async () => {
+    const f = fallbackFixture();
+    const previousGoogle = globalThis.google;
+    const previousAuthFailure = globalThis.gm_authFailure;
+    let finishLoading;
+    const libraries = new Promise((resolve) => {
+        finishLoading = resolve;
+    });
+    globalThis.google = { maps: { importLibrary: () => libraries } };
+    try {
+        const ready = initPropertyLocationMap(f.form, {
+            loadFallbackMaps: f.loaders.loadFallbackMaps,
+        });
+        globalThis.gm_authFailure();
+        await new Promise(setImmediate);
+        f.fallbackEvents.click({ latlng: { lat: 26, lng: 48 } });
+        finishLoading(f.maps);
+        await ready;
+        assert.equal(f.state.map, undefined);
+        assert.equal(f.controls.latitude.value, "26.0000000");
+        assert.equal(f.fallbackMarker.map, f.fallbackMap);
+    } finally {
+        finishLoading(f.maps);
+        globalThis.google = previousGoogle;
+        globalThis.gm_authFailure = previousAuthFailure;
+    }
+});
+
 test("an empty location displays Riyadh without filling or saving any location fields", async () => {
     const f = fixture();
     await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });

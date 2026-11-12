@@ -36,7 +36,9 @@ class PlanService
             $limitsMode = (string) ($data['limits_mode'] ?? PlanLimitsMode::LIMITED->value);
             $isUnlimited = $limitsMode === PlanLimitsMode::UNLIMITED->value;
 
-            $code = strtoupper(trim((string) ($data['code'] ?? '')));
+            $code = ! empty($data['code'])
+                ? strtoupper(trim((string) $data['code']))
+                : $this->generateUniqueCode();
 
             $plan = Plan::create([
                 ...$data,
@@ -76,15 +78,15 @@ class PlanService
                 }
             }
 
+            // Code is immutable after creation - cannot be modified
+            unset($data['code']);
+
             // If plan has subscriptions, prevent altering critical contract terms
             if ($hasSubscriptions) {
-                unset($data['code'], $data['subscription_billing_cycle'], $data['limits_mode']);
+                unset($data['subscription_billing_cycle'], $data['limits_mode']);
                 $limitsMode = $plan->limits_mode instanceof PlanLimitsMode ? $plan->limits_mode->value : (string) $plan->limits_mode;
             } else {
                 $limitsMode = (string) ($data['limits_mode'] ?? ($plan->limits_mode->value ?? $plan->limits_mode));
-                if (isset($data['code'])) {
-                    $data['code'] = strtoupper(trim((string) $data['code']));
-                }
             }
 
             $isUnlimited = $limitsMode === PlanLimitsMode::UNLIMITED->value;
@@ -283,5 +285,23 @@ class PlanService
             'statistics' => $statistics,
             'mostRequestedPlanId' => $mostRequestedPlanId,
         ];
+    }
+
+    /**
+     * Generate unique plan code.
+     */
+    public function generateUniqueCode(int $length = 8): string
+    {
+        $letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+        $characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+        do {
+            $code = $letters[random_int(0, strlen($letters) - 1)];
+            for ($i = 1; $i < $length; $i++) {
+                $code .= $characters[random_int(0, strlen($characters) - 1)];
+            }
+        } while (Plan::where('code', $code)->exists());
+
+        return $code;
     }
 }

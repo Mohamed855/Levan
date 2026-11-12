@@ -6,7 +6,7 @@
                 <input type="search" id="property-location-search" class="form-control"
                     placeholder="ابحث باسم المكان أو الصق رابط خرائط جوجل" aria-describedby="property-location-help"
                     autocomplete="off">
-                <button type="button" id="property-location-search-button" class="btn btn-primary" disabled>
+                <button type="button" id="property-location-search-button" class="input-group-text cursor-pointer">
                     <i class="ti ti-search me-1" aria-hidden="true"></i>بحث
                 </button>
             </div>

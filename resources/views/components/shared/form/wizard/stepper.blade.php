@@ -9,7 +9,10 @@
 @endphp
 
 @if ($hasMultipleSteps)
-    <div id="{{ $id }}" {{ $attributes->class(['bs-stepper']) }} data-form-stepper>
+    <div id="{{ $id }}" {{ $attributes->class(['bs-stepper']) }} data-form-stepper
+        data-validation-errors="{{ json_encode(($errors ?? new \Illuminate\Support\ViewErrorBag)->getBag('default')->getMessages()) }}"
+        data-failed-draft-id="{{ session('_wizard_failed_draft.id', '') }}"
+        data-failed-draft-resource="{{ session('_wizard_failed_draft.resource_key', '') }}">
         <div class="bs-stepper-header">
             @foreach ($steps as $index => $step)
                 @php

@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\Http\Controllers\Shared\Wizard\WizardDraftController;
+use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Http\Requests\Shared\Wizard\StoreWizardDraftRequest;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Shared\WizardDraft;
 use App\Services\Shared\Wizard\WizardDraftService;
-use Illuminate\Auth\GenericUser;
 use Illuminate\Auth\AuthManager;
+use Illuminate\Auth\GenericUser;
 use Illuminate\Auth\RequestGuard;
 use Illuminate\Config\Repository;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\DatabaseTransactionsManager;
 use Illuminate\Database\Schema\Blueprint;
@@ -25,18 +27,25 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
+use Illuminate\Session\ArraySessionHandler;
+use Illuminate\Session\Store;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
+use Illuminate\Validation\ValidationException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\InputBag;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 final class WizardDraftSafetyTest extends TestCase
 {
     private Application $app;
+
     private WizardDraftService $drafts;
+
     private string $directory;
 
     protected function setUp(): void
@@ -105,6 +114,7 @@ final class WizardDraftSafetyTest extends TestCase
         $request = Request::create('/wizard-drafts', 'POST', $input, [], $files);
         $request->setRouteResolver(fn () => (new Route('POST', 'wizard-drafts', fn () => null))->middleware('auth:'.$guard)->name($guard === 'admin' ? 'admin.wizard-drafts.store' : 'path.wizard-drafts.store'));
         $request->setUserResolver(fn ($requestedGuard = null) => new DraftTestActor(['id' => ($requestedGuard ?? $guard) === 'admin' ? 71 : 22]));
+
         return $request;
     }
 
@@ -215,7 +225,7 @@ final class WizardDraftSafetyTest extends TestCase
     {
         $request = StoreWizardDraftRequest::createFrom($this->request(['resource_key' => 'fixture', 'step' => 1, 'target_path' => '/draft-fixture'], ['document' => UploadedFile::fake()->create('small.pdf', 1)], 'tenant'));
         $request->setContainer($this->app);
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
         $request->rules();
     }
 
@@ -229,23 +239,223 @@ final class WizardDraftSafetyTest extends TestCase
         try {
             $this->drafts->save($this->request(files: ['attachments' => [UploadedFile::fake()->createWithContent('overflow.txt', 'overflow')]]), 'fixture', 1);
             self::fail('Cumulative file limit must apply');
-        } catch (\Illuminate\Validation\ValidationException $exception) {
+        } catch (ValidationException $exception) {
             self::assertArrayHasKey('attachments', $exception->errors());
         }
         self::assertCount(50, $draft->fresh()->draft_files['attachments']);
         self::assertCount(50, Storage::disk('local')->allFiles());
     }
+
+    private function failedForm(array $input = [], array $files = [], string $guard = 'admin'): array
+    {
+        $root = $this->request($input, $files, $guard);
+        $root->setLaravelSession(new Store('draft-test', new ArraySessionHandler(120)));
+        $this->app->instance('request', $root);
+        $form = FailedDraftFixtureRequest::createFrom($root);
+        $form->setContainer($this->app);
+
+        return [$root, $form];
+    }
+
+    private function rejectForm(FailedDraftFixtureRequest $form): ValidationException
+    {
+        $validator = $this->app['validator']->make($form->all(), $form->rules());
+        self::assertTrue($validator->fails());
+        try {
+            $form->reject($validator);
+            self::fail('The original validation failure must still be thrown.');
+        } catch (ValidationException $exception) {
+            return $exception;
+        }
+    }
+
+    public function test_failed_final_validation_preserves_only_valid_declared_uploads_and_flashes_their_draft(): void
+    {
+        [$root, $form] = $this->failedForm(['_wizard_resource_key' => 'fixture', '_wizard_step' => 999, 'notes' => 'Keep me'], [
+            'document' => UploadedFile::fake()->create('valid.pdf', 1),
+            'oversized' => UploadedFile::fake()->create('invalid.pdf', 3),
+            'unexpected' => UploadedFile::fake()->create('payload.html', 1),
+            'nullable_scalar' => UploadedFile::fake()->create('payload.html', 1),
+            'attachments' => [UploadedFile::fake()->create('one.pdf', 1), UploadedFile::fake()->create('two.pdf', 1)],
+            'nested' => [['files' => [UploadedFile::fake()->create('nested.pdf', 1), UploadedFile::fake()->create('large.pdf', 3)]]],
+        ]);
+        $exception = $this->rejectForm($form);
+        self::assertArrayHasKey('name', $exception->errors());
+        self::assertArrayHasKey('oversized', $exception->errors());
+        self::assertArrayHasKey('attachments', $exception->errors());
+        $draft = $this->drafts->find($root, 'fixture');
+        self::assertNotNull($draft);
+        self::assertSame(100, $draft->last_step);
+        self::assertSame('Keep me', $draft->draft_data['notes']);
+        self::assertSame(['document', 'nested'], array_keys($draft->draft_files));
+        self::assertCount(1, $draft->draft_files['nested'][0]['files']);
+        self::assertCount(2, Storage::disk('local')->allFiles());
+        self::assertSame(['id' => $draft->id, 'resource_key' => 'fixture'], $root->session()->get('_wizard_failed_draft'));
+        self::assertContains('_wizard_failed_draft', $root->session()->get('_flash.new'));
+        self::assertSame($draft->id, $root->input('_wizard_draft_id'));
+        self::assertSame($draft->id, $form->input('_wizard_draft_id'));
+        self::assertTrue($form->hasFile('oversized'), 'Original uploads must remain available to the validation response.');
+    }
+
+    public function test_ajax_and_json_validation_failures_never_save_a_draft(): void
+    {
+        foreach ([['Accept', 'application/json'], ['X-Requested-With', 'XMLHttpRequest'], ['Content-Type', 'application/json']] as [$header, $value]) {
+            [$root, $form] = $this->failedForm(['_wizard_resource_key' => 'fixture'], ['document' => UploadedFile::fake()->create('valid.pdf', 1)]);
+            $form->headers->set($header, $value);
+            if ($header === 'Content-Type') {
+                $form->setJson(new InputBag(['_wizard_resource_key' => 'fixture']));
+            }
+            $this->rejectForm($form);
+            self::assertNull($this->drafts->find($root, 'fixture'));
+            self::assertFalse($root->session()->has('_wizard_failed_draft'));
+        }
+        self::assertSame([], Storage::disk('local')->allFiles());
+    }
+
+    public function test_persistence_failure_is_reported_without_replacing_the_original_validation_errors(): void
+    {
+        $handler = $this->createMock(ExceptionHandler::class);
+        $handler->expects(self::once())->method('report')->with(self::callback(fn (\Throwable $exception): bool => $exception->getMessage() === 'Draft storage failed'));
+        $this->app->instance(ExceptionHandler::class, $handler);
+        WizardDraft::saving(fn () => throw new RuntimeException('Draft storage failed'));
+        [$root, $form] = $this->failedForm(['_wizard_resource_key' => 'fixture'], ['document' => UploadedFile::fake()->create('valid.pdf', 1)]);
+        $exception = $this->rejectForm($form);
+        self::assertArrayHasKey('name', $exception->errors());
+        self::assertFalse($root->session()->has('_wizard_failed_draft'));
+        self::assertSame([], Storage::disk('local')->allFiles());
+    }
+
+    public function test_forms_without_a_resource_key_or_session_do_not_persist_failed_drafts(): void
+    {
+        [$root, $form] = $this->failedForm(files: ['document' => UploadedFile::fake()->create('valid.pdf', 1)]);
+        $this->rejectForm($form);
+        self::assertFalse($root->session()->has('_wizard_failed_draft'));
+        $form = FailedDraftFixtureRequest::createFrom($this->request(['_wizard_resource_key' => 'fixture'], ['document' => UploadedFile::fake()->create('valid.pdf', 1)]));
+        $form->setContainer($this->app);
+        $this->rejectForm($form);
+        self::assertSame(0, Manager::connection('mysql')->table('wizard_drafts')->count());
+        self::assertSame([], Storage::disk('local')->allFiles());
+    }
+
+    public function test_failed_final_drafts_keep_the_active_tenant_and_user_identity(): void
+    {
+        $tenant = new Tenant;
+        $tenant->setKeyType('string');
+        $tenant->id = 'tenant-a';
+        $this->app->instance(\Stancl\Tenancy\Contracts\Tenant::class, $tenant);
+        [$root, $form] = $this->failedForm(['_wizard_resource_key' => 'fixture', '_wizard_step' => -4], ['document' => UploadedFile::fake()->create('valid.pdf', 1)], 'tenant');
+        $this->rejectForm($form);
+        $draft = $this->drafts->find($root, 'fixture');
+        self::assertNotNull($draft);
+        self::assertSame('tenant', $draft->guard);
+        self::assertSame(22, (int) $draft->user_id);
+        self::assertSame('tenant-a', $draft->tenant_id);
+        self::assertSame(1, $draft->last_step);
+        self::assertNull($this->drafts->find($this->request(guard: 'admin'), 'fixture'));
+        $otherUser = $this->request(guard: 'tenant');
+        $otherUser->setUserResolver(fn () => new DraftTestActor(['id' => 99]));
+        self::assertNull($this->drafts->find($otherUser, 'fixture'));
+        $tenant->id = 'tenant-b';
+        self::assertNull($this->drafts->find($root, 'fixture'));
+    }
+
+    private function renderValidationCallbacks(Request $root, ValidationException $exception): mixed
+    {
+        $configuredApp = require dirname(__DIR__, 2).'/bootstrap/app.php';
+        $handler = $configuredApp->make(ExceptionHandler::class);
+        Application::setInstance($this->app);
+
+        return (new \ReflectionMethod($handler, 'renderViaCallbacks'))->invoke($handler, $root, $exception);
+    }
+
+    public function test_domain_validation_after_form_validation_preserves_uploads_and_original_errors(): void
+    {
+        [$root, $form] = $this->failedForm(['_wizard_resource_key' => 'fixture', 'name' => 'Valid name', 'notes' => 'Keep'], [
+            'document' => UploadedFile::fake()->create('valid.pdf', 1),
+            'oversized' => UploadedFile::fake()->create('domain-rejected.pdf', 1),
+        ]);
+        $form->validateResolved();
+        self::assertSame($form, $root->attributes->get('wizard_validated_request'));
+        $exception = ValidationException::withMessages(['oversized' => 'The document does not match this property.', 'name' => 'The operation cannot be completed.']);
+        $errors = $exception->errors();
+        self::assertNull($this->renderValidationCallbacks($root, $exception));
+        $draft = $this->drafts->find($root, 'fixture');
+        self::assertNotNull($draft);
+        self::assertSame(['document'], array_keys($draft->draft_files));
+        self::assertSame('Keep', $draft->draft_data['notes']);
+        self::assertSame($errors, $exception->errors());
+        self::assertSame(['id' => $draft->id, 'resource_key' => 'fixture'], $root->session()->get('_wizard_failed_draft'));
+        self::assertSame($draft->id, $root->input('_wizard_draft_id'));
+    }
+
+    public function test_domain_validation_of_json_forms_does_not_persist_uploads(): void
+    {
+        [$root, $form] = $this->failedForm(['_wizard_resource_key' => 'fixture', 'name' => 'Valid name'], ['document' => UploadedFile::fake()->create('valid.pdf', 1)]);
+        $root->headers->set('Accept', 'application/json');
+        $form->headers->set('Accept', 'application/json');
+        $form->validateResolved();
+        self::assertNull($this->renderValidationCallbacks($root, ValidationException::withMessages(['name' => 'Rejected by the action.'])));
+        self::assertNull($this->drafts->find($root, 'fixture'));
+        self::assertFalse($root->session()->has('_wizard_failed_draft'));
+        self::assertSame([], Storage::disk('local')->allFiles());
+    }
+
+    public function test_normal_failed_validation_is_not_saved_twice_by_the_exception_renderer(): void
+    {
+        [$root, $form] = $this->failedForm(['_wizard_resource_key' => 'fixture'], ['document' => UploadedFile::fake()->create('valid.pdf', 1)]);
+        $saves = 0;
+        WizardDraft::saved(function () use (&$saves): void {
+            $saves++;
+        });
+        $exception = $this->rejectForm($form);
+        self::assertNull($this->renderValidationCallbacks($root, $exception));
+        self::assertSame(1, $saves);
+        self::assertCount(1, Storage::disk('local')->allFiles());
+    }
+}
+
+final class FailedDraftFixtureRequest extends WizardFormRequest
+{
+    public function rules(): array
+    {
+        return [
+            'name' => ['required', 'string'], 'document' => ['nullable', 'file', 'max:2'],
+            'oversized' => ['nullable', 'file', 'max:2'], 'nullable_scalar' => ['nullable'],
+            'attachments' => ['array', 'max:1'], 'attachments.*' => ['file', 'max:2'],
+            'nested.*.files.*' => ['file', 'max:2'],
+        ];
+    }
+
+    public function reject(Validator $validator): void
+    {
+        $this->failedValidation($validator);
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return '/create';
+    }
 }
 
 final class DraftTestActor extends GenericUser
 {
-    public function can($ability, $arguments = []): bool { return true; }
+    public function can($ability, $arguments = []): bool
+    {
+        return true;
+    }
 }
 
 final class DraftUploadFixtureRequest extends FormRequest
 {
-    public function authorize(): bool { return true; }
-    public function rules(): array { return ['name' => ['required', 'string'], 'document' => ['required', 'file', 'max:2']]; }
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return ['name' => ['required', 'string'], 'document' => ['required', 'file', 'max:2']];
+    }
 }
 
 final class DraftUploadFixtureController

@@ -15,6 +15,7 @@ use App\Http\Middleware\Tenancy\InitializeTenancyBySession;
 use App\Http\Middleware\Tenancy\TenantMaintenance;
 use App\Http\Middleware\Tenancy\VerifyTenantToken;
 use App\Http\Middleware\VerifyTenantUpgradeRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -145,6 +146,15 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($status >= 500) {
                 return response()->view($errorView($request, 500), ['exception' => $e], $status);
             }
+        });
+
+        $exceptions->render(function (ValidationException $e, $request) {
+            $formRequest = $request->attributes->get('wizard_validated_request');
+            if ($formRequest instanceof WizardFormRequest) {
+                $formRequest->preserveValidationException($e);
+            }
+
+            return null;
         });
 
         // Unhandled server exceptions -> 500

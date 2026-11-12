@@ -28,7 +28,17 @@
                         </div>
                     </div>
                     <h4 class="mb-1 fw-bold text-primary">{{ $plan->name }}</h4>
-                    <p class="mb-2 text-muted fw-medium">{{ $plan->code }}</p>
+                    @if ($plan->code)
+                        <div class="mb-2">
+                            <div class="d-inline-flex align-items-center gap-1 copyable-code-wrapper"
+                                data-code="{{ $plan->code }}" role="button" tabindex="0" title="اضغط لنسخ الكود">
+                                <code class="copyable-code fs-6">{{ $plan->code }}</code>
+                                <i class="ti ti-copy text-muted"></i>
+                            </div>
+                        </div>
+                    @else
+                        <p class="mb-2 text-muted fw-medium">-</p>
+                    @endif
                     <span class="badge bg-label-{{ $plan->plan_type?->color() ?? 'primary' }} mb-3 fs-6">
                         {{ $plan->plan_type?->label() ?? 'أساسي' }}
                     </span>

@@ -232,7 +232,7 @@ class WizardDraftController extends Controller
     private function rulesForFields(array $rules, array $fields): array
     {
         $normalizedFields = array_map(
-            static fn (string $field): string => str_replace(['[', ']'], ['.', ''], trim($field, '.[]')),
+            static fn (string $field): string => trim(str_replace(['[', ']'], ['.', ''], $field), '.'),
             $fields,
         );
 
@@ -240,24 +240,16 @@ class WizardDraftController extends Controller
             $rules,
             function (string $ruleKey) use ($normalizedFields): bool {
                 foreach ($normalizedFields as $field) {
-                    if ($ruleKey === $field || str_starts_with($ruleKey, $field.'.') || str_starts_with($field, $ruleKey.'.')) {
-                        return true;
+                    $ruleParts = explode('.', $ruleKey);
+                    $fieldParts = explode('.', $field);
+                    $matches = true;
+                    for ($index = 0; $index < min(count($ruleParts), count($fieldParts)); $index++) {
+                        if ($ruleParts[$index] !== '*' && $fieldParts[$index] !== '*' && $ruleParts[$index] !== $fieldParts[$index]) {
+                            $matches = false;
+                            break;
+                        }
                     }
-
-                    // Check pattern matching for wildcard rules like data.properties.*.property_id
-                    $pattern = '#^'.preg_replace('/\\\.\\\*\\\./', '\.[^\.]+\.', preg_quote($ruleKey, '#')).'#';
-                    if (preg_match($pattern, $field)) {
-                        return true;
-                    }
-
-                    $fieldPattern = '#^'.preg_replace('/\\\.\\\*\\\./', '\.[^\.]+\.', preg_quote($field, '#')).'#';
-                    if (preg_match($fieldPattern, $ruleKey)) {
-                        return true;
-                    }
-
-                    $root = explode('.', $field)[0];
-                    $ruleRoot = explode('.', $ruleKey)[0];
-                    if ($root === $ruleRoot && ! str_contains($field, '.') && ! str_contains($ruleKey, '.')) {
+                    if ($matches) {
                         return true;
                     }
                 }
