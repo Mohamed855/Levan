@@ -13,6 +13,15 @@ return new class extends Migration
             $table->foreignId('auction_id')->constrained('auctions')->cascadeOnDelete();
             $table->foreignId('property_id')->constrained('properties')->cascadeOnDelete();
             $table->unsignedInteger('sort_order')->default(0);
+            $table->string('result_status', 20)->nullable()->index();
+            $table->decimal('opening_price', 15, 2)->nullable();
+            $table->decimal('sale_price', 15, 2)->nullable();
+            $table->unsignedInteger('participants_count')->nullable();
+            $table->unsignedInteger('bids_count')->nullable();
+            $table->text('unsold_reason')->nullable();
+            $table->json('board_data')->nullable();
+            $table->string('buyer_name')->nullable();
+            $table->text('result_notes')->nullable();
             $table->timestamps();
 
             $table->unique(['auction_id', 'property_id']);

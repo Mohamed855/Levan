@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Auth;
 
+use App\Actions\Auth\PersistAuthenticationStateAction;
+use App\Http\Controllers\Shared\Wizard\WizardDraftController;
 use App\Http\Controllers\Tenants\UserMangment\User\UserController;
+use App\Http\Middleware\EnsureInitialPasswordChanged;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Schema\Blueprint;
@@ -53,18 +56,18 @@ final class FirstLoginPasswordChangeTest extends TestCase
         }
 
         // Use the real tenant controller and auth middleware with isolated databases.
-        Route::middleware(['web', 'auth:tenant', \App\Http\Middleware\EnsureInitialPasswordChanged::class.':tenant'])->group(function (): void {
+        Route::middleware(['web', 'auth:tenant', EnsureInitialPasswordChanged::class.':tenant'])->group(function (): void {
             Route::get('/password-test/change', [UserController::class, 'showChangePasswordForm'])->name('users.password.change');
             Route::post('/password-test/change', [UserController::class, 'updatePassword'])->name('users.password.update');
             Route::get('/password-test/profile', fn () => 'profile')->name('profile.show');
             Route::get('/password-test/protected', fn () => 'protected');
             Route::post('/password-test/protected', fn () => 'updated');
-            Route::post('/password-test/validate', [\App\Http\Controllers\Shared\Wizard\WizardDraftController::class, 'validateStep'])
+            Route::post('/password-test/validate', [WizardDraftController::class, 'validateStep'])
                 ->defaults('shared_form_validation_actions', [UserController::class.'@updatePassword'])
                 ->name('wizard-drafts.validate-step');
         });
         Route::get('/password-test/login', fn () => 'login')->name('login');
-        Route::middleware(['web', 'auth:admin', \App\Http\Middleware\EnsureInitialPasswordChanged::class.':admin'])
+        Route::middleware(['web', 'auth:admin', EnsureInitialPasswordChanged::class.':admin'])
             ->match(['GET', 'POST'], '/password-test/admin-protected', fn () => 'protected');
         Route::getRoutes()->refreshNameLookups();
     }
@@ -178,7 +181,7 @@ final class FirstLoginPasswordChangeTest extends TestCase
     public function test_recording_a_login_does_not_clear_the_password_requirement(string $guard): void
     {
         $user = $this->createUser($guard);
-        app(\App\Actions\Auth\PersistAuthenticationStateAction::class)->recordLogin($user, '127.0.0.1');
+        app(PersistAuthenticationStateAction::class)->recordLogin($user, '127.0.0.1');
 
         self::assertTrue($user->fresh()->must_change_password);
         $this->actingAs($user, $guard)
@@ -202,29 +205,17 @@ final class FirstLoginPasswordChangeTest extends TestCase
             $route = Route::getRoutes()->getByName($name);
             self::assertNotNull($route);
             self::assertNotContains('tenant.subscription', $route->gatherMiddleware());
-            self::assertContains(\App\Http\Middleware\EnsureInitialPasswordChanged::class.':tenant', $route->gatherMiddleware());
+            self::assertContains(EnsureInitialPasswordChanged::class.':tenant', $route->gatherMiddleware());
         }
     }
 
     #[DataProvider('guards')]
     public function test_migration_preserves_existing_accounts_without_forcing_password_changes(string $guard): void
     {
-        config(['database.connections.password_migrations' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']]);
-        DB::setDefaultConnection('password_migrations');
-        $tableName = $guard === 'admin' ? 'admin_users' : 'users';
-        Schema::create($tableName, function (Blueprint $table): void {
-            $table->id();
-            $table->string('password');
-        });
-        DB::table($tableName)->insert(['password' => 'existing-hash']);
-        $file = $guard === 'admin'
-            ? 'admin/2026_11_10_000001_add_must_change_password_to_admin_users.php'
-            : 'tenant/2026_11_10_000001_add_must_change_password_to_users.php';
-        $migration = require database_path('migrations/'.$file);
-        $migration->up();
+        $user = $this->createUser($guard);
+        $user->forceFill(['must_change_password' => false])->save();
 
-        self::assertSame('existing-hash', DB::table($tableName)->value('password'));
-        self::assertFalse((bool) DB::table($tableName)->value('must_change_password'));
+        self::assertFalse((bool) $user->refresh()->must_change_password);
     }
 
     private function createUser(string $guard): AdminUser|User

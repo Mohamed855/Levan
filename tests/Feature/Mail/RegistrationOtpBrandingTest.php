@@ -43,7 +43,6 @@ final class RegistrationOtpBrandingTest extends TestCase
         (require database_path('migrations/admin/2026_09_23_000008_create_settings_table.php'))->up();
         DB::setDefaultConnection('tenant');
         (require database_path('migrations/tenant/2026_09_24_000001_create_settings_table.php'))->up();
-        (require database_path('migrations/tenant/2026_11_04_000004_add_operational_regions_to_settings_table.php'))->up();
         DB::setDefaultConnection('mysql');
 
         Storage::fake('public');

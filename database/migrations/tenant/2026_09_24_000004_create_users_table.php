@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('employee_number')->nullable()->unique();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
@@ -21,12 +20,12 @@ return new class extends Migration
             $table->timestamp('last_login_at')->nullable();
             $table->ipAddress('last_login_ip')->nullable();
             $table->uuid('global_uid')->unique();
-            $table->uuid('license_seat_id')->nullable();
             $table->string('current_session_id')->nullable();
             $table->string('background_image')->nullable();
             $table->text('two_factor_secret')->nullable();
             $table->text('two_factor_recovery_codes')->nullable();
             $table->timestamp('two_factor_confirmed_at')->nullable();
+            $table->boolean('must_change_password')->default(false);
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

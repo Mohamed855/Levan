@@ -15,6 +15,7 @@ return new class extends Migration
             $table->foreignId('auction_id')->constrained('auctions')->cascadeOnDelete();
             $table->uuid('revision_token')->unique();
             $table->string('status', 20)->default('queued')->index();
+            $table->unsignedTinyInteger('progress')->default(0);
             $table->json('snapshot');
             $table->string('outputs_path')->nullable();
             $table->string('report_path')->nullable();

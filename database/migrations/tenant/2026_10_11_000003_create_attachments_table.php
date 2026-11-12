@@ -24,25 +24,27 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        DB::table('assignments')
-            ->whereNotNull('entity_logo')
-            ->where('entity_logo', '!=', '')
-            ->orderBy('id')
-            ->each(function (object $assignment): void {
-                DB::table('attachments')->insertOrIgnore([
-                    'attachable_type' => 'assignment',
-                    'attachable_id' => $assignment->id,
-                    'disk' => 'tenant_public',
-                    'file_path' => $assignment->entity_logo,
-                    'original_name' => basename($assignment->entity_logo),
-                    'mime_type' => null,
-                    'extension' => pathinfo($assignment->entity_logo, PATHINFO_EXTENSION) ?: null,
-                    'file_size' => 0,
-                    'category' => 'assignment_image',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            });
+        if (Schema::hasColumn('assignments', 'entity_logo')) {
+            DB::table('assignments')
+                ->whereNotNull('entity_logo')
+                ->where('entity_logo', '!=', '')
+                ->orderBy('id')
+                ->each(function (object $assignment): void {
+                    DB::table('attachments')->insertOrIgnore([
+                        'attachable_type' => 'assignment',
+                        'attachable_id' => $assignment->id,
+                        'disk' => 'tenant_public',
+                        'file_path' => $assignment->entity_logo,
+                        'original_name' => basename($assignment->entity_logo),
+                        'mime_type' => null,
+                        'extension' => pathinfo($assignment->entity_logo, PATHINFO_EXTENSION) ?: null,
+                        'file_size' => 0,
+                        'category' => 'assignment_image',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                });
+        }
     }
 
     public function down(): void

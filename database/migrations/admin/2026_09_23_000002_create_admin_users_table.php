@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('profile_picture')->nullable();
             $table->string('background_image')->nullable();
             $table->boolean('is_super_admin')->default(false);
+            $table->boolean('must_change_password')->default(false);
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

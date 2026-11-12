@@ -20,20 +20,7 @@ return new class extends Migration
 
             $table->boolean('maintenance_mode')->default(false);
             $table->boolean('trial_days_mode')->default(false);
-            $table->boolean('force_two_factor_auth')->default(false);
-
-            $table->boolean('etmam_enabled')->default(false);
             $table->boolean('tickets_enabled')->default(true);
-            $table->string('etmam_base_url')->nullable();
-            $table->string('etmam_system_code')->nullable();
-            $table->string('etmam_api_token', 120)->nullable();
-            $table->string('etmam_hmac_secret', 120)->nullable();
-
-
-            $table->string('microsoft_client_id')->nullable();
-            $table->text('microsoft_client_secret')->nullable();
-            $table->string('microsoft_redirect_uri')->nullable();
-            $table->string('microsoft_tenant_id')->nullable();
             $table->string('main_email')->nullable();
 
             $table->string('office_address')->nullable();

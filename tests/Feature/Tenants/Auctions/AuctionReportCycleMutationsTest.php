@@ -11,6 +11,7 @@ use App\Actions\Tenants\MarketingCampaigns\SaveMarketingCampaignAction;
 use App\Actions\Tenants\MassDelete\DeleteTenantRecordsAction;
 use App\Actions\Tenants\Properties\UpdatePropertyAction;
 use App\Actions\Tenants\Settings\UpdateTenantSettingsAction;
+use App\Models\Tenants\Auctions\Auction;
 use App\Services\Tenants\Auctions\AuctionService;
 use App\Services\Tenants\Auctions\Reports\AuctionReportLock;
 use App\Services\Tenants\Auctions\Reports\AuctionReportRefreshService;
@@ -47,9 +48,8 @@ final class AuctionReportCycleMutationsTest extends TenantAuctionReportTestCase
         Queue::fake();
         $auction = $this->cycleAuction();
         $auction->update(['marketing_data' => ['whatsapp_date' => '2026-11-01']]);
-        $campaign = app(SaveMarketingCampaignAction::class)->execute(null, ['auction_id' => $auction->id, 'channel' => 'whatsapp', 'metrics' => ['messages' => 0]], null);
-        $migration = require database_path('migrations/tenant/2026_11_05_120500_add_marketing_campaign_date.php');
-        $migration->up();
+        $campaign = app(SaveMarketingCampaignAction::class)->execute(null, ['auction_id' => $auction->id, 'channel' => 'whatsapp', 'campaign_date' => '2026-11-01', 'metrics' => ['messages' => 0]], null);
+
         self::assertSame('2026-11-01', $campaign->fresh()->campaign_date->format('Y-m-d'));
     }
 
@@ -230,7 +230,7 @@ final class AuctionReportCycleMutationsTest extends TenantAuctionReportTestCase
         app(AuctionReportLock::class)->assertEditable($auction->fresh());
     }
 
-    private function approveForClosing(\App\Models\Tenants\Auctions\Auction $auction): void
+    private function approveForClosing(Auction $auction): void
     {
         $request = $auction->establishmentRequest()->create(['data' => ['properties' => $auction->properties->map(fn ($property) => ['property_id' => $property->id])->all()], 'submitted_at' => now()]);
         $request->forceFill(['approved_at' => now(), 'approval_number' => '000187'])->save();

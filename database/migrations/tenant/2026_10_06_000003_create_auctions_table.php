@@ -22,14 +22,14 @@ return new class extends Migration
             $table->string('city');
             $table->unsignedInteger('expected_properties_count')->default(1);
             $table->string('supervising_entity')->nullable();
+            $table->string('project_manager_name')->nullable();
             $table->string('platform_name')->nullable();
             $table->string('platform_url')->nullable();
             $table->text('notes')->nullable();
+            $table->json('marketing_data')->nullable();
             $table->string('cover_image')->nullable();
-            $table->unsignedBigInteger('brochure_template_id')->nullable()->index();
-            $table->unsignedBigInteger('billboard_template_id')->nullable()->index();
-            $table->unsignedBigInteger('social_template_id')->nullable()->index();
-            $table->enum('status', ['in_preparation', 'pending_approval', 'active', 'completed', 'suspended'])->default('in_preparation')->index();
+            $table->string('report_image')->nullable();
+            $table->unsignedBigInteger('published_report_generation_id')->nullable()->index();
             $table->boolean('is_active')->default(true)->index();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();

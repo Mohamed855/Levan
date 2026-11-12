@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('assignment_number')->unique()->index();
             $table->string('name');
             $table->string('issuing_entity');
-            $table->string('entity_logo')->nullable();
+            $table->foreignId('issuing_entity_id')->nullable()->constrained('issuing_entities')->nullOnDelete();
             $table->string('city')->nullable();
             $table->string('district')->nullable();
             $table->string('category')->default('lands');

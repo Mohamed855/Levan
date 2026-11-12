@@ -11,54 +11,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (! Schema::hasTable('issuing_entities')) {
-            Schema::create('issuing_entities', function (Blueprint $table): void {
-                $table->id();
-                $table->string('name')->unique();
-                $table->string('image')->nullable();
-                $table->boolean('is_active')->default(true)->index();
-                $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-                $table->timestamps();
-                $table->softDeletes();
-            });
-        }
-
-        if (Schema::hasTable('assignments') && ! Schema::hasColumn('assignments', 'issuing_entity_id')) {
-            Schema::table('assignments', function (Blueprint $table): void {
-                $table->foreignId('issuing_entity_id')->nullable()->after('name')->constrained('issuing_entities')->nullOnDelete();
-            });
-
-            // Data Migration: Migrate existing unique issuing_entity string values into issuing_entities table
-            $existingNames = DB::table('assignments')
-                ->whereNotNull('issuing_entity')
-                ->where('issuing_entity', '!=', '')
-                ->distinct()
-                ->pluck('issuing_entity');
-
-            $firstUserId = DB::table('users')->value('id');
-
-            foreach ($existingNames as $name) {
-                $trimmed = trim((string) $name);
-                if ($trimmed === '') {
-                    continue;
-                }
-
-                $entityId = DB::table('issuing_entities')->where('name', $trimmed)->value('id');
-                if (! $entityId) {
-                    $entityId = DB::table('issuing_entities')->insertGetId([
-                        'name' => $trimmed,
-                        'is_active' => true,
-                        'created_by' => $firstUserId,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
-
-                DB::table('assignments')
-                    ->where('issuing_entity', $name)
-                    ->update(['issuing_entity_id' => $entityId]);
-            }
-        }
+        Schema::create('issuing_entities', function (Blueprint $table): void {
+            $table->id();
+            $table->string('name')->unique();
+            $table->string('image')->nullable();
+            $table->boolean('is_active')->default(true)->index();
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamps();
+            $table->softDeletes();
+        });
 
         // Default foundational Saudi entities if empty
         if (DB::table('issuing_entities')->count() === 0) {
@@ -123,13 +84,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        if (Schema::hasTable('assignments') && Schema::hasColumn('assignments', 'issuing_entity_id')) {
-            Schema::table('assignments', function (Blueprint $table): void {
-                $table->dropForeign(['issuing_entity_id']);
-                $table->dropColumn('issuing_entity_id');
-            });
-        }
-
         Schema::dropIfExists('issuing_entities');
     }
 };

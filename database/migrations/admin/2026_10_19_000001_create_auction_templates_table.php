@@ -11,12 +11,14 @@ return new class extends Migration
         Schema::create('auction_templates', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('type', ['brochure', 'billboard', 'social'])->index();
+            $table->enum('type', ['billboard', 'social'])->index();
             $table->text('description')->nullable();
+            $table->string('status', 20)->default('draft')->index();
             $table->string('file_path')->nullable();
             $table->json('field_names')->nullable();
             $table->json('field_definitions')->nullable();
             $table->boolean('is_active')->default(true)->index();
+            $table->unsignedInteger('current_version')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('admin_users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
