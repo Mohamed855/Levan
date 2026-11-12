@@ -8,7 +8,7 @@ if (! function_exists('tasset')) {
     function tasset(?string $path, ?string $fallback = '/static/brand/logos/logo.svg'): ?string
     {
         if (! $path) {
-            return asset($fallback);
+            return $fallback ? asset($fallback) : null;
         }
 
         // إذا المسار كامل (URL)
@@ -29,7 +29,7 @@ if (! function_exists('tasset')) {
         }
 
         // فشل - استخدم البديل
-        return asset($fallback);
+        return $fallback ? asset($fallback) : null;
     }
 }
 

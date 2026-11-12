@@ -40,7 +40,7 @@
 
     $existingFiles = [];
     if (!empty($value)) {
-        $rawFiles = is_array($value) ? $value : [$value];
+        $rawFiles = is_array($value) ? $value : ($value instanceof \Illuminate\Support\Enumerable || is_iterable($value) ? iterator_to_array($value) : [$value]);
         foreach ($rawFiles as $rf) {
             if (!empty($rf)) {
                 $existingFiles[] = $rf;
@@ -100,10 +100,19 @@
                 @foreach ($existingFiles as $fileUrl)
                     @php
                         $rawPath = is_string($fileUrl) ? $fileUrl : (is_object($fileUrl) ? ($fileUrl->file_path ?? $fileUrl->url ?? '') : '');
-                        $ext = strtolower(pathinfo(parse_url($rawPath, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
-                        $isExistingImg = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg']) || str_starts_with($rawPath, 'data:image/');
-                        $baseName = basename(parse_url($rawPath, PHP_URL_PATH) ?? '') ?: 'الملف المرفق';
-                        $resolvedUrl = is_string($fileUrl) ? $fileUrl : ($rawPath ? (function_exists('tasset') ? tasset($rawPath) : asset('storage/' . $rawPath)) : '#');
+                        $ext = strtolower(pathinfo(parse_url((string) $rawPath, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
+                        $isExistingImg = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg']) || str_starts_with((string) $rawPath, 'data:image/');
+                        $baseName = (is_object($fileUrl) && !empty($fileUrl->original_name))
+                            ? $fileUrl->original_name
+                            : (basename(parse_url((string) $rawPath, PHP_URL_PATH) ?? '') ?: 'الملف المرفق');
+
+                        if (preg_match('#^(https?:)?//#', (string) $rawPath) || str_starts_with((string) $rawPath, 'data:')) {
+                            $resolvedUrl = $rawPath;
+                        } elseif (!empty($rawPath)) {
+                            $resolvedUrl = function_exists('tasset') ? tasset($rawPath) : asset('storage/' . $rawPath);
+                        } else {
+                            $resolvedUrl = '#';
+                        }
                     @endphp
                     <div class="file-item" data-existing-file-card data-file-path="{{ $rawPath }}">
                         <input type="hidden" name="{{ $existingInputName }}" value="{{ $rawPath }}" data-existing-file-input>

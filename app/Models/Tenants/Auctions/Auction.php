@@ -203,7 +203,7 @@ class Auction extends Model
 
     public function getStatusAttribute(): AuctionStatus
     {
-        if ($this->properties->isNotEmpty() && $this->properties->every(fn ($property) => $property->pivot->result_status === 'sold')) {
+        if ($this->properties->isNotEmpty() && $this->properties->every(fn ($property) => in_array($property->pivot->result_status, ['sold', 'unsold'], true))) {
             return AuctionStatus::CLOSED;
         }
 

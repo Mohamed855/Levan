@@ -522,48 +522,91 @@ if (typeof $ !== "undefined") {
         }, 10);
 
         if (searchInput.length) {
+            // Arabic text normalization for smart and fuzzy matching
+            var normalizeArabic = function (str) {
+                if (!str) return "";
+                return String(str)
+                    .toLowerCase()
+                    .replace(/[أإآ]/g, "ا")
+                    .replace(/[ةه]/g, "ه")
+                    .replace(/[ىي]/g, "ي")
+                    .replace(/[\u064B-\u065F]/g, "")
+                    .trim();
+            };
+
             // Filter config
             var filterConfig = function (data) {
                 return function findMatches(q, cb) {
-                    let matches;
-                    matches = [];
-                    data.filter(function (i) {
-                        if (i.name.toLowerCase().startsWith(q.toLowerCase())) {
-                            matches.push(i);
-                        } else if (
-                            !i.name.toLowerCase().startsWith(q.toLowerCase()) &&
-                            i.name.toLowerCase().includes(q.toLowerCase())
-                        ) {
-                            matches.push(i);
-                            matches.sort(function (a, b) {
-                                return b.name < a.name ? 1 : -1;
-                            });
-                        } else {
-                            return [];
+                    if (!q || !q.trim()) {
+                        cb([]);
+                        return;
+                    }
+
+                    var cleanQ = normalizeArabic(q);
+                    var cleanQWithoutAl = cleanQ.startsWith("ال") && cleanQ.length > 2 ? cleanQ.slice(2) : cleanQ;
+                    var matches = [];
+
+                    (data || []).forEach(function (item) {
+                        var name = normalizeArabic(item.name || "");
+                        var keywords = normalizeArabic(item.keywords || "");
+                        var category = normalizeArabic(item.category || "");
+
+                        var score = 0;
+                        if (name.startsWith(cleanQ) || (cleanQWithoutAl && name.startsWith(cleanQWithoutAl))) {
+                            score = 100;
+                        } else if (name.includes(cleanQ) || (cleanQWithoutAl && name.includes(cleanQWithoutAl))) {
+                            score = 75;
+                        } else if (keywords.includes(cleanQ) || (cleanQWithoutAl && keywords.includes(cleanQWithoutAl))) {
+                            score = 50;
+                        } else if (category.includes(cleanQ) || (cleanQWithoutAl && category.includes(cleanQWithoutAl))) {
+                            score = 25;
+                        }
+
+                        if (score > 0) {
+                            matches.push({ item: item, score: score });
                         }
                     });
-                    cb(matches);
+
+                    matches.sort(function (a, b) {
+                        return b.score - a.score;
+                    });
+
+                    cb(matches.map(function (m) {
+                        return m.item;
+                    }));
                 };
             };
 
-            // Search JSON
-            var searchJson = "search-vertical.json"; // For vertical layout
-            if ($("#layout-menu").hasClass("menu-horizontal")) {
-                var searchJson = "search-horizontal.json"; // For vertical layout
-            }
-            // Search API AJAX call
-            var searchData = $.ajax({
-                url: assetsPath + "i18n/" + searchJson, //? Use your own search api instead
-                dataType: "json",
-                async: false,
-            }).responseJSON;
+            // Get search pages from window.dashboardSearchPages, data attribute, or async fetch
+            var getSearchPages = function () {
+                if (Array.isArray(window.dashboardSearchPages) && window.dashboardSearchPages.length > 0) {
+                    return window.dashboardSearchPages;
+                }
+
+                var dataAttr = searchInput.attr("data-search-pages");
+                if (dataAttr) {
+                    try {
+                        var parsed = typeof dataAttr === "string" ? JSON.parse(dataAttr) : dataAttr;
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            return parsed;
+                        }
+                    } catch (e) {}
+                }
+
+                return [];
+            };
+
+            var searchPages = getSearchPages();
+
             // Init typeahead on searchInput
             searchInput.each(function () {
                 var $this = $(this);
-                searchInput
+                $this
                     .typeahead(
                         {
                             hint: false,
+                            highlight: true,
+                            minLength: 1,
                             classNames: {
                                 menu: "tt-menu navbar-search-suggestion",
                                 cursor: "active",
@@ -571,41 +614,49 @@ if (typeof $ !== "undefined") {
                                     "suggestion d-flex justify-content-between px-4 py-2 w-100",
                             },
                         },
-                        // ? Add/Update blocks as per need
                         // Pages
                         {
                             name: "pages",
                             display: "name",
-                            limit: 5,
-                            source: filterConfig(searchData?.pages || []),
+                            limit: 10,
+                            source: filterConfig(searchPages),
                             templates: {
                                 header: '<h6 class="suggestions-header text-primary mb-0 mx-4 mt-3 pb-2">الصفحات</h6>',
-                                suggestion: function ({ url, icon, name }) {
+                                suggestion: function (data) {
+                                    var icon = data.icon || "ti-link";
+                                    var iconClass = icon.startsWith("ti ") ? icon : (icon.startsWith("ti-") ? "ti " + icon : "ti ti-" + icon);
+                                    var targetUrl = data.url || "#";
+                                    if (targetUrl !== "#" && !targetUrl.startsWith("http://") && !targetUrl.startsWith("https://")) {
+                                        targetUrl = baseUrl + targetUrl.replace(/^\//, "");
+                                    }
+                                    var categoryHtml = data.category
+                                        ? '<span class="badge bg-label-secondary ms-2 fs-tiny">' + data.category + '</span>'
+                                        : '';
                                     return (
                                         '<a href="' +
-                                        baseUrl +
-                                        url +
-                                        '">' +
-                                        "<div>" +
-                                        '<i class="ti ' +
-                                        icon +
-                                        ' me-2"></i>' +
-                                        '<span class="align-middle">' +
-                                        name +
+                                        targetUrl +
+                                        '" class="d-flex align-items-center justify-content-between w-100 py-1 text-decoration-none text-body">' +
+                                        '<div class="d-flex align-items-center text-truncate">' +
+                                        '<i class="' +
+                                        iconClass +
+                                        ' me-2 text-primary"></i>' +
+                                        '<span class="align-middle text-truncate fw-medium">' +
+                                        data.name +
                                         "</span>" +
                                         "</div>" +
+                                        categoryHtml +
                                         "</a>"
                                     );
                                 },
                                 notFound:
                                     '<div class="not-found px-4 py-2">' +
                                     '<h6 class="suggestions-header text-primary mb-2">الصفحات</h6>' +
-                                    '<p class="py-2 mb-0"><i class="ti ti-alert-circle ti-xs me-2"></i> لا يوجد نتائج متاحة </p>' +
+                                    '<p class="py-2 mb-0 text-muted"><i class="ti ti-alert-circle ti-xs me-2"></i> لا توجد صفحات مطابقة للبحث </p>' +
                                     "</div>",
                             },
                         },
                     )
-                    //On typeahead result render.
+                    // On typeahead result render.
                     .bind("typeahead:render", function () {
                         // Show content backdrop,
                         contentBackdrop.addClass("show").removeClass("fade");
@@ -613,14 +664,18 @@ if (typeof $ !== "undefined") {
                     // On typeahead select
                     .bind("typeahead:select", function (ev, suggestion) {
                         // Open selected page
-                        if (suggestion.url !== "javascript:;") {
-                            window.location = baseUrl + suggestion.url;
+                        if (suggestion && suggestion.url && suggestion.url !== "javascript:;" && suggestion.url !== "#") {
+                            var targetUrl = suggestion.url;
+                            if (!targetUrl.startsWith("http://") && !targetUrl.startsWith("https://")) {
+                                targetUrl = baseUrl + targetUrl.replace(/^\//, "");
+                            }
+                            window.location.href = targetUrl;
                         }
                     })
                     // On typeahead close
                     .bind("typeahead:close", function () {
                         // Clear search
-                        searchInput.val("");
+                        $this.val("");
                         $this.typeahead("val", "");
                         // Hide search input wrapper
                         searchInputWrapper.addClass("d-none");
@@ -628,9 +683,20 @@ if (typeof $ !== "undefined") {
                         contentBackdrop.addClass("fade").removeClass("show");
                     });
 
+                // On Enter key, navigate to active or first suggestion
+                $this.on("keydown", function (e) {
+                    if (e.which === 13) {
+                        var activeLink = $this.closest(".navbar-search-wrapper").find(".tt-suggestion.active a, .tt-suggestion:first-child a");
+                        if (activeLink.length && activeLink.attr("href") && activeLink.attr("href") !== "#") {
+                            e.preventDefault();
+                            window.location.href = activeLink.attr("href");
+                        }
+                    }
+                });
+
                 // On searchInput keyup, Fade content backdrop if search input is blank
-                searchInput.on("keyup", function () {
-                    if (searchInput.val() == "") {
+                $this.on("keyup", function () {
+                    if ($this.val() == "") {
                         contentBackdrop.addClass("fade").removeClass("show");
                     }
                 });

@@ -29,13 +29,15 @@ use App\Http\Controllers\Admin\SubscriptionManagement\SubscriptionManagementCont
 use App\Http\Controllers\Admin\Subscriptions\SubscriptionController as CentralSubscriptionController;
 use App\Http\Controllers\Admin\Tickets\AdminTicketController;
 use App\Http\Controllers\Shared\DashboardNotificationController;
+use App\Http\Controllers\Shared\DashboardSearchController;
 use App\Http\Controllers\Shared\Wizard\WizardDraftController;
 use App\Http\Controllers\Tenants\Auth\NewPasswordController;
+use App\Http\Middleware\EnsureInitialPasswordChanged;
 use Illuminate\Support\Facades\Route;
 
 Route::name('password.reset')->get('reset-password/{token}', [NewPasswordController::class, 'create']);
 
-Route::prefix('superadmin')->name('admin.')->middleware(['auth:admin', \App\Http\Middleware\EnsureInitialPasswordChanged::class.':admin', 'admin.active', 'admin.2fa.force'])->group(function () {
+Route::prefix('superadmin')->name('admin.')->middleware(['auth:admin', EnsureInitialPasswordChanged::class.':admin', 'admin.active', 'admin.2fa.force'])->group(function () {
     Route::prefix('dashboard-notifications')->name('dashboard-notifications.')->group(function () {
         $controller = DashboardNotificationController::class;
         Route::get('/', [$controller, 'feed'])->defaults('dashboard_scope', 'admin')->name('feed');
@@ -45,6 +47,7 @@ Route::prefix('superadmin')->name('admin.')->middleware(['auth:admin', \App\Http
         Route::post('{notification}/read', [$controller, 'read'])->whereUuid('notification')->defaults('dashboard_scope', 'admin')->name('read');
         Route::delete('{notification}', [$controller, 'destroy'])->whereUuid('notification')->defaults('dashboard_scope', 'admin')->name('destroy');
     });
+    Route::get('quick-search', DashboardSearchController::class)->defaults('dashboard_scope', 'admin')->name('quick-search');
     Route::prefix('wizard-drafts')->name('wizard-drafts.')->group(function () {
         Route::get('/', [WizardDraftController::class, 'show'])->name('index');
         Route::delete('/', [WizardDraftController::class, 'destroy'])->name('destroy');
@@ -293,7 +296,7 @@ Route::prefix('superadmin')->name('admin.')->group(function () {
         Route::get('two-factor-challenge/cancel', [AdminTwoFactorChallengeController::class, 'cancel'])->name('two-factor.cancel');
     });
 
-    Route::middleware(['auth:admin', \App\Http\Middleware\EnsureInitialPasswordChanged::class.':admin'])->group(function () {
+    Route::middleware(['auth:admin', EnsureInitialPasswordChanged::class.':admin'])->group(function () {
         Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
 
         Route::name('two-factor.')->group(function () {

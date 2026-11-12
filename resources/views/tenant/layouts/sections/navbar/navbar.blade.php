@@ -305,12 +305,9 @@
     </ul>
 </div>
 
-<!-- Search Small Screens -->
-<div class="navbar-search-wrapper search-input-wrapper {{ isset($menuHorizontal) ? $containerNav : '' }} d-none">
-    <input type="text"
-        class="form-control search-input {{ isset($menuHorizontal) ? '' : $containerNav }} border-0"
-        placeholder="بحث..." aria-label="بحث...">
-    <i class="ti ti-x search-toggler cursor-pointer"></i>
-</div>
-<!--/ Search Small Screens -->
+@include('shared.dashboard-search', [
+    'scope' => 'tenant',
+    'containerNav' => $containerNav,
+    'menuHorizontal' => $menuHorizontal ?? null,
+])
 </nav>

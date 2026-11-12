@@ -1,6 +1,7 @@
 <div class="d-flex justify-content-center gap-2">
     @can('plans.view')
-        <a href="{{ route($route . '.show', $row->id) }}" class="btn btn-icon btn-primary bg-primary" title="عرض تفاصيل الباقة">
+        <a href="{{ route($route . '.show', $row->id) }}" class="btn btn-icon btn-primary bg-primary"
+            title="عرض تفاصيل الباقة">
             <i class="ti ti-eye"></i>
         </a>
     @endcan
@@ -12,12 +13,7 @@
     @endcan
 
     @can('plans.delete')
-        @if ($row->subscriptions_count > 0)
-            <button type="button" class="btn btn-icon btn-primary bg-primary"
-                title="لا يمكن حذف باقة مرتبطة باشتراكات، استخدم زر التعطيل" disabled>
-                <i class="ti ti-trash-off"></i>
-            </button>
-        @else
+        @if ($row->subscriptions_count <= 0)
             <button type="button" class="btn btn-icon btn-primary bg-primary js-delete-btn" data-id="{{ $row->id }}"
                 title="حذف الباقة">
                 <i class="ti ti-trash"></i>

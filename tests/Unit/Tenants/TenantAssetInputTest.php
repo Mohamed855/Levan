@@ -12,6 +12,7 @@ use App\Http\Requests\Tenants\Auctions\StoreAuctionRequest;
 use App\Http\Requests\Tenants\Auctions\UpdateAuctionRequest;
 use App\Http\Requests\Tenants\Properties\StorePropertyRequest;
 use App\Http\Requests\Tenants\Properties\UpdatePropertyRequest;
+use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\Auctions\Auction;
 use App\Services\Tenants\Auctions\AuctionTemplateRenderer;
@@ -23,7 +24,9 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\HtmlString;
 use Tests\TestCase;
 
 final class TenantAssetInputTest extends TestCase
@@ -187,5 +190,52 @@ final class TenantAssetInputTest extends TestCase
         self::assertTrue($validator->fails());
         self::assertTrue($validator->errors()->has('estimated_value'));
         self::assertSame('950000.50', $property->fresh()->estimated_value);
+    }
+
+    public function test_form_controls_file_resolves_storage_urls_for_relative_paths_and_models(): void
+    {
+        Storage::fake('tenant_public');
+        Storage::disk('tenant_public')->put('properties/documents/sample.pdf', 'pdf-content');
+        Storage::disk('tenant_public')->put('properties/main_images/sample.jpg', 'img-content');
+
+        $viewPdf = view('components.shared.form.controls.file', [
+            'name' => 'building_permit',
+            'label' => 'رخصة البناء',
+            'value' => 'properties/documents/sample.pdf',
+            'slot' => new HtmlString(''),
+        ])->render();
+
+        self::assertStringNotContainsString('href="properties/documents/sample.pdf"', $viewPdf);
+        self::assertMatchesRegularExpression('/href="(\/storage\/|https?:\/\/[^"]*).*properties\/documents\/sample\.pdf"/', $viewPdf);
+
+        $viewImg = view('components.shared.form.controls.file', [
+            'name' => 'main_image',
+            'label' => 'الصورة الرئيسية',
+            'value' => 'properties/main_images/sample.jpg',
+            'slot' => new HtmlString(''),
+        ])->render();
+
+        self::assertStringNotContainsString('src="properties/main_images/sample.jpg"', $viewImg);
+        self::assertMatchesRegularExpression('/src="(\/storage\/|https?:\/\/[^"]*).*properties\/main_images\/sample\.jpg"/', $viewImg);
+
+        $tenant = Tenant::find('test');
+        if ($tenant) {
+            tenancy()->initialize($tenant);
+            try {
+                Storage::disk('tenant_public')->put('properties/documents/tenant_sample.pdf', 'pdf');
+                $viewTenant = view('components.shared.form.controls.file', [
+                    'name' => 'building_permit',
+                    'label' => 'رخصة البناء',
+                    'value' => 'properties/documents/tenant_sample.pdf',
+                    'slot' => new HtmlString(''),
+                ])->render();
+
+                self::assertStringNotContainsString('href="properties/documents/tenant_sample.pdf"', $viewTenant);
+                self::assertMatchesRegularExpression('/href="https?:\/\/[^"]*\/tenants\/test\/public\/properties\/documents\/tenant_sample\.pdf"/', $viewTenant);
+            } finally {
+                Storage::disk('tenant_public')->delete('properties/documents/tenant_sample.pdf');
+                tenancy()->end();
+            }
+        }
     }
 }

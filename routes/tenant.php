@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Shared\DashboardNotificationController;
+use App\Http\Controllers\Shared\DashboardSearchController;
 use App\Http\Controllers\Shared\Wizard\WizardDraftController;
 use App\Http\Controllers\Tenants\activity_log\ActivityLogController;
 use App\Http\Controllers\Tenants\Archive\Assignment\AssignmentArchiveController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\Tenants\Notification\NotificationController;
 use App\Http\Controllers\Tenants\Profile\ProfileController;
 use App\Http\Controllers\Tenants\PromotionalAdvertisements\PromotionalAdvertisementsController;
 use App\Http\Controllers\Tenants\Properties\PropertiesController;
+use App\Http\Controllers\Tenants\Properties\ResolveGoogleMapsUrlController;
 use App\Http\Controllers\Tenants\Settings\ApiTokenSettingsController;
 use App\Http\Controllers\Tenants\Settings\SettingsController;
 use App\Http\Controllers\Tenants\Subscriptions\NewSubscriptionController;
@@ -35,6 +37,7 @@ use App\Http\Controllers\Tenants\Subscriptions\TenantSubscriptionController;
 use App\Http\Controllers\Tenants\Tickets\TicketController;
 use App\Http\Controllers\Tenants\UserMangment\Role\RoleController;
 use App\Http\Controllers\Tenants\UserMangment\User\UserController;
+use App\Http\Middleware\EnsureInitialPasswordChanged;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -43,7 +46,7 @@ use Illuminate\Support\Facades\Route;
 |============================================================================
 */
 
-Route::middleware(['auth:tenant', \App\Http\Middleware\EnsureInitialPasswordChanged::class.':tenant', 'tenant.2fa.force'])->group(function () {
+Route::middleware(['auth:tenant', EnsureInitialPasswordChanged::class.':tenant', 'tenant.2fa.force'])->group(function () {
     Route::get('users/password/change', [UserController::class, 'showChangePasswordForm'])->name('users.password.change');
     Route::post('users/password/change', [UserController::class, 'updatePassword'])->name('users.password.update')->defaults('shared_form_validation', true);
 
@@ -61,6 +64,7 @@ Route::middleware(['auth:tenant', \App\Http\Middleware\EnsureInitialPasswordChan
         Route::post('{notification}/read', [$controller, 'read'])->whereUuid('notification')->defaults('dashboard_scope', 'tenant')->name('read');
         Route::delete('{notification}', [$controller, 'destroy'])->whereUuid('notification')->defaults('dashboard_scope', 'tenant')->name('destroy');
     });
+    Route::get('quick-search', DashboardSearchController::class)->defaults('dashboard_scope', 'tenant')->name('quick-search');
     Route::prefix('wizard-drafts')->name('wizard-drafts.')->group(function () {
         Route::get('/', [WizardDraftController::class, 'show'])->name('index');
         Route::get('file', [WizardDraftController::class, 'showFile'])->name('file.show');
@@ -272,7 +276,7 @@ Route::middleware(['auth:tenant', \App\Http\Middleware\EnsureInitialPasswordChan
         |--------------------------------------------------------------------------
         */
         Route::prefix('properties')->name('properties.')->group(function () {
-            Route::post('resolve-maps-url', \App\Http\Controllers\Tenants\Properties\ResolveGoogleMapsUrlController::class)
+            Route::post('resolve-maps-url', ResolveGoogleMapsUrlController::class)
                 ->middleware('throttle:30,1')->name('resolve-maps-url');
             Route::name('toggle-status')->patch('{property}/toggle-status', [PropertiesController::class, 'toggleStatus']);
         });
