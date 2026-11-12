@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     0 => ['groups' => ['name' => ['f0'], 'subtitle' => ['f1']], 'fallback_frames' => ['i5' => [['box' => [0, 508.802, 595.275, 841.89], 'clip' => 'p0_clip_12']]], 'layouts' => [
-        'name' => ['box' => [35, 165, 560, 315], 'fit' => 'shrink', 'max_lines' => 2, 'center' => true],
+        'name' => ['box' => [35, 165, 560, 315], 'fit' => 'shrink', 'min_font_size' => 36, 'max_lines' => 2, 'center' => true],
         'subtitle' => ['box' => [45, 320, 550, 380], 'fit' => 'shrink', 'max_lines' => 2, 'center' => true],
     ]],
     1 => ['groups' => [

@@ -4,10 +4,10 @@
 
 <x-auth.split-layout
     :logo-url="$logoUrl ?? null"
-    :form-title="$isOtp ? 'التحقق من رمز الأمان' : 'هل نسيت كلمة المرور؟'"
-    :form-subtitle="$isOtp
+    :form-title="$formTitle ?? ($isOtp ? 'التحقق من رمز الأمان' : 'هل نسيت كلمة المرور؟')"
+    :form-subtitle="$formSubtitle ?? ($isOtp
         ? 'أدخل رمز التحقق (OTP) المرسل إلى بريدك الإلكتروني لإعادة تعيين كلمة المرور'
-        : 'أدخل بريدك الإلكتروني وسنرسل لك رمز تحقق (OTP) لاستعادة حسابك فوراً'"
+        : 'أدخل بريدك الإلكتروني وسنرسل لك رمز تحقق (OTP) لاستعادة حسابك فوراً')"
     :bg-image="$bgImage ?? asset('static/auth/backgrounds/auth-security-bg.jpg')"
     :media-tagline="$mediaTagline ?? 'استعادة الحساب | لوت LOT'"
     :media-title="$mediaTitle ?? 'استعد وصولك الآمن | إلى حسابك'"

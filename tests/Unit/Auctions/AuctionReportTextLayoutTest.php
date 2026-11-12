@@ -4,11 +4,28 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Auctions;
 
+use App\Services\Tenants\Auctions\Reports\AuctionReportArtwork;
 use App\Services\Tenants\Auctions\Reports\AuctionReportTextLayout;
 use PHPUnit\Framework\TestCase;
 
 final class AuctionReportTextLayoutTest extends TestCase
 {
+    public function test_report_cover_fits_a_numbered_auction_name_without_truncating_it(): void
+    {
+        $root = dirname(__DIR__, 3).'/resources/auction-reports';
+        $definition = (new AuctionReportArtwork($root))->page('asir', 0);
+        $name = 'مزاد تصفية المرجان التجاري 5326';
+        $parts = (new AuctionReportTextLayout($root))->flow([
+            'values' => ['name' => $name, 'subtitle' => 'التقرير النهائي ل'.$name],
+            'tables' => [], 'images' => [],
+        ], $definition);
+
+        self::assertCount(1, $parts);
+        self::assertSame($name, implode(' ', $parts[0]['field_layouts']['name']['lines']));
+        self::assertLessThanOrEqual(2, count($parts[0]['field_layouts']['name']['lines']));
+        self::assertGreaterThanOrEqual(36, $parts[0]['field_layouts']['name']['font_size']);
+    }
+
     public function test_fitted_fields_also_honor_a_conservative_wrap_width(): void
     {
         $layout = new AuctionReportTextLayout(dirname(__DIR__, 3).'/resources/auction-reports');
@@ -20,7 +37,7 @@ final class AuctionReportTextLayoutTest extends TestCase
     public function test_a_long_footer_wraps_inside_its_actual_left_hand_frame(): void
     {
         $root = dirname(__DIR__, 3).'/resources/auction-reports';
-        $definition = (new \App\Services\Tenants\Auctions\Reports\AuctionReportArtwork($root))->page('haram', 1);
+        $definition = (new AuctionReportArtwork($root))->page('haram', 1);
         $parts = (new AuctionReportTextLayout($root))->flow(['values' => ['footer' => 'مخرجات المزاد - مزاد جوار الحرم للعقارات السكنية'], 'tables' => [], 'images' => []], $definition);
         self::assertCount(1, $parts);
         self::assertStringContainsString("\n", $parts[0]['values']['footer']);
@@ -35,6 +52,7 @@ final class AuctionReportTextLayoutTest extends TestCase
         self::assertCount(1, $parts);
         self::assertSame("TEST\nTEST\nTEST\nTEST", $parts[0]['values']['body']);
     }
+
     public function test_titles_shrink_only_when_needed_and_never_continue_to_another_page(): void
     {
         $layout = new AuctionReportTextLayout(dirname(__DIR__, 3).'/resources/auction-reports');
@@ -67,7 +85,7 @@ final class AuctionReportTextLayoutTest extends TestCase
     {
         $root = dirname(__DIR__, 3).'/resources/auction-reports';
         $layout = new AuctionReportTextLayout($root);
-        $artwork = new \App\Services\Tenants\Auctions\Reports\AuctionReportArtwork($root);
+        $artwork = new AuctionReportArtwork($root);
         foreach ([['haram', 0, ['name' => 'واجهة عسير', 'manager' => 'أ/ أسامه الحملي', 'project' => 'عسير154']], ['asir', 1, ['name' => 'مزاد جوار الحرم', 'manager' => 'أ/ أسامه الحملي', 'start_month' => 'أغسطس', 'end_month' => 'أغسطس']], ['asir', 18, ['sold_position_1' => '١٠']]] as [$design, $page, $values]) {
             $parts = $layout->flow(['values' => $values, 'tables' => [], 'images' => []], $artwork->page($design, $page));
             self::assertCount(1, $parts, $design.':'.$page);

@@ -76,6 +76,14 @@ export function parseLocationQuery(value) {
 }
 
 let mapsPromise;
+async function loadLeaflet() {
+    const [leaflet] = await Promise.all([
+        import("leaflet"),
+        import("leaflet/dist/leaflet.css"),
+    ]);
+    return leaflet;
+}
+
 async function loadGoogleMaps(apiKey) {
     if (!apiKey) throw new Error("مفتاح خرائط جوجل غير متاح.");
     if (!globalThis.google?.maps?.importLibrary) {
@@ -116,7 +124,7 @@ async function loadGoogleMaps(apiKey) {
 
 export async function initPropertyLocationMap(
     form,
-    { loadMaps = loadGoogleMaps } = {},
+    { loadMaps = loadGoogleMaps, loadFallbackMaps = loadLeaflet } = {},
 ) {
     const container = form.querySelector("#property-location-map");
     if (!container) return;
@@ -131,6 +139,8 @@ export async function initPropertyLocationMap(
     const fallback = form.querySelector("#property-location-fallback");
     let map;
     let marker;
+    let backupMap;
+    let backupMarker;
     let mapFailed = false;
     let requestVersion = 0;
 
@@ -141,16 +151,21 @@ export async function initPropertyLocationMap(
 
     function selectPosition(position, pan = true) {
         const point = coordinates(position?.lat, position?.lng);
-        if (!point || !map) return;
+        if (!point || (!map && !backupMap)) return;
         requestVersion++;
         latitude.value = point.lat.toFixed(7);
         longitude.value = point.lng.toFixed(7);
         mapsUrl.value = `https://www.google.com/maps/search/?api=1&query=${latitude.value},${longitude.value}`;
-        marker.position = point;
-        marker.map = map;
+        if (map) {
+            marker.position = point;
+            marker.map = map;
+        } else {
+            backupMarker.setLatLng(point).addTo(backupMap);
+        }
         if (pan) {
-            map.panTo(point);
-            map.setZoom(18);
+            const activeMap = map || backupMap;
+            activeMap.panTo(point);
+            activeMap.setZoom(18);
         }
         message(`الموقع المحدد: ${latitude.value}, ${longitude.value}`);
         mapsUrl.dispatchEvent(new Event("change", { bubbles: true }));
@@ -185,21 +200,26 @@ export async function initPropertyLocationMap(
         requestVersion++;
         results.replaceChildren?.();
         search.value = mapsUrl.value || "";
-        if (!map) {
+        if (!map && !backupMap) {
             if (mapFailed) showFallback();
             return;
         }
         const point = savedPosition();
         if (point) selectPosition(point);
         else {
-            marker.map = null;
-            map.panTo(riyadhCenter);
-            map.setZoom(defaultZoom);
+            if (map) marker.map = null;
+            else backupMarker.remove();
+            const activeMap = map || backupMap;
+            activeMap.panTo(riyadhCenter);
+            activeMap.setZoom(defaultZoom);
             message("ابحث عن الموقع أو اضغط على الخريطة لتحديده.");
         }
     }
 
     async function initialize() {
+        backupMap?.remove();
+        backupMap = null;
+        backupMarker = null;
         retry.hidden = true;
         searchButton.disabled = true;
         message("جارٍ تحميل الخريطة...");
@@ -245,10 +265,54 @@ export async function initPropertyLocationMap(
             marker = null;
             map = null;
             mapFailed = true;
-            showFallback();
+            try {
+                const leaflet = await loadFallbackMaps();
+                container.hidden = false;
+                container.replaceChildren();
+                backupMap = leaflet
+                    .map(container)
+                    .setView(riyadhCenter, defaultZoom);
+                leaflet
+                    .tileLayer(
+                        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                        {
+                            attribution:
+                                "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+                            maxZoom: 19,
+                        },
+                    )
+                    .addTo(backupMap);
+                backupMarker = leaflet.marker(riyadhCenter, {
+                    draggable: true,
+                    title: "موقع العقار — اسحب لتعديل الموقع",
+                    icon: leaflet.divIcon({
+                        className: "bg-transparent border-0 text-primary fs-2",
+                        html: '<i class="ti ti-map-pin-filled" aria-hidden="true"></i>',
+                        iconSize: [28, 36],
+                        iconAnchor: [14, 36],
+                    }),
+                });
+                backupMap.on("click", (event) => selectPosition(event.latlng));
+                backupMarker.on("dragend", () =>
+                    selectPosition(backupMarker.getLatLng(), false),
+                );
+                if (fallback) {
+                    fallback.hidden = true;
+                    fallback.removeAttribute?.("src");
+                }
+                restoreLocation();
+                message(
+                    "تعذر تحميل خرائط جوجل. يمكنك تحديد الموقع على الخريطة البديلة أو لصق إحداثيات أو رابط موقع.",
+                );
+            } catch (_) {
+                backupMap?.remove();
+                backupMap = null;
+                backupMarker = null;
+                showFallback();
+            }
             retry.hidden = false;
         } finally {
-            searchButton.disabled = !map;
+            searchButton.disabled = !map && !backupMap;
         }
     }
 
@@ -260,7 +324,7 @@ export async function initPropertyLocationMap(
             message(error.message, true);
             return;
         }
-        if (!parsed || !map) return;
+        if (!parsed || (!map && !backupMap)) return;
         const version = ++requestVersion;
         searchButton.disabled = true;
         results.replaceChildren();
@@ -288,6 +352,13 @@ export async function initPropertyLocationMap(
             if (version !== requestVersion) return;
             if (parsed.coordinates) {
                 selectPosition(parsed.coordinates);
+                return;
+            }
+            if (!map) {
+                message(
+                    "حدد النقطة على الخريطة البديلة أو الصق إحداثيات أو رابط موقع يحتوي على إحداثيات. البحث بالأسماء يتطلب خرائط جوجل.",
+                    true,
+                );
                 return;
             }
             const { Place } = await google.maps.importLibrary("places");
@@ -358,6 +429,10 @@ export async function initPropertyLocationMap(
     // The wizard may initially hide this step. Recenter when it becomes visible.
     form.addEventListener("stepChanged", () => {
         if (map) map.panTo(savedPosition() || riyadhCenter);
+        if (backupMap) {
+            backupMap.invalidateSize();
+            backupMap.panTo(savedPosition() || riyadhCenter);
+        }
     });
     await initialize();
 }

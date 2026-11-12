@@ -57,6 +57,23 @@ test('an overlong scalar is reported instead of exported with silently clipped t
     }
 });
 
+test('an ordinary organization name fits beside its unified number in the declaration', async () => {
+    const organization = { name: 'شركة لوت للمزادات العلنية المحدودة', unified_number: '7001234567' };
+    const { browser, page } = await render({ organization }, 'establishment');
+    try {
+        const result = await page.evaluate(() => ({
+            ready: window.regulatoryFormReady,
+            error: window.regulatoryFormError,
+            values: [...document.querySelectorAll('.organization-declarant .data-value')].map(value => value.textContent),
+        }));
+        assert.equal(result.ready, true);
+        assert.equal(result.error, null);
+        assert.deepEqual(result.values, [organization.name, organization.unified_number]);
+    } finally {
+        await browser.close();
+    }
+});
+
 test('an overlong property type cannot expand its field over subsequent fields', async () => {
     const { browser, page } = await render({ property: { type: 'نوع عقار طويل '.repeat(20) } }, 'establishment');
     try {

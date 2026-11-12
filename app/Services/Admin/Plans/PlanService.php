@@ -41,6 +41,9 @@ class PlanService
             $plan = Plan::create([
                 ...$data,
                 'code' => $code,
+                'yearly_renewal_price' => $data['yearly_renewal_price'] ?? 0,
+                'extra_user_license_price' => $data['extra_user_license_price'] ?? 0,
+                'discount_percentage' => $data['discount_percentage'] ?? 0,
                 'limits_mode' => $limitsMode,
                 'included_users' => $isUnlimited ? null : ($data['included_users'] ?? 1),
                 'properties_limit' => $isUnlimited ? null : ($data['properties_limit'] ?? null),

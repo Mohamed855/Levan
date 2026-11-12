@@ -1,7 +1,7 @@
 <x-auth.split-layout
     :logo-url="$logoUrl ?? null"
-    form-title="إعادة تعيين كلمة المرور"
-    form-subtitle="الرجاء إدخال كلمة مرور جديدة قوية وتأكيدها لإتمام الاستعادة"
+    :form-title="$formTitle ?? 'إعادة تعيين كلمة المرور'"
+    :form-subtitle="$formSubtitle ?? 'الرجاء إدخال كلمة مرور جديدة قوية وتأكيدها لإتمام الاستعادة'"
     :bg-image="$bgImage ?? asset('static/auth/backgrounds/auth-security-bg.jpg')"
     :media-tagline="$mediaTagline ?? 'حماية الحساب | لوت LOT'"
     :media-title="$mediaTitle ?? 'تحديث وتأمين | كلمة المرور الخاصة بك'"

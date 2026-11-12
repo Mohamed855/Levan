@@ -166,7 +166,9 @@ small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:
 .declarant .dotted{flex:1}
 .declarant .data-value{max-height:20pt;overflow:visible}
 .organization-declarant{margin-block-start:10pt;white-space:nowrap}
+.organization-declarant .data-value{white-space:nowrap;font-size:8pt}
 .organization-declarant .dotted{min-width:90pt}
+.organization-declarant .dotted:last-child{flex:0 0 70pt;min-width:70pt}
 .commitment-intro{font-size:9pt;margin-block-start:11pt}
 .declaration-panel .commitments{font-size:8pt;line-height:1.8;margin-block-start:3pt;padding-inline-start:10pt}
 .commitments li{padding-inline-start:0;margin-block-end:1pt}

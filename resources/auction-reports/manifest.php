@@ -10,7 +10,7 @@ return array (
   ),
   'files' => 
   array (
-    'asir/bindings.php' => 'ce635feb60ef48d219e943a9889a3bc8b763d36274626dc4f13dcb62dae2b48b',
+    'asir/bindings.php' => '39d4cda8a56fd1e3f0c6c2cdb205c2c0c85bb71380d88155067cd10173a0ac0c',
     'asir/default-report-image.jpg' => 'f3d9171a96a6b1635ceb6976da9a53824184bca7ddb45aa7dbed602a9d0c0fb4',
     'asir/image-frames.php' => '4870fb4d70da76f5d169c54b1f930adfaa35c7c73b652c828697900ca81b467e',
     'asir/page-1.svg' => '8f16b52c3d583adb757d304ed00d3fb675764ff0883daebd5f57404a7d8756cc',

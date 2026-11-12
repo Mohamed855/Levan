@@ -6,7 +6,7 @@
 
 @extends('admin.layouts.layoutMaster')
 
-@section('title', 'إعادة تعيين كلمة المرور - الإدارة')
+@section('title', 'تعيين كلمة المرور - الإدارة المركزية')
 
 @section('page-style')
     @vite(['resources/assets/css/shared/auth-layout.css'])
@@ -22,7 +22,15 @@
         'validationUrl' => route('admin.form-validation'),
         'backUrl' => route('admin.login'),
         'resolvedEmail' => $resolvedEmail,
-        'mediaTagline' => 'الإدارة المركزية | لوت LOT',
-        'mediaDesc' => 'اختر كلمة مرور قوية ومعقدة لحماية حسابك الإداري وصلاحيات المنظومة المركزية وفق أعلى معايير الأمان.',
+        'formTitle' => 'تعيين كلمة مرور جديدة',
+        'formSubtitle' => 'أدخل كلمة مرور قوية ومعقدة لحساب المشرف العام في الإدارة المركزية',
+        'mediaTagline' => 'بوابة الإدارة المركزية | Super Admin',
+        'mediaTitle' => 'تأمين وصول المشرف العام | إلى النظام المركزي',
+        'mediaDesc' => 'اختر كلمة مرور قوية ومعقدة لحماية حساب المشرف العام وصلاحيات التحكم المركزي في المنظومة وفق أعلى معايير الأمان.',
+        'features' => [
+            ['icon' => 'ti ti-lock-check', 'text' => 'معايير تشفير متقدمة لكلمات مرور المشرفين'],
+            ['icon' => 'ti ti-shield-cog', 'text' => 'تأمين كامل للصلاحيات والإعدادات المركزية'],
+            ['icon' => 'ti ti-fingerprint', 'text' => 'حماية مشددة ضد الوصول غير المصرح به'],
+        ],
     ])
 @endsection

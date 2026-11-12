@@ -5,7 +5,7 @@
 
 @extends('admin.layouts.layoutMaster')
 
-@section('title', 'التحقق بخطوتين - الإدارة')
+@section('title', 'التحقق بخطوتين - الإدارة المركزية')
 
 @section('page-style')
     @vite(['resources/assets/css/shared/auth-layout.css'])
@@ -17,13 +17,15 @@
 
 @section('content')
     <x-auth.split-layout form-title="التحقق بخطوتين"
-        form-subtitle="أدخل الرمز المكوّن من 6 أرقام من تطبيق المصادقة لإكمال تسجيل الدخول" :bg-image="asset('static/auth/backgrounds/auth-security-bg.jpg')"
-        media-tagline="أمان الحساب | لوت LOT" media-title="طبقة حماية إضافية | لحسابك الإداري"
-        media-desc="نضمن سلامة بياناتك وعملياتك الإدارية من خلال بروتوكولات التحقق الثنائي المعتمدة عالمياً."
+        form-subtitle="أدخل الرمز المكوّن من 6 أرقام من تطبيق المصادقة لإكمال تسجيل الدخول للوحة الإدارة"
+        :bg-image="asset('static/auth/backgrounds/auth-security-bg.jpg')"
+        media-tagline="أمان الإدارة المركزية | Super Admin Security"
+        media-title="طبقة حماية إضافية | لحسابات المشرفين والمنظومة"
+        media-desc="تأمين العمليات الإدارية الحساسة والتحكم المركزي في النظام عبر بروتوكولات التحقق الثنائي المعتمدة عالمياً."
         :features="[
-            ['icon' => 'ti ti-shield-check', 'text' => 'حماية فائقة المستوى'],
-            ['icon' => 'ti ti-device-mobile', 'text' => 'تكامل مع تطبيقات المصادقة'],
-            ['icon' => 'ti ti-key', 'text' => 'رموز استرداد احتياطية'],
+            ['icon' => 'ti ti-shield-check', 'text' => 'حماية متقدمة لحساب المشرف العام والمديرين'],
+            ['icon' => 'ti ti-device-mobile', 'text' => 'تكامل موثوق مع تطبيقات المصادقة الثنائية (2FA)'],
+            ['icon' => 'ti ti-key', 'text' => 'رموز استرداد احتياطية مشفرة وصارمة'],
         ]">
         @php
             $isRecovery = old('recovery_code') || $errors->has('recovery_code');

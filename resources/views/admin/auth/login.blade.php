@@ -5,7 +5,7 @@
 
 @extends('admin.layouts.layoutMaster')
 
-@section('title', 'تسجيل الدخول - الإدارة')
+@section('title', 'تسجيل الدخول - الإدارة المركزية')
 
 @section('page-style')
     @vite(['resources/assets/css/shared/auth-layout.css'])
@@ -16,14 +16,14 @@
 @endsection
 
 @section('content')
-    <x-auth.split-layout form-title="مرحباً بك مجدداً" form-subtitle="تسجيل الدخول للوحة تحكم الإدارة المركزية"
-        :bg-image="asset('static/auth/backgrounds/admin-login-bg.jpg')" media-tagline="الإدارة المركزية | لوت LOT"
-        media-title="منظومة الإدارة والتحكم الشامل | للمنصة العقارية"
-        media-desc="أدوات حصرية للإدارة العامة لمتابعة الشركات العقارية، إدارة التراخيص والاشتراكات، والتحكم في إعدادات المنظومة بدقة وكفاءة عالية."
+    <x-auth.split-layout form-title="مرحباً بك مجدداً" form-subtitle="تسجيل الدخول للوحة تحكم الإدارة المركزية (Super Admin)"
+        :bg-image="asset('static/auth/backgrounds/admin-login-bg.jpg')" media-tagline="بوابة الإدارة المركزية | Super Admin"
+        media-title="منظومة الإدارة والتحكم الشامل | إدارة وتشغيل المنصة المركزية"
+        media-desc="مركز التحكم القيادي الموحد لإدارة المشتركين والمنشآت، إدارة الخطط والاشتراكات، ومراقبة أداء وأمان المنظومة بدقة وكفاءة عالية."
         :features="[
-            ['icon' => 'ti ti-building-community', 'text' => 'إدارة الشركات والمستأجرين'],
-            ['icon' => 'ti ti-chart-arrows', 'text' => 'مؤشرات وتقارير شمولية'],
-            ['icon' => 'ti ti-shield-lock', 'text' => 'أمان ورقابة مركزية متقدمة'],
+            ['icon' => 'ti ti-server-cog', 'text' => 'إدارة شاملة للمنشآت والمستأجرين (Tenants)'],
+            ['icon' => 'ti ti-chart-arrows', 'text' => 'مؤشرات أداء وتقارير تشغيلية مركزية'],
+            ['icon' => 'ti ti-shield-lock', 'text' => 'حوكمة وأمان ورقابة صلاحيات متقدمة'],
         ]">
         <form id="formAuthentication" action="{{ route('admin.login') }}" method="POST" novalidate data-form-validate
             data-validation-url="{{ route('admin.form-validation') }}">
