@@ -228,7 +228,7 @@
                                 <small class="text-muted">يمكنك إضافة مالك واحد أو أكثر للعقار</small>
                             </div>
                             <button type="button" class="btn btn-sm btn-primary" id="btn-add-owner">
-                                <i class="ti ti-plus me-1"></i> إضافة مالك آخر
+                                <i class="ti ti-plus me-1"></i> إضافة مالك
                             </button>
                         </div>
                         <div class="card-body">
@@ -293,7 +293,7 @@
                                     ملحقات)</small>
                             </div>
                             <button type="button" class="btn btn-sm btn-primary" id="btn-add-unit">
-                                <i class="ti ti-plus me-1"></i> إضافة وحدة جديدة
+                                <i class="ti ti-plus me-1"></i> إضافة وحدة
                             </button>
                         </div>
                         <div class="card-body">

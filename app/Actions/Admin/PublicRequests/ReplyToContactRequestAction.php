@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Actions\Admin\PublicRequests;
 
 use App\Enums\Admin\PublicRequests\ContactRequestStatus;
-use App\Jobs\Admin\Mail\SendContactReplyMailJob;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\PublicRequests\ContactRequest;
+use App\Services\Shared\Mail\SystemMailService;
 use Illuminate\Support\Facades\DB;
 
 final class ReplyToContactRequestAction
@@ -23,11 +23,12 @@ final class ReplyToContactRequestAction
 
         cache()->forget('admin:pending_contact_requests_count');
 
-        \App\Services\Shared\Mail\SystemMailService::sendContactReply(
+        SystemMailService::sendContactReply(
             $updated->customer_email,
             $updated->customer_name,
             $updated->message,
-            $updated->reply
+            $updated->reply,
+            forceSync: true
         );
 
         return $updated;

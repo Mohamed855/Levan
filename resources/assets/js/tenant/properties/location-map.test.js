@@ -116,6 +116,7 @@ function fixture(values = {}) {
         constructor(container, options) {
             this.center = options.center;
             this.zoom = options.zoom;
+            this.options = options;
             state.hiddenWhenConstructed = container.hidden;
             state.map = this;
         }
@@ -657,4 +658,17 @@ test("searching a short link selects the location from its expanded Google Maps 
     } finally {
         globalThis.fetch = previousFetch;
     }
+});
+
+test("google map initializes with roadmap as default and provides map type controls for realistic and roadmap options", async () => {
+    const f = fixture();
+    await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });
+    assert.equal(f.state.map.options.mapTypeId, "roadmap");
+    assert.equal(f.state.map.options.mapTypeControl, true);
+    assert.deepEqual(f.state.map.options.mapTypeControlOptions?.mapTypeIds, [
+        "roadmap",
+        "satellite",
+        "hybrid",
+        "terrain",
+    ]);
 });

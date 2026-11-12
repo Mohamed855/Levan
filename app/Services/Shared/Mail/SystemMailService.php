@@ -45,7 +45,7 @@ class SystemMailService
     /**
      * Send an email safely with error handling and delivery strategy.
      */
-    public static function sendSafely(string $recipientEmail, Mailable $mailable, bool $forceSync = false): bool
+    public static function sendSafely(string $recipientEmail, Mailable $mailable, bool $forceSync = true): bool
     {
         $recipientEmail = trim($recipientEmail);
         if (empty($recipientEmail) || ! filter_var($recipientEmail, FILTER_VALIDATE_EMAIL)) {
@@ -72,8 +72,8 @@ class SystemMailService
         } catch (\Throwable $e) {
             Log::error('SystemMailService failed to send email', [
                 'recipient' => $recipientEmail,
-                'mailable'  => get_class($mailable),
-                'error'     => $e->getMessage(),
+                'mailable' => get_class($mailable),
+                'error' => $e->getMessage(),
             ]);
 
             return false;
@@ -230,9 +230,10 @@ class SystemMailService
         string $email,
         string $customerName,
         string $originalMessage,
-        string $replyMessage
+        string $replyMessage,
+        bool $forceSync = true
     ): bool {
-        return self::sendSafely($email, new ContactReplyMail($customerName, $originalMessage, $replyMessage));
+        return self::sendSafely($email, new ContactReplyMail($customerName, $originalMessage, $replyMessage), $forceSync);
     }
 
     /*
@@ -317,17 +318,19 @@ class SystemMailService
         TicketReply $reply,
         string $recipientEmail,
         string $recipientName,
-        bool $isSupportReply
+        bool $isSupportReply = true,
+        bool $forceSync = true
     ): bool {
-        return self::sendSafely($recipientEmail, new TicketReplyMail($ticket, $reply, $recipientName, $isSupportReply));
+        return self::sendSafely($recipientEmail, new TicketReplyMail($ticket, $reply, $recipientName, $isSupportReply), $forceSync);
     }
 
     public static function sendTicketStatusUpdated(
         Ticket $ticket,
         string $clientEmail,
         string $newStatus,
-        ?string $customerName = null
+        ?string $customerName = null,
+        bool $forceSync = true
     ): bool {
-        return self::sendSafely($clientEmail, new TicketStatusUpdatedMail($ticket, $newStatus, $customerName));
+        return self::sendSafely($clientEmail, new TicketStatusUpdatedMail($ticket, $newStatus, $customerName), $forceSync);
     }
 }

@@ -55,7 +55,12 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <span class="badge bg-label-info">{{ $campaign->evidence->count() }} مرفق</span>
+                                    @if ($campaign->evidence->count() > 0)
+                                        <span class="badge bg-label-info">{{ $campaign->evidence->count() . ' مرفق' }}</span>
+                                    @else
+                                        <span>لا يوجد</span>
+                                    @endif
+
                                 </td>
                             </tr>
                         @endforeach

@@ -6,7 +6,7 @@ namespace App\DataTables\Tenants\MarketingCampaigns;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\Auctions\Auction;
-use Carbon\Carbon;
+use App\Services\Tenants\Auctions\Reports\AuctionMarketingCompleteness;
 use Illuminate\Support\Facades\DB;
 
 final class MarketingCampaignsDataTable extends AbstractDataTable
@@ -203,7 +203,7 @@ final class MarketingCampaignsDataTable extends AbstractDataTable
             ->addColumn('evidence_count', function ($row) {
                 $total = $row->marketingCampaigns ? $row->marketingCampaigns->sum('evidence_count') : 0;
 
-                return '<span class="badge bg-label-info">'.$total.' مرفق</span>';
+                return $total > 0 ? '<span class="badge bg-label-info">'.$total.' مرفق</span>' : 'لا يوجد';
             })
             ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
             ->addColumn('actions', fn ($row) => view('tenant.marketing-campaigns.action', ['row' => $row, 'route' => $this->route])->render());
@@ -240,7 +240,7 @@ final class MarketingCampaignsDataTable extends AbstractDataTable
             $query->whereHas('marketingCampaigns', fn ($q) => $q->where('channel', request('channel')));
         }
         if (in_array(request()->input('completion_status'), ['complete', 'incomplete'], true)) {
-            $completeIds = app(\App\Services\Tenants\Auctions\Reports\AuctionMarketingCompleteness::class)->completeAuctionIds();
+            $completeIds = app(AuctionMarketingCompleteness::class)->completeAuctionIds();
             request()->input('completion_status') === 'complete' ? $query->whereIn('auctions.id', $completeIds) : $query->whereNotIn('auctions.id', $completeIds);
         }
         if (request()->filled('created_from')) {

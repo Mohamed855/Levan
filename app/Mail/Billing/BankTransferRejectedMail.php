@@ -18,14 +18,14 @@ final class BankTransferRejectedMail extends BaseMailable
     public function build(): static
     {
         $tenant = $this->bill->tenant;
-        $customerName = $tenant?->company_name 
-            ?? $this->bill->metadata['billing_company_name'] 
-            ?? $this->bill->metadata['billing_name'] 
+        $customerName = $tenant?->company_name
+            ?? $this->bill->metadata['billing_company_name']
+            ?? $this->bill->metadata['billing_name']
             ?? 'عزيزنا العميل';
 
         $uploadUrl = $this->uploadUrl;
         if (! $uploadUrl) {
-            $uploadUrl = $tenant ? route('path.bills.show', ['tenant' => $tenant->id, 'bill' => $this->bill->id], false) : config('app.url');
+            $uploadUrl = $tenant ? route('path.bills.show', ['tenant' => $tenant->id, 'id' => $this->bill->id], false) : config('app.url');
             if (! str_starts_with($uploadUrl, 'http')) {
                 $uploadUrl = url($uploadUrl);
             }
@@ -33,10 +33,10 @@ final class BankTransferRejectedMail extends BaseMailable
 
         return $this->subject("تنبيه بخصوص التحويل البنكي للفاتورة #{$this->bill->bill_number} — لوت LOT")
             ->viewWithOffice('emails.billing.bank_transfer_rejected', [
-                'bill'         => $this->bill,
+                'bill' => $this->bill,
                 'customerName' => $customerName,
-                'reason'       => $this->reason ?? $this->bill->reject_reason,
-                'uploadUrl'    => $uploadUrl,
+                'reason' => $this->reason ?? $this->bill->reject_reason,
+                'uploadUrl' => $uploadUrl,
             ]);
     }
 }

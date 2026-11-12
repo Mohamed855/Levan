@@ -32,7 +32,13 @@ final class GoogleMapsUrlResolver
                 return $url;
             }
 
-            $response = $this->http->withOptions(['allow_redirects' => false])->connectTimeout(3)->timeout(5)->head($url);
+            $options = ['allow_redirects' => false];
+            $caBundle = $this->resolveCaBundle();
+            if ($caBundle !== null) {
+                $options['verify'] = $caBundle;
+            }
+
+            $response = $this->http->withOptions($options)->connectTimeout(3)->timeout(5)->head($url);
             $location = $response->header('Location');
             if (! $response->redirect() || ! $location) {
                 throw new InvalidArgumentException('تعذر قراءة رابط الموقع المختصر.');
@@ -42,5 +48,25 @@ final class GoogleMapsUrlResolver
         }
 
         throw new InvalidArgumentException('تعذر قراءة رابط الموقع المختصر.');
+    }
+
+    private function resolveCaBundle(): string|bool|null
+    {
+        if (ini_get('curl.cainfo') || ini_get('openssl.cafile')) {
+            return null;
+        }
+
+        $commonPaths = [
+            'C:\\Program Files\\Git\\usr\\ssl\\certs\\ca-bundle.crt',
+            'C:\\Program Files (x86)\\Git\\usr\\ssl\\certs\\ca-bundle.crt',
+        ];
+
+        foreach ($commonPaths as $path) {
+            if (is_file($path)) {
+                return $path;
+            }
+        }
+
+        return app()->isLocal() ? false : null;
     }
 }

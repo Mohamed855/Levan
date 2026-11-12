@@ -1,7 +1,7 @@
 <div class="d-flex align-items-center justify-content-between gap-2 mt-4 mb-3">
     <h6 class="mb-0"><i class="ti ti-ruler-2 me-1 text-primary"></i> حدود العقار وأطوالها</h6>
     <button type="button" class="btn btn-sm btn-primary" id="btn-add-border">
-        <i class="ti ti-plus me-1"></i> إضافة حد جديد
+        <i class="ti ti-plus me-1"></i> إضافة حد
     </button>
 </div>
 

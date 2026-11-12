@@ -250,7 +250,19 @@ export async function initPropertyLocationMap(
                 center: riyadhCenter,
                 zoom: defaultZoom,
                 mapId: container.dataset.mapId || "DEMO_MAP_ID",
-                mapTypeId: "hybrid",
+                mapTypeId: "roadmap",
+                mapTypeControl: true,
+                mapTypeControlOptions: {
+                    style:
+                        globalThis.google?.maps?.MapTypeControlStyle?.DEFAULT ??
+                        0,
+                    mapTypeIds: [
+                        "roadmap",
+                        "satellite",
+                        "hybrid",
+                        "terrain",
+                    ],
+                },
                 streetViewControl: false,
                 fullscreenControl: true,
             });
