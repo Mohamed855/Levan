@@ -72,7 +72,7 @@
 
     @include('web.partials.script')
 
-    <x-shared.layout.feedback />
+    <x-shared.layout.feedback :confirmation="false" />
 
     @yield('page-script')
 </body>

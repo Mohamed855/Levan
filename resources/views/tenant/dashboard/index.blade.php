@@ -278,10 +278,7 @@
                 </x-slot:headerAction>
 
                 <div class="table-responsive text-nowrap h-100">
-                    <table @class([
-                        'table table-hover mb-0',
-                        'h-100' => $latestAuctions->isEmpty() || $latestAuctions->count() >= 8,
-                    ])>
+                    <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
                                 <th>اسم المزاد</th>
