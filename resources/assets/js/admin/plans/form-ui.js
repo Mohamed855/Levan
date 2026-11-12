@@ -102,13 +102,15 @@ function initPlanFormUI() {
 
                 $select
                     .select2(select2Options)
-                    .on("change select2:select select2:clear", function () {
-                        this.dispatchEvent(
-                            new Event("input", { bubbles: true }),
-                        );
-                        this.dispatchEvent(
-                            new Event("change", { bubbles: true }),
-                        );
+                    .on("change select2:select select2:clear", function (e) {
+                        if (e.type !== "change") {
+                            this.dispatchEvent(
+                                new Event("input", { bubbles: true }),
+                            );
+                            this.dispatchEvent(
+                                new Event("change", { bubbles: true }),
+                            );
+                        }
                         updatePackageCards();
                     });
             });

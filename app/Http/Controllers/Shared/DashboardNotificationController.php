@@ -4,9 +4,17 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Shared;
 
+use App\Enums\Admin\PublicRequests\ContactRequestStatus;
+use App\Enums\Admin\PublicRequests\TrialRequestStatus;
+use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Shared\DashboardBroadcastAuthRequest;
 use App\Http\Requests\Shared\DashboardNotificationRequest;
+use App\Models\Admin\PublicRequests\ContactRequest;
+use App\Models\Admin\PublicRequests\TrialRequest;
+use App\Models\Admin\Subscription\Subscription;
+use App\Models\Admin\Tickets\Ticket;
+use App\Services\Admin\SubscriptionManagement\SubscriptionManagementService;
 use App\Services\Shared\Notifications\DashboardNotificationService;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -35,13 +43,13 @@ class DashboardNotificationController extends Controller
             'count' => $unreadCount,
             'counts' => ['all' => $totalCount, 'unread' => $unreadCount, 'read' => $totalCount - $unreadCount],
             'sidebar_counts' => $sidebarCounts,
-            'broadcast' => [
+            'broadcast' => config('broadcasting.default') === 'reverb' ? [
                 'channel' => $notices->channel($scope, $scope === 'tenant' ? (string) tenant('id') : null, (int) $user->id),
                 'key' => config('broadcasting.connections.reverb.key'),
                 'host' => config('broadcasting.connections.reverb.options.host'),
                 'port' => config('broadcasting.connections.reverb.options.port'),
                 'scheme' => config('broadcasting.connections.reverb.options.scheme'),
-            ],
+            ] : null,
         ])->header('Cache-Control', 'no-store, private');
     }
 
@@ -116,27 +124,27 @@ class DashboardNotificationController extends Controller
     private function getAdminSidebarCounts(): array
     {
         try {
-            $expiringSubscriptions = app(\App\Services\Admin\SubscriptionManagement\SubscriptionManagementService::class)
+            $expiringSubscriptions = app(SubscriptionManagementService::class)
                 ->getExpiringSoonCount();
 
-            $expiredSubscriptions = \App\Models\Admin\Subscription\Subscription::where(
+            $expiredSubscriptions = Subscription::where(
                 'status',
-                \App\Enums\Admin\Subscriptions\SubscriptionStatus::EXPIRED
+                SubscriptionStatus::EXPIRED
             )->count();
 
             $totalSubscriptions = $expiringSubscriptions + $expiredSubscriptions;
 
-            $pendingContactRequests = \App\Models\Admin\PublicRequests\ContactRequest::where(
+            $pendingContactRequests = ContactRequest::where(
                 'status',
-                \App\Enums\Admin\PublicRequests\ContactRequestStatus::PENDING
+                ContactRequestStatus::PENDING
             )->count();
 
-            $pendingTrialRequests = \App\Models\Admin\PublicRequests\TrialRequest::where(
+            $pendingTrialRequests = TrialRequest::where(
                 'status',
-                \App\Enums\Admin\PublicRequests\TrialRequestStatus::PENDING
+                TrialRequestStatus::PENDING
             )->count();
 
-            $openTickets = \App\Models\Admin\Tickets\Ticket::whereIn('status', ['open', 'reopened'])->count();
+            $openTickets = Ticket::whereIn('status', ['open', 'reopened'])->count();
 
             cache()->put('admin:expiring_subscriptions_count', $expiringSubscriptions, 60);
             cache()->put('admin:expired_subscriptions_count', $expiredSubscriptions, 60);

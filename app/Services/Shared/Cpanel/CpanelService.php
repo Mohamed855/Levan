@@ -111,6 +111,30 @@ class CpanelService
         }
     }
 
+    public function deleteDatabase(string $databaseName, ?string $userName = null): void
+    {
+        if (empty($this->cpanelUser) || empty($this->cpanelHost) || empty($this->cpanelToken)) {
+            if (app()->environment(['local', 'testing'])) {
+                DB::statement("DROP DATABASE IF EXISTS `{$databaseName}`");
+
+                return;
+            }
+        }
+
+        try {
+            $this->getClient()->get('Mysql/delete_database', [
+                'query' => ['name' => $databaseName],
+            ]);
+            if ($userName) {
+                $this->getClient()->get('Mysql/delete_user', [
+                    'query' => ['name' => $userName],
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning("Failed to delete database {$databaseName} via cPanel API: ".$e->getMessage());
+        }
+    }
+
     /*
     |============================================================================
     |============================================================================

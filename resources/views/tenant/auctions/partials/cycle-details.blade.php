@@ -53,10 +53,10 @@
                             <tr>
                                 <td>
                                     {{ $channelLabel }}
-                                    {{-- @if ($campaign->campaign_date)
+                                    @if ($campaign->campaign_date)
                                         <small class="text-muted"><i
                                                 class="ti ti-calendar me-1"></i>@date($campaign->campaign_date)</small>
-                                    @endif --}}
+                                    @endif
                                 </td>
                                 <td>
                                     <span class="badge bg-label-info">{{ $campaign->evidence->count() }} مرفق</span>

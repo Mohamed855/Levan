@@ -577,7 +577,7 @@ if (typeof $ !== "undefined") {
                             name: "pages",
                             display: "name",
                             limit: 5,
-                            source: filterConfig(searchData.pages),
+                            source: filterConfig(searchData?.pages || []),
                             templates: {
                                 header: '<h6 class="suggestions-header text-primary mb-0 mx-4 mt-3 pb-2">الصفحات</h6>',
                                 suggestion: function ({ url, icon, name }) {

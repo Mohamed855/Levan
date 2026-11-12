@@ -7,7 +7,7 @@
     @endcan
 
     @can('users.force_delete')
-    <button title="حذف نهائي" type="button" class="btn btn-icon btn-label-danger js-force-btn"
+    <button title="حذف نهائي" type="button" class="btn btn-icon btn-label-danger js-force-delete-btn js-force-btn"
         data-id="{{ $id }}">
         <i class="ti ti-trash"></i>
     </button>

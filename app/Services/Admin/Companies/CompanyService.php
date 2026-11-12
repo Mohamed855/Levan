@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services\Admin\Companies;
 
 use App\Enums\Admin\Billing\BillType;
-use App\Enums\Admin\Billing\PaymentMethod;
 use App\Enums\Admin\PublicRequests\TrialRequestStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
@@ -15,13 +14,16 @@ use App\Models\Admin\Tenants\CompanySetting;
 use App\Models\Admin\Tenants\Tenant;
 use App\Services\Admin\Subscriptions\AdminSubscriptionService;
 use App\Services\Shared\Bills\BillService;
+use App\Services\Shared\Cpanel\CpanelService;
 use App\Services\Shared\Subscription\SubscriptionService;
 use App\Services\Shared\Tenant\TenantCreator;
 use App\Services\Shared\Tenant\TenantInitializer;
-use Illuminate\Http\UploadedFile;
+use App\Support\Security\TenantPasswordGenerator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Models\Activity;
 
@@ -32,7 +34,8 @@ class CompanyService
         private readonly AdminSubscriptionService $adminSubscriptionService,
         private readonly BillService $billService,
         private readonly TenantCreator $tenantCreator,
-        private readonly TenantInitializer $tenantInitializer
+        private readonly TenantInitializer $tenantInitializer,
+        private readonly ?CpanelService $cpanelService = null
     ) {}
 
     public function getCompanyStatistics(): array
@@ -85,7 +88,7 @@ class CompanyService
             $totalUsers = $plan->included_users;
             $data['total_users'] = $totalUsers;
 
-            $autoPassword = $data['password'] ?? \App\Support\Security\TenantPasswordGenerator::generate();
+            $autoPassword = $data['password'] ?? TenantPasswordGenerator::generate();
             $data['password'] = $autoPassword;
 
             $metadata = [
@@ -199,7 +202,11 @@ class CompanyService
     {
         $company = Tenant::onlyTrashed()->findOrFail($id);
 
-        return DB::connection('mysql')->transaction(function () use ($company) {
+        $dbName = $company->db_database;
+        $dbUser = $company->db_username;
+        $tenantId = $company->id;
+
+        return DB::connection('mysql')->transaction(function () use ($company, $dbName, $dbUser, $tenantId) {
             // Clean up all subscriptions permanently if any left
             $company->subscriptions()->get()->each(function (Subscription $subscription) {
                 $this->adminSubscriptionService->deleteSubscription($subscription);
@@ -209,7 +216,34 @@ class CompanyService
 
             $this->clearCompanyCache($company->id);
 
-            return (bool) $company->forceDelete();
+            $result = (bool) $company->forceDelete();
+
+            // Drop tenant database
+            if ($dbName) {
+                try {
+                    $cpanel = $this->cpanelService ?? app(CpanelService::class);
+                    $cpanel->deleteDatabase($dbName, $dbUser);
+                } catch (\Throwable $e) {
+                    Log::warning("Failed to delete database {$dbName}: ".$e->getMessage());
+                }
+            }
+
+            // Clean up tenant storage directories
+            try {
+                $tenantStoragePath = storage_path("app/tenants/{$tenantId}");
+                if (File::isDirectory($tenantStoragePath)) {
+                    File::deleteDirectory($tenantStoragePath);
+                }
+
+                $tenantPublicPath = public_path("tenants/{$tenantId}");
+                if (File::isDirectory($tenantPublicPath)) {
+                    File::deleteDirectory($tenantPublicPath);
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Failed to delete tenant {$tenantId} storage folders: ".$e->getMessage());
+            }
+
+            return $result;
         });
     }
 
