@@ -246,7 +246,7 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
             'login.id' => $user->id,
             'login.guard' => 'tenant',
             'login.tenant_id' => 'test-tenant',
-        ])->get('/test-tenant/two-factor-challenge');
+        ])->get('/admin/two-factor-challenge');
 
         $response->assertOk();
         $content = $response->getContent();
@@ -539,7 +539,7 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
             'login.guard' => 'tenant',
             'login.tenant_id' => 'cancel-tenant',
             'login.remember' => true,
-        ])->get('/cancel-tenant/two-factor-challenge/cancel')
+        ])->get('/admin/two-factor-challenge/cancel')
             ->assertRedirect(tenant_route_name('login'));
 
         $this->assertNull(session('login.id'));
@@ -556,7 +556,7 @@ final class TwoFactorAuthenticationBatchATest extends TestCase
         $tenant = Tenant::create(['id' => 'guest-tenant']);
         tenancy()->initialize($tenant);
 
-        $this->get('/guest-tenant/two-factor-challenge')
+        $this->get('/admin/two-factor-challenge')
             ->assertRedirect(tenant_route_name('login'));
     }
 

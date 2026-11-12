@@ -72,7 +72,7 @@ class UserService
 
         try {
             $tenant = tenant();
-            $loginUrl = $tenant ? tenant_route_name('login') : config('app.url');
+            $loginUrl = $tenant ? tenant_route_name('login', ['tenant_id' => $tenant->getTenantKey()]) : config('app.url');
             $rawRoleName = $user->roles->first()?->name;
             $roleName = $rawRoleName ? AccessLabels::role($rawRoleName) : null;
 

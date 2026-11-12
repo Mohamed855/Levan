@@ -33,15 +33,16 @@ final class CrossPanelLoginTest extends TestCase
         $admin->id = 9;
         $this->actingAs($admin, 'admin');
 
-        $this->get('http://localhost/test/login')->assertOk()
+        $this->get('http://localhost/test/login')->assertRedirect('/admin/login');
+        $this->get('http://localhost/admin/login')->assertOk()
             ->assertSee('name="tenant_id" value="test"', false);
-        $this->post('http://localhost/test/login', ['tenant_id' => 'test'])
+        $this->post('http://localhost/admin/login', ['tenant_id' => 'test'])
             ->assertSessionHasErrors(['email', 'password']);
 
         $this->assertSame(9, Auth::guard('admin')->id());
         $this->assertFalse(Auth::guard('tenant')->check());
 
-        $this->post('http://localhost/test/login', [
+        $this->post('http://localhost/admin/login', [
             'tenant_id' => 'test',
             'email' => 'demo@lot.com',
             'password' => '123456789',

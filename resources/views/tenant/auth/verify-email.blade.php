@@ -29,6 +29,9 @@
         <div class="d-flex flex-column gap-3">
             <form method="POST" action="{{ tenant_route_name('verification.send') }}">
                 @csrf
+                @if (tenant())
+                    <input type="hidden" name="tenant_id" value="{{ tenant('id') }}">
+                @endif
                 <button type="submit" class="btn-auth-primary">
                     <span>إعادة إرسال بريد التحقق</span>
                     <i class="ti ti-mail-forward" aria-hidden="true"></i>
@@ -37,6 +40,9 @@
 
             <form method="POST" action="{{ tenant_route_name('logout') }}" class="text-center">
                 @csrf
+                @if (tenant())
+                    <input type="hidden" name="tenant_id" value="{{ tenant('id') }}">
+                @endif
                 <button type="submit" class="auth-back-link" style="background: none; border: none; cursor: pointer;">
                     <i class="ti ti-arrow-right me-1"></i>
                     تسجيل الخروج

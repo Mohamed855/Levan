@@ -132,7 +132,8 @@ final class TwoFactorAuthenticationClosureTest extends TestCase
                 $root = "http://$host";
                 $login = "$root/login";
             } else {
-                $root = "/$tenantId";
+                $root = '/admin';
+                $this->withSession(['tenant_login_context' => $tenantId]);
                 $login = $root.'/login';
             }
             tenancy()->initialize($tenant);
@@ -199,7 +200,7 @@ final class TwoFactorAuthenticationClosureTest extends TestCase
         self::assertFalse(Auth::guard($f['guard'])->check());
         $code = app(Google2FA::class)->getCurrentOtp($f['secret']);
         $completed = $this->post($f['root'].'/two-factor-challenge', ['code' => $code]);
-        $expected = $mode === 'admin' ? '/superadmin' : ($mode === 'path' ? $f['root'].'/dashboard' : '/dashboard');
+        $expected = $mode === 'admin' ? '/superadmin' : ($mode === 'path' ? '/'.$f['pending']['login.tenant_id'].'/dashboard' : '/dashboard');
         $completed->assertRedirect($expected)->assertCookie(Auth::guard($f['guard'])->getRecallerName());
         self::assertNotSame($before, session()->getId());
         self::assertSame($f['user']->id, Auth::guard($f['guard'])->id());
@@ -344,7 +345,7 @@ final class TwoFactorAuthenticationClosureTest extends TestCase
             }
             Auth::guard($f['guard'])->logout();
             $login = $mode === 'admin' ? '/superadmin/login' : $f['root'].'/login';
-            $destination = $mode === 'admin' ? '/superadmin' : ($mode === 'path' ? $f['root'].'/dashboard' : '/dashboard');
+            $destination = $mode === 'admin' ? '/superadmin' : ($mode === 'path' ? '/'.$f['pending']['login.tenant_id'].'/dashboard' : '/dashboard');
             $this->post($login, ['email' => $f['user']->email, 'password' => 'SyntheticReview123!'])->assertRedirect($destination);
             self::assertSame($f['user']->id, Auth::guard($f['guard'])->id());
             Auth::guard($f['guard'])->logout();
@@ -459,7 +460,7 @@ final class TwoFactorAuthenticationClosureTest extends TestCase
                 'verified' => true, 'expires_at' => now()->addMinutes(5)->timestamp,
             ]])->post($root.'/reset-password', [
                 'password' => 'DifferentReview456!', 'password_confirmation' => 'DifferentReview456!',
-            ])->assertRedirect($root.'/forgot-password');
+            ])->assertRedirect(str_starts_with($root, '/') ? '/admin/forgot-password' : $root.'/forgot-password');
         }
         foreach (['closure-a', 'closure-b'] as $tenantId) {
             tenancy()->initialize(Tenant::findOrFail($tenantId));

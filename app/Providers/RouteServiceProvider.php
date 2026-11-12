@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Http\Controllers\Tenants\Auth\AuthenticatedSessionController;
+use App\Http\Middleware\Tenancy\RedirectTenantAuthToShared;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -89,32 +89,32 @@ class RouteServiceProvider extends ServiceProvider
         foreach ($this->centralDomains() as $index => $domain) {
             $cleanDomain = str_replace(['http://', 'https://'], '', $domain);
 
-            // Legacy shared login links redirect to the tenant-scoped entry point.
+            // Shared tenant authentication on the current central host.
             Route::middleware([
                 'web',
-                'tenant.session',
+                'tenant.session:auth',
                 'tenant.maintenance',
             ])
                 ->domain($cleanDomain)
                 ->prefix('admin')
                 ->name($index === 0 ? 'tenant.' : "central-domain-{$index}.tenant.")
-                ->group(function () {
-                    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-                    Route::post('login', [AuthenticatedSessionController::class, 'store']);
-                });
+                ->group(base_path('routes/tenant-auth.php'));
 
             // Tenant administration under /{tenant}/*.
             Route::middleware([
                 'web',
                 'tenant.path',
-                'tenant.session',
                 'tenant.maintenance',
             ])
                 ->domain($cleanDomain)
                 ->prefix('{tenant}')
                 ->name($index === 0 ? 'path.' : "central-domain-{$index}.path.")
                 ->where(['tenant' => '^(?!(?i)(superadmin|admin|api)(?:\/|$))[a-zA-Z0-9_\-]+$'])
-                ->group(base_path('routes/tenant.php'));
+                ->group(function (): void {
+                    Route::middleware('tenant.session')->group(base_path('routes/tenant.php'));
+                    Route::middleware(['tenant.session:auth', RedirectTenantAuthToShared::class])
+                        ->group(base_path('routes/tenant-auth.php'));
+                });
         }
 
         Route::middleware([
@@ -122,7 +122,10 @@ class RouteServiceProvider extends ServiceProvider
             'prevent.central',
             'tenant.domain',
             'tenant.maintenance',
-        ])->name('domain.')->group(base_path('routes/tenant.php'));
+        ])->name('domain.')->group(function (): void {
+            require base_path('routes/tenant.php');
+            require base_path('routes/tenant-auth.php');
+        });
     }
 
     /**

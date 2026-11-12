@@ -14,19 +14,24 @@ class InitializeTenancyBySession
 {
     /**
      * Handle shared login and tenant-scoped administration on central domains.
-     * Identifies the tenant via session, authenticated user context, POST payload, or encrypted cookie.
+     * Auth routes honor explicit tenant selection before session and encrypted cookie hints.
+     * Dashboard requests remain bound to the authenticated tenant.
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string $mode = 'panel'): Response
     {
+        $isAuthRoute = $mode === 'auth';
+        if ($isAuthRoute && $request->exists('tenant_id')) {
+            abort_unless(is_string($request->input('tenant_id')) && $request->input('tenant_id') !== '', 404);
+        }
         // 1. Resolve tenant ID by priority (without querying uninitialized tenant DB)
         $tenantId = tenant('id')
-            ?? session('auth_tenant_id')
-            ?? $request->input('tenant_id')
+            ?? ($isAuthRoute ? $request->input('tenant_id') : session('auth_tenant_id'))
+            ?? ($isAuthRoute ? session('auth_tenant_id') : $request->input('tenant_id'))
             ?? session('tenant_login_context')
             ?? $request->cookie('tenant_login_hint');
 
         // If no tenant context found -> fail with 404
-        if (! $tenantId) {
+        if (! is_string($tenantId) || $tenantId === '') {
             abort(404, 'المستأجر غير موجود');
         }
 
@@ -40,13 +45,29 @@ class InitializeTenancyBySession
             abort(404, 'المستأجر غير موجود');
         }
 
+        $guard = Auth::guard('tenant');
+        $previousTenantId = session('auth_tenant_id')
+            ?? session('tenant_login_context')
+            ?? session('login.tenant_id')
+            ?? $request->cookie('tenant_login_hint');
+
+        // An explicit guest auth entry switches tenant without carrying an identity,
+        // remember cookie, OTP, or password-reset state into the selected database.
+        if ($isAuthRoute && $previousTenantId && $previousTenantId !== $tenant->id
+            && in_array('guest:tenant', $request->route()->gatherMiddleware(), true)) {
+            $guard->forgetUser();
+            $request->cookies->remove($guard->getRecallerName());
+            cookie()->queue(cookie()->forget($guard->getRecallerName()));
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
         // 3. Initialize tenancy if not already initialized
         if (! tenant() || tenant('id') !== $tenant->id) {
             tenancy()->initialize($tenant);
         }
 
         // 4. Enforce tenant binding before resolving a user ID in the tenant database.
-        $guard = Auth::guard('tenant');
         if ($request->session()->has($guard->getName()) || $guard->hasUser()) {
             $authTenantId = session('auth_tenant_id') ?? session('tenant_login_context');
             if ($authTenantId && $authTenantId !== $tenant->id) {

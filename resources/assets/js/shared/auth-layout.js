@@ -235,7 +235,11 @@ function initAuthLayout() {
                                 "X-CSRF-TOKEN": csrfToken,
                                 "X-Requested-With": "XMLHttpRequest",
                             },
-                            body: JSON.stringify({}),
+                            body: JSON.stringify(
+                                resendForm
+                                    ? Object.fromEntries(new FormData(resendForm))
+                                    : {},
+                            ),
                         });
 
                         const data = await response.json();

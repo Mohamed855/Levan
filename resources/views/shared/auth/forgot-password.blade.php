@@ -24,6 +24,9 @@
         <form id="formAuthentication" method="POST" action="{{ $verifyAction }}" novalidate
             data-form-validate data-validation-url="{{ $validationUrl }}">
             @csrf
+            @if (tenant())
+                <input type="hidden" name="tenant_id" value="{{ tenant('id') }}">
+            @endif
 
             <x-form.controls.input name="otp" label="رمز التحقق (OTP)" placeholder="XXXXXX" inputmode="numeric"
                 maxlength="6" autocomplete="one-time-code" class="otp-input text-center fw-bold"
@@ -53,11 +56,17 @@
 
         <form id="otp-resend-form" method="POST" action="{{ $resendAction }}" class="d-none">
             @csrf
+            @if (tenant())
+                <input type="hidden" name="tenant_id" value="{{ tenant('id') }}">
+            @endif
         </form>
     @else
         <form id="formAuthentication" method="POST" action="{{ $emailAction }}" novalidate
             data-form-validate data-validation-url="{{ $validationUrl }}">
             @csrf
+            @if (tenant())
+                <input type="hidden" name="tenant_id" value="{{ tenant('id') }}">
+            @endif
 
             <x-form.controls.input name="email" label="البريد الإلكتروني" placeholder="أدخل البريد الإلكتروني المسجل"
                 type="email" :value="old('email', $email ?? '')" required autocomplete="email" col="col-12 mb-4" icon="ti ti-mail" />

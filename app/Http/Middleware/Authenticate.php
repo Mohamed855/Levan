@@ -46,7 +46,7 @@ class Authenticate extends Middleware
         if ($request->is('admin*')) {
             $tenantId = session('auth_tenant_id') ?? session('tenant_login_context');
 
-            return $tenantId ? route('path.login', ['tenant' => $tenantId], false) : '/';
+            return $tenantId ? route('tenant.login', [], false) : '/';
         }
 
         return '/';

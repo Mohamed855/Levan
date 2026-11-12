@@ -31,6 +31,9 @@
         <form id="twoStepsForm" action="{{ tenant_route_name('tenants.two-factor.store') }}" method="POST" novalidate
             data-form-validate data-validation-url="{{ tenant_route_name('form-validation') }}">
             @csrf
+            @if (tenant())
+                <input type="hidden" name="tenant_id" value="{{ tenant('id') }}">
+            @endif
 
             <div class="mb-4 {{ $isRecovery ? 'd-none' : '' }}" id="codeInputsWrapper">
                 <x-form.controls.input name="code" id="code" label="أدخل الرمز الأمني المكون من 6 أرقام"

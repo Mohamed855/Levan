@@ -24,8 +24,11 @@
             ['icon' => 'ti ti-user-check', 'text' => 'وصول آمن ومُتحكَّم به'],
         ]">
         <form method="POST" action="{{ tenant_route_name('password.confirm') }}" novalidate data-form-validate
-            data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+            data-validation-url="{{ tenant_route_name('password.confirm.validate') }}">
             @csrf
+            @if (tenant())
+                <input type="hidden" name="tenant_id" value="{{ tenant('id') }}">
+            @endif
 
             <x-form.controls.password name="password" id="password" label="كلمة المرور" placeholder="أدخل كلمة المرور الحالية"
                 required autocomplete="current-password" col="col-12 mb-4" icon="ti ti-lock" />

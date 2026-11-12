@@ -60,6 +60,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class,
             \App\Http\Middleware\Tenancy\InitializeTenancyBySession::class,
+            \App\Http\Middleware\Tenancy\RedirectTenantAuthToShared::class,
             \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
             \App\Http\Middleware\Authenticate::class,
             \App\Http\Middleware\RedirectIfAuthenticated::class,

@@ -69,7 +69,8 @@ class TenantNavigationRegressionFeatureTest extends TestCase
         DB::purge('tenant');
 
         $revisitLogin = $this->get('/test/login');
-        $revisitLogin->assertRedirect('/test/dashboard');
+        $revisitLogin->assertRedirect('/admin/login');
+        $this->get('/admin/login')->assertRedirect('/test/dashboard');
     }
 
     public function test_shared_admin_prefix_does_not_expose_dashboard_or_management_routes(): void
@@ -83,7 +84,7 @@ class TenantNavigationRegressionFeatureTest extends TestCase
 
     public function test_guest_deep_link_is_preserved_after_scoped_login(): void
     {
-        $this->get('/test/properties?search=example')->assertRedirect('/test/login');
+        $this->get('/test/properties?search=example')->assertRedirect('/admin/login');
         $this->assertSame(url('/test/properties?search=example'), session('url.intended'));
 
         $this->post('/test/login', [
@@ -119,13 +120,14 @@ class TenantNavigationRegressionFeatureTest extends TestCase
     {
         foreach (array_unique(config('tenancy.central_domains')) as $domain) {
             $host = str_replace(['http://', 'https://'], '', $domain);
-            $this->get('http://'.$host.'/test/login')->assertOk();
+            $this->get('http://'.$host.'/test/login')->assertRedirect('/admin/login');
+            $this->get('http://'.$host.'/admin/login')->assertOk();
 
             $this->assertNotNull(tenant(), $host);
             $this->assertSame('/test/dashboard', tenant_route_name('dashboard', [], false), $host.' / '.request()->getHost());
             $this->assertSame('/test/users', tenant_route_name('users.index', [], false));
             $this->assertSame('/test/assignments/5/properties', tenant_route_name('assignments.properties', ['assignment' => 5], false));
-            $this->assertSame('/test/login', tenant_route_name('login', [], false));
+            $this->assertSame('/admin/login', tenant_route_name('login', [], false));
             $this->assertSame('http://'.$host.'/test/dashboard', tenant_route_name('dashboard'));
         }
     }

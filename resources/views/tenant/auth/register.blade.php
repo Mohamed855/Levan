@@ -28,6 +28,9 @@
         <form method="POST" action="{{ tenant_route_name('register') }}" autocomplete="off" novalidate
             data-form-validate data-validation-url="{{ tenant_route_name('form-validation') }}">
             @csrf
+            @if (tenant())
+                <input type="hidden" name="tenant_id" value="{{ tenant('id') }}">
+            @endif
 
             <x-form.controls.input name="name" label="الاسم الكامل" placeholder="أدخل الاسم الكامل" :value="old('name')"
                 required autocomplete="name" col="col-12 mb-3" icon="ti ti-user" />

@@ -55,13 +55,15 @@ class TenantAuthenticationValidationFeatureTest extends TestCase
         ])->assertNotFound();
     }
 
-    public function test_scoped_login_uses_tenant_scoped_validation_endpoint(): void
+    public function test_scoped_login_uses_shared_auth_validation_endpoint(): void
     {
-        $this->get('/test/login')->assertOk()
-            ->assertSee('data-validation-url="'.url('/test/form-validation').'"', false);
+        $this->get('/test/login')->assertRedirect('/admin/login');
+        $this->get('/admin/login')->assertOk()
+            ->assertSee('data-validation-url="'.url('/admin/form-validation').'"', false);
 
-        $this->postJson('/test/form-validation', [
-            'target_path' => '/test/login',
+        $this->postJson('/admin/form-validation', [
+            'tenant_id' => 'test',
+            'target_path' => '/admin/login',
             'target_method' => 'POST',
             'fields' => ['email', 'password'],
             'email' => '',
@@ -69,7 +71,7 @@ class TenantAuthenticationValidationFeatureTest extends TestCase
         ])->assertUnprocessable()->assertJsonStructure(['errors' => ['email', 'password']]);
     }
 
-    public function test_two_factor_login_returns_to_tenant_path_and_binds_the_session(): void
+    public function test_two_factor_login_uses_shared_auth_and_binds_the_session_to_the_tenant(): void
     {
         $user = User::where('email', 'demo@lot.com')->firstOrFail();
         $connection = $user->getConnection();
@@ -82,13 +84,14 @@ class TenantAuthenticationValidationFeatureTest extends TestCase
                 'two_factor_recovery_codes' => encrypt(json_encode(['test-recovery-code'])),
             ])->save();
 
-            $this->post('/test/login', [
+            $this->post('/admin/login', [
                 'tenant_id' => 'test',
                 'email' => 'demo@lot.com',
                 'password' => '123456789',
-            ])->assertRedirect(url('/test/two-factor-challenge'));
+            ])->assertRedirect(url('/admin/two-factor-challenge'));
 
-            $this->post('/test/two-factor-challenge', [
+            $this->post('/admin/two-factor-challenge', [
+                'tenant_id' => 'test',
                 'recovery_code' => 'test-recovery-code',
             ])->assertRedirect('/test/dashboard')->assertSessionHas('auth_tenant_id', 'test');
 

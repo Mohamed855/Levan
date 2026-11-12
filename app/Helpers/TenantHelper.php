@@ -59,6 +59,13 @@ if (! function_exists('tenant_route_name')) {
         $domainIndex = array_search($currentHost, $centralDomains, true);
 
         if ($domainIndex !== false) {
+            $authPrefix = $domainIndex === 0 ? 'tenant.' : "central-domain-{$domainIndex}.tenant.";
+            if (Route::has($authPrefix.$name)) {
+                unset($parameters['tenant']);
+
+                return route($authPrefix.$name, $parameters, $absolute);
+            }
+
             $prefix = $domainIndex === 0 ? 'path.' : "central-domain-{$domainIndex}.path.";
             $routeName = $prefix.$name;
 

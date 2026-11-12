@@ -13,11 +13,15 @@ use App\Services\Shared\Payment\Moyasar\MoyasarCallbackHandler;
 use App\Services\Shared\Subscription\SubscriptionService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Testing\TestResponse;
 use Mockery\MockInterface;
 use Tests\TestCase;
@@ -62,6 +66,21 @@ final class DatabasePanelSessionIsolationTest extends TestCase
         $this->withoutVite();
 
         foreach (['mysql' => 'admin_users', 'tenant' => 'users'] as $connection => $name) {
+            Schema::connection($connection)->create('permissions', function (Blueprint $table): void {
+                $table->id();
+                $table->string('name');
+                $table->string('guard_name');
+            });
+            Schema::connection($connection)->create('roles', function (Blueprint $table): void {
+                $table->id();
+                $table->string('name');
+                $table->string('guard_name');
+            });
+            Schema::connection($connection)->create('model_has_roles', function (Blueprint $table): void {
+                $table->unsignedBigInteger('role_id');
+                $table->string('model_type');
+                $table->unsignedBigInteger('model_id');
+            });
             Schema::connection($connection)->create($name, function (Blueprint $table): void {
                 $table->id();
                 $table->string('name');
@@ -117,6 +136,9 @@ final class DatabasePanelSessionIsolationTest extends TestCase
             ->get('/{tenant}/__session-probe', fn () => $probe('tenant'))->name('path.session-probe');
         Route::middleware('web')->get('/superadmin/__pending-probe', fn () => $probe('admin'))->name('admin.pending-probe');
         Route::middleware(['web', 'tenant.path', 'tenant.session'])->get('/{tenant}/__pending-probe', fn () => $probe('tenant'))->name('path.pending-probe');
+        Route::middleware(['web', 'tenant.path', 'tenant.session', 'auth:tenant'])
+            ->get('/{tenant}/__navbar-probe', fn () => view('tenant.layouts.sections.navbar.navbar', ['configData' => []]))
+            ->name('path.navbar-probe');
         Route::middleware(['web', 'auth:admin', EnforcePanelCsrfToken::class])->post('/superadmin/__csrf-probe', fn () => response()->json(['ok' => true]))->name('admin.csrf-probe');
         Route::middleware(['web', 'tenant.path', 'tenant.session', 'auth:tenant', EnforcePanelCsrfToken::class])
             ->post('/{tenant}/__csrf-probe', fn () => response()->json(['ok' => true]))->name('path.csrf-probe');
@@ -266,21 +288,213 @@ final class DatabasePanelSessionIsolationTest extends TestCase
         unset($this->browserCookies[$adminCookie]);
 
         $this->browser('GET', '/superadmin/__session-probe')->assertRedirect('/superadmin/login');
-        $this->browser('GET', '/session-tenant/__session-probe')->assertRedirect('/session-tenant/login');
+        $this->browser('GET', '/session-tenant/__session-probe')->assertRedirect('/admin/login');
     }
 
-    public function test_tenant_login_page_and_form_stay_under_the_tenant_path(): void
+    public function test_tenant_login_redirects_to_the_shared_form_with_its_hidden_tenant_id(): void
     {
-        $this->browser('GET', '/session-tenant/login')->assertOk()
-            ->assertSee('action="http://localhost/session-tenant/login"', false)
-            ->assertDontSee('action="http://localhost/admin/login"', false);
+        $this->browser('GET', '/session-tenant/login')->assertRedirect('/admin/login');
+        $this->browser('GET', '/admin/login')->assertOk()
+            ->assertSee('action="http://localhost/admin/login"', false)
+            ->assertSee('name="tenant_id" value="session-tenant"', false);
     }
 
-    public function test_legacy_shared_login_redirects_to_the_known_tenant_login(): void
+    public function test_opening_another_tenant_entry_always_replaces_the_previous_login_context(): void
+    {
+        Tenant::create(['id' => 'second-tenant']);
+
+        foreach (['session-tenant', 'second-tenant', 'session-tenant'] as $tenantId) {
+            $this->browser('GET', '/'.$tenantId.'/login')->assertRedirect('/admin/login');
+            $this->browser('GET', '/admin/login')->assertOk()
+                ->assertSee('name="tenant_id" value="'.$tenantId.'"', false)
+                ->assertSessionHas('tenant_login_context', $tenantId);
+        }
+    }
+
+    public function test_a_submitted_tenant_id_wins_over_the_context_from_another_open_tab(): void
+    {
+        Tenant::create(['id' => 'second-tenant']);
+        $this->browser('GET', '/second-tenant/login');
+
+        $this->browser('POST', '/admin/login', [
+            'tenant_id' => 'session-tenant',
+            'email' => $this->user->email,
+            'password' => 'Password123!',
+        ])->assertRedirect('/session-tenant/dashboard')
+            ->assertSessionHas('auth_tenant_id', 'session-tenant');
+    }
+
+    public function test_switching_tenants_discards_previous_authentication_and_pending_challenges(): void
+    {
+        Tenant::create(['id' => 'second-tenant']);
+        $this->loginAdmin();
+        $this->loginTenant();
+
+        $this->browser('GET', '/second-tenant/login')->assertRedirect('/admin/login');
+        $this->browser('GET', '/admin/login')->assertOk()
+            ->assertSee('name="tenant_id" value="second-tenant"', false)
+            ->assertSessionMissing('auth_tenant_id')
+            ->assertSessionMissing('login.id');
+        $this->browser('GET', '/superadmin/__session-probe')->assertOk();
+    }
+
+    public function test_all_tenant_auth_entry_pages_redirect_to_the_shared_prefix(): void
+    {
+        foreach (['register', 'forgot-password', 'forgot-password/edit', 'reset-password', 'two-factor-challenge', 'two-factor-challenge/cancel', 'verify-email', 'confirm-password', 'two-factor-authentication'] as $page) {
+            $this->browser('GET', '/session-tenant/'.$page)->assertRedirect('/admin/'.$page);
+        }
+    }
+
+    public function test_shared_guest_auth_forms_include_the_resolved_tenant(): void
     {
         $this->browser('GET', '/session-tenant/login');
 
-        $this->browser('GET', '/admin/login')->assertRedirect('/session-tenant/login');
+        foreach (['login', 'register', 'forgot-password'] as $page) {
+            $this->browser('GET', '/admin/'.$page)->assertOk()
+                ->assertSee('name="tenant_id" value="session-tenant"', false)
+                ->assertSee('http://localhost/admin/', false)
+                ->assertDontSee('http://localhost/session-tenant/'.$page, false);
+        }
+    }
+
+    public function test_shared_auth_rejects_invalid_explicit_tenants_instead_of_using_an_old_context(): void
+    {
+        $this->browser('GET', '/session-tenant/login');
+        $this->browser('GET', '/admin/login?tenant_id=unknown-tenant')->assertNotFound();
+        $this->browser('POST', '/admin/login', ['tenant_id' => ['session-tenant']])->assertNotFound();
+        $this->browser('GET', '/session-tenant/login');
+        $this->browser('POST', '/admin/login', ['tenant_id' => ''])->assertNotFound();
+    }
+
+    public function test_legacy_auth_redirects_preserve_query_parameters(): void
+    {
+        $this->browser('GET', '/session-tenant/reset-password?email=tenant%40example.test')
+            ->assertRedirect('/admin/reset-password?email=tenant%40example.test');
+    }
+
+    public function test_the_path_tenant_wins_over_a_conflicting_query_tenant(): void
+    {
+        Tenant::create(['id' => 'second-tenant']);
+        $this->browser('GET', '/second-tenant/login?tenant_id=session-tenant')->assertRedirect('/admin/login');
+        $this->browser('GET', '/admin/login')->assertOk()
+            ->assertSee('name="tenant_id" value="second-tenant"', false);
+    }
+
+    public function test_login_links_with_explicit_tenant_selection_work_in_fresh_and_different_browser_contexts(): void
+    {
+        Tenant::create(['id' => 'second-tenant']);
+        $this->browser('GET', '/admin/login?tenant_id=session-tenant')->assertOk()
+            ->assertSee('name="tenant_id" value="session-tenant"', false);
+        $this->browser('GET', '/second-tenant/login')->assertRedirect('/admin/login');
+        $this->browser('GET', '/admin/login?tenant_id=session-tenant')->assertOk()
+            ->assertSee('name="tenant_id" value="session-tenant"', false)
+            ->assertSessionHas('tenant_login_context', 'session-tenant');
+    }
+
+    public function test_shared_login_can_select_another_tenant_while_a_previous_tenant_is_authenticated(): void
+    {
+        Tenant::create(['id' => 'second-tenant']);
+        $this->loginTenant();
+
+        $this->browser('POST', '/admin/login', [
+            'tenant_id' => 'second-tenant', 'email' => $this->user->email, 'password' => 'Password123!',
+        ])->assertRedirect('/second-tenant/dashboard')->assertSessionHas('auth_tenant_id', 'second-tenant');
+    }
+
+    public function test_shared_authenticated_forms_cannot_select_a_different_tenant(): void
+    {
+        Tenant::create(['id' => 'second-tenant']);
+        $this->loginTenant();
+
+        $this->browser('POST', '/admin/confirm-password', [
+            'tenant_id' => 'second-tenant', 'password' => 'Password123!',
+        ])->assertNotFound()->assertSessionMissing('auth.password_confirmed_at');
+    }
+
+    public function test_shared_password_reset_forms_and_otp_complete_in_the_selected_tenant(): void
+    {
+        Mail::fake();
+        config(['services.moyasar.mode' => 'test']);
+        $this->browser('GET', '/session-tenant/forgot-password')->assertRedirect('/admin/forgot-password');
+        $this->browser('POST', '/admin/forgot-password', [
+            'tenant_id' => 'session-tenant', 'email' => $this->user->email,
+        ])->assertRedirect('http://localhost/admin/forgot-password');
+        $this->browser('GET', '/admin/forgot-password')->assertOk()
+            ->assertSee('name="tenant_id" value="session-tenant"', false)
+            ->assertSee('http://localhost/admin/forgot-password/verify', false)
+            ->assertSee('http://localhost/admin/forgot-password/resend-otp', false);
+        $this->browser('POST', '/admin/forgot-password/verify', [
+            'tenant_id' => 'session-tenant', 'otp' => '000000',
+        ])->assertRedirect('http://localhost/admin/reset-password');
+        $this->browser('GET', '/admin/reset-password')->assertOk()
+            ->assertSee('name="tenant_id" value="session-tenant"', false);
+        $this->browser('POST', '/admin/reset-password', [
+            'tenant_id' => 'session-tenant', 'email' => $this->user->email,
+            'password' => 'NewPassword456!', 'password_confirmation' => 'NewPassword456!',
+        ])->assertRedirect('http://localhost/admin/login');
+        $this->assertTrue(Hash::check('NewPassword456!', $this->user->fresh()->password));
+    }
+
+    public function test_switching_tenants_clears_the_previous_password_reset_grant(): void
+    {
+        Tenant::create(['id' => 'second-tenant']);
+        Mail::fake();
+        $this->browser('POST', '/admin/forgot-password', [
+            'tenant_id' => 'session-tenant', 'email' => $this->user->email,
+        ])->assertRedirect()->assertSessionHas('password_reset_verification');
+        $this->browser('GET', '/second-tenant/login')->assertRedirect('/admin/login')
+            ->assertSessionMissing('password_reset_verification');
+    }
+
+    public function test_shared_password_confirmation_uses_the_authenticated_tenant(): void
+    {
+        $this->loginTenant();
+        $this->browser('GET', '/admin/confirm-password')->assertOk()
+            ->assertSee('name="tenant_id" value="session-tenant"', false)
+            ->assertSee('http://localhost/admin/confirm-password/validate', false);
+        $this->browser('POST', '/admin/confirm-password/validate', [
+            'tenant_id' => 'session-tenant', 'target_path' => '/admin/confirm-password',
+            'target_method' => 'POST', 'fields' => ['password'], 'password' => '',
+        ], ['HTTP_ACCEPT' => 'application/json'])->assertUnprocessable()->assertJsonStructure(['errors' => ['password']]);
+        $this->browser('POST', '/admin/confirm-password', [
+            'tenant_id' => 'session-tenant', 'password' => 'Password123!',
+        ])->assertRedirect('/session-tenant/dashboard')->assertSessionHas('auth.password_confirmed_at');
+    }
+
+    public function test_shared_authenticated_auth_pages_render_with_their_hidden_tenant_context(): void
+    {
+        Gate::before(static fn (): bool => true);
+        $this->loginTenant();
+        foreach (['verify-email', 'confirm-password', 'two-factor-authentication'] as $page) {
+            $this->browser('GET', '/admin/'.$page)->assertOk()
+                ->assertSee('name="tenant_id" value="session-tenant"', false);
+        }
+    }
+
+    public function test_navbar_logout_posts_its_own_tenant_to_the_shared_endpoint(): void
+    {
+        Gate::before(static fn (): bool => true);
+        $this->loginTenant();
+        $content = $this->browser('GET', '/session-tenant/__navbar-probe')->assertOk()->getContent();
+        $this->assertMatchesRegularExpression(
+            '/<form\b[^>]*id="tenant-logout-form"[^>]*action="http:\/\/localhost\/admin\/logout"[^>]*>\s*<input[^>]+name="_token"[^>]*>\s*<input[^>]+name="tenant_id"[^>]+value="session-tenant"/s',
+            $content,
+        );
+    }
+
+    public function test_signed_verification_redirects_remain_signed_and_bound_to_the_path_tenant(): void
+    {
+        $this->browser('GET', '/session-tenant/login');
+        $signed = URL::temporarySignedRoute('path.verification.verify', now()->addMinutes(5), [
+            'tenant' => 'session-tenant', 'id' => 1, 'hash' => sha1($this->user->email),
+        ]);
+        $uri = parse_url($signed, PHP_URL_PATH).'?'.parse_url($signed, PHP_URL_QUERY);
+        $response = $this->browser('GET', $uri)->assertRedirect();
+        $destination = $response->headers->get('Location');
+        $this->assertStringContainsString('/admin/verify-email/1/', $destination);
+        $this->assertStringContainsString('tenant_id=session-tenant', $destination);
+        $this->assertTrue(URL::hasValidSignature(Request::create($destination)));
+        $this->browser('GET', $uri.'&tampered=1')->assertForbidden();
     }
 
     public function test_login_links_and_forms_keep_the_current_central_host(): void
@@ -288,9 +502,10 @@ final class DatabasePanelSessionIsolationTest extends TestCase
         foreach (array_unique(config('tenancy.central_domains')) as $domain) {
             $host = str_replace(['http://', 'https://'], '', $domain);
 
-            $this->get('http://'.$host.'/session-tenant/login')->assertOk()
-                ->assertSee('action="http://'.$host.'/session-tenant/login"', false);
-            $this->assertSame('/session-tenant/login', tenant_route_name('login', [], false));
+            $this->get('http://'.$host.'/session-tenant/login')->assertRedirect('/admin/login');
+            $this->get('http://'.$host.'/admin/login')->assertOk()
+                ->assertSee('action="http://'.$host.'/admin/login"', false);
+            $this->assertSame('/admin/login', tenant_route_name('login', [], false));
         }
     }
 
@@ -317,14 +532,15 @@ final class DatabasePanelSessionIsolationTest extends TestCase
             ->assertRedirect('/session-tenant/login')
             ->assertSessionHas('tenant_login_context', 'session-tenant')
             ->assertSessionHas('success');
-        $this->browser('GET', '/session-tenant/login')->assertOk();
+        $this->browser('GET', '/session-tenant/login')->assertRedirect('/admin/login')->assertSessionHas('success');
+        $this->browser('GET', '/admin/login')->assertOk();
     }
 
     public function test_tenant_logout_returns_to_the_tenant_login(): void
     {
         $this->loginTenant();
 
-        $this->browser('POST', '/session-tenant/logout')->assertRedirect('/session-tenant/login');
+        $this->browser('POST', '/session-tenant/logout')->assertRedirect('/admin/login');
     }
 
     public function test_a_replaced_tenant_session_returns_to_the_tenant_login(): void
@@ -332,12 +548,13 @@ final class DatabasePanelSessionIsolationTest extends TestCase
         $this->loginTenant();
         $this->user->update(['current_session_id' => 'another-session']);
 
-        $this->browser('GET', '/session-tenant/__session-probe')->assertRedirect('/session-tenant/login');
+        $this->browser('GET', '/session-tenant/__session-probe')->assertRedirect('/admin/login');
     }
 
     public function test_canceling_a_tenant_two_factor_challenge_returns_to_its_login(): void
     {
-        $this->browser('GET', '/session-tenant/two-factor-challenge/cancel')->assertRedirect('http://localhost/session-tenant/login');
+        $this->browser('GET', '/session-tenant/two-factor-challenge/cancel')->assertRedirect('/admin/two-factor-challenge/cancel');
+        $this->browser('GET', '/admin/two-factor-challenge/cancel')->assertRedirect('http://localhost/admin/login');
     }
 
     private function loginAdmin(bool $twoFactor = false): void
@@ -348,9 +565,9 @@ final class DatabasePanelSessionIsolationTest extends TestCase
 
     private function loginTenant(bool $twoFactor = false): void
     {
-        $response = $this->browser('POST', '/session-tenant/login', ['tenant_id' => 'session-tenant', 'email' => $this->user->email, 'password' => 'Password123!']);
+        $response = $this->browser('POST', '/admin/login', ['tenant_id' => 'session-tenant', 'email' => $this->user->email, 'password' => 'Password123!']);
         if ($twoFactor) {
-            $this->assertStringContainsString('/session-tenant/two-factor-challenge', (string) $response->headers->get('Location'));
+            $this->assertStringContainsString('/admin/two-factor-challenge', (string) $response->headers->get('Location'));
         } else {
             $response->assertRedirect('/session-tenant/dashboard');
         }

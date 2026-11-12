@@ -126,6 +126,9 @@
                                     data-form-validate data-validation-submit="ajax"
                                     data-validation-url="{{ tenant_route_name('tenants.two-factor.validate') }}">
                                     @csrf
+                                    @if (tenant())
+                                        <input type="hidden" name="tenant_id" value="{{ tenant('id') }}">
+                                    @endif
                                     <x-form.controls.input name="code" id="twoFactorCode" label="كود التحقق"
                                         col="col-12" type="text" placeholder="XXXXXX" required
                                         autocomplete="one-time-code" maxlength="6" inputmode="numeric" />
@@ -154,11 +157,11 @@
             window.csrfToken = csrfToken;
 
             const routes = {
-                enable: "{{ tenant_route_name('tenants.two-factor.enable') }}",
-                confirm: "{{ tenant_route_name('tenants.two-factor.confirm') }}",
-                disable: "{{ tenant_route_name('tenants.two-factor.disable') }}",
-                qrCode: "{{ tenant_route_name('tenants.two-factor.qr-code') }}",
-                recoveryCodes: "{{ tenant_route_name('tenants.two-factor.recovery-codes') }}",
+                enable: @js(tenant_route_name('tenants.two-factor.enable', ['tenant_id' => tenant('id')])),
+                confirm: @js(tenant_route_name('tenants.two-factor.confirm', ['tenant_id' => tenant('id')])),
+                disable: @js(tenant_route_name('tenants.two-factor.disable', ['tenant_id' => tenant('id')])),
+                qrCode: @js(tenant_route_name('tenants.two-factor.qr-code', ['tenant_id' => tenant('id')])),
+                recoveryCodes: @js(tenant_route_name('tenants.two-factor.recovery-codes', ['tenant_id' => tenant('id')])),
             };
 
             const statusBadge = $('#statusBadge');

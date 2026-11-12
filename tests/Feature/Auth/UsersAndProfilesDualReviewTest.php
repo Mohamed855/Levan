@@ -501,7 +501,8 @@ final class UsersAndProfilesDualReviewTest extends TestCase
             }
             $sentPassword = $mail->temporaryPassword;
 
-            return ! empty($sentPassword) && $mail->connection === 'sync' && $sentPassword !== 'Password123!';
+            return ! empty($sentPassword) && $mail->connection === 'sync' && $sentPassword !== 'Password123!'
+                && str_contains($mail->loginUrl, '/admin/login?tenant_id=tenant-u1');
         });
         $this->assertNotNull($sentPassword);
         $this->assertTrue(Hash::check($sentPassword, $created->password));

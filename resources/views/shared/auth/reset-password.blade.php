@@ -17,6 +17,9 @@
     <form method="POST" action="{{ $resetAction }}" novalidate data-form-validate
         data-validation-url="{{ $validationUrl }}">
         @csrf
+        @if (tenant())
+            <input type="hidden" name="tenant_id" value="{{ tenant('id') }}">
+        @endif
 
         <input type="hidden" name="email" value="{{ $resolvedEmail }}" autocomplete="username">
 

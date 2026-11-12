@@ -205,7 +205,7 @@
                 @endif --}}
                 <!-- navbar button: Start -->
                 <li>
-                    <a href="{{ tenant_route_name('login') }}" class="btn btn-primary" target="_blank"><span
+                    <a href="{{ tenant_route_name('login', ['tenant_id' => tenant('id')]) }}" class="btn btn-primary" target="_blank"><span
                             class="tf-icons ti ti-login scaleX-n1-rtl me-md-1"></span><span
                             class="d-none d-md-block">دخول
                             المنصة</span></a>

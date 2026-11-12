@@ -274,7 +274,7 @@
                 </li>
 
                 <li>
-                    <a class="dropdown-item" href="{{ tenant_route_name('tenants.two-factor.index') }}">
+                    <a class="dropdown-item" href="{{ tenant_route_name('tenants.two-factor.index', ['tenant_id' => tenant('id')]) }}">
                         <i class="ti ti-shield-lock me-3 ti-md"></i>
                         <span class="align-middle">المصادقة الثنائية</span>
                     </a>
@@ -294,6 +294,7 @@
 
                         <form id="tenant-logout-form" method="POST" action="{{ tenant_route_name('logout') }}">
                             @csrf
+                            <input type="hidden" name="tenant_id" value="{{ tenant('id') }}">
                         </form>
                     </div>
                 </li>

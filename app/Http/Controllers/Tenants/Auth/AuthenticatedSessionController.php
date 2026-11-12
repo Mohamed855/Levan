@@ -19,15 +19,8 @@ class AuthenticatedSessionController extends Controller
         $this->middleware('guest:tenant')->except('destroy');
     }
 
-    public function create(): View|RedirectResponse
+    public function create(): View
     {
-        // Keep old shared entry links compatible without rendering an unscoped login.
-        if (request()->routeIs('tenant.login', 'central-domain-*.tenant.login')) {
-            session()->reflash();
-
-            return redirect()->to(tenant_route_name('login', [], false));
-        }
-
         return view('tenant.auth.login');
     }
 
