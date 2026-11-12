@@ -97,7 +97,8 @@ class SubscriptionDataTable extends AbstractDataTable
             ['data' => 'ends_at', 'name' => 'ends_at', 'title' => 'تاريخ النهاية'],
             ['data' => 'days_remaining', 'name' => 'days_remaining', 'title' => 'الأيام المتبقية', 'orderable' => true, 'searchable' => false],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
-            ['data' => 'status', 'name' => 'status', 'title' => 'حالة الاشتراك'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'حالة الاشتراك', 'className' => 'text-center'],
+            ['data' => 'is_active', 'name' => 'is_active', 'title' => 'التفعيل', 'orderable' => false, 'searchable' => false, 'className' => 'text-center', 'width' => '90px'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '100px'],
         ];
     }
@@ -178,7 +179,9 @@ class SubscriptionDataTable extends AbstractDataTable
             })
             ->editColumn('created_at', fn (Subscription $row): string => $this->formatDate($row->created_at))
             ->editColumn('status', function (Subscription $row) {
-                $statusBadge = '<span class="badge bg-'.$row->status->color().'">'.e($row->status->label()).'</span>';
+                return '<div class="d-flex justify-content-center"><span class="badge bg-'.$row->status->color().'">'.e($row->status->label()).'</span></div>';
+            })
+            ->addColumn('is_active', function (Subscription $row) {
                 $period = $row->currentPeriod ?? $row->periods->sortByDesc('period_end')->first();
                 $isPendingPayment = $period?->status === SubscriptionPeriodStatus::PENDING_PAYMENT;
                 $isToggleable = in_array($row->status, [SubscriptionStatus::ACTIVE, SubscriptionStatus::SUSPENDED], true)
@@ -189,8 +192,7 @@ class SubscriptionDataTable extends AbstractDataTable
                     $url = route('admin.subscriptions.toggle-status', $row->id);
 
                     return '
-                        <div class="d-flex justify-content-center align-items-center gap-2">
-                            '.$statusBadge.'
+                        <div class="d-flex justify-content-center">
                             <div class="form-check form-switch mb-0">
                                 <input
                                     type="checkbox"
@@ -205,14 +207,14 @@ class SubscriptionDataTable extends AbstractDataTable
                     ';
                 }
 
-                return '<div class="d-flex justify-content-center">'.$statusBadge.'</div>';
+                return '<div class="d-flex justify-content-center text-muted">—</div>';
             })
             ->addColumn('actions', fn (Subscription $row) => view('admin.subscriptions.action', ['row' => $row])->render());
     }
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'subscription_number', 'tenant_id', 'plan_limits', 'days_remaining', 'status', 'actions'];
+        return ['checkbox', 'subscription_number', 'tenant_id', 'plan_limits', 'days_remaining', 'status', 'is_active', 'actions'];
     }
 
     protected function getSearchableColumns(): array

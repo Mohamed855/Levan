@@ -38,7 +38,7 @@ class AssignmentsDataTable extends AbstractDataTable
             ['data' => 'start_date', 'name' => 'start_date', 'title' => 'تاريخ البداية'],
             ['data' => 'end_date', 'name' => 'end_date', 'title' => 'تاريخ النهاية'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
-            ['data' => 'status', 'name' => 'is_active', 'title' => 'الحالة', 'className' => 'text-center'],
+            ['data' => 'status', 'name' => 'is_active', 'title' => 'التفعيل', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false],
         ];
     }

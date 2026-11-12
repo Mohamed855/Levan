@@ -59,7 +59,7 @@ class FaqDataTable extends AbstractDataTable
             [
                 'data' => 'is_active',
                 'name' => 'is_active',
-                'title' => 'الحالة',
+                'title' => 'التفعيل',
                 'className' => 'text-center',
                 'width' => '100px',
             ],

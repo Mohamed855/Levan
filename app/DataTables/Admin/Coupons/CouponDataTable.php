@@ -47,7 +47,7 @@ class CouponDataTable extends AbstractDataTable
             ['data' => 'used_count',      'name' => 'used_count',         'title' => 'مرات الاستخدام'],
             ['data' => 'created_by',      'name' => 'created_by',         'title' => 'أنشئ بواسطة', 'orderable' => false, 'searchable' => false],
             ['data' => 'created_at',      'name' => 'created_at',         'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
-            ['data' => 'is_active',         'name' => 'is_active',          'title' => 'الحالة'],
+            ['data' => 'is_active',         'name' => 'is_active',          'title' => 'التفعيل'],
             ['data' => 'actions',           'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }

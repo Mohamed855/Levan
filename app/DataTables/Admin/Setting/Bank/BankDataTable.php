@@ -40,7 +40,7 @@ class BankDataTable extends AbstractDataTable
             ['data' => 'account_number', 'name' => 'account_number', 'title' => 'رقم الحساب', 'className' => 'text-center'],
             ['data' => 'iban',          'name' => 'iban',           'title' => 'رقم الحساب البنكي الدولي', 'className' => 'text-center'],
             ['data' => 'created_at',    'name' => 'created_at',     'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
-            ['data' => 'is_active',     'name' => 'is_active',     'title' => 'الحالة'],
+            ['data' => 'is_active',     'name' => 'is_active',     'title' => 'التفعيل'],
 
             ['data' => 'actions',       'name' => 'actions',        'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];

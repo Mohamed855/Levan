@@ -4,8 +4,18 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\DataTables\Admin\AdminMangment\Users\AdminUserDataTable;
+use App\DataTables\Admin\AuctionTemplates\AuctionTemplateDataTable;
+use App\DataTables\Admin\Coupons\CouponDataTable;
+use App\DataTables\Admin\Faq\FaqDataTable;
+use App\DataTables\Admin\Plans\PlanDataTable;
+use App\DataTables\Admin\Setting\Bank\BankDataTable;
 use App\DataTables\Admin\SubscriptionMangment\subscriptionMangmentDataTable;
 use App\DataTables\Admin\Subscriptions\SubscriptionDataTable;
+use App\DataTables\Tenants\Assignments\AssignmentsDataTable;
+use App\DataTables\Tenants\Assignments\IssuingEntitiesDataTable;
+use App\DataTables\Tenants\Properties\PropertiesDataTable;
+use App\DataTables\Tenants\UserManagement\User\UsersDataTable;
 use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Coupons\CouponDiscountType;
 use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
@@ -738,8 +748,15 @@ class AdminSubscriptionsFixesTest extends TestCase
             $this->assertNotNull($subRow);
             $this->assertStringContainsString('بانتظار الدفع', $subRow['days_remaining']);
             $this->assertStringNotContainsString('30 يوماً', $subRow['days_remaining']);
-            // Toggle switch should not be rendered for pending payment
+            // Status badge is separate from toggle column; toggle switch not rendered for pending payment
             $this->assertStringNotContainsString('js-table-status-toggle', $subRow['status']);
+            $this->assertStringNotContainsString('js-table-status-toggle', $subRow['is_active']);
+
+            // Column title verification for is_active
+            $subColumns = (new \ReflectionMethod($subDataTable, 'getColumns'))->invoke($subDataTable);
+            $isActiveCol = collect($subColumns)->firstWhere('data', 'is_active');
+            $this->assertNotNull($isActiveCol);
+            $this->assertSame('التفعيل', $isActiveCol['title']);
 
             // 2. subscriptionMangmentDataTable (/superadmin/subscription-manage/...)
             $mgmtDataTable = app(subscriptionMangmentDataTable::class);
@@ -762,6 +779,33 @@ class AdminSubscriptionsFixesTest extends TestCase
             $sub->forceDelete();
             Tenant::withTrashed()->whereKey($tenant->id)->forceDelete();
             Plan::withTrashed()->whereKey($plan->id)->forceDelete();
+        }
+    }
+
+    public function test_system_wide_datatables_toggler_column_titles_are_unified_to_activation(): void
+    {
+        $tablesWithToggler = [
+            AdminUserDataTable::class => 'status',
+            AuctionTemplateDataTable::class => 'is_active',
+            CouponDataTable::class => 'is_active',
+            FaqDataTable::class => 'is_active',
+            PlanDataTable::class => 'is_active',
+            BankDataTable::class => 'is_active',
+            SubscriptionDataTable::class => 'is_active',
+            AssignmentsDataTable::class => 'status',
+            IssuingEntitiesDataTable::class => 'is_active',
+            PropertiesDataTable::class => 'status',
+            UsersDataTable::class => 'status',
+        ];
+
+        foreach ($tablesWithToggler as $class => $colKey) {
+            $dt = app($class);
+            $method = new \ReflectionMethod($dt, 'getColumns');
+            $cols = $method->invoke($dt);
+            $col = collect($cols)->first(fn (array $c): bool => ($c['data'] ?? null) === $colKey || ($c['name'] ?? null) === $colKey);
+
+            $this->assertNotNull($col, "Column [{$colKey}] not found in [{$class}]");
+            $this->assertSame('التفعيل', $col['title'], "Column [{$colKey}] in [{$class}] title is not 'التفعيل'");
         }
     }
 }

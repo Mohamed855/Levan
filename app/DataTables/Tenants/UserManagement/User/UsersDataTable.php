@@ -59,7 +59,7 @@ class UsersDataTable extends AbstractDataTable
             ['data' => 'roles', 'name' => 'roles.name', 'title' => 'الأدوار', 'orderable' => false, 'searchable' => true],
             ['data' => 'last_login_at', 'name' => 'last_login_at', 'title' => 'آخر دخول'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
-            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'className' => 'text-center'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'التفعيل', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false],
         ];
     }

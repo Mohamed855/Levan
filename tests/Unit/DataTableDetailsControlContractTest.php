@@ -107,7 +107,7 @@ class DataTableDetailsControlContractTest extends TestCase
 
             preg_match_all("/'data'\s*=>\s*'([^']+)'/", $matches[1], $columns);
             $statusIndex = false;
-            foreach (['status', 'is_active'] as $statusColumn) {
+            foreach (['is_active', 'status'] as $statusColumn) {
                 $statusIndex = array_search($statusColumn, $columns[1], true);
                 if ($statusIndex !== false) {
                     break;

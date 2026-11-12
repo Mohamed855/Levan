@@ -37,7 +37,7 @@ class PropertiesDataTable extends AbstractDataTable
             ['data' => 'data_status', 'name' => 'data_status', 'title' => 'حالة البيانات', 'width' => '110px', 'className' => 'text-center'],
             ['data' => 'assignment_status', 'name' => 'assignment_id', 'title' => 'حالة الارتباط', 'width' => '130px', 'className' => 'text-center'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'width' => '130px', 'className' => 'text-center'],
-            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'width' => '90px', 'className' => 'text-center'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'التفعيل', 'width' => '90px', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '100px'],
         ];
     }
