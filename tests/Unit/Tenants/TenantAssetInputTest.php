@@ -80,11 +80,11 @@ final class TenantAssetInputTest extends TestCase
             foreach (['-1', 'invalid', '10000000000000', '5.001'] as $invalid) {
                 self::assertFalse(Validator::make(['estimated_value' => $invalid], $rules)->passes(), $invalid);
             }
-            foreach ([[], ['estimated_value' => null], ['estimated_value' => '']] as $optional) {
-                $request->replace($optional);
+            foreach ([[], ['estimated_value' => null], ['estimated_value' => '']] as $missing) {
+                $request->replace($missing);
                 $validator = Validator::make($request->validationData(), $rules);
-                self::assertTrue($validator->passes(), $validator->errors()->toJson());
-                self::assertArrayNotHasKey('estimated_value', $validator->validated());
+                self::assertTrue($validator->fails());
+                self::assertTrue($validator->errors()->has('estimated_value'));
             }
         }
     }
@@ -183,8 +183,9 @@ final class TenantAssetInputTest extends TestCase
         self::assertSame('950000.50', $property->fresh()->estimated_value);
 
         $request = new UpdatePropertyRequest(['estimated_value' => null]);
-        $value = Validator::make($request->validationData(), $rules)->validated();
-        app(UpdatePropertyAction::class)->execute($property, $value);
+        $validator = Validator::make($request->validationData(), $rules);
+        self::assertTrue($validator->fails());
+        self::assertTrue($validator->errors()->has('estimated_value'));
         self::assertSame('950000.50', $property->fresh()->estimated_value);
     }
 }

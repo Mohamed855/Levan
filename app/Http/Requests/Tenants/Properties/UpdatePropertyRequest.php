@@ -64,7 +64,7 @@ class UpdatePropertyRequest extends WizardFormRequest
             'type' => ['required', Rule::enum(PropertyType::class)],
             'usage_classification' => ['required', Rule::enum(PropertyUsageClassification::class)],
             'area' => ['required', 'numeric', 'min:0.01'],
-            'estimated_value' => ['nullable', 'numeric', 'min:0', 'max:9999999999999.99', 'decimal:0,2'],
+            'estimated_value' => ['required', 'numeric', 'min:0', 'max:9999999999999.99', 'decimal:0,2'],
             'is_active' => ['nullable', 'boolean'],
             'short_description' => ['required', 'string', 'max:500'],
 
