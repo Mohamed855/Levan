@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\DataTables\Tenants\Auctions;
 
 use App\DataTables\Abstract\AbstractDataTable;
+use App\Enums\Tenants\Auctions\AuctionFilePreparationStatus;
 use App\Models\Tenants\Auctions\Auction;
-use Carbon\Carbon;
+use App\Services\Tenants\Auctions\Reports\AuctionMarketingCompleteness;
 
 class AuctionsDataTable extends AbstractDataTable
 {
@@ -20,7 +21,7 @@ class AuctionsDataTable extends AbstractDataTable
     protected function resource()
     {
         return Auction::query()
-            ->with(['assignment.issuingEntity', 'latestReportGeneration', 'establishmentRequest', 'properties:id', 'marketingCampaigns'])
+            ->with(['assignment.issuingEntity', 'latestReportGeneration', 'publishedReportGeneration', 'establishmentRequest', 'properties:id', 'marketingCampaigns'])
             ->withCount('properties');
     }
 
@@ -88,33 +89,16 @@ class AuctionsDataTable extends AbstractDataTable
             ->editColumn('properties_count', function ($row) {
                 return '<span class="badge bg-info">'.(int) $row->properties_count.'</span>';
             })
-            ->addColumn('outputs', function ($row) {
-                $gen = $row->latestReportGeneration;
-                if (! $gen) {
-                    return '<span class="text-muted">—</span>';
-                }
+            ->addColumn('outputs', function ($row): string {
+                $published = $row->publishedReportGeneration;
+                $hasPublishedFile = (bool) $published?->isReady() && (
+                    filled($published->outputs_path) || filled($published->report_path)
+                );
 
-                if ($gen->isReady()) {
-                    $buttons = [];
-                    if (filled($gen->outputs_path)) {
-                        $buttons[] = '<a href="'.tenant_route_name('auctions.reports.download', ['auction' => $row->id, 'type' => 'outputs']).'" class="badge bg-secondary me-1" title="تحميل مخرجات المزاد"><i class="ti ti-file-text me-1"></i>المخرجات</a>';
-                    }
-                    if (filled($gen->report_path)) {
-                        $buttons[] = '<a href="'.tenant_route_name('auctions.reports.download', ['auction' => $row->id, 'type' => 'report']).'" class="badge bg-secondary" title="تحميل تقرير المزاد"><i class="ti ti-file-analytics me-1"></i>التقرير</a>';
-                    }
-
-                    return ! empty($buttons) ? implode('', $buttons) : '<span class="badge bg-success">جاهز</span>';
-                }
-
-                if ($gen->isProcessing() || $gen->status === 'queued') {
-                    return '<span class="badge bg-info"><i class="ti ti-loader ti-spin me-1"></i>قيد التوليد</span>';
-                }
-
-                if ($gen->isFailed()) {
-                    return '<span class="badge bg-danger" title="'.e($gen->publicErrorMessage()).'"><i class="ti ti-alert-triangle me-1"></i>فشل</span>';
-                }
-
-                return '<span class="text-muted">—</span>';
+                return AuctionFilePreparationStatus::resolve(
+                    $row->latestReportGeneration?->status,
+                    $hasPublishedFile,
+                )->badgeHtml();
             })
             ->addColumn('status_badge', function ($row): string {
                 return '<span class="badge '.$row->status_badge_class.'">'.e($row->status_label).'</span>';
@@ -159,7 +143,7 @@ class AuctionsDataTable extends AbstractDataTable
             }
         }
         if (in_array($request->input('completion_status'), ['complete', 'incomplete'], true)) {
-            $completeIds = app(\App\Services\Tenants\Auctions\Reports\AuctionMarketingCompleteness::class)->completeAuctionIds();
+            $completeIds = app(AuctionMarketingCompleteness::class)->completeAuctionIds();
             $request->input('completion_status') === 'complete' ? $query->whereIn('auctions.id', $completeIds) : $query->whereNotIn('auctions.id', $completeIds);
         }
 

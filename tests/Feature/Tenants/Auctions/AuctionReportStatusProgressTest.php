@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Tenants\Auctions;
 
 use App\DataTables\Tenants\Auctions\AuctionReportsDataTable;
+use App\DataTables\Tenants\Auctions\AuctionsDataTable;
 use App\Enums\Tenants\Auctions\AuctionFilePreparationStatus;
 use App\Http\Controllers\Tenants\Auctions\AuctionReportController;
 use App\Http\Requests\Tenants\Auctions\RetryAuctionReportsRequest;
@@ -124,6 +125,79 @@ final class AuctionReportStatusProgressTest extends TestCase
         // 4. Ready & published -> جاهز للتحميل
         $rowReady = (object) [
             'report_kind' => 'report',
+            'latestReportGeneration' => $publishedReady,
+            'publishedReportGeneration' => $publishedReady,
+        ];
+        $this->assertStringContainsString('جاهز للتحميل', $callback($rowReady));
+        $this->assertStringContainsString('bg-label-success', $callback($rowReady));
+    }
+
+    public function test_auctions_datatable_outputs_column_uses_three_approved_states_and_matches_show_page(): void
+    {
+        $dataTable = new AuctionsDataTable;
+        $fakeDataTable = new class
+        {
+            public array $addedColumns = [];
+
+            public array $editedColumns = [];
+
+            public function setRowId($callback): self
+            {
+                return $this;
+            }
+
+            public function addColumn(string $name, $callback): self
+            {
+                $this->addedColumns[$name] = $callback;
+
+                return $this;
+            }
+
+            public function editColumn(string $name, $callback): self
+            {
+                $this->editedColumns[$name] = $callback;
+
+                return $this;
+            }
+        };
+
+        $reflection = new \ReflectionClass($dataTable);
+        $method = $reflection->getMethod('addCustomColumns');
+        $method->setAccessible(true);
+        $method->invoke($dataTable, $fakeDataTable);
+
+        $this->assertArrayHasKey('outputs', $fakeDataTable->addedColumns);
+        $callback = $fakeDataTable->addedColumns['outputs'];
+
+        $publishedReady = new AuctionReportGeneration([
+            'status' => 'ready',
+            'outputs_path' => 'outputs.pdf',
+            'report_path' => 'report.pdf',
+        ]);
+
+        // 1. No generation yet -> لم يتم التجهيز (bg-label-secondary)
+        $rowNone = (object) ['latestReportGeneration' => null, 'publishedReportGeneration' => null];
+        $this->assertStringContainsString('لم يتم التجهيز', $callback($rowNone));
+        $this->assertStringContainsString('bg-label-secondary', $callback($rowNone));
+
+        // 2. Actively queued/processing -> لم يتم التجهيز (even if previous published exists)
+        $rowProcessing = (object) [
+            'latestReportGeneration' => new AuctionReportGeneration(['status' => 'processing']),
+            'publishedReportGeneration' => $publishedReady,
+        ];
+        $this->assertStringContainsString('لم يتم التجهيز', $callback($rowProcessing));
+        $this->assertStringContainsString('bg-label-secondary', $callback($rowProcessing));
+
+        // 3. Failed (even with older published files) -> فشل التجهيز (bg-label-danger)
+        $rowFailed = (object) [
+            'latestReportGeneration' => new AuctionReportGeneration(['status' => 'failed']),
+            'publishedReportGeneration' => $publishedReady,
+        ];
+        $this->assertStringContainsString('فشل التجهيز', $callback($rowFailed));
+        $this->assertStringContainsString('bg-label-danger', $callback($rowFailed));
+
+        // 4. Ready & published -> جاهز للتحميل (bg-label-success)
+        $rowReady = (object) [
             'latestReportGeneration' => $publishedReady,
             'publishedReportGeneration' => $publishedReady,
         ];

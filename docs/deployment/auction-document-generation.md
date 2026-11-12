@@ -26,6 +26,45 @@ application log. The web account needs permission to start child processes and
 write that log for the fallback to work. A persistent worker avoids depending on
 HTTP process spawning.
 
+## When the web PHP disables exec
+
+The production log message `exec() is disabled in php.ini; cannot spawn background
+queue worker` confirms that HTTP requests cannot start the fallback worker.
+Both automatic and manual generation still require a worker consuming
+`auction-reports`. Changing `PHP_CLI_BINARY` cannot enable a disabled function.
+Run the worker from the hosting account's Terminal, Cron Jobs, or process manager;
+enabling `exec` for web requests is not necessary for queue consumption.
+
+For the reported deployment, first process the pending jobs from Terminal:
+
+```sh
+cd /home/etec/lot.e-tec.sa
+php artisan queue:work auction_reports --queue=auction-reports --stop-when-empty --timeout=420 --tries=3 -vvv
+```
+
+This processes queued jobs; it does not remove failed jobs or recreate databases.
+Inspect any job failure before treating generation as repaired. The CLI must be
+PHP 8.2 or newer and able to run the existing Node/Chromium renderer.
+
+If the hosting account supports Cron Jobs instead of a persistent process manager,
+use a once-per-minute schedule. Generate its **command field** with the actual CLI
+executable and application paths by running the following from the project root:
+
+```sh
+php -r '$root = getcwd(); printf("flock -n %s %s %s queue:work auction_reports --queue=auction-reports --stop-when-empty --max-time=300 --timeout=420 --tries=3 >> %s 2>&1\n", escapeshellarg($root."/storage/framework/auction-reports-worker.lock"), escapeshellarg(PHP_BINARY), escapeshellarg($root."/artisan"), escapeshellarg($root."/storage/logs/auction-report-worker.log"));'
+```
+
+Copy the printed command into the hosting panel and set all five schedule fields
+to `*`. Confirm `command -v flock` succeeds on that server before using this mode.
+The non-blocking lock prevents overlapping Cron workers, including when a single
+job takes longer than one minute. `--max-time` is checked between jobs, so it does
+not shorten the 420-second per-job timeout. Keep the existing 600-second retry
+window. Use one worker management method for this queue.
+
+Confirm that a generation reaches `ready` and its PDF downloads successfully.
+The warning only establishes the worker startup blocker; a subsequent renderer
+error must be diagnosed from the CLI output or worker log.
+
 After changing deployment configuration, rebuild the configuration cache and
 restart managed queue workers through the process manager. A worker keeps the
 configuration/code loaded when it started.
