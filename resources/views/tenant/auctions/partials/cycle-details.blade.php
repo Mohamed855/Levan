@@ -27,9 +27,6 @@
                 ({{ $auction->marketingCampaigns->count() }})
             </h5>
             <div class="d-flex align-items-center gap-2">
-                @if ($hasCampaigns)
-                    <span class="badge bg-label-primary">{{ $auction->marketingCampaigns->count() }} حملة</span>
-                @endif
                 @if (!$isLocked && auth('tenant')->user()?->can('marketing_campaigns.edit'))
                     <x-actions.edit :url="tenant_route_name('marketing-campaigns.edit', $auction->id)" :title="$hasCampaigns ? 'تعديل الحملات التسويقية' : 'إضافة حملات تسويقية'" />
                 @endif
@@ -54,8 +51,7 @@
                                 <td>
                                     {{ $channelLabel }}
                                     @if ($campaign->campaign_date)
-                                        <small class="text-muted"><i
-                                                class="ti ti-calendar me-1"></i>@date($campaign->campaign_date)</small>
+                                        <small class="text-muted"><i class="ti ti-calendar me-1"></i>@date($campaign->campaign_date)</small>
                                     @endif
                                 </td>
                                 <td>
