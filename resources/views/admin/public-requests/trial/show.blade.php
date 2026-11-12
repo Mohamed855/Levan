@@ -120,7 +120,7 @@
 
         {{-- إجراءات الطلب (العمود الأيسر) --}}
         <div class="col-xl-8 col-lg-7 col-md-7">
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-header pb-2 mb-3">
                     <h5 class="card-title mb-0">
                         <i class="ti ti-settings-check text-primary me-2"></i>إجراءات الطلب
@@ -165,7 +165,7 @@
             </div>
 
             @if ($trialRequest->status->value === 'approved' && $trialRequest->tenant)
-                <div class="card mb-4">
+                <div class="card">
                     <div class="card-header pb-2 mb-3">
                         <h6 class="card-title mb-0">
                             <i class="ti ti-clock-play text-primary me-2"></i>تفاصيل التجربة المفعّلة
