@@ -41,7 +41,7 @@
                         <div class="card-body">
                             <div class="row g-4">
                                 <x-form.controls.input name="name" label="اسم العقار" placeholder="مثال: فيلا النخيل"
-                                    required :value="$is_edit ? $property->name : old('name')" col="col-md-6" />
+                                    required :value="$is_edit ? $property->name : old('name')" col="col-12" />
                                 <x-form.controls.select name="type" label="نوع العقار" required col="col-md-6"
                                     :value="$is_edit
                                         ? ($property->type instanceof \BackedEnum
@@ -60,7 +60,7 @@
                                     min="0" max="9999999999999.99" label="القيمة التقديرية" :value="old('estimated_value', $is_edit ? $property->estimated_value : null)"
                                     required col="col-md-6" />
                                 <x-form.controls.textarea name="short_description" label="وصف العقار"
-                                    placeholder="أدخل وصفاً للعقار..." :value="$is_edit ? $property->short_description : old('short_description')" required col="col-md-6"
+                                    placeholder="أدخل وصفاً للعقار..." :value="$is_edit ? $property->short_description : old('short_description')" required col="col-12"
                                     rows="4" maxlength="500" />
                             </div>
                         </div>
