@@ -119,6 +119,11 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             ->addColumn('days_remaining', function ($row) {
                 $isExpired = $this->isExpiredRoute() || in_array($row->status, [SubscriptionStatus::EXPIRED, SubscriptionStatus::CANCELLED], true);
                 $period = $row->currentPeriod ?? $row->periods->sortByDesc('period_end')->first();
+
+                if ($period?->status === SubscriptionPeriodStatus::PENDING_PAYMENT) {
+                    return '<span class="badge bg-warning fw-semibold">بانتظار الدفع</span>';
+                }
+
                 $service = app(SubscriptionManager::class);
                 $days = $service->calculateDaysRemaining($period, $row->ends_at ?? $row->trial_end_date);
 

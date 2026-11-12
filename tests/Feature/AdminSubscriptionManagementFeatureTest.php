@@ -26,26 +26,9 @@ class AdminSubscriptionManagementFeatureTest extends TestCase
             tenancy()->end();
         }
 
-        $this->admin = AdminUser::where('email', 'superadmin@gmail.com')->first();
-        if (! $this->admin) {
-            $this->admin = AdminUser::firstOrCreate(
-                ['email' => 'admin_sub_test@lot.com'],
-                [
-                    'name' => 'Sub Admin Test',
-                    'password' => bcrypt('password'),
-                    'phone' => '0500000098',
-                    'status' => 'active',
-                ]
-            );
-        }
-
-        $this->admin->givePermissionTo([
-            'subscriptions.view',
-            'subscriptions.delete',
-            'subscriptions.pending.view',
-            'subscriptions.pending.approve',
-            'subscriptions.pending.reject',
-        ]);
+        $this->admin = AdminUser::role('SuperAdmin')->first()
+            ?? AdminUser::where('email', 'superadmin@gmail.com')->first()
+            ?? AdminUser::firstOrFail();
 
         $this->actingAs($this->admin, 'admin');
     }
@@ -226,7 +209,7 @@ class AdminSubscriptionManagementFeatureTest extends TestCase
         $sub1 = $this->createPendingSubscription();
         $sub2 = $this->createPendingSubscription();
 
-        $responseAccept = $this->postJson("http://localhost/superadmin/subscription-manage/mass-accept", [
+        $responseAccept = $this->postJson('http://localhost/superadmin/subscription-manage/mass-accept', [
             'ids' => [$sub1->id, $sub2->id],
         ]);
         $responseAccept->assertOk()->assertJson(['success' => true]);
@@ -236,7 +219,7 @@ class AdminSubscriptionManagementFeatureTest extends TestCase
         $sub3 = $this->createPendingSubscription();
         $sub4 = $this->createPendingSubscription();
 
-        $responseReject = $this->postJson("http://localhost/superadmin/subscription-manage/mass-reject", [
+        $responseReject = $this->postJson('http://localhost/superadmin/subscription-manage/mass-reject', [
             'ids' => [$sub3->id, $sub4->id],
             'reject_reason' => 'رفض جماعي للاختبار',
         ]);

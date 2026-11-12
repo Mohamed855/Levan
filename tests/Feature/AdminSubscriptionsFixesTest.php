@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\DataTables\Admin\SubscriptionMangment\subscriptionMangmentDataTable;
 use App\DataTables\Admin\Subscriptions\SubscriptionDataTable;
 use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Coupons\CouponDiscountType;
@@ -641,6 +642,123 @@ class AdminSubscriptionsFixesTest extends TestCase
             $response->assertSee('15-06-2026', false);
             $response->assertSee('15-06-2027', false);
         } finally {
+            $sub->forceDelete();
+            Tenant::withTrashed()->whereKey($tenant->id)->forceDelete();
+            Plan::withTrashed()->whereKey($plan->id)->forceDelete();
+        }
+    }
+
+    public function test_toggle_status_rejects_activating_subscription_with_pending_payment_period(): void
+    {
+        $tenant = $this->makeTenant();
+        $plan = $this->makePlan(['is_active' => true]);
+
+        $sub = Subscription::create([
+            'tenant_id' => $tenant->id,
+            'plan_id' => $plan->id,
+            'subscription_number' => 'SUB-PEND-'.uniqid(),
+            'billing_cycle' => SubscriptionBillingCycle::MONTHLY,
+            'price' => 100.00,
+            'status' => SubscriptionStatus::SUSPENDED,
+            'total_users' => 1,
+            'used_users' => 0,
+            'starts_at' => now(),
+            'ends_at' => now()->addDays(30),
+        ]);
+
+        $period = SubscriptionPeriod::create([
+            'subscription_id' => $sub->id,
+            'plan_id' => $plan->id,
+            'period_start' => now(),
+            'period_end' => now()->addDays(30),
+            'status' => SubscriptionPeriodStatus::PENDING_PAYMENT,
+            'is_current' => true,
+            'is_trial' => false,
+            'total_seats' => 1,
+            'used_seats' => 0,
+            'plan_snapshot' => [],
+        ]);
+
+        try {
+            $response = $this->patchJson("http://localhost/superadmin/subscriptions/{$sub->id}/toggle-status");
+
+            $response->assertStatus(422)
+                ->assertJson([
+                    'success' => false,
+                ]);
+
+            $this->assertStringContainsString('معلقة بانتظار الدفع', $response->json('message'));
+            $this->assertSame(SubscriptionStatus::SUSPENDED, $sub->fresh()->status);
+        } finally {
+            $period->forceDelete();
+            $sub->forceDelete();
+            Tenant::withTrashed()->whereKey($tenant->id)->forceDelete();
+            Plan::withTrashed()->whereKey($plan->id)->forceDelete();
+        }
+    }
+
+    public function test_subscription_datatables_render_pending_payment_badge_instead_of_countdown(): void
+    {
+        $tenant = $this->makeTenant();
+        $plan = $this->makePlan(['is_active' => true]);
+
+        $sub = Subscription::create([
+            'tenant_id' => $tenant->id,
+            'plan_id' => $plan->id,
+            'subscription_number' => 'SUB-AWAIT-'.uniqid(),
+            'billing_cycle' => SubscriptionBillingCycle::MONTHLY,
+            'price' => 100.00,
+            'status' => SubscriptionStatus::SUSPENDED,
+            'total_users' => 1,
+            'used_users' => 0,
+            'starts_at' => now(),
+            'ends_at' => now()->addDays(30),
+        ]);
+
+        $period = SubscriptionPeriod::create([
+            'subscription_id' => $sub->id,
+            'plan_id' => $plan->id,
+            'period_start' => now(),
+            'period_end' => now()->addDays(30),
+            'status' => SubscriptionPeriodStatus::PENDING_PAYMENT,
+            'is_current' => true,
+            'is_trial' => false,
+            'total_seats' => 1,
+            'used_seats' => 0,
+            'plan_snapshot' => [],
+        ]);
+
+        try {
+            // 1. SubscriptionDataTable (/superadmin/subscriptions)
+            $subDataTable = app(SubscriptionDataTable::class);
+            $subResponse = $subDataTable->ajax();
+            $subData = $subResponse->getData(true);
+            $subRow = collect($subData['data'])->firstWhere('id', $sub->id);
+
+            $this->assertNotNull($subRow);
+            $this->assertStringContainsString('بانتظار الدفع', $subRow['days_remaining']);
+            $this->assertStringNotContainsString('30 يوماً', $subRow['days_remaining']);
+            // Toggle switch should not be rendered for pending payment
+            $this->assertStringNotContainsString('js-table-status-toggle', $subRow['status']);
+
+            // 2. subscriptionMangmentDataTable (/superadmin/subscription-manage/...)
+            $mgmtDataTable = app(subscriptionMangmentDataTable::class);
+            $mgmtResponse = $mgmtDataTable->ajax();
+            $mgmtData = $mgmtResponse->getData(true);
+            $mgmtRow = collect($mgmtData['data'])->firstWhere('id', $sub->id);
+
+            $this->assertNotNull($mgmtRow);
+            $this->assertStringContainsString('بانتظار الدفع', $mgmtRow['days_remaining']);
+            $this->assertStringNotContainsString('30 يوماً', $mgmtRow['days_remaining']);
+
+            // 3. Client show page (/superadmin/clients/{id})
+            $clientShowResponse = $this->get("http://localhost/superadmin/clients/{$tenant->id}");
+            $clientShowResponse->assertOk();
+            $clientShowHtml = $clientShowResponse->getContent();
+            $this->assertStringContainsString('بانتظار الدفع', $clientShowHtml);
+            $this->assertStringNotContainsString('class="form-check-input js-sub-toggle', $clientShowHtml);
+        } finally {
+            $period->forceDelete();
             $sub->forceDelete();
             Tenant::withTrashed()->whereKey($tenant->id)->forceDelete();
             Plan::withTrashed()->whereKey($plan->id)->forceDelete();

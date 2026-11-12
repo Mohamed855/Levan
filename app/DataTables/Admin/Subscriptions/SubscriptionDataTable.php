@@ -146,6 +146,11 @@ class SubscriptionDataTable extends AbstractDataTable
             ->addColumn('days_remaining', function (Subscription $row) {
                 $isExpired = in_array($row->status, [SubscriptionStatus::EXPIRED, SubscriptionStatus::CANCELLED], true);
                 $period = $row->currentPeriod ?? $row->periods->sortByDesc('period_end')->first();
+
+                if ($period?->status === SubscriptionPeriodStatus::PENDING_PAYMENT) {
+                    return '<span class="badge bg-warning fw-semibold">بانتظار الدفع</span>';
+                }
+
                 $days = app(SubscriptionManager::class)->calculateDaysRemaining($period, $row->ends_at ?? $row->trial_end_date);
 
                 if ($isExpired || ($days !== null && $days <= 0)) {
@@ -174,7 +179,10 @@ class SubscriptionDataTable extends AbstractDataTable
             ->editColumn('created_at', fn (Subscription $row): string => $this->formatDate($row->created_at))
             ->editColumn('status', function (Subscription $row) {
                 $statusBadge = '<span class="badge bg-'.$row->status->color().'">'.e($row->status->label()).'</span>';
-                $isToggleable = in_array($row->status, [SubscriptionStatus::ACTIVE, SubscriptionStatus::SUSPENDED], true);
+                $period = $row->currentPeriod ?? $row->periods->sortByDesc('period_end')->first();
+                $isPendingPayment = $period?->status === SubscriptionPeriodStatus::PENDING_PAYMENT;
+                $isToggleable = in_array($row->status, [SubscriptionStatus::ACTIVE, SubscriptionStatus::SUSPENDED], true)
+                    && ! ($row->status === SubscriptionStatus::SUSPENDED && $isPendingPayment);
 
                 if ($isToggleable && auth('admin')->user()?->can('subscriptions.toggle_status')) {
                     $checked = $row->status === SubscriptionStatus::ACTIVE ? 'checked' : '';

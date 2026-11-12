@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DataTables\Admin\Clients;
 
 use App\DataTables\Abstract\AbstractDataTable;
+use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\Tenants\Tenant;
 use App\Services\Shared\Subscription\SubscriptionManager;
@@ -123,6 +124,11 @@ class ClientsDataTable extends AbstractDataTable
                 }
                 $isExpired = in_array($sub->status, [SubscriptionStatus::EXPIRED, SubscriptionStatus::CANCELLED], true);
                 $period = $sub->currentPeriod ?? $sub->periods->sortByDesc('period_end')->first();
+
+                if ($period?->status === SubscriptionPeriodStatus::PENDING_PAYMENT) {
+                    return '<span class="badge bg-warning fw-semibold">بانتظار الدفع</span>';
+                }
+
                 $days = app(SubscriptionManager::class)->calculateDaysRemaining($period, $sub->ends_at ?? $sub->trial_end_date);
 
                 if ($isExpired || ($days !== null && $days <= 0)) {

@@ -20,6 +20,7 @@ use App\Services\Shared\Bills\BillService;
 use App\Services\Shared\Coupons\CouponService;
 use App\Services\Shared\Subscription\SubscriptionPeriod\SubscriptionPeriodService;
 use Carbon\Carbon;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -194,10 +195,10 @@ class AdminSubscriptionService
             ]);
 
             // Handle payment proof / receipt file if uploaded
-            if (isset($data['payment_proof']) && $data['payment_proof'] instanceof \Illuminate\Http\UploadedFile) {
+            if (isset($data['payment_proof']) && $data['payment_proof'] instanceof UploadedFile) {
                 $receiptPath = $data['payment_proof']->store('receipts', 'public');
                 $subscription->update(['transfer_bank_attachment' => $receiptPath]);
-            } elseif (isset($data['receipt_upload']) && $data['receipt_upload'] instanceof \Illuminate\Http\UploadedFile) {
+            } elseif (isset($data['receipt_upload']) && $data['receipt_upload'] instanceof UploadedFile) {
                 $receiptPath = $data['receipt_upload']->store('receipts', 'public');
                 $subscription->update(['transfer_bank_attachment' => $receiptPath]);
             }
@@ -278,6 +279,13 @@ class AdminSubscriptionService
         $newStatus = $subscription->status === SubscriptionStatus::ACTIVE
             ? SubscriptionStatus::SUSPENDED
             : SubscriptionStatus::ACTIVE;
+
+        if ($newStatus === SubscriptionStatus::ACTIVE) {
+            $period = $subscription->currentPeriod ?? $subscription->periods()->latest('period_end')->first();
+            if ($period && $period->status === SubscriptionPeriodStatus::PENDING_PAYMENT) {
+                throw new \DomainException('لا يمكن تفعيل الاشتراك مباشرة لوجود فترة معلقة بانتظار الدفع. يرجى تفعيل الاشتراك من صفحة إدارة الاشتراكات بعد التحقق من سداد الفاتورة.');
+            }
+        }
 
         $subscription->update(['status' => $newStatus]);
 

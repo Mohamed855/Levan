@@ -170,7 +170,7 @@
                                             \App\Enums\Admin\Subscriptions\SubscriptionStatus::SUSPENDED,
                                         ],
                                         true,
-                                    );
+                                    ) && ! ($sub->status === \App\Enums\Admin\Subscriptions\SubscriptionStatus::SUSPENDED && $period?->status === \App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus::PENDING_PAYMENT);
                                 @endphp
                                 <tr>
                                     <td>
@@ -190,7 +190,9 @@
                                     <td>@date($sub->starts_at)</td>
                                     <td>@date($period?->period_end ?? $sub->ends_at)</td>
                                     <td>
-                                        @if ($days === null)
+                                        @if ($period?->status === \App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus::PENDING_PAYMENT)
+                                            <span class="badge bg-label-warning">بانتظار الدفع</span>
+                                        @elseif ($days === null)
                                             <span class="badge bg-label-secondary">-</span>
                                         @elseif ($days <= 0)
                                             <span class="badge bg-label-danger">منتهي</span>
