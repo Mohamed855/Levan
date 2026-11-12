@@ -68,13 +68,13 @@
                         <!-- قيمة الخصم -->
                         <x-form.controls.input type="number" name="discount_value" id="discount_value"
                             label="قيمة الخصم" :value="$is_edit ? $coupon->discount_value : null" step="0.01" min="0" required
-                            col="col-md-6" />
+                            col="col-md-6" :price="true" />
 
                         <!-- الحد الأقصى -->
                         <x-form.controls.input type="number" name="max_discount" id="max_discount"
                             wrapper-id="maxDiscountField" :wrapper-style="$discountTypeValue === 'percentage' ? '' : 'display:none;'" label="الحد الأقصى للخصم"
                             help="ينطبق فقط على النسبة المئوية" :value="$is_edit ? $coupon->max_discount : null" step="0.01" min="0"
-                            col="col-md-6" />
+                            col="col-md-6" :price="true" />
 
                         <!-- تاريخ البداية -->
                         <x-form.controls.input type="date" name="start_date" id="start_date" label="تاريخ البداية"

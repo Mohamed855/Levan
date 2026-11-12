@@ -9,6 +9,7 @@
     'help' => null,
     'col' => 'col-md-6',
     'inputGroup' => false,
+    'price' => false,
     'wrapperId' => null,
     'wrapperStyle' => null,
 ])
@@ -17,6 +18,8 @@
     $fieldId = $id ?: str_replace(['[', ']'], '-', $name);
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
     $isRequired = filter_var($required, FILTER_VALIDATE_BOOLEAN);
+    $isPrice = filter_var($price, FILTER_VALIDATE_BOOLEAN);
+    $hasInputGroup = filter_var($inputGroup, FILTER_VALIDATE_BOOLEAN) || $isPrice;
     $attributes = $attributes->merge(['aria-required' => $isRequired ? 'true' : 'false']);
 
     if ($placeholder === null) {
@@ -42,7 +45,7 @@
 
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help"
     :col="$col" :wrapper-id="$wrapperId" :wrapper-style="$wrapperStyle">
-    @if ($inputGroup)
+    @if ($hasInputGroup)
         <div @class([
             'input-group input-group-merge',
             'is-invalid' => $errorsBag->has($name),
@@ -52,6 +55,11 @@
                 @if ($placeholder) placeholder="{{ $placeholder }}" @endif data-form-control
                 aria-describedby="{{ $errorId }}" aria-invalid="{{ $errorsBag->has($name) ? 'true' : 'false' }}"
                 {{ $attributes->class(['form-control', 'is-invalid' => $errorsBag->has($name)]) }}>
+            @if ($isPrice)
+                <span class="input-group-text" title="ريال سعودي">
+                    <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>
+                </span>
+            @endif
             {{ $slot }}
         </div>
     @else

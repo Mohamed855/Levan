@@ -58,7 +58,7 @@
                                     :value="$is_edit ? $property->area : old('area')" placeholder="مثال: 600" required col="col-md-6" />
                                 <x-form.controls.input name="estimated_value" type="number" step="0.01"
                                     min="0" max="9999999999999.99" label="القيمة التقديرية" :value="old('estimated_value', $is_edit ? $property->estimated_value : null)"
-                                    required col="col-md-6" />
+                                    required col="col-md-6" :price="true" />
                                 <x-form.controls.textarea name="short_description" label="وصف العقار"
                                     placeholder="أدخل وصفاً للعقار..." :value="$is_edit ? $property->short_description : old('short_description')" required col="col-12"
                                     rows="4" maxlength="500" />

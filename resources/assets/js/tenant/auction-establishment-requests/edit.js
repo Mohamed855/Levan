@@ -29,6 +29,153 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // Check individual property completeness
+    const checkPropertyCompleteness = (propertyId) => {
+        const modalBody = form.querySelector(`[data-property-modal-body="${propertyId}"]`);
+        if (!modalBody) return false;
+
+        const row = form.querySelector(`[data-property-row="${propertyId}"]`);
+        const checkbox = form.querySelector(`[data-property-check="${propertyId}"]`);
+        const badge = form.querySelector(`[data-property-badge="${propertyId}"]`);
+
+        const getVal = (fieldName) => {
+            const input = modalBody.querySelector(`[name$="[${fieldName}]"]`);
+            return input ? String(input.value || "").trim() : "";
+        };
+
+        const requiredFields = [
+            "owner_name",
+            "deed_number",
+            "contract_number",
+            "area",
+            "type",
+            "usage",
+            "age",
+            "city_district",
+            "status",
+            "ownership_share",
+            "disclosure",
+            "opening_value",
+            "entry_amount",
+            "estimated_value",
+        ];
+
+        let isComplete = true;
+
+        for (const f of requiredFields) {
+            const val = getVal(f);
+            if (!val) {
+                isComplete = false;
+                break;
+            }
+            if (f === "area" || f === "ownership_share") {
+                const num = parseFloat(val);
+                if (isNaN(num) || num <= 0) {
+                    isComplete = false;
+                    break;
+                }
+            }
+        }
+
+        if (isComplete) {
+            const usage = getVal("usage");
+            if (usage === "other" && !getVal("usage_other")) {
+                isComplete = false;
+            }
+
+            const status = getVal("status");
+            if (status === "other" && !getVal("status_other")) {
+                isComplete = false;
+            }
+
+            const agentName = getVal("agent_name");
+            const agencyNum = getVal("agency_number");
+            if ((agentName && !agencyNum) || (!agentName && agencyNum)) {
+                isComplete = false;
+            }
+        }
+
+        if (checkbox) {
+            checkbox.checked = isComplete;
+        }
+
+        if (badge) {
+            if (isComplete) {
+                badge.className = "badge bg-label-success property-status-badge";
+                badge.innerHTML = '<i class="ti ti-check me-1"></i>مكتمل البيانات';
+            } else {
+                badge.className = "badge bg-label-warning property-status-badge";
+                badge.innerHTML = '<i class="ti ti-alert-triangle me-1"></i>بيانات ناقصة';
+            }
+        }
+
+        if (row) {
+            row.classList.toggle("table-success-subtle", isComplete);
+        }
+
+        return isComplete;
+    };
+
+    // Update all properties completeness and stats
+    const updateAllPropertiesCompleteness = () => {
+        const modalBodies = form.querySelectorAll("[data-property-modal-body]");
+        let completedCount = 0;
+        modalBodies.forEach((body) => {
+            const propertyId = body.dataset.propertyModalBody;
+            if (checkPropertyCompleteness(propertyId)) {
+                completedCount++;
+            }
+        });
+
+        const countEl = document.getElementById("completed-establishment-props-count");
+        if (countEl) {
+            countEl.textContent = String(completedCount);
+        }
+    };
+
+    // Modal save property details button click
+    $(document).on("click", ".btn-save-prop-details", function (e) {
+        e.preventDefault();
+        const propId = this.dataset.propertyId;
+        const isComplete = checkPropertyCompleteness(propId);
+        updateAllPropertiesCompleteness();
+
+        const modalEl = document.getElementById(`property-details-modal-${propId}`);
+        if (modalEl && window.bootstrap && window.bootstrap.Modal) {
+            const modalInstance = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+        }
+
+        if (isComplete) {
+            if (typeof window.toastr !== "undefined") {
+                window.toastr.success("تم استكمال بيانات العقار بنجاح.");
+            }
+        } else {
+            if (typeof window.toastr !== "undefined") {
+                window.toastr.warning("تم حفظ التعديلات ولكن بعض الحقول الإلزامية لا تزال غير مكتملة.");
+            }
+        }
+
+        form.dispatchEvent(new Event("change", { bubbles: true }));
+        updateReviewCardValues();
+    });
+
+    // Fix select2 dropdownParent when modal opens
+    $(document).on("shown.bs.modal", ".property-establishment-modal", function () {
+        const $modal = $(this);
+        $modal.find("select.select2, select[data-select2]").each(function () {
+            if ($(this).data("select2")) {
+                $(this).select2("destroy");
+            }
+            $(this).select2({
+                dropdownParent: $modal,
+                dir: "rtl",
+            });
+        });
+    });
+
     // Conditional field visibility handlers
     const setupConditionalFields = () => {
         // Toggle helper
@@ -103,13 +250,19 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         };
 
-        // Property status other
+        // Property status other & usage other
         const checkPropertyStatuses = () => {
             form.querySelectorAll('[name$="[status]"]').forEach((statusSelect) => {
                 const match = statusSelect.name.match(/data\[properties\]\[(\d+)\]\[status\]/);
                 if (!match) return;
                 const idx = match[1];
                 toggleField(`[name="data[properties][${idx}][status_other]"]`, statusSelect.value === "other");
+            });
+            form.querySelectorAll('[name$="[usage]"]').forEach((usageSelect) => {
+                const match = usageSelect.name.match(/data\[properties\]\[(\d+)\]\[usage\]/);
+                if (!match) return;
+                const idx = match[1];
+                toggleField(`[name="data[properties][${idx}][usage_other]"]`, usageSelect.value === "other");
             });
         };
 
@@ -119,7 +272,17 @@ document.addEventListener("DOMContentLoaded", () => {
             if (name.includes("[auction][method]")) checkAuctionMethod();
             if (name.includes("[auction][start_date]")) syncAuctionDates();
             if (name.includes("[disclosures]")) checkDisclosures();
-            if (name.includes("[status]")) checkPropertyStatuses();
+            if (name.includes("[status]") || name.includes("[usage]")) checkPropertyStatuses();
+            if (name.includes("[properties]")) {
+                const match = name.match(/data\[properties\]\[(\d+)\]/);
+                if (match) {
+                    const modalBody = form.querySelectorAll("[data-property-modal-body]")[Number(match[1])];
+                    if (modalBody) {
+                        checkPropertyCompleteness(modalBody.dataset.propertyModalBody);
+                        updateAllPropertiesCompleteness();
+                    }
+                }
+            }
             updateReviewCardValues();
         });
 
@@ -215,10 +378,19 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     setupConditionalFields();
+    updateAllPropertiesCompleteness();
     updateReviewCardValues();
 
     // Listen to stepper step change
     form.addEventListener("stepChanged", (e) => {
+        updateAllPropertiesCompleteness();
+        updateReviewCardValues();
+    });
+
+    // Listen to wizard draft restored event
+    form.addEventListener("wizardDraftRestored", () => {
+        setupConditionalFields();
+        updateAllPropertiesCompleteness();
         updateReviewCardValues();
     });
 

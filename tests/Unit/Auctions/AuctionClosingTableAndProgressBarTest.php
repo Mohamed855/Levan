@@ -50,7 +50,7 @@ class AuctionClosingTableAndProgressBarTest extends TestCase
 
     public function test_auctions_data_table_has_city_column_after_issuing_entity(): void
     {
-        $dataTable = new AuctionsDataTable();
+        $dataTable = new AuctionsDataTable;
         $reflection = new \ReflectionClass($dataTable);
         $method = $reflection->getMethod('getColumns');
         $method->setAccessible(true);
@@ -70,7 +70,7 @@ class AuctionClosingTableAndProgressBarTest extends TestCase
 
     public function test_auction_closings_data_table_structure_and_columns(): void
     {
-        $dataTable = new AuctionClosingsDataTable();
+        $dataTable = new AuctionClosingsDataTable;
         $reflection = new \ReflectionClass($dataTable);
         $method = $reflection->getMethod('getColumns');
         $method->setAccessible(true);
@@ -91,12 +91,12 @@ class AuctionClosingTableAndProgressBarTest extends TestCase
         // city is present
         $this->assertContains('city', $keys);
 
-        // properties_results is placed after properties_count
-        $propCountIndex = array_search('properties_count', $keys, true);
+        // properties_results is placed after end_date
+        $endDateIndex = array_search('end_date', $keys, true);
         $propResultsIndex = array_search('properties_results', $keys, true);
-        $this->assertNotFalse($propCountIndex);
+        $this->assertNotFalse($endDateIndex);
         $this->assertNotFalse($propResultsIndex);
-        $this->assertSame($propCountIndex + 1, $propResultsIndex, 'properties_results must be directly after properties_count');
+        $this->assertSame($endDateIndex + 1, $propResultsIndex, 'properties_results must be directly after end_date');
 
         $propResultsCol = $columns[$propResultsIndex];
         $this->assertSame('نتائج العقارات', $propResultsCol['title']);
@@ -114,20 +114,24 @@ class AuctionClosingTableAndProgressBarTest extends TestCase
 
     public function test_custom_column_callbacks_render_correctly(): void
     {
-        $dataTable = new AuctionClosingsDataTable();
-        $fakeDataTable = new class {
+        $dataTable = new AuctionClosingsDataTable;
+        $fakeDataTable = new class
+        {
             public array $addedColumns = [];
+
             public array $editedColumns = [];
 
             public function addColumn(string $name, $callback): self
             {
                 $this->addedColumns[$name] = $callback;
+
                 return $this;
             }
 
             public function editColumn(string $name, $callback): self
             {
                 $this->editedColumns[$name] = $callback;
+
                 return $this;
             }
         };
@@ -139,7 +143,7 @@ class AuctionClosingTableAndProgressBarTest extends TestCase
 
         // Test closing_model callback
         $this->assertArrayHasKey('closing_model', $fakeDataTable->addedColumns);
-        $dummyRow = new \stdClass();
+        $dummyRow = new \stdClass;
         $dummyRow->id = 1;
         $closingModelHtml = ($fakeDataTable->addedColumns['closing_model'])($dummyRow);
         $this->assertStringNotContainsString('javascript:', $closingModelHtml);

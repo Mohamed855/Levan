@@ -309,6 +309,7 @@ Route::middleware(['auth:tenant', EnsureInitialPasswordChanged::class.':tenant',
         Route::get('auction-closings', [AuctionClosingsController::class, 'index'])->name('auction-closings.index');
         Route::get('auction-closings/{auction}/edit', [AuctionClosingsController::class, 'edit'])->name('auction-closings.edit');
         Route::put('auction-closings/{auction}', [AuctionClosingsController::class, 'update'])->name('auction-closings.update');
+        Route::get('auction-closings/{auction}/properties/{property}', [AuctionClosingsController::class, 'propertyData'])->name('auction-closings.property-data');
         Route::get('auction-establishment-requests', [AuctionEstablishmentRequestsController::class, 'index'])->name('auction-establishment-requests.index');
         Route::get('auction-establishment-requests/{auction}/edit', [AuctionEstablishmentRequestsController::class, 'edit'])->name('auction-establishment-requests.edit');
         Route::match(['put', 'post'], 'auction-establishment-requests/{auction}', [AuctionEstablishmentRequestsController::class, 'update'])->name('auction-establishment-requests.update');

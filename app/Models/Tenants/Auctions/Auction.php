@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models\Tenants\Auctions;
 
-use App\Enums\Tenants\Auctions\AuctionStatus;
+use App\Enums\Tenants\Auctions\AuctionCategory;
 use App\Enums\Tenants\Auctions\AuctionReportContentStatus;
-use App\Services\Tenants\Auctions\Reports\AuctionReportState;
+use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\AuctionClosings\AuctionClosing;
@@ -15,6 +15,7 @@ use App\Models\Tenants\MarketingCampaigns\MarketingCampaign;
 use App\Models\Tenants\PromotionalAdvertisements\PromotionalAdvertisement;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User;
+use App\Services\Tenants\Auctions\Reports\AuctionReportState;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -160,11 +161,11 @@ class Auction extends Model
 
     public function getCategoryLabelAttribute(): string
     {
-        if ($this->category instanceof \App\Enums\Tenants\Auctions\AuctionCategory) {
+        if ($this->category instanceof AuctionCategory) {
             return $this->category->label();
         }
 
-        $enum = \App\Enums\Tenants\Auctions\AuctionCategory::tryFrom((string) $this->category);
+        $enum = AuctionCategory::tryFrom((string) $this->category);
         if ($enum) {
             return $enum->label();
         }
@@ -248,7 +249,7 @@ class Auction extends Model
     public function scopeClosed(Builder $query): Builder
     {
         return $query->has('properties')
-            ->whereDoesntHave('properties', fn (Builder $properties) => $properties->where(fn (Builder $results) => $results->whereNull('auction_properties.result_status')->orWhere('auction_properties.result_status', '!=', 'sold')));
+            ->whereDoesntHave('properties', fn (Builder $properties) => $properties->where(fn (Builder $results) => $results->whereNull('auction_properties.result_status')->orWhereNotIn('auction_properties.result_status', ['sold', 'unsold'])));
     }
 
     public function scopeApproved(Builder $query): Builder
@@ -259,6 +260,6 @@ class Auction extends Model
     public function scopeOpen(Builder $query): Builder
     {
         return $query->where(fn (Builder $properties) => $properties->doesntHave('properties')
-            ->orWhereHas('properties', fn (Builder $results) => $results->where(fn (Builder $status) => $status->whereNull('auction_properties.result_status')->orWhere('auction_properties.result_status', '!=', 'sold'))));
+            ->orWhereHas('properties', fn (Builder $results) => $results->where(fn (Builder $status) => $status->whereNull('auction_properties.result_status')->orWhereNotIn('auction_properties.result_status', ['sold', 'unsold']))));
     }
 }

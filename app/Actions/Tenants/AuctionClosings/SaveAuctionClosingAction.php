@@ -29,31 +29,55 @@ final class SaveAuctionClosingAction
                 app(AuctionReportLock::class)->assertClosingAllowed($auction);
                 $properties = $auction->properties()->get();
                 $ids = $properties->modelKeys();
-                $results = $data['results'];
-                if ($ids === [] || array_diff($ids, array_keys($results)) !== [] || array_diff(array_keys($results), $ids) !== []) {
-                    throw ValidationException::withMessages(['results' => 'يجب تسجيل نتيجة لكل عقار من عقارات المزاد فقط.']);
+                $results = $data['results'] ?? [];
+                $submittedIds = array_map('intval', array_keys($results));
+                if (array_diff($submittedIds, $ids) !== []) {
+                    throw ValidationException::withMessages(['results' => 'يجب أن تخص نتائج العقارات عقارات هذا المزاد فقط.']);
                 }
                 foreach ($results as $result) {
-                    if (! in_array($result['status'] ?? null, ['sold', 'unsold'], true)) {
-                        throw ValidationException::withMessages(['results' => 'حدد نتيجة البيع لكل عقار.']);
+                    $status = $result['status'] ?? null;
+                    if (blank($status) || $status === 'pending') {
+                        continue;
                     }
-                    if ($result['status'] === 'sold' && (blank($result['buyer_name'] ?? null) || ! is_numeric($result['sale_price'] ?? null) || $result['sale_price'] < 0)) {
+                    if (! in_array($status, ['sold', 'unsold'], true)) {
+                        throw ValidationException::withMessages(['results' => 'حدد نتيجة البيع للعقار.']);
+                    }
+                    if ($status === 'sold' && (blank($result['buyer_name'] ?? null) || ! is_numeric($result['sale_price'] ?? null) || $result['sale_price'] < 0)) {
                         throw ValidationException::withMessages(['results' => 'اسم المشتري وقيمة الترسية مطلوبان للعقار المباع.']);
                     }
-                    if ($result['status'] === 'unsold' && blank($result['unsold_reason'] ?? null)) {
+                    if ($status === 'unsold' && blank($result['unsold_reason'] ?? null)) {
                         throw ValidationException::withMessages(['results' => 'سبب عدم البيع مطلوب.']);
                     }
                 }
                 $normalized = app(AuctionReportInputService::class)->pivotData($ids, $results, $properties);
                 foreach ($normalized as $id => &$pivot) {
-                    $pivot['buyer_name'] = $results[$id]['status'] === 'sold' ? $results[$id]['buyer_name'] : null;
-                    $pivot['result_notes'] = $results[$id]['result_notes'] ?? null;
-                    foreach (['opening_price', 'participants_count', 'bids_count'] as $field) {
-                        if (! array_key_exists($field, $results[$id])) {
-                            $pivot[$field] = $properties->firstWhere('id', $id)->pivot->{$field};
+                    $res = $results[$id] ?? $results[(string) $id] ?? null;
+                    $current = $properties->firstWhere('id', $id);
+                    if ($res !== null) {
+                        if (isset($res['status'])) {
+                            $pivot['buyer_name'] = $res['status'] === 'sold' ? ($res['buyer_name'] ?? null) : null;
+                            $pivot['unsold_reason'] = $res['status'] === 'unsold' ? ($res['unsold_reason'] ?? null) : null;
                         }
+                        if (array_key_exists('result_notes', $res)) {
+                            $pivot['result_notes'] = $res['result_notes'] ?? null;
+                        }
+                        foreach (['opening_price', 'participants_count', 'bids_count'] as $field) {
+                            if (array_key_exists($field, $res)) {
+                                $pivot[$field] = $res[$field];
+                            } else {
+                                $pivot[$field] = $current?->pivot?->{$field};
+                            }
+                        }
+                    } else {
+                        $pivot['buyer_name'] = $current?->pivot?->buyer_name;
+                        $pivot['unsold_reason'] = $current?->pivot?->unsold_reason;
+                        $pivot['result_notes'] = $current?->pivot?->result_notes;
                     }
-                    Property::whereKey($id)->update(['status' => $pivot['result_status'] === 'sold' ? 'sold' : 'available']);
+                    if ($pivot['result_status'] === 'sold') {
+                        Property::whereKey($id)->update(['status' => 'sold']);
+                    } elseif ($pivot['result_status'] === 'unsold') {
+                        Property::whereKey($id)->update(['status' => 'available']);
+                    }
                 }
                 unset($pivot);
                 $auction->properties()->sync($normalized);
@@ -80,7 +104,7 @@ final class SaveAuctionClosingAction
                 }
                 $closing->fill(['closing_date' => $data['closing_date'], 'approval_number' => $auction->establishmentRequest->approval_number, 'saved_at' => now(), 'updated_by' => $actorId]);
                 $closing->save();
-                if (count(array_filter($results, fn ($result) => $result['status'] === 'sold')) === count($ids)) {
+                if ($auction->fresh()->isClosed()) {
                     $closing->update(['finalized_snapshot' => app(AuctionReportDataBuilder::class)->build($auction->fresh())]);
                 }
 
@@ -94,7 +118,9 @@ final class SaveAuctionClosingAction
             DB::afterCommit(fn () => Storage::disk('tenant_public')->delete($removedPaths));
         }
         app(AuctionReportRefreshService::class)->afterMutation([$auction->id], true);
-        app(AuctionRegulatoryFormService::class)->requestGeneration($auction->fresh(), 'closing');
+        if ($auction->fresh()->isClosed()) {
+            app(AuctionRegulatoryFormService::class)->requestGeneration($auction->fresh(), 'closing');
+        }
 
         return $closing;
     }

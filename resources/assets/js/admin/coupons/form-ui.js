@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const isPercentage = rawType === 'percentage';
     const valueInput = document.getElementById('discount_value');
     const maxInput = maxField.querySelector('input');
+    const valuePriceSuffix = valueInput ? valueInput.closest('.input-group')?.querySelector('.input-group-text') : null;
 
     if (isPercentage) {
       maxField.style.display = 'block';
@@ -69,10 +70,16 @@ document.addEventListener('DOMContentLoaded', function () {
       if (valueInput) {
         valueInput.setAttribute('max', '100');
       }
+      if (valuePriceSuffix) {
+        valuePriceSuffix.style.display = 'none';
+      }
     } else {
       maxField.style.display = 'none';
       if (valueInput) {
         valueInput.removeAttribute('max');
+      }
+      if (valuePriceSuffix) {
+        valuePriceSuffix.style.display = '';
       }
       if (maxInput) {
         maxInput.value = '';

@@ -1,3 +1,5 @@
+@import '../components/icons.css';
+
 @font-face {
     font-family: 'Zain';
     src: url('/static/fonts/zain/zain-v4-arabic_latin-200.woff2') format('woff2');

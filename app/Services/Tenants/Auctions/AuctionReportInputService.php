@@ -8,8 +8,8 @@ use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
 use App\Models\Tenants\Properties\Property;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
 final class AuctionReportInputService
@@ -39,9 +39,9 @@ final class AuctionReportInputService
     }
 
     /**
-     * @param list<int> $propertyIds
-     * @param array<int|string, array<string, mixed>> $results
-     * @param Collection<int, Property>|null $currentProperties
+     * @param  list<int>  $propertyIds
+     * @param  array<int|string, array<string, mixed>>  $results
+     * @param  Collection<int, Property>|null  $currentProperties
      * @return array<int, array<string, mixed>>
      */
     public function pivotData(array $propertyIds, array $results, ?Collection $currentProperties = null): array
@@ -67,11 +67,11 @@ final class AuctionReportInputService
     }
 
     /**
-     * @param list<UploadedFile> $marketingEvidence
-     * @param array<int|string, list<UploadedFile>> $boardImagesBefore
-     * @param array<int|string, list<UploadedFile>> $boardImagesAfter
-     * @param list<int> $propertyIds
-     * @param list<string> $storedPaths
+     * @param  list<UploadedFile>  $marketingEvidence
+     * @param  array<int|string, list<UploadedFile>>  $boardImagesBefore
+     * @param  array<int|string, list<UploadedFile>>  $boardImagesAfter
+     * @param  list<int>  $propertyIds
+     * @param  list<string>  $storedPaths
      */
     public function storeEvidence(
         Auction $auction,
@@ -142,9 +142,9 @@ final class AuctionReportInputService
     }
 
     /**
-     * @param array<int|string, list<UploadedFile>> $filesByProperty
-     * @param list<int> $propertyIds
-     * @param list<string> $storedPaths
+     * @param  array<int|string, list<UploadedFile>>  $filesByProperty
+     * @param  list<int>  $propertyIds
+     * @param  list<string>  $storedPaths
      */
     private function storeBoardImages(Auction $auction, array $filesByProperty, string $section, array $propertyIds, array &$storedPaths): void
     {
@@ -189,6 +189,9 @@ final class AuctionReportInputService
     private function normalizedResult(array $result, ?Property $currentProperty = null): array
     {
         $status = (string) ($result['status'] ?? '');
+        if ($status === '' || $status === 'pending') {
+            $status = $currentProperty?->pivot?->result_status ?: 'pending';
+        }
         if (! in_array($status, ['pending', 'sold', 'unsold'], true)) {
             throw ValidationException::withMessages(['property_results' => 'حالة نتيجة العقار غير صحيحة.']);
         }

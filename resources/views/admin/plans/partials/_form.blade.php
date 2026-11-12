@@ -142,7 +142,7 @@
         <x-form.wizard.step id="pricing-validation" :fields="['price', 'subscription_billing_cycle', 'discount_percentage', 'yearly_renewal_price']">
             <div class="row g-4">
                 <x-form.controls.input type="number" step="0.01" min="0" name="price" id="price"
-                    label="سعر الدورة الأساسية (ر.س)" placeholder="500" :value="old('price', $target?->price)" required col="col-md-6" />
+                    label="سعر الدورة الأساسية (ر.س)" placeholder="500" :value="old('price', $target?->price)" required col="col-md-6" :price="true" />
 
                 @if ($is_edit && $hasSubscriptions)
                     <x-form.controls.select name="subscription_billing_cycle" id="subscription_billing_cycle"
@@ -166,7 +166,7 @@
 
                 <x-form.controls.input type="number" step="0.01" min="0" name="yearly_renewal_price"
                     id="yearly_renewal_price" label="سعر العرض السنوي الترويجي (ر.س)" :value="old('yearly_renewal_price', $target?->yearly_renewal_price)"
-                    col="col-md-6" help="عرض سنوي للباقات الشهرية والربع سنوية." />
+                    col="col-md-6" help="عرض سنوي للباقات الشهرية والربع سنوية." :price="true" />
             </div>
 
             <x-form.wizard.actions>
@@ -213,7 +213,7 @@
 
                 <x-form.controls.input type="number" step="0.01" min="0" name="extra_user_license_price"
                     id="extra_user_license_price" label="سعر المستخدم الإضافي (ر.س)" :value="old('extra_user_license_price', $target?->extra_user_license_price ?? 50)" required
-                    col="col-md-6 limits-field" />
+                    col="col-md-6 limits-field" :price="true" />
 
                 <x-form.controls.input type="number" min="1" name="properties_limit" id="properties_limit"
                     label="حد العقارات" :value="old('properties_limit', $target?->properties_limit ?? 50)" required col="col-md-6 limits-field" />
