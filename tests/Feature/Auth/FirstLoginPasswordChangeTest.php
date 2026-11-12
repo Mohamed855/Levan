@@ -98,6 +98,8 @@ final class FirstLoginPasswordChangeTest extends TestCase
             ->assertSee('data-bs-keyboard="false"', false)
             ->assertSee('data-modal-dismissible="false"', false)
             ->assertSee('name="new_password"', false)
+            ->assertSee('name="new_password_confirmation"', false)
+            ->assertDontSee('current_password', false)
             ->assertDontSee('href="'.$this->profileUrl($guard).'"', false);
 
         $document = new \DOMDocument;
@@ -108,14 +110,14 @@ final class FirstLoginPasswordChangeTest extends TestCase
     }
 
     #[DataProvider('guards')]
-    public function test_invalid_password_keeps_the_requirement_and_session(string $guard): void
+    public function test_invalid_confirmation_keeps_the_requirement_and_session(string $guard): void
     {
         $user = $this->createUser($guard);
         $this->actingAs($user, $guard)->postJson($this->passwordUrl($guard), [
-            'current_password' => 'WrongPassword123!',
             'new_password' => 'NewPassword123!',
-            'new_password_confirmation' => 'NewPassword123!',
-        ])->assertUnprocessable()->assertJsonValidationErrors('current_password');
+            'new_password_confirmation' => 'DifferentPassword123!',
+        ])->assertUnprocessable()->assertJsonValidationErrors('new_password')
+            ->assertJsonMissingValidationErrors('current_password');
 
         self::assertTrue((bool) $user->fresh()->must_change_password);
         self::assertTrue(Hash::check('TemporaryPassword123!', $user->fresh()->password));
@@ -126,7 +128,6 @@ final class FirstLoginPasswordChangeTest extends TestCase
     public function test_temporary_password_cannot_be_reused_as_the_new_password(string $guard): void
     {
         $this->actingAs($this->createUser($guard), $guard)->postJson($this->passwordUrl($guard), [
-            'current_password' => 'TemporaryPassword123!',
             'new_password' => 'TemporaryPassword123!',
             'new_password_confirmation' => 'TemporaryPassword123!',
         ])->assertUnprocessable()->assertJsonValidationErrors('new_password');
@@ -139,7 +140,6 @@ final class FirstLoginPasswordChangeTest extends TestCase
         $loginUrl = $guard === 'admin' ? route('admin.login') : route('login');
         $this->actingAs($user, $guard)->withSession(['sensitive_state' => 'old-session'])
             ->post($this->passwordUrl($guard), [
-                'current_password' => 'TemporaryPassword123!',
                 'new_password' => 'NewPassword123!',
                 'new_password_confirmation' => 'NewPassword123!',
             ])->assertRedirect($loginUrl)->assertSessionHas('success')->assertSessionMissing('sensitive_state');
@@ -151,21 +151,54 @@ final class FirstLoginPasswordChangeTest extends TestCase
         $this->get($guard === 'admin' ? '/password-test/admin-protected' : '/password-test/protected')->assertOk();
     }
 
-    public function test_required_password_form_can_use_existing_server_validation(): void
+    #[DataProvider('guards')]
+    public function test_required_password_form_can_use_existing_server_validation(string $guard): void
     {
-        $user = $this->createUser('admin');
+        $user = $this->createUser($guard);
         $originalPassword = $user->password;
-        $this->actingAs($user, 'admin')->postJson(route('admin.wizard-drafts.validate-step'), [
-            'target_path' => route('admin.users.password.update', [], false),
+        $validationUrl = route($guard === 'admin' ? 'admin.wizard-drafts.validate-step' : 'wizard-drafts.validate-step');
+        $this->actingAs($user, $guard)->postJson($validationUrl, [
+            'target_path' => parse_url($this->passwordUrl($guard), PHP_URL_PATH),
             'target_method' => 'POST',
-            'fields' => ['current_password', 'new_password', 'new_password_confirmation'],
-            'current_password' => 'TemporaryPassword123!',
+            'fields' => ['new_password', 'new_password_confirmation'],
             'new_password' => 'NewPassword123!',
             'new_password_confirmation' => 'NewPassword123!',
         ])->assertOk()->assertJsonPath('success', true);
 
         self::assertSame($originalPassword, $user->fresh()->password);
         self::assertTrue((bool) $user->fresh()->must_change_password);
+    }
+
+    #[DataProvider('guards')]
+    public function test_required_password_change_still_rejects_weak_passwords(string $guard): void
+    {
+        $user = $this->createUser($guard);
+        $this->actingAs($user, $guard)->postJson($this->passwordUrl($guard), [
+            'new_password' => 'password',
+            'new_password_confirmation' => 'password',
+        ])->assertUnprocessable()->assertJsonValidationErrors('new_password')
+            ->assertJsonMissingValidationErrors('current_password');
+
+        self::assertTrue((bool) $user->fresh()->must_change_password);
+        self::assertTrue(Hash::check('TemporaryPassword123!', $user->fresh()->password));
+    }
+
+    #[DataProvider('guards')]
+    public function test_regular_password_change_still_requires_the_current_password(string $guard): void
+    {
+        $user = $this->createUser($guard);
+        $user->forceFill(['must_change_password' => false])->save();
+        $otherGuard = $guard === 'admin' ? 'tenant' : 'admin';
+        $this->actingAs($this->createUser($otherGuard), $otherGuard);
+
+        $this->actingAs($user, $guard)->postJson($this->passwordUrl($guard), [
+            'must_change_password' => true,
+            'new_password' => 'NewPassword123!',
+            'new_password_confirmation' => 'NewPassword123!',
+        ])->assertUnprocessable()->assertJsonValidationErrors('current_password');
+
+        self::assertTrue(Hash::check('TemporaryPassword123!', $user->fresh()->password));
+        $this->assertAuthenticatedAs($user, $guard);
     }
 
     public function test_required_user_cannot_validate_an_unrelated_form(): void

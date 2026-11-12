@@ -4,6 +4,9 @@
 
 @php
     $steps = [['id' => 'password-info-validation', 'title' => 'تغيير كلمة المرور']];
+    $passwordFields = ($requiredPasswordChange ?? false)
+        ? ['new_password', 'new_password_confirmation']
+        : ['current_password', 'new_password', 'new_password_confirmation'];
 @endphp
 
 <div class="row">
@@ -14,10 +17,12 @@
                 data-validation-url="{{ $validationUrl }}">
                 @csrf
 
-                <x-form.wizard.step id="password-info-validation" :fields="['current_password', 'new_password', 'new_password_confirmation']">
+                <x-form.wizard.step id="password-info-validation" :fields="$passwordFields">
                     <div class="row g-4">
-                        <x-form.controls.password name="current_password" label="كلمة المرور الحالية" required
-                            autocomplete="current-password" col="col-12" />
+                        @unless ($requiredPasswordChange ?? false)
+                            <x-form.controls.password name="current_password" label="كلمة المرور الحالية" required
+                                autocomplete="current-password" col="col-12" />
+                        @endunless
 
                         <x-form.controls.password name="new_password" label="كلمة المرور الجديدة" required
                             autocomplete="new-password" col="col-md-6"
