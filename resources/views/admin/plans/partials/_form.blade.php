@@ -60,12 +60,12 @@
 
                 @if ($is_edit)
                     <x-form.controls.input name="code" id="code" label="كود الباقة"
-                        help="كود الباقة ثابت ولا يمكن تعديله بعد إطلاقه." :value="$target?->code" readonly
-                        col="col-md-6" style="text-transform: uppercase;" />
+                        help="كود الباقة ثابت ولا يمكن تعديله بعد إطلاقه." :value="$target?->code" readonly col="col-md-6"
+                        style="text-transform: uppercase;" />
                 @else
                     <x-form.controls.input name="code" id="code" label="كود الباقة"
-                        help="سيتم تحويل الكود إلى أحرف كبيرة تلقائيًا" :value="old('code', $generatedCode ?? '')" required
-                        col="col-md-6" :input-group="true" style="text-transform: uppercase;">
+                        help="سيتم تحويل الكود إلى أحرف كبيرة تلقائيًا" :value="old('code', $generatedCode ?? '')" required col="col-md-6"
+                        :input-group="true" style="text-transform: uppercase;">
                         <button type="button" class="input-group-text cursor-pointer btn-generate-code"
                             id="btn-generate-code" title="توليد كود تلقائي">
                             <i class="ti ti-wand me-1"></i> توليد
@@ -85,9 +85,6 @@
                         \App\Enums\Admin\Plans\PlanColor::selectableCases(),
                     )" />
 
-                <x-form.controls.textarea name="description" id="description" label="وصف الباقة" rows="3"
-                    :value="old('description', $target?->description)" placeholder="وصف واضح لقيمة الباقة..." col="col-md-6" />
-
                 <x-form.controls.select name="is_active" id="is_active" label="حالة تفعيل الباقة" required
                     :value="old('is_active', $target?->is_active ?? 1)" col="col-md-6" :enum="\App\Enums\Shared\ActivationStatus::class" />
 
@@ -96,6 +93,9 @@
 
                 <x-form.controls.textarea name="admin_notes" id="admin_notes" label="ملاحظات إدارية" :value="old('admin_notes', $target?->admin_notes)"
                     rows="2" col="col-md-6" />
+
+                <x-form.controls.textarea name="description" id="description" label="وصف الباقة" rows="3"
+                    :value="old('description', $target?->description)" placeholder="وصف واضح لقيمة الباقة..." col="col-md-6" />
 
                 <div class="col-12" data-form-field data-field-name="features">
                     <div class="d-flex justify-content-between align-items-center mb-2">
