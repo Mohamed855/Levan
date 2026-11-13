@@ -395,14 +395,6 @@ class DashboardSearchService
                 'permission' => 'auction_closings.view',
                 'keywords' => 'اقفال المزاد انهاء المزاد تقرير اقفال ترسية closing auction',
             ],
-            [
-                'name' => 'تقارير المزادات',
-                'route' => 'auction-reports.index',
-                'icon' => 'ti-file-analytics',
-                'category' => 'المزادات والتقارير',
-                'permission' => 'auction_reports.view',
-                'keywords' => 'تقارير مزادات احصائيات بروشور تقرير نهائي reports analytics brochure',
-            ],
 
             // التذاكر والدعم
             [

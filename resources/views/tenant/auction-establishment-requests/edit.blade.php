@@ -5,6 +5,7 @@
 @section('vendor-style')
     @vite([
         'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss',
+        'resources/assets/vendor/libs/flatpickr/flatpickr.scss',
         'resources/assets/vendor/libs/select2/select2.scss',
     ])
 @endsection
@@ -12,6 +13,7 @@
 @section('vendor-script')
     @vite([
         'resources/assets/vendor/libs/bs-stepper/bs-stepper.js',
+        'resources/assets/vendor/libs/flatpickr/flatpickr.js',
         'resources/assets/vendor/libs/select2/select2.js',
     ])
 @endsection

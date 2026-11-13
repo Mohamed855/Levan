@@ -59,8 +59,15 @@
                             </td>
                             <td>@datetime($establishment->submitted_at)</td>
                             <td>
-                                @if ($establishment->isApproved())
-                                    <span class="badge bg-label-success fw-bold">{{ $establishment->approval_number }}</span>
+                                @if ($establishment->isApproved() && filled($establishment->approval_number))
+                                    <div class="d-inline-flex align-items-center gap-1 copyable-code-wrapper"
+                                        data-code="{{ $establishment->approval_number }}" role="button" tabindex="0"
+                                        title="اضغط لنسخ الرقم">
+                                        <code class="copyable-code">{{ $establishment->approval_number }}</code>
+                                        <i class="ti ti-copy text-muted"></i>
+                                    </div>
+                                @elseif ($establishment->isApproved())
+                                    <span class="text-muted">—</span>
                                 @else
                                     <span class="text-muted">بانتظار المراجعة</span>
                                 @endif

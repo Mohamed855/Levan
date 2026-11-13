@@ -1,7 +1,10 @@
 <div class="row g-4">
     {{-- المنشأة العقارية --}}
     <div class="col-12">
-        <h6 class="fw-bold mb-1"><i class="ti ti-building me-1"></i>{{ $sections['organization']['label'] }}</h6>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="ti ti-building fs-4 text-primary"></i>
+            <h6 class="fw-bold mb-0">{{ $sections['organization']['label'] }}</h6>
+        </div>
         <p class="text-muted small mb-0">بيانات المنشأة وترخيص فال للمزادات العقارية</p>
     </div>
 
@@ -14,7 +17,10 @@
 
     {{-- مدير المزاد --}}
     <div class="col-12 border-top pt-3">
-        <h6 class="fw-bold mb-1"><i class="ti ti-user-check me-1"></i>{{ $sections['manager']['label'] }}</h6>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="ti ti-user-check fs-4 text-primary"></i>
+            <h6 class="fw-bold mb-0">{{ $sections['manager']['label'] }}</h6>
+        </div>
         <p class="text-muted small mb-0">بيانات وهوية مدير المزاد ومعلومات التواصل</p>
     </div>
 
@@ -27,7 +33,10 @@
 
     {{-- محرّج المزاد --}}
     <div class="col-12 border-top pt-3">
-        <h6 class="fw-bold mb-1"><i class="ti ti-gavel me-1"></i>{{ $sections['auctioneer']['label'] }}</h6>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="ti ti-gavel fs-4 text-primary"></i>
+            <h6 class="fw-bold mb-0">{{ $sections['auctioneer']['label'] }}</h6>
+        </div>
         <p class="text-muted small mb-0">بيانات وهوية محرّج المزاد ومعلومات التواصل</p>
     </div>
 

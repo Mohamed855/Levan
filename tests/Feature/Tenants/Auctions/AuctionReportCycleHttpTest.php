@@ -23,7 +23,7 @@ final class AuctionReportCycleHttpTest extends TenantAuctionReportTestCase
         Queue::fake();
         $auction = $this->cycleAuction();
         $user = User::where('email', 'demo@lot.com')->first();
-        foreach (['marketing_campaigns.view', 'marketing_campaigns.create', 'marketing_campaigns.edit', 'marketing_campaigns.delete', 'auction_closings.view', 'auction_closings.create', 'auction_closings.edit', 'auction_reports.view'] as $name) {
+        foreach (['marketing_campaigns.view', 'marketing_campaigns.create', 'marketing_campaigns.edit', 'marketing_campaigns.delete', 'auction_closings.view', 'auction_closings.create', 'auction_closings.edit'] as $name) {
             $user->givePermissionTo(Permission::firstOrCreate(['name' => $name, 'guard_name' => 'tenant']));
         }
         $this->actingAs($user, 'tenant');
@@ -43,17 +43,10 @@ final class AuctionReportCycleHttpTest extends TenantAuctionReportTestCase
         if (getenv('AUCTION_REPORT_UI_PROOF')) {
             file_put_contents(base_path('output/cycle-review/closing-form.html'), $closing->getContent());
         }
-        $this->get(tenant_route_name('auction-reports.index'))->assertOk();
         $this->get(tenant_route_name('auctions.show', $auction))->assertOk()->assertSee('الحملات التسويقية');
         $campaign = $auction->marketingCampaigns()->first();
         $this->get(tenant_route_name('marketing-campaigns.edit', $campaign))->assertOk();
-        $index = fn () => $this->getJson(tenant_route_name('auction-reports.index').'?draw=1&start=0&length=1000', ['X-Requested-With' => 'XMLHttpRequest'])->assertOk();
-        $response = $index();
-        $rows = collect($response->json('data'))->filter(fn ($row) => str_starts_with($row['DT_RowId'] ?? '', 'report-'.$auction->id.'-'));
-        self::assertCount(2, $rows, $response->getContent());
-        self::assertCount(2, $rows->pluck('DT_RowId')->unique());
         app(AuctionReportService::class)->retryLatest($auction, (string) tenant('id'));
-        self::assertCount(2, collect($index()->json('data'))->filter(fn ($row) => str_starts_with($row['DT_RowId'] ?? '', 'report-'.$auction->id.'-')));
         $this->withExceptionHandling();
         $this->postJson(tenant_route_name('marketing-campaigns.store'), ['auction_id' => $auction->id, 'channel' => ['x'], 'metrics' => 'invalid'])->assertUnprocessable();
         $this->postJson(tenant_route_name('marketing-campaigns.store'), ['auction_id' => $auction->id, 'channel' => 'whatsapp', 'metrics' => 'invalid'])->assertUnprocessable();
@@ -68,10 +61,7 @@ final class AuctionReportCycleHttpTest extends TenantAuctionReportTestCase
         $this->put(tenant_route_name('auction-closings.update', $auction), ['closing_date' => now()->toDateString(), 'results' => [$property->id => ['status' => 'sold', 'buyer_name' => 'Buyer', 'sale_price' => 500]]])->assertRedirect(tenant_route_name('auctions.show', $auction));
         $this->postJson(tenant_route_name('auctions.reports.retry', $auction))->assertStatus(202);
         $this->postJson(tenant_route_name('marketing-campaigns.store'), ['auction_id' => $auction->id, 'channel' => 'x', 'metrics' => ['views' => 0]])->assertUnprocessable();
-        $ended = $this->getJson(tenant_route_name('auction-reports.index').'?draw=1&length=1000&content_status=ended', ['X-Requested-With' => 'XMLHttpRequest'])->assertOk();
-        self::assertCount(2, collect($ended->json('data'))->filter(fn ($row) => str_starts_with($row['DT_RowId'] ?? '', 'report-'.$auction->id.'-')));
         $restricted = User::create(['name' => 'Restricted', 'email' => uniqid().'@report.test', 'password' => bcrypt('Fixture-only-123!'), 'status' => 'active']);
-        $this->actingAs($restricted, 'tenant')->get(tenant_route_name('auction-reports.index'))->assertForbidden();
-        $this->postJson(tenant_route_name('marketing-campaigns.store'), ['auction_id' => $auction->id, 'channel' => 'x', 'metrics' => ['views' => 0]])->assertForbidden();
+        $this->actingAs($restricted, 'tenant')->postJson(tenant_route_name('marketing-campaigns.store'), ['auction_id' => $auction->id, 'channel' => 'x', 'metrics' => ['views' => 0]])->assertForbidden();
     }
 }

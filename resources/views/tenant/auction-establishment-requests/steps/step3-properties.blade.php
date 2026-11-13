@@ -20,7 +20,7 @@
         <div class="card assignment-properties-table-card border shadow-none mb-0">
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-3 bg-light-subtle">
                 <div>
-                    <h5 class="mb-0 fw-bold">عقارات المزاد المطلوب إقامته</h5>
+                    <h5 class="mb-0 fw-bold"><i class="ti ti-building me-1 text-primary"></i>عقارات المزاد المطلوب إقامته</h5>
                     <small class="text-muted">استكمل بيانات وتفاصيل جميع العقارات لتقديم طلب إقامة المزاد.</small>
                 </div>
                 <div class="d-flex flex-wrap gap-2 text-start">
@@ -130,15 +130,15 @@
         aria-labelledby="property-modal-label-{{ $propertyData['property_id'] }}"
         aria-hidden="true"
         data-bs-backdrop="static">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header border-bottom">
-                    <div class="d-flex align-items-center gap-2">
+                <div class="modal-header border-bottom py-3">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
                         <i class="ti ti-building fs-4 text-primary"></i>
                         <h5 class="modal-title fw-bold mb-0" id="property-modal-label-{{ $propertyData['property_id'] }}">
                             استكمال بيانات العقار: {{ $property?->name ?? 'عقار' }}
                         </h5>
-                        <span class="badge bg-label-primary">{{ $property?->property_number ?? '-' }}</span>
+                        <code class="copyable-code">{{ $property?->property_number ?? '-' }}</code>
                         <span class="badge bg-label-info">{{ $property?->type_label ?? '-' }}</span>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>

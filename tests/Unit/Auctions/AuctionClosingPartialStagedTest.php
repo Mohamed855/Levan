@@ -173,7 +173,7 @@ final class AuctionClosingPartialStagedTest extends TestCase
         $this->assertStringContainsString('data-regulatory-form="establishment"', $html);
         $this->assertStringContainsString('data-regulatory-form="closing"', $html);
         $this->assertStringContainsString('data-actionable="0"', $html);
-        $this->assertStringContainsString('يرجى حفظ وتقديم طلب إقامة المزاد لتوليد النموذج.', $html);
+        $this->assertStringContainsString('يرجى إكمال طلب إقامة المزاد لتوليد النموذج.', $html);
         $this->assertStringContainsString('يرجى اعتماد طلب إقامة المزاد أولاً لتتمكن من إقفال المزاد وتوليد النموذج.', $html);
 
         // 2. Unapproved establishment request: establishment is actionable, closing disabled with approval alert
@@ -193,7 +193,7 @@ final class AuctionClosingPartialStagedTest extends TestCase
         $this->assertStringContainsString('data-regulatory-form="establishment"', $html2);
         $this->assertStringContainsString('يرجى اعتماد طلب إقامة المزاد أولاً لتتمكن من إقفال المزاد وتوليد النموذج.', $html2);
 
-        // 3. Approved request, but closing not complete: closing card has 'برجاء إكمال الإقفال لتوليد نموذج الإقفال.' alert
+        // 3. Approved request, but closing not complete: closing card has 'برجاء إكمال الإقفال لتوليد النموذج.' alert
         $approvedRequest = new class extends Model
         {
             public array $data = ['properties' => []];
@@ -207,7 +207,7 @@ final class AuctionClosingPartialStagedTest extends TestCase
         $auction->setRelation('establishmentRequest', $approvedRequest);
 
         $html3 = view('tenant.auctions.partials.regulatory-forms', ['auction' => $auction])->render();
-        $this->assertStringContainsString('برجاء إكمال الإقفال لتوليد نموذج الإقفال.', $html3);
+        $this->assertStringContainsString('برجاء إكمال الإقفال لتوليد النموذج.', $html3);
 
         // 4. Fully closed auction with saved closing: closing becomes actionable (data-actionable="1")
         $closing = new class extends Model
@@ -226,7 +226,7 @@ final class AuctionClosingPartialStagedTest extends TestCase
         }, ['sold'])));
 
         $html4 = view('tenant.auctions.partials.regulatory-forms', ['auction' => $auction])->render();
-        $this->assertStringNotContainsString('برجاء إكمال الإقفال لتوليد نموذج الإقفال.', $html4);
+        $this->assertStringNotContainsString('برجاء إكمال الإقفال لتوليد النموذج.', $html4);
         $this->assertStringContainsString('data-actionable="1"', $html4);
     }
 

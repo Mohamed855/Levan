@@ -17,21 +17,25 @@
 
 @foreach ($formTypes as $formType => $formOptions)
     @php
-        $canRegenerateForm = ! auth('tenant')->check() || (bool) auth('tenant')->user()?->can($formOptions['permission'] . '.regenerate');
+        $canRegenerateForm =
+            !auth('tenant')->check() ||
+            (bool) auth('tenant')
+                ->user()
+                ?->can($formOptions['permission'] . '.regenerate');
         $isActionable = false;
         $disabledAlert = null;
 
         if ($formType === 'establishment') {
-            if ($savedRequest?->exists && is_array($savedRequest->data) && ! empty($savedRequest->data)) {
+            if ($savedRequest?->exists && is_array($savedRequest->data) && !empty($savedRequest->data)) {
                 $isActionable = true;
             } else {
-                $disabledAlert = 'يرجى حفظ وتقديم طلب إقامة المزاد لتوليد النموذج.';
+                $disabledAlert = 'يرجى إكمال طلب إقامة المزاد لتوليد النموذج.';
             }
         } elseif ($formType === 'closing') {
-            if (! $savedRequest?->isApproved()) {
+            if (!$savedRequest?->isApproved()) {
                 $disabledAlert = 'يرجى اعتماد طلب إقامة المزاد أولاً لتتمكن من إقفال المزاد وتوليد النموذج.';
-            } elseif (! $auction->isClosed() || ! $auction->closing?->saved_at) {
-                $disabledAlert = 'برجاء إكمال الإقفال لتوليد نموذج الإقفال.';
+            } elseif (!$auction->isClosed() || !$auction->closing?->saved_at) {
+                $disabledAlert = 'برجاء إكمال الإقفال لتوليد النموذج.';
             } else {
                 $isActionable = true;
             }
@@ -41,23 +45,22 @@
         $publishedForm = $isActionable ? $formService->published($auction, $formType) : null;
         $formProcessing = $isActionable && (bool) $formGeneration?->isProcessing();
         $hasPublishedForm = $isActionable && (bool) $publishedForm?->isReady();
-        $formReadyToDownload = $isActionable && ! $formProcessing && $hasPublishedForm;
-        $formFailed = $isActionable && ! $formProcessing && $formGeneration?->status === 'failed';
+        $formReadyToDownload = $isActionable && !$formProcessing && $hasPublishedForm;
+        $formFailed = $isActionable && !$formProcessing && $formGeneration?->status === 'failed';
         $formPrepStatus = $isActionable
             ? \App\Enums\Tenants\Auctions\AuctionFilePreparationStatus::resolve(
                 $formGeneration?->status,
                 $hasPublishedForm,
             )
             : \App\Enums\Tenants\Auctions\AuctionFilePreparationStatus::NOT_PREPARED;
-        $formProgress = ($isActionable && $formGeneration) ? max(0, min(100, (int) ($formGeneration->progress ?? 0))) : 0;
-        $formDownload = $isActionable ? tenant_route_name('auctions.forms.download', ['auction' => $auction->id, 'type' => $formType]) : null;
+        $formProgress = $isActionable && $formGeneration ? max(0, min(100, (int) ($formGeneration->progress ?? 0))) : 0;
+        $formDownload = $isActionable
+            ? tenant_route_name('auctions.forms.download', ['auction' => $auction->id, 'type' => $formType])
+            : null;
     @endphp
-    <div class="card mb-4" data-regulatory-form="{{ $formType }}"
-        data-actionable="{{ $isActionable ? '1' : '0' }}"
-        data-status="{{ $formGeneration?->status ?? 'none' }}"
-        data-generation-id="{{ $formGeneration?->id }}"
-        data-progress="{{ $formProgress }}"
-        data-has-file="{{ $hasPublishedForm ? '1' : '0' }}"
+    <div class="card mb-4" data-regulatory-form="{{ $formType }}" data-actionable="{{ $isActionable ? '1' : '0' }}"
+        data-status="{{ $formGeneration?->status ?? 'none' }}" data-generation-id="{{ $formGeneration?->id }}"
+        data-progress="{{ $formProgress }}" data-has-file="{{ $hasPublishedForm ? '1' : '0' }}"
         data-download-url="{{ $formDownload ?? '' }}"
         data-status-url="{{ tenant_route_name('auctions.forms.status', ['auction' => $auction->id, 'type' => $formType]) }}"
         data-retry-url="{{ tenant_route_name('auctions.forms.retry', ['auction' => $auction->id, 'type' => $formType]) }}">
@@ -65,10 +68,11 @@
             <h6 class="card-title mb-0">
                 <i class="ti {{ $formOptions['icon'] }} text-primary me-2"></i>{{ $formOptions['label'] }}
             </h6>
-            <span data-form-badge class="badge {{ $formPrepStatus->badgeClass() }}">{{ $formPrepStatus->label() }}</span>
+            <span data-form-badge
+                class="badge {{ $formPrepStatus->badgeClass() }}">{{ $formPrepStatus->label() }}</span>
         </div>
         <div class="card-body">
-            @if (! $isActionable && $disabledAlert)
+            @if (!$isActionable && $disabledAlert)
                 <div class="alert alert-warning p-2 small mb-3">
                     <i class="ti ti-alert-triangle me-1"></i>
                     <span>{{ $disabledAlert }}</span>
@@ -82,10 +86,12 @@
 
             <div data-form-timeout class="alert alert-warning p-2 small mb-3 d-none">
                 <i class="ti ti-clock-exclamation me-1"></i>
-                <span>انتهت المهلة المحددة لتحضير النموذج تلقائياً. يمكنك الضغط على زر إعادة التوليد للمحاولة مرة أخرى.</span>
+                <span>انتهت المهلة المحددة لتحضير النموذج تلقائياً. يمكنك الضغط على زر إعادة التوليد للمحاولة مرة
+                    أخرى.</span>
             </div>
 
-            <div data-form-loading class="p-3 mb-3 border rounded bg-light-subtle {{ $formProcessing ? '' : 'd-none' }}">
+            <div data-form-loading
+                class="p-3 mb-3 border rounded bg-light-subtle {{ $formProcessing ? '' : 'd-none' }}">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="fw-semibold small text-primary">
                         <i class="ti ti-loader ti-spin me-1"></i>جارٍ تحضير وتجهيز النموذج...
@@ -93,28 +99,24 @@
                     </span>
                     <span data-form-percent class="fw-bold text-primary small">{{ $formProgress }}%</span>
                 </div>
-                <div class="progress" style="height: 10px;" role="progressbar"
-                    aria-valuenow="{{ $formProgress }}" aria-valuemin="0" aria-valuemax="100"
-                    aria-label="تقدم تجهيز النموذج">
-                    <div data-form-progress
-                        class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                <div class="progress" style="height: 10px;" role="progressbar" aria-valuenow="{{ $formProgress }}"
+                    aria-valuemin="0" aria-valuemax="100" aria-label="تقدم تجهيز النموذج">
+                    <div data-form-progress class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
                         style="width: {{ $formProgress }}%;"></div>
                 </div>
             </div>
 
             <div class="d-grid gap-2">
-                <a data-form-download
-                    href="{{ $formReadyToDownload ? $formDownload : 'javascript:void(0)' }}"
+                <a data-form-download href="{{ $formReadyToDownload ? $formDownload : 'javascript:void(0)' }}"
                     class="btn btn-primary d-flex align-items-center justify-content-between {{ $formReadyToDownload ? '' : 'disabled' }}"
-                    @if (! $formReadyToDownload) disabled aria-disabled="true" @else aria-disabled="false" @endif>
+                    @if (!$formReadyToDownload) disabled aria-disabled="true" @else aria-disabled="false" @endif>
                     <span><i class="ti {{ $formOptions['icon'] }} me-2"></i>تحميل {{ $formOptions['label'] }}</span>
                     <i class="ti ti-download"></i>
                 </a>
-                <button type="button" data-form-retry
-                    class="btn btn-outline-primary mt-2"
-                    @disabled(! $isActionable || $formProcessing || ! $canRegenerateForm)
-                    @if (! $isActionable || $formProcessing || ! $canRegenerateForm) aria-disabled="true" @endif>
-                    <i data-form-retry-icon class="ti {{ $formProcessing ? 'ti-loader ti-spin' : 'ti-refresh' }} me-1"></i>
+                <button type="button" data-form-retry class="btn btn-outline-primary mt-2" @disabled(!$isActionable || $formProcessing || !$canRegenerateForm)
+                    @if (!$isActionable || $formProcessing || !$canRegenerateForm) aria-disabled="true" @endif>
+                    <i data-form-retry-icon
+                        class="ti {{ $formProcessing ? 'ti-loader ti-spin' : 'ti-refresh' }} me-1"></i>
                     <span data-form-retry-text>
                         {{ $formProcessing ? 'جارٍ التوليد...' : ($hasPublishedForm ? 'إعادة توليد النموذج' : ($formFailed ? 'إعادة محاولة التجهيز' : 'بدء تجهيز النموذج')) }}
                     </span>
@@ -131,14 +133,34 @@
             const ui = window.AuctionGenerationUI;
             const AUTO_TIMEOUT_MS = 45000;
             const MANUAL_TIMEOUT_MS = 68000;
-            const FORM_STAGES = [
-                { min: 0, label: '(في انتظار بدء المعالجة)' },
-                { min: 5, label: '(تمت الجدولة)' },
-                { min: 10, label: '(بدء المعالجة)' },
-                { min: 30, label: '(توليد ملف النموذج PDF)' },
-                { min: 85, label: '(التحقق من الملف)' },
-                { min: 95, label: '(حفظ النموذج)' },
-                { min: 100, label: '(اكتمل التجهيز)' },
+            const FORM_STAGES = [{
+                    min: 0,
+                    label: '(في انتظار بدء المعالجة)'
+                },
+                {
+                    min: 5,
+                    label: '(تمت الجدولة)'
+                },
+                {
+                    min: 10,
+                    label: '(بدء المعالجة)'
+                },
+                {
+                    min: 30,
+                    label: '(توليد ملف النموذج PDF)'
+                },
+                {
+                    min: 85,
+                    label: '(التحقق من الملف)'
+                },
+                {
+                    min: 95,
+                    label: '(حفظ النموذج)'
+                },
+                {
+                    min: 100,
+                    label: '(اكتمل التجهيز)'
+                },
             ];
 
             document.querySelectorAll('[data-regulatory-form]').forEach(function(card) {
@@ -295,7 +317,8 @@
                     ui.renderBadge(badge, ui.resolveStatusKey(state.status, ready));
                     syncDownloadButton(state);
 
-                    resetRetryButton(ready ? 'إعادة توليد النموذج' : (failed ? 'إعادة محاولة التجهيز' : 'بدء تجهيز النموذج'));
+                    resetRetryButton(ready ? 'إعادة توليد النموذج' : (failed ? 'إعادة محاولة التجهيز' :
+                        'بدء تجهيز النموذج'));
                     return false;
                 }
 
@@ -309,16 +332,17 @@
                         const elapsed = Date.now() - startTime;
                         if (elapsed >= timeoutLimit) {
                             stopPolling();
-                            const timeoutMsg = isManualRetry
-                                ? 'انتهت المهلة المحددة للتوليد اليدوي للنموذج. يمكنك المحاولة مجدداً.'
-                                : 'انتهت المهلة المحددة لتحضير النموذج تلقائياً. يمكنك الضغط على زر إعادة التوليد للمحاولة مرة أخرى.';
+                            const timeoutMsg = isManualRetry ?
+                                'انتهت المهلة المحددة للتوليد اليدوي للنموذج. يمكنك المحاولة مجدداً.' :
+                                'انتهت المهلة المحددة لتحضير النموذج تلقائياً. يمكنك الضغط على زر إعادة التوليد للمحاولة مرة أخرى.';
 
                             window.toastr?.error?.(timeoutMsg);
                             if (loadingBox) loadingBox.classList.add('d-none');
                             if (timeoutBox) timeoutBox.classList.remove('d-none');
                             ui.renderBadge(badge, 'not_prepared');
                             syncDownloadButton(null);
-                            resetRetryButton(lastKnownFile.has_file ? 'إعادة توليد النموذج' : 'إعادة محاولة التجهيز');
+                            resetRetryButton(lastKnownFile.has_file ? 'إعادة توليد النموذج' :
+                                'إعادة محاولة التجهيز');
                             return;
                         }
 
@@ -329,7 +353,9 @@
 
                         try {
                             const response = await fetch(card.dataset.statusUrl, {
-                                headers: { Accept: 'application/json' },
+                                headers: {
+                                    Accept: 'application/json'
+                                },
                                 credentials: 'same-origin'
                             });
                             if (!response.ok) {
@@ -376,13 +402,15 @@
                             headers: {
                                 'Content-Type': 'application/json',
                                 Accept: 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]')?.content || ''
                             }
                         });
 
                         const state = await response.json().catch(() => ({}));
                         if (!response.ok || state.status === 'failed') {
-                            showError(state.message || state.error_message || 'تعذر إعادة توليد النموذج. يرجى إعادة المحاولة.', state);
+                            showError(state.message || state.error_message ||
+                                'تعذر إعادة توليد النموذج. يرجى إعادة المحاولة.', state);
                             return;
                         }
 
@@ -410,7 +438,9 @@
                     startPolling(AUTO_TIMEOUT_MS, false, true);
                 }
 
-                window.addEventListener('pagehide', stopPolling, { once: true });
+                window.addEventListener('pagehide', stopPolling, {
+                    once: true
+                });
             });
         });
     </script>

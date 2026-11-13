@@ -29,14 +29,6 @@ final class AuctionReportManagementService
         return ['total' => $total, 'not_started' => $total - $saved - $ended, 'saved' => $saved, 'ended' => $ended];
     }
 
-    public function reportStatistics(): array
-    {
-        $total = Auction::count() * 2;
-        $complete = count(app(AuctionMarketingCompleteness::class)->completeAuctionIds()) * 2;
-
-        return ['total' => $total, 'incomplete' => $total - $complete, 'complete' => $complete];
-    }
-
     public function editableAuctions(): array
     {
         return Auction::query()->open()->orderByDesc('id')->get(['id', 'name'])->map(fn ($auction) => ['value' => $auction->id, 'label' => $auction->name])->all();

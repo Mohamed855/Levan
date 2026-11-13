@@ -117,7 +117,7 @@ class AuctionsDataTable extends AbstractDataTable
                     }
                 }
 
-                return $status->badgeHtml();
+                return '<span class="text-muted">—</span>';
             })
             ->addColumn('status_badge', function ($row): string {
                 return '<span class="badge '.$row->status_badge_class.'">'.e($row->status_label).'</span>';

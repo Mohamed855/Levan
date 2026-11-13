@@ -41,7 +41,7 @@ final class AuctionCyclePresentationTest extends TenantAuctionReportTestCase
         }
         Queue::fake();
         app(SaveMarketingCampaignAction::class)->execute(null, ['auction_id' => $auction->id, 'channel' => 'x', 'metrics' => ['views' => 0]], null);
-        foreach (['marketing-campaigns' => 'إجمالي الحملات', 'auction-closings' => 'مزادات لم تُقفل', 'auction-reports' => 'إجمالي التقارير'] as $resource => $label) {
+        foreach (['marketing-campaigns' => 'إجمالي الحملات', 'auction-closings' => 'مزادات لم تُقفل'] as $resource => $label) {
             $response = $this->get(tenant_route_name($resource.'.index'))->assertOk()->assertSee($label);
             if ($resource === 'marketing-campaigns') {
                 $response->assertSee(tenant_route_name('marketing-campaigns.create'), false);

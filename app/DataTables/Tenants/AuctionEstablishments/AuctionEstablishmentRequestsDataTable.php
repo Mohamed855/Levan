@@ -7,6 +7,7 @@ namespace App\DataTables\Tenants\AuctionEstablishments;
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\AuctionEstablishments\AuctionEstablishmentRequest;
 use App\Models\Tenants\Auctions\Auction;
+use App\Models\Tenants\Auctions\AuctionFormGeneration;
 
 final class AuctionEstablishmentRequestsDataTable extends AbstractDataTable
 {
@@ -18,6 +19,7 @@ final class AuctionEstablishmentRequestsDataTable extends AbstractDataTable
     protected function resource()
     {
         return Auction::query()->select(['id', 'assignment_id', 'name', 'city', 'cover_image', 'created_at'])
+            ->addSelect(['establishment_form_id' => AuctionFormGeneration::query()->select('id')->whereColumn('auction_id', 'auctions.id')->where('type', 'establishment')->where('status', 'ready')->whereNotNull('file_path')->latest('id')->limit(1)])
             ->with(['assignment.issuingEntity', 'properties:id', 'establishmentRequest' => fn ($query) => $query->select(['id', 'auction_id', 'submitted_at', 'approved_at', 'approval_number'])])
             ->withCount('properties');
     }
@@ -34,6 +36,7 @@ final class AuctionEstablishmentRequestsDataTable extends AbstractDataTable
             ['data' => 'properties_count', 'name' => 'properties_count', 'title' => 'عدد العقارات', 'width' => '90px', 'className' => 'text-center'],
             ['data' => 'request_status', 'name' => 'request_status', 'title' => 'حالة الطلب', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
             ['data' => 'approval_number', 'name' => 'establishmentRequest.approval_number', 'title' => 'رقم الموافقة', 'orderable' => false, 'width' => '140px'],
+            ['data' => 'establishment_model', 'name' => 'establishment_model', 'title' => 'نموذج الطلب', 'orderable' => false, 'searchable' => false, 'width' => '110px', 'className' => 'text-center'],
             ['data' => 'submitted_at', 'name' => 'submitted_at', 'title' => 'تاريخ تقديم الطلب', 'orderable' => true, 'searchable' => false, 'className' => 'text-center'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
@@ -57,6 +60,13 @@ final class AuctionEstablishmentRequestsDataTable extends AbstractDataTable
                 return $row->establishmentRequest->isApproved() ? '<span class="badge bg-label-success">معتمد</span>' : '<span class="badge bg-label-warning">قيد المراجعة</span>';
             })
             ->addColumn('approval_number', fn ($row): string => $this->copyableCode($row->establishmentRequest?->approval_number))
+            ->addColumn('establishment_model', function ($row): string {
+                if (! ($row->establishment_form_id ?? null) || ! auth('tenant')->user()?->can('auction_establishment_requests.view')) {
+                    return '<span class="text-muted">—</span>';
+                }
+
+                return '<a href="'.e(tenant_route_name('auctions.forms.download', ['auction' => $row->id, 'type' => 'establishment'])).'" class="badge bg-secondary" title="تحميل نموذج طلب إقامة المزاد"><i class="ti ti-file-text me-1"></i>نموذج الطلب</a>';
+            })
             ->addColumn('submitted_at', fn ($row): string => $this->formatDate($row->establishmentRequest?->submitted_at))
             ->orderColumn('submitted_at', function ($query, $order): void {
                 $direction = strtolower((string) $order) === 'desc' ? 'desc' : 'asc';
@@ -72,7 +82,7 @@ final class AuctionEstablishmentRequestsDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'image', 'name', 'assignment_number', 'properties_count', 'request_status', 'approval_number', 'actions'];
+        return ['checkbox', 'image', 'name', 'assignment_number', 'properties_count', 'request_status', 'approval_number', 'establishment_model', 'actions'];
     }
 
     protected function filterableColumns(): array
@@ -82,7 +92,7 @@ final class AuctionEstablishmentRequestsDataTable extends AbstractDataTable
 
     protected function getCustomOrder(): array
     {
-        return [9, 'desc'];
+        return [10, 'desc'];
     }
 
     protected function applyCustomFilters($query)

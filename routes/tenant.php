@@ -16,7 +16,6 @@ use App\Http\Controllers\Tenants\AuctionClosings\AuctionClosingsController;
 use App\Http\Controllers\Tenants\AuctionEstablishments\AuctionEstablishmentRequestsController;
 use App\Http\Controllers\Tenants\Auctions\AuctionRegulatoryFormsController;
 use App\Http\Controllers\Tenants\Auctions\AuctionReportController;
-use App\Http\Controllers\Tenants\Auctions\AuctionReportsController;
 use App\Http\Controllers\Tenants\Auctions\AuctionsController;
 use App\Http\Controllers\Tenants\Bills\BillsController;
 use App\Http\Controllers\Tenants\ChartSetting\ChartSettingController;
@@ -315,7 +314,6 @@ Route::middleware(['auth:tenant', EnsureInitialPasswordChanged::class.':tenant',
         Route::match(['put', 'post'], 'auction-establishment-requests/{auction}', [AuctionEstablishmentRequestsController::class, 'update'])->name('auction-establishment-requests.update');
         Route::post('auction-establishment-requests/{auction}/approve', [AuctionEstablishmentRequestsController::class, 'approve'])->name('auction-establishment-requests.approve');
         Route::get('auction-establishment-requests/{auction}/attachments/{type}/{property?}', [AuctionEstablishmentRequestsController::class, 'attachment'])->whereNumber('property')->name('auction-establishment-requests.attachment');
-        Route::get('auction-reports', [AuctionReportsController::class, 'index'])->name('auction-reports.index');
         Route::resource('auctions', AuctionsController::class)
             ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
 

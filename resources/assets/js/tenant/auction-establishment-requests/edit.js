@@ -109,6 +109,17 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        const reviewBadge = form.querySelector(`[data-review-badge="${propertyId}"]`);
+        if (reviewBadge) {
+            if (isComplete) {
+                reviewBadge.className = "badge bg-label-success property-review-status-badge";
+                reviewBadge.innerHTML = '<i class="ti ti-check me-1"></i>مكتمل';
+            } else {
+                reviewBadge.className = "badge bg-label-warning property-review-status-badge";
+                reviewBadge.innerHTML = '<i class="ti ti-alert-triangle me-1"></i>بيانات ناقصة';
+            }
+        }
+
         if (row) {
             row.classList.toggle("table-success-subtle", isComplete);
         }
@@ -130,6 +141,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const countEl = document.getElementById("completed-establishment-props-count");
         if (countEl) {
             countEl.textContent = String(completedCount);
+        }
+
+        const reviewCountEl = document.getElementById("review-selected-props-count");
+        if (reviewCountEl) {
+            const total = modalBodies.length;
+            reviewCountEl.textContent = `${completedCount} من ${total} مكتمل`;
         }
     };
 
@@ -367,7 +384,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setReview("review-disclosures-rights", rightsLabels.join("، ") || "—");
         setReview("review-declaration-rep", getVal("data[declaration][representative_name]"));
 
-        // Step 5: Attachments count
+        // Step 5: Attachments count & review badges
         const filesCount = form.querySelectorAll('input[type="file"]').length;
         let selectedFilesCount = 0;
         form.querySelectorAll('input[type="file"]').forEach((f) => {
@@ -375,7 +392,68 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const existingLinks = form.querySelectorAll('a[href*="attachments"]').length;
         setReview("review-attachments-summary", `${existingLinks} مرفق مسجل سابقاً${selectedFilesCount > 0 ? ` + ${selectedFilesCount} ملف جديد محدد للرفع` : ""}`);
+
+        ["manager_certificate", "auctioneer_certificate"].forEach((type) => {
+            const fileInput = form.querySelector(`[name="attachments[${type}]"]`);
+            const fileBadge = form.querySelector(`[data-review-file-badge="${type}"]`);
+            if (fileBadge) {
+                if (fileInput?.files?.[0]) {
+                    fileBadge.className = "badge bg-label-success";
+                    fileBadge.textContent = "محدد للرفع: " + fileInput.files[0].name;
+                }
+            }
+        });
     };
+
+    // Intercept Next button click on Step 3 (Properties) to enforce completeness
+    const propertiesStep = document.getElementById("step-establishment-properties");
+    if (propertiesStep) {
+        const nextBtn = propertiesStep.querySelector(".btn-next, [data-form-next]");
+        if (nextBtn) {
+            nextBtn.addEventListener("click", (e) => {
+                const modalBodies = form.querySelectorAll("[data-property-modal-body]");
+                const totalProperties = modalBodies.length;
+                let completedCount = 0;
+                let firstIncompleteId = null;
+
+                modalBodies.forEach((body) => {
+                    const propertyId = body.dataset.propertyModalBody;
+                    if (checkPropertyCompleteness(propertyId)) {
+                        completedCount++;
+                    } else if (!firstIncompleteId) {
+                        firstIncompleteId = propertyId;
+                    }
+                });
+
+                if (completedCount < totalProperties) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+
+                    const message = `يرجى استكمال بيانات جميع عقارات المزاد قبل المتابعة (${completedCount} من ${totalProperties} عقار مكتمل).`;
+                    if (window.toastr?.warning) {
+                        window.toastr.warning(message);
+                    } else if (window.toastr?.error) {
+                        window.toastr.error(message);
+                    }
+
+                    if (firstIncompleteId) {
+                        const row = form.querySelector(`[data-property-row="${firstIncompleteId}"]`);
+                        if (row) {
+                            row.scrollIntoView({ behavior: "smooth", block: "center" });
+                            row.classList.add("table-warning");
+                            setTimeout(() => row.classList.remove("table-warning"), 2000);
+                        }
+                        const modalEl = document.getElementById(`property-details-modal-${firstIncompleteId}`);
+                        if (modalEl && window.bootstrap && window.bootstrap.Modal) {
+                            const modalInstance = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+                            modalInstance.show();
+                        }
+                    }
+                    return false;
+                }
+            }, true);
+        }
+    }
 
     setupConditionalFields();
     updateAllPropertiesCompleteness();
@@ -395,4 +473,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     form.addEventListener("input", updateReviewCardValues);
+    form.addEventListener("change", (e) => {
+        if (e.target?.type === "file") {
+            updateReviewCardValues();
+        }
+    });
 });

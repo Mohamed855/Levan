@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Auctions;
 
+use App\DataTables\Tenants\AuctionEstablishments\AuctionEstablishmentRequestsDataTable;
 use App\Http\Requests\Tenants\AuctionEstablishments\ApproveAuctionEstablishmentRequest;
 use App\Http\Requests\Tenants\AuctionEstablishments\SaveAuctionEstablishmentRequest;
 use App\Models\Tenants\AuctionEstablishments\AuctionEstablishmentRequest;
+use App\Models\Tenants\Auctions\Auction;
+use App\Models\Tenants\UserMangment\User\User as TenantUser;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
 
@@ -66,9 +70,9 @@ final class AuctionEstablishmentRequestTest extends TestCase
         self::assertSame('000123', Validator::make(['approval_number' => '000123'], $rules)->validated()['approval_number']);
     }
 
-    public function test_establishment_requests_datatable_has_checkbox_column(): void
+    public function test_establishment_requests_datatable_has_checkbox_and_model_columns(): void
     {
-        $dataTable = app(\App\DataTables\Tenants\AuctionEstablishments\AuctionEstablishmentRequestsDataTable::class);
+        $dataTable = app(AuctionEstablishmentRequestsDataTable::class);
         $columns = $dataTable->html()->getColumns();
 
         self::assertNotEmpty($columns);
@@ -79,11 +83,62 @@ final class AuctionEstablishmentRequestTest extends TestCase
         self::assertNotNull($approvalColumn);
         self::assertSame('establishmentRequest.approval_number', $approvalColumn['name']);
 
+        $modelColumn = collect($columns)->firstWhere('data', 'establishment_model');
+        self::assertNotNull($modelColumn);
+        self::assertSame('نموذج الطلب', $modelColumn['title']);
+
         $reflector = new \ReflectionClass($dataTable);
         $rawColumnsMethod = $reflector->getMethod('rawColumns');
         $rawColumnsMethod->setAccessible(true);
         $rawColumns = $rawColumnsMethod->invoke($dataTable);
         self::assertContains('approval_number', $rawColumns);
+        self::assertContains('establishment_model', $rawColumns);
+
+        $orderMethod = $reflector->getMethod('getCustomOrder');
+        $orderMethod->setAccessible(true);
+        $order = $orderMethod->invoke($dataTable);
+        self::assertSame([10, 'desc'], $order);
+    }
+
+    public function test_establishment_requests_datatable_model_callback(): void
+    {
+        $dataTable = app(AuctionEstablishmentRequestsDataTable::class);
+        $fakeDataTable = new class
+        {
+            public array $addedColumns = [];
+
+            public function addColumn(string $name, $callback): self
+            {
+                $this->addedColumns[$name] = $callback;
+
+                return $this;
+            }
+
+            public function editColumn(string $name, $callback): self
+            {
+                return $this;
+            }
+
+            public function orderColumn(string $name, $callback): self
+            {
+                return $this;
+            }
+        };
+
+        $reflector = new \ReflectionClass($dataTable);
+        $addCustomColumns = $reflector->getMethod('addCustomColumns');
+        $addCustomColumns->setAccessible(true);
+        $addCustomColumns->invoke($dataTable, $fakeDataTable);
+
+        self::assertArrayHasKey('establishment_model', $fakeDataTable->addedColumns);
+
+        // When establishment_form_id is missing or user cannot view
+        $dummyRow = new \stdClass;
+        $dummyRow->id = 1;
+        $dummyRow->establishment_form_id = null;
+        $html = ($fakeDataTable->addedColumns['establishment_model'])($dummyRow);
+        self::assertStringContainsString('text-muted', $html);
+        self::assertStringContainsString('—', $html);
     }
 
     public function test_establishment_request_validates_saudi_mobile_and_identity_and_numbers(): void
@@ -123,5 +178,27 @@ final class AuctionEstablishmentRequestTest extends TestCase
 
         $vRefundValid = Validator::make(['data' => ['funds' => ['refund_days' => 3]]], ['data.funds.refund_days' => $rules['data.funds.refund_days']], $messages, $attributes);
         self::assertFalse($vRefundValid->fails());
+    }
+
+    public function test_establishment_request_partial_renders_approval_number_as_copyable(): void
+    {
+        $user = (new TenantUser)->forceFill(['id' => 10]);
+        $this->actingAs($user, 'tenant');
+        Gate::before(fn () => true);
+
+        $auction = new Auction;
+        $auction->id = 1;
+        $request = new AuctionEstablishmentRequest;
+        $request->approval_number = 'APP-12345';
+        $request->approved_at = now();
+        $auction->setRelation('establishmentRequest', $request);
+
+        $html = view('tenant.auctions.partials.establishment-request', ['auction' => $auction])->render();
+
+        self::assertStringContainsString('copyable-code-wrapper', $html);
+        self::assertStringContainsString('data-code="APP-12345"', $html);
+        self::assertStringContainsString('APP-12345', $html);
+        self::assertStringContainsString('copyable-code', $html);
+        self::assertStringContainsString('ti ti-copy', $html);
     }
 }
