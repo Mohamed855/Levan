@@ -100,7 +100,7 @@
             </x-form.wizard.actions>
         </x-form.wizard.step>
 
-        {{-- الخطوة 5: المراجعة والإرسال --}}
+        {{-- الخطوة 5: المراجعة --}}
         <x-form.wizard.step id="step-review" :fields="[]">
             @include('tenant.auctions.partials.steps.step7-review', ['auction' => $auction])
 

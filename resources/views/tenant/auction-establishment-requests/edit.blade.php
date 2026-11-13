@@ -3,19 +3,11 @@
 @section('title', 'طلب إقامة مزاد: ' . $auction->name)
 
 @section('vendor-style')
-    @vite([
-        'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss',
-        'resources/assets/vendor/libs/flatpickr/flatpickr.scss',
-        'resources/assets/vendor/libs/select2/select2.scss',
-    ])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite([
-        'resources/assets/vendor/libs/bs-stepper/bs-stepper.js',
-        'resources/assets/vendor/libs/flatpickr/flatpickr.js',
-        'resources/assets/vendor/libs/select2/select2.js',
-    ])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('page-style')
@@ -23,10 +15,7 @@
 @endsection
 
 @section('page-script')
-    @vite([
-        'resources/assets/js/shared/form-validation.js',
-        'resources/assets/js/tenant/auction-establishment-requests/edit.js',
-    ])
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenant/auction-establishment-requests/edit.js'])
 @endsection
 
 @section('content')
@@ -39,7 +28,7 @@
             ['id' => 'step-establishment-properties', 'title' => 'بيانات العقارات'],
             ['id' => 'step-disclosures', 'title' => 'الإفصاحات والتعهدات'],
             ['id' => 'step-attachments', 'title' => 'المرفقات والمستندات'],
-            ['id' => 'step-review', 'title' => 'المراجعة والإرسال'],
+            ['id' => 'step-review', 'title' => 'المراجعة'],
         ];
     @endphp
 
@@ -47,8 +36,8 @@
         <div class="col-12 mb-6">
             <x-form.wizard.stepper id="wizard-validation" class="mt-2" :steps="$steps">
                 <form id="establishment-request-form"
-                    action="{{ tenant_route_name('auction-establishment-requests.update', $auction) }}"
-                    method="POST" enctype="multipart/form-data" autocomplete="off" data-form-validate
+                    action="{{ tenant_route_name('auction-establishment-requests.update', $auction) }}" method="POST"
+                    enctype="multipart/form-data" autocomplete="off" data-form-validate
                     data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
                     data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
                     data-draft-file-url="{{ tenant_route_name('wizard-drafts.file.destroy') }}"
@@ -64,7 +53,7 @@
                         ])
 
                         <x-form.wizard.actions>
-                            <x-form.wizard.previous-button :href="tenant_route_name('auctions.show', $auction)" text="العودة للمزاد" />
+                            <x-form.wizard.previous-button />
                             <div class="d-flex gap-2">
                                 <x-form.wizard.draft-button />
                                 <x-form.wizard.next-button />
@@ -141,7 +130,7 @@
                         </x-form.wizard.actions>
                     </x-form.wizard.step>
 
-                    {{-- الخطوة 6: المراجعة والإرسال --}}
+                    {{-- الخطوة 6: المراجعة --}}
                     <x-form.wizard.step id="step-review" :fields="['declaration_accepted']">
                         @include('tenant.auction-establishment-requests.steps.step6-review', [
                             'auction' => $auction,

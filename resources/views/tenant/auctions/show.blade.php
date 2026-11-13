@@ -4,12 +4,39 @@
 
 
 @section('content')
+    @php
+        $establishment = $auction->establishmentRequest;
+        $canApproveEstablishment =
+            $establishment &&
+            !$establishment->isApproved() &&
+            !$auction->isClosed() &&
+            auth('tenant')->user()?->can('auction_establishment_requests.approve');
+
+        $canCloseAuction =
+            !$auction->isClosed() &&
+            $establishment?->isApproved() &&
+            auth('tenant')
+                ->user()
+                ?->can($auction->closing ? 'auction_closings.edit' : 'auction_closings.create');
+    @endphp
+
     <div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-2">
         <div class="d-flex gap-2 flex-wrap">
             <a href="{{ tenant_route_name(auth('tenant')->user()->can('auctions.view') ? 'auctions.index' : (auth('tenant')->user()->can('auction_establishment_requests.view') ? 'auction-establishment-requests.index' : 'auction-closings.index')) }}"
                 class="btn btn-secondary">
                 <i class="ti ti-arrow-right me-1"></i> العودة
             </a>
+            @if ($canApproveEstablishment)
+                <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                    data-bs-target="#approveEstablishmentModal">
+                    <i class="ti ti-check me-1"></i> اعتماد طلب المزاد
+                </button>
+            @endif
+            @if ($canCloseAuction)
+                <a href="{{ tenant_route_name('auction-closings.edit', $auction) }}" class="btn btn-label-primary">
+                    <i class="ti ti-lock me-1"></i> إقفال المزاد
+                </a>
+            @endif
             @can('auctions.edit')
                 @if (!$auction->isClosed())
                     <a href="{{ tenant_route_name('auctions.edit', $auction->id) }}" class="btn btn-primary">
@@ -219,19 +246,33 @@
                     <span class="badge bg-label-primary">{{ $auction->properties->count() }} عقار</span>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
+                    <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
+                                <th style="width: 60px;" class="text-center">الصورة</th>
                                 <th>رقم الأصل</th>
                                 <th>اسم العقار</th>
                                 <th>النوع</th>
                                 <th>المساحة</th>
                                 <th>القيمة التقديرية</th>
+                                <th style="width: 80px;" class="text-center">الإجراء</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @php
+                                $propFallbackImage = asset('static/brand/logos/logo.svg');
+                            @endphp
                             @forelse($auction->properties as $prop)
+                                @php
+                                    $propImage = $prop->main_image_url ?? ($prop->image_url ?? $propFallbackImage);
+                                @endphp
                                 <tr>
+                                    <td class="text-center">
+                                        <img src="{{ $propImage }}" class="rounded"
+                                            style="width: 36px; height: 36px; object-fit: cover;"
+                                            alt="{{ $prop->name }}"
+                                            onerror="this.onerror=null;this.src='{{ $propFallbackImage }}';">
+                                    </td>
                                     <td><code>{{ $prop->property_number }}</code></td>
                                     <td>
                                         <a href="{{ tenant_route_name('properties.show', $prop->id) }}"
@@ -242,10 +283,14 @@
                                     <td><span class="badge bg-label-info">{{ $prop->type_label }}</span></td>
                                     <td>{{ number_format((float) $prop->area) }} م²</td>
                                     <td>{{ number_format((float) $prop->estimated_value) }} ر.س</td>
+                                    <td class="text-center">
+                                        <x-actions.show :url="tenant_route_name('properties.show', $prop->id)" title="عرض تفاصيل العقار"
+                                            permission="properties.view" class="btn-icon btn-label-primary btn-sm" />
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">لم يتم إدراج عقارات في هذا
+                                    <td colspan="7" class="text-center py-4 text-muted">لم يتم إدراج عقارات في هذا
                                         المزاد
                                         بعد.</td>
                                 </tr>
@@ -445,6 +490,26 @@
             @endif
         </div>
     </div>
+
+    @if ($canApproveEstablishment)
+        <x-bootstrap.modal id="approveEstablishmentModal" title="اعتماد طلب إقامة المزاد" icon="ti-check"
+            bodyClass="mt-0 mb-0">
+            <form method="POST" data-form-validate
+                action="{{ tenant_route_name('auction-establishment-requests.approve', $auction) }}">
+                @csrf
+                <div class="row g-4">
+                    <x-form.controls.input type="number" name="approval_number" label="رقم الموافقة على إقامة المزاد"
+                        :value="old('approval_number')" required maxlength="255" col="col-12" />
+                </div>
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="ti ti-check me-1"></i>تأكيد الاعتماد
+                    </button>
+                </div>
+            </form>
+        </x-bootstrap.modal>
+    @endif
 @endsection
 
 @section('page-script')
@@ -548,12 +613,15 @@
                     lastKnownPublished = {
                         has_outputs: Boolean(data.has_outputs),
                         has_report: Boolean(data.has_report),
-                        outputs_download_url: data.outputs_download_url || btnOutputs?.dataset.downloadUrl || null,
+                        outputs_download_url: data.outputs_download_url || btnOutputs?.dataset.downloadUrl ||
+                            null,
                         report_download_url: data.report_download_url || btnReport?.dataset.downloadUrl || null,
                     };
                 }
-                setDownloadButtonState(btnOutputs, lastKnownPublished.has_outputs, lastKnownPublished.outputs_download_url);
-                setDownloadButtonState(btnReport, lastKnownPublished.has_report, lastKnownPublished.report_download_url);
+                setDownloadButtonState(btnOutputs, lastKnownPublished.has_outputs, lastKnownPublished
+                    .outputs_download_url);
+                setDownloadButtonState(btnReport, lastKnownPublished.has_report, lastKnownPublished
+                    .report_download_url);
             }
 
             function disableDownloadButtons() {

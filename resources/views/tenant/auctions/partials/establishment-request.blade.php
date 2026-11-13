@@ -9,11 +9,6 @@
                 ?->can(
                     $establishment ? 'auction_establishment_requests.edit' : 'auction_establishment_requests.create',
                 );
-        $canApproveEstablishment =
-            $establishment &&
-            !$establishment->isApproved() &&
-            !$auction->isClosed() &&
-            auth('tenant')->user()?->can('auction_establishment_requests.approve');
     @endphp
 
     <div class="card mb-4" id="auction-establishment-card">
@@ -23,16 +18,7 @@
             </h5>
             <div class="d-flex align-items-center flex-wrap gap-2">
                 @if ($canEditEstablishment)
-                    <x-actions.edit :url="tenant_route_name('auction-establishment-requests.edit', $auction)"
-                        :title="$establishment ? 'تعديل طلب إقامة المزاد' : 'تقديم طلب إقامة المزاد'"
-                        :icon="$establishment ? 'ti ti-edit' : 'ti ti-file-plus'" />
-                @endif
-
-                @if ($canApproveEstablishment)
-                    <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal"
-                        data-bs-target="#approveEstablishmentModal">
-                        <i class="ti ti-check me-1"></i>اعتماد الطلب
-                    </button>
+                    <x-actions.edit :url="tenant_route_name('auction-establishment-requests.edit', $auction)" :title="$establishment ? 'تعديل طلب إقامة المزاد' : 'تقديم طلب إقامة المزاد'" :icon="$establishment ? 'ti ti-edit' : 'ti ti-file-plus'" />
                 @endif
             </div>
         </div>
@@ -42,21 +28,14 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>الحالة</th>
                             <th>تاريخ تقديم الطلب</th>
                             <th>رقم الموافقة</th>
+                            <th>الحالة</th>
                             <th>تاريخ الاعتماد</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>
-                                @if ($establishment->isApproved())
-                                    <span class="badge bg-label-success">معتمد</span>
-                                @else
-                                    <span class="badge bg-label-warning">قيد المراجعة</span>
-                                @endif
-                            </td>
                             <td>@datetime($establishment->submitted_at)</td>
                             <td>
                                 @if ($establishment->isApproved() && filled($establishment->approval_number))
@@ -70,6 +49,13 @@
                                     <span class="text-muted">—</span>
                                 @else
                                     <span class="text-muted">بانتظار المراجعة</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($establishment->isApproved())
+                                    <span class="badge bg-label-success">معتمد</span>
+                                @else
+                                    <span class="badge bg-label-warning">قيد المراجعة</span>
                                 @endif
                             </td>
                             <td>
@@ -89,22 +75,4 @@
             </div>
         @endif
     </div>
-
-    @if ($canApproveEstablishment)
-        <x-bootstrap.modal id="approveEstablishmentModal" title="اعتماد طلب إقامة المزاد" icon="ti-check">
-            <form method="POST" data-form-validate
-                action="{{ tenant_route_name('auction-establishment-requests.approve', $auction) }}">
-                @csrf
-                <p class="text-muted">يحفظ الاعتماد بيانات الطلب ويمنع تعديلها.</p>
-                <div class="row g-4">
-                    <x-form.controls.input name="approval_number" label="رقم الموافقة على إقامة المزاد" :value="old('approval_number')"
-                        required maxlength="255" col="col-12" />
-                </div>
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn btn-success">اعتماد الطلب</button>
-                </div>
-            </form>
-        </x-bootstrap.modal>
-    @endif
 @endcan

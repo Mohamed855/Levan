@@ -258,8 +258,12 @@ final class AuctionWorkflowScenariosSeeder extends Seeder
                     'sale_price' => $property->pivot->sale_price,
                     'unsold_reason' => $property->pivot->unsold_reason,
                 ]])->all();
-                $this->saveRequest($auction, $actorId, $paths);
-                app(ApproveAuctionEstablishmentRequestAction::class)->execute($auction, '000900LEGACY', $actorId);
+                DB::table('auction_properties')
+                    ->where('auction_id', $auction->id)
+                    ->update(['result_status' => 'pending']);
+                $auction->unsetRelation('properties');
+                $this->saveRequest($auction->fresh(), $actorId, $paths);
+                app(ApproveAuctionEstablishmentRequestAction::class)->execute($auction->fresh(), '000900LEGACY', $actorId);
                 app(SaveAuctionClosingAction::class)->execute($auction->fresh(), [
                     'closing_date' => $auction->end_date->toDateString(), 'results' => $results,
                 ], $actorId);

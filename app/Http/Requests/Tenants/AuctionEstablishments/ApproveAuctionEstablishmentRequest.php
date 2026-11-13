@@ -17,4 +17,9 @@ final class ApproveAuctionEstablishmentRequest extends FormRequest
     {
         return ['approval_number' => ['required', 'string', 'max:255', 'regex:/\S/u']];
     }
+
+    public function attributes(): array
+    {
+        return ['approval_number' => 'رقم الموافقة على إقامة المزاد'];
+    }
 }
