@@ -178,6 +178,23 @@ final class AuctionEstablishmentRequestTest extends TestCase
 
         $vRefundValid = Validator::make(['data' => ['funds' => ['refund_days' => 3]]], ['data.funds.refund_days' => $rules['data.funds.refund_days']], $messages, $attributes);
         self::assertFalse($vRefundValid->fails());
+
+        // 5. Contract number validation (accepts alphanumeric like assignment numbers ES-2026-DLMU)
+        $vContractAlphanumeric = Validator::make(
+            ['data' => ['properties' => [['contract_number' => 'ES-2026-DLMU']]]],
+            ['data.properties.*.contract_number' => $rules['data.properties.*.contract_number']],
+            $messages,
+            $attributes
+        );
+        self::assertFalse($vContractAlphanumeric->fails());
+
+        $vContractBlank = Validator::make(
+            ['data' => ['properties' => [['contract_number' => '']]]],
+            ['data.properties.*.contract_number' => $rules['data.properties.*.contract_number']],
+            $messages,
+            $attributes
+        );
+        self::assertTrue($vContractBlank->fails());
     }
 
     public function test_establishment_request_partial_renders_approval_number_as_copyable(): void
@@ -200,5 +217,39 @@ final class AuctionEstablishmentRequestTest extends TestCase
         self::assertStringContainsString('APP-12345', $html);
         self::assertStringContainsString('copyable-code', $html);
         self::assertStringContainsString('ti ti-copy', $html);
+    }
+
+    public function test_prepare_for_validation_normalizes_digits_and_preserves_alphanumeric_contract_number(): void
+    {
+        $payload = [
+            'data' => [
+                'manager' => ['mobile' => ' ٠٥٠١٢٣٤٥٦٧ ', 'identity_number' => '١٠٠٠٠٠٠٠٠١'],
+                'organization' => ['unified_number' => '٧٠٠١٢٣٤٥٦٧', 'commercial_registration' => '٠١٠١٢٣٤٥٦٧', 'fal_license' => '١٢٠٠٠٠٠٠٠١'],
+                'properties' => [
+                    [
+                        'contract_number' => '  ES-٢٠٢٦-DLMU  ',
+                        'deed_number' => '٠٠٠١٢٣٤٥٦٧٨٩',
+                        'area' => '١,٢٠٠.٥٠',
+                    ],
+                ],
+            ],
+        ];
+
+        $request = new SaveAuctionEstablishmentRequest;
+        $request->merge($payload);
+
+        $reflector = new \ReflectionMethod($request, 'prepareForValidation');
+        $reflector->setAccessible(true);
+        $reflector->invoke($request);
+
+        $prepared = $request->input('data');
+        self::assertSame('0501234567', $prepared['manager']['mobile']);
+        self::assertSame('1000000001', $prepared['manager']['identity_number']);
+        self::assertSame('7001234567', $prepared['organization']['unified_number']);
+        self::assertSame('0101234567', $prepared['organization']['commercial_registration']);
+        self::assertSame('1200000001', $prepared['organization']['fal_license']);
+        self::assertSame('ES-2026-DLMU', $prepared['properties'][0]['contract_number']);
+        self::assertSame('000123456789', $prepared['properties'][0]['deed_number']);
+        self::assertSame('1200.50', $prepared['properties'][0]['area']);
     }
 }

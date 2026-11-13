@@ -158,23 +158,30 @@
             <div class="col-lg-6">
                 <x-form.wizard.review-card title="شهادات مسؤولي المزاد" step="5" col="" class="h-100 assignment-review__card">
                     <section class="assignment-selection" aria-labelledby="review-certificates-title">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h6 id="review-certificates-title" class="mb-0">شهادات مسؤولي المزاد</h6>
+                            <span class="badge bg-primary">
+                                <span id="review-certificates-count">{{ ($data['attachments']['manager_certificate'][0] ?? null ? 1 : 0) + ($data['attachments']['auctioneer_certificate'][0] ?? null ? 1 : 0) }}</span>
+                                ملف
+                            </span>
+                        </div>
                         <div class="assignment-file-list" id="review-certificates-list">
+                            @php
+                                $hasAnyCert = false;
+                            @endphp
                             @foreach (['manager_certificate', 'auctioneer_certificate'] as $type)
                                 @php
                                     $existing = $data['attachments'][$type][0] ?? null;
                                     $attachmentUrl = $existing ? tenant_route_name('auction-establishment-requests.attachment', ['auction' => $auction, 'type' => $type]) : null;
                                 @endphp
                                 @if ($existing)
-                                    <div class="mb-2">
-                                        <x-ui.file-card :name="$existing['name']" :url="$attachmentUrl" :meta="$schema->attachmentTypes()[$type]" />
-                                    </div>
-                                @else
-                                    <div class="p-2 border rounded d-flex align-items-center justify-content-between small text-muted mb-2">
-                                        <span>{{ $schema->attachmentTypes()[$type] }}</span>
-                                        <span class="badge bg-label-warning" data-review-file-badge="{{ $type }}">بانتظار الرفع</span>
-                                    </div>
+                                    @php $hasAnyCert = true; @endphp
+                                    <x-ui.file-card :name="$existing['name']" :url="$attachmentUrl" :meta="$schema->attachmentTypes()[$type]" />
                                 @endif
                             @endforeach
+                            @if (!$hasAnyCert)
+                                <p class="text-muted mb-0" data-empty>لم يتم إرفاق شهادات بعد.</p>
+                            @endif
                         </div>
                     </section>
                 </x-form.wizard.review-card>

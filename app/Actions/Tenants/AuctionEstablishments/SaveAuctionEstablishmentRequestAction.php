@@ -29,10 +29,11 @@ final class SaveAuctionEstablishmentRequestAction
                 if ($auction->isClosed() || $request?->isApproved()) {
                     throw ValidationException::withMessages(['data' => 'لا يمكن تعديل طلب معتمد أو طلب مزاد مقفل.']);
                 }
-                Validator::make($input, (new SaveAuctionEstablishmentRequest)->rules())->validate();
+                $requestRules = new SaveAuctionEstablishmentRequest;
                 $schema = app(AuctionEstablishmentRequestData::class);
+                Validator::make($input, $requestRules->rules(), $requestRules->messages(), $schema->attributes())->validate();
                 $data = $schema->snapshot($auction, $input['data']);
-                Validator::make(['data' => $data], $schema->rules())->validate();
+                Validator::make(['data' => $data], $schema->rules(), $requestRules->messages(), $schema->attributes())->validate();
                 $rights = $data['disclosures']['disposition_rights'];
                 if ((in_array('none', $rights, true) && count($rights) > 1) || (in_array('other', $rights, true) && blank($data['disclosures']['disposition_right_other'] ?? null))) {
                     throw ValidationException::withMessages(['data.disclosures.disposition_rights' => 'تحقق من حقوق التصرف وتفاصيلها.']);

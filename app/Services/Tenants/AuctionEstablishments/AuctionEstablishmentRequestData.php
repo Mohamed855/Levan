@@ -61,7 +61,7 @@ final class AuctionEstablishmentRequestData
             'deed_number' => $this->field('رقم الصك / الصحيفة العقارية', 'text', true, [], ['string', 'max:50', 'regex:/^\d+$/'], ['inputmode' => 'numeric', 'pattern' => '[0-9]+', 'data-digits-only' => 'true', 'placeholder' => 'أدخل رقم الصك']),
             'agent_name' => $this->field('اسم الوكيل', 'text', false, [], ['string', 'max:255'], ['maxlength' => '255']),
             'agency_number' => $this->field('رقم الوكالة', 'text', false, [], ['string', 'max:50', 'regex:/^\d+$/'], ['inputmode' => 'numeric', 'pattern' => '[0-9]+', 'data-digits-only' => 'true', 'placeholder' => 'أدخل رقم الوكالة']),
-            'contract_number' => $this->field('رقم عقد المزاد', 'text', true, [], ['string', 'max:50', 'regex:/^\d+$/'], ['inputmode' => 'numeric', 'pattern' => '[0-9]+', 'data-digits-only' => 'true', 'placeholder' => 'أدخل رقم عقد المزاد']),
+            'contract_number' => $this->field('رقم الإسناد', 'text', true, [], ['string', 'max:100'], ['maxlength' => '100', 'placeholder' => 'أدخل رقم الإسناد']),
             'area' => $this->field('المساحة', 'number', true, [], ['numeric', 'gt:0', 'max:999999999'], ['min' => '0.01', 'step' => 'any', 'inputmode' => 'decimal']),
             'type' => $this->field('نوع العقار', 'text', true, [], ['string', 'max:100'], ['maxlength' => '100']),
             'usage' => $this->field('استخدام العقار', 'text', true, [], ['string', 'max:100'], ['maxlength' => '100']),

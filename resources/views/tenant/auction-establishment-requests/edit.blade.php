@@ -44,6 +44,9 @@
                     data-draft-resource-key="tenant.auction-establishment-request.{{ $auction->id }}">
                     @csrf
                     @method('PUT')
+                    <input type="hidden" name="_wizard_resource_key" value="tenant.auction-establishment-request.{{ $auction->id }}">
+                    <input type="hidden" name="resource_key" value="tenant.auction-establishment-request.{{ $auction->id }}">
+                    <input type="hidden" name="target_path" value="{{ parse_url(tenant_route_name('auction-establishment-requests.update', $auction), PHP_URL_PATH) }}">
 
                     {{-- الخطوة 1: المنشأة ومسؤولو المزاد --}}
                     <x-form.wizard.step id="step-organization" :fields="['data.organization', 'data.manager', 'data.auctioneer']">
@@ -143,11 +146,16 @@
                             <x-form.wizard.previous-button />
                             <div class="d-flex gap-2">
                                 <x-form.wizard.draft-button />
-                                <x-form.wizard.save-button text="حفظ وإرسال الطلب" :disabled="$auction->properties->isEmpty()" />
+                                <x-form.wizard.save-button />
                             </div>
                         </x-form.wizard.actions>
                     </x-form.wizard.step>
                 </form>
+
+                {{-- نافذة منبثقة موحدة لاستكمال وتعديل بيانات ومرفقات العقار (خارج النموذج لمنع إرسال مدخلاتها المؤقتة مع مسودة النموذج) --}}
+                @include('tenant.auction-establishment-requests.steps._property-modal', [
+                    'schema' => $schema,
+                ])
             </x-form.wizard.stepper>
         </div>
     </div>

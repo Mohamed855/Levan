@@ -13,7 +13,7 @@ final class AuctionReportLock
     {
         $auction->unsetRelation('properties')->unsetRelation('establishmentRequest');
         if ($auction->isClosed() || $auction->closing()->whereNotNull('finalized_snapshot')->exists()) {
-            throw ValidationException::withMessages(['auction' => 'المزاد منتهٍ ولا يمكن تعديل بياناته أو حملاته أو إقفاله. يمكنك إعادة توليد التقريرين من التفاصيل.']);
+            throw ValidationException::withMessages(['auction' => 'المزاد منتهٍ ولا يمكن تعديل بياناته أو حملاته أو إقفاله. يمكنك إعادة توليد المخرجات من التفاصيل.']);
         }
     }
 

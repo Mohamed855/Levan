@@ -60,7 +60,9 @@ function csrfTokenFor(form) {
 
 function resourceKeyFor(form) {
     return (
+        form.dataset.draftResourceKey ||
         form.querySelector('input[name="_wizard_resource_key"]')?.value ||
+        form.querySelector('input[name="resource_key"]')?.value ||
         new URL(form.action).pathname
     );
 }
@@ -270,8 +272,12 @@ async function shouldRestoreDraft() {
 }
 
 async function discardDraft(form, resourceKey) {
+    const endpoint =
+        form.dataset.draftUrl ||
+        document.body?.dataset.wizardDraftsUrl ||
+        draftUrl;
     const response = await fetch(
-        `${draftUrl}?resource_key=${encodeURIComponent(resourceKey)}`,
+        `${endpoint}?resource_key=${encodeURIComponent(resourceKey)}`,
         {
             method: "DELETE",
             headers: {
@@ -288,11 +294,15 @@ async function discardDraft(form, resourceKey) {
 }
 
 async function restoreDraft(form) {
-    if (!draftUrl) return;
+    const endpoint =
+        form.dataset.draftUrl ||
+        document.body?.dataset.wizardDraftsUrl ||
+        draftUrl;
+    if (!endpoint) return;
 
     const resourceKey = resourceKeyFor(form);
     const response = await fetch(
-        `${draftUrl}?resource_key=${encodeURIComponent(resourceKey)}`,
+        `${endpoint}?resource_key=${encodeURIComponent(resourceKey)}`,
         {
             headers: { Accept: "application/json" },
         },
@@ -327,6 +337,15 @@ async function restoreDraft(form) {
         fillDraft(form, values);
     }
     syncSelects(form);
+    form.dispatchEvent(
+        new CustomEvent("wizardDraftRestored", {
+            detail: {
+                data: draft.data || {},
+                files: draft.files || {},
+                draftId: draft.draft_id,
+            },
+        }),
+    );
 
     const wizard = wizardFor(form);
     const panes = wizard
@@ -399,8 +418,20 @@ async function saveDraft(form, pane, notify = true) {
     const resourceKey = resourceKeyFor(form);
     payload.set("resource_key", resourceKey);
     payload.set("step", String(stepNumber(pane)));
+    if (!payload.has("target_path")) {
+        const targetPath =
+            form.dataset.targetPath ||
+            form.querySelector('input[name="target_path"]')?.value ||
+            new URL(form.action, window.location.origin).pathname;
+        payload.set("target_path", targetPath);
+    }
 
-    const response = await fetch(draftUrl, {
+    const endpoint =
+        form.dataset.draftUrl ||
+        document.body?.dataset.wizardDraftsUrl ||
+        draftUrl;
+
+    const response = await fetch(endpoint, {
         method: "POST",
         headers: {
             "X-CSRF-TOKEN": csrfTokenFor(form),

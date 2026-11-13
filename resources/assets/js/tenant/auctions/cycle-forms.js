@@ -465,19 +465,77 @@ const mountCycleForm = () => {
         if (attachList) attachList.innerHTML = "";
     };
 
+    const validateClosingModalField = (inputEl) => {
+        if (!inputEl) return true;
+        const id = inputEl.id;
+        const val = (inputEl.value || "").trim();
+        const statusVal = document.getElementById("modal_result_status")?.value || "";
+
+        let error = null;
+
+        if (id === "modal_opening_price") {
+            if (!val) {
+                error = "سعر الافتتاح مطلوب ويجب أن يكون رقمًا غير سالب.";
+            } else if (isNaN(Number(val)) || Number(val) < 0) {
+                error = "سعر الافتتاح يجب أن يكون رقمًا غير سالب.";
+            }
+        } else if (id === "modal_participants_count") {
+            if (!val) {
+                error = "عدد المشاركين مطلوب ويجب أن يكون رقمًا غير سالب.";
+            } else if (isNaN(Number(val)) || Number(val) < 0) {
+                error = "عدد المشاركين يجب أن يكون رقمًا غير سالب.";
+            }
+        } else if (id === "modal_bids_count") {
+            if (!val) {
+                error = "عدد المزايدات مطلوب ويجب أن يكون رقمًا غير سالب.";
+            } else if (isNaN(Number(val)) || Number(val) < 0) {
+                error = "عدد المزايدات يجب أن يكون رقمًا غير سالب.";
+            }
+        } else if (id === "modal_result_status") {
+            if (!val || (val !== "sold" && val !== "unsold")) {
+                error = "يرجى تحديد نتيجة العقار.";
+            }
+        } else if (id === "modal_buyer_name" && statusVal === "sold") {
+            if (!val) {
+                error = "اسم من تمت الترسية عليه مطلوب للعقار المباع.";
+            } else if (val.length < 3) {
+                error = "اسم المشتري يجب ألا يقل عن 3 أحرف.";
+            }
+        } else if (id === "modal_sale_price" && statusVal === "sold") {
+            if (!val) {
+                error = "قيمة الترسية مطلوبة ويجب أن تكون أكبر من صفر.";
+            } else if (isNaN(Number(val)) || Number(val) <= 0) {
+                error = "قيمة الترسية يجب أن تكون أكبر من صفر.";
+            }
+        } else if (id === "modal_unsold_reason" && statusVal === "unsold") {
+            if (!val) {
+                error = "سبب عدم البيع مطلوب للعقار غير المباع.";
+            } else if (val.length < 3) {
+                error = "سبب عدم البيع يجب ألا يقل عن 3 أحرف.";
+            }
+        }
+
+        if (error) {
+            setClosingModalFieldError(inputEl, error);
+            return false;
+        } else {
+            clearClosingModalFieldError(inputEl);
+            return true;
+        }
+    };
+
     $(document).on("hidden.bs.modal", "#closingPropertyModal", function () {
         resetClosingModalFiles();
         clearAllClosingModalErrors();
     });
 
-    // Live validation listener for user changes inside closing modal
+    // Live validation listener for user changes inside closing modal (on change, blur, focusout, and live input if invalid)
     $(document).on(
-        "input change blur",
-        "#closingPropertyModal input, #closingPropertyModal select, #closingPropertyModal textarea",
-        function () {
-            const val = (this.value || "").trim();
-            if (val !== "") {
-                clearClosingModalFieldError(this);
+        "change blur focusout input",
+        "#closingPropertyModal input:not([type='hidden']):not([type='file']), #closingPropertyModal select, #closingPropertyModal textarea",
+        function (e) {
+            if (e.type === "focusout" || e.type === "blur" || e.type === "change" || $(this).hasClass("is-invalid")) {
+                validateClosingModalField(this);
             }
         },
     );
@@ -769,7 +827,7 @@ const mountCycleForm = () => {
             soldSec.classList.toggle("d-none", val !== "sold");
             unsoldSec.classList.toggle("d-none", val !== "unsold");
         }
-        clearClosingModalFieldError(this);
+        validateClosingModalField(this);
         if (val === "sold") {
             clearClosingModalFieldError(
                 document.getElementById("modal_unsold_reason"),
@@ -806,61 +864,27 @@ const mountCycleForm = () => {
         let hasError = false;
         let firstInvalidInput = null;
 
-        const checkRequired = (id, message, validateFn) => {
-            const input = document.getElementById(id);
-            if (!input) return null;
-            const val = input.value.trim();
-            const isValid = val !== "" && (!validateFn || validateFn(val));
-            if (!isValid) {
-                setClosingModalFieldError(input, message);
-                hasError = true;
-                if (!firstInvalidInput) firstInvalidInput = input;
-                return null;
-            }
-            return val;
-        };
+        const fieldsToCheck = [
+            document.getElementById("modal_opening_price"),
+            document.getElementById("modal_participants_count"),
+            document.getElementById("modal_bids_count"),
+            document.getElementById("modal_result_status"),
+        ];
 
-        const openingPrice = checkRequired(
-            "modal_opening_price",
-            "سعر الافتتاح مطلوب ويجب أن يكون رقمًا غير سالب.",
-            (v) => !isNaN(Number(v)) && Number(v) >= 0,
-        );
-        const participantsCount = checkRequired(
-            "modal_participants_count",
-            "عدد المشاركين مطلوب ويجب أن يكون رقمًا غير سالب.",
-            (v) => !isNaN(Number(v)) && Number(v) >= 0,
-        );
-        const bidsCount = checkRequired(
-            "modal_bids_count",
-            "عدد المزايدات مطلوب ويجب أن يكون رقمًا غير سالب.",
-            (v) => !isNaN(Number(v)) && Number(v) >= 0,
-        );
-        const status = checkRequired(
-            "modal_result_status",
-            "يرجى تحديد نتيجة العقار.",
-            (v) => v === "sold" || v === "unsold",
-        );
-
-        let buyerName = "";
-        let salePrice = "";
-        let unsoldReason = "";
-
+        const status = document.getElementById("modal_result_status")?.value;
         if (status === "sold") {
-            buyerName = checkRequired(
-                "modal_buyer_name",
-                "اسم من تمت الترسية عليه مطلوب للعقار المباع.",
-            );
-            salePrice = checkRequired(
-                "modal_sale_price",
-                "قيمة الترسية مطلوبة ويجب أن تكون أكبر من صفر.",
-                (v) => !isNaN(Number(v)) && Number(v) > 0,
-            );
+            fieldsToCheck.push(document.getElementById("modal_buyer_name"));
+            fieldsToCheck.push(document.getElementById("modal_sale_price"));
         } else if (status === "unsold") {
-            unsoldReason = checkRequired(
-                "modal_unsold_reason",
-                "سبب عدم البيع مطلوب للعقار غير المباع.",
-            );
+            fieldsToCheck.push(document.getElementById("modal_unsold_reason"));
         }
+
+        fieldsToCheck.forEach((inp) => {
+            if (inp && !validateClosingModalField(inp)) {
+                hasError = true;
+                if (!firstInvalidInput) firstInvalidInput = inp;
+            }
+        });
 
         if (hasError) {
             if (firstInvalidInput) {
@@ -877,6 +901,13 @@ const mountCycleForm = () => {
             }
             return;
         }
+
+        const openingPrice = document.getElementById("modal_opening_price")?.value?.trim() || "";
+        const participantsCount = document.getElementById("modal_participants_count")?.value?.trim() || "";
+        const bidsCount = document.getElementById("modal_bids_count")?.value?.trim() || "";
+        const buyerName = status === "sold" ? (document.getElementById("modal_buyer_name")?.value?.trim() || "") : "";
+        const salePrice = status === "sold" ? (document.getElementById("modal_sale_price")?.value?.trim() || "") : "";
+        const unsoldReason = status === "unsold" ? (document.getElementById("modal_unsold_reason")?.value?.trim() || "") : "";
 
         const propId = document.getElementById("modal_property_id")?.value;
         if (!propId) return;

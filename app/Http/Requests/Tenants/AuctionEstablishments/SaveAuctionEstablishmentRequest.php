@@ -28,43 +28,49 @@ final class SaveAuctionEstablishmentRequest extends WizardFormRequest
     {
         $data = $this->input('data');
         if (is_array($data)) {
+            $normalizeDigits = static fn (?string $v): string => str_replace(
+                ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'],
+                ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+                (string) $v
+            );
+
             if (isset($data['manager']['mobile'])) {
-                $data['manager']['mobile'] = preg_replace('/\D+/', '', (string) $data['manager']['mobile']);
+                $data['manager']['mobile'] = preg_replace('/\D+/', '', $normalizeDigits($data['manager']['mobile']));
             }
             if (isset($data['manager']['identity_number'])) {
-                $data['manager']['identity_number'] = preg_replace('/\D+/', '', (string) $data['manager']['identity_number']);
+                $data['manager']['identity_number'] = preg_replace('/\D+/', '', $normalizeDigits($data['manager']['identity_number']));
             }
             if (isset($data['auctioneer']['mobile'])) {
-                $data['auctioneer']['mobile'] = preg_replace('/\D+/', '', (string) $data['auctioneer']['mobile']);
+                $data['auctioneer']['mobile'] = preg_replace('/\D+/', '', $normalizeDigits($data['auctioneer']['mobile']));
             }
             if (isset($data['auctioneer']['identity_number'])) {
-                $data['auctioneer']['identity_number'] = preg_replace('/\D+/', '', (string) $data['auctioneer']['identity_number']);
+                $data['auctioneer']['identity_number'] = preg_replace('/\D+/', '', $normalizeDigits($data['auctioneer']['identity_number']));
             }
             if (isset($data['organization']['unified_number'])) {
-                $data['organization']['unified_number'] = preg_replace('/\D+/', '', (string) $data['organization']['unified_number']);
+                $data['organization']['unified_number'] = preg_replace('/\D+/', '', $normalizeDigits($data['organization']['unified_number']));
             }
             if (isset($data['organization']['commercial_registration'])) {
-                $data['organization']['commercial_registration'] = preg_replace('/\D+/', '', (string) $data['organization']['commercial_registration']);
+                $data['organization']['commercial_registration'] = preg_replace('/\D+/', '', $normalizeDigits($data['organization']['commercial_registration']));
             }
             if (isset($data['organization']['fal_license'])) {
-                $data['organization']['fal_license'] = preg_replace('/\D+/', '', (string) $data['organization']['fal_license']);
+                $data['organization']['fal_license'] = preg_replace('/\D+/', '', $normalizeDigits($data['organization']['fal_license']));
             }
             if (isset($data['properties']) && is_array($data['properties'])) {
                 foreach ($data['properties'] as $idx => $prop) {
                     if (is_array($prop)) {
                         foreach (['area', 'opening_value', 'entry_amount', 'estimated_value', 'ownership_share'] as $numKey) {
                             if (isset($prop[$numKey]) && is_string($prop[$numKey])) {
-                                $data['properties'][$idx][$numKey] = str_replace(',', '', $prop[$numKey]);
+                                $data['properties'][$idx][$numKey] = str_replace(',', '', $normalizeDigits($prop[$numKey]));
                             }
                         }
                         if (isset($prop['deed_number'])) {
-                            $data['properties'][$idx]['deed_number'] = preg_replace('/\D+/', '', (string) $prop['deed_number']);
+                            $data['properties'][$idx]['deed_number'] = preg_replace('/\D+/', '', $normalizeDigits($prop['deed_number']));
                         }
                         if (isset($prop['agency_number'])) {
-                            $data['properties'][$idx]['agency_number'] = preg_replace('/\D+/', '', (string) $prop['agency_number']);
+                            $data['properties'][$idx]['agency_number'] = preg_replace('/\D+/', '', $normalizeDigits($prop['agency_number']));
                         }
                         if (isset($prop['contract_number'])) {
-                            $data['properties'][$idx]['contract_number'] = preg_replace('/\D+/', '', (string) $prop['contract_number']);
+                            $data['properties'][$idx]['contract_number'] = trim($normalizeDigits($prop['contract_number']));
                         }
                     }
                 }
@@ -147,7 +153,8 @@ final class SaveAuctionEstablishmentRequest extends WizardFormRequest
             'data.funds.refund_days.max' => 'مدة إعادة الأموال يجب ألا تزيد عن 3 أيام نظامياً.',
             'data.properties.*.deed_number.regex' => 'رقم الصك يجب أن يحتوي على أرقام فقط.',
             'data.properties.*.agency_number.regex' => 'رقم الوكالة يجب أن يحتوي على أرقام فقط.',
-            'data.properties.*.contract_number.regex' => 'رقم عقد المزاد يجب أن يحتوي على أرقام فقط.',
+            'data.properties.*.contract_number.required' => 'رقم عقد المزاد / الإسناد مطلوب لكل عقار.',
+            'data.properties.*.contract_number.max' => 'رقم عقد المزاد / الإسناد يجب ألا يتجاوز 100 حرف.',
             'data.properties.*.ownership_share.max' => 'نسبة الملكية المعروضة يجب ألا تتجاوز 100%.',
             'data.properties.*.ownership_share.gt' => 'نسبة الملكية المعروضة يجب أن تكون أكبر من 0%.',
             'data.properties.*.area.gt' => 'المساحة يجب أن تكون أكبر من 0.',

@@ -102,6 +102,8 @@ abstract class WizardFormRequest extends FormRequest
             $rootRequest->attributes->set('wizard_tenant_id', tenant()?->getKey() ?? '');
         }
 
+        $this->prepareForValidation();
+
         return parent::validationData();
     }
 }

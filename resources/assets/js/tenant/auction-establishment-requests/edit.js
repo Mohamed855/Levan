@@ -1,3 +1,5 @@
+import { renderFileCardHtml } from "../../shared/file-card.js";
+
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.querySelector("#establishment-request-form");
     if (!form) return;
@@ -83,10 +85,37 @@ document.addEventListener("DOMContentLoaded", () => {
                 isComplete = false;
             }
 
+            const usage = getVal("usage");
+            if (usage === "other" && !getVal("usage_other")) {
+                isComplete = false;
+            }
+
             const agentName = getVal("agent_name");
             const agencyNum = getVal("agency_number");
             if ((agentName && !agencyNum) || (!agentName && agencyNum)) {
                 isComplete = false;
+            }
+
+            // Check required deed attachment
+            const table = document.getElementById("establishment-properties-table");
+            let existingAttachments = {};
+            try {
+                existingAttachments = JSON.parse(table?.dataset?.existingAttachments || "{}");
+            } catch (_) {}
+            const propExisting = existingAttachments[propertyId] || {};
+            const hasExistingDeed = Boolean(propExisting.deed && propExisting.deed.url);
+            const stagedDeed = hiddenDataEl.querySelector(`[data-prop-files="${propertyId}"] input[name="attachments[deed][${propertyId}]"]`);
+            if (!hasExistingDeed && !stagedDeed) {
+                isComplete = false;
+            }
+
+            // Check representative authority if agent specified
+            if (agentName) {
+                const hasExistingAuth = Boolean(propExisting.representative_authority && propExisting.representative_authority.url);
+                const stagedAuth = hiddenDataEl.querySelector(`[data-prop-files="${propertyId}"] input[name="attachments[representative_authority][${propertyId}]"]`);
+                if (!hasExistingAuth && !stagedAuth) {
+                    isComplete = false;
+                }
             }
         }
 
@@ -141,30 +170,134 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Modal field helper
+    // Modal field helpers and error handling (matching auction closing modal pattern)
     const getModalEl = (id) => document.getElementById(id);
 
-    const clearModalErrors = () => {
+    const clearAllModalErrors = () => {
         if (!propModalEl) return;
-        propModalEl.querySelectorAll(".is-invalid").forEach((el) => el.classList.remove("is-invalid"));
-        propModalEl.querySelectorAll(".invalid-feedback").forEach((el) => el.remove());
+        propModalEl.querySelectorAll(".is-invalid").forEach((el) => {
+            el.classList.remove("is-invalid");
+            el.removeAttribute("aria-invalid");
+        });
+        propModalEl.querySelectorAll(".select2-selection.is-invalid").forEach((el) => el.classList.remove("is-invalid"));
+        propModalEl.querySelectorAll(".select2-container.is-invalid").forEach((el) => el.classList.remove("is-invalid"));
+        propModalEl.querySelectorAll(".input-group.is-invalid").forEach((el) => el.classList.remove("is-invalid"));
+        propModalEl.querySelectorAll("[data-form-field].is-invalid").forEach((el) => el.classList.remove("is-invalid"));
+        propModalEl.querySelectorAll("[data-form-error]").forEach((el) => {
+            el.textContent = "";
+            el.hidden = true;
+            el.setAttribute("hidden", "hidden");
+            el.style.display = "none";
+        });
+        propModalEl.querySelectorAll(".invalid-feedback:not([data-form-error])").forEach((el) => el.remove());
     };
 
     const setModalFieldError = (inputEl, message) => {
         if (!inputEl) return;
         inputEl.classList.add("is-invalid");
-        let feedback = inputEl.parentElement?.querySelector(".invalid-feedback");
-        if (!feedback) {
-            feedback = document.createElement("div");
-            feedback.className = "invalid-feedback d-block";
-            inputEl.parentElement?.appendChild(feedback);
+        inputEl.setAttribute("aria-invalid", "true");
+
+        const inputGroup = inputEl.closest(".input-group");
+        if (inputGroup) {
+            inputGroup.classList.add("is-invalid");
         }
-        feedback.textContent = message;
+
+        if (inputEl.tagName === "SELECT") {
+            const select2Container = inputEl.nextElementSibling?.matches(".select2, .select2-container")
+                ? inputEl.nextElementSibling
+                : inputEl.parentElement?.querySelector(".select2-container");
+            if (select2Container) {
+                select2Container.classList.add("is-invalid");
+                const selection = select2Container.querySelector(".select2-selection");
+                if (selection) selection.classList.add("is-invalid");
+            }
+        }
+
+        const fieldWrapper = inputEl.closest("[data-form-field]") || inputEl.parentElement;
+        if (fieldWrapper) {
+            fieldWrapper.classList.add("is-invalid");
+            let errorEl = fieldWrapper.querySelector("[data-form-error]");
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.hidden = false;
+                errorEl.removeAttribute("hidden");
+                errorEl.classList.remove("hidden");
+                errorEl.style.display = "block";
+            } else {
+                let feedback = fieldWrapper.querySelector(".invalid-feedback");
+                if (!feedback) {
+                    feedback = document.createElement("div");
+                    feedback.className = "invalid-feedback d-block";
+                    fieldWrapper.appendChild(feedback);
+                }
+                feedback.textContent = message;
+                feedback.style.display = "block";
+            }
+        }
     };
+
+    const clearModalFieldError = (inputEl) => {
+        if (!inputEl) return;
+        inputEl.classList.remove("is-invalid");
+        inputEl.removeAttribute("aria-invalid");
+
+        const inputGroup = inputEl.closest(".input-group");
+        if (inputGroup) {
+            inputGroup.classList.remove("is-invalid");
+        }
+
+        if (inputEl.tagName === "SELECT") {
+            const select2Container = inputEl.nextElementSibling?.matches(".select2, .select2-container")
+                ? inputEl.nextElementSibling
+                : inputEl.parentElement?.querySelector(".select2-container");
+            if (select2Container) {
+                select2Container.classList.remove("is-invalid");
+                const selection = select2Container.querySelector(".select2-selection");
+                if (selection) selection.classList.remove("is-invalid");
+            }
+        }
+
+        const fieldWrapper = inputEl.closest("[data-form-field]") || inputEl.parentElement;
+        if (fieldWrapper) {
+            fieldWrapper.classList.remove("is-invalid");
+            const errorEl = fieldWrapper.querySelector("[data-form-error]");
+            if (errorEl) {
+                errorEl.textContent = "";
+                errorEl.hidden = true;
+                errorEl.setAttribute("hidden", "hidden");
+                errorEl.style.display = "none";
+            }
+            const feedback = fieldWrapper.querySelector(".invalid-feedback:not([data-form-error])");
+            if (feedback) {
+                feedback.remove();
+            }
+        }
+    };
+
+    const initEstablishmentModalSelect2 = () => {
+        const $select = $("#modal_prop_status");
+        if ($select.length && window.jQuery && $.fn.select2) {
+            if ($select.data("select2")) {
+                $select.select2("destroy");
+            }
+            $select.select2({
+                dropdownParent: $("#establishmentPropertyModal"),
+                placeholder: "اختر الحالة النظامية",
+                allowClear: false,
+                width: "100%",
+                dir: "rtl",
+                minimumResultsForSearch: Infinity,
+            });
+        }
+    };
+
+    $(document).on("shown.bs.modal", "#establishmentPropertyModal", function () {
+        initEstablishmentModalSelect2();
+    });
 
     // Populate and open the single modal
     const openPropertyModal = (propertyId, propIndex, propName, propNumber, propType) => {
-        clearModalErrors();
+        clearAllModalErrors();
 
         const titleEl = getModalEl("establishmentPropertyModalTitle");
         const numberEl = getModalEl("establishmentPropertyModalNumber");
@@ -347,22 +480,178 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Modal conditional toggles
+    // Validate individual field in establishment property modal
+    const validateEstablishmentModalField = (inputEl) => {
+        if (!inputEl) return true;
+        const id = inputEl.id;
+        const val = (inputEl.value || "").trim();
+        let error = null;
+
+        if (id === "modal_prop_owner_name") {
+            if (!val) {
+                error = "المالك / الملاك مطلوب.";
+            } else if (val.length < 3) {
+                error = "اسم المالك يجب ألا يقل عن 3 أحرف.";
+            }
+        } else if (id === "modal_prop_deed_number") {
+            if (!val) {
+                error = "رقم الصك مطلوب.";
+            } else if (!/^\d+$/.test(val)) {
+                error = "رقم الصك يجب أن يحتوي على أرقام فقط.";
+            }
+        } else if (id === "modal_prop_contract_number") {
+            if (!val) {
+                error = "رقم عقد المزاد / الإسناد مطلوب.";
+            } else if (val.length > 100) {
+                error = "رقم العقد يجب ألا يتجاوز 100 حرف.";
+            }
+        } else if (id === "modal_prop_area") {
+            if (!val) {
+                error = "المساحة مطلوبة.";
+            } else if (isNaN(Number(val)) || Number(val) <= 0) {
+                error = "المساحة يجب أن تكون أكبر من صفر.";
+            }
+        } else if (id === "modal_prop_type") {
+            if (!val) {
+                error = "نوع العقار مطلوب.";
+            }
+        } else if (id === "modal_prop_usage") {
+            if (!val) {
+                error = "استخدام العقار مطلوب.";
+            }
+        } else if (id === "modal_prop_usage_other") {
+            const usageVal = getModalEl("modal_prop_usage")?.value;
+            if (usageVal === "other" && !val) {
+                error = "تفاصيل الاستخدام الآخر مطلوبة.";
+            }
+        } else if (id === "modal_prop_age") {
+            if (val === "") {
+                error = "عمر العقار مطلوب (أدخل 0 للأرض).";
+            } else if (isNaN(Number(val)) || !Number.isInteger(Number(val)) || Number(val) < 0 || Number(val) > 200) {
+                error = "عمر العقار يجب أن يكون عدداً صحيحاً بين 0 و 200.";
+            }
+        } else if (id === "modal_prop_city_district") {
+            if (!val) {
+                error = "المدينة / الحي مطلوب.";
+            }
+        } else if (id === "modal_prop_status") {
+            if (!val) {
+                error = "الحالة النظامية مطلوبة.";
+            }
+        } else if (id === "modal_prop_status_other") {
+            const statusVal = getModalEl("modal_prop_status")?.value;
+            if (statusVal === "other" && !val) {
+                error = "تفاصيل الحالة الأخرى مطلوبة عند اختيار أخرى.";
+            }
+        } else if (id === "modal_prop_ownership_share") {
+            if (!val) {
+                error = "نسبة الملكية المعروضة مطلوبة.";
+            } else if (isNaN(Number(val)) || Number(val) <= 0 || Number(val) > 100) {
+                error = "نسبة الملكية المعروضة يجب أن تكون بين 0.01% و 100%.";
+            }
+        } else if (id === "modal_prop_opening_value") {
+            if (!val) {
+                error = "قيمة افتتاح المزاد مطلوبة.";
+            } else if (isNaN(Number(val)) || Number(val) < 0) {
+                error = "قيمة افتتاح المزاد يجب أن تكون رقماً غير سالب.";
+            }
+        } else if (id === "modal_prop_entry_amount") {
+            if (!val) {
+                error = "مبلغ الدخول مطلوب.";
+            } else if (isNaN(Number(val)) || Number(val) < 0) {
+                error = "مبلغ الدخول يجب أن يكون رقماً غير سالب.";
+            }
+        } else if (id === "modal_prop_estimated_value") {
+            if (!val) {
+                error = "القيمة التقديرية مطلوبة.";
+            } else if (isNaN(Number(val)) || Number(val) < 0) {
+                error = "القيمة التقديرية يجب أن تكون رقماً غير سالب.";
+            }
+        } else if (id === "modal_prop_disclosure") {
+            if (!val) {
+                error = "الإفصاح الخاص بالعقار مطلوب.";
+            }
+        } else if (id === "modal_prop_agent_name") {
+            const agencyNum = getModalEl("modal_prop_agency_number")?.value?.trim();
+            if (agencyNum && !val) {
+                error = "اسم الوكيل مطلوب عند كتابة رقم الوكالة.";
+            }
+        } else if (id === "modal_prop_agency_number") {
+            const agentName = getModalEl("modal_prop_agent_name")?.value?.trim();
+            if (agentName && !val) {
+                error = "رقم الوكالة مطلوب عند كتابة اسم الوكيل.";
+            } else if (val && !/^\d+$/.test(val)) {
+                error = "رقم الوكالة يجب أن يحتوي على أرقام فقط.";
+            }
+        }
+
+        if (error) {
+            setModalFieldError(inputEl, error);
+            return false;
+        } else {
+            clearModalFieldError(inputEl);
+            return true;
+        }
+    };
+
+    // Live validation listener for user changes inside establishment property modal (on change, blur, focusout, and live input if invalid)
+    $(document).on(
+        "change blur focusout input",
+        "#establishmentPropertyModal input:not([type='hidden']):not([type='file']), #establishmentPropertyModal select, #establishmentPropertyModal textarea",
+        function (e) {
+            if (e.type === "focusout" || e.type === "blur" || e.type === "change" || $(this).hasClass("is-invalid")) {
+                validateEstablishmentModalField(this);
+            }
+        },
+    );
+
+    // Modal conditional toggles with live validation sync
     $(document).on("change", "#modal_prop_status", function () {
         const isOther = this.value === "other";
         const col = getModalEl("modal_prop_status_other_col");
-        if (col) col.classList.toggle("d-none", !isOther);
+        if (col) {
+            col.classList.toggle("d-none", !isOther);
+            if (!isOther) {
+                clearModalFieldError(getModalEl("modal_prop_status_other"));
+            }
+        }
+        validateEstablishmentModalField(this);
     });
 
     $(document).on("change", "#modal_prop_usage", function () {
         const isOther = this.value === "other";
         const col = getModalEl("modal_prop_usage_other_col");
-        if (col) col.classList.toggle("d-none", !isOther);
+        if (col) {
+            col.classList.toggle("d-none", !isOther);
+            if (!isOther) {
+                clearModalFieldError(getModalEl("modal_prop_usage_other"));
+            }
+        }
+        validateEstablishmentModalField(this);
     });
 
-    // Save modal data into hidden container
+    $(document).on("input change blur focusout", "#modal_prop_agent_name, #modal_prop_agency_number", function () {
+        const agentName = getModalEl("modal_prop_agent_name")?.value?.trim();
+        const agencyNum = getModalEl("modal_prop_agency_number")?.value?.trim();
+        if (!agentName && !agencyNum) {
+            clearModalFieldError(getModalEl("modal_prop_agent_name"));
+            clearModalFieldError(getModalEl("modal_prop_agency_number"));
+            clearModalFieldError(getModalEl("modal_file_representative_authority"));
+        } else {
+            if (agentName) validateEstablishmentModalField(getModalEl("modal_prop_agent_name"));
+            if (agencyNum) validateEstablishmentModalField(getModalEl("modal_prop_agency_number"));
+        }
+    });
+
+    $(document).on("change", "#modal_file_deed, #modal_file_representative_authority", function () {
+        if (this.files && this.files.length > 0) {
+            clearModalFieldError(this);
+        }
+    });
+
+    // Save modal data into hidden container with strict validation (matching auction closing modal)
     const savePropertyModal = () => {
-        clearModalErrors();
+        clearAllModalErrors();
 
         const propertyId = getModalEl("modal_prop_id")?.value;
         if (!propertyId) return;
@@ -373,65 +662,95 @@ document.addEventListener("DOMContentLoaded", () => {
         let hasError = false;
         let firstInvalid = null;
 
-        const requireField = (id, message, validateFn) => {
-            const input = getModalEl(id);
-            if (!input) return;
-            const val = (input.value || "").trim();
-            let invalid = !val;
-            if (!invalid && validateFn) {
-                invalid = !validateFn(val);
-            }
-            if (invalid) {
-                setModalFieldError(input, message);
+        const validate = (el) => {
+            if (!el) return;
+            if (!validateEstablishmentModalField(el)) {
                 hasError = true;
-                if (!firstInvalid) firstInvalid = input;
+                if (!firstInvalid) firstInvalid = el;
             }
         };
 
-        requireField("modal_prop_owner_name", "المالك / الملاك مطلوب");
-        requireField("modal_prop_deed_number", "رقم الصك مطلوب");
-        requireField("modal_prop_contract_number", "رقم عقد المزاد مطلوب");
-        requireField("modal_prop_area", "المساحة يجب أن تكون أكبر من صفر", (v) => parseFloat(v) > 0);
-        requireField("modal_prop_type", "نوع العقار مطلوب");
-        requireField("modal_prop_usage", "استخدام العقار مطلوب");
-        requireField("modal_prop_age", "عمر العقار مطلوب", (v) => parseInt(v, 10) >= 0);
-        requireField("modal_prop_city_district", "المدينة / الحي مطلوب");
-        requireField("modal_prop_status", "الحالة النظامية مطلوبة");
-        requireField("modal_prop_ownership_share", "نسبة الملكية مطلوبة (بين 0.01 و 100)", (v) => {
-            const n = parseFloat(v);
-            return n > 0 && n <= 100;
-        });
-        requireField("modal_prop_opening_value", "قيمة افتتاح المزاد مطلوبة", (v) => parseFloat(v) >= 0);
-        requireField("modal_prop_entry_amount", "مبلغ الدخول مطلوب", (v) => parseFloat(v) >= 0);
-        requireField("modal_prop_estimated_value", "القيمة التقديرية مطلوبة", (v) => parseFloat(v) >= 0);
-        requireField("modal_prop_disclosure", "الإفصاح الخاص بالعقار مطلوب");
-
-        const statusVal = getModalEl("modal_prop_status")?.value;
-        if (statusVal === "other") {
-            requireField("modal_prop_status_other", "تفاصيل الحالة الأخرى مطلوبة عند اختيار أخرى");
+        validate(getModalEl("modal_prop_owner_name"));
+        validate(getModalEl("modal_prop_deed_number"));
+        validate(getModalEl("modal_prop_contract_number"));
+        validate(getModalEl("modal_prop_area"));
+        validate(getModalEl("modal_prop_type"));
+        validate(getModalEl("modal_prop_usage"));
+        if (getModalEl("modal_prop_usage")?.value === "other") {
+            validate(getModalEl("modal_prop_usage_other"));
         }
+        validate(getModalEl("modal_prop_age"));
+        validate(getModalEl("modal_prop_city_district"));
+        validate(getModalEl("modal_prop_status"));
+        if (getModalEl("modal_prop_status")?.value === "other") {
+            validate(getModalEl("modal_prop_status_other"));
+        }
+        validate(getModalEl("modal_prop_ownership_share"));
+        validate(getModalEl("modal_prop_opening_value"));
+        validate(getModalEl("modal_prop_entry_amount"));
+        validate(getModalEl("modal_prop_estimated_value"));
+        validate(getModalEl("modal_prop_disclosure"));
 
         const agentName = getModalEl("modal_prop_agent_name")?.value?.trim();
         const agencyNum = getModalEl("modal_prop_agency_number")?.value?.trim();
-        if ((agentName && !agencyNum) || (!agentName && agencyNum)) {
-            if (!agentName) setModalFieldError(getModalEl("modal_prop_agent_name"), "اسم الوكيل مطلوب عند كتابة رقم الوكالة");
-            if (!agencyNum) setModalFieldError(getModalEl("modal_prop_agency_number"), "رقم الوكالة مطلوب عند كتابة اسم الوكيل");
-            hasError = true;
-            if (!firstInvalid) firstInvalid = !agentName ? getModalEl("modal_prop_agent_name") : getModalEl("modal_prop_agency_number");
+        if (agentName || agencyNum) {
+            validate(getModalEl("modal_prop_agent_name"));
+            validate(getModalEl("modal_prop_agency_number"));
         }
 
+        // Validate required deed attachment
+        const table = document.getElementById("establishment-properties-table");
+        let existingAttachments = {};
+        try {
+            existingAttachments = JSON.parse(table?.dataset?.existingAttachments || "{}");
+        } catch (_) {}
+        const propExisting = existingAttachments[propertyId] || {};
+        const deedInput = getModalEl("modal_file_deed");
+        const deedController = window.SharedFileUpload?.getController(deedInput);
+        const hasExistingDeed = Boolean(propExisting.deed && propExisting.deed.url);
+        const stagedDeed = hiddenContainer.querySelector(`[data-prop-files="${propertyId}"] input[name="attachments[deed][${propertyId}]"]`);
+        const hasSelectedDeed = (deedInput && deedInput.files && deedInput.files.length > 0) || (deedController && deedController.getFiles().length > 0);
+        const isDeedPresent = hasExistingDeed || (stagedDeed && (!deedController || deedController.getFiles().length > 0)) || hasSelectedDeed;
+
+        if (!isDeedPresent) {
+            setModalFieldError(deedInput, "وثيقة الملكية (الصك الإلكتروني) مطلوبة لكل عقار.");
+            hasError = true;
+            if (!firstInvalid) firstInvalid = deedInput;
+        }
+
+        // Validate agent representative authority if agent specified
+        if (agentName) {
+            const authInput = getModalEl("modal_file_representative_authority");
+            const authController = window.SharedFileUpload?.getController(authInput);
+            const hasExistingAuth = Boolean(propExisting.representative_authority && propExisting.representative_authority.url);
+            const stagedAuth = hiddenContainer.querySelector(`[data-prop-files="${propertyId}"] input[name="attachments[representative_authority][${propertyId}]"]`);
+            const hasSelectedAuth = (authInput && authInput.files && authInput.files.length > 0) || (authController && authController.getFiles().length > 0);
+            const isAuthPresent = hasExistingAuth || (stagedAuth && (!authController || authController.getFiles().length > 0)) || hasSelectedAuth;
+
+            if (!isAuthPresent) {
+                setModalFieldError(authInput, "مستند التفويض أو الوكالة مطلوب عند وجود وكيل مسجل.");
+                hasError = true;
+                if (!firstInvalid) firstInvalid = authInput;
+            }
+        }
+
+        // Strict halt: NEVER save and NEVER close modal if any validation error exists
         if (hasError) {
             if (firstInvalid) {
-                firstInvalid.focus();
+                if ($(firstInvalid).data("select2")) {
+                    $(firstInvalid).select2("open");
+                } else if (typeof firstInvalid.focus === "function") {
+                    firstInvalid.focus();
+                }
                 firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
             }
             if (window.toastr?.warning) {
-                window.toastr.warning("يرجى استكمال الحقول الإلزامية للعقار.");
+                window.toastr.warning("يرجى استكمال جميع الحقول والمستندات الإلزامية للعقار بشكل صحيح.");
             }
-            return;
+            return false;
         }
 
-        // Copy modal values to hidden inputs
+        // Copy modal values to hidden inputs only after 100% successful validation
         const fields = [
             "owner_name",
             "deed_number",
@@ -704,17 +1023,53 @@ document.addEventListener("DOMContentLoaded", () => {
             setReview(reviewMap[k], val && val !== "—" ? val : "لا يوجد");
         });
 
-        // Step 5: Certificates review badges
-        ["manager_certificate", "auctioneer_certificate"].forEach((type) => {
-            const fileInput = form.querySelector(`[name="attachments[${type}]"]`);
-            const fileBadge = form.querySelector(`[data-review-file-badge="${type}"]`);
-            if (fileBadge) {
-                if (fileInput?.files?.[0]) {
-                    fileBadge.className = "badge bg-label-success";
-                    fileBadge.textContent = "محدد للرفع: " + fileInput.files[0].name;
+        // Step 5: Certificates review cards (مطابقة لأسلوب بطاقات المراجعة في إنشاء المزاد)
+        const reviewCertificates = document.getElementById("review-certificates-list");
+        const reviewCertificatesCount = document.getElementById("review-certificates-count");
+        if (reviewCertificates) {
+            const certTypes = [
+                { type: "manager_certificate", label: "شهادة دورة مدير المزاد" },
+                { type: "auctioneer_certificate", label: "شهادة دورة محرّج المزاد" },
+            ];
+            const certItems = [];
+
+            certTypes.forEach(({ type, label }) => {
+                const input = form.querySelector(`[name="attachments[${type}]"]`);
+                const file = input?.files?.[0];
+                if (file) {
+                    certItems.push({
+                        name: file.name,
+                        file,
+                        metaLabel: `${label} (جديد)`,
+                    });
+                } else {
+                    const wrapper = input?.closest("[data-file-upload-wrapper]") || input?.parentElement;
+                    const existingCard = wrapper?.querySelector("[data-existing-file-card]:not(.d-none)");
+                    if (existingCard) {
+                        const existingName = existingCard.querySelector(".file-item-name")?.textContent?.trim() || label;
+                        const existingViewLink = existingCard.querySelector("a.btn-view-file")?.href;
+                        const existingImg = existingCard.querySelector("img.file-item-preview")?.src;
+                        const resolvedUrl = existingViewLink || existingImg || null;
+                        certItems.push({
+                            name: existingName,
+                            url: resolvedUrl,
+                            downloadUrl: resolvedUrl,
+                            metaLabel: label,
+                        });
+                    }
                 }
+            });
+
+            if (reviewCertificatesCount) {
+                reviewCertificatesCount.textContent = String(certItems.length);
             }
-        });
+
+            if (!certItems.length) {
+                reviewCertificates.innerHTML = '<p class="text-muted mb-0" data-empty>لم يتم إرفاق شهادات بعد.</p>';
+            } else {
+                reviewCertificates.innerHTML = certItems.map(renderFileCardHtml).join("");
+            }
+        }
     };
 
     // Step 3 Next button guard (إلزام اكتمال جميع العقارات)
@@ -793,4 +1148,7 @@ document.addEventListener("DOMContentLoaded", () => {
             updateReviewCardValues();
         }
     });
+    form.addEventListener("file:changed", updateReviewCardValues);
+    form.addEventListener("file:removed", updateReviewCardValues);
+    form.addEventListener("file:removed-existing", updateReviewCardValues);
 });

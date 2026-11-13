@@ -39,7 +39,7 @@ final class AuctionClosingsController extends Controller
     {
         $action->execute($auction, $request->validated(), $request->user('tenant')->id);
 
-        return redirect(tenant_route_name('auctions.show', $auction))->with('success', 'تم حفظ إقفال المزاد وطلب تحديث التقريرين.');
+        return redirect(tenant_route_name('auctions.show', $auction))->with('success', 'تم حفظ إقفال المزاد وطلب تحديث المخرجات.');
     }
 
     public function propertyData(Auction $auction, Property $property): JsonResponse

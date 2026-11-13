@@ -76,7 +76,7 @@ final class MarketingCampaignsController extends Controller
         }
 
         return redirect(tenant_route_name('auctions.show', $auctionId))
-            ->with('success', 'تم حفظ الحملات التسويقية وطلب تحديث التقريرين.');
+            ->with('success', 'تم حفظ الحملات التسويقية وطلب تحديث المخرجات.');
     }
 
     public function update(SaveMarketingCampaignRequest $request, $target, SaveMarketingCampaignAction $action)
@@ -108,7 +108,7 @@ final class MarketingCampaignsController extends Controller
         }
 
         return redirect(tenant_route_name('auctions.show', $auction->id))
-            ->with('success', 'تم تحديث الحملات التسويقية وطلب تحديث التقريرين.');
+            ->with('success', 'تم تحديث الحملات التسويقية وطلب تحديث المخرجات.');
     }
 
     public function destroy($target, DeleteMarketingCampaignAction $action)
@@ -125,12 +125,12 @@ final class MarketingCampaignsController extends Controller
         if (request()->ajax() || request()->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'تم حذف الحملات التسويقية للمزاد وطلب تحديث التقريرين.',
+                'message' => 'تم حذف الحملات التسويقية للمزاد وطلب تحديث المخرجات.',
             ]);
         }
 
         return redirect(tenant_route_name('auctions.show', $auctionId))
-            ->with('success', 'تم حذف الحملات التسويقية للمزاد وطلب تحديث التقريرين.');
+            ->with('success', 'تم حذف الحملات التسويقية للمزاد وطلب تحديث المخرجات.');
     }
 
     public function massDelete(Request $request, DeleteMarketingCampaignAction $action)
