@@ -14,7 +14,7 @@
     $fieldId = $id ?: str_replace(['[', ']'], '-', $name);
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
     $hasError = $errorsBag->has($name);
-    $isRequired = filter_var($required, FILTER_VALIDATE_BOOLEAN) || $required === true || $required === 1 || $required === '1';
+    $isRequired = filter_var($required, FILTER_VALIDATE_BOOLEAN) || $required === true || $required === 1 || $required === '1' || $required === 'required';
     $cleanLabel = $label !== null ? trim(preg_replace(['/\s*\(?\s*(اختياري|اختباري)\s*\)?\s*/u', '/\s*\*+\s*$/u'], ['', ''], (string) $label)) : null;
 @endphp
 

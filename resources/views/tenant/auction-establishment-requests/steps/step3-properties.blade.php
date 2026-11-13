@@ -95,10 +95,12 @@
                                         </span>
                                     </td>
                                     <td class="text-center" onclick="event.stopPropagation();">
-                                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                        <button type="button" class="btn btn-icon btn-label-primary"
                                             data-bs-toggle="modal"
-                                            data-bs-target="#property-details-modal-{{ $propertyData['property_id'] }}">
-                                            <i class="ti ti-edit me-1"></i>تعديل
+                                            data-bs-target="#property-details-modal-{{ $propertyData['property_id'] }}"
+                                            title="تعديل"
+                                            aria-label="تعديل">
+                                            <i class="ti ti-edit" aria-hidden="true"></i>
                                         </button>
                                     </td>
                                 </tr>

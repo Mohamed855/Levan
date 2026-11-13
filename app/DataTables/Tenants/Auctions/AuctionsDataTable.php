@@ -95,10 +95,29 @@ class AuctionsDataTable extends AbstractDataTable
                     filled($published->outputs_path) || filled($published->report_path)
                 );
 
-                return AuctionFilePreparationStatus::resolve(
+                $status = AuctionFilePreparationStatus::resolve(
                     $row->latestReportGeneration?->status,
                     $hasPublishedFile,
-                )->badgeHtml();
+                );
+
+                if ($status === AuctionFilePreparationStatus::READY && $published) {
+                    $buttons = [];
+                    $auctionId = $row->id ?? null;
+                    if (filled($published->outputs_path)) {
+                        $url = $auctionId ? tenant_route_name('auctions.reports.download', ['auction' => $auctionId, 'type' => 'outputs']) : '#';
+                        $buttons[] = '<a href="'.e($url).'" class="badge bg-secondary me-1" title="تحميل مخرجات المزاد"><i class="ti ti-file-text me-1"></i>المخرجات</a>';
+                    }
+                    if (filled($published->report_path)) {
+                        $url = $auctionId ? tenant_route_name('auctions.reports.download', ['auction' => $auctionId, 'type' => 'report']) : '#';
+                        $buttons[] = '<a href="'.e($url).'" class="badge bg-secondary" title="تحميل تقرير المزاد"><i class="ti ti-file-analytics me-1"></i>التقرير</a>';
+                    }
+
+                    if (! empty($buttons)) {
+                        return implode('', $buttons);
+                    }
+                }
+
+                return $status->badgeHtml();
             })
             ->addColumn('status_badge', function ($row): string {
                 return '<span class="badge '.$row->status_badge_class.'">'.e($row->status_label).'</span>';

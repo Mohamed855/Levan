@@ -62,7 +62,9 @@ const mountCycleForm = () => {
         if (window.jQuery && window.jQuery(channelsSelect).data("select2")) {
             selected = window.jQuery(channelsSelect).val() || [];
         } else if (channelsSelect.selectedOptions) {
-            selected = Array.from(channelsSelect.selectedOptions).map((o) => o.value);
+            selected = Array.from(channelsSelect.selectedOptions).map(
+                (o) => o.value,
+            );
             if (!selected.length && window.jQuery) {
                 selected = window.jQuery(channelsSelect).val() || [];
             }
@@ -130,24 +132,25 @@ const mountCycleForm = () => {
         // Ensure one visible tab is active if any channels are selected
         if (selected.length > 0) {
             const currentActiveTab = form.querySelector(
-                ".campaign-channel-tab:not(.d-none) .nav-link.active"
+                ".campaign-channel-tab:not(.d-none) .nav-link.active",
             );
             if (!currentActiveTab) {
                 // Prefer tab with validation errors
                 const errorPane = form.querySelector(
-                    '.campaign-channel-pane:not(.d-none):has(.is-invalid, [data-field-error]), .campaign-channel-box:not(.d-none):has(.is-invalid, [data-field-error])'
+                    ".campaign-channel-pane:not(.d-none):has(.is-invalid, [data-field-error]), .campaign-channel-box:not(.d-none):has(.is-invalid, [data-field-error])",
                 );
                 let targetTabBtn = null;
                 if (errorPane) {
                     const errCh = errorPane.dataset.channel;
                     const errTabItem = form.querySelector(
-                        `.campaign-channel-tab[data-channel="${errCh}"]:not(.d-none)`
+                        `.campaign-channel-tab[data-channel="${errCh}"]:not(.d-none)`,
                     );
-                    if (errTabItem) targetTabBtn = errTabItem.querySelector(".nav-link");
+                    if (errTabItem)
+                        targetTabBtn = errTabItem.querySelector(".nav-link");
                 }
                 if (!targetTabBtn) {
                     const firstVisibleTab = form.querySelector(
-                        ".campaign-channel-tab:not(.d-none) .nav-link"
+                        ".campaign-channel-tab:not(.d-none) .nav-link",
                     );
                     targetTabBtn = firstVisibleTab;
                 }
@@ -161,7 +164,10 @@ const mountCycleForm = () => {
                     currentActiveTab.getAttribute("href");
                 if (targetSelector) {
                     const activePane = form.querySelector(targetSelector);
-                    if (activePane && !activePane.classList.contains("active")) {
+                    if (
+                        activePane &&
+                        !activePane.classList.contains("active")
+                    ) {
                         activateTab(currentActiveTab);
                     }
                 }
@@ -172,22 +178,26 @@ const mountCycleForm = () => {
         const auctionInput = form.querySelector('[name="auction_id"]');
         const auctionId = auctionInput ? auctionInput.value : "";
         const propertySelect = form.querySelector(
-            '[name="campaigns[board_before][metrics][property_id]"]'
+            '[name="campaigns[board_before][metrics][property_id]"]',
         );
         if (propertySelect && form.dataset.campaignProperties && auctionId) {
             try {
                 const properties =
-                    JSON.parse(form.dataset.campaignProperties)[auctionId] || [];
+                    JSON.parse(form.dataset.campaignProperties)[auctionId] ||
+                    [];
                 const selectedProp = propertySelect.value;
                 const ids = properties.map((p) => String(p.value));
                 if (propertySelect.dataset.auction !== auctionId) {
                     propertySelect.replaceChildren(
                         new Option("", ""),
-                        ...properties.map((p) => new Option(p.label, p.value))
+                        ...properties.map((p) => new Option(p.label, p.value)),
                     );
-                    propertySelect.value = ids.includes(selectedProp) ? selectedProp : "";
+                    propertySelect.value = ids.includes(selectedProp)
+                        ? selectedProp
+                        : "";
                     propertySelect.dataset.auction = auctionId;
-                    if (window.jQuery) window.jQuery(propertySelect).trigger("change.select2");
+                    if (window.jQuery)
+                        window.jQuery(propertySelect).trigger("change.select2");
                 }
             } catch (e) {
                 console.error("Error updating campaign property options:", e);
@@ -209,20 +219,38 @@ const mountCycleForm = () => {
                 ),
             );
             const fields = JSON.parse(form.dataset.campaignFields);
-            setVisible(form.querySelector('[name="campaign_date"]'), channel === "whatsapp");
-            setVisible(form.querySelector('[name="url"]'), fields.links.includes(channel));
-            setVisible(form.querySelector('[name="evidence[]"]'), fields.evidence.includes(channel));
+            setVisible(
+                form.querySelector('[name="campaign_date"]'),
+                channel === "whatsapp",
+            );
+            setVisible(
+                form.querySelector('[name="url"]'),
+                fields.links.includes(channel),
+            );
+            setVisible(
+                form.querySelector('[name="evidence[]"]'),
+                fields.evidence.includes(channel),
+            );
             const auction = form.querySelector('[name="auction_id"]')?.value;
-            const propertySelect = form.querySelector('[name="metrics[property_id]"]');
+            const propertySelect = form.querySelector(
+                '[name="metrics[property_id]"]',
+            );
             if (propertySelect && auction) {
-                const properties = JSON.parse(form.dataset.campaignProperties)[auction] || [];
+                const properties =
+                    JSON.parse(form.dataset.campaignProperties)[auction] || [];
                 const selected = propertySelect.value;
                 const ids = properties.map((p) => String(p.value));
                 if (propertySelect.dataset.auction !== auction) {
-                    propertySelect.replaceChildren(new Option("", ""), ...properties.map(p => new Option(p.label, p.value)));
-                    propertySelect.value = ids.includes(selected) ? selected : "";
+                    propertySelect.replaceChildren(
+                        new Option("", ""),
+                        ...properties.map((p) => new Option(p.label, p.value)),
+                    );
+                    propertySelect.value = ids.includes(selected)
+                        ? selected
+                        : "";
                     propertySelect.dataset.auction = auction;
-                    if (window.jQuery) window.jQuery(propertySelect).trigger("change.select2");
+                    if (window.jQuery)
+                        window.jQuery(propertySelect).trigger("change.select2");
                 }
             }
         }
@@ -232,20 +260,41 @@ const mountCycleForm = () => {
         let soldCount = 0;
         let unsoldCount = 0;
 
-        const rows = form.querySelectorAll("#closing-properties-table tbody tr.closing-property-row");
-        rows.forEach((row) => {
-            const badge = row.querySelector(".closing-status-badge");
-            const text = badge ? badge.textContent.trim() : "";
-            if (text === "مباع / تمت الترسية") {
-                soldCount++;
-            } else if (text === "لم تتم الترسية") {
-                unsoldCount++;
-            }
-        });
+        const hiddenProps = form.querySelectorAll(
+            "#closing-properties-data-container .property-hidden-data",
+        );
+        if (hiddenProps.length > 0) {
+            hiddenProps.forEach((prop) => {
+                const st = prop.querySelector('[data-field="status"]')?.value;
+                if (st === "sold") {
+                    soldCount++;
+                } else if (st === "unsold") {
+                    unsoldCount++;
+                }
+            });
+        } else {
+            const rows = form.querySelectorAll(
+                "#closing-properties-table tbody tr.closing-property-row",
+            );
+            rows.forEach((row) => {
+                const badge = row.querySelector(".closing-status-badge");
+                const text = badge ? badge.textContent.trim() : "";
+                if (text.includes("تمت الترسية")) {
+                    soldCount++;
+                } else if (
+                    text.includes("غير مباعة") ||
+                    text.includes("لم تتم الترسية")
+                ) {
+                    unsoldCount++;
+                }
+            });
+        }
 
         const completedCount = soldCount + unsoldCount;
 
-        const completedEl = document.getElementById("completed-closing-props-count");
+        const completedEl = document.getElementById(
+            "completed-closing-props-count",
+        );
         if (completedEl) completedEl.textContent = String(completedCount);
 
         const soldEl = document.getElementById("sold-closing-props-count");
@@ -259,155 +308,489 @@ const mountCycleForm = () => {
         updateClosingStats();
     };
 
-    // Open single modal for property editing via AJAX
-    $(document).on("click", ".edit-closing-prop-btn", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
+    // Helper functions for closing modal Select2 and validation
+    const initClosingModalSelect2 = () => {
+        const $select = $("#modal_result_status");
+        if ($select.length && window.jQuery && $.fn.select2) {
+            if ($select.data("select2")) {
+                $select.select2("destroy");
+            }
+            $select.select2({
+                dropdownParent: $("#closingPropertyModal"),
+                placeholder: "اختر النتيجة",
+                allowClear: false,
+                width: "100%",
+                dir: "rtl",
+                minimumResultsForSearch: Infinity,
+            });
+        }
+    };
 
-        const propId = String(this.dataset.propertyId);
-        const propUrl = this.dataset.propertyUrl;
-        const modalEl = document.getElementById("closingPropertyModal");
-        if (!modalEl) return;
+    $(document).on("shown.bs.modal", "#closingPropertyModal", function () {
+        initClosingModalSelect2();
+    });
 
-        const modal = window.bootstrap && window.bootstrap.Modal
-            ? window.bootstrap.Modal.getOrCreateInstance(modalEl)
-            : null;
-        if (!modal) return;
+    const setClosingModalFieldError = (inputEl, message) => {
+        if (!inputEl) return;
+        inputEl.classList.add("is-invalid");
+        inputEl.setAttribute("aria-invalid", "true");
 
-        const spinner = document.getElementById("closing-modal-spinner");
-        const content = document.getElementById("closing-modal-content");
-        if (spinner && content) {
-            spinner.classList.remove("d-none");
-            content.classList.add("d-none");
+        const inputGroup = inputEl.closest(".input-group");
+        if (inputGroup) {
+            inputGroup.classList.add("is-invalid");
         }
 
-        modal.show();
+        if (inputEl.tagName === "SELECT") {
+            const select2Container = inputEl.nextElementSibling?.matches(
+                ".select2, .select2-container",
+            )
+                ? inputEl.nextElementSibling
+                : inputEl.parentElement?.querySelector(".select2-container");
+            if (select2Container) {
+                select2Container.classList.add("is-invalid");
+                const selection =
+                    select2Container.querySelector(".select2-selection");
+                if (selection) selection.classList.add("is-invalid");
+            }
+        }
 
-        // Clear any previous field validation errors
-        modalEl.querySelectorAll(".is-invalid").forEach((el) => el.classList.remove("is-invalid"));
+        const fieldWrapper =
+            inputEl.closest("[data-form-field]") || inputEl.parentElement;
+        if (fieldWrapper) {
+            fieldWrapper.classList.add("is-invalid");
+            const errorEl = fieldWrapper.querySelector("[data-form-error]");
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.hidden = false;
+                errorEl.removeAttribute("hidden");
+                errorEl.classList.remove("hidden");
+                errorEl.style.display = "block";
+            }
+        }
+    };
+
+    const clearClosingModalFieldError = (inputEl) => {
+        if (!inputEl) return;
+        inputEl.classList.remove("is-invalid");
+        inputEl.removeAttribute("aria-invalid");
+
+        const inputGroup = inputEl.closest(".input-group");
+        if (inputGroup) {
+            inputGroup.classList.remove("is-invalid");
+        }
+
+        if (inputEl.tagName === "SELECT") {
+            const select2Container = inputEl.nextElementSibling?.matches(
+                ".select2, .select2-container",
+            )
+                ? inputEl.nextElementSibling
+                : inputEl.parentElement?.querySelector(".select2-container");
+            if (select2Container) {
+                select2Container.classList.remove("is-invalid");
+                const selection =
+                    select2Container.querySelector(".select2-selection");
+                if (selection) selection.classList.remove("is-invalid");
+            }
+        }
+
+        const fieldWrapper =
+            inputEl.closest("[data-form-field]") || inputEl.parentElement;
+        if (fieldWrapper) {
+            fieldWrapper.classList.remove("is-invalid");
+            const errorEl = fieldWrapper.querySelector("[data-form-error]");
+            if (errorEl) {
+                errorEl.textContent = "";
+                errorEl.hidden = true;
+                errorEl.style.display = "none";
+            }
+        }
+    };
+
+    const clearAllClosingModalErrors = () => {
+        const modalEl = document.getElementById("closingPropertyModal");
+        if (!modalEl) return;
+        modalEl
+            .querySelectorAll(".is-invalid")
+            .forEach((el) => el.classList.remove("is-invalid"));
         modalEl.querySelectorAll("[data-form-error]").forEach((el) => {
             el.textContent = "";
             el.hidden = true;
+            el.style.display = "none";
         });
+    };
 
-        // Check if there are local hidden unsaved/staged inputs in the form
-        const hiddenDataEl = form.querySelector(`[data-prop-hidden="${propId}"]`);
-        const localData = {};
-        if (hiddenDataEl) {
-            hiddenDataEl.querySelectorAll("[data-field]").forEach((inp) => {
-                localData[inp.dataset.field] = inp.value;
-            });
+    const resetClosingModalFiles = () => {
+        const fileInp = document.getElementById("modal_board_images_after");
+        if (fileInp) {
+            try {
+                fileInp.value = "";
+            } catch (_) {}
+            if (
+                fileInp._fileUploadController &&
+                typeof fileInp._fileUploadController.clear === "function"
+            ) {
+                fileInp._fileUploadController.clear();
+            }
         }
 
-        const populateModal = (data) => {
-            const titleEl = document.getElementById("closingPropertyModalTitle");
-            if (titleEl) titleEl.textContent = `نتيجة إقفال العقار: ${data.name || "عقار"}`;
+        const zone = document.getElementById(
+            "modal_board_images_after-upload-zone",
+        );
+        if (zone) {
+            zone.classList.remove("has-files", "drag-over");
+            if (
+                zone._fileUploadController &&
+                typeof zone._fileUploadController.clear === "function"
+            ) {
+                zone._fileUploadController.clear();
+            }
+        }
 
-            const numEl = document.getElementById("closingPropertyModalNumber");
-            if (numEl) numEl.textContent = data.property_number || "-";
+        const previewContainer =
+            document.getElementById("modal_board_images_after-preview-list") ||
+            document.querySelector(
+                '[data-field-name="modal_board_images_after[]"] [data-file-preview-container]',
+            );
+        if (previewContainer) {
+            previewContainer.innerHTML = "";
+        }
 
-            const propIdInput = document.getElementById("modal_property_id");
-            if (propIdInput) propIdInput.value = propId;
+        const attachContainer = document.getElementById(
+            "modal_existing_attachments_container",
+        );
+        const attachList = document.getElementById(
+            "modal_existing_attachments_list",
+        );
+        if (attachContainer) attachContainer.classList.add("d-none");
+        if (attachList) attachList.innerHTML = "";
+    };
 
-            const setField = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) el.value = val !== undefined && val !== null ? val : "";
-            };
+    $(document).on("hidden.bs.modal", "#closingPropertyModal", function () {
+        resetClosingModalFiles();
+        clearAllClosingModalErrors();
+    });
 
-            setField("modal_opening_price", localData.opening_price !== undefined ? localData.opening_price : data.opening_price);
-            setField("modal_participants_count", localData.participants_count !== undefined ? localData.participants_count : data.participants_count);
-            setField("modal_bids_count", localData.bids_count !== undefined ? localData.bids_count : data.bids_count);
+    // Live validation listener for user changes inside closing modal
+    $(document).on(
+        "input change blur",
+        "#closingPropertyModal input, #closingPropertyModal select, #closingPropertyModal textarea",
+        function () {
+            const val = (this.value || "").trim();
+            if (val !== "") {
+                clearClosingModalFieldError(this);
+            }
+        },
+    );
 
-            const statusVal = localData.status !== undefined ? localData.status : data.result_status;
-            setField("modal_result_status", statusVal);
+    // Open single modal for property editing via AJAX (click on row or edit button)
+    $(document).on(
+        "click",
+        ".closing-property-row, .edit-closing-prop-btn",
+        function (e) {
+            if (
+                $(e.target).closest("input, select, textarea, label, a")
+                    .length &&
+                !$(e.target).closest(".edit-closing-prop-btn").length
+            ) {
+                return;
+            }
+            e.preventDefault();
 
-            setField("modal_buyer_name", localData.buyer_name !== undefined ? localData.buyer_name : data.buyer_name);
-            setField("modal_sale_price", localData.sale_price !== undefined ? localData.sale_price : data.sale_price);
-            setField("modal_unsold_reason", localData.unsold_reason !== undefined ? localData.unsold_reason : data.unsold_reason);
-            setField("modal_result_notes", localData.result_notes !== undefined ? localData.result_notes : data.result_notes);
+            const $btn = $(this).hasClass("edit-closing-prop-btn")
+                ? $(this)
+                : $(this).find(".edit-closing-prop-btn");
+            const $row = $(this).closest("tr.closing-property-row");
+            const propId = String(
+                $btn.data("property-id") ||
+                    $row.data("property-id") ||
+                    $row.data("property-row"),
+            );
+            const propUrl =
+                $btn.data("property-url") || $row.data("property-url");
 
-            const fileInp = document.getElementById("modal_board_images_after");
-            if (fileInp) fileInp.value = "";
+            const modalEl = document.getElementById("closingPropertyModal");
+            if (!modalEl) return;
 
-            // Toggle sold vs unsold sections
-            const soldSec = document.getElementById("modal_sold_section");
-            const unsoldSec = document.getElementById("modal_unsold_section");
-            if (soldSec && unsoldSec) {
-                soldSec.classList.toggle("d-none", statusVal !== "sold");
-                unsoldSec.classList.toggle("d-none", statusVal !== "unsold");
+            const modal =
+                window.bootstrap && window.bootstrap.Modal
+                    ? window.bootstrap.Modal.getOrCreateInstance(modalEl, {
+                          backdrop: "static",
+                          keyboard: false,
+                      })
+                    : null;
+            if (!modal) return;
+
+            const spinner = document.getElementById("closing-modal-spinner");
+            const content = document.getElementById("closing-modal-content");
+            if (spinner && content) {
+                spinner.classList.remove("d-none");
+                content.classList.add("d-none");
             }
 
-            // Existing attachments
-            const attachContainer = document.getElementById("modal_existing_attachments_container");
-            const attachList = document.getElementById("modal_existing_attachments_list");
-            if (attachContainer && attachList) {
-                if (data.attachments && data.attachments.length > 0) {
-                    attachContainer.classList.remove("d-none");
-                    attachList.innerHTML = data.attachments.map((file) => `
-                        <div class="col-md-6">
+            modal.show();
+            clearAllClosingModalErrors();
+            resetClosingModalFiles();
+
+            // Check if there are local hidden unsaved/staged inputs in the form
+            const hiddenDataEl = form.querySelector(
+                `[data-prop-hidden="${propId}"]`,
+            );
+            const localData = {};
+            if (hiddenDataEl) {
+                hiddenDataEl.querySelectorAll("[data-field]").forEach((inp) => {
+                    localData[inp.dataset.field] = inp.value;
+                });
+            }
+
+            const populateModal = (data) => {
+                resetClosingModalFiles();
+
+                const titleEl = document.getElementById(
+                    "closingPropertyModalTitle",
+                );
+                if (titleEl)
+                    titleEl.textContent = `نتيجة إقفال العقار: ${data.name || "عقار"}`;
+
+                const numEl = document.getElementById(
+                    "closingPropertyModalNumber",
+                );
+                if (numEl) numEl.textContent = data.property_number || "-";
+
+                const propIdInput =
+                    document.getElementById("modal_property_id");
+                if (propIdInput) propIdInput.value = propId;
+
+                const setField = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el)
+                        el.value = val !== undefined && val !== null ? val : "";
+                };
+
+                setField(
+                    "modal_opening_price",
+                    localData.opening_price !== undefined
+                        ? localData.opening_price
+                        : data.opening_price,
+                );
+                setField(
+                    "modal_participants_count",
+                    localData.participants_count !== undefined
+                        ? localData.participants_count
+                        : data.participants_count,
+                );
+                setField(
+                    "modal_bids_count",
+                    localData.bids_count !== undefined
+                        ? localData.bids_count
+                        : data.bids_count,
+                );
+
+                const statusVal =
+                    localData.status !== undefined
+                        ? localData.status
+                        : data.result_status;
+                const $statusSelect = $("#modal_result_status");
+                $statusSelect.val(statusVal || "");
+                if ($statusSelect.data("select2")) {
+                    $statusSelect.trigger("change.select2");
+                } else {
+                    initClosingModalSelect2();
+                    $statusSelect.val(statusVal || "").trigger("change");
+                }
+
+                setField(
+                    "modal_buyer_name",
+                    localData.buyer_name !== undefined
+                        ? localData.buyer_name
+                        : data.buyer_name,
+                );
+                setField(
+                    "modal_sale_price",
+                    localData.sale_price !== undefined
+                        ? localData.sale_price
+                        : data.sale_price,
+                );
+                setField(
+                    "modal_unsold_reason",
+                    localData.unsold_reason !== undefined
+                        ? localData.unsold_reason
+                        : data.unsold_reason,
+                );
+                setField(
+                    "modal_result_notes",
+                    localData.result_notes !== undefined
+                        ? localData.result_notes
+                        : data.result_notes,
+                );
+
+                // Toggle sold vs unsold sections
+                const soldSec = document.getElementById("modal_sold_section");
+                const unsoldSec = document.getElementById(
+                    "modal_unsold_section",
+                );
+                if (soldSec && unsoldSec) {
+                    soldSec.classList.toggle("d-none", statusVal !== "sold");
+                    unsoldSec.classList.toggle(
+                        "d-none",
+                        statusVal !== "unsold",
+                    );
+                }
+
+                // Restore any staged new files specifically for this property
+                const filesContainer = hiddenDataEl
+                    ? hiddenDataEl.querySelector(
+                          `[data-prop-files="${propId}"]`,
+                      )
+                    : null;
+                const savedFileInput = filesContainer
+                    ? filesContainer.querySelector("input[type='file']")
+                    : null;
+                if (
+                    savedFileInput &&
+                    savedFileInput.files &&
+                    savedFileInput.files.length > 0
+                ) {
+                    const fileInp = document.getElementById(
+                        "modal_board_images_after",
+                    );
+                    if (fileInp) {
+                        if (window.DataTransfer) {
+                            const dt = new DataTransfer();
+                            Array.from(savedFileInput.files).forEach((f) =>
+                                dt.items.add(f),
+                            );
+                            fileInp.files = dt.files;
+                        }
+                        if (
+                            fileInp._fileUploadController &&
+                            typeof fileInp._fileUploadController.setFiles ===
+                                "function"
+                        ) {
+                            fileInp._fileUploadController.setFiles(
+                                savedFileInput.files,
+                            );
+                        } else {
+                            fileInp.dispatchEvent(
+                                new Event("change", { bubbles: true }),
+                            );
+                        }
+                    }
+                }
+
+                // Existing server attachments for THIS property
+                const attachContainer = document.getElementById(
+                    "modal_existing_attachments_container",
+                );
+                const attachList = document.getElementById(
+                    "modal_existing_attachments_list",
+                );
+                if (attachContainer && attachList) {
+                    if (data.attachments && data.attachments.length > 0) {
+                        attachContainer.classList.remove("d-none");
+                        attachList.innerHTML = data.attachments
+                            .map((file) => {
+                                const isMarkedRemoved = Boolean(
+                                    form.querySelector(
+                                        `input[type="hidden"][name="remove_board_evidence[]"][value="${file.id}"]`,
+                                    ),
+                                );
+                                return `
+                        <div class="col-md-6" id="existing-attach-${file.id}">
                             <div class="border rounded p-2">
                                 <div class="d-flex align-items-center justify-content-between mb-2">
                                     <span class="text-truncate small fw-semibold" title="${file.file_name}">${file.file_name}</span>
                                     <a href="${file.file_url}" target="_blank" class="btn btn-sm btn-icon btn-label-primary" title="معاينة"><i class="ti ti-eye"></i></a>
                                 </div>
                                 <div class="form-check">
-                                    <input type="checkbox" name="remove_board_evidence[]" value="${file.id}" class="form-check-input" id="remove-board-${file.id}">
+                                    <input type="checkbox" name="remove_board_evidence[]" value="${file.id}" class="form-check-input" id="remove-board-${file.id}" ${isMarkedRemoved ? "checked" : ""}>
                                     <label for="remove-board-${file.id}" class="form-check-label text-danger small">حذف الصورة عند الحفظ</label>
                                 </div>
                             </div>
                         </div>
-                    `).join("");
-                } else {
-                    attachContainer.classList.add("d-none");
-                    attachList.innerHTML = "";
+                    `;
+                            })
+                            .join("");
+                    } else {
+                        attachContainer.classList.add("d-none");
+                        attachList.innerHTML = "";
+                    }
                 }
-            }
 
-            if (spinner && content) {
-                spinner.classList.add("d-none");
-                content.classList.remove("d-none");
-            }
-        };
+                if (spinner && content) {
+                    spinner.classList.add("d-none");
+                    content.classList.remove("d-none");
+                }
+            };
 
-        if (propUrl) {
-            $.ajax({
-                url: propUrl,
-                type: "GET",
-                dataType: "json",
-                success: function (res) {
-                    populateModal(res);
-                },
-                error: function () {
-                    // Fallback to row data if ajax fails
-                    const row = form.querySelector(`[data-property-row="${propId}"]`);
-                    const name = row?.querySelector(".fw-semibold")?.textContent.trim() || "";
-                    const num = row?.querySelector("code")?.textContent.trim() || "";
-                    populateModal({
-                        name: name,
-                        property_number: num,
-                        opening_price: "",
-                        participants_count: "",
-                        bids_count: "",
-                        result_status: "",
-                        buyer_name: "",
-                        sale_price: "",
-                        unsold_reason: "",
-                        result_notes: "",
-                        attachments: [],
-                    });
-                },
-            });
-        }
-    });
+            if (propUrl) {
+                $.ajax({
+                    url: propUrl,
+                    type: "GET",
+                    dataType: "json",
+                    success: function (res) {
+                        populateModal(res);
+                    },
+                    error: function () {
+                        const row = form.querySelector(
+                            `[data-property-row="${propId}"]`,
+                        );
+                        const name =
+                            row
+                                ?.querySelector(".fw-semibold")
+                                ?.textContent.trim() || "";
+                        const num =
+                            row?.querySelector("code")?.textContent.trim() ||
+                            "";
+                        populateModal({
+                            name: name,
+                            property_number: num,
+                            opening_price: "",
+                            participants_count: "",
+                            bids_count: "",
+                            result_status: "",
+                            buyer_name: "",
+                            sale_price: "",
+                            unsold_reason: "",
+                            result_notes: "",
+                            attachments: [],
+                        });
+                    },
+                });
+            }
+        },
+    );
 
     // Toggle sold vs unsold inside modal
     $(document).on("change", "#modal_result_status", function () {
-        const val = this.value;
+        const val = $(this).val();
         const soldSec = document.getElementById("modal_sold_section");
         const unsoldSec = document.getElementById("modal_unsold_section");
         if (soldSec && unsoldSec) {
             soldSec.classList.toggle("d-none", val !== "sold");
             unsoldSec.classList.toggle("d-none", val !== "unsold");
+        }
+        clearClosingModalFieldError(this);
+        if (val === "sold") {
+            clearClosingModalFieldError(
+                document.getElementById("modal_unsold_reason"),
+            );
+        } else if (val === "unsold") {
+            clearClosingModalFieldError(
+                document.getElementById("modal_buyer_name"),
+            );
+            clearClosingModalFieldError(
+                document.getElementById("modal_sale_price"),
+            );
+        } else {
+            clearClosingModalFieldError(
+                document.getElementById("modal_unsold_reason"),
+            );
+            clearClosingModalFieldError(
+                document.getElementById("modal_buyer_name"),
+            );
+            clearClosingModalFieldError(
+                document.getElementById("modal_sale_price"),
+            );
         }
     });
 
@@ -418,23 +801,7 @@ const mountCycleForm = () => {
         const modalEl = document.getElementById("closingPropertyModal");
         if (!modalEl) return;
 
-        // Clear previous validation errors
-        modalEl.querySelectorAll(".is-invalid").forEach((el) => el.classList.remove("is-invalid"));
-        modalEl.querySelectorAll("[data-form-error]").forEach((el) => {
-            el.textContent = "";
-            el.hidden = true;
-        });
-
-        const setError = (inputEl, message) => {
-            if (!inputEl) return;
-            inputEl.classList.add("is-invalid");
-            const fieldWrapper = inputEl.closest("[data-form-field]") || inputEl.parentElement;
-            const errorEl = fieldWrapper?.querySelector("[data-form-error]");
-            if (errorEl) {
-                errorEl.textContent = message;
-                errorEl.hidden = false;
-            }
-        };
+        clearAllClosingModalErrors();
 
         let hasError = false;
         let firstInvalidInput = null;
@@ -445,7 +812,7 @@ const mountCycleForm = () => {
             const val = input.value.trim();
             const isValid = val !== "" && (!validateFn || validateFn(val));
             if (!isValid) {
-                setError(input, message);
+                setClosingModalFieldError(input, message);
                 hasError = true;
                 if (!firstInvalidInput) firstInvalidInput = input;
                 return null;
@@ -453,28 +820,60 @@ const mountCycleForm = () => {
             return val;
         };
 
-        const openingPrice = checkRequired("modal_opening_price", "سعر الافتتاح مطلوب ويجب أن يكون رقمًا غير سالب.", (v) => !isNaN(Number(v)) && Number(v) >= 0);
-        const participantsCount = checkRequired("modal_participants_count", "عدد المشاركين مطلوب ويجب أن يكون رقمًا غير سالب.", (v) => !isNaN(Number(v)) && Number(v) >= 0);
-        const bidsCount = checkRequired("modal_bids_count", "عدد المزايدات مطلوب ويجب أن يكون رقمًا غير سالب.", (v) => !isNaN(Number(v)) && Number(v) >= 0);
-        const status = checkRequired("modal_result_status", "يرجى تحديد نتيجة العقار.", (v) => v === "sold" || v === "unsold");
+        const openingPrice = checkRequired(
+            "modal_opening_price",
+            "سعر الافتتاح مطلوب ويجب أن يكون رقمًا غير سالب.",
+            (v) => !isNaN(Number(v)) && Number(v) >= 0,
+        );
+        const participantsCount = checkRequired(
+            "modal_participants_count",
+            "عدد المشاركين مطلوب ويجب أن يكون رقمًا غير سالب.",
+            (v) => !isNaN(Number(v)) && Number(v) >= 0,
+        );
+        const bidsCount = checkRequired(
+            "modal_bids_count",
+            "عدد المزايدات مطلوب ويجب أن يكون رقمًا غير سالب.",
+            (v) => !isNaN(Number(v)) && Number(v) >= 0,
+        );
+        const status = checkRequired(
+            "modal_result_status",
+            "يرجى تحديد نتيجة العقار.",
+            (v) => v === "sold" || v === "unsold",
+        );
 
         let buyerName = "";
         let salePrice = "";
         let unsoldReason = "";
 
         if (status === "sold") {
-            buyerName = checkRequired("modal_buyer_name", "اسم من تمت الترسية عليه مطلوب للعقار المباع.");
-            salePrice = checkRequired("modal_sale_price", "قيمة الترسية مطلوبة ويجب أن تكون أكبر من صفر.", (v) => !isNaN(Number(v)) && Number(v) > 0);
+            buyerName = checkRequired(
+                "modal_buyer_name",
+                "اسم من تمت الترسية عليه مطلوب للعقار المباع.",
+            );
+            salePrice = checkRequired(
+                "modal_sale_price",
+                "قيمة الترسية مطلوبة ويجب أن تكون أكبر من صفر.",
+                (v) => !isNaN(Number(v)) && Number(v) > 0,
+            );
         } else if (status === "unsold") {
-            unsoldReason = checkRequired("modal_unsold_reason", "سبب عدم البيع مطلوب للعقار غير المباع.");
+            unsoldReason = checkRequired(
+                "modal_unsold_reason",
+                "سبب عدم البيع مطلوب للعقار غير المباع.",
+            );
         }
 
         if (hasError) {
-            if (firstInvalidInput && typeof firstInvalidInput.focus === "function") {
-                firstInvalidInput.focus();
+            if (firstInvalidInput) {
+                if ($(firstInvalidInput).data("select2")) {
+                    $(firstInvalidInput).select2("open");
+                } else if (typeof firstInvalidInput.focus === "function") {
+                    firstInvalidInput.focus();
+                }
             }
             if (typeof window.toastr !== "undefined") {
-                window.toastr.warning("يرجى إكمال جميع الحقول الإلزامية للعقار بشكل صحيح.");
+                window.toastr.warning(
+                    "يرجى إكمال جميع الحقول الإلزامية للعقار بشكل صحيح.",
+                );
             }
             return;
         }
@@ -482,14 +881,20 @@ const mountCycleForm = () => {
         const propId = document.getElementById("modal_property_id")?.value;
         if (!propId) return;
 
-        const resultNotes = document.getElementById("modal_result_notes")?.value || "";
+        const resultNotes =
+            document.getElementById("modal_result_notes")?.value || "";
 
         // Update hidden inputs in the form
-        const hiddenDataEl = form.querySelector(`[data-prop-hidden="${propId}"]`);
+        const hiddenDataEl = form.querySelector(
+            `[data-prop-hidden="${propId}"]`,
+        );
         if (hiddenDataEl) {
             const setHidden = (field, val) => {
-                const inp = hiddenDataEl.querySelector(`[data-field="${field}"]`);
-                if (inp) inp.value = val !== undefined && val !== null ? val : "";
+                const inp = hiddenDataEl.querySelector(
+                    `[data-field="${field}"]`,
+                );
+                if (inp)
+                    inp.value = val !== undefined && val !== null ? val : "";
             };
 
             setHidden("status", status);
@@ -501,30 +906,61 @@ const mountCycleForm = () => {
             setHidden("unsold_reason", status === "unsold" ? unsoldReason : "");
             setHidden("result_notes", resultNotes);
 
-            // Copy file input if user selected new files
-            const modalFileInp = document.getElementById("modal_board_images_after");
-            const filesContainer = hiddenDataEl.querySelector(`[data-prop-files="${propId}"]`);
-            if (modalFileInp && modalFileInp.files && modalFileInp.files.length > 0 && filesContainer) {
-                // Move or recreate input
-                const clonedInp = modalFileInp.cloneNode(true);
-                clonedInp.id = `board_images_after_${propId}`;
-                clonedInp.name = `board_images_after[${propId}][]`;
-                clonedInp.classList.add("d-none");
-                filesContainer.replaceChildren(clonedInp);
+            // Save staged files for this property
+            const modalFileInp = document.getElementById(
+                "modal_board_images_after",
+            );
+            const filesContainer = hiddenDataEl.querySelector(
+                `[data-prop-files="${propId}"]`,
+            );
+            if (filesContainer) {
+                if (
+                    modalFileInp &&
+                    modalFileInp.files &&
+                    modalFileInp.files.length > 0
+                ) {
+                    const hiddenFileInput = document.createElement("input");
+                    hiddenFileInput.type = "file";
+                    hiddenFileInput.multiple = true;
+                    hiddenFileInput.id = `board_images_after_${propId}`;
+                    hiddenFileInput.name = `board_images_after[${propId}][]`;
+                    hiddenFileInput.classList.add("d-none");
+                    if (window.DataTransfer) {
+                        const dt = new DataTransfer();
+                        Array.from(modalFileInp.files).forEach((f) =>
+                            dt.items.add(f),
+                        );
+                        hiddenFileInput.files = dt.files;
+                    }
+                    filesContainer.replaceChildren(hiddenFileInput);
+                } else if (
+                    !filesContainer.querySelector("input[type='file']")
+                ) {
+                    filesContainer.innerHTML = "";
+                }
             }
         }
 
-        // Copy any checked remove_board_evidence checkboxes to form
-        modalEl.querySelectorAll('[name="remove_board_evidence[]"]:checked').forEach((chk) => {
-            const val = chk.value;
-            if (!form.querySelector(`input[type="hidden"][name="remove_board_evidence[]"][value="${val}"]`)) {
-                const hiddenChk = document.createElement("input");
-                hiddenChk.type = "hidden";
-                hiddenChk.name = "remove_board_evidence[]";
-                hiddenChk.value = val;
-                form.appendChild(hiddenChk);
-            }
-        });
+        // Sync remove_board_evidence checkboxes for this property
+        modalEl
+            .querySelectorAll('[name="remove_board_evidence[]"]')
+            .forEach((chk) => {
+                const val = chk.value;
+                const existingHidden = form.querySelector(
+                    `input[type="hidden"][name="remove_board_evidence[]"][value="${val}"]`,
+                );
+                if (chk.checked) {
+                    if (!existingHidden) {
+                        const hiddenChk = document.createElement("input");
+                        hiddenChk.type = "hidden";
+                        hiddenChk.name = "remove_board_evidence[]";
+                        hiddenChk.value = val;
+                        form.appendChild(hiddenChk);
+                    }
+                } else if (existingHidden) {
+                    existingHidden.remove();
+                }
+            });
 
         // Update table row
         const row = form.querySelector(`[data-property-row="${propId}"]`);
@@ -535,32 +971,41 @@ const mountCycleForm = () => {
             const badge = row.querySelector(`[data-closing-badge="${propId}"]`);
             if (badge) {
                 if (status === "sold") {
-                    badge.className = "badge bg-label-success closing-status-badge";
+                    badge.className =
+                        "badge bg-label-success closing-status-badge";
                     badge.textContent = "مباع / تمت الترسية";
                 } else if (status === "unsold") {
-                    badge.className = "badge bg-label-danger closing-status-badge";
-                    badge.textContent = "لم تتم الترسية";
+                    badge.className =
+                        "badge bg-label-danger closing-status-badge";
+                    badge.textContent = "غير مباعة";
                 }
             }
 
             row.classList.toggle("table-success-subtle", status === "sold");
             row.classList.toggle("table-danger-subtle", status === "unsold");
 
-            const openingCell = row.querySelector(`[data-opening-cell="${propId}"]`);
+            const openingCell = row.querySelector(
+                `[data-opening-cell="${propId}"]`,
+            );
             if (openingCell && openingPrice) {
-                openingCell.textContent = Number(openingPrice).toLocaleString() + " ر.س";
+                openingCell.textContent =
+                    Number(openingPrice).toLocaleString() + " ر.س";
             }
         }
 
         updateClosingStats();
 
         // Close modal
-        const modalInstance = window.bootstrap && window.bootstrap.Modal
-            ? window.bootstrap.Modal.getInstance(modalEl)
-            : null;
+        const modalInstance =
+            window.bootstrap && window.bootstrap.Modal
+                ? window.bootstrap.Modal.getInstance(modalEl)
+                : null;
         if (modalInstance) {
             modalInstance.hide();
         }
+
+        // Clean modal files immediately after closing/saving
+        resetClosingModalFiles();
 
         if (typeof window.toastr !== "undefined") {
             window.toastr.success("تم حفظ وتحديث نتيجة العقار بنجاح.");
@@ -578,14 +1023,17 @@ const mountCycleForm = () => {
 
         // 1. If draft has auction_id, set it and populate properties
         const auctionId =
-            data.auction_id ||
-            form.querySelector('[name="auction_id"]')?.value;
+            data.auction_id || form.querySelector('[name="auction_id"]')?.value;
         if (auctionId) {
             const auctionSelect = form.querySelector('[name="auction_id"]');
-            if (auctionSelect && String(auctionSelect.value) !== String(auctionId)) {
+            if (
+                auctionSelect &&
+                String(auctionSelect.value) !== String(auctionId)
+            ) {
                 auctionSelect.value = auctionId;
                 if (window.jQuery) {
-                    window.jQuery(auctionSelect)
+                    window
+                        .jQuery(auctionSelect)
                         .val(auctionId)
                         .trigger("change.select2");
                 }
@@ -610,7 +1058,8 @@ const mountCycleForm = () => {
                 opt.selected = channels.includes(String(opt.value));
             });
             if (window.jQuery) {
-                window.jQuery(channelsSelect)
+                window
+                    .jQuery(channelsSelect)
                     .val(channels)
                     .trigger("change.select2");
             }
@@ -658,7 +1107,8 @@ const mountCycleForm = () => {
                                         },
                                     );
                                     if (window.jQuery) {
-                                        window.jQuery(metricInput)
+                                        window
+                                            .jQuery(metricInput)
                                             .val(metricVal)
                                             .trigger("change.select2");
                                     }
@@ -670,6 +1120,7 @@ const mountCycleForm = () => {
             });
         }
 
+        initClosingModalSelect2();
         updateAll();
         setTimeout(updateAll, 50);
         setTimeout(updateAll, 200);
@@ -684,7 +1135,7 @@ const mountCycleForm = () => {
             if (!pane || !btn) return;
             const hasError =
                 pane.querySelector(
-                    ".is-invalid, [aria-invalid='true'], [data-form-error]:not([hidden]):not([style*='display: none'])"
+                    ".is-invalid, [aria-invalid='true'], [data-form-error]:not([hidden]):not([style*='display: none'])",
                 ) !== null;
             if (hasError) {
                 btn.classList.add("border-danger", "text-danger");
@@ -695,6 +1146,7 @@ const mountCycleForm = () => {
     };
 
     form.addEventListener("change", () => {
+        initClosingModalSelect2();
         updateAll();
         syncTabErrorStates();
     });
@@ -712,7 +1164,7 @@ const mountCycleForm = () => {
             }
             syncTabErrorStates();
         },
-        true
+        true,
     );
     form.addEventListener("wizardDraftRestored", handleDraftRestored);
     form.addEventListener("click", (e) => {
@@ -738,7 +1190,9 @@ const mountCycleForm = () => {
             const newlySelected = e.params?.data?.id;
             updateAll();
             if (newlySelected) {
-                const newTabBtn = form.querySelector(`#tab-btn-${newlySelected}`);
+                const newTabBtn = form.querySelector(
+                    `#tab-btn-${newlySelected}`,
+                );
                 if (newTabBtn) {
                     activateTab(newTabBtn);
                 }
@@ -747,11 +1201,14 @@ const mountCycleForm = () => {
         $(form).on("wizardDraftRestored", handleDraftRestored);
     }
 
-    const channelsEl = form.querySelector("#campaign-channels-select") || form.querySelector('[name="channels[]"]');
+    const channelsEl =
+        form.querySelector("#campaign-channels-select") ||
+        form.querySelector('[name="channels[]"]');
     if (channelsEl) {
         channelsEl.addEventListener("change", updateAll);
     }
 
+    initClosingModalSelect2();
     updateAll();
     setTimeout(updateAll, 50);
     setTimeout(updateAll, 200);

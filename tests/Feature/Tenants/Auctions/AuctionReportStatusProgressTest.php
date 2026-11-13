@@ -196,13 +196,14 @@ final class AuctionReportStatusProgressTest extends TestCase
         $this->assertStringContainsString('فشل التجهيز', $callback($rowFailed));
         $this->assertStringContainsString('bg-label-danger', $callback($rowFailed));
 
-        // 4. Ready & published -> جاهز للتحميل (bg-label-success)
+        // 4. Ready & published -> download badges when paths exist
         $rowReady = (object) [
+            'id' => 123,
             'latestReportGeneration' => $publishedReady,
             'publishedReportGeneration' => $publishedReady,
         ];
-        $this->assertStringContainsString('جاهز للتحميل', $callback($rowReady));
-        $this->assertStringContainsString('bg-label-success', $callback($rowReady));
+        $this->assertStringContainsString('المخرجات', $callback($rowReady));
+        $this->assertStringContainsString('التقرير', $callback($rowReady));
     }
 
     public function test_show_and_regulatory_forms_views_remove_fake_progress_and_unify_status_labels(): void

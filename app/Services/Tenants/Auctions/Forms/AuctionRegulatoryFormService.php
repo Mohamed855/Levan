@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 use RuntimeException;
 use Throwable;
 
-final class AuctionRegulatoryFormService
+class AuctionRegulatoryFormService
 {
     public function __construct(private readonly AuctionRegulatoryFormDataBuilder $dataBuilder) {}
 

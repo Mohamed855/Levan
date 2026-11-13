@@ -16,88 +16,112 @@
 @endphp
 
 @foreach ($formTypes as $formType => $formOptions)
-    @if ($savedRequest?->exists && ($formType === 'establishment' || ($savedRequest->isApproved() && $auction->closing?->saved_at)))
-        @can($formOptions['permission'] . '.view')
-            @php
-                $formGeneration = $formService->latest($auction, $formType);
-                $publishedForm = $formService->published($auction, $formType);
-                $formProcessing = (bool) $formGeneration?->isProcessing();
-                $hasPublishedForm = (bool) $publishedForm?->isReady();
-                $formReadyToDownload = !$formProcessing && $hasPublishedForm;
-                $formFailed = !$formProcessing && $formGeneration?->status === 'failed';
-                $formPrepStatus = \App\Enums\Tenants\Auctions\AuctionFilePreparationStatus::resolve(
-                    $formGeneration?->status,
-                    $hasPublishedForm,
-                );
-                $formProgress = $formGeneration ? max(0, min(100, (int) ($formGeneration->progress ?? 0))) : 0;
-                $formDownload = tenant_route_name('auctions.forms.download', ['auction' => $auction->id, 'type' => $formType]);
-            @endphp
-            <div class="card mb-4" data-regulatory-form="{{ $formType }}"
-                data-status="{{ $formGeneration?->status ?? 'none' }}"
-                data-generation-id="{{ $formGeneration?->id }}"
-                data-progress="{{ $formProgress }}"
-                data-has-file="{{ $hasPublishedForm ? '1' : '0' }}"
-                data-download-url="{{ $formDownload }}"
-                data-status-url="{{ tenant_route_name('auctions.forms.status', ['auction' => $auction->id, 'type' => $formType]) }}"
-                data-retry-url="{{ tenant_route_name('auctions.forms.retry', ['auction' => $auction->id, 'type' => $formType]) }}">
-                <div class="card-header pb-2 mb-3 d-flex justify-content-between align-items-center">
-                    <h6 class="card-title mb-0">
-                        <i class="ti {{ $formOptions['icon'] }} text-primary me-2"></i>{{ $formOptions['label'] }}
-                    </h6>
-                    <span data-form-badge class="badge {{ $formPrepStatus->badgeClass() }}">{{ $formPrepStatus->label() }}</span>
+    @php
+        $canRegenerateForm = ! auth('tenant')->check() || (bool) auth('tenant')->user()?->can($formOptions['permission'] . '.regenerate');
+        $isActionable = false;
+        $disabledAlert = null;
+
+        if ($formType === 'establishment') {
+            if ($savedRequest?->exists && is_array($savedRequest->data) && ! empty($savedRequest->data)) {
+                $isActionable = true;
+            } else {
+                $disabledAlert = 'يرجى حفظ وتقديم طلب إقامة المزاد لتوليد النموذج.';
+            }
+        } elseif ($formType === 'closing') {
+            if (! $savedRequest?->isApproved()) {
+                $disabledAlert = 'يرجى اعتماد طلب إقامة المزاد أولاً لتتمكن من إقفال المزاد وتوليد النموذج.';
+            } elseif (! $auction->isClosed() || ! $auction->closing?->saved_at) {
+                $disabledAlert = 'برجاء إكمال الإقفال لتوليد نموذج الإقفال.';
+            } else {
+                $isActionable = true;
+            }
+        }
+
+        $formGeneration = $isActionable ? $formService->latest($auction, $formType) : null;
+        $publishedForm = $isActionable ? $formService->published($auction, $formType) : null;
+        $formProcessing = $isActionable && (bool) $formGeneration?->isProcessing();
+        $hasPublishedForm = $isActionable && (bool) $publishedForm?->isReady();
+        $formReadyToDownload = $isActionable && ! $formProcessing && $hasPublishedForm;
+        $formFailed = $isActionable && ! $formProcessing && $formGeneration?->status === 'failed';
+        $formPrepStatus = $isActionable
+            ? \App\Enums\Tenants\Auctions\AuctionFilePreparationStatus::resolve(
+                $formGeneration?->status,
+                $hasPublishedForm,
+            )
+            : \App\Enums\Tenants\Auctions\AuctionFilePreparationStatus::NOT_PREPARED;
+        $formProgress = ($isActionable && $formGeneration) ? max(0, min(100, (int) ($formGeneration->progress ?? 0))) : 0;
+        $formDownload = $isActionable ? tenant_route_name('auctions.forms.download', ['auction' => $auction->id, 'type' => $formType]) : null;
+    @endphp
+    <div class="card mb-4" data-regulatory-form="{{ $formType }}"
+        data-actionable="{{ $isActionable ? '1' : '0' }}"
+        data-status="{{ $formGeneration?->status ?? 'none' }}"
+        data-generation-id="{{ $formGeneration?->id }}"
+        data-progress="{{ $formProgress }}"
+        data-has-file="{{ $hasPublishedForm ? '1' : '0' }}"
+        data-download-url="{{ $formDownload ?? '' }}"
+        data-status-url="{{ tenant_route_name('auctions.forms.status', ['auction' => $auction->id, 'type' => $formType]) }}"
+        data-retry-url="{{ tenant_route_name('auctions.forms.retry', ['auction' => $auction->id, 'type' => $formType]) }}">
+        <div class="card-header pb-2 mb-3 d-flex justify-content-between align-items-center">
+            <h6 class="card-title mb-0">
+                <i class="ti {{ $formOptions['icon'] }} text-primary me-2"></i>{{ $formOptions['label'] }}
+            </h6>
+            <span data-form-badge class="badge {{ $formPrepStatus->badgeClass() }}">{{ $formPrepStatus->label() }}</span>
+        </div>
+        <div class="card-body">
+            @if (! $isActionable && $disabledAlert)
+                <div class="alert alert-warning p-2 small mb-3">
+                    <i class="ti ti-alert-triangle me-1"></i>
+                    <span>{{ $disabledAlert }}</span>
                 </div>
-                <div class="card-body">
-                    <div data-form-error class="text-danger small mb-3 {{ $formFailed ? '' : 'd-none' }}">
-                        <i class="ti ti-alert-circle me-1"></i>
-                        <span data-form-error-text>{{ $formGeneration?->publicErrorMessage() }}</span>
-                    </div>
+            @endif
 
-                    <div data-form-timeout class="alert alert-warning p-2 small mb-3 d-none">
-                        <i class="ti ti-clock-exclamation me-1"></i>
-                        <span>انتهت المهلة المحددة لتحضير النموذج تلقائياً. يمكنك الضغط على زر إعادة التوليد للمحاولة مرة أخرى.</span>
-                    </div>
+            <div data-form-error class="text-danger small mb-3 {{ $formFailed ? '' : 'd-none' }}">
+                <i class="ti ti-alert-circle me-1"></i>
+                <span data-form-error-text>{{ $formGeneration?->publicErrorMessage() }}</span>
+            </div>
 
-                    <div data-form-loading class="p-3 mb-3 border rounded bg-light-subtle {{ $formProcessing ? '' : 'd-none' }}">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-semibold small text-primary">
-                                <i class="ti ti-loader ti-spin me-1"></i>جارٍ تحضير وتجهيز النموذج...
-                                <span data-form-stage class="text-muted fw-normal"></span>
-                            </span>
-                            <span data-form-percent class="fw-bold text-primary small">{{ $formProgress }}%</span>
-                        </div>
-                        <div class="progress" style="height: 10px;" role="progressbar"
-                            aria-valuenow="{{ $formProgress }}" aria-valuemin="0" aria-valuemax="100"
-                            aria-label="تقدم تجهيز النموذج">
-                            <div data-form-progress
-                                class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
-                                style="width: {{ $formProgress }}%;"></div>
-                        </div>
-                    </div>
+            <div data-form-timeout class="alert alert-warning p-2 small mb-3 d-none">
+                <i class="ti ti-clock-exclamation me-1"></i>
+                <span>انتهت المهلة المحددة لتحضير النموذج تلقائياً. يمكنك الضغط على زر إعادة التوليد للمحاولة مرة أخرى.</span>
+            </div>
 
-                    <div class="d-grid gap-2">
-                        <a data-form-download
-                            href="{{ $formReadyToDownload ? $formDownload : 'javascript:void(0)' }}"
-                            class="btn btn-primary d-flex align-items-center justify-content-between {{ $formReadyToDownload ? '' : 'disabled' }}"
-                            @if (!$formReadyToDownload) disabled aria-disabled="true" @else aria-disabled="false" @endif>
-                            <span><i class="ti {{ $formOptions['icon'] }} me-2"></i>تحميل {{ $formOptions['label'] }}</span>
-                            <i class="ti ti-download"></i>
-                        </a>
-                        @can($formOptions['permission'] . '.regenerate')
-                            <button type="button" data-form-retry
-                                class="btn btn-outline-primary mt-2"
-                                @disabled($formProcessing)
-                                @if ($formProcessing) aria-disabled="true" @endif>
-                                <i data-form-retry-icon class="ti {{ $formProcessing ? 'ti-loader ti-spin' : 'ti-refresh' }} me-1"></i>
-                                <span data-form-retry-text>
-                                    {{ $formProcessing ? 'جارٍ التوليد...' : ($hasPublishedForm ? 'إعادة توليد النموذج' : ($formFailed ? 'إعادة محاولة التجهيز' : 'بدء تجهيز النموذج')) }}
-                                </span>
-                            </button>
-                        @endcan
-                    </div>
+            <div data-form-loading class="p-3 mb-3 border rounded bg-light-subtle {{ $formProcessing ? '' : 'd-none' }}">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold small text-primary">
+                        <i class="ti ti-loader ti-spin me-1"></i>جارٍ تحضير وتجهيز النموذج...
+                        <span data-form-stage class="text-muted fw-normal"></span>
+                    </span>
+                    <span data-form-percent class="fw-bold text-primary small">{{ $formProgress }}%</span>
+                </div>
+                <div class="progress" style="height: 10px;" role="progressbar"
+                    aria-valuenow="{{ $formProgress }}" aria-valuemin="0" aria-valuemax="100"
+                    aria-label="تقدم تجهيز النموذج">
+                    <div data-form-progress
+                        class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                        style="width: {{ $formProgress }}%;"></div>
                 </div>
             </div>
-        @endcan
-    @endif
+
+            <div class="d-grid gap-2">
+                <a data-form-download
+                    href="{{ $formReadyToDownload ? $formDownload : 'javascript:void(0)' }}"
+                    class="btn btn-primary d-flex align-items-center justify-content-between {{ $formReadyToDownload ? '' : 'disabled' }}"
+                    @if (! $formReadyToDownload) disabled aria-disabled="true" @else aria-disabled="false" @endif>
+                    <span><i class="ti {{ $formOptions['icon'] }} me-2"></i>تحميل {{ $formOptions['label'] }}</span>
+                    <i class="ti ti-download"></i>
+                </a>
+                <button type="button" data-form-retry
+                    class="btn btn-outline-primary mt-2"
+                    @disabled(! $isActionable || $formProcessing || ! $canRegenerateForm)
+                    @if (! $isActionable || $formProcessing || ! $canRegenerateForm) aria-disabled="true" @endif>
+                    <i data-form-retry-icon class="ti {{ $formProcessing ? 'ti-loader ti-spin' : 'ti-refresh' }} me-1"></i>
+                    <span data-form-retry-text>
+                        {{ $formProcessing ? 'جارٍ التوليد...' : ($hasPublishedForm ? 'إعادة توليد النموذج' : ($formFailed ? 'إعادة محاولة التجهيز' : 'بدء تجهيز النموذج')) }}
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
 @endforeach
 
 @once
@@ -118,6 +142,10 @@
             ];
 
             document.querySelectorAll('[data-regulatory-form]').forEach(function(card) {
+                if (card.dataset.actionable === '0') {
+                    return;
+                }
+
                 const badge = card.querySelector('[data-form-badge]');
                 const errorBox = card.querySelector('[data-form-error]');
                 const errorText = card.querySelector('[data-form-error-text]');

@@ -70,9 +70,9 @@ final class AuctionRegulatoryFormsController extends Controller
         };
         Gate::authorize($permission.'.'.$ability);
         $request = $auction->establishmentRequest;
-        abort_unless($request?->exists, 404);
+        abort_unless($request?->exists && is_array($request->data) && ! empty($request->data), 404);
         if ($type === 'closing') {
-            abort_unless($request->isApproved() && $auction->closing?->saved_at, 404);
+            abort_unless($request->isApproved() && $auction->isClosed() && $auction->closing?->saved_at, 404);
         }
     }
 
