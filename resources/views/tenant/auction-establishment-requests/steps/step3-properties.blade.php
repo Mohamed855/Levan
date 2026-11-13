@@ -62,7 +62,6 @@
                 <div>
                     <h5 class="mb-0 fw-bold"><i class="ti ti-building me-1 text-primary"></i>عقارات المزاد المطلوب إقامته
                     </h5>
-                    <small class="text-muted">استكمل بيانات وتفاصيل جميع العقارات لتقديم طلب إقامة المزاد.</small>
                 </div>
                 <div class="d-flex flex-wrap gap-2 text-start">
                     <span class="badge bg-primary p-2">المكتملة: <span id="completed-establishment-props-count">0</span>
@@ -171,10 +170,17 @@
     @foreach ($data['properties'] as $index => $propertyData)
         @php
             $propId = $propertyData['property_id'];
+            $propModel = $auction->properties->firstWhere('id', $propId);
+            $hasInheritedContract = filled($propModel?->assignment?->assignment_number ?? $auction->assignment?->assignment_number);
+            $hasInheritedAgent = filled($propModel?->agent_name);
+            $hasInheritedEstimated = filled($propModel?->estimated_value);
             $prefix = "data[properties][{$index}]";
         @endphp
         <div class="property-hidden-data" data-prop-hidden="{{ $propId }}"
-            data-prop-index="{{ $index }}">
+            data-prop-index="{{ $index }}"
+            data-prop-inherited-contract="{{ $hasInheritedContract ? '1' : '0' }}"
+            data-prop-inherited-agent="{{ $hasInheritedAgent ? '1' : '0' }}"
+            data-prop-inherited-estimated="{{ $hasInheritedEstimated ? '1' : '0' }}">
             <input type="hidden" name="{{ $prefix }}[property_id]" value="{{ $propId }}"
                 data-field="property_id">
             @foreach ($schema->propertyFields() as $fieldKey => $fieldDef)
@@ -206,33 +212,40 @@
 
         <div class="alert alert-info py-2 px-3 mb-4 d-flex align-items-center">
             <i class="ti ti-info-circle me-2"></i>
-            <small>يرجى استكمال جميع الحقول الإلزامية ومستندات العقار حتى يتم اعتماد العقار كمكتمل البيانات.</small>
+            <small>البيانات المستوردة من سجل العقار والمزاد والإسناد (الملاك، الصك، المساحة، النوع، الاستخدام، المدينة) مقفلة تلقائياً وغير قابلة للتعديل للحفاظ على مطابقة السجلات.</small>
         </div>
 
         <div class="row g-4">
             {{-- المالك / الملاك --}}
             <x-form.controls.input name="modal_prop_owner_name" id="modal_prop_owner_name" label="المالك / الملاك"
-                required col="col-md-6" />
+                required col="col-md-6" :readonly="true" class="bg-light cursor-not-allowed" tabindex="-1"
+                style="pointer-events: none;" help="مستورد من سجل ملاك العقار" />
 
             {{-- رقم الصك --}}
             <x-form.controls.input name="modal_prop_deed_number" id="modal_prop_deed_number"
-                label="رقم الصك / الصحيفة العقارية" required inputmode="numeric" pattern="[0-9]+" col="col-md-6" />
+                label="رقم الصك / الصحيفة العقارية" required inputmode="numeric" pattern="[0-9]+" col="col-md-6"
+                :readonly="true" class="bg-light cursor-not-allowed" tabindex="-1" style="pointer-events: none;"
+                help="مستورد من وثيقة ملكية العقار" />
 
             {{-- رقم عقد المزاد --}}
             <x-form.controls.input name="modal_prop_contract_number" id="modal_prop_contract_number"
-                label="رقم عقد المزاد" required inputmode="numeric" pattern="[0-9]+" col="col-md-6" />
+                label="رقم عقد المزاد / الإسناد" required inputmode="numeric" pattern="[0-9]+" col="col-md-6"
+                help="رقم الإسناد أو عقد الوساطة للمزاد" />
 
             {{-- المساحة --}}
             <x-form.controls.input name="modal_prop_area" id="modal_prop_area" label="المساحة (م²)" type="number"
-                min="0.01" step="any" required col="col-md-6" />
+                min="0.01" step="any" required col="col-md-6" :readonly="true" class="bg-light cursor-not-allowed"
+                tabindex="-1" style="pointer-events: none;" help="مستورد من مساحة العقار" />
 
             {{-- نوع العقار --}}
             <x-form.controls.input name="modal_prop_type" id="modal_prop_type" label="نوع العقار" required
-                col="col-md-6" />
+                col="col-md-6" :readonly="true" class="bg-light cursor-not-allowed" tabindex="-1"
+                style="pointer-events: none;" help="مستورد من تصنيف العقار" />
 
             {{-- استخدام العقار --}}
             <x-form.controls.input name="modal_prop_usage" id="modal_prop_usage" label="استخدام العقار" required
-                col="col-md-6" />
+                col="col-md-6" :readonly="true" class="bg-light cursor-not-allowed" tabindex="-1"
+                style="pointer-events: none;" help="مستورد من تصنيف استخدام العقار" />
 
             {{-- الاستخدام الآخر (إن وجد) --}}
             <div class="col-md-6 d-none" id="modal_prop_usage_other_col">
@@ -246,7 +259,8 @@
 
             {{-- المدينة / الحي --}}
             <x-form.controls.input name="modal_prop_city_district" id="modal_prop_city_district"
-                label="المدينة / الحي" required col="col-md-6" />
+                label="المدينة / الحي" required col="col-md-6" :readonly="true" class="bg-light cursor-not-allowed"
+                tabindex="-1" style="pointer-events: none;" help="مستورد من موقع العقار" />
 
             {{-- الحالة النظامية --}}
             <x-form.controls.select name="modal_prop_status" id="modal_prop_status" label="الحالة النظامية"
@@ -299,21 +313,18 @@
             <div class="col-md-4">
                 <x-form.controls.file name="modal_file_deed" id="modal_file_deed"
                     label="وثيقة الملكية (الصك الإلكتروني)" accept=".pdf,.png,.jpg,.jpeg" col="col-12" />
-                <div id="modal_existing_deed" class="mt-2"></div>
             </div>
 
             <div class="col-md-4">
                 <x-form.controls.file name="modal_file_valuation" id="modal_file_valuation"
                     label="نموذج التقييم العقاري" accept=".pdf,.png,.jpg,.jpeg" col="col-12"
                     help="مطلوب عند وجود مبلغ دخول." />
-                <div id="modal_existing_valuation" class="mt-2"></div>
             </div>
 
             <div class="col-md-4">
                 <x-form.controls.file name="modal_file_representative_authority"
                     id="modal_file_representative_authority" label="مستند التفويض أو الوكالة"
                     accept=".pdf,.png,.jpg,.jpeg" col="col-12" help="مطلوب عند وجود وكيل أو معتمد غير المالك." />
-                <div id="modal_existing_representative_authority" class="mt-2"></div>
             </div>
         </div>
     </div>

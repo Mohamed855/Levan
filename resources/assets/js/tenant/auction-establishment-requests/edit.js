@@ -216,6 +216,65 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
+        // Dynamic locking for inherited contract number, agent info, and estimated value
+        const isContractInherited = hiddenContainer.dataset.propInheritedContract === "1";
+        const isAgentInherited = hiddenContainer.dataset.propInheritedAgent === "1";
+        const isEstimatedInherited = hiddenContainer.dataset.propInheritedEstimated === "1";
+
+        const contractInp = getModalEl("modal_prop_contract_number");
+        if (contractInp) {
+            contractInp.readOnly = isContractInherited;
+            contractInp.classList.toggle("bg-light", isContractInherited);
+            contractInp.classList.toggle("cursor-not-allowed", isContractInherited);
+            contractInp.style.pointerEvents = isContractInherited ? "none" : "";
+            contractInp.tabIndex = isContractInherited ? -1 : 0;
+            const help = contractInp.parentElement?.querySelector(".form-text");
+            if (help) {
+                help.textContent = isContractInherited
+                    ? "مستورد من رقم إسناد المزاد وغير قابل للتعديل"
+                    : "رقم الإسناد أو عقد الوساطة للمزاد";
+            }
+        }
+
+        const agentNameInp = getModalEl("modal_prop_agent_name");
+        const agencyNumInp = getModalEl("modal_prop_agency_number");
+        [agentNameInp, agencyNumInp].forEach((inp) => {
+            if (inp) {
+                inp.readOnly = isAgentInherited;
+                inp.classList.toggle("bg-light", isAgentInherited);
+                inp.classList.toggle("cursor-not-allowed", isAgentInherited);
+                inp.style.pointerEvents = isAgentInherited ? "none" : "";
+                inp.tabIndex = isAgentInherited ? -1 : 0;
+                const help = inp.parentElement?.querySelector(".form-text");
+                if (help && isAgentInherited) {
+                    help.textContent = "مستورد من بيانات الوكيل المسجل بالعقار";
+                }
+            }
+        });
+
+        // Estimated value: locked only if imported from property, editable otherwise
+        const estimatedInp = getModalEl("modal_prop_estimated_value");
+        if (estimatedInp) {
+            estimatedInp.readOnly = isEstimatedInherited;
+            estimatedInp.classList.toggle("bg-light", isEstimatedInherited);
+            estimatedInp.classList.toggle("cursor-not-allowed", isEstimatedInherited);
+            estimatedInp.style.pointerEvents = isEstimatedInherited ? "none" : "";
+            estimatedInp.tabIndex = isEstimatedInherited ? -1 : 0;
+            const help = estimatedInp.parentElement?.querySelector(".form-text");
+            if (help) {
+                help.textContent = isEstimatedInherited ? "مستورد من تقييم العقار" : "";
+            }
+        }
+
+        // Opening value: ALWAYS editable (entered in the establishment request)
+        const openingInp = getModalEl("modal_prop_opening_value");
+        if (openingInp) {
+            openingInp.readOnly = false;
+            openingInp.classList.remove("bg-light", "cursor-not-allowed");
+            openingInp.style.pointerEvents = "";
+            openingInp.tabIndex = 0;
+        }
+
         // Toggle status_other & usage_other visibility in modal
         const statusVal = getHiddenVal("status");
         const statusOtherCol = getModalEl("modal_prop_status_other_col");
@@ -229,13 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
             usageOtherCol.classList.toggle("d-none", usageVal !== "other");
         }
 
-        // Reset file inputs in modal
-        ["deed", "valuation", "representative_authority"].forEach((type) => {
-            const fileInp = getModalEl(`modal_file_${type}`);
-            if (fileInp) fileInp.value = "";
-        });
-
-        // Show existing files
+        // Setup file inputs in modal with unified controller & existing/staged files
         const table = document.getElementById("establishment-properties-table");
         let existingAttachments = {};
         try {
@@ -245,30 +298,32 @@ document.addEventListener("DOMContentLoaded", () => {
         const propExisting = existingAttachments[propertyId] || {};
 
         ["deed", "valuation", "representative_authority"].forEach((type) => {
-            const container = getModalEl(`modal_existing_${type}`);
-            if (!container) return;
+            const fileInp = getModalEl(`modal_file_${type}`);
+            if (!fileInp) return;
 
+            const controller = window.SharedFileUpload?.getController(fileInp);
             const existing = propExisting[type];
-            const stagedFile = hiddenContainer.querySelector(`[data-prop-files="${propertyId}"] input[name="attachments[${type}][${propertyId}]"]`);
+            const stagedFile = hiddenContainer.querySelector(
+                `[data-prop-files="${propertyId}"] input[name="attachments[${type}][${propertyId}]"]`
+            );
 
-            if (stagedFile && stagedFile.files && stagedFile.files[0]) {
-                container.innerHTML = `
-                    <div class="p-2 border rounded bg-light-subtle d-flex align-items-center justify-content-between small">
-                        <span class="text-truncate"><i class="ti ti-file me-1 text-primary"></i>ملف محدد جديد: <strong>${escapeHtml(stagedFile.files[0].name)}</strong></span>
-                        <span class="badge bg-label-info">محدد</span>
-                    </div>
-                `;
-            } else if (existing && existing.url) {
-                container.innerHTML = `
-                    <div class="p-2 border rounded bg-light-subtle d-flex align-items-center justify-content-between small">
-                        <a href="${escapeHtml(existing.url)}" target="_blank" class="text-primary text-truncate">
-                            <i class="ti ti-paperclip me-1"></i>${escapeHtml(existing.name || "مستند سابق")}
-                        </a>
-                        <span class="badge bg-label-success">مرفوع مسبقاً</span>
-                    </div>
-                `;
+            if (controller) {
+                controller.clear();
+                if (existing && existing.url) {
+                    controller.setExistingFile({
+                        name: existing.name || "مستند سابق",
+                        url: existing.url,
+                        path: existing.url,
+                    });
+                } else {
+                    controller.clearExistingFiles();
+                }
+
+                if (stagedFile && stagedFile.files && stagedFile.files[0]) {
+                    controller.setFiles([stagedFile.files[0]]);
+                }
             } else {
-                container.innerHTML = `<span class="text-muted small">لا يوجد مرفق سابق</span>`;
+                fileInp.value = "";
             }
         });
 
@@ -411,7 +466,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (filesContainer) {
             ["deed", "valuation", "representative_authority"].forEach((type) => {
                 const modalFileInp = getModalEl(`modal_file_${type}`);
-                if (modalFileInp && modalFileInp.files && modalFileInp.files.length > 0) {
+                const existingStaged = filesContainer.querySelector(`input[name="attachments[${type}][${propertyId}]"]`);
+                const controller = window.SharedFileUpload?.getController(modalFileInp);
+                const hasSelectedFiles = modalFileInp && modalFileInp.files && modalFileInp.files.length > 0;
+
+                if (hasSelectedFiles) {
                     const hiddenFileInput = document.createElement("input");
                     hiddenFileInput.type = "file";
                     hiddenFileInput.name = `attachments[${type}][${propertyId}]`;
@@ -421,9 +480,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         dt.items.add(modalFileInp.files[0]);
                         hiddenFileInput.files = dt.files;
                     }
-                    const existing = filesContainer.querySelector(`input[name="attachments[${type}][${propertyId}]"]`);
-                    if (existing) existing.remove();
+                    if (existingStaged) existingStaged.remove();
                     filesContainer.appendChild(hiddenFileInput);
+                } else if (existingStaged && (!controller || controller.getFiles().length === 0)) {
+                    existingStaged.remove();
                 }
             });
         }

@@ -20,7 +20,7 @@
     @foreach ($sections['manager']['fields'] as $key => $field)
         @include('tenant.auction-establishment-requests.field', [
             'path' => 'manager.' . $key,
-            'readonly' => false,
+            'readonly' => ($key === 'name' && filled($auction->project_manager_name)),
         ])
     @endforeach
 

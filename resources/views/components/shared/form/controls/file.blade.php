@@ -40,7 +40,11 @@
 
     $existingFiles = [];
     if (!empty($value)) {
-        $rawFiles = is_array($value) ? $value : ($value instanceof \Illuminate\Support\Enumerable || is_iterable($value) ? iterator_to_array($value) : [$value]);
+        if (is_array($value) && !array_is_list($value)) {
+            $rawFiles = [$value];
+        } else {
+            $rawFiles = is_array($value) ? $value : ($value instanceof \Illuminate\Support\Enumerable || is_iterable($value) ? iterator_to_array($value) : [$value]);
+        }
         foreach ($rawFiles as $rf) {
             if (!empty($rf)) {
                 $existingFiles[] = $rf;
@@ -99,28 +103,53 @@
             @if ($hasExisting)
                 @foreach ($existingFiles as $fileUrl)
                     @php
-                        $rawPath = is_string($fileUrl) ? $fileUrl : (is_object($fileUrl) ? ($fileUrl->file_path ?? $fileUrl->url ?? '') : '');
-                        $ext = strtolower(pathinfo(parse_url((string) $rawPath, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
-                        $isExistingImg = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg']) || str_starts_with((string) $rawPath, 'data:image/');
-                        $baseName = (is_object($fileUrl) && !empty($fileUrl->original_name))
-                            ? $fileUrl->original_name
-                            : (basename(parse_url((string) $rawPath, PHP_URL_PATH) ?? '') ?: 'الملف المرفق');
+                        $rawPath = is_string($fileUrl)
+                            ? $fileUrl
+                            : (is_object($fileUrl)
+                                ? ($fileUrl->file_path ?? $fileUrl->url ?? $fileUrl->path ?? '')
+                                : (is_array($fileUrl) ? ($fileUrl['url'] ?? $fileUrl['file_path'] ?? $fileUrl['path'] ?? '') : ''));
 
-                        if (preg_match('#^(https?:)?//#', (string) $rawPath) || str_starts_with((string) $rawPath, 'data:')) {
+                        $baseName = is_object($fileUrl)
+                            ? ($fileUrl->original_name ?? $fileUrl->name ?? null)
+                            : (is_array($fileUrl) ? ($fileUrl['original_name'] ?? $fileUrl['name'] ?? null) : null);
+
+                        $baseName = $baseName ?: (basename(parse_url((string) $rawPath, PHP_URL_PATH) ?? '') ?: 'الملف المرفق');
+
+                        $ext = strtolower(pathinfo((string) $baseName, PATHINFO_EXTENSION));
+                        if (empty($ext)) {
+                            $ext = strtolower(pathinfo(parse_url((string) $rawPath, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
+                        }
+
+                        $isExistingImg = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg']) || str_starts_with((string) $rawPath, 'data:image/');
+
+                        if (preg_match('#^(https?:)?//#', (string) $rawPath) || str_starts_with((string) $rawPath, '/') || str_starts_with((string) $rawPath, 'data:')) {
                             $resolvedUrl = $rawPath;
                         } elseif (!empty($rawPath)) {
                             $resolvedUrl = function_exists('tasset') ? tasset($rawPath) : asset('storage/' . $rawPath);
                         } else {
                             $resolvedUrl = '#';
                         }
+
+                        $iconClass = 'ti-file';
+                        $modifierClass = '';
+                        if ($ext === 'pdf') {
+                            $iconClass = 'ti-file-type-pdf';
+                            $modifierClass = 'file-item-icon-pdf';
+                        } elseif (in_array($ext, ['doc', 'docx'])) {
+                            $iconClass = 'ti-file-description';
+                            $modifierClass = 'file-item-icon-word';
+                        } elseif (in_array($ext, ['xls', 'xlsx', 'csv'])) {
+                            $iconClass = 'ti-file-spreadsheet';
+                            $modifierClass = 'file-item-icon-excel';
+                        }
                     @endphp
                     <div class="file-item" data-existing-file-card data-file-path="{{ $rawPath }}">
                         <input type="hidden" name="{{ $existingInputName }}" value="{{ $rawPath }}" data-existing-file-input>
-                        @if ($isExistingImg)
+                        @if ($isExistingImg && $resolvedUrl !== '#')
                             <img src="{{ $resolvedUrl }}" alt="{{ $label ?: $baseName }}" class="file-item-preview">
                         @else
-                            <div class="file-item-icon {{ $ext === 'pdf' ? 'file-item-icon-pdf' : '' }}">
-                                <i class="ti {{ $ext === 'pdf' ? 'ti-file-type-pdf' : 'ti-file' }}"></i>
+                            <div class="file-item-icon {{ $modifierClass }}">
+                                <i class="ti {{ $iconClass }}"></i>
                             </div>
                         @endif
                         <div class="file-item-info">

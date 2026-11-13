@@ -268,6 +268,12 @@ class UpdateAuctionRequest extends WizardFormRequest
             'attachments' => 'ملفات إضافية',
             'attachments.*' => 'ملفات إضافية',
             'marketing' => 'بيانات التسويق',
+            'marketing.introduction' => 'مقدمة التقرير',
+            'marketing_evidence' => 'شواهد التسويق',
+            'marketing_evidence_meta' => 'بيانات شواهد التسويق',
+            'report_attachments' => 'مرفقات التقرير',
+            'board_images_before' => 'صور اللوحات قبل التركيب',
+            'board_images_after' => 'صور اللوحات بعد التركيب',
         ];
     }
 

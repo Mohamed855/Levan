@@ -166,6 +166,10 @@ final class AuctionEstablishmentRequestData
 
         $attributes['data.disclosures.disposition_rights'] = 'حقوق التصرف';
         $attributes['data.disclosures.disposition_rights.*'] = 'حق التصرف';
+        foreach (['real_rights' => 'حقوق عينية', 'dispute' => 'نزاع على العقار', 'value_information' => 'معلومات مؤثرة على القيمة', 'off_plan' => 'بيع على الخارطة', 'contribution' => 'مساهمة عقارية'] as $key => $label) {
+            $attributes['data.disclosures.'.$key] = $label;
+            $attributes['data.disclosures.'.$key.'_details'] = $label;
+        }
 
         foreach ($this->propertyFields() as $fieldKey => $field) {
             $attributes['data.properties.*.'.$fieldKey] = $field['label'];
@@ -178,7 +182,7 @@ final class AuctionEstablishmentRequestData
 
     public function defaults(Auction $auction): array
     {
-        $auction->loadMissing(['properties.owners', 'properties.units', 'establishmentRequest']);
+        $auction->loadMissing(['properties.owners', 'properties.units', 'properties.assignment', 'assignment', 'establishmentRequest']);
         $data = $auction->establishmentRequest?->data ?? [];
         $tenant = app()->bound('centralTenant') ? app('centralTenant') : tenant();
         $data['organization'] = array_replace($data['organization'] ?? [], [
@@ -193,21 +197,34 @@ final class AuctionEstablishmentRequestData
         }
         $data['auction']['units_count'] ??= (string) $auction->properties->sum(fn ($property) => $property->units->count());
         $savedProperties = collect($data['properties'] ?? [])->keyBy('property_id');
-        $data['properties'] = $auction->properties->map(function ($property) use ($savedProperties): array {
+        $data['properties'] = $auction->properties->map(function ($property) use ($auction, $savedProperties): array {
             $row = $savedProperties->get($property->id, []);
+            $contractNumber = $property->assignment?->assignment_number ?? $auction->assignment?->assignment_number;
             $inherited = [
-                'property_id' => $property->id, 'owner_name' => $property->owners->pluck('owner_name')->implode('، '),
-                'deed_number' => $property->deed_number, 'area' => $property->area, 'type' => $property->getRawOriginal('type') ? $property->type_label : null,
-                'usage' => $property->usage_classification ? $property->usage_classification_label : null, 'city_district' => trim($property->city.' / '.$property->district, ' /'),
-                'agent_name' => $property->agent_name, 'agency_number' => $property->agency_number,
+                'property_id' => $property->id,
+                'owner_name' => $property->owners->pluck('owner_name')->implode('، '),
+                'deed_number' => $property->deed_number,
+                'area' => $property->area,
+                'type' => $property->getRawOriginal('type') ? $property->type_label : null,
+                'usage' => $property->usage_classification ? $property->usage_classification_label : null,
+                'city_district' => trim($property->city.' / '.$property->district, ' /'),
+                'agent_name' => $property->agent_name,
+                'agency_number' => $property->agency_number,
             ];
+            if (filled($contractNumber)) {
+                $inherited['contract_number'] = (string) $contractNumber;
+            }
             foreach ($inherited as $key => $value) {
                 if (filled($value)) {
                     $row[$key] = $value;
                 }
             }
-            $row['opening_value'] ??= $property->pivot->opening_price;
-            $row['estimated_value'] ??= $property->estimated_value;
+            $row['opening_value'] = $row['opening_value'] ?? (filled($property->pivot->opening_price) ? (string) $property->pivot->opening_price : null);
+            if (filled($property->estimated_value)) {
+                $row['estimated_value'] = (string) $property->estimated_value;
+            } else {
+                $row['estimated_value'] ??= $property->estimated_value;
+            }
 
             return $row;
         })->values()->all();
@@ -243,17 +260,27 @@ final class AuctionEstablishmentRequestData
         foreach ($defaults['properties'] as $source) {
             $row = Arr::only($rows->firstWhere('property_id', $source['property_id']), array_keys($this->propertyFields()));
             $property = $auction->properties->firstWhere('id', $source['property_id']);
+            $contractNumber = $property->assignment?->assignment_number ?? $auction->assignment?->assignment_number;
             $inherited = [
-                'owner_name' => $property->owners->pluck('owner_name')->implode('، '), 'deed_number' => $property->deed_number,
-                'area' => $property->area, 'type' => $property->getRawOriginal('type') ? $property->type_label : null,
+                'owner_name' => $property->owners->pluck('owner_name')->implode('، '),
+                'deed_number' => $property->deed_number,
+                'area' => $property->area,
+                'type' => $property->getRawOriginal('type') ? $property->type_label : null,
                 'usage' => $property->usage_classification ? $property->usage_classification_label : null,
                 'city_district' => trim($property->city.' / '.$property->district, ' /'),
-                'agent_name' => $property->agent_name, 'agency_number' => $property->agency_number,
+                'agent_name' => $property->agent_name,
+                'agency_number' => $property->agency_number,
             ];
+            if (filled($contractNumber)) {
+                $inherited['contract_number'] = (string) $contractNumber;
+            }
             foreach ($inherited as $key => $value) {
                 if (filled($value)) {
                     $row[$key] = $value;
                 }
+            }
+            if (filled($property->estimated_value)) {
+                $row['estimated_value'] = (string) $property->estimated_value;
             }
             $row['property_id'] = $property->id;
             $data['properties'][] = $row;
@@ -278,10 +305,15 @@ final class AuctionEstablishmentRequestData
     public function auctionSource(Auction $auction): array
     {
         return [
-            'name' => $auction->name, 'method' => $auction->type instanceof \BackedEnum ? $auction->type->value : $auction->type,
+            'name' => $auction->name,
+            'method' => $auction->type instanceof \BackedEnum ? $auction->type->value : $auction->type,
             'properties_count' => (string) $auction->properties->count(),
-            'city' => $auction->city, 'platform' => $auction->platform_name, 'broadcast_url' => $auction->platform_url,
-            'start_date' => $auction->start_date?->format('Y-m-d'), 'end_date' => $auction->end_date?->format('Y-m-d'),
+            'units_count' => (string) $auction->properties->sum(fn ($property) => $property->units->count()),
+            'city' => $auction->city,
+            'platform' => $auction->platform_name,
+            'broadcast_url' => $auction->platform_url,
+            'start_date' => $auction->start_date?->format('Y-m-d'),
+            'end_date' => $auction->end_date?->format('Y-m-d'),
             'start_time' => substr((string) $auction->start_time, 0, 5),
         ];
     }
@@ -298,10 +330,51 @@ final class AuctionEstablishmentRequestData
 
     private function disclosureFields(): array
     {
-        $fields = ['disposition_right_other' => $this->field('تفاصيل حقوق التصرف الأخرى', 'text', false, [], ['string', 'max:2000'], ['maxlength' => '2000'])];
-        foreach (['real_rights' => 'حقوق عينية', 'dispute' => 'نزاع على العقار', 'value_information' => 'معلومات مؤثرة على القيمة', 'off_plan' => 'بيع على الخارطة', 'contribution' => 'مساهمة عقارية'] as $key => $label) {
-            $fields[$key] = $this->field($label, 'select', true, ['no' => 'لا', 'yes' => 'نعم']);
-            $fields[$key.'_details'] = $this->field('تفاصيل '.$label, 'text', false, [], ['string', 'max:2000'], ['maxlength' => '2000']);
+        $fields = [
+            'disposition_right_other' => $this->field(
+                'تفاصيل حقوق التصرف الأخرى',
+                'textarea',
+                false,
+                [],
+                ['string', 'max:2000'],
+                ['maxlength' => '2000', 'placeholder' => 'تفاصيل حقوق التصرف الأخرى إن وجدت...']
+            ),
+        ];
+
+        $disclosures = [
+            'real_rights' => [
+                'label' => 'حقوق عينية',
+                'help' => 'اتركه فارغاً إذا لم تكن هناك حقوق عينية',
+            ],
+            'dispute' => [
+                'label' => 'نزاع على العقار',
+                'help' => 'اتركه فارغاً إذا لم يكن هناك نزاع على العقار',
+            ],
+            'value_information' => [
+                'label' => 'معلومات مؤثرة على القيمة',
+                'help' => 'اتركه فارغاً إذا لم تكن هناك معلومات مؤثرة على القيمة',
+            ],
+            'off_plan' => [
+                'label' => 'بيع على الخارطة',
+                'help' => 'اتركه فارغاً إذا لم يكن هناك بيع على الخارطة',
+            ],
+            'contribution' => [
+                'label' => 'مساهمة عقارية',
+                'help' => 'اتركه فارغاً إذا لم تكن هناك مساهمة عقارية',
+            ],
+        ];
+
+        foreach ($disclosures as $key => $info) {
+            $fieldDef = $this->field(
+                $info['label'],
+                'textarea',
+                false,
+                [],
+                ['string', 'max:2000'],
+                ['maxlength' => '2000', 'placeholder' => 'اكتب التفاصيل هنا أو اتركه فارغاً...']
+            );
+            $fieldDef['help'] = $info['help'];
+            $fields[$key.'_details'] = $fieldDef;
         }
 
         return $fields;

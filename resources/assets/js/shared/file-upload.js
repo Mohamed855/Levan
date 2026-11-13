@@ -329,6 +329,62 @@ export function initFileUploadZone(zone) {
     }
   });
 
+  function createExistingCard(fileData) {
+    if (!fileData) return null;
+    const name = fileData.name || 'الملف المرفق';
+    const rawPath = fileData.path || fileData.url || '';
+    const resolvedUrl = fileData.url || (rawPath.startsWith('http') || rawPath.startsWith('/') ? rawPath : `/storage/${rawPath}`);
+    const ext = (fileData.extension || name.split('.').pop() || '').toLowerCase();
+    const isImg = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'].includes(ext) || Boolean(fileData.isImage);
+
+    const baseNameProp = input.name.replace(/\[\]$/, '');
+    const cleanPropName = baseNameProp.replace(/[\[\].]/g, '_');
+    const existingInputName = fileData.inputName || ('existing_' + (isMultiple ? baseNameProp + '[]' : baseNameProp));
+
+    const card = document.createElement('div');
+    card.className = 'file-item';
+    card.dataset.existingFileCard = '';
+    card.dataset.filePath = rawPath;
+
+    let mediaHtml = '';
+    if (isImg && resolvedUrl && resolvedUrl !== '#') {
+      mediaHtml = `<img src="${resolvedUrl}" alt="${name}" class="file-item-preview">`;
+    } else {
+      let iconClass = 'ti-file';
+      let modClass = '';
+      if (ext === 'pdf') {
+        iconClass = 'ti-file-type-pdf';
+        modClass = 'file-item-icon-pdf';
+      } else if (['doc', 'docx'].includes(ext)) {
+        iconClass = 'ti-file-description';
+        modClass = 'file-item-icon-word';
+      } else if (['xls', 'xlsx', 'csv'].includes(ext)) {
+        iconClass = 'ti-file-spreadsheet';
+        modClass = 'file-item-icon-excel';
+      }
+      mediaHtml = `<div class="file-item-icon ${modClass}"><i class="ti ${iconClass}"></i></div>`;
+    }
+
+    const viewBtn = resolvedUrl && resolvedUrl !== '#'
+      ? `<a href="${resolvedUrl}" target="_blank" class="btn-view-file me-1" title="معاينة الملف" aria-label="معاينة الملف"><i class="ti ti-eye"></i></a>`
+      : '';
+
+    card.innerHTML = `
+      <input type="hidden" name="${existingInputName}" value="${rawPath}" data-existing-file-input>
+      ${mediaHtml}
+      <div class="file-item-info">
+        <div class="file-item-name" title="${name}">${name}</div>
+        <div class="file-item-size text-success small">ملف محفوظ مسبقاً</div>
+      </div>
+      ${viewBtn}
+      <button type="button" class="btn-remove-file" data-remove-existing-file="remove_${cleanPropName}" title="إزالة الملف" aria-label="إزالة الملف">
+        <i class="ti ti-trash"></i>
+      </button>
+    `;
+
+    return card;
+  }
+
   const controller = {
     handleFiles,
     setFiles: (filesList) => {
@@ -342,6 +398,37 @@ export function initFileUploadZone(zone) {
     clear: () => {
       currentFiles = [];
       syncAndDispatch();
+      renderPreviews();
+    },
+    setExistingFiles: (filesList) => {
+      if (!previewContainer) return;
+      previewContainer.querySelectorAll('[data-existing-file-card]').forEach((c) => c.remove());
+      const list = Array.isArray(filesList) ? filesList : (filesList ? [filesList] : []);
+      list.forEach((f) => {
+        const card = createExistingCard(f);
+        if (card) previewContainer.appendChild(card);
+      });
+      const hasAny = previewContainer.querySelectorAll('[data-existing-file-card]').length > 0;
+      controlWrapper.dataset.hasExisting = hasAny ? 'true' : 'false';
+      input.dataset.hasExisting = hasAny ? 'true' : 'false';
+      if (hasAny && input.required) {
+        input.required = false;
+        input.removeAttribute('required');
+      }
+      renderPreviews();
+    },
+    setExistingFile: (fileData) => {
+      controller.setExistingFiles(fileData ? [fileData] : []);
+    },
+    clearExistingFiles: () => {
+      if (!previewContainer) return;
+      previewContainer.querySelectorAll('[data-existing-file-card]').forEach((c) => c.remove());
+      controlWrapper.dataset.hasExisting = 'false';
+      input.dataset.hasExisting = 'false';
+      if (input.dataset.wasRequired === 'true' && currentFiles.length === 0) {
+        input.required = true;
+        input.setAttribute('required', '');
+      }
       renderPreviews();
     },
     renderPreviews,
@@ -406,5 +493,29 @@ if (typeof window !== 'undefined') {
     initAll: initAllFileUploadZones,
     getController: getFileUploadController,
     setFiles: setFilesOnUploadZone,
+    setExistingFile: (target, fileData) => {
+      const c = getFileUploadController(target);
+      if (c) {
+        c.setExistingFile(fileData);
+        return true;
+      }
+      return false;
+    },
+    setExistingFiles: (target, filesList) => {
+      const c = getFileUploadController(target);
+      if (c) {
+        c.setExistingFiles(filesList);
+        return true;
+      }
+      return false;
+    },
+    clearExistingFiles: (target) => {
+      const c = getFileUploadController(target);
+      if (c) {
+        c.clearExistingFiles();
+        return true;
+      }
+      return false;
+    },
   };
 }

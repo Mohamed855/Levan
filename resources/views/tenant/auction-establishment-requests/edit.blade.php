@@ -50,6 +50,7 @@
                         @include('tenant.auction-establishment-requests.steps.step1-organization', [
                             'sections' => $sections,
                             'data' => $data,
+                            'auction' => $auction,
                         ])
 
                         <x-form.wizard.actions>
