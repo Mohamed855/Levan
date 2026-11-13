@@ -69,7 +69,17 @@ final class SaveAuctionEstablishmentRequest extends WizardFormRequest
                     }
                 }
             }
-            $this->merge(['data' => $data]);
+            if (isset($data['disclosures']) && is_array($data['disclosures'])) {
+                foreach (['real_rights', 'dispute', 'value_information', 'off_plan', 'contribution'] as $key) {
+                    $details = trim((string) ($data['disclosures'][$key.'_details'] ?? ($data['disclosures'][$key] ?? '')));
+                    $hasVal = filled($details);
+                    $data['disclosures'][$key] = $hasVal ? 'yes' : 'no';
+                    $data['disclosures'][$key.'_details'] = $hasVal ? $details : '';
+                }
+            }
+            $this->merge(['data' => $data, 'declaration_accepted' => '1']);
+        } else {
+            $this->merge(['declaration_accepted' => '1']);
         }
     }
 

@@ -29,17 +29,17 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Check individual property completeness
+    // Check individual property completeness from hidden fields
     const checkPropertyCompleteness = (propertyId) => {
-        const modalBody = form.querySelector(`[data-property-modal-body="${propertyId}"]`);
-        if (!modalBody) return false;
+        const hiddenDataEl = form.querySelector(`[data-prop-hidden="${propertyId}"]`);
+        if (!hiddenDataEl) return false;
 
         const row = form.querySelector(`[data-property-row="${propertyId}"]`);
         const checkbox = form.querySelector(`[data-property-check="${propertyId}"]`);
         const badge = form.querySelector(`[data-property-badge="${propertyId}"]`);
 
         const getVal = (fieldName) => {
-            const input = modalBody.querySelector(`[name$="[${fieldName}]"]`);
+            const input = hiddenDataEl.querySelector(`[data-field="${fieldName}"]`);
             return input ? String(input.value || "").trim() : "";
         };
 
@@ -78,11 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (isComplete) {
-            const usage = getVal("usage");
-            if (usage === "other" && !getVal("usage_other")) {
-                isComplete = false;
-            }
-
             const status = getVal("status");
             if (status === "other" && !getVal("status_other")) {
                 isComplete = false;
@@ -109,17 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        const reviewBadge = form.querySelector(`[data-review-badge="${propertyId}"]`);
-        if (reviewBadge) {
-            if (isComplete) {
-                reviewBadge.className = "badge bg-label-success property-review-status-badge";
-                reviewBadge.innerHTML = '<i class="ti ti-check me-1"></i>مكتمل';
-            } else {
-                reviewBadge.className = "badge bg-label-warning property-review-status-badge";
-                reviewBadge.innerHTML = '<i class="ti ti-alert-triangle me-1"></i>بيانات ناقصة';
-            }
-        }
-
         if (row) {
             row.classList.toggle("table-success-subtle", isComplete);
         }
@@ -129,10 +113,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Update all properties completeness and stats
     const updateAllPropertiesCompleteness = () => {
-        const modalBodies = form.querySelectorAll("[data-property-modal-body]");
+        const rows = form.querySelectorAll(".establishment-property-row");
         let completedCount = 0;
-        modalBodies.forEach((body) => {
-            const propertyId = body.dataset.propertyModalBody;
+        rows.forEach((row) => {
+            const propertyId = row.dataset.propertyId;
             if (checkPropertyCompleteness(propertyId)) {
                 completedCount++;
             }
@@ -142,58 +126,330 @@ document.addEventListener("DOMContentLoaded", () => {
         if (countEl) {
             countEl.textContent = String(completedCount);
         }
+    };
 
-        const reviewCountEl = document.getElementById("review-selected-props-count");
-        if (reviewCountEl) {
-            const total = modalBodies.length;
-            reviewCountEl.textContent = `${completedCount} من ${total} مكتمل`;
+    // -------------------------------------------------------------
+    // Single Property Modal Logic (مطابق تماماً لمودال إقفال المزاد)
+    // -------------------------------------------------------------
+    const propModalEl = document.getElementById("establishmentPropertyModal");
+    let propModalInstance = null;
+
+    if (propModalEl && window.bootstrap && window.bootstrap.Modal) {
+        propModalInstance = window.bootstrap.Modal.getOrCreateInstance(propModalEl, {
+            backdrop: "static",
+            keyboard: false,
+        });
+    }
+
+    // Modal field helper
+    const getModalEl = (id) => document.getElementById(id);
+
+    const clearModalErrors = () => {
+        if (!propModalEl) return;
+        propModalEl.querySelectorAll(".is-invalid").forEach((el) => el.classList.remove("is-invalid"));
+        propModalEl.querySelectorAll(".invalid-feedback").forEach((el) => el.remove());
+    };
+
+    const setModalFieldError = (inputEl, message) => {
+        if (!inputEl) return;
+        inputEl.classList.add("is-invalid");
+        let feedback = inputEl.parentElement?.querySelector(".invalid-feedback");
+        if (!feedback) {
+            feedback = document.createElement("div");
+            feedback.className = "invalid-feedback d-block";
+            inputEl.parentElement?.appendChild(feedback);
+        }
+        feedback.textContent = message;
+    };
+
+    // Populate and open the single modal
+    const openPropertyModal = (propertyId, propIndex, propName, propNumber, propType) => {
+        clearModalErrors();
+
+        const titleEl = getModalEl("establishmentPropertyModalTitle");
+        const numberEl = getModalEl("establishmentPropertyModalNumber");
+        const typeEl = getModalEl("establishmentPropertyModalType");
+        const idInput = getModalEl("modal_prop_id");
+        const indexInput = getModalEl("modal_prop_index");
+
+        if (titleEl) titleEl.textContent = `استكمال بيانات العقار: ${propName || "عقار"}`;
+        if (numberEl) numberEl.textContent = propNumber || "-";
+        if (typeEl) typeEl.textContent = propType || "-";
+        if (idInput) idInput.value = propertyId;
+        if (indexInput) indexInput.value = propIndex;
+
+        const hiddenContainer = form.querySelector(`[data-prop-hidden="${propertyId}"]`);
+        if (!hiddenContainer) return;
+
+        const getHiddenVal = (field) => {
+            return hiddenContainer.querySelector(`[data-field="${field}"]`)?.value ?? "";
+        };
+
+        const fields = [
+            "owner_name",
+            "deed_number",
+            "contract_number",
+            "area",
+            "type",
+            "usage",
+            "usage_other",
+            "age",
+            "city_district",
+            "status",
+            "status_other",
+            "ownership_share",
+            "agent_name",
+            "agency_number",
+            "opening_value",
+            "entry_amount",
+            "estimated_value",
+            "disclosure",
+        ];
+
+        fields.forEach((field) => {
+            const input = getModalEl(`modal_prop_${field}`);
+            if (input) {
+                input.value = getHiddenVal(field);
+                if (window.jQuery && window.jQuery(input).data("select2")) {
+                    window.jQuery(input).val(getHiddenVal(field)).trigger("change.select2");
+                }
+            }
+        });
+
+        // Toggle status_other & usage_other visibility in modal
+        const statusVal = getHiddenVal("status");
+        const statusOtherCol = getModalEl("modal_prop_status_other_col");
+        if (statusOtherCol) {
+            statusOtherCol.classList.toggle("d-none", statusVal !== "other");
+        }
+
+        const usageVal = getHiddenVal("usage");
+        const usageOtherCol = getModalEl("modal_prop_usage_other_col");
+        if (usageOtherCol) {
+            usageOtherCol.classList.toggle("d-none", usageVal !== "other");
+        }
+
+        // Reset file inputs in modal
+        ["deed", "valuation", "representative_authority"].forEach((type) => {
+            const fileInp = getModalEl(`modal_file_${type}`);
+            if (fileInp) fileInp.value = "";
+        });
+
+        // Show existing files
+        const table = document.getElementById("establishment-properties-table");
+        let existingAttachments = {};
+        try {
+            existingAttachments = JSON.parse(table?.dataset?.existingAttachments || "{}");
+        } catch (_) {}
+
+        const propExisting = existingAttachments[propertyId] || {};
+
+        ["deed", "valuation", "representative_authority"].forEach((type) => {
+            const container = getModalEl(`modal_existing_${type}`);
+            if (!container) return;
+
+            const existing = propExisting[type];
+            const stagedFile = hiddenContainer.querySelector(`[data-prop-files="${propertyId}"] input[name="attachments[${type}][${propertyId}]"]`);
+
+            if (stagedFile && stagedFile.files && stagedFile.files[0]) {
+                container.innerHTML = `
+                    <div class="p-2 border rounded bg-light-subtle d-flex align-items-center justify-content-between small">
+                        <span class="text-truncate"><i class="ti ti-file me-1 text-primary"></i>ملف محدد جديد: <strong>${escapeHtml(stagedFile.files[0].name)}</strong></span>
+                        <span class="badge bg-label-info">محدد</span>
+                    </div>
+                `;
+            } else if (existing && existing.url) {
+                container.innerHTML = `
+                    <div class="p-2 border rounded bg-light-subtle d-flex align-items-center justify-content-between small">
+                        <a href="${escapeHtml(existing.url)}" target="_blank" class="text-primary text-truncate">
+                            <i class="ti ti-paperclip me-1"></i>${escapeHtml(existing.name || "مستند سابق")}
+                        </a>
+                        <span class="badge bg-label-success">مرفوع مسبقاً</span>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `<span class="text-muted small">لا يوجد مرفق سابق</span>`;
+            }
+        });
+
+        if (propModalInstance) {
+            propModalInstance.show();
         }
     };
 
-    // Modal save property details button click
-    $(document).on("click", ".btn-save-prop-details", function (e) {
-        e.preventDefault();
-        const propId = this.dataset.propertyId;
-        const isComplete = checkPropertyCompleteness(propId);
-        updateAllPropertiesCompleteness();
+    // Row click and edit button click listeners
+    $(document).on("click", ".establishment-property-row, .edit-establishment-prop-btn", function (e) {
+        if ($(e.target).closest("input[type='checkbox'], a").length) return;
+        const $target = $(this).closest(".establishment-property-row");
+        const propId = $target.data("property-id");
+        const propIndex = $target.data("property-index");
+        const propName = $target.data("property-name");
+        const propNumber = $target.data("property-number");
+        const propType = $target.data("property-type");
 
-        const modalEl = document.getElementById(`property-details-modal-${propId}`);
-        if (modalEl && window.bootstrap && window.bootstrap.Modal) {
-            const modalInstance = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl);
-            if (modalInstance) {
-                modalInstance.hide();
-            }
+        if (propId !== undefined) {
+            openPropertyModal(propId, propIndex, propName, propNumber, propType);
         }
-
-        if (isComplete) {
-            if (typeof window.toastr !== "undefined") {
-                window.toastr.success("تم استكمال بيانات العقار بنجاح.");
-            }
-        } else {
-            if (typeof window.toastr !== "undefined") {
-                window.toastr.warning("تم حفظ التعديلات ولكن بعض الحقول الإلزامية لا تزال غير مكتملة.");
-            }
-        }
-
-        form.dispatchEvent(new Event("change", { bubbles: true }));
-        updateReviewCardValues();
     });
 
-    // Fix select2 dropdownParent when modal opens
-    $(document).on("shown.bs.modal", ".property-establishment-modal", function () {
-        const $modal = $(this);
-        $modal.find("select.select2, select[data-select2]").each(function () {
-            if ($(this).data("select2")) {
-                $(this).select2("destroy");
+    // Modal conditional toggles
+    $(document).on("change", "#modal_prop_status", function () {
+        const isOther = this.value === "other";
+        const col = getModalEl("modal_prop_status_other_col");
+        if (col) col.classList.toggle("d-none", !isOther);
+    });
+
+    $(document).on("change", "#modal_prop_usage", function () {
+        const isOther = this.value === "other";
+        const col = getModalEl("modal_prop_usage_other_col");
+        if (col) col.classList.toggle("d-none", !isOther);
+    });
+
+    // Save modal data into hidden container
+    const savePropertyModal = () => {
+        clearModalErrors();
+
+        const propertyId = getModalEl("modal_prop_id")?.value;
+        if (!propertyId) return;
+
+        const hiddenContainer = form.querySelector(`[data-prop-hidden="${propertyId}"]`);
+        if (!hiddenContainer) return;
+
+        let hasError = false;
+        let firstInvalid = null;
+
+        const requireField = (id, message, validateFn) => {
+            const input = getModalEl(id);
+            if (!input) return;
+            const val = (input.value || "").trim();
+            let invalid = !val;
+            if (!invalid && validateFn) {
+                invalid = !validateFn(val);
             }
-            $(this).select2({
-                dropdownParent: $modal,
-                dir: "rtl",
-            });
+            if (invalid) {
+                setModalFieldError(input, message);
+                hasError = true;
+                if (!firstInvalid) firstInvalid = input;
+            }
+        };
+
+        requireField("modal_prop_owner_name", "المالك / الملاك مطلوب");
+        requireField("modal_prop_deed_number", "رقم الصك مطلوب");
+        requireField("modal_prop_contract_number", "رقم عقد المزاد مطلوب");
+        requireField("modal_prop_area", "المساحة يجب أن تكون أكبر من صفر", (v) => parseFloat(v) > 0);
+        requireField("modal_prop_type", "نوع العقار مطلوب");
+        requireField("modal_prop_usage", "استخدام العقار مطلوب");
+        requireField("modal_prop_age", "عمر العقار مطلوب", (v) => parseInt(v, 10) >= 0);
+        requireField("modal_prop_city_district", "المدينة / الحي مطلوب");
+        requireField("modal_prop_status", "الحالة النظامية مطلوبة");
+        requireField("modal_prop_ownership_share", "نسبة الملكية مطلوبة (بين 0.01 و 100)", (v) => {
+            const n = parseFloat(v);
+            return n > 0 && n <= 100;
         });
+        requireField("modal_prop_opening_value", "قيمة افتتاح المزاد مطلوبة", (v) => parseFloat(v) >= 0);
+        requireField("modal_prop_entry_amount", "مبلغ الدخول مطلوب", (v) => parseFloat(v) >= 0);
+        requireField("modal_prop_estimated_value", "القيمة التقديرية مطلوبة", (v) => parseFloat(v) >= 0);
+        requireField("modal_prop_disclosure", "الإفصاح الخاص بالعقار مطلوب");
+
+        const statusVal = getModalEl("modal_prop_status")?.value;
+        if (statusVal === "other") {
+            requireField("modal_prop_status_other", "تفاصيل الحالة الأخرى مطلوبة عند اختيار أخرى");
+        }
+
+        const agentName = getModalEl("modal_prop_agent_name")?.value?.trim();
+        const agencyNum = getModalEl("modal_prop_agency_number")?.value?.trim();
+        if ((agentName && !agencyNum) || (!agentName && agencyNum)) {
+            if (!agentName) setModalFieldError(getModalEl("modal_prop_agent_name"), "اسم الوكيل مطلوب عند كتابة رقم الوكالة");
+            if (!agencyNum) setModalFieldError(getModalEl("modal_prop_agency_number"), "رقم الوكالة مطلوب عند كتابة اسم الوكيل");
+            hasError = true;
+            if (!firstInvalid) firstInvalid = !agentName ? getModalEl("modal_prop_agent_name") : getModalEl("modal_prop_agency_number");
+        }
+
+        if (hasError) {
+            if (firstInvalid) {
+                firstInvalid.focus();
+                firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+            if (window.toastr?.warning) {
+                window.toastr.warning("يرجى استكمال الحقول الإلزامية للعقار.");
+            }
+            return;
+        }
+
+        // Copy modal values to hidden inputs
+        const fields = [
+            "owner_name",
+            "deed_number",
+            "contract_number",
+            "area",
+            "type",
+            "usage",
+            "usage_other",
+            "age",
+            "city_district",
+            "status",
+            "status_other",
+            "ownership_share",
+            "agent_name",
+            "agency_number",
+            "opening_value",
+            "entry_amount",
+            "estimated_value",
+            "disclosure",
+        ];
+
+        fields.forEach((field) => {
+            const input = getModalEl(`modal_prop_${field}`);
+            const hidden = hiddenContainer.querySelector(`[data-field="${field}"]`);
+            if (input && hidden) {
+                hidden.value = (input.value || "").trim();
+            }
+        });
+
+        // Stage files with DataTransfer into data-prop-files container
+        const filesContainer = hiddenContainer.querySelector(`[data-prop-files="${propertyId}"]`);
+        if (filesContainer) {
+            ["deed", "valuation", "representative_authority"].forEach((type) => {
+                const modalFileInp = getModalEl(`modal_file_${type}`);
+                if (modalFileInp && modalFileInp.files && modalFileInp.files.length > 0) {
+                    const hiddenFileInput = document.createElement("input");
+                    hiddenFileInput.type = "file";
+                    hiddenFileInput.name = `attachments[${type}][${propertyId}]`;
+                    hiddenFileInput.classList.add("d-none");
+                    if (window.DataTransfer) {
+                        const dt = new DataTransfer();
+                        dt.items.add(modalFileInp.files[0]);
+                        hiddenFileInput.files = dt.files;
+                    }
+                    const existing = filesContainer.querySelector(`input[name="attachments[${type}][${propertyId}]"]`);
+                    if (existing) existing.remove();
+                    filesContainer.appendChild(hiddenFileInput);
+                }
+            });
+        }
+
+        // Update row display
+        checkPropertyCompleteness(propertyId);
+        updateAllPropertiesCompleteness();
+        updateReviewCardValues();
+
+        if (propModalInstance) {
+            propModalInstance.hide();
+        }
+
+        if (window.toastr?.success) {
+            window.toastr.success("تم حفظ بيانات ومرفقات العقار بنجاح.");
+        }
+    };
+
+    $(document).on("click", "#btn-save-establishment-prop-modal", function (e) {
+        e.preventDefault();
+        savePropertyModal();
     });
 
-    // Conditional field visibility handlers
+    // -------------------------------------------------------------
+    // Conditional field visibility handlers (تغيير طريقة الاستلام وغيرها)
+    // -------------------------------------------------------------
     const setupConditionalFields = () => {
         // Toggle helper
         const toggleField = (fieldSelector, show) => {
@@ -205,31 +461,36 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         };
 
-        // Funds receipt & refund other methods
+        // Funds receipt & refund other methods (يدعم Select2 والأحداث الفورية)
         const checkFundsMethods = () => {
-            const receipt = form.querySelector('[name="data[funds][receipt_method]"]')?.value;
+            let receipt = form.querySelector('[name="data[funds][receipt_method]"]')?.value;
+            if (window.jQuery) {
+                const $r = window.jQuery(form.querySelector('[name="data[funds][receipt_method]"]'));
+                if ($r.data("select2")) receipt = $r.val();
+            }
             toggleField('[name="data[funds][receipt_other]"]', receipt === "other");
 
-            const refund = form.querySelector('[name="data[funds][refund_method]"]')?.value;
+            let refund = form.querySelector('[name="data[funds][refund_method]"]')?.value;
+            if (window.jQuery) {
+                const $rf = window.jQuery(form.querySelector('[name="data[funds][refund_method]"]'));
+                if ($rf.data("select2")) refund = $rf.val();
+            }
             toggleField('[name="data[funds][refund_other]"]', refund === "other");
         };
 
         // Auction method platform vs venue
         const checkAuctionMethod = () => {
-            const method = form.querySelector('[name="data[auction][method]"]')?.value;
+            let method = form.querySelector('[name="data[auction][method]"]')?.value;
+            if (window.jQuery) {
+                const $m = window.jQuery(form.querySelector('[name="data[auction][method]"]'));
+                if ($m.data("select2")) method = $m.val();
+            }
             toggleField('[name="data[auction][platform]"]', method === "electronic" || method === "hybrid");
             toggleField('[name="data[auction][venue]"]', method === "in_person" || method === "hybrid");
         };
 
-        // Disclosures details
-        const disclosureKeys = ["real_rights", "dispute", "value_information", "off_plan", "contribution"];
+        // Disclosures & disposition rights
         const checkDisclosures = () => {
-            disclosureKeys.forEach((key) => {
-                const val = form.querySelector(`[name="data[disclosures][${key}]"]`)?.value;
-                toggleField(`[name="data[disclosures][${key}_details]"]`, val === "yes");
-            });
-
-            // Disposition rights other & mutual exclusivity for 'none'
             const rightsSelect = form.querySelector('[name="data[disclosures][disposition_rights][]"], [name="data[disclosures][disposition_rights]"]');
             let hasOther = false;
             if (rightsSelect) {
@@ -239,6 +500,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 } else if (rightsSelect.selectedOptions) {
                     vals = Array.from(rightsSelect.selectedOptions).map((opt) => opt.value);
                 }
+
+                if (!Array.isArray(vals)) vals = vals ? [vals] : [];
 
                 if (vals.includes("none") && vals.length > 1) {
                     const lastVal = vals[vals.length - 1];
@@ -258,53 +521,29 @@ document.addEventListener("DOMContentLoaded", () => {
             toggleField('[name="data[disclosures][disposition_right_other]"]', hasOther);
         };
 
-        // Date sync
         const syncAuctionDates = () => {
-            const startInput = form.querySelector('[name="data[auction][start_date]"]');
-            const endInput = form.querySelector('[name="data[auction][end_date]"]');
-            if (startInput && endInput && startInput.value) {
-                endInput.min = startInput.value;
+            const startDate = form.querySelector('[name="data[auction][start_date]"]')?.value;
+            const endDateInput = form.querySelector('[name="data[auction][end_date]"]');
+            if (startDate && endDateInput && !endDateInput.value) {
+                endDateInput.value = startDate;
             }
         };
 
-        // Property status other & usage other
-        const checkPropertyStatuses = () => {
-            form.querySelectorAll('[name$="[status]"]').forEach((statusSelect) => {
-                const match = statusSelect.name.match(/data\[properties\]\[(\d+)\]\[status\]/);
-                if (!match) return;
-                const idx = match[1];
-                toggleField(`[name="data[properties][${idx}][status_other]"]`, statusSelect.value === "other");
-            });
-            form.querySelectorAll('[name$="[usage]"]').forEach((usageSelect) => {
-                const match = usageSelect.name.match(/data\[properties\]\[(\d+)\]\[usage\]/);
-                if (!match) return;
-                const idx = match[1];
-                toggleField(`[name="data[properties][${idx}][usage_other]"]`, usageSelect.value === "other");
-            });
-        };
-
+        // Event listener for native input changes
         form.addEventListener("change", (e) => {
             const name = e.target?.name || "";
             if (name.includes("[funds]")) checkFundsMethods();
             if (name.includes("[auction][method]")) checkAuctionMethod();
             if (name.includes("[auction][start_date]")) syncAuctionDates();
             if (name.includes("[disclosures]")) checkDisclosures();
-            if (name.includes("[status]") || name.includes("[usage]")) checkPropertyStatuses();
-            if (name.includes("[properties]")) {
-                const match = name.match(/data\[properties\]\[(\d+)\]/);
-                if (match) {
-                    const modalBody = form.querySelectorAll("[data-property-modal-body]")[Number(match[1])];
-                    if (modalBody) {
-                        checkPropertyCompleteness(modalBody.dataset.propertyModalBody);
-                        updateAllPropertiesCompleteness();
-                    }
-                }
-            }
             updateReviewCardValues();
         });
 
+        // Event listener for jQuery Select2 changes
         if (window.jQuery) {
-            window.jQuery(form).on("select2:select select2:unselect", () => {
+            window.jQuery(form).on("select2:select select2:unselect select2:clear change", () => {
+                checkFundsMethods();
+                checkAuctionMethod();
                 checkDisclosures();
                 updateReviewCardValues();
             });
@@ -315,28 +554,33 @@ document.addEventListener("DOMContentLoaded", () => {
         checkAuctionMethod();
         syncAuctionDates();
         checkDisclosures();
-        checkPropertyStatuses();
     };
 
-    // Live update review cards in Step 6
+    // -------------------------------------------------------------
+    // Live update of review card values
+    // -------------------------------------------------------------
     const updateReviewCardValues = () => {
-        // Step 1: Organization & Management
-        const getVal = (name) => form.querySelector(`[name="${name}"]`)?.value || "—";
+        const getVal = (name) => {
+            const input = form.querySelector(`[name="${name}"]`);
+            return input ? String(input.value || "").trim() : "—";
+        };
+
         const getText = (selector) => {
-            const el = form.querySelector(selector);
-            if (!el) return "—";
-            if (el.tagName === "SELECT") {
-                return el.options[el.selectedIndex]?.text || "—";
+            const sel = form.querySelector(selector);
+            if (!sel) return "—";
+            if (sel.tagName === "SELECT") {
+                const opt = sel.options[sel.selectedIndex];
+                return opt ? opt.text.trim() : "—";
             }
-            return el.value || "—";
+            return (sel.value || "").trim() || "—";
         };
 
-        // Organization
         const setReview = (id, val) => {
-            const target = document.getElementById(id);
-            if (target) target.textContent = val || "—";
+            const el = document.getElementById(id);
+            if (el) el.textContent = val || "—";
         };
 
+        // Step 1: Organization & Officials
         setReview("review-org-name", getVal("data[organization][name]"));
         setReview("review-org-cr", getVal("data[organization][commercial_registration]"));
         setReview("review-org-unified", getVal("data[organization][unified_number]"));
@@ -346,13 +590,11 @@ document.addEventListener("DOMContentLoaded", () => {
         setReview("review-mgr-name", getVal("data[manager][name]"));
         setReview("review-mgr-id", getVal("data[manager][identity_number]"));
         setReview("review-mgr-mobile", getVal("data[manager][mobile]"));
-        setReview("review-mgr-email", getVal("data[manager][email]"));
 
         // Auctioneer
         setReview("review-auc-name", getVal("data[auctioneer][name]"));
         setReview("review-auc-id", getVal("data[auctioneer][identity_number]"));
         setReview("review-auc-mobile", getVal("data[auctioneer][mobile]"));
-        setReview("review-auc-email", getVal("data[auctioneer][email]"));
 
         // Step 2: Auction Details & Funds
         setReview("review-auction-name", getVal("data[auction][name]"));
@@ -362,8 +604,13 @@ document.addEventListener("DOMContentLoaded", () => {
             typeof window.formatSystemDate === "function"
                 ? window.formatSystemDate(val, "")
                 : val || "";
-        setReview("review-auction-start", (formatDisplay(getVal("data[auction][start_date]")) + " " + getVal("data[auction][start_time]")).trim());
+        setReview(
+            "review-auction-start",
+            (formatDisplay(getVal("data[auction][start_date]")) + " " + getVal("data[auction][start_time]")).trim()
+        );
         setReview("review-auction-end", formatDisplay(getVal("data[auction][end_date]")));
+        const awardMin = getVal("data[auction][award_period]");
+        setReview("review-auction-award-period", awardMin && awardMin !== "—" ? `${awardMin} دقيقة` : "—");
         setReview("review-auction-disposition", getText('[name="data[auction][disposition]"]'));
         setReview("review-funds-receipt", getText('[name="data[funds][receipt_method]"]'));
         setReview("review-funds-safekeeping", getVal("data[funds][safekeeping]"));
@@ -384,15 +631,20 @@ document.addEventListener("DOMContentLoaded", () => {
         setReview("review-disclosures-rights", rightsLabels.join("، ") || "—");
         setReview("review-declaration-rep", getVal("data[declaration][representative_name]"));
 
-        // Step 5: Attachments count & review badges
-        const filesCount = form.querySelectorAll('input[type="file"]').length;
-        let selectedFilesCount = 0;
-        form.querySelectorAll('input[type="file"]').forEach((f) => {
-            if (f.files && f.files.length > 0) selectedFilesCount += f.files.length;
+        const textareas = ["real_rights", "dispute", "value_information", "off_plan", "contribution"];
+        const reviewMap = {
+            real_rights: "review-real-rights",
+            dispute: "review-dispute",
+            value_information: "review-value-info",
+            off_plan: "review-off-plan",
+            contribution: "review-contribution",
+        };
+        textareas.forEach((k) => {
+            const val = getVal(`data[disclosures][${k}_details]`);
+            setReview(reviewMap[k], val && val !== "—" ? val : "لا يوجد");
         });
-        const existingLinks = form.querySelectorAll('a[href*="attachments"]').length;
-        setReview("review-attachments-summary", `${existingLinks} مرفق مسجل سابقاً${selectedFilesCount > 0 ? ` + ${selectedFilesCount} ملف جديد محدد للرفع` : ""}`);
 
+        // Step 5: Certificates review badges
         ["manager_certificate", "auctioneer_certificate"].forEach((type) => {
             const fileInput = form.querySelector(`[name="attachments[${type}]"]`);
             const fileBadge = form.querySelector(`[data-review-file-badge="${type}"]`);
@@ -405,53 +657,56 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    // Intercept Next button click on Step 3 (Properties) to enforce completeness
+    // Step 3 Next button guard (إلزام اكتمال جميع العقارات)
     const propertiesStep = document.getElementById("step-establishment-properties");
     if (propertiesStep) {
         const nextBtn = propertiesStep.querySelector(".btn-next, [data-form-next]");
         if (nextBtn) {
-            nextBtn.addEventListener("click", (e) => {
-                const modalBodies = form.querySelectorAll("[data-property-modal-body]");
-                const totalProperties = modalBodies.length;
-                let completedCount = 0;
-                let firstIncompleteId = null;
+            nextBtn.addEventListener(
+                "click",
+                (e) => {
+                    const rows = form.querySelectorAll(".establishment-property-row");
+                    const totalProperties = rows.length;
+                    let completedCount = 0;
+                    let firstIncomplete = null;
 
-                modalBodies.forEach((body) => {
-                    const propertyId = body.dataset.propertyModalBody;
-                    if (checkPropertyCompleteness(propertyId)) {
-                        completedCount++;
-                    } else if (!firstIncompleteId) {
-                        firstIncompleteId = propertyId;
-                    }
-                });
-
-                if (completedCount < totalProperties) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-
-                    const message = `يرجى استكمال بيانات جميع عقارات المزاد قبل المتابعة (${completedCount} من ${totalProperties} عقار مكتمل).`;
-                    if (window.toastr?.warning) {
-                        window.toastr.warning(message);
-                    } else if (window.toastr?.error) {
-                        window.toastr.error(message);
-                    }
-
-                    if (firstIncompleteId) {
-                        const row = form.querySelector(`[data-property-row="${firstIncompleteId}"]`);
-                        if (row) {
-                            row.scrollIntoView({ behavior: "smooth", block: "center" });
-                            row.classList.add("table-warning");
-                            setTimeout(() => row.classList.remove("table-warning"), 2000);
+                    rows.forEach((row) => {
+                        const propertyId = row.dataset.propertyId;
+                        if (checkPropertyCompleteness(propertyId)) {
+                            completedCount++;
+                        } else if (!firstIncomplete) {
+                            firstIncomplete = row;
                         }
-                        const modalEl = document.getElementById(`property-details-modal-${firstIncompleteId}`);
-                        if (modalEl && window.bootstrap && window.bootstrap.Modal) {
-                            const modalInstance = window.bootstrap.Modal.getOrCreateInstance(modalEl);
-                            modalInstance.show();
+                    });
+
+                    if (completedCount < totalProperties) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+
+                        const message = `يرجى استكمال بيانات ومرفقات جميع عقارات المزاد قبل المتابعة (${completedCount} من ${totalProperties} عقار مكتمل).`;
+                        if (window.toastr?.warning) {
+                            window.toastr.warning(message);
+                        } else if (window.toastr?.error) {
+                            window.toastr.error(message);
                         }
+
+                        if (firstIncomplete) {
+                            firstIncomplete.scrollIntoView({ behavior: "smooth", block: "center" });
+                            firstIncomplete.classList.add("table-warning");
+                            setTimeout(() => firstIncomplete.classList.remove("table-warning"), 2000);
+
+                            const pId = firstIncomplete.dataset.propertyId;
+                            const pIdx = firstIncomplete.dataset.propertyIndex;
+                            const pName = firstIncomplete.dataset.propertyName;
+                            const pNum = firstIncomplete.dataset.propertyNumber;
+                            const pType = firstIncomplete.dataset.propertyType;
+                            openPropertyModal(pId, pIdx, pName, pNum, pType);
+                        }
+                        return false;
                     }
-                    return false;
-                }
-            }, true);
+                },
+                true
+            );
         }
     }
 
@@ -460,7 +715,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateReviewCardValues();
 
     // Listen to stepper step change
-    form.addEventListener("stepChanged", (e) => {
+    form.addEventListener("stepChanged", () => {
         updateAllPropertiesCompleteness();
         updateReviewCardValues();
     });

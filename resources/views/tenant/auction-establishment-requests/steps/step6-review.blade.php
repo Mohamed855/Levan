@@ -1,20 +1,22 @@
 @php
     $selectedRights = $data['disclosures']['disposition_rights'] ?? [];
     $rightsLabels = collect($selectedRights)->map(fn($r) => $schema->dispositionRights()[$r] ?? $r)->implode('، ');
-    $totalAttachmentsCount = count($data['attachments']['manager_certificate'] ?? [])
-        + count($data['attachments']['auctioneer_certificate'] ?? [])
-        + count($data['attachments']['deed'] ?? [])
-        + count($data['attachments']['valuation'] ?? [])
-        + count($data['attachments']['representative_authority'] ?? []);
     $fallbackImage = asset('static/brand/logos/logo.svg');
 @endphp
 
 <div class="row g-4 assignment-review">
     <div class="col-12 d-flex flex-column gap-4">
-        <div class="alert alert-warning mb-0 d-flex align-items-center gap-2" role="alert">
-            <i class="ti ti-alert-triangle fs-3" aria-hidden="true"></i>
-            <span>برجاء مراجعة بيانات المنشأة والمسؤولين والمزاد والعقارات والإفصاحات والمرفقات قبل الاعتماد النهائي للطلب.</span>
+        {{-- تنبيه الإقرار الرسمي بدلاً من النص الإرشادي العادي وبدلاً من الشيك بوكس --}}
+        <div class="alert alert-primary mb-0 d-flex align-items-center gap-3 border shadow-none" role="alert">
+            <i class="ti ti-file-certificate fs-2 text-primary" aria-hidden="true"></i>
+            <div class="small leading-normal">
+                <strong>إقرار وتعهد نظامي:</strong>
+                مراجعتك لبيانات المنشأة والمسؤولين والمزاد والعقارات والإفصاحات والمرفقات وإرسال هذا النموذج تُعد إقراراً وتعهداً رسمياً منك بصحة واكتمال كافة البيانات المسجلة، وسريان رخصة فال وعقود المزاد، والالتزام بمتطلبات واشتراطات الهيئة العامة للعقار.
+            </div>
         </div>
+
+        {{-- حقل الإقرار المخفي المفعل دائماً --}}
+        <input type="hidden" name="declaration_accepted" value="1">
 
         <div class="row g-3">
             {{-- 1. المنشأة ومسؤولو المزاد --}}
@@ -80,6 +82,11 @@
                             {{ system_date($data['auction']['start_date'] ?? null, '') . ' ' . ($data['auction']['start_time'] ?? '') }} إلى {{ system_date($data['auction']['end_date'] ?? null, '') }}
                         </dd>
 
+                        <dt class="col-5 text-muted">مدة الترسية</dt>
+                        <dd class="col-7 fw-semibold" id="review-auction-award-period">
+                            {{ !empty($data['auction']['award_period']) ? $data['auction']['award_period'] . ' دقيقة' : '—' }}
+                        </dd>
+
                         <dt class="col-5 text-muted">نوع التصرف</dt>
                         <dd class="col-7 fw-semibold" id="review-auction-disposition">
                             {{ match($data['auction']['disposition'] ?? '') { 'sale' => 'بيع', 'lease' => 'تأجير', default => $data['auction']['disposition'] ?? '—' } }}
@@ -109,55 +116,7 @@
                 </x-form.wizard.review-card>
             </div>
 
-            {{-- 3. بيانات العقارات --}}
-            <div class="col-lg-6">
-                <x-form.wizard.review-card title="العقارات المحددة" step="3" col="" class="h-100 assignment-review__card">
-                    <dl class="row mb-3 small">
-                        <dt class="col-5 text-muted">عدد العقارات</dt>
-                        <dd class="col-7 fw-semibold" id="review-selected-props-count">{{ count($data['properties']) }} عقار</dd>
-
-                        <dt class="col-5 text-muted">إجمالي المساحة</dt>
-                        <dd class="col-7 fw-semibold" id="review-selected-props-area">{{ number_format((float) $auction->properties->sum('area')) }} م²</dd>
-
-                        <dt class="col-5 text-muted">إجمالي القيمة التقديرية</dt>
-                        <dd class="col-7 fw-semibold" id="review-selected-props-val">{{ number_format((float) $auction->properties->sum('estimated_value')) }} ر.س</dd>
-                    </dl>
-
-                    <div id="review-properties" class="assignment-selection__items">
-                        @foreach ($auction->properties as $propObj)
-                            @php
-                                $image = $propObj->main_image_url ?? $propObj->image_url ?? $fallbackImage;
-                            @endphp
-                            <article class="assignment-property-card" data-property-card="{{ $propObj->id }}">
-                                <img class="assignment-property-card__image"
-                                    src="{{ $image }}"
-                                    alt="{{ $propObj->name }}"
-                                    onerror="this.onerror=null;this.src='{{ $fallbackImage }}';">
-                                <div class="assignment-property-card__content">
-                                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-                                        <code class="copyable-code">{{ $propObj->property_number ?? '-' }}</code>
-                                        @if (!empty($propObj->type_label))
-                                            <span class="badge bg-info">{{ $propObj->type_label }}</span>
-                                        @endif
-                                        <span class="badge bg-label-success property-review-status-badge"
-                                            data-review-badge="{{ $propObj->id }}">
-                                            <i class="ti ti-check me-1"></i>مكتمل
-                                        </span>
-                                    </div>
-                                    <h6 class="mb-1 text-body text-truncate" title="{{ $propObj->name }}">
-                                        {{ $propObj->name ?? 'عقار' }}
-                                    </h6>
-                                    <p class="mb-0 text-muted small">
-                                        <i class="ti ti-map-pin me-1"></i>{{ $propObj->city ?? '-' }}{{ $propObj->district ? ' - ' . $propObj->district : '' }} &bull; {{ number_format((float) ($propObj->area ?? 0)) }} م²
-                                    </p>
-                                </div>
-                            </article>
-                        @endforeach
-                    </div>
-                </x-form.wizard.review-card>
-            </div>
-
-            {{-- 4. الإفصاحات والتعهدات --}}
+            {{-- 3. الإفصاحات والنظام --}}
             <div class="col-lg-6">
                 <x-form.wizard.review-card title="الإفصاحات والنظام" step="4" col="" class="h-100 assignment-review__card">
                     <dl class="row mb-0 small">
@@ -168,105 +127,57 @@
                         <dd class="col-7 fw-semibold" id="review-declaration-rep">{{ $data['declaration']['representative_name'] ?? '—' }}</dd>
 
                         <dt class="col-5 text-muted">حقوق عينية</dt>
-                        <dd class="col-7 fw-semibold">{{ ($data['disclosures']['real_rights'] ?? 'no') === 'yes' ? 'نعم' : 'لا' }}</dd>
+                        <dd class="col-7 fw-semibold" id="review-real-rights">
+                            {{ filled($data['disclosures']['real_rights_details'] ?? null) ? $data['disclosures']['real_rights_details'] : 'لا يوجد' }}
+                        </dd>
 
                         <dt class="col-5 text-muted">نزاع على العقار</dt>
-                        <dd class="col-7 fw-semibold">{{ ($data['disclosures']['dispute'] ?? 'no') === 'yes' ? 'نعم' : 'لا' }}</dd>
+                        <dd class="col-7 fw-semibold" id="review-dispute">
+                            {{ filled($data['disclosures']['dispute_details'] ?? null) ? $data['disclosures']['dispute_details'] : 'لا يوجد' }}
+                        </dd>
+
+                        <dt class="col-5 text-muted">معلومات مؤثرة على القيمة</dt>
+                        <dd class="col-7 fw-semibold" id="review-value-info">
+                            {{ filled($data['disclosures']['value_information_details'] ?? null) ? $data['disclosures']['value_information_details'] : 'لا يوجد' }}
+                        </dd>
 
                         <dt class="col-5 text-muted">بيع على الخارطة</dt>
-                        <dd class="col-7 fw-semibold">{{ ($data['disclosures']['off_plan'] ?? 'no') === 'yes' ? 'نعم' : 'لا' }}</dd>
+                        <dd class="col-7 fw-semibold" id="review-off-plan">
+                            {{ filled($data['disclosures']['off_plan_details'] ?? null) ? $data['disclosures']['off_plan_details'] : 'لا يوجد' }}
+                        </dd>
 
                         <dt class="col-5 text-muted">مساهمة عقارية</dt>
-                        <dd class="col-7 fw-semibold">{{ ($data['disclosures']['contribution'] ?? 'no') === 'yes' ? 'نعم' : 'لا' }}</dd>
+                        <dd class="col-7 fw-semibold" id="review-contribution">
+                            {{ filled($data['disclosures']['contribution_details'] ?? null) ? $data['disclosures']['contribution_details'] : 'لا يوجد' }}
+                        </dd>
                     </dl>
                 </x-form.wizard.review-card>
             </div>
 
-            {{-- 5. المرفقات والمستندات --}}
-            <div class="col-12">
-                <x-form.wizard.review-card title="المستندات والمرفقات" step="5" col="" class="assignment-review__card">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <section class="assignment-selection" aria-labelledby="review-certificates-title">
-                                <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <h6 id="review-certificates-title" class="mb-0">
-                                        <i class="ti ti-certificate text-primary me-1"></i>شهادات مسؤولي المزاد
-                                    </h6>
-                                </div>
-                                <div class="assignment-file-list" id="review-certificates-list">
-                                    @foreach (['manager_certificate', 'auctioneer_certificate'] as $type)
-                                        @php
-                                            $existing = $data['attachments'][$type][0] ?? null;
-                                            $attachmentUrl = $existing ? tenant_route_name('auction-establishment-requests.attachment', ['auction' => $auction, 'type' => $type]) : null;
-                                        @endphp
-                                        @if ($existing)
-                                            <x-ui.file-card :name="$existing['name']" :url="$attachmentUrl" :meta="$schema->attachmentTypes()[$type]" />
-                                        @else
-                                            <div class="p-2 border rounded d-flex align-items-center justify-content-between small text-muted">
-                                                <span>{{ $schema->attachmentTypes()[$type] }}</span>
-                                                <span class="badge bg-label-warning" data-review-file-badge="{{ $type }}">بانتظار الرفع</span>
-                                            </div>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </section>
+            {{-- 4. المستندات والمرفقات العامة --}}
+            <div class="col-lg-6">
+                <x-form.wizard.review-card title="شهادات مسؤولي المزاد" step="5" col="" class="h-100 assignment-review__card">
+                    <section class="assignment-selection" aria-labelledby="review-certificates-title">
+                        <div class="assignment-file-list" id="review-certificates-list">
+                            @foreach (['manager_certificate', 'auctioneer_certificate'] as $type)
+                                @php
+                                    $existing = $data['attachments'][$type][0] ?? null;
+                                    $attachmentUrl = $existing ? tenant_route_name('auction-establishment-requests.attachment', ['auction' => $auction, 'type' => $type]) : null;
+                                @endphp
+                                @if ($existing)
+                                    <div class="mb-2">
+                                        <x-ui.file-card :name="$existing['name']" :url="$attachmentUrl" :meta="$schema->attachmentTypes()[$type]" />
+                                    </div>
+                                @else
+                                    <div class="p-2 border rounded d-flex align-items-center justify-content-between small text-muted mb-2">
+                                        <span>{{ $schema->attachmentTypes()[$type] }}</span>
+                                        <span class="badge bg-label-warning" data-review-file-badge="{{ $type }}">بانتظار الرفع</span>
+                                    </div>
+                                @endif
+                            @endforeach
                         </div>
-
-                        <div class="col-md-6">
-                            <section class="assignment-selection" aria-labelledby="review-properties-docs-title">
-                                <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <h6 id="review-properties-docs-title" class="mb-0">
-                                        <i class="ti ti-files text-primary me-1"></i>مستندات عقارات المزاد
-                                    </h6>
-                                    <span class="badge bg-primary" id="review-attachments-summary">
-                                        {{ $totalAttachmentsCount }} مرفق مسجل
-                                    </span>
-                                </div>
-                                <div class="assignment-file-list" id="review-property-docs-list">
-                                    @foreach ($data['properties'] as $index => $propertyData)
-                                        @php
-                                            $property = $auction->properties->firstWhere('id', $propertyData['property_id']);
-                                            $propAttachments = [];
-                                            foreach (['deed', 'valuation', 'representative_authority'] as $type) {
-                                                if (isset($data['attachments'][$type][$propertyData['property_id']])) {
-                                                    $propAttachments[$type] = $data['attachments'][$type][$propertyData['property_id']];
-                                                }
-                                            }
-                                        @endphp
-                                        <div class="border rounded p-2 mb-2">
-                                            <div class="fw-semibold small mb-1">
-                                                <i class="ti ti-building me-1"></i>{{ $property?->name ?? 'عقار' }} ({{ $property?->property_number ?? '-' }})
-                                            </div>
-                                            <div class="d-flex flex-wrap gap-1">
-                                                @foreach (['deed', 'valuation', 'representative_authority'] as $type)
-                                                    @php
-                                                        $att = $propAttachments[$type] ?? null;
-                                                    @endphp
-                                                    <span class="badge {{ $att ? 'bg-label-success' : 'bg-label-secondary' }}">
-                                                        {{ $schema->attachmentTypes()[$type] }}: {{ $att ? 'مرفوع' : 'غير مرفوع' }}
-                                                    </span>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </section>
-                        </div>
-                    </div>
+                    </section>
                 </x-form.wizard.review-card>
-            </div>
-        </div>
-
-        {{-- خانة الإقرار والتعهد النهائي --}}
-        <div class="card border border-primary-subtle bg-light-subtle p-3 mb-2">
-            <div class="d-flex align-items-start gap-3">
-                <i class="ti ti-file-certificate fs-2 text-primary mt-1"></i>
-                <div class="flex-grow-1">
-                    <h6 class="fw-bold mb-1">الإقرار والتعهد النهائي لمطابقة طلب إقامة المزاد</h6>
-                    <x-form.controls.checkbox name="declaration_accepted" value="1"
-                        label="أقر بصحة البيانات والمرفقات، وسريان رخصة فال وعقود المزاد، والالتزام بمتطلبات وإقرار وتعهد نموذج طلب إقامة المزاد العقاري وفق اشتراطات الهيئة العامة للعقار."
-                        required col="col-12" />
-                </div>
             </div>
         </div>
     </div>

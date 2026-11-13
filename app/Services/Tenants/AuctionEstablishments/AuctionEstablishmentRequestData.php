@@ -34,18 +34,18 @@ final class AuctionEstablishmentRequestData
                 'start_date' => $this->field('تاريخ البداية', 'date', true, [], ['date']),
                 'end_date' => $this->field('تاريخ النهاية', 'date', true, [], ['date', 'after_or_equal:data.auction.start_date']),
                 'start_time' => $this->field('وقت البداية', 'time', true, [], ['date_format:H:i']),
-                'award_period' => $this->field('مدة الترسية', 'text', true, [], ['string', 'max:100'], ['placeholder' => 'مثال: دقيقتان', 'maxlength' => '100']),
+                'award_period' => $this->field('مدة الترسية بالدقائق', 'number', true, [], ['integer', 'min:1'], ['min' => '1', 'step' => '1', 'inputmode' => 'numeric', 'placeholder' => 'أدخل مدة الترسية بالدقائق']),
                 'disposition' => $this->field('نوع التصرف', 'select', true, ['sale' => 'بيع', 'lease' => 'تأجير']),
             ]],
             'funds' => ['label' => 'استلام وحفظ وإعادة أموال المتنافسين', 'fields' => [
                 'receipt_method' => $this->field('طريقة الاستلام', 'select', true, $this->paymentMethods()),
                 'receipt_other' => $this->field('طريقة الاستلام الأخرى', 'text', false, [], ['string', 'max:255'], ['maxlength' => '255']),
-                'safekeeping' => $this->field('آلية حفظ الأموال', 'text', true, [], ['string', 'max:500'], ['maxlength' => '500']),
                 'receipt_days' => $this->field('مدة الاستلام بالأيام', 'number', true, [], ['integer', 'min:0', 'max:365'], ['min' => '0', 'max' => '365', 'step' => '1', 'inputmode' => 'numeric']),
                 'refund_method' => $this->field('طريقة الإعادة', 'select', true, $this->paymentMethods()),
                 'refund_other' => $this->field('طريقة الإعادة الأخرى', 'text', false, [], ['string', 'max:255'], ['maxlength' => '255']),
                 'refund_days' => $this->field('مدة الإعادة بالأيام', 'number', true, [], ['integer', 'min:0', 'max:3'], ['min' => '0', 'max' => '3', 'step' => '1', 'inputmode' => 'numeric', 'title' => 'مدة الإعادة يجب ألا تزيد عن 3 أيام']),
                 'entry_type' => $this->field('نوع مبلغ الدخول', 'select', true, ['earnest' => 'عربون', 'advance' => 'مقدم ثمن', 'refundable' => 'مبلغ مسترد', 'none' => 'بدون مبلغ']),
+                'safekeeping' => $this->field('آلية حفظ الأموال', 'text', true, [], ['string', 'max:255'], ['maxlength' => '255']),
             ]],
             'disclosures' => ['label' => 'الإفصاحات', 'fields' => $this->disclosureFields()],
             'declaration' => ['label' => 'الإقرار والتعهد', 'fields' => [
@@ -94,9 +94,6 @@ final class AuctionEstablishmentRequestData
         $rules['data.disclosures.disposition_rights.*'] = ['string', 'distinct', Rule::in(array_keys($this->dispositionRights()))];
         foreach (['receipt', 'refund'] as $method) {
             $rules['data.funds.'.$method.'_other'][] = 'required_if:data.funds.'.$method.'_method,other';
-        }
-        foreach (['real_rights', 'dispute', 'value_information', 'off_plan', 'contribution'] as $key) {
-            $rules['data.disclosures.'.$key.'_details'][] = 'required_if:data.disclosures.'.$key.',yes';
         }
         $rules['data.disclosures.disposition_right_other'][] = 'required_if:data.disclosures.disposition_rights.*,other';
         $rules['data.properties.*.status_other'][] = 'required_if:data.properties.*.status,other';
@@ -265,6 +262,12 @@ final class AuctionEstablishmentRequestData
             }
         }
         $data['disclosures']['disposition_rights'] = array_values($input['disclosures']['disposition_rights'] ?? []);
+        foreach (['real_rights', 'dispute', 'value_information', 'off_plan', 'contribution'] as $key) {
+            $details = trim((string) ($input['disclosures'][$key.'_details'] ?? ($input['disclosures'][$key] ?? '')));
+            $hasVal = filled($details);
+            $data['disclosures'][$key] = $hasVal ? 'yes' : 'no';
+            $data['disclosures'][$key.'_details'] = $hasVal ? $details : '';
+        }
         $data['submission_date'] = now()->format('Y/m/d');
         $data['property'] = Arr::except($data['properties'][0], ['property_id']);
         $data['agents'] = collect($data['properties'])->filter(fn ($row) => filled($row['agent_name'] ?? null))->map(fn ($row) => Arr::only($row, ['property_id', 'owner_name', 'deed_number', 'agent_name', 'agency_number']) + ['name' => $row['agent_name']])->values()->all();

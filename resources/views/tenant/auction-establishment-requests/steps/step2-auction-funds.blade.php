@@ -1,13 +1,4 @@
 <div class="row g-4">
-    {{-- تفاصيل إقامة المزاد --}}
-    <div class="col-12">
-        <div class="d-flex align-items-center gap-2 mb-1">
-            <i class="ti ti-calendar-event fs-4 text-primary"></i>
-            <h6 class="fw-bold mb-0">{{ $sections['auction']['label'] }}</h6>
-        </div>
-        <p class="text-muted small mb-0">المواعيد ومقر وطريقة إقامة المزاد وتفاصيل الترسية</p>
-    </div>
-
     @foreach ($sections['auction']['fields'] as $key => $field)
         @include('tenant.auction-establishment-requests.field', [
             'path' => 'auction.' . $key,

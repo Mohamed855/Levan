@@ -1,12 +1,5 @@
 <div class="row g-4">
-    {{-- المنشأة العقارية --}}
-    <div class="col-12">
-        <div class="d-flex align-items-center gap-2 mb-1">
-            <i class="ti ti-building fs-4 text-primary"></i>
-            <h6 class="fw-bold mb-0">{{ $sections['organization']['label'] }}</h6>
-        </div>
-        <p class="text-muted small mb-0">بيانات المنشأة وترخيص فال للمزادات العقارية</p>
-    </div>
+
 
     @foreach ($sections['organization']['fields'] as $key => $field)
         @include('tenant.auction-establishment-requests.field', [
