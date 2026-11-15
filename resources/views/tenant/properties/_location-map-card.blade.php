@@ -20,7 +20,7 @@
         <div class="flex-grow-1 position-relative d-flex flex-column">
             {{-- مربع رسالة الانتظار عند عدم وجود صورة (قابل للنقر لاختيار صورة) --}}
             <div id="property-image-empty-placeholder"
-                class="border rounded-3 p-4 text-center text-primary bg-light d-flex flex-column align-items-center justify-content-center flex-grow-1"
+                class="border rounded p-4 text-center text-primary bg-light d-flex flex-column align-items-center justify-content-center flex-grow-1"
                 role="button" tabindex="0" aria-label="اضغط لاختيار صورة العقار" style="min-height: 320px;">
                 <i class="ti ti-photo-up fs-1 text-primary mb-2"></i>
                 <span class="fw-semibold">اضغط لاختيار صورة العقار</span>
@@ -29,7 +29,7 @@
 
             {{-- حاوية الرسم التفاعلية مع الكانفاس --}}
             <div id="property-image-canvas-wrapper"
-                class="position-relative border rounded-3 overflow-hidden bg-label-dark text-dark text-center d-none flex-grow-1 d-flex align-items-center justify-content-center"
+                class="position-relative border rounded overflow-hidden bg-label-dark text-dark text-center d-none flex-grow-1 d-flex align-items-center justify-content-center"
                 style="min-height: 340px;">
                 <canvas id="property-drawing-canvas" class="img-fluid"
                     style="cursor: crosshair; max-height: 480px;"></canvas>

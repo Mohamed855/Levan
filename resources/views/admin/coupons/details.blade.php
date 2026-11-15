@@ -22,7 +22,7 @@
             <div class="card mb-4">
                 <div class="card-body text-center">
                     <div class="mx-auto mb-3">
-                        <div class="avatar avatar-xl bg-label-primary rounded-circle p-3 d-flex align-items-center justify-content-center mx-auto shadow-sm"
+                        <div class="avatar avatar-xl bg-label-primary rounded p-3 d-flex align-items-center justify-content-center mx-auto shadow-sm"
                             style="width: 100px; height: 100px;">
                             <i class="ti ti-discount-2 fs-1 text-primary"></i>
                         </div>
@@ -96,7 +96,7 @@
                     @if ($creator)
                         <div class="d-flex align-items-center">
                             <div
-                                class="avatar avatar-md me-3 bg-label-primary rounded-circle d-flex align-items-center justify-content-center">
+                                class="avatar avatar-md me-3 bg-label-primary rounded d-flex align-items-center justify-content-center">
                                 <i class="ti ti-user fs-4 text-primary"></i>
                             </div>
                             <div>
@@ -107,7 +107,7 @@
                     @else
                         <div class="d-flex align-items-center py-1">
                             <div
-                                class="avatar avatar-md me-3 bg-secondary rounded-circle d-flex align-items-center justify-content-center">
+                                class="avatar avatar-md me-3 bg-secondary rounded d-flex align-items-center justify-content-center">
                                 <i class="ti ti-user-off fs-4 text-white"></i>
                             </div>
                             <div>

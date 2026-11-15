@@ -281,7 +281,7 @@ class AdminUserController extends Controller
             }
 
             return redirect()->intended(RouteServiceProvider::ADMIN)
-                ->with('success', 'تم تغيير كلمة المرور بنجاح ومرحباً بك في النظام.');
+                ->with('success', 'تم تغيير كلمة المرور بنجاح.');
         }
 
         return redirect()->route('admin.profile.show')

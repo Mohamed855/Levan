@@ -363,7 +363,7 @@ class UserController extends Controller
             }
 
             return redirect()->intended(RouteServiceProvider::home())
-                ->with('success', 'تم تغيير كلمة المرور بنجاح ومرحباً بك في النظام.');
+                ->with('success', 'تم تغيير كلمة المرور بنجاح.');
         }
 
         return redirect()->to(tenant_route_name('profile.show'))

@@ -22,7 +22,7 @@
             <div class="card mb-4">
                 <div class="card-body text-center">
                     <div class="mx-auto mb-3">
-                        <div class="avatar avatar-xl rounded-circle p-3 d-flex align-items-center justify-content-center mx-auto shadow-sm"
+                        <div class="avatar avatar-xl rounded p-3 d-flex align-items-center justify-content-center mx-auto shadow-sm"
                             style="width: 100px; height: 100px; background-color: {{ $plan->color?->hex() ?? '#1D4F44' }}20; color: {{ $plan->color?->hex() ?? '#1D4F44' }};">
                             <i class="ti ti-cube fs-1"></i>
                         </div>
@@ -274,7 +274,7 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="avatar avatar-sm me-2">
-                                                <span class="avatar-initial rounded-circle bg-label-primary">
+                                                <span class="avatar-initial rounded bg-label-primary">
                                                     {{ mb_substr($tenant?->company_name ?? 'ش', 0, 1) }}
                                                 </span>
                                             </div>

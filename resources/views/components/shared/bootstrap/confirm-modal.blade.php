@@ -8,7 +8,7 @@
         <div class="modal-content text-center p-2">
             <div class="modal-body pt-4 px-4 pb-2">
                 <div id="{{ $id }}IconWrapper"
-                    class="avatar avatar-xl mx-auto rounded-circle d-flex align-items-center justify-content-center bg-danger mb-3">
+                    class="avatar avatar-xl mx-auto rounded d-flex align-items-center justify-content-center bg-danger mb-3">
                     <i id="{{ $id }}Icon" class="ti ti-trash fs-2 text-white"></i>
                 </div>
                 <h5 id="{{ $id }}Heading" class="modal-title fw-bold mb-2">تأكيد العملية</h5>

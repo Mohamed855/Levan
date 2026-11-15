@@ -3,7 +3,7 @@
     'alt' => '',
     'size' => 44,
     'icon' => 'ti-user',
-    'rounded' => 'rounded-circle',
+    'rounded' => 'rounded',
     'fit' => 'object-fit-cover',
 ])
 

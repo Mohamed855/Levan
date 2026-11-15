@@ -17,7 +17,7 @@
             <div class="card mb-4">
                 <div class="card-body text-center">
                     <div class="mx-auto mb-3">
-                        <div class="avatar avatar-xl bg-label-primary rounded-circle p-3 d-flex align-items-center justify-content-center mx-auto shadow-sm"
+                        <div class="avatar avatar-xl bg-label-primary rounded p-3 d-flex align-items-center justify-content-center mx-auto shadow-sm"
                             style="width: 100px; height: 100px;">
                             <i class="ti ti-mail-opened fs-1 text-primary"></i>
                         </div>

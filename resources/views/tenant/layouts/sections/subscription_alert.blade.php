@@ -85,7 +85,7 @@
                         <div class="modal-body">
                             <div class="d-flex flex-column align-items-center gap-5">
                                 <div class="avatar avatar-xl">
-                                    <span class="avatar-initial rounded-circle bg-danger text-white"><i
+                                    <span class="avatar-initial rounded bg-danger text-white"><i
                                             class="ti ti-alert-triangle fs-2 text-white"></i></span>
                                 </div>
                                 <h4 class="modal-title fw-bold text-danger" id="subscriptionExpiringModalLabel">تحذير

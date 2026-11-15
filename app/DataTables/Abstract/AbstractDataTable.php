@@ -241,7 +241,7 @@ abstract class AbstractDataTable extends DataTable
         return [];
     }
 
-    protected function renderTableImage(?string $src, string $alt = '', int $size = 44, ?string $icon = null, string $rounded = 'rounded-circle', string $fit = 'object-fit-cover'): string
+    protected function renderTableImage(?string $src, string $alt = '', int $size = 44, ?string $icon = null, string $rounded = 'rounded', string $fit = 'object-fit-cover'): string
     {
         $icon = $icon ?: $this->getDefaultTableIcon();
 

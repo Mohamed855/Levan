@@ -24,16 +24,14 @@
                     <div class="mx-auto mb-3" style="width: 100px; height: 100px;">
                         @if ($property->main_image && tasset($property->main_image))
                             <img src="{{ tasset($property->main_image) }}" alt="{{ $property->name }}"
-                                class="rounded-circle border shadow-sm w-100 h-100 object-fit-cover"
+                                class="rounded border shadow-sm w-100 h-100 object-fit-cover"
                                 onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-flex'); }">
-                            <div class="rounded-circle border shadow-sm w-100 h-100 d-none align-items-center justify-content-center bg-label-dark text-dark"
-                                style="font-size: 32px;">
-                                <i class="ti ti-building"></i>
+                            <div class="rounded border shadow-sm w-100 h-100 d-none align-items-center justify-content-center bg-label-dark text-dark">
+                                <i class="ti ti-building" style="font-size: 50px;"></i>
                             </div>
                         @else
-                            <div class="rounded-circle border shadow-sm w-100 h-100 d-flex align-items-center justify-content-center bg-label-dark text-dark"
-                                style="font-size: 32px;">
-                                <i class="ti ti-building"></i>
+                            <div class="rounded border shadow-sm w-100 h-100 d-flex align-items-center justify-content-center bg-label-dark text-dark">
+                                <i class="ti ti-building" style="font-size: 50px;"></i>
                             </div>
                         @endif
                     </div>

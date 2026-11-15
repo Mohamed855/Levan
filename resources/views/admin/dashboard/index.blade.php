@@ -227,20 +227,20 @@
                                             @endphp
                                             <div class="avatar avatar-xs me-2">
                                                 @if (!$causer)
-                                                    <span class="avatar-initial rounded-circle bg-label-info"
+                                                    <span class="avatar-initial rounded bg-label-info"
                                                         title="النظام">
                                                         <i class="ti ti-settings ti-xs"></i>
                                                     </span>
                                                 @elseif ($avatarUrl)
                                                     <img src="{{ $avatarUrl }}" alt="{{ $activity->causer_name }}"
-                                                        class="rounded-circle object-fit-cover w-100 h-100 border"
+                                                        class="rounded object-fit-cover w-100 h-100 border"
                                                         onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-inline-flex'); }">
                                                     <span
-                                                        class="avatar-initial rounded-circle bg-label-dark text-dark d-none">
+                                                        class="avatar-initial rounded bg-label-dark text-dark d-none">
                                                         <i class="ti ti-user ti-xs"></i>
                                                     </span>
                                                 @else
-                                                    <span class="avatar-initial rounded-circle bg-label-dark text-dark">
+                                                    <span class="avatar-initial rounded bg-label-dark text-dark">
                                                         <i class="ti ti-user ti-xs"></i>
                                                     </span>
                                                 @endif

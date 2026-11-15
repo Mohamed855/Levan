@@ -188,8 +188,7 @@
                         <img src="{{ tasset(Auth::user()->image) }}" alt="{{ Auth::user()->name }}"
                             class="rounded-circle object-fit-cover" width="40" height="40"
                             onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-inline-flex'); }">
-                        <span class="avatar-initial rounded-circle bg-label-dark text-dark d-none"
-                            style="font-size: 18px;">
+                        <span class="avatar-initial rounded-circle bg-label-dark text-dark d-none" style="font-size: 18px;">
                             <i class="ti ti-user"></i>
                         </span>
                     @else

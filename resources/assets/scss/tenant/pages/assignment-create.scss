@@ -39,7 +39,7 @@
     inline-size: 3rem;
     block-size: 3rem;
     flex: 0 0 3rem;
-    border-radius: 50%;
+    border-radius: var(--bs-border-radius, 6px);
     border: 1px solid var(--bs-border-color);
     background: var(--bs-card-bg);
     object-fit: cover;

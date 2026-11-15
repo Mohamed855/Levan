@@ -75,7 +75,7 @@
                 <div class="list-group-item list-group-item-action d-flex align-items-start gap-3 p-3 {{ $notification->read_at ? 'marked-as-read' : 'bg-label-primary' }}"
                     data-notification-id="{{ $notification->id }}"
                     @if ($targetUrl) data-target-url="{{ $targetUrl }}" style="cursor: pointer;" @endif>
-                    <span class="avatar-initial rounded-circle bg-label-{{ $typeColor }} p-2 flex-shrink-0">
+                    <span class="avatar-initial rounded bg-label-{{ $typeColor }} p-2 flex-shrink-0">
                         <i class="{{ $icon }} fs-5"></i>
                     </span>
                     <div class="flex-grow-1">
@@ -99,7 +99,7 @@
             @empty
                 <div class="text-center py-5">
                     <div class="mb-3">
-                        <span class="avatar-initial rounded-circle bg-label-primary p-3 d-inline-flex">
+                        <span class="avatar-initial rounded bg-label-primary p-3 d-inline-flex">
                             <i class="ti ti-bell-off fs-2"></i>
                         </span>
                     </div>

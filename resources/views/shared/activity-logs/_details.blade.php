@@ -39,24 +39,24 @@
                             }
                         }
                     @endphp
-                    <div class="avatar avatar-xl mx-auto shadow-sm rounded-circle" style="width: 100px; height: 100px;">
+                    <div class="avatar avatar-xl mx-auto shadow-sm rounded" style="width: 100px; height: 100px;">
                         @if (!$causer)
                             <span
-                                class="avatar-initial rounded-circle bg-label-info w-100 h-100 d-flex align-items-center justify-content-center"
+                                class="avatar-initial rounded bg-label-info w-100 h-100 d-flex align-items-center justify-content-center"
                                 title="النظام">
                                 <i class="ti ti-settings fs-1"></i>
                             </span>
                         @elseif ($avatarUrl)
                             <img src="{{ $avatarUrl }}" alt="{{ $activityData['user_name'] }}"
-                                class="rounded-circle object-fit-cover w-100 h-100 border"
+                                class="rounded object-fit-cover w-100 h-100 border"
                                 onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-flex'); }">
                             <span
-                                class="avatar-initial rounded-circle bg-label-dark text-dark w-100 h-100 d-none align-items-center justify-content-center">
+                                class="avatar-initial rounded bg-label-dark text-dark w-100 h-100 d-none align-items-center justify-content-center">
                                 <i class="ti ti-user fs-1"></i>
                             </span>
                         @else
                             <span
-                                class="avatar-initial rounded-circle bg-label-dark text-dark w-100 h-100 d-flex align-items-center justify-content-center">
+                                class="avatar-initial rounded bg-label-dark text-dark w-100 h-100 d-flex align-items-center justify-content-center">
                                 <i class="ti ti-user fs-1"></i>
                             </span>
                         @endif

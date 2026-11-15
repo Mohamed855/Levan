@@ -68,7 +68,7 @@ class PlanDataTable extends AbstractDataTable
                 $colorHex = $planColor ? $planColor->hex() : '#7367f0';
                 $colorLabel = $planColor ? $planColor->label() : ($row->color ?? '');
 
-                return '<span class="d-inline-block rounded-circle shadow-xs" style="background-color: '.e($colorHex).'; width: 22px; height: 22px; border: 1px solid rgba(0,0,0,0.08); vertical-align: middle;" title="'.e($colorLabel).'" data-bs-toggle="tooltip"></span>';
+                return '<span class="d-inline-block rounded shadow-xs" style="background-color: '.e($colorHex).'; width: 22px; height: 22px; border: 1px solid rgba(0,0,0,0.08); vertical-align: middle;" title="'.e($colorLabel).'" data-bs-toggle="tooltip"></span>';
             })
 
             ->editColumn('name', function ($row) {

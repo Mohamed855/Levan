@@ -41,7 +41,7 @@ Shared anonymous components are registered in `app/Providers/ViewServiceProvider
 - **No Demo Images as Defaults:** Never set demo images or test fixtures as default entity images in seeders, factories, or database defaults. Entities without uploaded media must have `null` image attributes.
 - **Sidebar Icon Fallback:** When an image is missing for any entity (Users, Properties, Auctions, Assignments, Issuing Entities, Campaigns, etc.):
   - Replace the image with the entity's corresponding **sidebar Tabler icon** (`ti ti-*`).
-  - Render the icon inside the **exact same container/frame** specified for the image (`width`, `height`, `rounded-circle`/`rounded`, `border`, `shadow-sm`).
+  - Render the icon inside the **exact same container/frame** specified for the image (`width`, `height`, `rounded`, `border`, `shadow-sm`).
   - Apply the standard styling classes: `bg-label-dark text-dark` and standard font size (`18px` for tables/navbars, proportional for large profile cards).
   - In `AbstractDataTable`, always rely on `$this->renderTableImage(...)` which automatically resolves the table's default module icon via `getDefaultTableIcon()`.
   - In Blade views rendering images, always provide an `onerror` handler that gracefully hides the broken image and displays the module icon placeholder.
