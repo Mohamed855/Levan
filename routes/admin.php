@@ -121,6 +121,7 @@ Route::prefix('superadmin')->name('admin.')->middleware(['auth:admin', EnsureIni
     // ادارة الاشتراكات
     Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
         Route::patch('{subscription}/toggle-status', [CentralSubscriptionController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('{subscription}/periods', [CentralSubscriptionController::class, 'periods'])->name('periods');
         Route::get('plans/{plan}/duration', [CentralSubscriptionController::class, 'planDuration'])->name('plan-duration');
         Route::get('companies/{company}/details', [CentralSubscriptionController::class, 'companyDetails'])->name('company-details');
         Route::post('validate-coupon', [CentralSubscriptionController::class, 'validateCoupon'])->name('validate-coupon');

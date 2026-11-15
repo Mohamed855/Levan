@@ -176,7 +176,7 @@ class DashboardSearchService
             [
                 'name' => 'إدارة المستخدمين',
                 'route' => 'admin.users.index',
-                'icon' => 'ti-users',
+                'icon' => 'ti-user',
                 'category' => 'إدارة النظام',
                 'permission' => 'users.view',
                 'keywords' => 'مستخدمين مديرين مشرفين ادارة users admins staff',
@@ -418,7 +418,7 @@ class DashboardSearchService
             [
                 'name' => 'إدارة المستخدمين',
                 'route' => 'users.index',
-                'icon' => 'ti-users',
+                'icon' => 'ti-user',
                 'category' => 'إدارة النظام',
                 'permission' => 'users.view',
                 'keywords' => 'مستخدمين موظفين فريق العمل حسابات users staff team',

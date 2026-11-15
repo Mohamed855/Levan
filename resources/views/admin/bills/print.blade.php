@@ -153,9 +153,16 @@
         {{-- ── Action buttons (hidden on print) ── --}}
         <div class="inv-actions no-print">
             <button type="button" onclick="window.print()" class="btn-inv-primary"><i class="ti ti-printer me-1"></i>طباعة الفاتورة</button>
-            <a href="{{ route('admin.bills.show', $bill->id) }}" class="btn-inv-outline"><i class="ti ti-arrow-right me-1"></i>رجوع</a>
+            <a href="{{ $backUrl ?? route('admin.bills.show', $bill->id) }}" class="btn-inv-outline"><i class="ti ti-arrow-right me-1"></i>رجوع</a>
         </div>
 
     </div>
 
+    <script>
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                window.print();
+            }, 300);
+        });
+    </script>
 @endsection

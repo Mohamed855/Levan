@@ -8,12 +8,14 @@
         <a href="{{ $backUrl }}" class="btn btn-secondary">
             <i class="ti ti-arrow-right me-1"></i> العودة
         </a>
-        @if ($isAdmin)
-            <a href="{{ route('admin.bills.print', $bill->id) }}" class="btn btn-primary">
-                <i class="ti ti-printer me-1"></i> طباعة الفاتورة
-            </a>
-        @elseif ($bill->status->value === 'unpaid')
-            <a href="{{ tenant_route_name('bills.checkout', $bill->id) }}" class="btn btn-primary">
+        @php
+            $printUrl = $isAdmin ? route('admin.bills.print', $bill->id) : tenant_route_name('bills.print', $bill->id);
+        @endphp
+        <a href="{{ $printUrl }}" target="_blank" class="btn btn-primary">
+            <i class="ti ti-printer me-1"></i> طباعة الفاتورة
+        </a>
+        @if (!$isAdmin && $bill->status->value === 'unpaid')
+            <a href="{{ tenant_route_name('bills.checkout', $bill->id) }}" class="btn btn-success">
                 <i class="ti ti-credit-card-pay me-1"></i> دفع إلكتروني
             </a>
         @endif
@@ -42,7 +44,7 @@
                     <div>
                         <h5 class="mb-0 text-primary">
                             {{ number_format($bill->amount, 2) }}
-                            <span class="icon-saudi_riyal ms-1"></span>
+                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                         </h5>
                         <small class="text-muted">الإجمالي</small>
                     </div>
@@ -67,7 +69,8 @@
                         <li class="mb-3 d-flex align-items-center">
                             <i class="ti ti-status-change text-primary me-2 fs-5"></i>
                             <span class="fw-bold me-2">الحالة:</span>
-                            <span class="badge bg-label-{{ $bill->status->color() }}">{{ $bill->status->label() }}</span>
+                            <span
+                                class="badge bg-label-{{ $bill->status->color() }}">{{ $bill->status->label() }}</span>
                         </li>
 
                         @if ($bill->payment_method)
@@ -101,7 +104,7 @@
 
                         @if ($isAdmin && isset($metadata['new_licenses_count']))
                             <li class="mb-3 d-flex align-items-center">
-                                <i class="ti ti-users text-primary me-2 fs-5"></i>
+                                <i class="ti ti-user text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">المستخدمون الإضافيون:</span>
                                 <span class="badge bg-label-info">{{ $metadata['new_licenses_count'] }} مستخدم</span>
                             </li>
@@ -113,7 +116,7 @@
                                 <span class="fw-bold me-2">سعر المستخدم:</span>
                                 <span class="badge bg-label-info">
                                     {{ number_format($metadata['license_unit_price'], 2) }}
-                                    <span class="icon-saudi_riyal ms-1"></span>
+                                    <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                                 </span>
                             </li>
                         @endif
@@ -188,6 +191,33 @@
                     </div>
                 </div>
             </div>
+        @endif
+
+        {{-- خيار تأكيد الدفع في حال الرفض أو الإلغاء (Admin) --}}
+        @if ($isAdmin && in_array($bill->status->value, ['rejected', 'cancelled']))
+            @can('subscriptions.pending.approve')
+                <div class="card mb-4 border-success">
+                    <div class="card-header pb-2 mb-3">
+                        <h6 class="card-title mb-0 text-success">
+                            <i class="ti ti-check-circle me-2"></i>تأكيد الدفع وتفعيل الاشتراك
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small mb-3">
+                            <i class="ti ti-info-circle me-1"></i>
+                            تم رفض أو إلغاء هذه الفاتورة مسبقاً. في حال قام العميل بالسداد بطريقة أخرى، يمكنك تأكيد الدفع
+                            لإنشاء المنشأة وتفعيل الاشتراك بضغطة زر.
+                        </p>
+                        <form id="verifyBillForm" action="{{ route('admin.bills.verify', $bill->id) }}" method="POST"
+                            class="m-0">
+                            @csrf
+                            <button type="button" class="btn btn-success btn-sm w-100 js-verify-bill-btn">
+                                <i class="ti ti-check me-1"></i> تأكيد الدفع
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @endcan
         @endif
 
         {{-- ملاحظات التحويل (Tenant - pending_verification) --}}
@@ -310,7 +340,7 @@
 
             <div class="card-body">
                 {{-- ترويسة المنشأة --}}
-                <div class="d-flex justify-content-between flex-wrap gap-3 p-3 rounded border bg-secondary-subtle mb-3">
+                <div class="d-flex justify-content-between flex-wrap gap-3 p-3 rounded border mb-3">
                     <div>
                         <div class="fw-bold text-primary">{{ $settings->office_name }}</div>
                         <small class="text-muted d-block">{{ $settings->office_address }}</small>
@@ -364,7 +394,7 @@
                                 </td>
                                 <td>
                                     {{ number_format($bill->amount, 2) }}
-                                    <span class="icon-saudi_riyal ms-1"></span>
+                                    <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                                 </td>
                             </tr>
                         </tbody>
@@ -372,19 +402,19 @@
                 </div>
 
                 {{-- ملخص المبالغ --}}
-                <div class="border rounded p-3 bg-secondary-subtle">
+                <div class="border rounded p-3">
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">المجموع قبل الضريبة</span>
                         <span class="fw-medium">
                             {{ number_format($priceWithoutTax, 2) }}
-                            <span class="icon-saudi_riyal ms-1"></span>
+                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                         </span>
                     </div>
                     <div class="d-flex justify-content-between border-top pt-2 mb-2">
                         <span class="text-muted">ضريبة القيمة المضافة ({{ (int) ($vatRate * 100) }}%)</span>
                         <span class="fw-medium">
                             {{ number_format($vatAmount, 2) }}
-                            <span class="icon-saudi_riyal ms-1"></span>
+                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                         </span>
                     </div>
                     @if ($discount > 0)
@@ -392,7 +422,7 @@
                             <span class="text-muted">الخصم</span>
                             <span class="fw-medium text-success">
                                 - {{ number_format($discount, 2) }}
-                                <span class="icon-saudi_riyal ms-1"></span>
+                                <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                             </span>
                         </div>
                     @endif
@@ -401,7 +431,7 @@
                             <span class="text-muted">التسوية</span>
                             <span class="fw-medium text-warning">
                                 {{ number_format($bill->settlement_amount, 2) }}
-                                <span class="icon-saudi_riyal ms-1"></span>
+                                <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                             </span>
                         </div>
                     @endif
@@ -409,7 +439,7 @@
                         <span class="fw-bold text-primary fs-5">الإجمالي</span>
                         <span class="fw-bold text-primary fs-5">
                             {{ number_format($bill->amount, 2) }}
-                            <span class="icon-saudi_riyal ms-1"></span>
+                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                         </span>
                     </div>
                 </div>
@@ -442,4 +472,3 @@
         </form>
     </x-bootstrap.modal>
 @endif
-

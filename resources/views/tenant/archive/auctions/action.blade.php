@@ -1,19 +1,18 @@
-<div class="d-flex justify-content-center gap-2">
+<x-actions.row>
     @can('auctions_archive.restore')
-    <button type="button" class="btn btn-icon btn-primary js-restore-btn"
-        data-url="{{ tenant_route_name('archive.auctions.restore', $row->id) }}"
-        data-id="{{ $row->id }}"
-        title="استعادة المزاد">
-        <i class="ti ti-rotate"></i>
-    </button>
+        <x-actions.restore
+            :url="tenant_route_name('archive.auctions.restore', $row->id)"
+            :id="$row->id"
+            title="استعادة المزاد"
+            icon="ti ti-rotate"
+        />
     @endcan
 
     @can('auctions_archive.force_delete')
-    <button type="button" class="btn btn-icon btn-label-danger js-force-delete-btn"
-        data-url="{{ tenant_route_name('archive.auctions.force-delete', $row->id) }}"
-        data-id="{{ $row->id }}"
-        title="حذف نهائي">
-        <i class="ti ti-trash"></i>
-    </button>
+        <x-actions.force-delete
+            :url="tenant_route_name('archive.auctions.force-delete', $row->id)"
+            :id="$row->id"
+            title="حذف نهائي"
+        />
     @endcan
-</div>
+</x-actions.row>

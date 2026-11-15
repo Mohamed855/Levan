@@ -157,7 +157,7 @@
                             <div class="file-item-size text-success small">ملف محفوظ مسبقاً</div>
                         </div>
                         @if ($resolvedUrl !== '#')
-                            <a href="{{ $resolvedUrl }}" target="_blank" class="btn-view-file me-1" title="معاينة الملف" aria-label="معاينة الملف">
+                            <a href="{{ $resolvedUrl }}" target="_blank" class="btn-view-file text-decoration-none me-1" style="text-decoration: none;" title="معاينة الملف" aria-label="معاينة الملف">
                                 <i class="ti ti-eye"></i>
                             </a>
                         @endif

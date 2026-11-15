@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Requests\Admin\Clients;
 
 use App\Http\Requests\Concerns\WizardFormRequest;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
+use App\Rules\SystemEmailAvailable;
+use App\Rules\SystemPhoneAvailable;
 
 class StoreClientRequest extends WizardFormRequest
 {
@@ -53,8 +53,8 @@ class StoreClientRequest extends WizardFormRequest
 
             // Step 2: First Admin User
             'name' => ['required', 'string', 'min:2', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
-            'phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
-            'email' => ['required', 'email:rfc', 'max:255'],
+            'phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/', 'unique:tenants,primary_contact_phone', new SystemPhoneAvailable],
+            'email' => ['required', 'email:rfc', 'max:255', 'unique:tenants,primary_contact_email', new SystemEmailAvailable],
             'password' => ['nullable', 'string', 'max:50'],
 
             // Step 3: Subscription
@@ -88,9 +88,11 @@ class StoreClientRequest extends WizardFormRequest
             'phone.required' => 'يرجى إدخال رقم الجوال',
             'phone.size' => 'يجب أن يتكون رقم الجوال من 10 أرقام',
             'phone.regex' => 'يجب أن يبدأ رقم الجوال بـ 05 ويتكون من 10 أرقام',
+            'phone.unique' => 'رقم الجوال مستخدم بالفعل في النظام.',
             'email.required' => 'يرجى إدخال البريد الإلكتروني',
             'email.email' => 'يرجى إدخال بريد إلكتروني صحيح',
             'email.max' => 'يجب ألا يزيد البريد الإلكتروني عن 255 حرفاً',
+            'email.unique' => 'البريد الإلكتروني موجود بالفعل',
             'plan_id.required' => 'يرجى اختيار الباقة',
             'start_date.required' => 'يرجى تحديد تاريخ البداية',
             'start_date.date' => 'تاريخ البداية يجب أن يكون تاريخاً صالحاً',

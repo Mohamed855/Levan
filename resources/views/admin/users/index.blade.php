@@ -33,7 +33,7 @@
     <x-data-table.page table-id="users-table">
         <x-slot:stats>
             <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي المستخدمين" :value="$totalUsers" subtitle="إجمالي المستخدمين"
-                icon="ti-users" color="primary" />
+                icon="ti-user" color="primary" />
             <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين النشطين" :value="$activeUsers" subtitle="المستخدمين النشطين"
                 icon="ti-user-check" color="success" />
             <x-ui.stat-card col="col-sm-6 col-xl" title="مدراء النظام" :value="$superAdminUsers" subtitle="صلاحيات كاملة"

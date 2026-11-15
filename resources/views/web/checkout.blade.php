@@ -273,22 +273,30 @@
                                                     لا توجد حسابات بنكية معتمدة حالياً، يرجى اختيار الدفع بالبطاقة.
                                                 </div>
                                             @else
-                                                <div class="mb-4">
+                                                <div class="bank-selection-box">
                                                     <label class="site-label mb-2">
                                                         اختر البنك للتحويل <span class="required-star">*</span>
                                                     </label>
                                                     <div class="bank-cards-grid">
                                                         @foreach ($banks as $bank)
                                                             <div class="bank-card" data-bank-id="{{ $bank->id }}">
-                                                                @if ($bank->icon)
-                                                                    <img src="{{ asset('storage/' . $bank->icon) }}"
-                                                                        alt="{{ $bank->bank_name }}" class="bank-logo">
-                                                                @else
-                                                                    <div
-                                                                        class="bank-logo d-flex align-items-center justify-content-center text-primary">
-                                                                        <i class="ti ti-building-bank text-2xl"></i>
-                                                                    </div>
-                                                                @endif
+                                                                <div class="bank-logo-wrapper">
+                                                                    @if ($bank->icon_url)
+                                                                        <img src="{{ $bank->icon_url }}"
+                                                                            alt="{{ $bank->bank_name }}"
+                                                                            class="bank-logo bank-logo-img" loading="lazy"
+                                                                            onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.style.display='inline-flex'; this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-inline-flex'); }">
+                                                                        <div class="bank-logo bank-logo-fallback bg-label-dark text-dark d-none"
+                                                                            title="{{ $bank->bank_name }}">
+                                                                            <i class="ti ti-building-bank"></i>
+                                                                        </div>
+                                                                    @else
+                                                                        <div class="bank-logo bank-logo-fallback bg-label-dark text-dark d-inline-flex"
+                                                                            title="{{ $bank->bank_name }}">
+                                                                            <i class="ti ti-building-bank"></i>
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
 
                                                                 <div class="bank-info">
                                                                     <h4 class="bank-name">{{ $bank->bank_name }}</h4>
@@ -315,7 +323,7 @@
                                                 </div>
 
                                                 <!-- Receipt Upload Section -->
-                                                <div class="mb-4 hidden" id="receipt-upload-section">
+                                                <div class="receipt-upload-box hidden" id="receipt-upload-section">
                                                     <x-form.controls.file name="transfer_receipt" id="transfer_receipt"
                                                         label="إيصال التحويل البنكي" required
                                                         accept="image/jpeg,image/jpg,image/png,application/pdf"

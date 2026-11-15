@@ -32,7 +32,7 @@
     <x-data-table.page table-id="roles-table">
         <x-slot:stats>
             <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي الأدوار" :value="$statistics['total']" icon="ti-shield" color="primary" />
-            <x-ui.stat-card col="col-sm-6 col-xl" title="أدوار مستخدمة" :value="$statistics['assigned']" icon="ti-users" color="success" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="أدوار مستخدمة" :value="$statistics['assigned']" icon="ti-user" color="success" />
             <x-ui.stat-card col="col-sm-6 col-xl" title="أدوار غير مستخدمة" :value="$statistics['unassigned']" icon="ti-user-question"
                 color="warning" />
             <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي الصلاحيات" :value="$statistics['permissions']" icon="ti-key"

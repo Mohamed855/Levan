@@ -144,9 +144,7 @@
                         <tbody>
                             @forelse ($target->subscriptions as $sub)
                                 @php
-                                    $period =
-                                        $sub->currentPeriod ??
-                                        $sub->periods->sortByDesc('period_end')->first();
+                                    $period = $sub->currentPeriod ?? $sub->periods->sortByDesc('period_end')->first();
                                     $isTerminated = in_array(
                                         $sub->status,
                                         [
@@ -161,26 +159,45 @@
                                             \App\Services\Shared\Subscription\SubscriptionManager::class,
                                         )->calculateDaysRemaining($period, $sub->ends_at ?? $sub->trial_end_date);
                                     $isActive =
-                                        $sub->status ===
-                                        \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE;
-                                    $canToggleStatus = in_array(
-                                        $sub->status,
-                                        [
-                                            \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE,
-                                            \App\Enums\Admin\Subscriptions\SubscriptionStatus::SUSPENDED,
-                                        ],
-                                        true,
-                                    ) && ! ($sub->status === \App\Enums\Admin\Subscriptions\SubscriptionStatus::SUSPENDED && $period?->status === \App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus::PENDING_PAYMENT);
+                                        $sub->status === \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE;
+                                    $canToggleStatus =
+                                        in_array(
+                                            $sub->status,
+                                            [
+                                                \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE,
+                                                \App\Enums\Admin\Subscriptions\SubscriptionStatus::SUSPENDED,
+                                            ],
+                                            true,
+                                        ) &&
+                                        !(
+                                            $sub->status ===
+                                                \App\Enums\Admin\Subscriptions\SubscriptionStatus::SUSPENDED &&
+                                            $period?->status ===
+                                                \App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus::PENDING_PAYMENT
+                                        );
                                 @endphp
                                 <tr>
                                     <td>
                                         <span class="fw-bold text-primary">{{ $sub->subscription_number }}</span>
+                                        @php
+                                            $queuedPeriod = $sub->queuedPeriod ?? $sub->periods->where('status', \App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus::QUEUED)->sortBy('period_start')->first();
+                                        @endphp
+                                        @if ($queuedPeriod)
+                                            <span class="badge bg-label-info d-block mt-1" title="تجديد مسبق مجدول يبدأ @date($queuedPeriod->period_start)">
+                                                <i class="ti ti-calendar-plus me-1"></i>مجدول حتى @date($queuedPeriod->period_end)
+                                            </span>
+                                        @endif
+                                        @if ($sub->periods->count() > 1)
+                                            <a href="#sub-periods-{{ $sub->id }}" data-bs-toggle="collapse" class="small text-primary d-inline-block mt-1">
+                                                <i class="ti ti-history me-1"></i>عرض الفترات ({{ $sub->periods->count() }})
+                                            </a>
+                                        @endif
                                     </td>
                                     <td>{{ $sub->plan?->name ?: '-' }}</td>
                                     <td>
                                         <div class="d-flex flex-wrap justify-content-center gap-1">
                                             <span class="badge bg-label-info"><i
-                                                    class="ti ti-users ti-xs me-1"></i>{{ $sub->total_users }}</span>
+                                                    class="ti ti-user ti-xs me-1"></i>{{ $sub->total_users }}</span>
                                             <span class="badge bg-label-primary"><i
                                                     class="ti ti-building ti-xs me-1"></i>{{ $sub->plan?->properties_limit ?? '∞' }}</span>
                                             <span class="badge bg-label-danger"><i
@@ -205,14 +222,14 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <span class="badge bg-label-{{ $sub->status->color() }}">{{ $sub->status->label() }}</span>
+                                        <span
+                                            class="badge bg-label-{{ $sub->status->color() }}">{{ $sub->status->label() }}</span>
                                     </td>
                                     <td>
                                         @can('subscriptions.toggle_status')
                                             @if ($canToggleStatus)
                                                 <div class="form-check form-switch mb-0 d-flex justify-content-center">
-                                                    <input type="checkbox"
-                                                        class="form-check-input js-sub-toggle text-center"
+                                                    <input type="checkbox" class="form-check-input js-sub-toggle text-center"
                                                         data-url="{{ route('admin.subscriptions.toggle-status', $sub->id) }}"
                                                         {{ $isActive ? 'checked' : '' }}>
                                                 </div>
@@ -226,20 +243,64 @@
                                     <td>
                                         <x-actions.row>
                                             @can('subscriptions.delete')
-                                                <button type="button"
-                                                    class="btn btn-icon btn-label-danger js-sub-delete-btn"
+                                                <button type="button" class="btn btn-icon btn-label-danger js-sub-delete-btn"
                                                     data-url="{{ route('admin.subscriptions.destroy', $sub->id) }}"
-                                                    data-number="{{ $sub->subscription_number }}"
-                                                    title="حذف الاشتراك">
+                                                    data-number="{{ $sub->subscription_number }}" title="حذف الاشتراك">
                                                     <i class="ti ti-trash"></i>
                                                 </button>
                                             @endcan
                                         </x-actions.row>
                                     </td>
                                 </tr>
+                                @if ($sub->periods->count() > 1)
+                                    <tr class="collapse bg-light-subtle" id="sub-periods-{{ $sub->id }}">
+                                        <td colspan="9" class="p-3">
+                                            <div class="card shadow-none border mb-0">
+                                                <div class="card-header py-2 bg-light d-flex justify-content-between align-items-center">
+                                                    <span class="fw-bold text-dark small"><i class="ti ti-timeline me-1 text-primary"></i>سجل الفترات الزمنية للاشتراك (#{{ $sub->subscription_number }})</span>
+                                                    <span class="badge bg-label-primary">{{ $sub->periods->count() }} فترات</span>
+                                                </div>
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm table-bordered mb-0">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th>الفترة</th>
+                                                                <th>الباقة</th>
+                                                                <th>تاريخ البدء</th>
+                                                                <th>تاريخ الانتهاء</th>
+                                                                <th>الحالة</th>
+                                                                <th>المستخدمون</th>
+                                                                <th>القيمة</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach ($sub->periods->sortBy('period_start') as $p)
+                                                                <tr>
+                                                                    <td>الفترة #{{ $p->period_number ?? $loop->iteration }}</td>
+                                                                    <td>{{ $p->plan_name_snapshot ?? ($sub->plan?->name ?: '-') }}</td>
+                                                                    <td>@date($p->period_start)</td>
+                                                                    <td>@date($p->period_end)</td>
+                                                                    <td>
+                                                                        <span class="badge bg-label-{{ $p->status->color() }}">
+                                                                            {{ $p->status->label() }}
+                                                                            @if ($p->is_current) (الحالية) @endif
+                                                                        </span>
+                                                                    </td>
+                                                                    <td>{{ $p->used_users_snapshot ?? 0 }} / {{ $p->total_users_snapshot ?? $sub->total_users }}</td>
+                                                                    <td>{{ number_format($p->price_snapshot ?? $sub->price, 2) }} ر.س</td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endif
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center py-4 text-muted">لا توجد اشتراكات مسجلة لهذا العميل.</td>
+                                    <td colspan="9" class="text-center py-4 text-muted">لا توجد اشتراكات مسجلة لهذا
+                                        العميل.</td>
                                 </tr>
                             @endforelse
                         </tbody>

@@ -1,15 +1,9 @@
-<div class="d-flex justify-content-center gap-2">
+<x-actions.row>
     @can('users.restore')
-    <button title="استرجاع المستخدم" type="button" class="btn btn-icon btn-primary js-restore-btn"
-        data-id="{{ $id }}">
-        <i class="ti ti-refresh"></i>
-    </button>
+        <x-actions.restore :id="$id" title="استرجاع المستخدم" icon="ti ti-refresh" />
     @endcan
 
     @can('users.force_delete')
-    <button title="حذف نهائي" type="button" class="btn btn-icon btn-label-danger js-force-delete-btn js-force-btn"
-        data-id="{{ $id }}">
-        <i class="ti ti-trash"></i>
-    </button>
+        <x-actions.force-delete :id="$id" title="حذف نهائي" />
     @endcan
-</div>
+</x-actions.row>

@@ -40,6 +40,8 @@ final class ActionButtonsNoOnclickTest extends TestCase
         self::assertStringContainsString('js-force-btn', $html);
         self::assertStringContainsString('data-id="42"', $html);
         self::assertStringNotContainsString('onclick=', $html);
+        self::assertStringContainsString('btn-label-primary', $html);
+        self::assertStringNotContainsString('btn-label-danger', $html);
     }
 
     public function test_tenant_user_archive_action_uses_delegated_buttons_without_inline_onclick(): void
@@ -55,6 +57,38 @@ final class ActionButtonsNoOnclickTest extends TestCase
         self::assertStringContainsString('js-force-btn', $html);
         self::assertStringContainsString('data-id="42"', $html);
         self::assertStringNotContainsString('onclick=', $html);
+        self::assertStringContainsString('btn-label-primary', $html);
+        self::assertStringNotContainsString('btn-label-danger', $html);
+    }
+
+    public function test_shared_restore_and_force_delete_action_components_render_consistent_label_primary_styling(): void
+    {
+        $restoreHtml = view('components.shared.actions.restore', [
+            'id' => 77,
+            'url' => 'http://example.com/restore/77',
+            'title' => 'استرجاع السجل',
+        ])->render();
+
+        self::assertStringContainsString('btn-icon btn-label-primary', $restoreHtml);
+        self::assertStringContainsString('js-restore-btn', $restoreHtml);
+        self::assertStringContainsString('js-restore', $restoreHtml);
+        self::assertStringContainsString('data-id="77"', $restoreHtml);
+        self::assertStringContainsString('data-url="http://example.com/restore/77"', $restoreHtml);
+        self::assertStringNotContainsString('btn-primary ', $restoreHtml);
+
+        $forceDeleteHtml = view('components.shared.actions.force-delete', [
+            'id' => 77,
+            'url' => 'http://example.com/force-delete/77',
+            'title' => 'حذف السجل نهائياً',
+        ])->render();
+
+        self::assertStringContainsString('btn-icon btn-label-primary', $forceDeleteHtml);
+        self::assertStringContainsString('js-force-delete-btn', $forceDeleteHtml);
+        self::assertStringContainsString('js-force-btn', $forceDeleteHtml);
+        self::assertStringContainsString('js-force-delete', $forceDeleteHtml);
+        self::assertStringContainsString('data-id="77"', $forceDeleteHtml);
+        self::assertStringContainsString('data-url="http://example.com/force-delete/77"', $forceDeleteHtml);
+        self::assertStringNotContainsString('btn-label-danger', $forceDeleteHtml);
     }
 
     public function test_tenant_notifications_action_uses_delegated_buttons_without_inline_onclick(): void
@@ -71,4 +105,3 @@ final class ActionButtonsNoOnclickTest extends TestCase
         self::assertStringNotContainsString('onclick=', $html);
     }
 }
-

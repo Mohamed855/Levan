@@ -27,7 +27,7 @@ class SubscriptionController extends Controller
         private readonly AdminSubscriptionService $subscriptionService
     ) {
         $this->authorizeResource(Subscription::class, 'subscription');
-        $this->middleware('can:subscriptions.view')->only(['index']);
+        $this->middleware('can:subscriptions.view')->only(['index', 'periods']);
         $this->middleware('can:subscriptions.create')->only(['create', 'store', 'planDuration', 'companyDetails', 'validateCoupon']);
         $this->middleware('can:subscriptions.delete')->only(['destroy']);
         $this->middleware('can:subscriptions.toggle_status')->only(['toggleStatus']);
@@ -71,6 +71,37 @@ class SubscriptionController extends Controller
             'plans' => $plans,
             'cities' => $cities,
             'filterOptions' => $filterOptions,
+        ]);
+    }
+
+    public function periods(Subscription $subscription): JsonResponse
+    {
+        $subscription->load([
+            'periods' => fn ($q) => $q->orderBy('period_start'),
+            'plan' => fn ($q) => $q->withTrashed(),
+            'tenant' => fn ($q) => $q->withTrashed(),
+        ]);
+
+        $periods = $subscription->periods->map(fn ($p) => [
+            'id' => $p->id,
+            'period_number' => $p->period_number,
+            'plan_name' => $p->plan_name_snapshot ?? ($subscription->plan?->name ?: '-'),
+            'period_start' => system_date($p->period_start),
+            'period_end' => system_date($p->period_end),
+            'status' => $p->status->value,
+            'status_label' => $p->status->label(),
+            'status_color' => $p->status->color(),
+            'is_current' => (bool) $p->is_current,
+            'total_users' => $p->total_users_snapshot ?? $subscription->total_users,
+            'used_users' => $p->used_users_snapshot ?? 0,
+            'price' => number_format((float) ($p->price_snapshot ?? $subscription->price), 2),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'subscription_number' => $subscription->subscription_number,
+            'company_name' => $subscription->tenant?->company_name ?: '-',
+            'periods' => $periods,
         ]);
     }
 

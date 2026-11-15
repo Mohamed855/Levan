@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 final class AuctionReportRefreshService
 {
-    public function afterMutation(array $auctionIds, bool $includeFinalized = false): void
+    public function afterMutation(array $auctionIds, bool $includeFinalized = true): void
     {
         foreach (array_unique(array_map('intval', $auctionIds)) as $id) {
             DB::transaction(function () use ($id, $includeFinalized): void {

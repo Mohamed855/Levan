@@ -30,7 +30,7 @@ class ArchivedUsersDataTable extends AbstractDataTable
     protected function resource()
     {
         return User::onlyTrashed()
-            ->select(['id', 'name', 'email', 'phone', 'status', 'image', 'deleted_at', 'created_at'])
+            ->select(['id', 'name', 'email', 'phone', 'status', 'deleted_at', 'created_at'])
             ->with(['roles:id,name']);
     }
 
@@ -53,7 +53,7 @@ class ArchivedUsersDataTable extends AbstractDataTable
                 'className' => 'custom-checkbox',
                 'titleAttr' => 'تحديد الكل',
             ],
-            ['data' => 'user_info', 'name' => 'name', 'title' => 'اسم المستخدم', 'width' => '200px', 'className' => 'text-center'],
+            ['data' => 'name', 'name' => 'name', 'title' => 'الاسم', 'className' => 'text-center'],
             ['data' => 'email', 'name' => 'email', 'title' => 'البريد الإلكتروني', 'width' => '180px', 'className' => 'text-center'],
             ['data' => 'phone', 'name' => 'phone', 'title' => 'رقم الهاتف', 'width' => '120px', 'className' => 'text-center'],
             ['data' => 'roles', 'name' => 'roles', 'title' => 'الأدوار', 'width' => '120px', 'orderable' => false, 'className' => 'text-center'],
@@ -75,16 +75,8 @@ class ArchivedUsersDataTable extends AbstractDataTable
             ->addColumn('checkbox', function ($row) {
                 return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
-            ->editColumn('user_info', function ($row) {
-                $profilePicture = $row->image ? tasset($row->image) : null;
-                $avatarHtml = $this->renderTableImage($profilePicture, (string) $row->name, 38, 'ti-users');
-
-                return '<div class="d-flex align-items-center">
-                    <div class="avatar-wrapper me-2">
-                        '.$avatarHtml.'
-                    </div>
-                    <span class="text-body fw-medium">'.e($row->name).'</span>
-                </div>';
+            ->editColumn('name', function ($row) {
+                return '<span class="text-body fw-medium">'.e($row->name).'</span>';
             })
             ->editColumn('email', function ($row) {
                 return '<span class="text-primary">'.($row->email ?? '-').'</span>';
@@ -123,7 +115,7 @@ class ArchivedUsersDataTable extends AbstractDataTable
     */
     protected function rawColumns(): array
     {
-        return ['checkbox', 'user_info', 'email', 'phone', 'roles', 'status', 'actions'];
+        return ['checkbox', 'name', 'email', 'phone', 'roles', 'status', 'actions'];
     }
 
     /*

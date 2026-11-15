@@ -643,3 +643,269 @@ select[readonly] ~ .select2-container {
     transform: rotate(360deg);
   }
 }
+
+// Form Helper Text
+.form-text,
+.field-help {
+  display: block;
+  font-size: var(--site-font-xs);
+  color: var(--site-muted);
+  margin-top: 0.35rem;
+  line-height: 1.4;
+}
+
+// =============================================================================
+// Unified File & Image Upload Area Component (Site Custom - Zero Bootstrap Conflict)
+// =============================================================================
+.file-upload-control {
+  position: relative;
+  width: 100%;
+}
+
+.file-upload-area {
+  border: 1px dashed rgba(var(--site-primary-rgb), 0.28);
+  border-radius: var(--site-radius-sm);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  background-color: rgba(var(--site-sand-rgb), 0.45);
+  box-shadow: none !important;
+  transition: border-color var(--site-transition-fast), background-color var(--site-transition-fast), transform 0.15s ease;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--site-primary) !important;
+    background-color: rgba(var(--site-sand-rgb), 0.75);
+  }
+
+  &.drag-over {
+    border-color: var(--site-primary) !important;
+    background-color: rgba(var(--site-primary-rgb), 0.08) !important;
+    transform: scale(1.008);
+  }
+
+  &.has-files {
+    border-color: var(--site-success);
+    background-color: rgba(34, 197, 94, 0.04);
+  }
+
+  .file-upload-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--site-radius-sm);
+    background: rgba(var(--site-primary-rgb), 0.08);
+    color: var(--site-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+    transition: background-color var(--site-transition-fast);
+  }
+
+  &:hover .file-upload-icon-wrap,
+  &.drag-over .file-upload-icon-wrap {
+    background: rgba(var(--site-primary-rgb), 0.14);
+    color: var(--site-primary-deep);
+  }
+
+  .file-upload-title {
+    font-size: var(--site-font-base);
+    font-weight: 700;
+    color: var(--site-ink);
+    margin: 0 0 0.25rem 0;
+  }
+
+  .file-upload-desc {
+    font-size: var(--site-font-xs);
+    color: var(--site-muted);
+    margin: 0;
+  }
+
+  &.is-invalid {
+    border-color: var(--site-danger) !important;
+    background-color: rgba(239, 68, 68, 0.04);
+  }
+}
+
+.file-upload-area.file-upload-compact {
+  padding: 0.85rem 0.75rem;
+
+  .file-upload-icon-wrap {
+    width: 36px;
+    height: 36px;
+    font-size: 1.15rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .file-upload-title {
+    font-size: var(--site-font-sm);
+  }
+}
+
+.file-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.65rem 0.85rem;
+  background: #ffffff;
+  border-radius: var(--site-radius-sm);
+  border: 1px solid var(--site-border);
+  box-shadow: var(--site-shadow-sm);
+  transition: border-color var(--site-transition-fast), box-shadow var(--site-transition-fast);
+
+  &:hover {
+    border-color: rgba(var(--site-primary-rgb), 0.3);
+  }
+
+  .file-item-preview {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--site-radius-xs);
+    object-fit: cover;
+    border: 1px solid var(--site-border);
+    flex-shrink: 0;
+  }
+
+  .file-item-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--site-radius-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    background: rgba(var(--site-primary-rgb), 0.08);
+    color: var(--site-primary);
+
+    &.file-item-icon-pdf {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+
+    &.file-item-icon-word {
+      background: rgba(37, 99, 235, 0.1);
+      color: #2563eb;
+    }
+
+    &.file-item-icon-excel {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+    }
+
+    &.file-item-icon-image {
+      background: rgba(139, 92, 246, 0.1);
+      color: #8b5cf6;
+    }
+  }
+
+  .file-item-info {
+    flex: 1;
+    min-width: 0;
+
+    .file-item-name {
+      font-weight: 600;
+      margin-bottom: 0.1rem;
+      font-size: var(--site-font-sm);
+      color: var(--site-ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-item-size {
+      color: var(--site-muted);
+      font-size: var(--site-font-xs);
+    }
+  }
+
+  .btn-remove-file {
+    width: 1.85rem;
+    height: 1.85rem;
+    padding: 0;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none !important;
+    line-height: 1;
+    transition: background var(--site-transition-fast), color var(--site-transition-fast);
+    flex-shrink: 0;
+
+    &,
+    &:hover,
+    &:focus,
+    &:active,
+    &:visited {
+      text-decoration: none !important;
+      outline: none !important;
+    }
+
+    &:hover {
+      background: #ef4444;
+      color: #ffffff;
+      text-decoration: none !important;
+    }
+
+    i {
+      font-size: 0.95rem;
+      line-height: 1;
+      text-decoration: none !important;
+      display: inline-block;
+    }
+  }
+
+  .btn-view-file {
+    width: 1.85rem;
+    height: 1.85rem;
+    padding: 0;
+    border-radius: 50%;
+    background: rgba(var(--site-primary-rgb), 0.1);
+    color: var(--site-primary);
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none !important;
+    line-height: 1;
+    transition: background var(--site-transition-fast), color var(--site-transition-fast);
+    flex-shrink: 0;
+
+    &,
+    &:hover,
+    &:focus,
+    &:active,
+    &:visited {
+      text-decoration: none !important;
+      outline: none !important;
+    }
+
+    &:hover {
+      background: var(--site-primary);
+      color: #ffffff;
+      text-decoration: none !important;
+    }
+
+    i {
+      font-size: 0.95rem;
+      line-height: 1;
+      text-decoration: none !important;
+      display: inline-block;
+    }
+  }
+}

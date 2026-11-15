@@ -278,6 +278,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     document.getElementById("transfer_receipt");
                 if (transferReceiptInput) {
                     transferReceiptInput.value = "";
+                    if (transferReceiptInput._fileUploadController?.clear) {
+                        transferReceiptInput._fileUploadController.clear();
+                    }
                     transferReceiptInput.dispatchEvent(
                         new Event("change", { bubbles: true }),
                     );
@@ -389,8 +392,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 const receiptInput =
                     document.getElementById("transfer_receipt");
-                const receiptFile =
-                    receiptInput?.files?.[0] || selectedFiles?.[0];
+                const receiptFile = receiptInput?.files?.[0];
                 if (!receiptFile) {
                     event.preventDefault();
                     event.stopImmediatePropagation();

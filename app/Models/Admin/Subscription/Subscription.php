@@ -3,6 +3,7 @@
 namespace App\Models\Admin\Subscription;
 
 use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
+use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\Licenses\LicenseSeat;
 use App\Models\Admin\Plans\Plan;
@@ -123,6 +124,22 @@ class Subscription extends Model
     public function currentPeriod()
     {
         return $this->hasOne(SubscriptionPeriod::class)->where('is_current', true)->latest('period_start');
+    }
+
+    // الفترة المجدولة القادمة
+    public function queuedPeriod()
+    {
+        return $this->hasOne(SubscriptionPeriod::class)
+            ->where('status', SubscriptionPeriodStatus::QUEUED)
+            ->oldest('period_start');
+    }
+
+    // جميع الفترات المجدولة
+    public function queuedPeriods()
+    {
+        return $this->hasMany(SubscriptionPeriod::class)
+            ->where('status', SubscriptionPeriodStatus::QUEUED)
+            ->orderBy('period_start');
     }
 
     public function seats()

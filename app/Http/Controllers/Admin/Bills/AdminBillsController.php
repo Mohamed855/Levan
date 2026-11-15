@@ -102,13 +102,17 @@ class AdminBillsController extends Controller
 
     public function print(Bill $bill)
     {
-        return $this->renderPrint(self::VIEW_PATH.'.print', $this->billService->getPrintData($bill));
+        $data = $this->billService->getPrintData($bill);
+        $data['backUrl'] = route('admin.bills.show', $bill->id);
+        $data['isAdmin'] = true;
+
+        return $this->renderPrint(self::VIEW_PATH.'.print', $data);
     }
 
     public function verify(AdminAuthenticatedRequest $request, Bill $bill)
     {
         try {
-            if ($bill->status !== BillStatus::PENDING_VERIFICATION) {
+            if (! in_array($bill->status, [BillStatus::PENDING_VERIFICATION, BillStatus::REJECTED, BillStatus::CANCELLED], true)) {
                 return redirect()->back()->with('error', 'هذه الفاتورة لا يمكن التحقق منها في حالتها الحالية.');
             }
 
@@ -143,9 +147,7 @@ class AdminBillsController extends Controller
             }
 
             match ($bill->type) {
-                BillType::NEW_SUBSCRIPTION => ! $bill->tenant_id
-                    ? $this->billService->cancelBill($bill)
-                    : $this->billService->rejectBill($bill, $request->validated('reject_reason')),
+                BillType::NEW_SUBSCRIPTION => $this->billService->rejectBill($bill, $request->validated('reject_reason')),
 
                 // BillType::RENEWAL,
                 // BillType::LICENSE_PURCHASE => $this->billService->rejectBill($bill, $request->reject_reason),

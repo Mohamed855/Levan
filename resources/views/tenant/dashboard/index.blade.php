@@ -42,7 +42,16 @@
                         <div class="license-pill">
                             <i class="ti ti-award text-success fs-5"></i>
                             <span><strong>{{ $subscription['plan_name'] ?? 'باقة التجربة' }}</strong></span>
+                            @if (!empty($subscription['current_period_end']))
+                                <small class="text-muted ms-2">(ساري حتى @date($subscription['current_period_end']))</small>
+                            @endif
                         </div>
+                        @if (!empty($subscription['has_queued_period']))
+                            <div class="badge bg-label-info d-flex align-items-center gap-1 p-2" title="تجديد مسبق مجدول">
+                                <i class="ti ti-calendar-plus fs-5"></i>
+                                <span>مجدد مسبقاً حتى @date($subscription['queued_period_end'])</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -50,7 +59,7 @@
     </div>
 
     <div class="row g-4 mb-4">
-        <x-ui.stat-card title="إجمالي المستخدمين" :value="$kpis['active_users'] . ' / ' . ($kpis['total_seats'] > 0 ? $kpis['total_seats'] : 'غير محدود')" icon="ti-users" color="primary" />
+        <x-ui.stat-card title="إجمالي المستخدمين" :value="$kpis['active_users'] . ' / ' . ($kpis['total_seats'] > 0 ? $kpis['total_seats'] : 'غير محدود')" icon="ti-user" color="primary" />
 
         <x-ui.stat-card title="إجمالي العقارات" :value="number_format($kpis['total_properties'])" icon="ti-building" color="success" />
 
@@ -226,12 +235,13 @@
                                                         alt="{{ $activity->causer_name }}"
                                                         class="rounded-circle object-fit-cover w-100 h-100 border"
                                                         onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-inline-flex'); }">
-                                                    <span class="avatar-initial rounded-circle bg-label-dark text-dark d-none">
-                                                        <i class="ti ti-users ti-xs"></i>
+                                                    <span
+                                                        class="avatar-initial rounded-circle bg-label-dark text-dark d-none">
+                                                        <i class="ti ti-user ti-xs"></i>
                                                     </span>
                                                 @else
                                                     <span class="avatar-initial rounded-circle bg-label-dark text-dark">
-                                                        <i class="ti ti-users ti-xs"></i>
+                                                        <i class="ti ti-user ti-xs"></i>
                                                     </span>
                                                 @endif
                                             </div>

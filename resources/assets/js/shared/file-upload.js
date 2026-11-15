@@ -207,7 +207,8 @@ export function initFileUploadZone(zone) {
         const viewLink = document.createElement('a');
         viewLink.href = viewUrl;
         viewLink.target = '_blank';
-        viewLink.className = 'btn-view-file me-1';
+        viewLink.className = 'btn-view-file text-decoration-none me-1';
+        viewLink.style.textDecoration = 'none';
         viewLink.title = 'معاينة الملف';
         viewLink.setAttribute('aria-label', `معاينة ${file.name}`);
         viewLink.innerHTML = '<i class="ti ti-eye"></i>';
@@ -366,7 +367,7 @@ export function initFileUploadZone(zone) {
     }
 
     const viewBtn = resolvedUrl && resolvedUrl !== '#'
-      ? `<a href="${resolvedUrl}" target="_blank" class="btn-view-file me-1" title="معاينة الملف" aria-label="معاينة الملف"><i class="ti ti-eye"></i></a>`
+      ? `<a href="${resolvedUrl}" target="_blank" class="btn-view-file text-decoration-none me-1" style="text-decoration: none;" title="معاينة الملف" aria-label="معاينة الملف"><i class="ti ti-eye"></i></a>`
       : '';
 
     card.innerHTML = `

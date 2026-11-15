@@ -223,7 +223,7 @@
                     <div class="card assignment-properties-table-card">
                         <div class="card-header pb-2 d-flex justify-content-between align-items-center">
                             <div>
-                                <h5 class="card-title mb-0"><i class="ti ti-users me-2 text-primary"></i>بيانات الملاك
+                                <h5 class="card-title mb-0"><i class="ti ti-user me-2 text-primary"></i>بيانات الملاك
                                 </h5>
                                 <small class="text-muted">يمكنك إضافة مالك واحد أو أكثر للعقار</small>
                             </div>

@@ -77,7 +77,7 @@
                                 class="d-block p-3 text-center border rounded text-decoration-none">
                                 <div class="avatar avatar-md mx-auto mb-2">
                                     <span class="avatar-initial rounded bg-primary">
-                                        <i class="ti ti-users ti-lg"></i>
+                                        <i class="ti ti-user ti-lg"></i>
                                     </span>
                                 </div>
                                 <small class="text-muted fw-medium">إدارة المستخدمين</small>
@@ -211,11 +211,11 @@
                             onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-inline-flex'); }">
                         <span class="avatar-initial rounded-circle bg-label-dark text-dark d-none"
                             style="font-size: 18px;">
-                            <i class="ti ti-users"></i>
+                            <i class="ti ti-user"></i>
                         </span>
                     @else
                         <span class="avatar-initial rounded-circle bg-label-dark text-dark" style="font-size: 18px;">
-                            <i class="ti ti-users"></i>
+                            <i class="ti ti-user"></i>
                         </span>
                     @endif
                 </div>
@@ -231,12 +231,12 @@
                                         onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-inline-flex'); }">
                                     <span class="avatar-initial rounded-circle bg-label-dark text-dark d-none"
                                         style="font-size: 18px;">
-                                        <i class="ti ti-users"></i>
+                                        <i class="ti ti-user"></i>
                                     </span>
                                 @else
                                     <span class="avatar-initial rounded-circle bg-label-dark text-dark"
                                         style="font-size: 18px;">
-                                        <i class="ti ti-users"></i>
+                                        <i class="ti ti-user"></i>
                                     </span>
                                 @endif
                             </div>

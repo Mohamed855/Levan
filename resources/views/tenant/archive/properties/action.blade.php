@@ -1,19 +1,18 @@
-<div class="d-flex justify-content-center gap-2">
+<x-actions.row>
     @can('properties_archive.restore')
-    <button type="button" class="btn btn-icon btn-primary js-restore-btn"
-        data-url="{{ tenant_route_name('archive.properties.restore', $row->id) }}"
-        data-id="{{ $row->id }}"
-        title="استعادة العقار">
-        <i class="ti ti-rotate"></i>
-    </button>
+        <x-actions.restore
+            :url="tenant_route_name('archive.properties.restore', $row->id)"
+            :id="$row->id"
+            title="استعادة العقار"
+            icon="ti ti-rotate"
+        />
     @endcan
 
     @can('properties_archive.force_delete')
-    <button type="button" class="btn btn-icon btn-label-danger js-force-delete-btn"
-        data-url="{{ tenant_route_name('archive.properties.force-delete', $row->id) }}"
-        data-id="{{ $row->id }}"
-        title="حذف نهائي">
-        <i class="ti ti-trash"></i>
-    </button>
+        <x-actions.force-delete
+            :url="tenant_route_name('archive.properties.force-delete', $row->id)"
+            :id="$row->id"
+            title="حذف نهائي"
+        />
     @endcan
-</div>
+</x-actions.row>

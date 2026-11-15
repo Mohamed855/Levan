@@ -11,10 +11,12 @@ use App\Models\Admin\PublicRequests\TrialRequest;
 use App\Models\Admin\Tenants\Tenant;
 use App\Rules\SystemEmailAvailable;
 use App\Rules\SystemPhoneAvailable;
+use App\Services\Shared\Mail\SystemMailService;
 use App\Services\Shared\PublicRequests\TrialRequestMatcherService;
 use App\Services\Shared\Subscription\SubscriptionManager;
 use App\Services\Shared\Tenant\TenantCreator;
 use App\Services\Shared\Tenant\TenantInitializer;
+use App\Support\Security\TenantPasswordGenerator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -80,8 +82,8 @@ final class ApproveTrialRequestAction
                     'billing_company_name' => 'unique:tenants,company_name',
                     'billing_commercial_number' => 'unique:tenants,commercial_number',
                     'billing_tax_number' => 'unique:tenants,tax_number',
-                    'billing_email' => [new SystemEmailAvailable],
-                    'billing_phone' => [new SystemPhoneAvailable],
+                    'billing_email' => ['required', 'email', 'unique:tenants,primary_contact_email', new SystemEmailAvailable],
+                    'billing_phone' => ['required', 'unique:tenants,primary_contact_phone', new SystemPhoneAvailable],
                 ])->validate();
                 [$tenant, $user] = $this->creator->createTenantEnvironment($metadata, function (Tenant $tenant) use ($request): void {
                     $request->update(['tenant_id' => $tenant->id]);
@@ -92,7 +94,7 @@ final class ApproveTrialRequestAction
             $tenant->update(['primary_user_global_uid' => $user->global_uid]);
             $plainPassword = $request->plain_password;
             if (empty($plainPassword)) {
-                $plainPassword = \App\Support\Security\TenantPasswordGenerator::generate();
+                $plainPassword = TenantPasswordGenerator::generate();
                 $user->update(['password' => Hash::make($plainPassword)]);
             }
             DB::connection('mysql')->transaction(function () use ($request, $subscription, $admin): void {
@@ -109,7 +111,7 @@ final class ApproveTrialRequestAction
             });
             cache()->forget("tenant:{$tenant->id}:subscription");
 
-            \App\Services\Shared\Mail\SystemMailService::sendTenantWelcome(
+            SystemMailService::sendTenantWelcome(
                 tenant: $tenant,
                 loginEmail: $request->customer_email,
                 source: 'trial',

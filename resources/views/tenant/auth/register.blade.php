@@ -22,11 +22,11 @@
         media-desc="منظومة رقمية ذكية تمكّن الشركات العقارية من طرح وإدارة المزادات، إدارة فرق العمل، وإصدار التقارير بكل كفاءة واحترافية."
         :features="[
             ['icon' => 'ti ti-rocket', 'text' => 'انطلاق فوري وسهل'],
-            ['icon' => 'ti ti-users', 'text' => 'إدارة فرق العمل والصلاحيات'],
+            ['icon' => 'ti ti-user', 'text' => 'إدارة فرق العمل والصلاحيات'],
             ['icon' => 'ti ti-device-laptop', 'text' => 'منظومة سحابية متكاملة'],
         ]">
-        <form method="POST" action="{{ tenant_route_name('register') }}" autocomplete="off" novalidate
-            data-form-validate data-validation-url="{{ tenant_route_name('form-validation') }}">
+        <form method="POST" action="{{ tenant_route_name('register') }}" autocomplete="off" novalidate data-form-validate
+            data-validation-url="{{ tenant_route_name('form-validation') }}">
             @csrf
             @if (tenant())
                 <input type="hidden" name="tenant_id" value="{{ tenant('id') }}">

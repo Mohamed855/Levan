@@ -3,7 +3,7 @@
         @if ($row->status->value === 'cancelled')
             <form class="m-0 p-0" action="{{ route($route . '.reactivate', $row->id) }}" method="POST">
                 @csrf
-                <button type="submit" class="btn btn-icon btn-primary bg-primary" title="إعادة تفعيل الفاتورة">
+                <button type="submit" class="btn btn-icon btn-label-primary" title="إعادة تفعيل الفاتورة">
                     <i class="ti ti-refresh"></i>
                 </button>
             </form>

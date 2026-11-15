@@ -122,6 +122,7 @@ Route::middleware(['auth:tenant', EnsureInitialPasswordChanged::class.':tenant',
         Route::name('index')->get('/', [BillsController::class, 'index']);
         Route::name('callback')->get('callback', [BillsController::class, 'callback']);
         Route::name('show')->get('{id}', [BillsController::class, 'show']);
+        Route::name('print')->get('{id}/print', [BillsController::class, 'print']);
         Route::name('checkout')->get('{id}/checkout', [BillsController::class, 'checkout']);
         Route::name('checkout.process')->post('{id}/checkout', [BillsController::class, 'processCheckout'])
             ->defaults('shared_form_validation', true);

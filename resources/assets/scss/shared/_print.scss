@@ -76,13 +76,13 @@
     }
 
     // ── Typography ──────────────────────────────────────────────────────────
-    * {
+    body:not(.print-layout) * {
         font-size: 12pt !important;
     }
 
-    h6,
-    .fs-5,
-    .fs-6 {
+    body:not(.print-layout) h6,
+    body:not(.print-layout) .fs-5,
+    body:not(.print-layout) .fs-6 {
         font-size: 14pt !important;
     }
 

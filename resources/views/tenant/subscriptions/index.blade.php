@@ -132,7 +132,7 @@
 
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-primary">
-                                <i class="ti ti-users ti-26px"></i>
+                                <i class="ti ti-user ti-26px"></i>
                             </span>
                         </div>
                     </div>
@@ -317,7 +317,7 @@
                                     <small>سعر المستخدم الإضافي (شامل الضريبة)</small>
                                     <small class=" mb-0">
                                         {{ $subscription_formatted['extra_user_license_price'] ?? 0 }}<span
-                                            class="icon-saudi_riyal ms-1"></span>
+                                            class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                                     </small>
                                 </div>
 
@@ -342,7 +342,7 @@
                                         <span class="small fw-bold">الاجمالي </span>
                                         <div>
                                             <strong id="licenses-cost">0.00</strong>
-                                            <span class="icon-saudi_riyal ms-1"></span>
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                                         </div>
                                     </div>
 
@@ -364,6 +364,101 @@
                     </form>
                 @endif
 
+            </div>
+        </div>
+    </div>
+
+    {{-- سجل الاشتراكات والفترات (القديمة، الحالية، والقادمة Pre-paid) --}}
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header py-4 d-flex justify-content-between align-items-center">
+                    <h6 class="card-title mb-0">
+                        <i class="ti ti-timeline text-primary me-2"></i>
+                        سجل الاشتراكات والفترات الزمنية
+                    </h6>
+                    <span class="badge bg-label-primary">{{ $periods->count() }} فترات مسجلة</span>
+                </div>
+                <div class="border-1 border-light border-dashed mb-2"></div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>رقم الفترة</th>
+                                    <th>الباقة</th>
+                                    <th>تاريخ البدء</th>
+                                    <th>تاريخ الانتهاء</th>
+                                    <th>الحالة</th>
+                                    <th>المستخدمون</th>
+                                    <th>المبلغ المدفوع</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($periods as $period)
+                                    @php
+                                        $isCurrent = (bool) $period->is_current;
+                                        $isQueued = $period->status === \App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus::QUEUED;
+                                        $isEnded = $period->status === \App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus::ENDED;
+                                    @endphp
+                                    <tr class="{{ $isCurrent ? 'table-primary-subtle' : '' }}">
+                                        <td>
+                                            <span class="fw-bold {{ $isCurrent ? 'text-primary' : '' }}">
+                                                الفترة #{{ $period->period_number }}
+                                            </span>
+                                            @if ($isCurrent)
+                                                <span class="badge bg-success ms-1">الحالية</span>
+                                            @elseif ($isQueued)
+                                                <span class="badge bg-info ms-1">Pre-pay قادمة</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span class="fw-semibold">
+                                                {{ $period->plan_name_snapshot ?? ($period->subscription?->plan?->name ?? 'غير محدد') }}
+                                            </span>
+                                        </td>
+                                        <td>@date($period->period_start)</td>
+                                        <td>@date($period->period_end)</td>
+                                        <td>
+                                            @if ($isCurrent)
+                                                <span class="badge bg-label-success">
+                                                    <i class="ti ti-check ti-xs me-1"></i>نشط حالياً
+                                                </span>
+                                            @elseif ($isQueued)
+                                                <span class="badge bg-label-info">
+                                                    <i class="ti ti-calendar-plus ti-xs me-1"></i>مجدول / مدفوع مسبقاً
+                                                </span>
+                                            @elseif ($isEnded)
+                                                <span class="badge bg-label-secondary">
+                                                    <i class="ti ti-history ti-xs me-1"></i>منتهي
+                                                </span>
+                                            @else
+                                                <span class="badge bg-label-{{ $period->status->color() }}">
+                                                    {{ $period->status->label() }}
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            {{ $period->used_users_snapshot ?? 0 }} / {{ $period->total_users_snapshot ?? ($period->subscription?->total_users ?? 1) }} مستخدم
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold">
+                                                {{ number_format($period->price_snapshot ?? ($period->subscription?->price ?? 0), 2) }}
+                                            </span>
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4 text-muted">
+                                            لا توجد فترات اشتراك مسجلة حالياً.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

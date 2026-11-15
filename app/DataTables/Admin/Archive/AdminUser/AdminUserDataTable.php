@@ -26,7 +26,6 @@ class AdminUserDataTable extends AbstractDataTable
     {
         return [
             ['data' => 'checkbox',  'name' => 'checkbox',   'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
-            ['data' => 'image',     'name' => 'image',  'className' => 'no-export text-center',    'title' => 'الصورة',    'orderable' => false, 'searchable' => false],
             ['data' => 'name',      'name' => 'name',       'title' => 'الاسم', 'className' => 'text-center'],
             ['data' => 'email',     'name' => 'email',      'title' => 'البريد الإلكتروني', 'className' => 'text-center'],
             ['data' => 'phone',     'name' => 'phone',      'title' => 'رقم الهاتف', 'className' => 'text-center'],
@@ -42,12 +41,6 @@ class AdminUserDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
-
-            ->addColumn('image', function (AdminUser $user) {
-                $profilePicture = $user->image ? asset('storage/'.$user->image) : null;
-
-                return $this->renderTableImage($profilePicture, (string) $user->name, 40);
-            })
             // ->editColumn('name', function (AdminUser $user) {
             //     $url = route('admin.users.show', $user->id);
             //     return '<a href="' . $url . '" class="text-primary fw-bold">' . e($user->name) . '</a>';
@@ -101,7 +94,7 @@ class AdminUserDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'image', 'name', 'email',  'roles', 'status', 'last_login_at', 'actions'];
+        return ['checkbox', 'name', 'email', 'roles', 'status', 'last_login_at', 'actions'];
     }
 
     // الحقول المسموح البحث فيها
@@ -114,7 +107,7 @@ class AdminUserDataTable extends AbstractDataTable
 
     protected function getCustomOrder(): array
     {
-        return [8, 'desc'];
+        return [7, 'desc'];
     }
 
     // Buttons

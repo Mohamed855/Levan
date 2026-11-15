@@ -309,7 +309,7 @@
         {
           "name": "Users",
           "slug": "app-user",
-          "icon": "menu-icon tf-icons ti ti-users",
+          "icon": "menu-icon tf-icons ti ti-user",
           "submenu": [
             {
               "url": "app/user/list",

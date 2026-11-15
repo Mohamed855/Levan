@@ -23,14 +23,16 @@
                 <div class="card-body text-center">
                     <div class="mx-auto mb-3" style="width: 100px; height: 100px;">
                         @if ($property->main_image && tasset($property->main_image))
-                            <img src="{{ tasset($property->main_image) }}"
-                                alt="{{ $property->name }}" class="rounded-circle border shadow-sm w-100 h-100 object-fit-cover"
+                            <img src="{{ tasset($property->main_image) }}" alt="{{ $property->name }}"
+                                class="rounded-circle border shadow-sm w-100 h-100 object-fit-cover"
                                 onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-flex'); }">
-                            <div class="rounded-circle border shadow-sm w-100 h-100 d-none align-items-center justify-content-center bg-label-dark text-dark" style="font-size: 32px;">
+                            <div class="rounded-circle border shadow-sm w-100 h-100 d-none align-items-center justify-content-center bg-label-dark text-dark"
+                                style="font-size: 32px;">
                                 <i class="ti ti-building"></i>
                             </div>
                         @else
-                            <div class="rounded-circle border shadow-sm w-100 h-100 d-flex align-items-center justify-content-center bg-label-dark text-dark" style="font-size: 32px;">
+                            <div class="rounded-circle border shadow-sm w-100 h-100 d-flex align-items-center justify-content-center bg-label-dark text-dark"
+                                style="font-size: 32px;">
                                 <i class="ti ti-building"></i>
                             </div>
                         @endif
@@ -179,7 +181,8 @@
                             download="property-{{ $property->property_number }}-boundary.png" />
                     </div>
                     <div class="card-body text-center">
-                        <a href="{{ tasset($property->aerial_image) }}" target="_blank" title="عرض الصورة بالحجم الكامل">
+                        <a href="{{ tasset($property->aerial_image) }}" target="_blank"
+                            title="عرض الصورة بالحجم الكامل">
                             <img src="{{ tasset($property->aerial_image) }}" alt="تحديد العقار على الصورة"
                                 class="img-fluid rounded border" style="max-height: 280px; object-fit: contain;">
                         </a>
@@ -195,7 +198,7 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title mb-0">
-                        <i class="ti ti-users text-primary me-2"></i>ملاك العقار ({{ $property->owners->count() }})
+                        <i class="ti ti-user text-primary me-2"></i>ملاك العقار ({{ $property->owners->count() }})
                     </h5>
                     @if ($property->owners->count() > 0)
                         <span class="badge bg-label-primary">{{ $property->owners->count() }} مالك</span>
@@ -354,20 +357,36 @@
             @if ($property->attachments->isNotEmpty())
                 @php
                     $propertyGroupDefs = [
-                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::DEED_DOCUMENT->value], 'صك الملكية', 'ti-file-certificate',
-                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::CADASTRAL_PLAN->value], 'مخطط العقار', 'ti-map-2',
-                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::BUILDING_PERMIT->value], 'رخصة البناء', 'ti-building',
-                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::COORDINATES_STATEMENT->value], 'كشف الإحداثيات', 'ti-compass',
-                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::ASSIGNMENT_LETTER_IMAGE->value], 'صورة الإسناد', 'ti-mail',
-                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::ADDITIONAL_DOCUMENT->value], 'مستندات إضافية', 'ti-paperclip',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::DEED_DOCUMENT->value],
+                        'صك الملكية',
+                        'ti-file-certificate',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::CADASTRAL_PLAN->value],
+                        'مخطط العقار',
+                        'ti-map-2',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::BUILDING_PERMIT->value],
+                        'رخصة البناء',
+                        'ti-building',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::COORDINATES_STATEMENT->value],
+                        'كشف الإحداثيات',
+                        'ti-compass',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::ASSIGNMENT_LETTER_IMAGE->value],
+                        'صورة الإسناد',
+                        'ti-mail',
+                        [\App\Enums\Tenants\Properties\PropertyAttachmentCategory::ADDITIONAL_DOCUMENT->value],
+                        'مستندات إضافية',
+                        'ti-paperclip',
                         [
                             \App\Enums\Tenants\Properties\PropertyAttachmentCategory::MAIN_IMAGE->value,
                             \App\Enums\Tenants\Properties\PropertyAttachmentCategory::GALLERY_IMAGE->value,
-                        ], 'صور العقار', 'ti-photo',
+                        ],
+                        'صور العقار',
+                        'ti-photo',
                         [
                             \App\Enums\Tenants\Properties\PropertyAttachmentCategory::AERIAL_ORIGINAL->value,
                             \App\Enums\Tenants\Properties\PropertyAttachmentCategory::AERIAL_PHOTO->value,
-                        ], 'الصورة الجوية والتحديد', 'ti-map-pin',
+                        ],
+                        'الصورة الجوية والتحديد',
+                        'ti-map-pin',
                     ];
                     $propertyFileGroups = [];
                     $coveredCategories = [];
@@ -380,7 +399,11 @@
                     }
                     $otherPropertyDocs = $property->attachments->whereNotIn('category', $coveredCategories)->values();
                     if ($otherPropertyDocs->isNotEmpty()) {
-                        $propertyFileGroups[] = ['label' => 'مرفقات أخرى', 'icon' => 'ti-folder', 'items' => $otherPropertyDocs];
+                        $propertyFileGroups[] = [
+                            'label' => 'مرفقات أخرى',
+                            'icon' => 'ti-folder',
+                            'items' => $otherPropertyDocs,
+                        ];
                     }
                 @endphp
                 <div class="card">

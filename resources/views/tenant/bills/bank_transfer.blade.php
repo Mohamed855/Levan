@@ -111,8 +111,20 @@
                                             data-bs-target="#collapse{{ $index }}" aria-expanded="false"
                                             aria-controls="collapse{{ $index }}">
                                             <div class="d-flex align-items-center w-100">
-                                                <img class="me-3 rounded-circle border" width="50" height="50"
-                                                    src="{{ tasset($bank->icon) }}" alt="{{ $bank->bank_name }}">
+                                                @if ($bank->icon_url)
+                                                    <img class="me-3 rounded border bg-white object-fit-contain" width="50" height="50"
+                                                        src="{{ $bank->icon_url }}" alt="{{ $bank->bank_name }}"
+                                                        onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.style.display='inline-flex'; this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-inline-flex'); }">
+                                                    <div class="rounded border d-none align-items-center justify-content-center bg-label-dark text-dark flex-shrink-0 me-3"
+                                                        style="width: 50px; height: 50px; font-size: 22px;" title="{{ $bank->bank_name }}">
+                                                        <i class="ti ti-building-bank"></i>
+                                                    </div>
+                                                @else
+                                                    <div class="rounded border d-inline-flex align-items-center justify-content-center bg-label-dark text-dark flex-shrink-0 me-3"
+                                                        style="width: 50px; height: 50px; font-size: 22px;" title="{{ $bank->bank_name }}">
+                                                        <i class="ti ti-building-bank"></i>
+                                                    </div>
+                                                @endif
                                                 <div>
                                                     <h6 class="mb-0 fw-bold">{{ $bank->bank_name }}</h6>
                                                     <small class="text-muted">اضغط لعرض التفاصيل</small>

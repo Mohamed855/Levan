@@ -12,7 +12,7 @@ final class AuctionReportDataBuilder
     /** @return array<string, mixed> */
     public function build(Auction $auction): array
     {
-        $auction->loadMissing([
+        $auction->load([
             'assignment.issuingEntity',
             'platformEntity',
             'marketingCampaigns',

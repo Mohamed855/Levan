@@ -63,7 +63,8 @@
         </div>
 
         <div class="col-lg-6">
-            <x-admin.dashboard-panel class="h-100" title="توزيع حالات الاشتراكات" icon="ti-chart-donut" icon-color="primary">
+            <x-admin.dashboard-panel class="h-100" title="توزيع حالات الاشتراكات" icon="ti-chart-donut"
+                icon-color="primary">
                 <div class="row g-0 row-gap-3 h-100">
                     {{-- القائمة اليمين --}}
                     <div class="col-sm-6 col-lg-12 col-xxl-6 d-flex flex-column justify-content-center pe-3">
@@ -234,12 +235,13 @@
                                                     <img src="{{ $avatarUrl }}" alt="{{ $activity->causer_name }}"
                                                         class="rounded-circle object-fit-cover w-100 h-100 border"
                                                         onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-inline-flex'); }">
-                                                    <span class="avatar-initial rounded-circle bg-label-dark text-dark d-none">
-                                                        <i class="ti ti-users ti-xs"></i>
+                                                    <span
+                                                        class="avatar-initial rounded-circle bg-label-dark text-dark d-none">
+                                                        <i class="ti ti-user ti-xs"></i>
                                                     </span>
                                                 @else
                                                     <span class="avatar-initial rounded-circle bg-label-dark text-dark">
-                                                        <i class="ti ti-users ti-xs"></i>
+                                                        <i class="ti ti-user ti-xs"></i>
                                                     </span>
                                                 @endif
                                             </div>

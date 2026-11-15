@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Payment\PaymentRequest;
 use App\Http\Requests\Tenants\Subscriptions\LicenseCheckoutRequest;
 use App\Http\Requests\Tenants\Subscriptions\ProcessLicensePaymentRequest;
+use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Services\Shared\Bills\BillService;
 use App\Services\Shared\Coupons\CouponService;
 use App\Services\Shared\Payment\Moyasar\MoyasarCallbackHandler;
@@ -21,6 +22,7 @@ use App\Services\Shared\Subscription\SubscriptionService;
 use App\Services\Tenants\Shared\CentralBillingGateway;
 use App\Services\Tenants\Shared\CentralTrialAccessGateway;
 use Illuminate\Http\Request;
+use Stancl\Tenancy\Facades\Tenancy;
 
 class TenantSubscriptionController extends Controller
 {
@@ -46,11 +48,19 @@ class TenantSubscriptionController extends Controller
         $formatted = $this->subscriptionFormatter->format($subscription);
         $plans = $this->billingGateway->activePlans();
 
-        //
+        $periods = Tenancy::central(function () use ($tenant) {
+            return SubscriptionPeriod::query()
+                ->whereHas('subscription', fn ($q) => $q->where('tenant_id', $tenant->id))
+                ->with(['subscription.plan'])
+                ->orderByDesc('period_start')
+                ->get();
+        });
+
         return view('tenant.subscriptions.index', [
             'subscription_data' => $subscription,
             'subscription_formatted' => $formatted,
             'plans' => $plans,
+            'periods' => $periods,
         ]);
     }
 

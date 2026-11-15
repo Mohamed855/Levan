@@ -16,7 +16,7 @@ final class AuctionReportArtworkTest extends TestCase
     {
         $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
         $branding = ['company_logo' => 'data:image/png;base64,'.base64_encode('company'), 'issuing_entity_logo' => 'data:image/png;base64,'.base64_encode('issuer')];
-        foreach ([['haram', 0], ['haram', 1], ['haram', 6], ['asir', 0]] as [$design, $index]) {
+        foreach ([['haram', 0], ['haram', 1], ['haram', 6]] as [$design, $index]) {
             $document = new DOMDocument;
             $document->loadXML($artwork->render($design, $index, [], [], [], 1, [], [], ['branding' => $branding]));
             $xpath = new DOMXPath($document);
@@ -28,6 +28,22 @@ final class AuctionReportArtworkTest extends TestCase
                 self::assertGreaterThan(0, $nodes->length, $design.':'.$index.':'.$key);
                 self::assertSame($uri, $nodes->item(0)->getAttributeNS('http://www.w3.org/1999/xlink', 'href'));
             }
+        }
+
+        // Asir theme: page 1 (index 0) only shows issuing_entity_logo without company_logo
+        $document = new DOMDocument;
+        $document->loadXML($artwork->render('asir', 0, [], [], [], 1, [], [], ['branding' => $branding]));
+        $xpath = new DOMXPath($document);
+        self::assertGreaterThan(0, $xpath->query('//*[@data-report-branding="issuing_entity_logo"]')->length);
+        self::assertSame(0, $xpath->query('//*[@data-report-branding="company_logo"]')->length);
+        self::assertSame(1, $xpath->query('//*[@data-report-branding-mask="true"]')->length);
+
+        // Asir theme: page 3 (index 2) and page 21 (index 20) show company_logo
+        foreach ([2, 20] as $index) {
+            $document = new DOMDocument;
+            $document->loadXML($artwork->render('asir', $index, [], [], [], $index + 1, [], [], ['branding' => $branding]));
+            $xpath = new DOMXPath($document);
+            self::assertGreaterThan(0, $xpath->query('//*[@data-report-branding="company_logo"]')->length, 'asir:'.$index.':company_logo');
         }
     }
 

@@ -15,7 +15,7 @@ All tabular management/listing pages MUST follow the unified DataTable architect
   - Format dates with `$this->formatDate(...)` (`d-m-Y`) or `$this->formatDateTime(...)` (`d-m-Y h:i A`), and render copyable identifiers via `$this->copyableCode(...)`.
 - **Thin Controller:** Inject the `FormRequest`, the `*DataTable` class, and the domain `Service`/`Action`, returning `$dataTable->render('<panel>.<module>.index', [...])`. Never build DataTable HTML strings or raw Eloquent filter chains inside controllers.
 - **Service / Action Layer:** Place business logic, statistics queries, export preparation, and shared presentation helpers in `app/Services/{Admin|Tenants|Shared}/...` or `app/Actions/...`.
-- **Action Partials:** Render row actions via a dedicated `<panel>/<module>/action.blade.php` view using `<x-actions.row>` and `<x-actions.show>`, `<x-actions.edit>`, `<x-actions.delete>` (from `resources/views/components/shared/actions/`).
+- **Action Partials:** Render row actions via a dedicated `<panel>/<module>/action.blade.php` view using `<x-actions.row>` and `<x-actions.show>`, `<x-actions.edit>`, `<x-actions.delete>`, `<x-actions.restore>`, `<x-actions.force-delete>` (from `resources/views/components/shared/actions/`).
 
 ### 2. Blade Views & Components
 Shared anonymous components are registered in `app/Providers/ViewServiceProvider.php` from `resources/views/components/shared`:

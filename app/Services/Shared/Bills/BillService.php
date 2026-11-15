@@ -7,6 +7,7 @@ use App\Enums\Admin\Billing\BillType;
 use App\Enums\Admin\Billing\PaymentMethod;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Settings\Settings;
+use App\Services\Shared\Mail\SystemMailService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -59,6 +60,8 @@ class BillService
             'status' => BillStatus::PAID,
             'payment_method' => $paymentMethod,
             'paid_at' => now(),
+            'reject_reason' => null,
+            'cancelled_at' => null,
         ]);
     }
 
@@ -86,23 +89,29 @@ class BillService
 
     public function rejectBill(Bill $bill, string $reason): void
     {
-        $bill->update([
-            'status' => BillStatus::UNPAID,
+        $status = $bill->tenant_id ? BillStatus::UNPAID : BillStatus::REJECTED;
+
+        $updateData = [
+            'status' => $status,
             'reject_reason' => $reason,
             'verified_by' => Auth::id(),
             'verified_at' => now(),
+        ];
 
-            'invoice_url' => null,
-            'bank_id' => null,
-            'payment_method' => null,
-        ]);
+        if ($bill->tenant_id) {
+            $updateData['invoice_url'] = null;
+            $updateData['bank_id'] = null;
+            $updateData['payment_method'] = null;
+        }
 
-        $email = $bill->tenant?->primary_contact_email 
-            ?? $bill->metadata['billing_email'] 
+        $bill->update($updateData);
+
+        $email = $bill->tenant?->primary_contact_email
+            ?? $bill->metadata['billing_email']
             ?? null;
 
         if ($email) {
-            \App\Services\Shared\Mail\SystemMailService::sendBankTransferRejected($email, $bill, $reason);
+            SystemMailService::sendBankTransferRejected($email, $bill, $reason);
         }
     }
 
@@ -134,14 +143,14 @@ class BillService
             throw $exception;
         }
 
-        $email = $bill->tenant?->primary_contact_email 
-            ?? $bill->metadata['billing_email'] 
+        $email = $bill->tenant?->primary_contact_email
+            ?? $bill->metadata['billing_email']
             ?? null;
 
         if ($email) {
-            \App\Services\Shared\Mail\SystemMailService::sendBankTransferPending($email, $bill);
+            SystemMailService::sendBankTransferPending($email, $bill);
         }
-        \App\Services\Shared\Mail\SystemMailService::sendBankTransferAdminAlert($bill);
+        SystemMailService::sendBankTransferAdminAlert($bill);
     }
     /*
     |============================================================================

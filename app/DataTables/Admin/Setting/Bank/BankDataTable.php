@@ -53,28 +53,14 @@ class BankDataTable extends AbstractDataTable
                 return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
 
-            ->editColumn('icon', function ($row) {
-                if (! $row->icon) {
-                    return '<span class="badge bg-secondary">
-                                <i class="ti ti-photo-off"></i>
-                                لا يوجد
-                            </span>';
-                }
-
-                $imagePath = asset('storage/'.$row->icon);
-
-                return sprintf(
-                    '<div class="bank-icon-wrapper">
-                        <img src="%s"
-                             alt="%s"
-                             class="bank-icon"
-                             style="max-width: 60px; max-height: 2.5rem; object-fit: contain; border-radius: 0.25rem;"
-                             onerror="this.onerror=null; this.parentElement.innerHTML=\'<span class=\\\'badge bg-warning\\\'>خطأ</span>\';">
-                    </div>',
-                    $imagePath,
-                    htmlspecialchars($row->bank_name)
-                );
-            })
+            ->editColumn('icon', fn ($row): string => $this->renderTableImage(
+                $row->icon_url,
+                (string) $row->bank_name,
+                40,
+                'ti-building-bank',
+                'rounded',
+                'object-fit-contain p-1'
+            ))
 
             ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
 

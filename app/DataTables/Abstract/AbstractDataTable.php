@@ -241,7 +241,7 @@ abstract class AbstractDataTable extends DataTable
         return [];
     }
 
-    protected function renderTableImage(?string $src, string $alt = '', int $size = 44, ?string $icon = null): string
+    protected function renderTableImage(?string $src, string $alt = '', int $size = 44, ?string $icon = null, string $rounded = 'rounded-circle', string $fit = 'object-fit-cover'): string
     {
         $icon = $icon ?: $this->getDefaultTableIcon();
 
@@ -250,6 +250,8 @@ abstract class AbstractDataTable extends DataTable
             'alt' => $alt,
             'size' => $size,
             'icon' => $icon,
+            'rounded' => $rounded,
+            'fit' => $fit,
         ])->render();
     }
 
@@ -258,7 +260,7 @@ abstract class AbstractDataTable extends DataTable
         $tableId = (string) $this->getTableId();
 
         return match (true) {
-            str_contains($tableId, 'user') => 'ti-users',
+            str_contains($tableId, 'user') => 'ti-user',
             str_contains($tableId, 'propert') => 'ti-building',
             str_contains($tableId, 'auction-closing') => 'ti-lock',
             str_contains($tableId, 'auction-establishment') => 'ti-file-certificate',
@@ -269,7 +271,8 @@ abstract class AbstractDataTable extends DataTable
             str_contains($tableId, 'client') => 'ti-building',
             str_contains($tableId, 'ticket') => 'ti-headset',
             str_contains($tableId, 'bill') => 'ti-credit-card',
-            default => 'ti-users',
+            str_contains($tableId, 'bank') => 'ti-building-bank',
+            default => 'ti-user',
         };
     }
 

@@ -64,4 +64,43 @@
             ) !!}
         </x-slot:table>
     </x-data-table.page>
+
+    {{-- Modal: عرض فترات وسجل الاشتراك --}}
+    <x-bootstrap.modal id="subPeriodsModal" title="فترات وسجل الاشتراك" icon="ti-timeline" size="modal-lg">
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <div>
+                <span class="text-muted small">رقم الاشتراك:</span>
+                <span class="fw-bold text-primary ms-1" id="modalSubNumber">-</span>
+            </div>
+            <div>
+                <span class="text-muted small">الشركة:</span>
+                <span class="fw-bold text-dark ms-1" id="modalSubCompany">-</span>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>الفترة</th>
+                        <th>الباقة</th>
+                        <th>تاريخ البدء</th>
+                        <th>تاريخ الانتهاء</th>
+                        <th>الحالة</th>
+                        <th>المستخدمون</th>
+                        <th>المبلغ</th>
+                    </tr>
+                </thead>
+                <tbody id="modalSubPeriodsBody">
+                    <tr>
+                        <td colspan="7" class="text-center py-3 text-muted">جارٍ تحميل البيانات...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <x-slot:footer>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <i class="ti ti-x me-1"></i>إغلاق
+            </button>
+        </x-slot:footer>
+    </x-bootstrap.modal>
 @endsection

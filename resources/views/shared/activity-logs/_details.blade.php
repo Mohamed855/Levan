@@ -23,7 +23,9 @@
                                 } elseif (function_exists('tenant') && tenant()) {
                                     $normalized = ltrim($rawImage, '/');
                                     if (
-                                        \Illuminate\Support\Facades\Storage::disk('tenant_public')->exists($normalized) ||
+                                        \Illuminate\Support\Facades\Storage::disk('tenant_public')->exists(
+                                            $normalized,
+                                        ) ||
                                         \Illuminate\Support\Facades\Storage::disk('public')->exists($normalized)
                                     ) {
                                         $avatarUrl = tasset($rawImage);
@@ -50,12 +52,12 @@
                                 onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-flex'); }">
                             <span
                                 class="avatar-initial rounded-circle bg-label-dark text-dark w-100 h-100 d-none align-items-center justify-content-center">
-                                <i class="ti ti-users fs-1"></i>
+                                <i class="ti ti-user fs-1"></i>
                             </span>
                         @else
                             <span
                                 class="avatar-initial rounded-circle bg-label-dark text-dark w-100 h-100 d-flex align-items-center justify-content-center">
-                                <i class="ti ti-users fs-1"></i>
+                                <i class="ti ti-user fs-1"></i>
                             </span>
                         @endif
                     </div>

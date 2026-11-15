@@ -36,7 +36,9 @@
 }
 
 .dataTable tbody td .btn.bg-primary,
-.dataTable tbody td .btn-icon.bg-primary {
+.dataTable tbody td .btn-icon.bg-primary,
+.dataTable tbody td .btn.btn-label-primary,
+.dataTable tbody td .btn-icon.btn-label-primary {
     background-color: rgba(29, 79, 68, 0.08) !important;
     border-color: transparent !important;
     color: var(--primary-color) !important;
@@ -47,7 +49,13 @@
 .dataTable tbody td .btn.bg-primary:active,
 .dataTable tbody td .btn-icon.bg-primary:hover,
 .dataTable tbody td .btn-icon.bg-primary:focus,
-.dataTable tbody td .btn-icon.bg-primary:active {
+.dataTable tbody td .btn-icon.bg-primary:active,
+.dataTable tbody td .btn.btn-label-primary:hover,
+.dataTable tbody td .btn.btn-label-primary:focus,
+.dataTable tbody td .btn.btn-label-primary:active,
+.dataTable tbody td .btn-icon.btn-label-primary:hover,
+.dataTable tbody td .btn-icon.btn-label-primary:focus,
+.dataTable tbody td .btn-icon.btn-label-primary:active {
     background-color: rgba(29, 79, 68, 0.16) !important;
     border-color: transparent !important;
     color: var(--primary-color-deep, #12332c) !important;

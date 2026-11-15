@@ -322,7 +322,7 @@ final class AuctionReportArtwork
                 default => [['issuing_entity_logo', [23, 5, 72, 48], '#2c2130'], ['company_logo', [100, 5, 145, 48], '#2c2130']],
             };
         } elseif ($index === 0) {
-            $boxes = [['issuing_entity_logo', [475, 5, 580, 110], '#ffffff'], ['company_logo', [30, 605, 570, 725], '#ffffff']];
+            $boxes = [['issuing_entity_logo', [475, 5, 580, 110], '#ffffff']];
         } elseif ($index === 2) {
             foreach ((new DOMXPath($document))->query('//*[@data-template-branding="company_logo"]') as $node) {
                 $node->parentNode?->removeChild($node);

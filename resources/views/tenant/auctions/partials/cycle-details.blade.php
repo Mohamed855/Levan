@@ -6,7 +6,7 @@
             'brochure' => 'ti ti-book text-warning',
             'platform' => 'ti ti-device-laptop text-primary',
             'board_before' => 'ti ti-ad-2 text-danger',
-            'brokers' => 'ti ti-users text-success',
+            'brokers' => 'ti ti-user text-success',
             'youtube' => 'ti ti-brand-youtube text-danger',
             'x' => 'ti ti-brand-x text-dark',
             'snapchat' => 'ti ti-brand-snapchat text-warning',
@@ -19,7 +19,7 @@
         $isLocked = $isClosed;
         $hasCampaigns = $auction->marketingCampaigns->isNotEmpty();
     @endphp
-    <div class="card {{ ($hasFollowingCard ?? false) ? 'mb-4' : '' }}">
+    <div class="card {{ $hasFollowingCard ?? false ? 'mb-4' : '' }}">
         <div class="card-header d-flex justify-content-between align-items-center mb-3">
             <h5 class="card-title mb-0">
                 <i class="ti ti-speakerphone text-primary me-2"></i>الحملات التسويقية

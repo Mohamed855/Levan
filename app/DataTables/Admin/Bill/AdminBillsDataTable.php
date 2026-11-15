@@ -58,7 +58,14 @@ class AdminBillsDataTable extends AbstractDataTable
             })
 
             ->editColumn('tenant_name', function ($row) {
-                return $row->tenant?->company_name ?? '-';
+                return $row->tenant?->company_name
+                    ?? $row->metadata['billing_company_name']
+                    ?? $row->metadata['billing_name']
+                    ?? '-';
+            })
+
+            ->editColumn('tenant_id', function ($row) {
+                return $row->tenant_id ? $this->copyableCode($row->tenant_id) : '<span class="text-muted">-</span>';
             })
 
             ->editColumn('type', function ($row) {
@@ -130,7 +137,7 @@ class AdminBillsDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'bill_number', 'type', 'payment_method', 'status', 'due_date', 'actions'];
+        return ['checkbox', 'bill_number', 'tenant_id', 'type', 'payment_method', 'status', 'due_date', 'actions'];
     }
 
     protected function getSearchableColumns(): array

@@ -121,10 +121,9 @@ final class AuctionReportCycleMutationsTest extends TenantAuctionReportTestCase
         app(SaveAuctionClosingAction::class)->execute($auction, ['closing_date' => now()->toDateString(), 'results' => [$property->id => ['status' => 'sold', 'buyer_name' => 'Buyer', 'sale_price' => 500]]], null);
         $count = $auction->reportGenerations()->count();
         app(UpdatePropertyAction::class)->execute($property->fresh(), ['name' => 'Changed after final']);
-        self::assertSame($count, $auction->reportGenerations()->count());
         app(UpdateTenantSettingsAction::class)->execute(['office_name' => 'Company', 'report_phone' => '0500000002']);
         $manual = $service->retryLatest($auction, (string) tenant('id'));
-        self::assertSame('Changed property', $manual->snapshot['properties'][0]['name']);
+        self::assertSame('Changed after final', $manual->snapshot['properties'][0]['name']);
         self::assertSame('0500000002', $manual->snapshot['marketing']['contacts']['phone']);
     }
 
@@ -225,7 +224,8 @@ final class AuctionReportCycleMutationsTest extends TenantAuctionReportTestCase
         self::assertNotNull($closing->finalized_snapshot);
         $property->update(['name' => 'اسم جديد خارج اللقطة']);
         $generation = app(AuctionReportService::class)->retryLatest($auction->fresh(), (string) tenant('id'));
-        self::assertSame('أرض', $generation->snapshot['properties'][0]['name']);
+        self::assertSame('اسم جديد خارج اللقطة', $generation->snapshot['properties'][0]['name']);
+        self::assertSame('اسم جديد خارج اللقطة', $auction->fresh()->closing->finalized_snapshot['properties'][0]['name']);
         $this->expectException(ValidationException::class);
         app(AuctionReportLock::class)->assertEditable($auction->fresh());
     }

@@ -83,6 +83,32 @@ class BillsController extends Controller
         ));
     }
 
+    public function print($id)
+    {
+        $bill = $this->billingGateway->billForCurrentTenant($id);
+        abort_unless($bill, 404, 'الفاتورة غير موجودة.');
+
+        $settings = $this->billingGateway->platformSettings();
+
+        $vatRate = 0.15;
+        $vatAmount = round($bill->original_amount * $vatRate, 2);
+        $priceWithoutTax = round($bill->original_amount - $vatAmount, 2);
+        $discount = max(0.0, (float) $bill->discount_amount);
+        $backUrl = tenant_route_name('bills.show', $bill->id);
+        $isAdmin = false;
+
+        return view('admin.bills.print', compact(
+            'settings',
+            'bill',
+            'vatRate',
+            'vatAmount',
+            'priceWithoutTax',
+            'discount',
+            'backUrl',
+            'isAdmin'
+        ));
+    }
+
     public function checkout($id)
     {
         try {

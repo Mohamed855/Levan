@@ -17,7 +17,15 @@ final class ManageBankAction
         $storedPath = $icon?->store('banks/icons', 'public');
 
         try {
-            return DB::transaction(fn (): Bank => Bank::query()->create($storedPath ? $data + ['icon' => $storedPath] : $data));
+            return DB::transaction(function () use ($data, $storedPath): Bank {
+                if ($storedPath) {
+                    $data['icon'] = $storedPath;
+                } elseif (isset($data['icon']) && $data['icon'] instanceof UploadedFile) {
+                    unset($data['icon']);
+                }
+
+                return Bank::query()->create($data);
+            });
         } catch (Throwable $exception) {
             if ($storedPath) {
                 Storage::disk('public')->delete($storedPath);
@@ -33,7 +41,13 @@ final class ManageBankAction
 
         try {
             $updated = DB::transaction(function () use ($bank, $data, $storedPath): Bank {
-                $bank->update($storedPath ? $data + ['icon' => $storedPath] : $data);
+                if ($storedPath) {
+                    $data['icon'] = $storedPath;
+                } else {
+                    unset($data['icon']);
+                }
+
+                $bank->update($data);
 
                 return $bank->refresh();
             });

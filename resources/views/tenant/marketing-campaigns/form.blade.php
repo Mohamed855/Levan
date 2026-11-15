@@ -16,7 +16,7 @@
         'brochure' => 'ti ti-book',
         'platform' => 'ti ti-device-laptop',
         'board_before' => 'ti ti-ad-2',
-        'brokers' => 'ti ti-users',
+        'brokers' => 'ti ti-user',
         'youtube' => 'ti ti-brand-youtube',
         'x' => 'ti ti-brand-x',
         'snapchat' => 'ti ti-brand-snapchat',

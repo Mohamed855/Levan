@@ -12,12 +12,14 @@
                         <img src="{{ $existingImageValue }}" alt="صورة المستخدم"
                             class="rounded-circle border shadow-sm w-100 h-100 object-fit-cover"
                             onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-flex'); }">
-                        <div class="rounded-circle border shadow-sm w-100 h-100 d-none align-items-center justify-content-center bg-label-dark text-dark" style="font-size: 32px;">
-                            <i class="ti ti-users"></i>
+                        <div class="rounded-circle border shadow-sm w-100 h-100 d-none align-items-center justify-content-center bg-label-dark text-dark"
+                            style="font-size: 32px;">
+                            <i class="ti ti-user"></i>
                         </div>
                     @else
-                        <div class="rounded-circle border shadow-sm w-100 h-100 d-flex align-items-center justify-content-center bg-label-dark text-dark" style="font-size: 32px;">
-                            <i class="ti ti-users"></i>
+                        <div class="rounded-circle border shadow-sm w-100 h-100 d-flex align-items-center justify-content-center bg-label-dark text-dark"
+                            style="font-size: 32px;">
+                            <i class="ti ti-user"></i>
                         </div>
                     @endif
                     @if ($canEditAvatar)
@@ -147,4 +149,3 @@
         </form>
     </x-bootstrap.modal>
 @endif
-

@@ -23,9 +23,12 @@ final class AuctionReportService
         try {
             $generation = DB::transaction(function () use ($auction, $refreshBranding): AuctionReportGeneration {
                 $auction = Auction::query()->whereKey($auction->id)->lockForUpdate()->firstOrFail();
-                $snapshot = $auction->closing?->finalized_snapshot ?? $this->dataBuilder->build($auction);
+                $snapshot = $this->dataBuilder->build($auction);
                 if ($refreshBranding) {
                     $snapshot = (new AuctionReportBranding)->apply($snapshot);
+                }
+                if ($auction->closing && $auction->closing->finalized_snapshot !== null) {
+                    $auction->closing->update(['finalized_snapshot' => $snapshot]);
                 }
 
                 return $auction->reportGenerations()->create([

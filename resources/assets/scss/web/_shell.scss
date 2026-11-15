@@ -338,6 +338,110 @@ body.site-shell {
   height: 100% !important;
 }
 
+.flex-shrink-0 {
+  flex-shrink: 0 !important;
+}
+
+.col-12 {
+  width: 100% !important;
+}
+
+.rounded {
+  border-radius: var(--site-radius-sm, 8px) !important;
+}
+
+.border {
+  border: 1px solid var(--site-border) !important;
+}
+
+.object-fit-contain {
+  object-fit: contain !important;
+}
+
+.object-fit-cover {
+  object-fit: cover !important;
+}
+
+.bg-label-dark {
+  background-color: rgba(31, 41, 55, 0.08) !important;
+  color: var(--site-ink) !important;
+}
+
+.text-dark {
+  color: var(--site-ink) !important;
+}
+
+.text-primary {
+  color: var(--site-primary) !important;
+}
+
+.text-2xl {
+  font-size: var(--site-font-2xl, 2rem) !important;
+}
+
+.text-decoration-none {
+  text-decoration: none !important;
+}
+
+a.btn-view-file,
+.btn-view-file {
+  &,
+  &:hover,
+  &:focus,
+  &:active,
+  &:visited {
+    text-decoration: none !important;
+  }
+
+  i {
+    text-decoration: none !important;
+  }
+}
+
+// =============================================================================
+// Standalone Spacing & Gap Utilities (Zero Bootstrap Dependency)
+// =============================================================================
+$spacing-scale: (
+  0: 0,
+  1: 0.25rem,  // 4px
+  2: 0.5rem,   // 8px
+  3: 1rem,     // 16px
+  4: 1.5rem,   // 24px
+  5: 2.25rem,  // 36px
+  6: 3rem      // 48px
+);
+
+@each $key, $val in $spacing-scale {
+  .gap-#{$key} { gap: $val !important; }
+  .row-gap-#{$key} { row-gap: $val !important; }
+  .column-gap-#{$key} { column-gap: $val !important; }
+  .g-#{$key} { gap: $val !important; }
+
+  .m-#{$key} { margin: $val !important; }
+  .mt-#{$key} { margin-top: $val !important; }
+  .mb-#{$key} { margin-bottom: $val !important; }
+  .ms-#{$key} { margin-inline-start: $val !important; }
+  .me-#{$key} { margin-inline-end: $val !important; }
+  .mx-#{$key} { margin-inline: $val !important; }
+  .my-#{$key} { margin-block: $val !important; }
+
+  .p-#{$key} { padding: $val !important; }
+  .pt-#{$key} { padding-top: $val !important; }
+  .pb-#{$key} { padding-bottom: $val !important; }
+  .ps-#{$key} { padding-inline-start: $val !important; }
+  .pe-#{$key} { padding-inline-end: $val !important; }
+  .px-#{$key} { padding-inline: $val !important; }
+  .py-#{$key} { padding-block: $val !important; }
+}
+
+.m-auto { margin: auto !important; }
+.mx-auto { margin-inline: auto !important; }
+.my-auto { margin-block: auto !important; }
+.mt-auto { margin-top: auto !important; }
+.mb-auto { margin-bottom: auto !important; }
+.ms-auto { margin-inline-start: auto !important; }
+.me-auto { margin-inline-end: auto !important; }
+
 // Universal Zero-Shadow Contract for All Website Buttons
 button,
 .btn,

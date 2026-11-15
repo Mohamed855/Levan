@@ -76,7 +76,7 @@
 
     <section class="package-card__limits" aria-label="حدود الباقة">
         <div class="package-card__limit">
-            <i class="ti ti-users" aria-hidden="true"></i>
+            <i class="ti ti-user" aria-hidden="true"></i>
             <span>المستخدمون</span>
             <strong
                 data-plan-field="users">{{ $isUnlimited ? 'غير محدود' : ($includedUsers ?? '—') . ' مستخدم' }}</strong>

@@ -25,6 +25,7 @@ class SubscriptionDataTable extends AbstractDataTable
                 'tenant' => fn ($q) => $q->withTrashed()->with('city'),
                 'plan' => fn ($q) => $q->withTrashed(),
                 'currentPeriod',
+                'queuedPeriod',
                 'periods',
             ]);
     }
@@ -127,7 +128,7 @@ class SubscriptionDataTable extends AbstractDataTable
                 $auctions = $plan?->active_auctions_limit !== null ? $plan->active_auctions_limit : '∞';
 
                 return '<div class="d-flex flex-wrap gap-1">'
-                    .'<span class="badge bg-info" title="المستخدمون"><i class="ti ti-users ti-xs me-1"></i>'.$users.'</span>'
+                    .'<span class="badge bg-info" title="المستخدمون"><i class="ti ti-user ti-xs me-1"></i>'.$users.'</span>'
                     .'<span class="badge bg-secondary" title="العقارات"><i class="ti ti-building ti-xs me-1"></i>'.$props.'</span>'
                     .'<span class="badge bg-secondary" title="المساحة"><i class="ti ti-database ti-xs me-1"></i>'.$storage.'</span>'
                     .'<span class="badge bg-secondary" title="المزادات"><i class="ti ti-gavel ti-xs me-1"></i>'.$auctions.'</span>'
@@ -135,9 +136,20 @@ class SubscriptionDataTable extends AbstractDataTable
             })
             ->editColumn('starts_at', fn (Subscription $row) => $this->formatDate($row->starts_at))
             ->editColumn('ends_at', function (Subscription $row) {
-                $period = $row->currentPeriod ?? $row->periods->sortByDesc('period_end')->first();
+                $currentPeriod = $row->currentPeriod;
+                $queuedPeriod = $row->queuedPeriod ?? $row->periods->where('status', SubscriptionPeriodStatus::QUEUED)->sortBy('period_start')->first();
+                $mainDate = $this->formatDate($currentPeriod?->period_end ?? $row->ends_at);
 
-                return $this->formatDate($period?->period_end ?? $row->ends_at);
+                if ($queuedPeriod) {
+                    $queuedEnd = $this->formatDate($queuedPeriod->period_end);
+
+                    return '<div>'.$mainDate.'</div>'
+                        .'<span class="badge bg-label-info mt-1 d-inline-flex align-items-center" title="تجديد مسبق مجدول (Pre-paid) يبدأ '.$this->formatDate($queuedPeriod->period_start).'">'
+                        .'<i class="ti ti-calendar-plus me-1"></i>مجدول حتى '.$queuedEnd
+                        .'</span>';
+                }
+
+                return $mainDate;
             })
             ->orderColumn('days_remaining', function ($query, $order) {
                 $direction = strtolower((string) $order) === 'desc' ? 'desc' : 'asc';
@@ -179,7 +191,17 @@ class SubscriptionDataTable extends AbstractDataTable
             })
             ->editColumn('created_at', fn (Subscription $row): string => $this->formatDate($row->created_at))
             ->editColumn('status', function (Subscription $row) {
-                return '<div class="d-flex justify-content-center"><span class="badge bg-'.$row->status->color().'">'.e($row->status->label()).'</span></div>';
+                $html = '<div class="d-flex flex-column align-items-center gap-1">'
+                    .'<span class="badge bg-'.$row->status->color().'">'.e($row->status->label()).'</span>';
+
+                $queuedCount = $row->periods->where('status', SubscriptionPeriodStatus::QUEUED)->count();
+                if ($queuedCount > 0) {
+                    $html .= '<span class="badge bg-label-success" title="يوجد '.$queuedCount.' تجديد مسبق مجدول"><i class="ti ti-rotate-clockwise ti-xs me-1"></i>Pre-pay ('.$queuedCount.')</span>';
+                }
+
+                $html .= '</div>';
+
+                return $html;
             })
             ->addColumn('is_active', function (Subscription $row) {
                 $period = $row->currentPeriod ?? $row->periods->sortByDesc('period_end')->first();
@@ -214,7 +236,7 @@ class SubscriptionDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'subscription_number', 'tenant_id', 'plan_limits', 'days_remaining', 'status', 'is_active', 'actions'];
+        return ['checkbox', 'subscription_number', 'tenant_id', 'plan_limits', 'ends_at', 'days_remaining', 'status', 'is_active', 'actions'];
     }
 
     protected function getSearchableColumns(): array

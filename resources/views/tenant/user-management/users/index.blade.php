@@ -40,7 +40,7 @@
 
     <x-data-table.page table-id="users-table">
         <x-slot:stats>
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي المستخدمين" :value="$totalUsers" icon="ti-users"
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي المستخدمين" :value="$totalUsers" icon="ti-user"
                 color="primary" />
             <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين النشطين" :value="$activeUsers" icon="ti-user-check"
                 color="success" />

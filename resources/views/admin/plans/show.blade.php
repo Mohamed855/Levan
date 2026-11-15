@@ -72,7 +72,7 @@
                                     ر.س</span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
-                                <i class="ti ti-users text-primary me-2 fs-5"></i>
+                                <i class="ti ti-user text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">المستخدمين:</span>
                                 <span>{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->included_users . ' مستخدم' }}</span>
                             </li>
@@ -307,8 +307,7 @@
                                                 <x-actions.show :url="route('admin.clients.show', $tenant->id)" title="عرض تفاصيل العميل" />
                                             @endif
                                             @if ($tenantUrl)
-                                                <a href="{{ $tenantUrl }}"
-                                                    class="btn btn-icon btn-label-info"
+                                                <a href="{{ $tenantUrl }}" class="btn btn-icon btn-label-info"
                                                     title="لوحة تحكم الشركة (رابط مباشر)" target="_blank">
                                                     <i class="ti ti-external-link"></i>
                                                 </a>

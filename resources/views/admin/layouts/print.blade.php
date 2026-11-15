@@ -16,7 +16,7 @@
     @yield('print-style')
 </head>
 
-<body>
+<body class="print-layout">
 
     <div class="print-layout">
         @yield('content')

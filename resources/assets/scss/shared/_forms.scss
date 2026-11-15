@@ -1064,16 +1064,23 @@ input[type="file"].form-control,
         align-items: center;
         justify-content: center;
         cursor: pointer;
+        text-decoration: none !important;
+        line-height: 1;
         transition: background 0.15s ease, color 0.15s ease;
         flex-shrink: 0;
 
-        &:hover {
+        &:hover,
+        &:focus,
+        &:active {
             background: var(--primary-color, #1d4f44);
             color: #ffffff;
+            text-decoration: none !important;
         }
 
         i {
             font-size: 0.95rem;
+            line-height: 1;
+            text-decoration: none !important;
         }
     }
 }
