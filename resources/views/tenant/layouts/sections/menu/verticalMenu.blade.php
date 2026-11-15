@@ -140,5 +140,83 @@
                 </a>
             </li>
         @endcan
+
+        {{-- الأرشيف --}}
+        @canany(['user_archive.view', 'properties_archive.view', 'assignments_archive.view', 'auctions_archive.view'])
+            @php
+                $tenantArchiveCounts = cache()->remember('tenant:' . tenant('id') . ':archive_sidebar_counts', 60, function () {
+                    return [
+                        'users' => \App\Models\Tenants\UserMangment\User\User::onlyTrashed()->count(),
+                        'properties' => \App\Models\Tenants\Properties\Property::onlyTrashed()->count(),
+                        'assignments' => \App\Models\Tenants\Assignments\Assignment::onlyTrashed()->count(),
+                        'auctions' => \App\Models\Tenants\Auctions\Auction::onlyTrashed()->count(),
+                    ];
+                });
+
+                $tenantUserCan = auth()->user();
+                $totalTenantArchiveCount = 0;
+                if ($tenantUserCan?->can('user_archive.view')) {
+                    $totalTenantArchiveCount += $tenantArchiveCounts['users'] ?? 0;
+                }
+                if ($tenantUserCan?->can('properties_archive.view')) {
+                    $totalTenantArchiveCount += $tenantArchiveCounts['properties'] ?? 0;
+                }
+                if ($tenantUserCan?->can('assignments_archive.view')) {
+                    $totalTenantArchiveCount += $tenantArchiveCounts['assignments'] ?? 0;
+                }
+                if ($tenantUserCan?->can('auctions_archive.view')) {
+                    $totalTenantArchiveCount += $tenantArchiveCounts['auctions'] ?? 0;
+                }
+            @endphp
+            <li class="menu-header small">
+                <span class="menu-header-text">الأرشيف</span>
+            </li>
+            <li class="menu-item @if (Helpers::isActiveRoute('archive.*')) active open @endif">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons ti ti-archive"></i>
+                    <div>الأرشيف</div>
+                    <div class="badge bg-light text-primary rounded-pill ms-auto @if ($totalTenantArchiveCount <= 0) d-none @endif"
+                        data-sidebar-counter="archive_tenant_total">{{ $totalTenantArchiveCount }}</div>
+                </a>
+                <ul class="menu-sub">
+                    @can('user_archive.view')
+                        <li class="menu-item @if (Helpers::isActiveRoute('archive.users.*')) active @endif">
+                            <a href="{{ tenant_route_name('archive.users.index') }}" class="menu-link">
+                                <div>المستخدمين</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($tenantArchiveCounts['users'] ?? 0) <= 0) d-none @endif"
+                                    data-sidebar-counter="archive_tenant_users">{{ $tenantArchiveCounts['users'] ?? 0 }}</div>
+                            </a>
+                        </li>
+                    @endcan
+                    @can('properties_archive.view')
+                        <li class="menu-item @if (Helpers::isActiveRoute('archive.properties.*')) active @endif">
+                            <a href="{{ tenant_route_name('archive.properties.index') }}" class="menu-link">
+                                <div>العقارات</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($tenantArchiveCounts['properties'] ?? 0) <= 0) d-none @endif"
+                                    data-sidebar-counter="archive_tenant_properties">{{ $tenantArchiveCounts['properties'] ?? 0 }}</div>
+                            </a>
+                        </li>
+                    @endcan
+                    @can('assignments_archive.view')
+                        <li class="menu-item @if (Helpers::isActiveRoute('archive.assignments.*')) active @endif">
+                            <a href="{{ tenant_route_name('archive.assignments.index') }}" class="menu-link">
+                                <div>الإسنادات</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($tenantArchiveCounts['assignments'] ?? 0) <= 0) d-none @endif"
+                                    data-sidebar-counter="archive_tenant_assignments">{{ $tenantArchiveCounts['assignments'] ?? 0 }}</div>
+                            </a>
+                        </li>
+                    @endcan
+                    @can('auctions_archive.view')
+                        <li class="menu-item @if (Helpers::isActiveRoute('archive.auctions.*')) active @endif">
+                            <a href="{{ tenant_route_name('archive.auctions.index') }}" class="menu-link">
+                                <div>المزادات</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($tenantArchiveCounts['auctions'] ?? 0) <= 0) d-none @endif"
+                                    data-sidebar-counter="archive_tenant_auctions">{{ $tenantArchiveCounts['auctions'] ?? 0 }}</div>
+                            </a>
+                        </li>
+                    @endcan
+                </ul>
+            </li>
+        @endcanany
     </ul>
 </aside>

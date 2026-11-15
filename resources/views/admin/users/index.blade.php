@@ -41,7 +41,7 @@
             <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين غير النشطين" :value="$inactiveUsers"
                 subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="warning" />
             <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين المحذوفين" :value="$archivedUsers"
-                subtitle="يمكن استعادتها من المحذوفات" icon="ti-archive" color="danger" />
+                subtitle="يمكن استعادتها من الأرشيف" icon="ti-archive" color="danger" />
         </x-slot:stats>
 
         <x-slot:filters>

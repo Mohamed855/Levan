@@ -370,7 +370,7 @@ Route::middleware(['auth:tenant', EnsureInitialPasswordChanged::class.':tenant',
 
         /*
         |--------------------------------------------------------------------------
-        | Archive (البيانات المحذوفة)
+        | Archive (الأرشيف)
         |--------------------------------------------------------------------------
         */
         Route::prefix('archive')->name('archive.')->group(function () {

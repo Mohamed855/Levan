@@ -102,6 +102,14 @@ final class UpdateAssignmentAction
                     $data['issuing_entity'] = (string) IssuingEntity::whereKey($data['issuing_entity_id'])->value('name');
                 }
 
+                if (isset($data['category'])) {
+                    $categories = is_array($data['category']) ? $data['category'] : [$data['category']];
+                    $data['category'] = array_values(array_filter(array_unique(array_map(
+                        static fn ($c): string => $c instanceof \BackedEnum ? (string) $c->value : (string) $c,
+                        $categories
+                    ))));
+                }
+
                 $updated = $this->assignmentService->updateAssignment($assignment, $data, $image);
                 app(AuctionReportRefreshService::class)
                     ->afterMutation(Auction::query()->where('assignment_id', $assignment->id)->pluck('id')->all());

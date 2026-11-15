@@ -210,5 +210,96 @@
                 </li>
             @endcan
         @endcanany
+
+        {{-- الأرشيف --}}
+        @canany(['users.view', 'companies.view', 'plans.view', 'coupons.view', 'financial_transactions.view'])
+            @php
+                $adminArchiveCounts = cache()->remember('admin:archive_sidebar_counts', 60, function () {
+                    return [
+                        'users' => \App\Models\Admin\AdminMangment\Users\AdminUser::onlyTrashed()->count(),
+                        'tenants' => \App\Models\Admin\Tenants\Tenant::onlyTrashed()->count(),
+                        'plans' => \App\Models\Admin\Plans\Plan::onlyTrashed()->count(),
+                        'coupons' => \App\Models\Admin\Coupons\Coupon::onlyTrashed()->count(),
+                        'bills' => \App\Models\Admin\Bills\Bill::onlyTrashed()->count(),
+                    ];
+                });
+
+                $adminUserCan = auth('admin')->user();
+                $totalAdminArchiveCount = 0;
+                if ($adminUserCan?->can('users.view')) {
+                    $totalAdminArchiveCount += $adminArchiveCounts['users'] ?? 0;
+                }
+                if ($adminUserCan?->can('companies.view')) {
+                    $totalAdminArchiveCount += $adminArchiveCounts['tenants'] ?? 0;
+                }
+                if ($adminUserCan?->can('plans.view')) {
+                    $totalAdminArchiveCount += $adminArchiveCounts['plans'] ?? 0;
+                }
+                if ($adminUserCan?->can('coupons.view')) {
+                    $totalAdminArchiveCount += $adminArchiveCounts['coupons'] ?? 0;
+                }
+                if ($adminUserCan?->can('financial_transactions.view')) {
+                    $totalAdminArchiveCount += $adminArchiveCounts['bills'] ?? 0;
+                }
+            @endphp
+            <li class="menu-header small">
+                <span class="menu-header-text">الأرشيف</span>
+            </li>
+            <li class="menu-item @if (Route::is('admin.archives.*')) active open @endif">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons ti ti-archive"></i>
+                    <div>الأرشيف</div>
+                    <div class="badge bg-light text-primary rounded-pill ms-auto @if ($totalAdminArchiveCount <= 0) d-none @endif"
+                        data-sidebar-counter="archive_admin_total">{{ $totalAdminArchiveCount }}</div>
+                </a>
+                <ul class="menu-sub">
+                    @can('users.view')
+                        <li class="menu-item @if (Route::is('admin.archives.index')) active @endif">
+                            <a href="{{ route('admin.archives.index') }}" class="menu-link">
+                                <div>المستخدمين</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($adminArchiveCounts['users'] ?? 0) <= 0) d-none @endif"
+                                    data-sidebar-counter="archive_admin_users">{{ $adminArchiveCounts['users'] ?? 0 }}</div>
+                            </a>
+                        </li>
+                    @endcan
+                    @can('companies.view')
+                        <li class="menu-item @if (Route::is('admin.archives.tenants.*')) active @endif">
+                            <a href="{{ route('admin.archives.tenants.index') }}" class="menu-link">
+                                <div>العملاء</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($adminArchiveCounts['tenants'] ?? 0) <= 0) d-none @endif"
+                                    data-sidebar-counter="archive_admin_tenants">{{ $adminArchiveCounts['tenants'] ?? 0 }}</div>
+                            </a>
+                        </li>
+                    @endcan
+                    @can('plans.view')
+                        <li class="menu-item @if (Route::is('admin.archives.plans.*')) active @endif">
+                            <a href="{{ route('admin.archives.plans.index') }}" class="menu-link">
+                                <div>الباقات</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($adminArchiveCounts['plans'] ?? 0) <= 0) d-none @endif"
+                                    data-sidebar-counter="archive_admin_plans">{{ $adminArchiveCounts['plans'] ?? 0 }}</div>
+                            </a>
+                        </li>
+                    @endcan
+                    @can('coupons.view')
+                        <li class="menu-item @if (Route::is('admin.archives.coupons.*')) active @endif">
+                            <a href="{{ route('admin.archives.coupons.index') }}" class="menu-link">
+                                <div>الكوبونات</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($adminArchiveCounts['coupons'] ?? 0) <= 0) d-none @endif"
+                                    data-sidebar-counter="archive_admin_coupons">{{ $adminArchiveCounts['coupons'] ?? 0 }}</div>
+                            </a>
+                        </li>
+                    @endcan
+                    @can('financial_transactions.view')
+                        <li class="menu-item @if (Route::is('admin.archives.bills.*')) active @endif">
+                            <a href="{{ route('admin.archives.bills.index') }}" class="menu-link">
+                                <div>الفواتير</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($adminArchiveCounts['bills'] ?? 0) <= 0) d-none @endif"
+                                    data-sidebar-counter="archive_admin_bills">{{ $adminArchiveCounts['bills'] ?? 0 }}</div>
+                            </a>
+                        </li>
+                    @endcan
+                </ul>
+            </li>
+        @endcanany
     </ul>
 </aside>

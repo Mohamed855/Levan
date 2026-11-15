@@ -45,6 +45,23 @@ enum AssignmentCategory: string
     }
 
     /**
+     * @param  array<int, self|string>  $categories
+     * @return array<int, string>
+     */
+    public static function allowedUsageClassificationsFor(array $categories): array
+    {
+        $allowed = [];
+        foreach ($categories as $category) {
+            $enum = $category instanceof self ? $category : self::tryFrom((string) $category);
+            if ($enum) {
+                $allowed = array_merge($allowed, $enum->allowedUsageClassifications());
+            }
+        }
+
+        return array_values(array_unique($allowed));
+    }
+
+    /**
      * Backward-compatible helper for property types.
      *
      * @return array<int, string>

@@ -36,7 +36,7 @@ class PropertyService
     public function deleteProperty(Property $property): bool
     {
         if ($property->auctions()->whereNull('auctions.deleted_at')->exists()) {
-            throw new \LogicException('لا يمكن نقل العقار إلى المحذوفات قبل فك ارتباطه بالمزادات النشطة.');
+            throw new \LogicException('لا يمكن نقل العقار إلى الأرشيف قبل فك ارتباطه بالمزادات النشطة.');
         }
 
         $auctionIds = $property->auctions()->pluck('auctions.id')->all();

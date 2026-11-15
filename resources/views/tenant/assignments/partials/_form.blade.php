@@ -64,9 +64,11 @@
 
                 <x-form.controls.select name="category" id="assignment_category" label="تصنيف الإسناد" required
                     col="col-md-6" :value="$is_edit
-                        ? ($assignment->category instanceof \App\Enums\Tenants\Assignments\AssignmentCategory ? $assignment->category->value : $assignment->category)
-                        : old('category', \App\Enums\Tenants\Assignments\AssignmentCategory::RESIDENTIAL->value)"
+                        ? old('category', $assignment->category)
+                        : old('category', [\App\Enums\Tenants\Assignments\AssignmentCategory::RESIDENTIAL->value])"
                     :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class"
+                    :multiple="true"
+                    placeholder="اختر تصنيفات الإسناد"
                     data-datatable-filter="true"
                     data-datatable-target="#assignment-properties-table"
                     data-filter-key="category" />

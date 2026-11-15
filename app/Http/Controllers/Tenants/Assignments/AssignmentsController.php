@@ -9,6 +9,7 @@ use App\Actions\Tenants\Assignments\UpdateAssignmentAction;
 use App\DataTables\Tenants\Assignments\AssignmentPropertySelectionDataTable;
 use App\DataTables\Tenants\Assignments\AssignmentsDataTable;
 use App\Enums\Tenants\Assignments\AssignmentCategory;
+use App\Enums\Tenants\Properties\PropertyUsageClassification;
 use App\Helpers\Tenants\Settings\SettingsHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Assignments\SelectedAssignmentPropertiesRequest;
@@ -61,7 +62,7 @@ class AssignmentsController extends Controller
 
     public function create(AssignmentPropertySelectionDataTable $dataTable)
     {
-        $dataTable->forCategory(old('category', AssignmentCategory::RESIDENTIAL->value));
+        $dataTable->forCategory(old('category', [AssignmentCategory::RESIDENTIAL->value]));
         $generatedAssignmentNumber = $this->assignmentService->generateAssignmentNumber();
         $tenantImage = SettingsHelper::get('image');
 
@@ -120,7 +121,7 @@ class AssignmentsController extends Controller
                 'number' => $property->property_number,
                 'name' => $property->name,
                 'type' => $property->type_label,
-                'classification' => $property->usage_classification instanceof \App\Enums\Tenants\Properties\PropertyUsageClassification ? $property->usage_classification->value : (string) $property->usage_classification,
+                'classification' => $property->usage_classification instanceof PropertyUsageClassification ? $property->usage_classification->value : (string) $property->usage_classification,
                 'city' => $property->city,
                 'image' => $property->main_image ? tasset($property->main_image) : $fallbackImage,
             ]);
@@ -143,7 +144,7 @@ class AssignmentsController extends Controller
         $fallbackImage = $tenantImage ? tasset($tenantImage) : asset('static/brand/logos/logo.svg');
 
         $dataTable->forAssignment($assignment->id);
-        $dataTable->forCategory(old('category', $assignment->category instanceof AssignmentCategory ? $assignment->category->value : (string) $assignment->category));
+        $dataTable->forCategory(old('category', $assignment->category));
 
         $city = old('city', $assignment->city);
         $districtOptions = $city ? $this->cityOptionsGateway->districtsByCityName($city) : [];
@@ -156,7 +157,7 @@ class AssignmentsController extends Controller
         if ($assignment->issuing_entity_id && ! isset($issuingEntityOptions[$assignment->issuing_entity_id])) {
             $currentEntityName = $assignment->issuingEntity?->name ?? $assignment->issuing_entity;
             if ($currentEntityName) {
-                $issuingEntityOptions[$assignment->issuing_entity_id] = $currentEntityName . ' (معطلة)';
+                $issuingEntityOptions[$assignment->issuing_entity_id] = $currentEntityName.' (معطلة)';
             }
         }
 
@@ -205,11 +206,11 @@ class AssignmentsController extends Controller
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'تم نقل الإسناد إلى المحذوفات بنجاح',
+                    'message' => 'تم نقل الإسناد إلى الأرشيف بنجاح',
                 ]);
             }
 
-            return redirect()->back()->with('success', 'تم نقل الإسناد إلى المحذوفات بنجاح');
+            return redirect()->back()->with('success', 'تم نقل الإسناد إلى الأرشيف بنجاح');
         } catch (\LogicException $e) {
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
@@ -311,9 +312,14 @@ class AssignmentsController extends Controller
             $city = $cityMap[$city];
         }
 
-        $category = $assignment->category instanceof \BackedEnum
-            ? $assignment->category->value
-            : (string) $assignment->category;
+        $category = $assignment->category;
+        if (is_array($category)) {
+            $category = count($category) === 1 ? $category[0] : (empty($category) ? '' : $category[0]);
+        } elseif ($category instanceof \BackedEnum) {
+            $category = $category->value;
+        } else {
+            $category = (string) $category;
+        }
 
         return response()->json([
             'success' => true,
@@ -324,6 +330,8 @@ class AssignmentsController extends Controller
                 'issuing_entity' => $assignment->issuing_entity,
                 'city' => $city,
                 'category' => $category,
+                'categories' => (array) $assignment->category,
+                'category_label' => $assignment->category_label,
                 'status_label' => $assignment->status_label,
                 'start_date' => $assignment->start_date?->format('Y-m-d'),
                 'end_date' => $assignment->end_date?->format('Y-m-d'),

@@ -18,10 +18,11 @@ use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Assignments\IssuingEntityService;
 use App\Services\Tenants\Auctions\AuctionService;
+use App\Services\Tenants\Auctions\Reports\AuctionReportLock;
 use App\Services\Tenants\Shared\CentralCityOptionsGateway;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AuctionsController extends Controller
@@ -109,7 +110,7 @@ class AuctionsController extends Controller
 
     public function edit(Auction $auction): View
     {
-        app(\App\Services\Tenants\Auctions\Reports\AuctionReportLock::class)->assertEditable($auction);
+        app(AuctionReportLock::class)->assertEditable($auction);
         $auction->load(['assignment', 'platformEntity', 'properties', 'attachments']);
         $assignments = Assignment::where(function ($query) {
             $query->where('is_active', true)
@@ -178,11 +179,11 @@ class AuctionsController extends Controller
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'تم نقل المزاد إلى المحذوفات بنجاح',
+                    'message' => 'تم نقل المزاد إلى الأرشيف بنجاح',
                 ]);
             }
 
-            return redirect()->back()->with('success', 'تم نقل المزاد إلى المحذوفات بنجاح');
+            return redirect()->back()->with('success', 'تم نقل المزاد إلى الأرشيف بنجاح');
         } catch (\Exception $e) {
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
@@ -197,6 +198,6 @@ class AuctionsController extends Controller
 
     public function toggleStatus(UpdateResourceStatusRequest $request, Auction $auction): JsonResponse
     {
-        throw \Illuminate\Validation\ValidationException::withMessages(['status' => 'تتحدد حالة المزاد تلقائيًا من اعتماد الطلب ونتائج بيع العقارات.']);
+        throw ValidationException::withMessages(['status' => 'تتحدد حالة المزاد تلقائيًا من اعتماد الطلب ونتائج بيع العقارات.']);
     }
 }

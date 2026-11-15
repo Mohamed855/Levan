@@ -156,47 +156,6 @@
                             </a>
                         </div>
                     @endcan
-
-                    <div class="col-12">
-                        <div class="border rounded p-2">
-                            <div class="d-flex align-items-center gap-1 mb-2">
-                                <i class="ti ti-trash"></i>
-                                <small class="fw-medium text-black">المحذوفة</small>
-                            </div>
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <a href="{{ route('admin.archives.index') }}"
-                                        class="d-block p-2 text-center border rounded text-decoration-none">
-                                        <small>المستخدمين</small>
-                                    </a>
-                                </div>
-                                <div class="col-6">
-                                    <a href="{{ route('admin.archives.tenants.index') }}"
-                                        class="d-block p-2 text-center border rounded text-decoration-none">
-                                        <small>العملاء</small>
-                                    </a>
-                                </div>
-                                <div class="col-6">
-                                    <a href="{{ route('admin.archives.plans.index') }}"
-                                        class="d-block p-2 text-center border rounded text-decoration-none">
-                                        <small>الباقات</small>
-                                    </a>
-                                </div>
-                                <div class="col-6">
-                                    <a href="{{ route('admin.archives.coupons.index') }}"
-                                        class="d-block p-2 text-center border rounded text-decoration-none">
-                                        <small>الكوبونات</small>
-                                    </a>
-                                </div>
-                                <div class="col-6">
-                                    <a href="{{ route('admin.archives.bills.index') }}"
-                                        class="d-block p-2 text-center border rounded text-decoration-none">
-                                        <small>الفواتير</small>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </li>
@@ -238,19 +197,20 @@
         <!-- User -->
         @php
             $adminUser = Auth::guard('admin')->user();
-            $adminImageUrl = ($adminUser?->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($adminUser->image))
-                ? \Illuminate\Support\Facades\Storage::disk('public')->url($adminUser->image)
-                : null;
+            $adminImageUrl =
+                $adminUser?->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($adminUser->image)
+                    ? \Illuminate\Support\Facades\Storage::disk('public')->url($adminUser->image)
+                    : null;
         @endphp
         <li class="nav-item navbar-dropdown dropdown-user dropdown">
             <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
                 <div class="avatar avatar-online">
                     @if ($adminImageUrl)
-                        <img src="{{ $adminImageUrl }}"
-                            alt="{{ $adminUser?->name ?? 'Admin' }}" class="rounded-circle object-fit-cover" width="40"
-                            height="40"
+                        <img src="{{ $adminImageUrl }}" alt="{{ $adminUser?->name ?? 'Admin' }}"
+                            class="rounded-circle object-fit-cover" width="40" height="40"
                             onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-inline-flex'); }">
-                        <span class="avatar-initial rounded-circle bg-label-dark text-dark d-none" style="font-size: 18px;">
+                        <span class="avatar-initial rounded-circle bg-label-dark text-dark d-none"
+                            style="font-size: 18px;">
                             <i class="ti ti-users"></i>
                         </span>
                     @else
@@ -266,15 +226,16 @@
                         <div class="d-flex align-items-center">
                             <div class="avatar avatar-online me-2">
                                 @if ($adminImageUrl)
-                                    <img src="{{ $adminImageUrl }}"
-                                        alt="{{ $adminUser?->name ?? 'Admin' }}" class="rounded-circle object-fit-cover" width="40"
-                                        height="40"
+                                    <img src="{{ $adminImageUrl }}" alt="{{ $adminUser?->name ?? 'Admin' }}"
+                                        class="rounded-circle object-fit-cover" width="40" height="40"
                                         onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-inline-flex'); }">
-                                    <span class="avatar-initial rounded-circle bg-label-dark text-dark d-none" style="font-size: 18px;">
+                                    <span class="avatar-initial rounded-circle bg-label-dark text-dark d-none"
+                                        style="font-size: 18px;">
                                         <i class="ti ti-users"></i>
                                     </span>
                                 @else
-                                    <span class="avatar-initial rounded-circle bg-label-dark text-dark" style="font-size: 18px;">
+                                    <span class="avatar-initial rounded-circle bg-label-dark text-dark"
+                                        style="font-size: 18px;">
                                         <i class="ti ti-users"></i>
                                     </span>
                                 @endif

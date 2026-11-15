@@ -144,56 +144,6 @@
                                 </a>
                             </div>
                         @endcan
-
-
-                        @canany(['user_archive.view', 'properties_archive.view', 'assignments_archive.view',
-                            'auctions_archive.view'])
-                            <div class="col-12">
-                                <div class="border rounded p-2">
-                                    <div class="d-flex align-items-center gap-1 mb-2">
-                                        <i class="ti ti-trash"></i>
-                                        <small class="fw-medium text-black">المحذوفة</small>
-                                    </div>
-                                    <div class="row g-2">
-                                        @can('user_archive.view')
-                                            <div class="col-6">
-                                                <a href="{{ tenant_route_name('archive.users.index') }}"
-                                                    class="d-block p-2 text-center border rounded text-decoration-none">
-                                                    <small>المستخدمين</small>
-                                                </a>
-                                            </div>
-                                        @endcan
-
-                                        @can('properties_archive.view')
-                                            <div class="col-6">
-                                                <a href="{{ tenant_route_name('archive.properties.index') }}"
-                                                    class="d-block p-2 text-center border rounded text-decoration-none">
-                                                    <small>العقارات</small>
-                                                </a>
-                                            </div>
-                                        @endcan
-
-                                        @can('assignments_archive.view')
-                                            <div class="col-6">
-                                                <a href="{{ tenant_route_name('archive.assignments.index') }}"
-                                                    class="d-block p-2 text-center border rounded text-decoration-none">
-                                                    <small>الإسنادات</small>
-                                                </a>
-                                            </div>
-                                        @endcan
-
-                                        @can('auctions_archive.view')
-                                            <div class="col-6">
-                                                <a href="{{ tenant_route_name('archive.auctions.index') }}"
-                                                    class="d-block p-2 text-center border rounded text-decoration-none">
-                                                    <small>المزادات</small>
-                                                </a>
-                                            </div>
-                                        @endcan
-                                    </div>
-                                </div>
-                            </div>
-                        @endcanany
                     </div>
                 </div>
             </li>

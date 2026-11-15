@@ -3,6 +3,7 @@
 namespace App\Models\Tenants\Assignments;
 
 use App\Enums\Tenants\Assignments\AssignmentAttachmentCategory;
+use App\Enums\Tenants\Assignments\AssignmentCategory;
 use App\Models\Shared\Attachment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
@@ -76,25 +77,85 @@ class Assignment extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * @return list<string>
+     */
+    public function getCategoryAttribute($value): array
+    {
+        if (is_array($value)) {
+            return array_values(array_filter(array_map('strval', $value)));
+        }
+
+        if (is_string($value) && $value !== '') {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                return array_values(array_filter(array_map('strval', $decoded)));
+            }
+
+            return [$value];
+        }
+
+        return [];
+    }
+
+    public function setCategoryAttribute(mixed $value): void
+    {
+        if (is_array($value)) {
+            $cleaned = array_values(array_filter(array_unique(array_map(
+                static fn ($item): string => $item instanceof \BackedEnum ? (string) $item->value : (string) $item,
+                $value
+            ))));
+            $this->attributes['category'] = json_encode($cleaned);
+        } elseif ($value instanceof \BackedEnum) {
+            $this->attributes['category'] = json_encode([(string) $value->value]);
+        } elseif (is_string($value) && $value !== '') {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                $this->attributes['category'] = json_encode(array_values(array_unique(array_map('strval', $decoded))));
+            } else {
+                $this->attributes['category'] = json_encode([$value]);
+            }
+        } else {
+            $this->attributes['category'] = json_encode([]);
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getCategoryLabelsAttribute(): array
+    {
+        $categories = $this->category;
+        if (empty($categories)) {
+            return ['سكنية'];
+        }
+
+        $labels = array_map(function ($cat): string {
+            if ($cat instanceof AssignmentCategory) {
+                return $cat->label();
+            }
+
+            $enum = AssignmentCategory::tryFrom((string) $cat);
+            if ($enum) {
+                return $enum->label();
+            }
+
+            return match ((string) $cat) {
+                'residential', 'lands', 'villas' => 'سكنية',
+                'commercial', 'commercial_buildings' => 'تجارية',
+                'agricultural' => 'زراعية',
+                'industrial' => 'صناعية',
+                'mixed_use', 'educational' => 'متعدد الأستخدامات',
+                default => (string) $cat,
+            };
+        }, $categories);
+
+        return array_values(array_unique($labels));
+    }
+
     public function getCategoryLabelAttribute(): string
     {
-        if ($this->category instanceof \App\Enums\Tenants\Assignments\AssignmentCategory) {
-            return $this->category->label();
-        }
-
-        $enum = \App\Enums\Tenants\Assignments\AssignmentCategory::tryFrom((string) $this->category);
-        if ($enum) {
-            return $enum->label();
-        }
-
-        return match ($this->category) {
-            'residential', 'lands', 'villas' => 'سكنية',
-            'commercial', 'commercial_buildings' => 'تجارية',
-            'agricultural' => 'زراعية',
-            'industrial' => 'صناعية',
-            'mixed_use', 'educational' => 'متعدد الأستخدامات',
-            default => (string) ($this->category ?? 'سكنية'),
-        };
+        return implode('، ', $this->category_labels);
     }
 
     public function getStatusLabelAttribute(): string

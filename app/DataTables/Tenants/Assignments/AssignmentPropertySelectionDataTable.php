@@ -6,13 +6,16 @@ namespace App\DataTables\Tenants\Assignments;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Enums\Tenants\Assignments\AssignmentCategory;
-use App\Models\Tenants\Properties\Property;
+use App\Enums\Tenants\Properties\PropertyUsageClassification;
 use App\Helpers\Tenants\Settings\SettingsHelper;
+use App\Models\Tenants\Properties\Property;
 
 class AssignmentPropertySelectionDataTable extends AbstractDataTable
 {
     protected ?int $assignmentId = null;
-    protected ?string $assignmentCategory = null;
+
+    /** @var array<int, string>|string|null */
+    protected array|string|null $assignmentCategory = null;
 
     public function forAssignment(?int $assignmentId): self
     {
@@ -21,7 +24,10 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
         return $this;
     }
 
-    public function forCategory(?string $category): self
+    /**
+     * @param  array<int, string>|string|null  $category
+     */
+    public function forCategory(array|string|null $category): self
     {
         $this->assignmentCategory = $category;
 
@@ -69,7 +75,7 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
                 $tenantImage = SettingsHelper::get('image');
                 $fallbackImage = $tenantImage ? tasset($tenantImage) : asset('static/brand/logos/logo.svg');
                 $image = $property->main_image ? tasset($property->main_image) : $fallbackImage;
-                $classification = $property->usage_classification instanceof \App\Enums\Tenants\Properties\PropertyUsageClassification
+                $classification = $property->usage_classification instanceof PropertyUsageClassification
                     ? $property->usage_classification->value
                     : (string) ($property->usage_classification ?? '');
 
@@ -95,11 +101,33 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
 
     protected function applyCustomFilters($query)
     {
-        $categoryValue = request('category') ?? request('assignment_category') ?? $this->assignmentCategory;
-        $category = $categoryValue ? AssignmentCategory::tryFrom((string) $categoryValue) : null;
+        $categoryValue = request('category') ?? request('category[]') ?? request('assignment_category') ?? $this->assignmentCategory;
 
-        if ($category) {
-            $query->whereIn('usage_classification', $category->allowedUsageClassifications());
+        $categoryList = [];
+        if (is_array($categoryValue)) {
+            $categoryList = $categoryValue;
+        } elseif (is_string($categoryValue) && $categoryValue !== '') {
+            $decoded = json_decode($categoryValue, true);
+            if (is_array($decoded)) {
+                $categoryList = $decoded;
+            } elseif (str_contains($categoryValue, ',')) {
+                $categoryList = explode(',', $categoryValue);
+            } else {
+                $categoryList = [$categoryValue];
+            }
+        } elseif ($categoryValue instanceof AssignmentCategory) {
+            $categoryList = [$categoryValue->value];
+        }
+
+        $categoryList = array_values(array_filter(array_map('trim', array_map('strval', $categoryList))));
+
+        if (! empty($categoryList)) {
+            $allowedClassifications = AssignmentCategory::allowedUsageClassificationsFor($categoryList);
+            if (! empty($allowedClassifications)) {
+                $query->whereIn('usage_classification', $allowedClassifications);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
         }
 
         return $query

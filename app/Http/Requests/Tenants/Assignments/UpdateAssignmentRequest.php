@@ -7,7 +7,6 @@ namespace App\Http\Requests\Tenants\Assignments;
 use App\Enums\Tenants\Assignments\AssignmentCategory;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Models\Tenants\Assignments\IssuingEntity;
-use App\Models\Tenants\Properties\Property;
 use Illuminate\Validation\Rule;
 
 class UpdateAssignmentRequest extends WizardFormRequest
@@ -20,6 +19,11 @@ class UpdateAssignmentRequest extends WizardFormRequest
     protected function prepareForValidation(): void
     {
         parent::prepareForValidation();
+
+        if ($this->has('category') && is_string($this->input('category'))) {
+            $trimmed = trim($this->input('category'));
+            $this->merge(['category' => $trimmed !== '' ? [$trimmed] : []]);
+        }
 
         if ($this->filled('issuing_entity_id')) {
             $name = IssuingEntity::whereKey($this->input('issuing_entity_id'))->value('name');
@@ -59,7 +63,8 @@ class UpdateAssignmentRequest extends WizardFormRequest
             'issuing_entity' => ['required_without:issuing_entity_id', 'nullable', 'string', 'max:255'],
             'city' => ['required', 'string', 'max:100'],
             'district' => ['nullable', 'string', 'max:255'],
-            'category' => ['required', Rule::enum(AssignmentCategory::class)],
+            'category' => ['required', 'array', 'min:1'],
+            'category.*' => ['required', 'string', Rule::enum(AssignmentCategory::class)],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'notes' => ['required', 'string', 'max:1000'],
@@ -97,6 +102,10 @@ class UpdateAssignmentRequest extends WizardFormRequest
             'issuing_entity.max' => 'اسم الجهة المسندة يجب ألا يتجاوز 255 حرف.',
             'city.required' => 'المدينة مطلوبة.',
             'category.required' => 'تصنيف الإسناد مطلوب.',
+            'category.array' => 'تصنيف الإسناد غير صالح.',
+            'category.min' => 'يجب اختيار تصنيف واحد على الأقل للإسناد.',
+            'category.*.required' => 'تصنيف الإسناد مطلوب.',
+            'category.*.Illuminate\Validation\Rules\Enum' => 'تصنيف الإسناد المختار غير صالح.',
             'start_date.required' => 'تاريخ البداية مطلوب.',
             'start_date.date' => 'تاريخ البداية غير صالح.',
             'end_date.required' => 'تاريخ النهاية مطلوب.',
@@ -124,6 +133,7 @@ class UpdateAssignmentRequest extends WizardFormRequest
             'city' => 'المدينة',
             'district' => 'النطاق/الحي',
             'category' => 'تصنيف الإسناد',
+            'category.*' => 'تصنيف الإسناد',
             'start_date' => 'تاريخ البداية',
             'end_date' => 'تاريخ النهاية',
             'notes' => 'وصف الإسناد',

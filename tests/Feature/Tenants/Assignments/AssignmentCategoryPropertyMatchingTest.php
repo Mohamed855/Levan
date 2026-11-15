@@ -8,6 +8,10 @@ use App\DataTables\Tenants\Assignments\AssignmentPropertySelectionDataTable;
 use App\Enums\Tenants\Assignments\AssignmentCategory;
 use App\Enums\Tenants\Properties\PropertyType;
 use App\Enums\Tenants\Properties\PropertyUsageClassification;
+use App\Http\Requests\Tenants\Assignments\StoreAssignmentRequest;
+use App\Http\Requests\Tenants\Assignments\UpdateAssignmentRequest;
+use App\Models\Tenants\Assignments\Assignment;
+use App\Models\Tenants\Properties\Property;
 use Tests\TestCase;
 
 class AssignmentCategoryPropertyMatchingTest extends TestCase
@@ -92,7 +96,7 @@ class AssignmentCategoryPropertyMatchingTest extends TestCase
 
     public function test_datatable_supports_category_filtering(): void
     {
-        $dataTable = new AssignmentPropertySelectionDataTable();
+        $dataTable = new AssignmentPropertySelectionDataTable;
         $dataTable->forCategory(AssignmentCategory::RESIDENTIAL->value);
 
         $ref = new \ReflectionClass($dataTable);
@@ -113,22 +117,22 @@ class AssignmentCategoryPropertyMatchingTest extends TestCase
 
     public function test_assignment_requests_allow_property_types_regardless_of_category(): void
     {
-        $storeReq = new \App\Http\Requests\Tenants\Assignments\StoreAssignmentRequest();
+        $storeReq = new StoreAssignmentRequest;
         $storeRules = $storeReq->rules();
 
         $this->assertSame(['required', 'array', 'min:1'], $storeRules['property_ids']);
 
-        $updateReq = new \App\Http\Requests\Tenants\Assignments\UpdateAssignmentRequest();
+        $updateReq = new UpdateAssignmentRequest;
         $updateRules = $updateReq->rules();
         $this->assertSame(['required', 'array', 'min:1'], $updateRules['property_ids']);
     }
 
     public function test_datatable_query_filters_by_category_usage_classifications(): void
     {
-        $dataTable = new AssignmentPropertySelectionDataTable();
+        $dataTable = new AssignmentPropertySelectionDataTable;
         $dataTable->forCategory(AssignmentCategory::RESIDENTIAL->value);
 
-        $query = \App\Models\Tenants\Properties\Property::query();
+        $query = Property::query();
         $ref = new \ReflectionClass($dataTable);
         $method = $ref->getMethod('applyCustomFilters');
         $method->setAccessible(true);
@@ -139,6 +143,72 @@ class AssignmentCategoryPropertyMatchingTest extends TestCase
         $bindings = $query->getBindings();
         $this->assertContains('residential', $bindings);
         $this->assertContains('other', $bindings);
+    }
+
+    public function test_datatable_query_filters_by_multiple_categories_usage_classifications(): void
+    {
+        $dataTable = new AssignmentPropertySelectionDataTable;
+        $dataTable->forCategory([
+            AssignmentCategory::RESIDENTIAL->value,
+            AssignmentCategory::COMMERCIAL->value,
+        ]);
+
+        $query = Property::query();
+        $ref = new \ReflectionClass($dataTable);
+        $method = $ref->getMethod('applyCustomFilters');
+        $method->setAccessible(true);
+        $method->invoke($dataTable, $query);
+
+        $sql = $query->toSql();
+        $this->assertStringContainsString('usage_classification', $sql);
+        $bindings = $query->getBindings();
+        $this->assertContains('residential', $bindings);
+        $this->assertContains('commercial', $bindings);
+        $this->assertContains('other', $bindings);
+    }
+
+    public function test_assignment_category_enum_helper_for_multiple_categories(): void
+    {
+        $allowed = AssignmentCategory::allowedUsageClassificationsFor([
+            AssignmentCategory::RESIDENTIAL,
+            AssignmentCategory::COMMERCIAL,
+        ]);
+
+        $this->assertContains('residential', $allowed);
+        $this->assertContains('commercial', $allowed);
+        $this->assertContains('other', $allowed);
+        $this->assertCount(3, $allowed);
+    }
+
+    public function test_assignment_requests_require_category_to_be_array(): void
+    {
+        $storeReq = new StoreAssignmentRequest;
+        $storeRules = $storeReq->rules();
+
+        $this->assertSame(['required', 'array', 'min:1'], $storeRules['category']);
+        $this->assertArrayHasKey('category.*', $storeRules);
+
+        $updateReq = new UpdateAssignmentRequest;
+        $updateRules = $updateReq->rules();
+
+        $this->assertSame(['required', 'array', 'min:1'], $updateRules['category']);
+        $this->assertArrayHasKey('category.*', $updateRules);
+    }
+
+    public function test_assignment_model_handles_multiple_categories_and_labels(): void
+    {
+        $assignment = new Assignment;
+        $assignment->category = ['residential', 'commercial'];
+
+        $this->assertSame(['residential', 'commercial'], $assignment->category);
+        $this->assertSame(['سكنية', 'تجارية'], $assignment->category_labels);
+        $this->assertSame('سكنية، تجارية', $assignment->category_label);
+
+        // Test backward compatibility with legacy single string
+        $legacyAssignment = new Assignment;
+        $legacyAssignment->setRawAttributes(['category' => 'residential']);
+        $this->assertSame(['residential'], $legacyAssignment->category);
+        $this->assertSame('سكنية', $legacyAssignment->category_label);
     }
 
     public function test_linked_properties_next_buttons_are_disabled_when_empty_in_forms(): void

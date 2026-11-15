@@ -1,6 +1,6 @@
 @extends('tenant.layouts.layoutMaster')
 
-@section('title', 'أرشيف المزادات المحذوفة')
+@section('title', 'أرشيف المزادات')
 
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])

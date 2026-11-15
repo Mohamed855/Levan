@@ -96,7 +96,7 @@ class AssignmentService
     public function deleteAssignment(Assignment $assignment): bool
     {
         if ($assignment->properties()->withTrashed()->exists() || $assignment->auctions()->withTrashed()->exists()) {
-            throw new LogicException('لا يمكن نقل الإسناد إلى المحذوفات قبل معالجة العقارات والمزادات المرتبطة به.');
+            throw new LogicException('لا يمكن نقل الإسناد إلى الأرشيف قبل معالجة العقارات والمزادات المرتبطة به.');
         }
 
         return (bool) $assignment->delete();

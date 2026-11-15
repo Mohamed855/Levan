@@ -380,8 +380,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function selectedText(name) {
-        const select = form.elements.namedItem(name);
-        return select?.selectedOptions?.[0]?.textContent?.trim() || "-";
+        const select =
+            document.getElementById(`assignment_${name}`) ||
+            document.getElementById(name) ||
+            form.elements.namedItem(`${name}[]`) ||
+            form.elements.namedItem(name);
+        if (!select) return "-";
+        const selected = Array.from(select.selectedOptions || [])
+            .map((opt) => opt.textContent.trim())
+            .filter((txt) => txt !== "" && txt !== "اختر خيارًا" && txt !== "الكل");
+        return selected.length > 0 ? selected.join("، ") : "-";
     }
 
     function buildReview() {
@@ -543,17 +551,42 @@ document.addEventListener("DOMContentLoaded", () => {
     // Filter properties in table and clear mismatched selections when category changes
     const categorySelect = document.getElementById("assignment_category");
     if (categorySelect) {
+        const getSelectedCategories = function () {
+            if (window.jQuery) {
+                const val = window.jQuery(categorySelect).val();
+                if (Array.isArray(val)) {
+                    return val.map(String).map((s) => s.trim()).filter(Boolean);
+                }
+                if (typeof val === "string" && val.trim() !== "") {
+                    return [val.trim()];
+                }
+                return [];
+            }
+            return Array.from(categorySelect.selectedOptions || [])
+                .map((opt) => String(opt.value || "").trim())
+                .filter(Boolean);
+        };
+
         const handleCategoryChange = function () {
-            const newCat = categorySelect.value;
-            if (newCat) {
+            const selectedCats = getSelectedCategories();
+            if (selectedCats.length > 0) {
                 let removedAny = false;
                 selectedProperties.forEach((property, id) => {
-                    if (property.classification && property.classification !== newCat && property.classification !== "other") {
+                    if (
+                        property.classification &&
+                        !selectedCats.includes(property.classification) &&
+                        property.classification !== "other"
+                    ) {
                         selectedProperties.delete(id);
                         removedAny = true;
                     }
                 });
                 if (removedAny) {
+                    syncProperties();
+                }
+            } else {
+                if (selectedProperties.size > 0) {
+                    selectedProperties.clear();
                     syncProperties();
                 }
             }
@@ -564,7 +597,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         categorySelect.addEventListener("change", handleCategoryChange);
         if (window.jQuery) {
-            window.jQuery(categorySelect).on("select2:select", handleCategoryChange);
+            window.jQuery(categorySelect).on("change select2:select select2:unselect select2:clear", handleCategoryChange);
         }
     }
 

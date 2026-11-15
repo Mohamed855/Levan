@@ -41,7 +41,9 @@
                     <h4 class="mb-1 fw-bold text-primary">{{ $assignment->name }}</h4>
                     <p class="mb-2 text-muted fw-medium">{{ $assignment->assignment_number }}</p>
                     <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
-                        <span class="badge bg-label-primary fs-6">{{ $assignment->category_label }}</span>
+                        @foreach ($assignment->category_labels as $catLabel)
+                            <span class="badge bg-label-primary fs-6">{{ $catLabel }}</span>
+                        @endforeach
                         <span class="badge bg-label-{{ $assignment->is_active ? 'success' : 'danger' }} fs-6">
                             {{ $assignment->is_active ? 'نشط' : 'متوقف' }}
                         </span>

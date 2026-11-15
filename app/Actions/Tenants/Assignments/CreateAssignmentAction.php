@@ -6,6 +6,7 @@ namespace App\Actions\Tenants\Assignments;
 
 use App\Enums\Tenants\Assignments\AssignmentAttachmentCategory;
 use App\Models\Tenants\Assignments\Assignment;
+use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Assignments\AssignmentService;
 use Illuminate\Http\UploadedFile;
@@ -73,12 +74,16 @@ final class CreateAssignmentAction
 
                 $data['created_by'] = $creatorId;
                 $data['is_active'] = (bool) ($data['is_active'] ?? true);
-                if (isset($data['category']) && $data['category'] instanceof \BackedEnum) {
-                    $data['category'] = $data['category']->value;
+                if (isset($data['category'])) {
+                    $categories = is_array($data['category']) ? $data['category'] : [$data['category']];
+                    $data['category'] = array_values(array_filter(array_unique(array_map(
+                        static fn ($c): string => $c instanceof \BackedEnum ? (string) $c->value : (string) $c,
+                        $categories
+                    ))));
                 }
 
                 if (! empty($data['issuing_entity_id']) && empty($data['issuing_entity'])) {
-                    $data['issuing_entity'] = (string) \App\Models\Tenants\Assignments\IssuingEntity::whereKey($data['issuing_entity_id'])->value('name');
+                    $data['issuing_entity'] = (string) IssuingEntity::whereKey($data['issuing_entity_id'])->value('name');
                 }
 
                 $assignment = Assignment::query()->create($data);

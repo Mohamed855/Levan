@@ -79,7 +79,7 @@ abstract class AbstractDataTable extends DataTable
 
         $model = $query->getModel();
 
-        // 1. فلترة المحذوفات (deleted_at)
+        // 1. فلترة الأرشيف (deleted_at)
         if (method_exists($model, 'getDeletedAtColumn')) {
             $deletedAt = $model->qualifyColumn($model->getDeletedAtColumn());
 

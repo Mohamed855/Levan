@@ -55,7 +55,12 @@ class AssignmentsDataTable extends AbstractDataTable
                 return $this->renderTableImage($image, (string) $row->name);
             })
             ->editColumn('name', fn ($row): string => '<a href="'.tenant_route_name($this->route.'.show', $row->id).'" class="text-body fw-medium">'.e($row->name).'</a>')
-            ->editColumn('category', fn ($row): string => '<span class="badge bg-primary">'.e($row->category_label).'</span>')
+            ->editColumn('category', function ($row): string {
+                $labels = $row->category_labels;
+                $badges = array_map(static fn (string $lbl): string => '<span class="badge bg-primary me-1 mb-1">'.e($lbl).'</span>', $labels);
+
+                return ! empty($badges) ? implode(' ', $badges) : '<span class="badge bg-primary">'.e($row->category_label).'</span>';
+            })
             ->editColumn('properties_count', fn ($row): string => '<span class="badge bg-info">'.(int) $row->properties_count.'</span>')
             ->editColumn('auctions_count', fn ($row): string => '<span class="badge bg-secondary">'.(int) $row->auctions_count.'</span>')
             ->editColumn('start_date', fn ($row): string => $this->formatDate($row->start_date))
@@ -95,7 +100,14 @@ class AssignmentsDataTable extends AbstractDataTable
                     $builder->where('is_active', false);
                 }
             })
-            ->when($request->filled('category'), fn ($builder) => $builder->where('category', $request->category))
+            ->when($request->filled('category'), function ($builder) use ($request): void {
+                $cat = (string) $request->category;
+                $builder->where(function ($q) use ($cat): void {
+                    $q->whereJsonContains('category', $cat)
+                        ->orWhere('category', $cat)
+                        ->orWhere('category', 'like', '%"'.$cat.'"%');
+                });
+            })
             ->when($request->filled('start_date'), fn ($builder) => $builder->whereDate('start_date', $request->start_date))
             ->when($request->filled('end_date'), fn ($builder) => $builder->whereDate('end_date', $request->end_date))
             ->when($request->filled('city'), fn ($builder) => $builder->where('city', $request->city));
