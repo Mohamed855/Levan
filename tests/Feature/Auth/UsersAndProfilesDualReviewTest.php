@@ -28,6 +28,7 @@ use Tests\TestCase;
 class TestUsersTenancyBootstrapper implements TenancyBootstrapper
 {
     public static array $databases = [];
+
     public static string $defaultDb = '';
 
     public function bootstrap(\Stancl\Tenancy\Contracts\Tenant $tenant): void
@@ -50,9 +51,13 @@ class TestUsersTenancyBootstrapper implements TenancyBootstrapper
 final class UsersAndProfilesDualReviewTest extends TestCase
 {
     protected array $tempFiles = [];
+
     protected string $defaultTenantDb = '';
+
     protected ?array $originalBootstrappers = null;
+
     protected ?array $originalMysqlConfig = null;
+
     protected ?array $originalTenantConfig = null;
 
     protected function setUp(): void
@@ -63,7 +68,7 @@ final class UsersAndProfilesDualReviewTest extends TestCase
         $this->originalMysqlConfig = config('database.connections.mysql');
         $this->originalTenantConfig = config('database.connections.tenant');
 
-        $this->defaultTenantDb = tempnam(sys_get_temp_dir(), 'usr_ten_def_') . '.sqlite';
+        $this->defaultTenantDb = tempnam(sys_get_temp_dir(), 'usr_ten_def_').'.sqlite';
         touch($this->defaultTenantDb);
         $this->tempFiles[] = $this->defaultTenantDb;
         TestUsersTenancyBootstrapper::$defaultDb = $this->defaultTenantDb;
@@ -294,7 +299,7 @@ final class UsersAndProfilesDualReviewTest extends TestCase
     {
         $user = AdminUser::on('mysql')->create(array_merge([
             'name' => 'مدير النظام',
-            'email' => 'admin_' . uniqid() . '@lot.test',
+            'email' => 'admin_'.uniqid().'@lot.test',
             'phone' => '0512345678',
             'password' => Hash::make('Secret123!'),
             'status' => 'active',
@@ -322,7 +327,7 @@ final class UsersAndProfilesDualReviewTest extends TestCase
 
         DB::connection('mysql')->table('subscriptions')->updateOrInsert(
             ['tenant_id' => $tenant->id],
-            ['subscription_number' => 'SUB_' . $tenant->id, 'plan_id' => $planId, 'status' => 'active', 'price' => 100, 'created_at' => now(), 'updated_at' => now()]
+            ['subscription_number' => 'SUB_'.$tenant->id, 'plan_id' => $planId, 'status' => 'active', 'price' => 100, 'created_at' => now(), 'updated_at' => now()]
         );
 
         tenancy()->initialize($tenant);
@@ -333,7 +338,7 @@ final class UsersAndProfilesDualReviewTest extends TestCase
 
         $user = User::on('tenant')->create(array_merge([
             'name' => 'مستخدم المستأجر',
-            'email' => 'tenant_user_' . uniqid() . '@lot.test',
+            'email' => 'tenant_user_'.uniqid().'@lot.test',
             'phone' => '0587654321',
             'password' => Hash::make('Secret123!'),
             'status' => 'active',
@@ -351,7 +356,7 @@ final class UsersAndProfilesDualReviewTest extends TestCase
 
     private function createTenantWithDb(string $tenantId): Tenant
     {
-        $tenantDb = tempnam(sys_get_temp_dir(), 'usr_' . $tenantId . '_') . '.sqlite';
+        $tenantDb = tempnam(sys_get_temp_dir(), 'usr_'.$tenantId.'_').'.sqlite';
         touch($tenantDb);
         $this->tempFiles[] = $tenantDb;
         TestUsersTenancyBootstrapper::$databases[$tenantId] = $tenantDb;
@@ -361,11 +366,11 @@ final class UsersAndProfilesDualReviewTest extends TestCase
             'db_database' => $tenantDb,
             'db_username' => '',
             'db_password' => '',
-            'company_name' => 'Tenant ' . $tenantId,
+            'company_name' => 'Tenant '.$tenantId,
             'commercial_number' => '1234567890',
             'access_type' => 'path',
         ]);
-        $tenant->domains()->create(['domain' => $tenantId . '.localhost']);
+        $tenant->domains()->create(['domain' => $tenantId.'.localhost']);
 
         $planId = DB::connection('mysql')->table('plans')->insertGetId([
             'name' => 'Unlimited Plan',
@@ -531,13 +536,13 @@ final class UsersAndProfilesDualReviewTest extends TestCase
             'current_password' => $sentPassword,
             'new_password' => 'NewTenantPassword123!',
             'new_password_confirmation' => 'NewTenantPassword123!',
-        ])->assertRedirect(tenant_route_name('login'))
+        ])->assertRedirect('/tenant-u1/dashboard')
             ->assertSessionHas('tenant_login_context', 'tenant-u1')
-            ->assertSessionMissing('auth_tenant_id');
+            ->assertSessionHas('auth_tenant_id', 'tenant-u1');
 
-        $this->assertGuest('tenant');
+        $this->assertAuthenticatedAs($created, 'tenant');
         $this->assertFalse($created->fresh()->must_change_password);
-        $this->assertNull($created->fresh()->current_session_id);
+        $this->assertNotNull($created->fresh()->current_session_id);
     }
 
     /**
@@ -939,7 +944,7 @@ final class UsersAndProfilesDualReviewTest extends TestCase
         Storage::fake('public');
 
         $admin = $this->createAdminUser();
-        $imagePath = 'users/avatar_' . uniqid() . '.jpg';
+        $imagePath = 'users/avatar_'.uniqid().'.jpg';
         Storage::disk('public')->put($imagePath, 'image-content');
 
         $user = AdminUser::on('mysql')->create([

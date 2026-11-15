@@ -76,15 +76,14 @@ class ArchivedUsersDataTable extends AbstractDataTable
                 return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('user_info', function ($row) {
-                $avatar = $row->profile_photo_url;
+                $profilePicture = $row->image ? tasset($row->image) : null;
+                $avatarHtml = $this->renderTableImage($profilePicture, (string) $row->name, 38, 'ti-users');
 
                 return '<div class="d-flex align-items-center">
                     <div class="avatar-wrapper me-2">
-                        <div class="avatar avatar-sm">
-                            <img src="'.$avatar.'" alt="Avatar" class="rounded-circle">
-                        </div>
+                        '.$avatarHtml.'
                     </div>
-                    <span class="text-body fw-medium">'.$row->name.'</span>
+                    <span class="text-body fw-medium">'.e($row->name).'</span>
                 </div>';
             })
             ->editColumn('email', function ($row) {

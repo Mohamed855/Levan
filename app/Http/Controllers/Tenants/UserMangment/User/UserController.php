@@ -12,6 +12,7 @@ use App\Http\Requests\Tenants\Users\ChangeCurrentUserPasswordRequest;
 use App\Http\Requests\Tenants\Users\UpdateUserBackgroundImageRequest;
 use App\Http\Requests\Tenants\Users\UpdateUserProfileImageRequest;
 use App\Models\Tenants\UserMangment\User\User;
+use App\Providers\RouteServiceProvider;
 use App\Services\Shared\Notifications\DashboardNotificationService;
 use App\Services\Shared\Subscription\SubscriptionFormatter;
 use App\Services\Shared\Subscription\SubscriptionManager;
@@ -21,6 +22,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Spatie\Activitylog\Models\Activity;
@@ -312,7 +314,7 @@ class UserController extends Controller
             if ($tenantId !== '') {
                 app(DashboardNotificationService::class)->tenant(
                     $tenantId,
-                    'password.changed:' . Str::uuid(),
+                    'password.changed:'.Str::uuid(),
                     DashboardNotificationService::payload(
                         'password.changed',
                         'تغيير كلمة المرور',
@@ -339,22 +341,29 @@ class UserController extends Controller
                 ]);
             }
         } catch (\Throwable $e) {
-            Log::warning('Failed to send tenant password change notification: ' . $e->getMessage());
+            Log::warning('Failed to send tenant password change notification: '.$e->getMessage());
         }
 
         if ($requiredPasswordChange) {
-            $tenantId = tenant('id');
-            app(\App\Actions\Auth\PersistAuthenticationStateAction::class)->clearCurrentSession($user);
-            Auth::guard('tenant')->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+            $tenantId = (string) (tenant('id') ?? tenant()?->id ?? '');
+            $request->session()->regenerate();
 
-            if ($tenantId) {
+            if ($tenantId !== '') {
+                $request->session()->put('auth_tenant_id', $tenantId);
                 $request->session()->put('tenant_login_context', $tenantId);
             }
 
-            return redirect()->to(tenant_route_name('login'))
-                ->with('success', 'تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول بكلمة المرور الجديدة.');
+            if (Schema::connection($user->getConnectionName())->hasColumn($user->getTable(), 'current_session_id')) {
+                $user->forceFill(['current_session_id' => $request->session()->getId()])->save();
+            }
+
+            $intended = $request->session()->get('url.intended');
+            if ($intended && (str_contains($intended, 'password') || str_contains($intended, '/login'))) {
+                $request->session()->forget('url.intended');
+            }
+
+            return redirect()->intended(RouteServiceProvider::home())
+                ->with('success', 'تم تغيير كلمة المرور بنجاح ومرحباً بك في النظام.');
         }
 
         return redirect()->to(tenant_route_name('profile.show'))

@@ -15,6 +15,7 @@ use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserPhoneUniqueRequest
 use App\Http\Requests\Admin\AdminMangment\Users\UpdateAdminUserProfileImageRequest;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Providers\RouteServiceProvider;
 use App\Services\Admin\AdminMangment\Users\UserService;
 use App\Services\Shared\Notifications\DashboardNotificationService;
 use App\Support\AccessLabels;
@@ -257,7 +258,7 @@ class AdminUserController extends Controller
         try {
             app(DashboardNotificationService::class)->admin(
                 (int) $user->id,
-                'password.changed:' . Str::uuid(),
+                'password.changed:'.Str::uuid(),
                 DashboardNotificationService::payload(
                     'password.changed',
                     'تغيير كلمة المرور',
@@ -268,16 +269,19 @@ class AdminUserController extends Controller
                 )
             );
         } catch (\Throwable $e) {
-            Log::warning('Failed to send admin password change notification: ' . $e->getMessage());
+            Log::warning('Failed to send admin password change notification: '.$e->getMessage());
         }
 
         if ($requiredPasswordChange) {
-            Auth::guard('admin')->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+            $request->session()->regenerate();
 
-            return redirect()->route('admin.login')
-                ->with('success', 'تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول بكلمة المرور الجديدة.');
+            $intended = $request->session()->get('url.intended');
+            if ($intended && (str_contains($intended, 'password') || str_contains($intended, '/login'))) {
+                $request->session()->forget('url.intended');
+            }
+
+            return redirect()->intended(RouteServiceProvider::ADMIN)
+                ->with('success', 'تم تغيير كلمة المرور بنجاح ومرحباً بك في النظام.');
         }
 
         return redirect()->route('admin.profile.show')

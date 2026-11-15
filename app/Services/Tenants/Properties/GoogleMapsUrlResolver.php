@@ -38,8 +38,27 @@ final class GoogleMapsUrlResolver
                 $options['verify'] = $caBundle;
             }
 
-            $response = $this->http->withOptions($options)->connectTimeout(3)->timeout(5)->head($url);
+            $client = $this->http->withOptions($options)->connectTimeout(15)->timeout(20);
+
+            try {
+                $response = $client->head($url);
+            } catch (\Throwable) {
+                $response = $client->get($url);
+            }
+
             $location = $response->header('Location');
+            if ((! $response->redirect() || ! $location) && ! $response->successful()) {
+                try {
+                    $fallbackResponse = $client->get($url);
+                    if ($fallbackResponse->redirect() && $fallbackResponse->header('Location')) {
+                        $response = $fallbackResponse;
+                        $location = $response->header('Location');
+                    }
+                } catch (\Throwable) {
+                    // Fallthrough to exception below
+                }
+            }
+
             if (! $response->redirect() || ! $location) {
                 throw new InvalidArgumentException('تعذر قراءة رابط الموقع المختصر.');
             }

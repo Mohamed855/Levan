@@ -146,134 +146,57 @@ function fixture(values = {}) {
 
 function fallbackFixture(values = {}) {
     const f = fixture(values);
-    const events = {};
-    const map = {
-        setView(position, zoom) {
-            this.center = position;
-            this.zoom = zoom;
-            return this;
-        },
-        panTo(position) {
-            this.center = position;
-        },
-        setZoom(zoom) {
-            this.zoom = zoom;
-        },
-        on(name, callback) {
-            events[name] = callback;
-            return this;
-        },
-        invalidateSize() {
-            this.resized = true;
-        },
-        remove() {
-            this.removed = true;
-        },
-    };
-    const marker = {
-        setLatLng(position) {
-            this.position = position;
-            return this;
-        },
-        getLatLng() {
-            return this.position;
-        },
-        addTo(target) {
-            this.map = target;
-            return this;
-        },
-        remove() {
-            this.map = null;
-        },
-        on(name, callback) {
-            events[`marker:${name}`] = callback;
-            return this;
-        },
-    };
-    const leaflet = {
-        map: () => map,
-        tileLayer: () => ({ addTo() {} }),
-        divIcon: (options) => options,
-        marker: (position, options) => {
-            marker.position = position;
-            marker.options = options;
-            return marker;
-        },
-    };
     return {
         ...f,
-        fallbackMap: map,
-        fallbackMarker: marker,
-        fallbackEvents: events,
         loaders: {
             loadMaps: async () => {
                 throw new Error("Google unavailable");
             },
-            loadFallbackMaps: async () => leaflet,
         },
     };
 }
 
-test("Google failure keeps an interactive map whose clicks and marker drags save the location", async () => {
+test("Google failure switches to view-only Google fallback with retry action", async () => {
     const f = fallbackFixture();
     await initPropertyLocationMap(f.form, f.loaders);
-    assert.equal(f.elements["property-location-map"].hidden, false);
-    assert.equal(f.elements["property-location-fallback"].hidden, true);
-    assert.deepEqual(f.fallbackMap.center, { lat: 24.7136, lng: 46.6753 });
+    assert.equal(f.elements["property-location-map"].hidden, true);
+    assert.equal(f.elements["property-location-fallback"].hidden, false);
+    assert.match(f.elements["property-location-fallback"].src, /q=24.7136%2C46.6753/);
+    assert.equal(f.elements["property-location-retry"].hidden, false);
     assert.equal(f.controls.latitude.value, "");
-    assert.equal(f.fallbackMarker.map, null);
-    f.fallbackEvents.click({ latlng: { lat: 25.5, lng: 47.5 } });
-    assert.equal(f.controls.latitude.value, "25.5000000");
-    assert.equal(f.controls.longitude.value, "47.5000000");
-    assert.equal(
-        f.controls.google_maps_url.value,
-        "https://www.google.com/maps/search/?api=1&query=25.5000000,47.5000000",
-    );
-    assert.equal(f.fallbackMarker.map, f.fallbackMap);
-    assert.equal(f.fallbackMarker.options.draggable, true);
-    f.fallbackMarker.position = { lat: 0, lng: 46 };
-    f.fallbackEvents["marker:dragend"]();
-    assert.equal(f.controls.latitude.value, "0.0000000");
-    assert.equal(f.controls.longitude.value, "46.0000000");
 });
 
-test("the backup map restores and clears drafts and resizes when the wizard step opens", async () => {
+test("Google failure preserves saved location in view-only Google fallback", async () => {
     const f = fallbackFixture({ latitude: "25", longitude: "47" });
     await initPropertyLocationMap(f.form, f.loaders);
-    assert.deepEqual(f.fallbackMarker.position, { lat: 25, lng: 47 });
-    f.form.dispatchEvent(new Event("stepChanged"));
-    assert.equal(f.fallbackMap.resized, true);
-    f.controls.latitude.value = "0";
-    f.controls.longitude.value = "48";
-    f.form.dispatchEvent(new Event("wizardDraftRestored"));
-    assert.deepEqual(f.fallbackMarker.position, { lat: 0, lng: 48 });
-    for (const control of Object.values(f.controls)) control.value = "";
-    f.form.dispatchEvent(new Event("wizardDraftRestored"));
-    assert.equal(f.fallbackMarker.map, null);
-    assert.deepEqual(f.fallbackMap.center, { lat: 24.7136, lng: 46.6753 });
-    assert.equal(f.controls.latitude.value, "");
+    assert.equal(f.elements["property-location-map"].hidden, true);
+    assert.equal(f.elements["property-location-fallback"].hidden, false);
+    assert.match(f.elements["property-location-fallback"].src, /q=25%2C47/);
+    assert.equal(f.elements["property-location-retry"].hidden, false);
 });
 
-test("the backup map accepts coordinate links and retry restores Google with the selected point", async () => {
+test("retry restores Google map after a failure with the selected point", async () => {
     const f = fallbackFixture();
     let attempts = 0;
     await initPropertyLocationMap(f.form, {
-        ...f.loaders,
         loadMaps: async () => {
             if (++attempts === 1) throw new Error("offline");
             return f.maps;
         },
     });
-    assert.equal(f.elements["property-location-search-button"].disabled, false);
+    assert.equal(f.elements["property-location-retry"].hidden, false);
+    assert.equal(f.elements["property-location-fallback"].hidden, false);
     f.elements["property-location-search"].value =
         "https://maps.google.com/?q=25.2,47.3";
     f.elements["property-location-search-button"].dispatchEvent(
         new Event("click"),
     );
-    assert.deepEqual(f.fallbackMarker.position, { lat: 25.2, lng: 47.3 });
+    assert.equal(f.controls.latitude.value, "25.2000000");
+    assert.equal(f.controls.longitude.value, "47.3000000");
     f.elements["property-location-retry"].dispatchEvent(new Event("click"));
     await new Promise(setImmediate);
-    assert.equal(f.fallbackMap.removed, true);
+    assert.equal(f.elements["property-location-fallback"].hidden, true);
+    assert.equal(f.elements["property-location-map"].hidden, false);
     assert.deepEqual(f.state.marker.position, { lat: 25.2, lng: 47.3 });
     assert.equal(f.elements["property-location-retry"].hidden, true);
 });
@@ -330,14 +253,11 @@ test("a draft restored before Maps finishes loading becomes the initial marker",
     assert.equal(f.state.marker.map, f.state.map);
 });
 
-test("both map loaders failing preserves a saved location and shows a retry action", async () => {
+test("map loader failing preserves a saved location and shows a retry action", async () => {
     const f = fixture({ latitude: "24.5", longitude: "46.5" });
     await initPropertyLocationMap(f.form, {
         loadMaps: async () => {
             throw new Error("offline");
-        },
-        loadFallbackMaps: async () => {
-            throw new Error("backup unavailable");
         },
     });
     assert.equal(f.controls.latitude.value, "24.5");
@@ -374,13 +294,10 @@ test("coordinates remain searchable while the map loads", async () => {
     assert.deepEqual(f.state.marker.position, { lat: 25.2, lng: 47.3 });
 });
 
-test("coordinate links can select a location even when both map providers fail", async () => {
+test("coordinate links can select a location even when Google Maps fails", async () => {
     const f = fixture();
     await initPropertyLocationMap(f.form, {
         loadMaps: async () => {
-            throw new Error("offline");
-        },
-        loadFallbackMaps: async () => {
             throw new Error("offline");
         },
     });
@@ -395,54 +312,23 @@ test("coordinate links can select a location even when both map providers fail",
     assert.match(f.elements["property-location-fallback"].src, /q=25.2%2C47.3/);
 });
 
-test("Google authentication failure after initialization switches to an interactive map", async () => {
-    const f = fallbackFixture({ latitude: "25", longitude: "47" });
-    const previousGoogle = globalThis.google;
-    const previousAuthFailure = globalThis.gm_authFailure;
-    globalThis.google = { maps: { importLibrary: async () => f.maps } };
-    try {
-        await initPropertyLocationMap(f.form, {
-            loadFallbackMaps: f.loaders.loadFallbackMaps,
-        });
-        // Google invokes this separately from the successful script load callback.
-        globalThis.gm_authFailure?.();
-        await new Promise(setImmediate);
-        assert.equal(f.elements["property-location-retry"].hidden, false);
-        assert.deepEqual(f.fallbackMarker.position, { lat: 25, lng: 47 });
-        f.fallbackEvents.click({ latlng: { lat: 26, lng: 48 } });
-        assert.equal(f.controls.latitude.value, "26.0000000");
-    } finally {
-        globalThis.google = previousGoogle;
-        globalThis.gm_authFailure = previousAuthFailure;
-    }
-});
-
-test("an authentication failure while Google loads cannot replace the working backup map later", async () => {
-    const f = fallbackFixture();
-    const previousGoogle = globalThis.google;
-    const previousAuthFailure = globalThis.gm_authFailure;
-    let finishLoading;
-    const libraries = new Promise((resolve) => {
-        finishLoading = resolve;
+test("Google authentication failure after initialization switches to view-only Google fallback", async () => {
+    const f = fixture({ latitude: "25", longitude: "47" });
+    let onAuthFailureCallback;
+    await initPropertyLocationMap(f.form, {
+        loadMaps: async (key, onAuthFailure) => {
+            onAuthFailureCallback = onAuthFailure;
+            return f.maps;
+        },
     });
-    globalThis.google = { maps: { importLibrary: () => libraries } };
-    try {
-        const ready = initPropertyLocationMap(f.form, {
-            loadFallbackMaps: f.loaders.loadFallbackMaps,
-        });
-        globalThis.gm_authFailure();
-        await new Promise(setImmediate);
-        f.fallbackEvents.click({ latlng: { lat: 26, lng: 48 } });
-        finishLoading(f.maps);
-        await ready;
-        assert.equal(f.state.map, undefined);
-        assert.equal(f.controls.latitude.value, "26.0000000");
-        assert.equal(f.fallbackMarker.map, f.fallbackMap);
-    } finally {
-        finishLoading(f.maps);
-        globalThis.google = previousGoogle;
-        globalThis.gm_authFailure = previousAuthFailure;
-    }
+    assert.equal(f.elements["property-location-map"].hidden, false);
+    assert.equal(f.elements["property-location-fallback"].hidden, true);
+    onAuthFailureCallback?.();
+    await new Promise(setImmediate);
+    assert.equal(f.elements["property-location-retry"].hidden, false);
+    assert.equal(f.elements["property-location-map"].hidden, true);
+    assert.equal(f.elements["property-location-fallback"].hidden, false);
+    assert.match(f.elements["property-location-fallback"].src, /q=25%2C47/);
 });
 
 test("an empty location displays Riyadh without filling or saving any location fields", async () => {
@@ -470,7 +356,7 @@ test("an empty draft recenters Riyadh after a different saved location without s
     assert.equal(f.controls.google_maps_url.value, "");
 });
 
-test("a failed Maps script and backup display Riyadh as a view only fallback and retry restores the picker", async () => {
+test("a failed Maps script displays Riyadh as a view only fallback and retry restores the picker", async () => {
     const f = fixture();
     const previousDocument = globalThis.document;
     const previousWindow = globalThis.window;
@@ -487,11 +373,7 @@ test("a failed Maps script and backup display Riyadh as a view only fallback and
         const { initPropertyLocationMap: initialize } = await import(
             "./location-map.js?failed-loader-regression"
         );
-        const ready = initialize(f.form, {
-            loadFallbackMaps: async () => {
-                throw new Error("backup unavailable");
-            },
-        });
+        const ready = initialize(f.form);
         scripts[0].onerror();
         await ready;
         assert.equal(f.elements["property-location-map"].hidden, true);

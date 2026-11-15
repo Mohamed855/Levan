@@ -118,10 +118,11 @@ class TenantInitializer
             }
             $settings->save();
         } else {
+            $companyName = ! empty($metadata['billing_company_name']) ? (string) $metadata['billing_company_name'] : null;
             Settings::create([
                 'image' => 'default-office.png',
-                'office_name' => $metadata['billing_company_name'] ?? 'لوت LOT',
-                'logo_text' => 'لوت LOT',
+                'office_name' => $companyName ?? 'لوت LOT',
+                'logo_text' => $companyName ? (mb_strlen($companyName) <= 14 ? $companyName : null) : 'لوت LOT',
                 'operational_regions' => $defaultRegions,
             ]);
         }

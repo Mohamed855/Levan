@@ -52,10 +52,19 @@
         <div class="col-xl-4 col-lg-5 col-md-5 mb-4">
             <div class="card mb-4">
                 <div class="card-body text-center">
-                    <div class="mb-3 text-center">
-                        <img src="{{ $auction->cover_image ? tasset($auction->cover_image) : asset('static/brand/logos/logo.svg') }}"
-                            alt="{{ $auction->name }}" class="rounded-circle border shadow-sm"
-                            style="width: 100px; height: 100px; object-fit: cover;">
+                    <div class="mb-3 text-center mx-auto" style="width: 100px; height: 100px;">
+                        @if ($auction->cover_image && tasset($auction->cover_image))
+                            <img src="{{ tasset($auction->cover_image) }}"
+                                alt="{{ $auction->name }}" class="rounded-circle border shadow-sm w-100 h-100 object-fit-cover"
+                                onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-flex'); }">
+                            <div class="rounded-circle border shadow-sm w-100 h-100 d-none align-items-center justify-content-center bg-label-dark text-dark" style="font-size: 32px;">
+                                <i class="ti ti-gavel"></i>
+                            </div>
+                        @else
+                            <div class="rounded-circle border shadow-sm w-100 h-100 d-flex align-items-center justify-content-center bg-label-dark text-dark" style="font-size: 32px;">
+                                <i class="ti ti-gavel"></i>
+                            </div>
+                        @endif
                     </div>
                     <h4 class="mb-1 fw-bold text-primary">{{ $auction->name }}</h4>
                     <div class="d-flex justify-content-center flex-wrap gap-2 my-2 mb-3">
@@ -268,10 +277,24 @@
                                 @endphp
                                 <tr>
                                     <td class="text-center">
-                                        <img src="{{ $propImage }}" class="rounded"
-                                            style="width: 36px; height: 36px; object-fit: cover;"
-                                            alt="{{ $prop->name }}"
-                                            onerror="this.onerror=null;this.src='{{ $propFallbackImage }}';">
+                                        @php
+                                            $propRealImage = $prop->main_image ? tasset($prop->main_image) : null;
+                                        @endphp
+                                        @if ($propRealImage)
+                                            <img src="{{ $propRealImage }}" class="rounded object-fit-cover"
+                                                style="width: 36px; height: 36px;"
+                                                alt="{{ $prop->name }}"
+                                                onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-inline-flex'); }">
+                                            <div class="rounded border d-none align-items-center justify-content-center bg-label-dark text-dark"
+                                                style="width: 36px; height: 36px; font-size: 18px;" title="{{ $prop->name }}">
+                                                <i class="ti ti-building"></i>
+                                            </div>
+                                        @else
+                                            <div class="rounded border d-inline-flex align-items-center justify-content-center bg-label-dark text-dark"
+                                                style="width: 36px; height: 36px; font-size: 18px;" title="{{ $prop->name }}">
+                                                <i class="ti ti-building"></i>
+                                            </div>
+                                        @endif
                                     </td>
                                     <td><code>{{ $prop->property_number }}</code></td>
                                     <td>

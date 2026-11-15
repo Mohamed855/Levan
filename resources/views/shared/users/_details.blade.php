@@ -8,9 +8,18 @@
         <div class="card mb-4">
             <div class="card-body text-center">
                 <div class="mx-auto mb-3 position-relative" style="width: 100px; height: 100px;">
-                    <img src="{{ $avatarUrl }}" alt="صورة المستخدم"
-                        class="rounded-circle border shadow-sm w-100 h-100 object-fit-cover"
-                        onerror="this.onerror=null;this.src='{{ asset('static/brand/logos/logo.svg') }}';">
+                    @if (!empty($existingImageValue))
+                        <img src="{{ $existingImageValue }}" alt="صورة المستخدم"
+                            class="rounded-circle border shadow-sm w-100 h-100 object-fit-cover"
+                            onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-flex'); }">
+                        <div class="rounded-circle border shadow-sm w-100 h-100 d-none align-items-center justify-content-center bg-label-dark text-dark" style="font-size: 32px;">
+                            <i class="ti ti-users"></i>
+                        </div>
+                    @else
+                        <div class="rounded-circle border shadow-sm w-100 h-100 d-flex align-items-center justify-content-center bg-label-dark text-dark" style="font-size: 32px;">
+                            <i class="ti ti-users"></i>
+                        </div>
+                    @endif
                     @if ($canEditAvatar)
                         <button type="button"
                             class="btn btn-sm btn-icon btn-primary rounded-circle position-absolute bottom-0 end-0"

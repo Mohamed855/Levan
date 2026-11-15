@@ -235,10 +235,18 @@
         <li class="nav-item navbar-dropdown dropdown-user dropdown">
             <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
                 <div class="avatar avatar-online">
-
-                    <img src="{{ tasset(Auth::user()->image) }}" alt="{{ Auth::user()->name }}"
-                        class="rounded-circle" width="40" height="40">
-
+                    @if (Auth::user()?->image)
+                        <img src="{{ tasset(Auth::user()->image) }}" alt="{{ Auth::user()->name }}"
+                            class="rounded-circle object-fit-cover" width="40" height="40"
+                            onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-inline-flex'); }">
+                        <span class="avatar-initial rounded-circle bg-label-dark text-dark d-none" style="font-size: 18px;">
+                            <i class="ti ti-users"></i>
+                        </span>
+                    @else
+                        <span class="avatar-initial rounded-circle bg-label-dark text-dark" style="font-size: 18px;">
+                            <i class="ti ti-users"></i>
+                        </span>
+                    @endif
                 </div>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -246,8 +254,18 @@
                     <a class="dropdown-item mt-0" href="{{ tenant_route_name('profile.show') }}">
                         <div class="d-flex align-items-center">
                             <div class="avatar avatar-online me-2">
-                                <img src="{{ tasset(Auth::user()->image) }}" alt="{{ Auth::user()->name }}"
-                                    class="rounded-circle" width="40" height="40">
+                                @if (Auth::user()?->image)
+                                    <img src="{{ tasset(Auth::user()->image) }}" alt="{{ Auth::user()->name }}"
+                                        class="rounded-circle object-fit-cover" width="40" height="40"
+                                        onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-inline-flex'); }">
+                                    <span class="avatar-initial rounded-circle bg-label-dark text-dark d-none" style="font-size: 18px;">
+                                        <i class="ti ti-users"></i>
+                                    </span>
+                                @else
+                                    <span class="avatar-initial rounded-circle bg-label-dark text-dark" style="font-size: 18px;">
+                                        <i class="ti ti-users"></i>
+                                    </span>
+                                @endif
                             </div>
                             <div class="flex-grow-1">
                                 <h6 class="mb-0">{{ Auth::user()->name }}</h6>

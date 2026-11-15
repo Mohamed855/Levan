@@ -18,10 +18,19 @@
         @if ($properties && $properties->isNotEmpty())
             @foreach ($properties as $prop)
                 <article class="assignment-property-card" data-property-card="{{ $prop->id }}">
-                    <img class="assignment-property-card__image"
-                        src="{{ $prop->main_image ? tasset($prop->main_image) : $fallbackImage }}"
-                        alt="{{ $prop->name }}"
-                        onerror="this.onerror=null;this.src='{{ $fallbackImage }}';">
+                    @if ($prop->main_image && tasset($prop->main_image))
+                        <img class="assignment-property-card__image"
+                            src="{{ tasset($prop->main_image) }}"
+                            alt="{{ $prop->name }}"
+                            onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-flex'); }">
+                        <div class="assignment-property-card__image d-none align-items-center justify-content-center bg-label-dark text-dark" style="font-size: 18px;">
+                            <i class="ti ti-building"></i>
+                        </div>
+                    @else
+                        <div class="assignment-property-card__image d-flex align-items-center justify-content-center bg-label-dark text-dark" style="font-size: 18px;">
+                            <i class="ti ti-building"></i>
+                        </div>
+                    @endif
                     <div class="assignment-property-card__content">
                         <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
                             <code class="copyable-code">{{ $prop->property_number ?? '-' }}</code>

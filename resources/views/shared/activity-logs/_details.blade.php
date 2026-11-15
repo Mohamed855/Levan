@@ -46,11 +46,16 @@
                             </span>
                         @elseif ($avatarUrl)
                             <img src="{{ $avatarUrl }}" alt="{{ $activityData['user_name'] }}"
-                                class="rounded-circle object-fit-cover w-100 h-100 border">
+                                class="rounded-circle object-fit-cover w-100 h-100 border"
+                                onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-flex'); }">
+                            <span
+                                class="avatar-initial rounded-circle bg-label-dark text-dark w-100 h-100 d-none align-items-center justify-content-center">
+                                <i class="ti ti-users fs-1"></i>
+                            </span>
                         @else
                             <span
-                                class="avatar-initial rounded-circle bg-label-primary w-100 h-100 d-flex align-items-center justify-content-center">
-                                <i class="ti ti-user fs-1"></i>
+                                class="avatar-initial rounded-circle bg-label-dark text-dark w-100 h-100 d-flex align-items-center justify-content-center">
+                                <i class="ti ti-users fs-1"></i>
                             </span>
                         @endif
                     </div>

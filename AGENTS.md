@@ -30,7 +30,7 @@ Shared anonymous components are registered in `app/Providers/ViewServiceProvider
   - `datatable-page-defaults.js` (delegated `#select-all`, `.copyable-code-wrapper` copy, `executeMassDelete`, archive restore/force-delete)
   - `table-cell-clamp.js` (single-line cell clamping)
   - `datatable-feedback.js`, `datatable-responsive.js`, `datatable-primary-actions.js`
-- Page-specific JS files should ONLY bind module-specific interactions (`init.dt`, `draw.dt`, modals, custom exports). Do NOT duplicate DataTable initialization, `dom`, `language`, `Select2` setup, or text-clamping logic in page JS.
+- Page-specific JS files should ONLY bind module-specific interactions (`init.dt`, `draw.dt`, modals, custom exports). Do NOT duplicate DataTable initialization, `dom`, `language`, `Select2` setup, clipboard copy listeners (`.copyable-code-wrapper`), selection handlers (`#select-all`, `.row-checkbox`), or text-clamping logic in page JS.
 
 ### 4. Multi-Tenancy, Security & Code Style
 - Always use `declare(strict_types=1);` in new PHP classes with explicit parameter and return types.

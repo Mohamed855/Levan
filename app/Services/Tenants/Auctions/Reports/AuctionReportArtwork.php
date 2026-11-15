@@ -591,8 +591,17 @@ final class AuctionReportArtwork
         if ($value === '') {
             return;
         }
+        $isRtl = ! empty($field['rtl']);
+        if (preg_match('/[\x{0600}-\x{06ff}]/u', $value) === 1) {
+            $isRtl = true;
+        }
         $size = $field['sy'];
-        $x = $field['x'] + ($center ? $field['width'] / 2 : ($field['rtl'] ? $field['width'] : 0));
+        $x = $center
+            ? $field['x'] + $field['width'] / 2
+            : $field['x'] + $field['width'];
+        $anchor = $center
+            ? 'middle'
+            : ($isRtl ? 'start' : 'end');
         $font = $field['font'];
         $this->fonts ??= new AuctionReportFonts($this->root);
         $face = $this->fonts->resolve($font);
@@ -600,8 +609,8 @@ final class AuctionReportArtwork
         foreach ($attributes + [
             'x' => $x, 'y' => $field['y'], 'fill' => $field['color'], 'font-family' => $face['family'],
             'font-size' => $size, 'font-weight' => $face['weight'],
-            'text-anchor' => $center ? 'middle' : 'start',
-            'direction' => $field['rtl'] ? 'rtl' : 'ltr', 'unicode-bidi' => 'plaintext', 'font-kerning' => 'none',
+            'text-anchor' => $anchor,
+            'direction' => $isRtl ? 'rtl' : 'ltr', 'unicode-bidi' => 'plaintext', 'font-kerning' => 'none',
             'data-report-width' => $field['max_width'] ?? $field['width'],
         ] as $key => $attribute) {
             $text->setAttribute($key, (string) $attribute);

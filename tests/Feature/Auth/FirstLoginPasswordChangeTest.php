@@ -134,20 +134,20 @@ final class FirstLoginPasswordChangeTest extends TestCase
     }
 
     #[DataProvider('guards')]
-    public function test_required_password_change_ends_session_and_allows_only_the_new_password(string $guard): void
+    public function test_required_password_change_logs_into_system_and_allows_only_the_new_password(string $guard): void
     {
         $user = $this->createUser($guard);
-        $loginUrl = $guard === 'admin' ? route('admin.login') : route('login');
-        $this->actingAs($user, $guard)->withSession(['sensitive_state' => 'old-session'])
+        $expectedRedirect = $guard === 'admin' ? '/superadmin' : '/';
+        $this->actingAs($user, $guard)
             ->post($this->passwordUrl($guard), [
                 'new_password' => 'NewPassword123!',
                 'new_password_confirmation' => 'NewPassword123!',
-            ])->assertRedirect($loginUrl)->assertSessionHas('success')->assertSessionMissing('sensitive_state');
+            ])->assertRedirect($expectedRedirect)->assertSessionHas('success');
 
-        $this->assertGuest($guard);
+        $this->assertAuthenticatedAs($user, $guard);
         self::assertFalse((bool) $user->fresh()->must_change_password);
         self::assertFalse(Auth::guard($guard)->validate(['email' => $user->email, 'password' => 'TemporaryPassword123!']));
-        self::assertTrue(Auth::guard($guard)->attempt(['email' => $user->email, 'password' => 'NewPassword123!']));
+        self::assertTrue(Auth::guard($guard)->validate(['email' => $user->email, 'password' => 'NewPassword123!']));
         $this->get($guard === 'admin' ? '/password-test/admin-protected' : '/password-test/protected')->assertOk();
     }
 

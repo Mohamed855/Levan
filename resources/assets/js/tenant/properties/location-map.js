@@ -76,13 +76,6 @@ export function parseLocationQuery(value) {
 }
 
 let mapsPromise;
-async function loadLeaflet() {
-    const [leaflet] = await Promise.all([
-        import("leaflet"),
-        import("leaflet/dist/leaflet.css"),
-    ]);
-    return leaflet;
-}
 
 async function loadGoogleMaps(apiKey, onAuthFailure) {
     if (!apiKey) throw new Error("مفتاح خرائط جوجل غير متاح.");
@@ -100,7 +93,7 @@ async function loadGoogleMaps(apiKey, onAuthFailure) {
             const script = document.createElement("script");
             script.nonce = document.querySelector("script[nonce]")?.nonce || "";
             const callback = "__propertyMapsReady";
-            const timeout = setTimeout(() => fail(), 20000);
+            const timeout = setTimeout(() => fail(), 45000);
             function fail() {
                 clearTimeout(timeout);
                 script.remove();
@@ -133,7 +126,7 @@ async function loadGoogleMaps(apiKey, onAuthFailure) {
 
 export async function initPropertyLocationMap(
     form,
-    { loadMaps = loadGoogleMaps, loadFallbackMaps = loadLeaflet } = {},
+    { loadMaps = loadGoogleMaps } = {},
 ) {
     const container = form.querySelector("#property-location-map");
     if (!container) return;
@@ -148,8 +141,6 @@ export async function initPropertyLocationMap(
     const fallback = form.querySelector("#property-location-fallback");
     let map;
     let marker;
-    let backupMap;
-    let backupMarker;
     let mapFailed = false;
     let requestVersion = 0;
     let initializationVersion = 0;
@@ -169,15 +160,12 @@ export async function initPropertyLocationMap(
         if (map) {
             marker.position = point;
             marker.map = map;
-        } else if (backupMap) {
-            backupMarker.setLatLng(point).addTo(backupMap);
         } else if (mapFailed) {
             showFallback();
         }
-        if (pan && (map || backupMap)) {
-            const activeMap = map || backupMap;
-            activeMap.panTo(point);
-            activeMap.setZoom(18);
+        if (pan && map) {
+            map.panTo(point);
+            map.setZoom(18);
         }
         message(`الموقع المحدد: ${latitude.value}, ${longitude.value}`);
         mapsUrl.dispatchEvent(new Event("change", { bubbles: true }));
@@ -202,8 +190,9 @@ export async function initPropertyLocationMap(
             fallback.hidden = false;
             container.hidden = true;
         }
+        retry.hidden = false;
         message(
-            "تُعرض خريطة للعرض فقط. يمكنك تحديد الموقع بلصق إحداثيات أو رابط يحتوي عليها، أو إعادة تحميل الخريطة.",
+            "تعذر تحميل خريطة جوجل التفاعلية. تُعرض الخريطة للعرض فقط، ويمكنك تحديد الموقع بلصق إحداثيات أو رابط، أو الضغط على إعادة تحميل الخريطة.",
             true,
         );
     }
@@ -212,27 +201,22 @@ export async function initPropertyLocationMap(
         requestVersion++;
         results.replaceChildren?.();
         search.value = mapsUrl.value || "";
-        if (!map && !backupMap) {
+        if (!map) {
             if (mapFailed) showFallback();
             return;
         }
         const point = savedPosition();
         if (point) selectPosition(point);
         else {
-            if (map) marker.map = null;
-            else backupMarker.remove();
-            const activeMap = map || backupMap;
-            activeMap.panTo(riyadhCenter);
-            activeMap.setZoom(defaultZoom);
+            if (marker) marker.map = null;
+            map.panTo(riyadhCenter);
+            map.setZoom(defaultZoom);
             message("ابحث عن الموقع أو اضغط على الخريطة لتحديده.");
         }
     }
 
     async function initialize() {
         const version = ++initializationVersion;
-        backupMap?.remove();
-        backupMap = null;
-        backupMarker = null;
         retry.hidden = true;
         searchButton.disabled = false;
         message("جارٍ تحميل الخريطة...");
@@ -241,7 +225,7 @@ export async function initPropertyLocationMap(
                 container.dataset.apiKey,
                 () => {
                     if (version === initializationVersion)
-                        void initializeFallback(++initializationVersion);
+                        handleFailure();
                 },
             );
             if (version !== initializationVersion) return;
@@ -292,63 +276,16 @@ export async function initPropertyLocationMap(
             restoreLocation();
         } catch (error) {
             if (version === initializationVersion)
-                await initializeFallback(version);
+                handleFailure();
         }
     }
 
-    async function initializeFallback(version) {
+    function handleFailure() {
         if (marker) marker.map = null;
         marker = null;
         map = null;
         mapFailed = true;
-        try {
-            const leaflet = await loadFallbackMaps();
-            if (version !== initializationVersion) return;
-            container.hidden = false;
-            container.replaceChildren();
-            backupMap = leaflet
-                .map(container)
-                .setView(riyadhCenter, defaultZoom);
-            leaflet
-                .tileLayer(
-                    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-                    {
-                        attribution:
-                            "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
-                        maxZoom: 19,
-                    },
-                )
-                .addTo(backupMap);
-            backupMarker = leaflet.marker(riyadhCenter, {
-                draggable: true,
-                title: "موقع العقار — اسحب لتعديل الموقع",
-                icon: leaflet.divIcon({
-                    className: "bg-transparent border-0 text-primary fs-2",
-                    html: '<i class="ti ti-map-pin-filled" aria-hidden="true"></i>',
-                    iconSize: [28, 36],
-                    iconAnchor: [14, 36],
-                }),
-            });
-            backupMap.on("click", (event) => selectPosition(event.latlng));
-            backupMarker.on("dragend", () =>
-                selectPosition(backupMarker.getLatLng(), false),
-            );
-            if (fallback) {
-                fallback.hidden = true;
-                fallback.removeAttribute?.("src");
-            }
-            restoreLocation();
-            message(
-                "تعذر تحميل خرائط جوجل. يمكنك تحديد الموقع على الخريطة البديلة أو لصق إحداثيات أو رابط موقع.",
-            );
-        } catch (_) {
-            if (version !== initializationVersion) return;
-            backupMap?.remove();
-            backupMap = null;
-            backupMarker = null;
-            showFallback();
-        }
-        retry.hidden = false;
+        showFallback();
     }
 
     async function searchLocation() {
@@ -391,7 +328,7 @@ export async function initPropertyLocationMap(
             }
             if (!map) {
                 message(
-                    "حدد النقطة على الخريطة البديلة أو الصق إحداثيات أو رابط موقع يحتوي على إحداثيات. البحث بالأسماء يتطلب خرائط جوجل.",
+                    "الصق إحداثيات أو رابط موقع يحتوي على إحداثيات، أو أعد تحميل الخريطة لتفعيل البحث بالأسماء.",
                     true,
                 );
                 return;
@@ -464,10 +401,6 @@ export async function initPropertyLocationMap(
     // The wizard may initially hide this step. Recenter when it becomes visible.
     form.addEventListener("stepChanged", () => {
         if (map) map.panTo(savedPosition() || riyadhCenter);
-        if (backupMap) {
-            backupMap.invalidateSize();
-            backupMap.panTo(savedPosition() || riyadhCenter);
-        }
     });
     await initialize();
 }

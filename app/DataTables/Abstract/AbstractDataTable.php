@@ -241,13 +241,36 @@ abstract class AbstractDataTable extends DataTable
         return [];
     }
 
-    protected function renderTableImage(?string $src, string $alt = '', int $size = 44): string
+    protected function renderTableImage(?string $src, string $alt = '', int $size = 44, ?string $icon = null): string
     {
+        $icon = $icon ?: $this->getDefaultTableIcon();
+
         return view('components.shared.data-table.image', [
             'src' => $src,
             'alt' => $alt,
             'size' => $size,
+            'icon' => $icon,
         ])->render();
+    }
+
+    protected function getDefaultTableIcon(): string
+    {
+        $tableId = (string) $this->getTableId();
+
+        return match (true) {
+            str_contains($tableId, 'user') => 'ti-users',
+            str_contains($tableId, 'propert') => 'ti-building',
+            str_contains($tableId, 'auction-closing') => 'ti-lock',
+            str_contains($tableId, 'auction-establishment') => 'ti-file-certificate',
+            str_contains($tableId, 'marketing') => 'ti-speakerphone',
+            str_contains($tableId, 'auction') => 'ti-gavel',
+            str_contains($tableId, 'issuing') => 'ti-scale',
+            str_contains($tableId, 'assignment') => 'ti-file-certificate',
+            str_contains($tableId, 'client') => 'ti-building',
+            str_contains($tableId, 'ticket') => 'ti-headset',
+            str_contains($tableId, 'bill') => 'ti-credit-card',
+            default => 'ti-users',
+        };
     }
 
     protected function getButtons(): array

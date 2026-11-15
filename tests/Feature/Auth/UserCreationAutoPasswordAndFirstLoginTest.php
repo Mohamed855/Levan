@@ -210,22 +210,16 @@ final class UserCreationAutoPasswordAndFirstLoginTest extends TestCase
             ->assertSee('initial-password-modal', false)
             ->assertSee('data-bs-backdrop="static"', false);
 
-        // Changing the temporary password logs the user out and clears must_change_password
+        // Changing the temporary password keeps the user logged in and grants direct dashboard access
         $newPassword = 'FinalAdminPassword123!';
         $this->post(route('admin.users.password.update'), [
             'current_password' => $temporaryPassword,
             'new_password' => $newPassword,
             'new_password_confirmation' => $newPassword,
-        ])->assertRedirect(route('admin.login'));
-
-        $this->assertGuest('admin');
-        $this->assertFalse((bool) $created->fresh()->must_change_password);
-
-        // Logging in with the new password grants dashboard access without forced redirect
-        $this->post(route('admin.login'), [
-            'email' => 'new-admin@example.com',
-            'password' => $newPassword,
         ])->assertRedirect('/superadmin');
+
+        $this->assertAuthenticatedAs($created, 'admin');
+        $this->assertFalse((bool) $created->fresh()->must_change_password);
 
         $this->get('/superadmin/users/create')->assertOk();
     }

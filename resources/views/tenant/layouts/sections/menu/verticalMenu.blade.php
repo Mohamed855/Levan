@@ -11,9 +11,14 @@
     @if (!isset($navbarFull))
         <div class="app-brand demo">
             <a href="{{ tenant_route_name('dashboard') }}" class="app-brand-link">
-                <x-partials.tenant-logo :height="32" :logo-path="asset('static/brand/logos/logo-light.svg')" />
-                <span class="app-brand-text demo menu-text fw-bold">
-                    {{ App\Helpers\Tenants\Settings\SettingsHelper::get('logo_text') }}
+                <x-partials.tenant-logo :height="32" />
+                @php
+                    $logoText = App\Helpers\Tenants\Settings\SettingsHelper::get('logo_text');
+                    $officeName = App\Helpers\Tenants\Settings\SettingsHelper::get('office_name');
+                    $brandText = ($logoText && $logoText !== 'لوت LOT') ? $logoText : ($officeName ?: ($logoText ?: config('app.name')));
+                @endphp
+                <span class="app-brand-text demo menu-text fw-bold text-truncate" title="{{ $brandText }}">
+                    {{ $brandText }}
                 </span>
             </a>
 

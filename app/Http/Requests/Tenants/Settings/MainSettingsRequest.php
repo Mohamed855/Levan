@@ -32,7 +32,7 @@ class MainSettingsRequest extends FormRequest
             'report_phone' => ['nullable', 'string', 'max:30', 'regex:/^[+\p{N} ()-]+$/u'],
             'report_unified_phone' => ['nullable', 'string', 'max:30', 'regex:/^[+\p{N} ()-]+$/u'],
             'report_social' => ['nullable', 'string', 'max:255'],
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
 
             // مناطق العمل
             'operational_regions' => 'nullable|array',
@@ -52,7 +52,7 @@ class MainSettingsRequest extends FormRequest
             'office_name.max' => 'اسم المكتب لا يجب أن يتجاوز 255 حرفًا.',
             'logo_text.max' => 'نص الشعار لا يجب أن يتجاوز 14 حرفًا.',
             'image.image' => 'الحقل يجب أن يكون صورة.',
-            'image.mimes' => 'الصورة يجب أن تكون من نوع jpeg، png، jpg، gif.',
+            'image.mimes' => 'الصورة يجب أن تكون من نوع jpeg، png، jpg، gif، webp.',
             'image.max' => 'حجم الصورة لا يجب أن يتجاوز 10 ميجابايت.',
 
             'operational_regions.array' => 'حقل مناطق العمل يجب أن يكون مصفوفة.',

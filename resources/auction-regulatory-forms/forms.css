@@ -22,9 +22,12 @@ h1{position:absolute;inset-block-start:101.4pt;inset-inline:36pt;text-align:cent
 .form-field th{width:124pt;text-align:start;padding:2pt 4pt;font-weight:800;vertical-align:middle}
 .form-field td{background:var(--tint);padding:1pt 4pt;font-weight:400;vertical-align:middle;overflow-wrap:anywhere}
 .data-value{font-family:FormData,sans-serif;font-weight:400;unicode-bidi:plaintext;white-space:pre-wrap;overflow-wrap:anywhere}
-.data-value[dir=ltr]{display:inline-block;unicode-bidi:isolate}
+.data-value[dir=ltr]{display:inline-block;unicode-bidi:isolate;text-align:right;direction:ltr}
 .form-field .data-value{font-size:9pt;line-height:1.15}
 .form-field td>.data-value{display:block;max-height:21pt;overflow:visible}
+.form-field td>.data-value[dir=ltr]{text-align:right}
+.start-time td.data-value{text-align:center}
+.statement-table td .data-value{text-align:center}
 small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:1.5}
 .form-field th>small{display:block}
 .organization-section{position:absolute;inset-block-start:43pt;inset-inline:13.65pt}
