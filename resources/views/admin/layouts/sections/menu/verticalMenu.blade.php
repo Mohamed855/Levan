@@ -215,13 +215,17 @@
         @canany(['users.view', 'companies.view', 'plans.view', 'coupons.view', 'financial_transactions.view'])
             @php
                 $adminArchiveCounts = cache()->remember('admin:archive_sidebar_counts', 60, function () {
-                    return [
-                        'users' => \App\Models\Admin\AdminMangment\Users\AdminUser::onlyTrashed()->count(),
-                        'tenants' => \App\Models\Admin\Tenants\Tenant::onlyTrashed()->count(),
-                        'plans' => \App\Models\Admin\Plans\Plan::onlyTrashed()->count(),
-                        'coupons' => \App\Models\Admin\Coupons\Coupon::onlyTrashed()->count(),
-                        'bills' => \App\Models\Admin\Bills\Bill::onlyTrashed()->count(),
-                    ];
+                    try {
+                        return [
+                            'users' => \Illuminate\Support\Facades\Schema::hasTable('admin_users') ? \App\Models\Admin\AdminMangment\Users\AdminUser::onlyTrashed()->count() : 0,
+                            'tenants' => \Illuminate\Support\Facades\Schema::hasTable('tenants') ? \App\Models\Admin\Tenants\Tenant::onlyTrashed()->count() : 0,
+                            'plans' => \Illuminate\Support\Facades\Schema::hasTable('plans') ? \App\Models\Admin\Plans\Plan::onlyTrashed()->count() : 0,
+                            'coupons' => \Illuminate\Support\Facades\Schema::hasTable('coupons') ? \App\Models\Admin\Coupons\Coupon::onlyTrashed()->count() : 0,
+                            'bills' => \Illuminate\Support\Facades\Schema::hasTable('bills') ? \App\Models\Admin\Bills\Bill::onlyTrashed()->count() : 0,
+                        ];
+                    } catch (\Throwable) {
+                        return ['users' => 0, 'tenants' => 0, 'plans' => 0, 'coupons' => 0, 'bills' => 0];
+                    }
                 });
 
                 $adminUserCan = auth('admin')->user();

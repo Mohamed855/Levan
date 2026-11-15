@@ -2,17 +2,24 @@
     <div class="card-body d-flex flex-column gap-3">
         <div>
             <label class="form-label fw-medium" for="property-location-search">موقع العقار على الخريطة</label>
-            <div class="input-group">
-                <input type="search" id="property-location-search" class="form-control"
-                    placeholder="ابحث باسم المكان أو الصق رابط خرائط جوجل" aria-describedby="property-location-help"
-                    autocomplete="off">
-                <button type="button" id="property-location-search-button" class="input-group-text cursor-pointer">
-                    <i class="ti ti-search me-1" aria-hidden="true"></i>بحث
-                </button>
+            {{-- Relative wrapper so the results dropdown overlays the map --}}
+            <div class="position-relative">
+                <div class="input-group">
+                    <input type="search" id="property-location-search" class="form-control"
+                        placeholder="ابحث باسم المكان أو الصق رابط خرائط جوجل" aria-describedby="property-location-help"
+                        autocomplete="off">
+                    <button type="button" id="property-location-search-button" class="input-group-text cursor-pointer">
+                        <i class="ti ti-search me-1" aria-hidden="true"></i>بحث
+                    </button>
+                </div>
+                {{-- Dropdown results overlay —  positioned beneath the search bar --}}
+                <div id="property-location-results"
+                    class="list-group shadow position-absolute w-100 mt-1 bg-white rounded-2 border"
+                    style="z-index: 1050; max-height: 240px; overflow-y: auto;"
+                    aria-label="نتائج البحث عن الموقع"></div>
             </div>
             <small id="property-location-help" class="text-muted d-block mt-2">اضغط على الخريطة أو اسحب العلامة لتحديد موقع العقار بدقة.</small>
         </div>
-        <div id="property-location-results" class="list-group" aria-label="نتائج البحث عن الموقع"></div>
         <div id="property-location-map" class="border rounded flex-grow-1" style="min-height: 400px;"
             data-api-key="{{ config('services.google_maps.api_key') }}"
             data-map-id="{{ config('services.google_maps.map_id') }}"

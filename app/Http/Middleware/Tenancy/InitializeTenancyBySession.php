@@ -68,8 +68,10 @@ class InitializeTenancyBySession
         }
 
         // 4. Enforce tenant binding before resolving a user ID in the tenant database.
-        if ($request->session()->has($guard->getName()) || $guard->hasUser()) {
-            $authTenantId = session('auth_tenant_id') ?? session('tenant_login_context');
+        if ($guard->hasUser() && ! $request->session()->has($guard->getName())) {
+            $request->session()->put('auth_tenant_id', $tenant->id);
+        } elseif ($request->session()->has($guard->getName())) {
+            $authTenantId = session('auth_tenant_id');
             if ($authTenantId && $authTenantId !== $tenant->id) {
                 // Identity confusion detected: user logged into a different tenant!
                 $guard->forgetUser();
@@ -78,6 +80,12 @@ class InitializeTenancyBySession
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
                 abort(404, 'المستأجر غير موجود');
+            } elseif (! $authTenantId) {
+                // Residual user identity from another context without explicit tenant authorization
+                $guard->forgetUser();
+                $request->cookies->remove($guard->getRecallerName());
+                cookie()->queue(cookie()->forget($guard->getRecallerName()));
+                $request->session()->forget([$guard->getName(), 'auth_tenant_id']);
             }
         }
 

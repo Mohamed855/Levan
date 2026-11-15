@@ -288,6 +288,162 @@ export async function initPropertyLocationMap(
         showFallback();
     }
 
+    /**
+     * Search using the new Places API (New). Returns a normalized array of
+     * { location, displayName, formattedAddress } objects, or null when the
+     * library is unavailable (API not enabled / billing not set up).
+     */
+    async function searchByPlacesApiNew(parsed) {
+        try {
+            const { Place } = await google.maps.importLibrary("places");
+            let places;
+            if (parsed.placeId) {
+                const place = new Place({ id: parsed.placeId });
+                await place.fetchFields({
+                    fields: ["location", "displayName", "formattedAddress"],
+                });
+                places = [place];
+            } else {
+                ({ places } = await Place.searchByText({
+                    textQuery: parsed.text,
+                    fields: ["location", "displayName", "formattedAddress"],
+                    language: "ar",
+                    region: "sa",
+                    maxResultCount: 5,
+                }));
+            }
+            const located = places.filter((p) => p.location);
+            if (!located.length) return null;
+            return located.map((p) => ({
+                location: p.location.toJSON(),
+                displayName: p.displayName ?? "",
+                formattedAddress: p.formattedAddress ?? "",
+            }));
+        } catch {
+            // Places API (New) unavailable — fall through to classic fallback.
+            return null;
+        }
+    }
+
+    /**
+     * Classic Places API fallback via PlacesService.
+     * Works when the legacy "Places API" is enabled but the new one is not.
+     */
+    function searchByClassicPlaces(parsed) {
+        return new Promise((resolve) => {
+            try {
+                const service = new google.maps.places.PlacesService(map);
+                if (parsed.placeId) {
+                    service.getDetails(
+                        {
+                            placeId: parsed.placeId,
+                            fields: ["geometry", "name", "formatted_address"],
+                        },
+                        (result, status) => {
+                            if (
+                                status !== google.maps.places.PlacesServiceStatus.OK ||
+                                !result?.geometry?.location
+                            ) {
+                                resolve(null);
+                                return;
+                            }
+                            resolve([
+                                {
+                                    location: result.geometry.location.toJSON(),
+                                    displayName: result.name ?? "",
+                                    formattedAddress: result.formatted_address ?? "",
+                                },
+                            ]);
+                        },
+                    );
+                } else {
+                    service.textSearch(
+                        {
+                            query: parsed.text,
+                            language: "ar",
+                            region: "sa",
+                        },
+                        (results, status) => {
+                            if (
+                                status !== google.maps.places.PlacesServiceStatus.OK ||
+                                !results?.length
+                            ) {
+                                resolve(null);
+                                return;
+                            }
+                            resolve(
+                                results.slice(0, 5).map((r) => ({
+                                    location: r.geometry.location.toJSON(),
+                                    displayName: r.name ?? "",
+                                    formattedAddress: r.formatted_address ?? "",
+                                })),
+                            );
+                        },
+                    );
+                }
+            } catch {
+                resolve(null);
+            }
+        });
+    }
+
+    /**
+     * Geocoder fallback — always available when Maps JS API is loaded.
+     * Used as the last resort for free-text queries.
+     */
+    function searchByGeocoder(text) {
+        return new Promise((resolve) => {
+            try {
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode(
+                    { address: text, language: "ar", region: "sa" },
+                    (results, status) => {
+                        if (
+                            status !== google.maps.GeocoderStatus.OK ||
+                            !results?.length
+                        ) {
+                            resolve(null);
+                            return;
+                        }
+                        resolve(
+                            results.slice(0, 5).map((r) => ({
+                                location: r.geometry.location.toJSON(),
+                                displayName: r.formatted_address ?? "",
+                                formattedAddress: r.formatted_address ?? "",
+                            })),
+                        );
+                    },
+                );
+            } catch {
+                resolve(null);
+            }
+        });
+    }
+
+    /**
+     * Render place results as a dropdown — the user must click to place the pin.
+     * Always shows all results; never auto-selects even when there is only one match.
+     */
+    function renderPlaceResults(located) {
+        located.forEach((place) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "list-group-item list-group-item-action text-start";
+            button.textContent = [place.displayName, place.formattedAddress]
+                .filter(Boolean)
+                .join(" — ");
+            button.addEventListener("click", () => {
+                selectPosition(place.location);
+                // Show the chosen place name in the search field for clarity.
+                if (search && place.displayName)
+                    search.value = place.displayName;
+                results.replaceChildren();
+            });
+            results.appendChild(button);
+        });
+        message("اختر الموقع من نتائج البحث، ثم حرّك العلامة لضبطه بدقة.");
+    }
+
     async function searchLocation() {
         let parsed;
         try {
@@ -333,51 +489,25 @@ export async function initPropertyLocationMap(
                 );
                 return;
             }
-            const { Place } = await google.maps.importLibrary("places");
-            let places;
-            if (parsed.placeId) {
-                const place = new Place({ id: parsed.placeId });
-                await place.fetchFields({
-                    fields: ["location", "displayName", "formattedAddress"],
-                });
-                places = [place];
-            } else {
-                ({ places } = await Place.searchByText({
-                    textQuery: parsed.text,
-                    fields: ["location", "displayName", "formattedAddress"],
-                    language: "ar",
-                    region: "sa",
-                    maxResultCount: 5,
-                }));
-            }
+            // Multi-level place search: Places API (New) → Classic PlacesService → Geocoder
+            let located = await searchByPlacesApiNew(parsed);
             if (version !== requestVersion) return;
-            const located = places.filter((place) => place.location);
-            if (!located.length) {
+            if (!located && !parsed.placeId) {
+                located = await searchByClassicPlaces(parsed);
+                if (version !== requestVersion) return;
+            }
+            if (!located && parsed.text) {
+                located = await searchByGeocoder(parsed.text);
+                if (version !== requestVersion) return;
+            }
+            if (!located || !located.length) {
                 message(
                     "لم يتم العثور على موقع. جرّب بحثًا آخر أو حدد النقطة على الخريطة.",
                     true,
                 );
                 return;
             }
-            if (located.length === 1) {
-                selectPosition(located[0].location.toJSON());
-                return;
-            }
-            located.forEach((place) => {
-                const button = document.createElement("button");
-                button.type = "button";
-                button.className =
-                    "list-group-item list-group-item-action text-start";
-                button.textContent = [place.displayName, place.formattedAddress]
-                    .filter(Boolean)
-                    .join(" — ");
-                button.addEventListener("click", () => {
-                    selectPosition(place.location.toJSON());
-                    results.replaceChildren();
-                });
-                results.appendChild(button);
-            });
-            message("اختر الموقع من نتائج البحث، ثم حرّك العلامة لضبطه بدقة.");
+            renderPlaceResults(located);
         } catch (error) {
             if (version === requestVersion)
                 message(
@@ -389,11 +519,37 @@ export async function initPropertyLocationMap(
         }
     }
 
-    searchButton.addEventListener("click", searchLocation);
+    let searchDebounce = null;
+    function scheduleSearch() {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(() => {
+            if (!searchButton.disabled) void searchLocation();
+        }, 300);
+    }
+
+    searchButton.addEventListener("click", () => {
+        clearTimeout(searchDebounce);
+        void searchLocation();
+    });
+    search.addEventListener("input", scheduleSearch);
     search.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
             event.preventDefault();
+            clearTimeout(searchDebounce);
             if (!searchButton.disabled) void searchLocation();
+        }
+        if (event.key === "Escape") {
+            results.replaceChildren();
+        }
+    });
+    // Close the results dropdown when the user clicks outside the search area.
+    globalThis.document?.addEventListener("click", (event) => {
+        if (
+            !search.contains(event.target) &&
+            !results.contains(event.target) &&
+            !searchButton.contains(event.target)
+        ) {
+            results.replaceChildren();
         }
     });
     retry.addEventListener("click", initialize);

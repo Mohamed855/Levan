@@ -368,6 +368,8 @@ test("a failed Maps script displays Riyadh as a view only fallback and retry res
         createElement: () => ({ remove() {} }),
         querySelector: () => ({ nonce: "test-nonce" }),
         head: { appendChild: (script) => scripts.push(script) },
+        // Support the outside-click listener added by the map initialiser.
+        addEventListener: () => {},
     };
     try {
         const { initPropertyLocationMap: initialize } = await import(
@@ -431,6 +433,8 @@ test("an outdated place search cannot overwrite a point picked while waiting for
     await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });
     let resolveSearch;
     const previousGoogle = globalThis.google;
+    const previousDocument = globalThis.document;
+    globalThis.document = { createElement: () => new Control() };
     globalThis.google = {
         maps: {
             importLibrary: async () => ({
@@ -441,6 +445,11 @@ test("an outdated place search cannot overwrite a point picked while waiting for
                         }),
                 },
             }),
+            places: { PlacesServiceStatus: { OK: "OK" } },
+            GeocoderStatus: { OK: "OK" },
+            Geocoder: class {
+                geocode(_, cb) { cb([], "ZERO_RESULTS"); }
+            },
         },
     };
     try {
@@ -449,19 +458,30 @@ test("an outdated place search cannot overwrite a point picked while waiting for
             new Event("click"),
         );
         await new Promise(setImmediate);
+        // User clicks the map while search is still in flight → takes priority.
         f.listeners.click({ latLng: { lat: () => 25, lng: () => 47 } });
+        // The stale search result arrives after the map click — must NOT overwrite the pin.
         resolveSearch({
-            places: [{ location: { toJSON: () => ({ lat: 24, lng: 46 }) } }],
+            places: [
+                {
+                    location: { toJSON: () => ({ lat: 24, lng: 46 }) },
+                    displayName: "الرياض",
+                    formattedAddress: "الرياض",
+                },
+            ],
         });
         await new Promise(setImmediate);
+        // Map-click position must win.
         assert.deepEqual(f.state.marker.position, { lat: 25, lng: 47 });
         assert.equal(f.controls.latitude.value, "25.0000000");
+        // The stale dropdown must have been discarded (version guard).
         assert.equal(
             f.elements["property-location-results"].children.length,
             0,
         );
     } finally {
         globalThis.google = previousGoogle;
+        globalThis.document = previousDocument;
     }
 });
 
@@ -479,12 +499,14 @@ test("place search results let the user pick the exact matching location", async
                         places: [
                             {
                                 displayName: "الموقع الأول",
+                                formattedAddress: "الرياض",
                                 location: {
                                     toJSON: () => ({ lat: 24, lng: 46 }),
                                 },
                             },
                             {
                                 displayName: "الموقع الثاني",
+                                formattedAddress: "الرياض",
                                 location: {
                                     toJSON: () => ({ lat: 25, lng: 47 }),
                                 },
@@ -493,6 +515,11 @@ test("place search results let the user pick the exact matching location", async
                     }),
                 },
             }),
+            places: { PlacesServiceStatus: { OK: "OK" } },
+            GeocoderStatus: { OK: "OK" },
+            Geocoder: class {
+                geocode(_, cb) { cb([], "ZERO_RESULTS"); }
+            },
         },
     };
     try {
@@ -510,6 +537,63 @@ test("place search results let the user pick the exact matching location", async
         );
         assert.deepEqual(f.state.marker.position, { lat: 25, lng: 47 });
         assert.equal(f.controls.longitude.value, "47.0000000");
+    } finally {
+        globalThis.google = previousGoogle;
+        globalThis.document = previousDocument;
+    }
+});
+
+test("a single text search result shows in the dropdown and is not auto-placed until the user clicks it", async () => {
+    const f = fixture();
+    await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });
+    const previousGoogle = globalThis.google;
+    const previousDocument = globalThis.document;
+    globalThis.document = { createElement: () => new Control() };
+    globalThis.google = {
+        maps: {
+            importLibrary: async () => ({
+                Place: {
+                    searchByText: async () => ({
+                        places: [
+                            {
+                                displayName: "الرياض",
+                                formattedAddress: "الرياض، المملكة العربية السعودية",
+                                location: { toJSON: () => ({ lat: 24.7136, lng: 46.6753 }) },
+                            },
+                        ],
+                    }),
+                },
+            }),
+            places: { PlacesServiceStatus: { OK: "OK" } },
+            GeocoderStatus: { OK: "OK" },
+            Geocoder: class {
+                geocode(_, cb) { cb([], "ZERO_RESULTS"); }
+            },
+        },
+    };
+    try {
+        f.elements["property-location-search"].value = "الرياض";
+        f.elements["property-location-search-button"].dispatchEvent(
+            new Event("click"),
+        );
+        await new Promise(setImmediate);
+        // Must show dropdown — not auto-place the dot.
+        assert.equal(
+            f.elements["property-location-results"].children.length,
+            1,
+        );
+        assert.equal(f.controls.latitude.value, "", "dot must not be placed before user picks");
+        // User clicks the dropdown item → now the dot is placed.
+        f.elements["property-location-results"].children[0].dispatchEvent(
+            new Event("click"),
+        );
+        assert.equal(f.controls.latitude.value, "24.7136000");
+        assert.equal(f.controls.longitude.value, "46.6753000");
+        // Dropdown must close after selection.
+        assert.equal(
+            f.elements["property-location-results"].children.length,
+            0,
+        );
     } finally {
         globalThis.google = previousGoogle;
         globalThis.document = previousDocument;
@@ -553,4 +637,194 @@ test("google map initializes with roadmap as default and provides map type contr
         "hybrid",
         "terrain",
     ]);
+});
+
+test("text search falls back to Geocoder when Places API (New) is unavailable", async () => {
+    const f = fixture();
+    await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });
+    const previousGoogle = globalThis.google;
+    const previousDocument = globalThis.document;
+    globalThis.document = { createElement: () => new Control(), addEventListener: () => {} };
+    globalThis.google = {
+        maps: {
+            // Places API (New) throws — simulates API not enabled
+            importLibrary: async () => {
+                throw new Error("Places API not enabled");
+            },
+            places: { PlacesServiceStatus: { OK: "OK" } },
+            GeocoderStatus: { OK: "OK" },
+            Geocoder: class {
+                geocode(opts, cb) {
+                    cb(
+                        [
+                            {
+                                geometry: {
+                                    location: { toJSON: () => ({ lat: 24.7, lng: 46.7 }) },
+                                },
+                                formatted_address: "الرياض، المملكة العربية السعودية",
+                            },
+                        ],
+                        "OK",
+                    );
+                }
+            },
+        },
+    };
+    try {
+        f.elements["property-location-search"].value = "الرياض";
+        f.elements["property-location-search-button"].dispatchEvent(
+            new Event("click"),
+        );
+        await new Promise(setImmediate);
+        // Result must appear in the dropdown, not auto-placed on the map.
+        assert.equal(
+            f.elements["property-location-results"].children.length,
+            1,
+            "Geocoder result must appear as a dropdown item",
+        );
+        assert.equal(f.controls.latitude.value, "", "dot must not be auto-placed");
+        // Click the dropdown item → pin placed.
+        f.elements["property-location-results"].children[0].dispatchEvent(
+            new Event("click"),
+        );
+        assert.equal(f.controls.latitude.value, "24.7000000");
+        assert.equal(f.controls.longitude.value, "46.7000000");
+    } finally {
+        globalThis.google = previousGoogle;
+        globalThis.document = previousDocument;
+    }
+});
+
+test("text search falls back to classic PlacesService when Places API (New) returns no results", async () => {
+    const f = fixture();
+    await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });
+    const previousGoogle = globalThis.google;
+    const previousDocument = globalThis.document;
+    globalThis.document = { createElement: () => new Control(), addEventListener: () => {} };
+    globalThis.google = {
+        maps: {
+            // Places API (New) returns empty results
+            importLibrary: async () => ({
+                Place: {
+                    searchByText: async () => ({ places: [] }),
+                },
+            }),
+            places: {
+                PlacesServiceStatus: { OK: "OK" },
+                PlacesService: class {
+                    constructor() {}
+                    textSearch(opts, cb) {
+                        cb(
+                            [
+                                {
+                                    name: "الرياض",
+                                    formatted_address: "الرياض، السعودية",
+                                    geometry: {
+                                        location: { toJSON: () => ({ lat: 24.68, lng: 46.72 }) },
+                                    },
+                                },
+                            ],
+                            "OK",
+                        );
+                    }
+                },
+            },
+            GeocoderStatus: { OK: "OK" },
+            Geocoder: class {
+                geocode(_, cb) { cb([], "ZERO_RESULTS"); }
+            },
+        },
+    };
+    try {
+        f.elements["property-location-search"].value = "الرياض";
+        f.elements["property-location-search-button"].dispatchEvent(
+            new Event("click"),
+        );
+        await new Promise(setImmediate);
+        // Result must appear in the dropdown, not auto-placed.
+        assert.equal(
+            f.elements["property-location-results"].children.length,
+            1,
+            "Classic PlacesService result must appear as a dropdown item",
+        );
+        assert.equal(f.controls.latitude.value, "", "dot must not be auto-placed");
+        // User picks from the dropdown.
+        f.elements["property-location-results"].children[0].dispatchEvent(
+            new Event("click"),
+        );
+        assert.equal(f.controls.latitude.value, "24.6800000");
+        assert.equal(f.controls.longitude.value, "46.7200000");
+    } finally {
+        globalThis.google = previousGoogle;
+        globalThis.document = previousDocument;
+    }
+});
+
+test("debounced input triggers search after 350ms without touching the button", async () => {
+    const f = fixture();
+    await initPropertyLocationMap(f.form, { loadMaps: async () => f.maps });
+    const previousGoogle = globalThis.google;
+    const previousDocument = globalThis.document;
+    const previousSetTimeout = globalThis.setTimeout;
+    const previousClearTimeout = globalThis.clearTimeout;
+    globalThis.document = { createElement: () => new Control(), addEventListener: () => {} };
+    // Collect scheduled callbacks
+    const timers = new Map();
+    let nextId = 1;
+    globalThis.setTimeout = (cb, delay) => {
+        const id = nextId++;
+        timers.set(id, cb);
+        return id;
+    };
+    globalThis.clearTimeout = (id) => timers.delete(id);
+    globalThis.google = {
+        maps: {
+            importLibrary: async () => ({
+                Place: {
+                    searchByText: async () => ({
+                        places: [
+                            {
+                                displayName: "الرياض",
+                                formattedAddress: "الرياض، السعودية",
+                                location: { toJSON: () => ({ lat: 24.7, lng: 46.7 }) },
+                            },
+                        ],
+                    }),
+                },
+            }),
+            places: { PlacesServiceStatus: { OK: "OK" } },
+            GeocoderStatus: { OK: "OK" },
+            Geocoder: class {
+                geocode(_, cb) { cb([], "ZERO_RESULTS"); }
+            },
+        },
+    };
+    try {
+        f.elements["property-location-search"].value = "الرياض";
+        f.elements["property-location-search"].dispatchEvent(new Event("input"));
+        // Exactly one debounce timer should be pending
+        assert.equal(timers.size, 1);
+        // Fire the debounce manually
+        const [, cb] = [...timers.entries()][0];
+        timers.clear();
+        cb();
+        await new Promise(setImmediate);
+        // Dropdown must appear — no auto-placement.
+        assert.equal(
+            f.elements["property-location-results"].children.length,
+            1,
+            "Debounced search must show results in dropdown",
+        );
+        assert.equal(f.controls.latitude.value, "", "dot must not be auto-placed by debounced search");
+        // User picks the item.
+        f.elements["property-location-results"].children[0].dispatchEvent(
+            new Event("click"),
+        );
+        assert.equal(f.controls.latitude.value, "24.7000000");
+    } finally {
+        globalThis.setTimeout = previousSetTimeout;
+        globalThis.clearTimeout = previousClearTimeout;
+        globalThis.google = previousGoogle;
+        globalThis.document = previousDocument;
+    }
 });

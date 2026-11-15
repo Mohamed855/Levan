@@ -536,6 +536,35 @@ final class DatabasePanelSessionIsolationTest extends TestCase
         $this->browser('GET', '/admin/login')->assertOk();
     }
 
+    public function test_completed_checkout_does_not_auto_authenticate_even_with_prior_tenant_session(): void
+    {
+        $this->loginTenant();
+        $this->assertTrue(Auth::guard('tenant')->check());
+
+        Tenant::create(['id' => 'brand-new-tenant']);
+        $bill = new Bill;
+        $payment = ['id' => 'payment-test-2', 'status' => 'paid'];
+
+        $this->mock(MoyasarCallbackHandler::class, function (MockInterface $mock) use ($bill, $payment): void {
+            $mock->shouldReceive('verify')->once()->andReturn(['bill' => $bill, 'payment' => $payment]);
+        });
+        $this->mock(SubscriptionService::class, function (MockInterface $mock) use ($bill, $payment): void {
+            $mock->shouldReceive('completeOnlineSubscription')->once()->with($bill, $payment)
+                ->andReturn(['tenant_id' => 'brand-new-tenant']);
+        });
+
+        $this->browser('GET', route('site.plans.checkout.callback', [], false))
+            ->assertRedirect('/brand-new-tenant/login');
+
+        $loginResponse = $this->browser('GET', '/brand-new-tenant/login');
+        $this->assertTrue($loginResponse->isRedirection());
+        $path = parse_url($loginResponse->headers->get('Location'), PHP_URL_PATH);
+        $sharedLogin = $this->browser('GET', $path);
+        $sharedLogin->assertOk();
+
+        $this->assertFalse(Auth::guard('tenant')->check());
+    }
+
     public function test_tenant_logout_returns_to_the_tenant_login(): void
     {
         $this->loginTenant();

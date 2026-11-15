@@ -22,10 +22,11 @@ use App\Services\Shared\Payment\Moyasar\MoyasarCallbackHandler;
 use App\Services\Shared\Payment\Moyasar\MoyasarFormConfiguration;
 use App\Services\Shared\Registration\RegistrationOtpService;
 use App\Services\Shared\Subscription\SubscriptionService;
+use App\Support\Security\TenantPasswordGenerator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 
 class SubscriptionController extends Controller
@@ -107,7 +108,7 @@ class SubscriptionController extends Controller
         }
 
         $checkout = $request->validated();
-        $autoPassword = \App\Support\Security\TenantPasswordGenerator::generate();
+        $autoPassword = TenantPasswordGenerator::generate();
         $checkout['billing_password_hash'] = Hash::make($autoPassword);
         $checkout['plain_password'] = $autoPassword;
         unset($checkout['billing_password'], $checkout['billing_password_confirmation'], $checkout['is_editing']);
@@ -301,6 +302,8 @@ class SubscriptionController extends Controller
 
     private function redirectToTenantLogin(string $tenantId): RedirectResponse
     {
+        Auth::guard('tenant')->logout();
+        request()->session()->forget(['auth_tenant_id', 'login.id', 'login.guard', 'login.tenant_id']);
         request()->session()->put('tenant_login_context', $tenantId);
         cookie()->queue(cookie('tenant_login_hint', $tenantId, 60 * 24 * 30));
 
@@ -332,7 +335,7 @@ class SubscriptionController extends Controller
         $plainPassword = $request->plain_password;
         $passwordHash = $request->billing_password_hash;
         if (! $passwordHash) {
-            $plainPassword = $plainPassword ?: \App\Support\Security\TenantPasswordGenerator::generate();
+            $plainPassword = $plainPassword ?: TenantPasswordGenerator::generate();
             $passwordHash = Hash::make($plainPassword);
         }
 
