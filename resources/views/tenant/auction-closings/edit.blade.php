@@ -22,11 +22,8 @@
         $unsoldCount = $auction->properties->where('pivot.result_status', 'unsold')->count();
         $completedCount = $soldCount + $unsoldCount;
 
-        $defaultClosingDate = old(
-            'closing_date',
-            $auction->closing?->closing_date?->format('Y-m-d'),
-        );
-        if (! $defaultClosingDate) {
+        $defaultClosingDate = old('closing_date', $auction->closing?->closing_date?->format('Y-m-d'));
+        if (!$defaultClosingDate) {
             $today = now()->toDateString();
             $startStr = $auction->start_date?->format('Y-m-d');
             $endStr = $auction->end_date?->format('Y-m-d');
@@ -45,10 +42,9 @@
             <div class="card">
                 <div class="card-body">
                     <form id="report-cycle-form" method="POST" enctype="multipart/form-data" autocomplete="off"
-                        data-form-validate
-                        data-auction-start-date="{{ $auction->start_date?->format('Y-m-d') }}"
+                        data-form-validate data-auction-start-date="{{ $auction->start_date?->format('Y-m-d') }}"
                         data-auction-end-date="{{ $auction->end_date?->format('Y-m-d') }}"
-                        data-validation-errors="{{ json_encode(($errors ?? new \Illuminate\Support\ViewErrorBag)->getBag('default')->getMessages()) }}"
+                        data-validation-errors="{{ json_encode(($errors ?? new \Illuminate\Support\ViewErrorBag())->getBag('default')->getMessages()) }}"
                         action="{{ tenant_route_name('auction-closings.update', $auction) }}">
                         @csrf
                         @method('PUT')
@@ -62,27 +58,15 @@
                                 </div>
                             </div>
                             <x-form.controls.input name="closing_date" label="تاريخ الإقفال" type="date"
-                                :value="$defaultClosingDate"
-                                :min="$auction->start_date?->format('Y-m-d')"
-                                :max="$auction->end_date?->format('Y-m-d')"
-                                required col="col-md-4" />
+                                :value="$defaultClosingDate" :min="$auction->start_date?->format('Y-m-d')" :max="$auction->end_date?->format('Y-m-d')" required col="col-md-4" />
                             <x-form.controls.input name="board_removal_date" label="تاريخ فك اللوحات" type="date"
                                 :value="old(
                                     'board_removal_date',
                                     $auction->marketing_data['board_removal_date'] ?? null,
-                                )"
-                                :min="$defaultClosingDate"
-                                required col="col-md-4" />
+                                )" :min="$defaultClosingDate" required col="col-md-4" />
                             <x-form.controls.textarea name="results_narrative" label="تفاصيل نتائج المزاد" :value="old('results_narrative', $auction->marketing_data['results_narrative'] ?? null)"
                                 required col="col-12" />
                         </div>
-
-                        @if ($errors->has('results'))
-                            <div class="alert alert-danger d-flex align-items-center mb-4">
-                                <i class="ti ti-alert-circle ti-md me-2"></i>
-                                <div>{{ $errors->first('results') }}</div>
-                            </div>
-                        @endif
 
                         {{-- التنبيه التحذيري --}}
                         <div class="alert alert-warning d-flex align-items-center mb-4">

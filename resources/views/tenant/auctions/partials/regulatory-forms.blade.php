@@ -196,9 +196,11 @@
                 };
                 let pollInterval = null;
                 let pollInFlight = false;
+                let pollingVersion = 0;
                 let failures = 0;
 
                 function stopPolling() {
+                    pollingVersion++;
                     if (pollInterval) {
                         clearInterval(pollInterval);
                         pollInterval = null;
@@ -283,7 +285,7 @@
                     resetRetryButton('إعادة محاولة التجهيز');
                 }
 
-                function render(state) {
+                function render(state, keepTimeoutNotice = false) {
                     const previousStatus = card.dataset.status;
                     card.dataset.status = state.status;
                     const pending = ['queued', 'processing'].includes(state.status);
@@ -291,7 +293,7 @@
                     const ready = !pending && Boolean(state.has_file);
 
                     if (pending) {
-                        setProcessingUI();
+                        if (!keepTimeoutNotice) setProcessingUI();
                         if (state.progress !== undefined && state.progress !== null) {
                             tracker.update(state.progress, state.generation_id);
                         }
@@ -299,6 +301,7 @@
                     }
 
                     if (loadingBox) loadingBox.classList.add('d-none');
+                    if (timeoutBox) timeoutBox.classList.add('d-none');
 
                     if (state.status === 'ready') {
                         tracker.update(100, state.generation_id);
@@ -322,16 +325,18 @@
                     return false;
                 }
 
-                function startPolling(timeoutLimit, isManualRetry = false, pollImmediately = true) {
+                function startPolling(timeoutLimit, isManualRetry = false, pollImmediately = true, expectedGenerationId = null) {
                     stopPolling();
                     setProcessingUI();
                     const startTime = Date.now();
+                    const version = pollingVersion;
+                    let timeoutReported = false;
                     failures = 0;
 
                     async function pollOnce() {
                         const elapsed = Date.now() - startTime;
-                        if (elapsed >= timeoutLimit) {
-                            stopPolling();
+                        if (!timeoutReported && elapsed >= timeoutLimit) {
+                            timeoutReported = true;
                             const timeoutMsg = isManualRetry ?
                                 'انتهت المهلة المحددة للتوليد اليدوي للنموذج. يمكنك المحاولة مجدداً.' :
                                 'انتهت المهلة المحددة لتحضير النموذج تلقائياً. يمكنك الضغط على زر إعادة التوليد للمحاولة مرة أخرى.';
@@ -343,7 +348,6 @@
                             syncDownloadButton(null);
                             resetRetryButton(lastKnownFile.has_file ? 'إعادة توليد النموذج' :
                                 'إعادة محاولة التجهيز');
-                            return;
                         }
 
                         if (pollInFlight) {
@@ -362,9 +366,11 @@
                                 throw new Error('تعذر قراءة حالة النموذج.');
                             }
                             const state = await response.json();
+                            if (!pollInterval || version !== pollingVersion) return;
+                            if (expectedGenerationId && state.generation_id && Number(state.generation_id) < Number(expectedGenerationId)) return;
                             failures = 0;
 
-                            const pending = render(state);
+                            const pending = render(state, timeoutReported);
                             if (!pending) {
                                 stopPolling();
                                 if (state.status === 'ready') {
@@ -372,20 +378,21 @@
                                 }
                             }
                         } catch (exception) {
+                            if (version !== pollingVersion) return;
                             failures++;
                             if (failures >= 3) {
                                 stopPolling();
                                 showError('تعذر الاتصال بخدمة تجهيز النموذج. يرجى تحديث الصفحة.');
                             }
                         } finally {
-                            pollInFlight = false;
+                            if (version === pollingVersion) pollInFlight = false;
                         }
                     }
 
+                    pollInterval = setInterval(pollOnce, 2000);
                     if (pollImmediately) {
                         pollOnce();
                     }
-                    pollInterval = setInterval(pollOnce, 2000);
                 }
 
                 async function startFormGeneration() {
@@ -421,7 +428,7 @@
 
                         window.toastr?.info?.('تم بدء تجهيز النموذج.');
                         tracker.update(state.progress ?? 0, state.generation_id);
-                        startPolling(MANUAL_TIMEOUT_MS, true, false);
+                        startPolling(MANUAL_TIMEOUT_MS, true, false, state.generation_id);
                     } catch (exception) {
                         showError('حدث خطأ في الاتصال بالخادم أثناء إعادة توليد النموذج.');
                     }

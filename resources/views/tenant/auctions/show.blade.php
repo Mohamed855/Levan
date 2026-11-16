@@ -692,8 +692,10 @@
 
             let pollInterval = null;
             let pollInFlight = false;
+            let pollingVersion = 0;
 
             function stopPolling() {
+                pollingVersion++;
                 if (pollInterval) {
                     clearInterval(pollInterval);
                     pollInterval = null;
@@ -706,11 +708,13 @@
                 setProcessingUI();
 
                 const startTime = Date.now();
+                const version = pollingVersion;
+                let timeoutReported = false;
 
                 async function pollOnce() {
                     const elapsed = Date.now() - startTime;
-                    if (elapsed >= timeoutLimit) {
-                        stopPolling();
+                    if (!timeoutReported && elapsed >= timeoutLimit) {
+                        timeoutReported = true;
 
                         const errorMsg = isManualRetry ?
                             'انتهت المهلة المحددة للتوليد اليدوي لتقارير المزاد. يمكنك المحاولة مجدداً.' :
@@ -730,7 +734,6 @@
                         resetRetryButton(lastKnownPublished.has_outputs || lastKnownPublished.has_report ?
                             'إعادة توليد الملفات' :
                             'إعادة محاولة التجهيز');
-                        return;
                     }
 
                     if (pollInFlight) {
@@ -744,12 +747,12 @@
                                 'Accept': 'application/json'
                             }
                         });
-                        if (!res.ok || !pollInterval) {
+                        if (!res.ok || !pollInterval || version !== pollingVersion) {
                             return;
                         }
                         const data = await res.json();
 
-                        if (!pollInterval) {
+                        if (!pollInterval || version !== pollingVersion) {
                             return;
                         }
 
@@ -758,7 +761,7 @@
                         }
 
                         if (data.status === 'processing' || data.status === 'queued') {
-                            setProcessingUI();
+                            if (!timeoutReported) setProcessingUI();
                             if (data.progress !== undefined && data.progress !== null) {
                                 tracker.update(data.progress, data.generation_id);
                             }
@@ -768,6 +771,7 @@
                             if (loadingBox) {
                                 loadingBox.classList.add('d-none');
                             }
+                            if (timeoutAlert) timeoutAlert.classList.add('d-none');
                             ui.renderBadge(headerBadge, 'ready');
                             syncDownloadButtons(data);
                             resetRetryButton('إعادة توليد الملفات');
@@ -783,6 +787,7 @@
                             if (loadingBox) {
                                 loadingBox.classList.add('d-none');
                             }
+                            if (timeoutAlert) timeoutAlert.classList.add('d-none');
                             if (errorAlert) {
                                 if (errorText) {
                                     errorText.textContent = data.error_message || 'تعذر تجهيز ملفات المزاد.';
@@ -794,14 +799,14 @@
                             resetRetryButton('إعادة محاولة التجهيز');
                         }
                     } catch (_) {} finally {
-                        pollInFlight = false;
+                        if (version === pollingVersion) pollInFlight = false;
                     }
                 }
 
+                pollInterval = setInterval(pollOnce, 2000);
                 if (pollImmediately) {
                     pollOnce();
                 }
-                pollInterval = setInterval(pollOnce, 2000);
             }
 
             async function startReportGeneration() {

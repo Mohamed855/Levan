@@ -164,7 +164,7 @@ return array (
     'haram/background-6.png' => '06f01bde3cdf3cb625267adfe2c36495bbb215102fca9174e16c78364a03b207',
     'haram/background-7.png' => 'e2cc02a8a4dd08e726e416323b94c961732aa4916001195c63e3a9b13df1653d',
     'haram/bindings.php' => '93eb724905a10d7f88ca407ac6dd709e9bec68c2f178adbea586063ed3ae6b71',
-    'haram/layout.js' => '32111c10b3ee1b43b06c8bb5f7376677f776cebf7cd678cf528c74a5660b92a0',
+    'haram/layout.js' => '89aa2539bf51a94bf623550c80de19ffa6d09f1ff492670c61980bc307e21799',
     'haram/page-1.svg' => 'e833cb1e90305a18c62273e086f5f145c1752e11db5bb8bac1c1fafbbb2c0cd9',
     'haram/page-2.svg' => '615d2ced7a4ffa52ed62b66663f92b4c50b95111dcbb832f722cefed37191a64',
     'haram/page-3.svg' => '52f9b87a5b47c548c85df9bc66956639d3a62669d42d6a024e83dc7802eccb11',
