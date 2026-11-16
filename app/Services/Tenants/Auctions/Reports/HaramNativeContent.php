@@ -23,21 +23,23 @@ final class HaramNativeContent
         return $content;
     }
 
+    private static ?array $translations = null;
+
     public function gallery(array $snapshot, array $page): array
     {
         $payload = $page['payload'];
-        $title = __('auction_reports.sections.'.$payload['gallery_section'], [], 'ar');
+        $title = (string) $this->trans('auction_reports.sections.'.$payload['gallery_section']);
         $campaign = $payload['campaigns'][0] ?? null;
         $content = [
             'index' => 4, 'native_template' => 'gallery',
-            'page_title' => __('auction_reports.evidence_appendix', [], 'ar').' - '.$title,
+            'page_title' => $this->trans('auction_reports.evidence_appendix').' - '.$title,
             'values' => ['footer' => 'مخرجات المزاد - '.$snapshot['auction']['name']],
             'tables' => [], 'images' => $payload, 'gallery_title' => $title,
         ];
         if ($campaign !== null) {
             $channel = AuctionReportChannels::key($campaign['platform'] ?? null);
-            $label = $campaign['platform_label'] ?? ($channel === 'other' ? ($campaign['platform'] ?? $title) : __('auction_reports.channels.'.$channel, [], 'ar'));
-            $content['gallery_title'] = $label;
+            $label = $campaign['platform_label'] ?? ($channel === 'other' ? ($campaign['platform'] ?? $title) : $this->trans('auction_reports.channels.'.$channel));
+            $content['gallery_title'] = (string) $label;
             $content['campaign_metrics'] = $this->metrics($campaign);
             $content['campaign_url'] = (new AuctionReportLinks)->safeUrl($campaign['url'] ?? null);
         }
@@ -73,15 +75,37 @@ final class HaramNativeContent
     {
         $metrics = [];
         $format = new AuctionReportFormat;
-        foreach (__('auction_reports.metrics', [], 'ar') as $key => $label) {
-            if (! isset($campaign[$key]) || $campaign[$key] === '') {
-                continue;
+        $allMetrics = $this->trans('auction_reports.metrics');
+        if (is_array($allMetrics)) {
+            foreach ($allMetrics as $key => $label) {
+                if (! isset($campaign[$key]) || $campaign[$key] === '') {
+                    continue;
+                }
+                $precision = in_array($key, ['watch_hours', 'profile_change', 'reach_change', 'views_change'], true) ? 2 : 0;
+                $value = is_numeric($campaign[$key]) ? $format->number((float) $campaign[$key], $precision) : (string) $campaign[$key];
+                $metrics[$key] = [(string) $label, $value];
             }
-            $precision = in_array($key, ['watch_hours', 'profile_change', 'reach_change', 'views_change'], true) ? 2 : 0;
-            $value = is_numeric($campaign[$key]) ? $format->number((float) $campaign[$key], $precision) : (string) $campaign[$key];
-            $metrics[$key] = [$label, $value];
         }
 
         return $metrics;
+    }
+
+    private function trans(string $key): mixed
+    {
+        if (function_exists('app') && app()->bound('translator')) {
+            return __($key, [], 'ar');
+        }
+
+        self::$translations ??= require dirname(__DIR__, 5).'/lang/ar/auction_reports.php';
+        $segments = explode('.', str_replace('auction_reports.', '', $key));
+        $value = self::$translations;
+        foreach ($segments as $segment) {
+            if (! is_array($value) || ! array_key_exists($segment, $value)) {
+                return $key;
+            }
+            $value = $value[$segment];
+        }
+
+        return $value;
     }
 }

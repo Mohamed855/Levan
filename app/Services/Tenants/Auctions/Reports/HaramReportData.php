@@ -17,9 +17,6 @@ final class HaramReportData
         $index = array_search($type, ['haram-cover', 'haram-index', 'haram-results', 'haram-marketing', 'haram-board-before', 'haram-brokers', 'haram-closing'], true);
         $auction = $snapshot['auction'];
         $payload = $page['payload'];
-        if (array_key_exists('campaigns', $payload)) {
-            $snapshot['marketing']['campaigns'] = $payload['campaigns'];
-        }
         $marketing = $snapshot['marketing'] ?? [];
         $contacts = $marketing['contacts'] ?? [];
         $name = (string) $auction['name'];
