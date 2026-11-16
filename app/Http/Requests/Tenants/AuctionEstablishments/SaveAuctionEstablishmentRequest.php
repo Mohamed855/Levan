@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Tenants\AuctionEstablishments;
 
 use App\Http\Requests\Concerns\WizardFormRequest;
+use App\Models\Tenants\Auctions\Auction;
 use App\Services\Tenants\AuctionEstablishments\AuctionEstablishmentRequestData;
 use Illuminate\Validation\Validator;
 
@@ -89,8 +90,9 @@ final class SaveAuctionEstablishmentRequest extends WizardFormRequest
         }
     }
 
-    public function rules(): array
+    public function rules(?Auction $auction = null): array
     {
+        $auction ??= $this->route('auction');
         $rules = app(AuctionEstablishmentRequestData::class)->rules();
         foreach (['approval_number', 'approved_at', 'approved_by', 'created_by', 'updated_by', 'submitted_at'] as $field) {
             $rules[$field] = ['prohibited'];
@@ -99,7 +101,8 @@ final class SaveAuctionEstablishmentRequest extends WizardFormRequest
         $rules['data.attachments'] = ['prohibited'];
         $rules['attachments'] = ['nullable', 'array:manager_certificate,auctioneer_certificate,deed,valuation,representative_authority'];
         foreach (['manager_certificate', 'auctioneer_certificate'] as $type) {
-            $rules['attachments.'.$type] = ['nullable', 'file', 'mimes:pdf,png,jpg,jpeg', 'max:10240'];
+            $hasExisting = filled($auction?->establishmentRequest?->data['attachments'][$type][0]['path'] ?? null);
+            $rules['attachments.'.$type] = [$hasExisting ? 'nullable' : 'required', 'file', 'mimes:pdf,png,jpg,jpeg', 'max:10240'];
         }
         foreach (['deed', 'valuation', 'representative_authority'] as $type) {
             $rules['attachments.'.$type] = ['nullable', 'array'];
@@ -119,6 +122,19 @@ final class SaveAuctionEstablishmentRequest extends WizardFormRequest
             }
             if (is_array($rights) && in_array('other', $rights, true) && blank($this->input('data.disclosures.disposition_right_other'))) {
                 $validator->errors()->add('data.disclosures.disposition_right_other', 'أدخل تفاصيل حقوق التصرف الأخرى.');
+            }
+
+            $properties = $this->input('data.properties', []);
+            if (is_array($properties)) {
+                foreach ($properties as $idx => $prop) {
+                    if (is_array($prop) && isset($prop['entry_amount'], $prop['estimated_value'])) {
+                        $entry = (float) str_replace(',', '', (string) $prop['entry_amount']);
+                        $estimated = (float) str_replace(',', '', (string) $prop['estimated_value']);
+                        if ($entry > $estimated) {
+                            $validator->errors()->add("data.properties.{$idx}.entry_amount", 'مبلغ الدخول لا يمكن أن يكون أكبر من القيمة التقديرية للعقار.');
+                        }
+                    }
+                }
             }
         }];
     }

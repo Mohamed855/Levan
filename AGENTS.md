@@ -31,6 +31,11 @@ Shared anonymous components are registered in `app/Providers/ViewServiceProvider
   - `table-cell-clamp.js` (single-line cell clamping)
   - `datatable-feedback.js`, `datatable-responsive.js`, `datatable-primary-actions.js`
 - Page-specific JS files should ONLY bind module-specific interactions (`init.dt`, `draw.dt`, modals, custom exports). Do NOT duplicate DataTable initialization, `dom`, `language`, `Select2` setup, clipboard copy listeners (`.copyable-code-wrapper`), selection handlers (`#select-all`, `.row-checkbox`), or text-clamping logic in page JS.
+- **Button Loading & Animation Safety Invariants:**
+  - **Never Lock Transforms on Button Children:** Prohibit applying indiscriminate `transform: none !important;` to `.btn > *` or button descendants. In CSS cascade rules, `!important` overrides keyframe animations, completely freezing `.spinner-border`, `.spinner-grow`, `.ti-spin`, and other rotating loaders. Always exclude spinners via `:not(.spinner-border):not(.spinner-grow):not(.spinner):not(.btn-spinner):not(.ti-spin):not([class*="spin"]):not([class*="loader"])`.
+  - **Loading Icon Visibility & Sizing:** When applying `[data-button-is-loading="true"]` or `[aria-busy="true"]`, never hide loading/spinning icons (`i.ti-spin`, `i[class*="loader"]`) when hiding original static icons.
+  - **Universal Spinner Speed & Origin:** Button spinners must always declare `display: inline-block !important;`, `transform-origin: center center;`, and snappy duration (`0.75s linear infinite`).
+  - **Complete Keyframe Definitions:** Always ensure custom animation names (e.g. `btn-spinner-spin`, `spinner-border-rtl`, `spin`) have matching `@keyframes` defined in SCSS.
 
 ### 4. Multi-Tenancy, Security & Code Style
 - Always use `declare(strict_types=1);` in new PHP classes with explicit parameter and return types.

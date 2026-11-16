@@ -252,4 +252,40 @@ final class AuctionEstablishmentRequestTest extends TestCase
         self::assertSame('000123456789', $prepared['properties'][0]['deed_number']);
         self::assertSame('1200.50', $prepared['properties'][0]['area']);
     }
+
+    public function test_entry_amount_cannot_exceed_estimated_value(): void
+    {
+        $request = new SaveAuctionEstablishmentRequest;
+        $request->merge([
+            'data' => [
+                'properties' => [
+                    [
+                        'entry_amount' => '500,000',
+                        'estimated_value' => '400,000',
+                    ],
+                ],
+            ],
+        ]);
+
+        $validator = Validator::make($request->all(), []);
+        foreach ($request->after() as $afterHook) {
+            $validator->after($afterHook);
+        }
+
+        self::assertTrue($validator->fails());
+        self::assertTrue($validator->errors()->has('data.properties.0.entry_amount'));
+        self::assertSame(
+            'مبلغ الدخول لا يمكن أن يكون أكبر من القيمة التقديرية للعقار.',
+            $validator->errors()->first('data.properties.0.entry_amount')
+        );
+    }
+
+    public function test_certificates_are_required_when_not_previously_saved(): void
+    {
+        $request = new SaveAuctionEstablishmentRequest;
+        $rules = $request->rules();
+
+        self::assertContains('required', $rules['attachments.manager_certificate']);
+        self::assertContains('required', $rules['attachments.auctioneer_certificate']);
+    }
 }

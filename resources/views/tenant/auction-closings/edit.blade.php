@@ -21,6 +21,23 @@
         $soldCount = $auction->properties->where('pivot.result_status', 'sold')->count();
         $unsoldCount = $auction->properties->where('pivot.result_status', 'unsold')->count();
         $completedCount = $soldCount + $unsoldCount;
+
+        $defaultClosingDate = old(
+            'closing_date',
+            $auction->closing?->closing_date?->format('Y-m-d'),
+        );
+        if (! $defaultClosingDate) {
+            $today = now()->toDateString();
+            $startStr = $auction->start_date?->format('Y-m-d');
+            $endStr = $auction->end_date?->format('Y-m-d');
+            if ($endStr && $today > $endStr) {
+                $defaultClosingDate = $endStr;
+            } elseif ($startStr && $today < $startStr) {
+                $defaultClosingDate = $startStr;
+            } else {
+                $defaultClosingDate = $today;
+            }
+        }
     @endphp
 
     <div class="row">
@@ -28,7 +45,11 @@
             <div class="card">
                 <div class="card-body">
                     <form id="report-cycle-form" method="POST" enctype="multipart/form-data" autocomplete="off"
-                        data-form-validate action="{{ tenant_route_name('auction-closings.update', $auction) }}">
+                        data-form-validate
+                        data-auction-start-date="{{ $auction->start_date?->format('Y-m-d') }}"
+                        data-auction-end-date="{{ $auction->end_date?->format('Y-m-d') }}"
+                        data-validation-errors="{{ json_encode(($errors ?? new \Illuminate\Support\ViewErrorBag)->getBag('default')->getMessages()) }}"
+                        action="{{ tenant_route_name('auction-closings.update', $auction) }}">
                         @csrf
                         @method('PUT')
 
@@ -41,18 +62,27 @@
                                 </div>
                             </div>
                             <x-form.controls.input name="closing_date" label="تاريخ الإقفال" type="date"
-                                :value="old(
-                                    'closing_date',
-                                    $auction->closing?->closing_date?->format('Y-m-d') ?? now()->toDateString(),
-                                )" required col="col-md-4" />
+                                :value="$defaultClosingDate"
+                                :min="$auction->start_date?->format('Y-m-d')"
+                                :max="$auction->end_date?->format('Y-m-d')"
+                                required col="col-md-4" />
                             <x-form.controls.input name="board_removal_date" label="تاريخ فك اللوحات" type="date"
                                 :value="old(
                                     'board_removal_date',
                                     $auction->marketing_data['board_removal_date'] ?? null,
-                                )" col="col-md-4" />
+                                )"
+                                :min="$defaultClosingDate"
+                                required col="col-md-4" />
                             <x-form.controls.textarea name="results_narrative" label="تفاصيل نتائج المزاد" :value="old('results_narrative', $auction->marketing_data['results_narrative'] ?? null)"
-                                col="col-12" />
+                                required col="col-12" />
                         </div>
+
+                        @if ($errors->has('results'))
+                            <div class="alert alert-danger d-flex align-items-center mb-4">
+                                <i class="ti ti-alert-circle ti-md me-2"></i>
+                                <div>{{ $errors->first('results') }}</div>
+                            </div>
+                        @endif
 
                         {{-- التنبيه التحذيري --}}
                         <div class="alert alert-warning d-flex align-items-center mb-4">
@@ -64,7 +94,8 @@
                         </div>
 
                         {{-- جدول العقارات أسفل التنبيه --}}
-                        <div class="card assignment-properties-table-card border shadow-none mb-4">
+                        <div class="card assignment-properties-table-card border shadow-none mb-4"
+                            id="closing-properties-card">
                             <div
                                 class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-3 bg-light-subtle">
                                 <div>
@@ -151,9 +182,11 @@
                                                     <td data-opening-cell="{{ $property->id }}">
                                                         @if ($property->pivot->opening_price)
                                                             {{ number_format((float) $property->pivot->opening_price) }}
-                                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
+                                                            <span
+                                                                class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                                                         @elseif ($property->estimated_value)
-                                                            {{ number_format((float) $property->estimated_value) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
+                                                            {{ number_format((float) $property->estimated_value) }} <span
+                                                                class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                                                         @else
                                                             -
                                                         @endif
@@ -206,10 +239,17 @@
                                     if ($statusVal === 'pending') {
                                         $statusVal = '';
                                     }
+                                    $propAttachIds = $auction->attachments
+                                        ->where('report_section', 'board_after')
+                                        ->where('property_id', $property->id)
+                                        ->pluck('id')
+                                        ->join(',');
                                 @endphp
-                                <div class="property-hidden-data" data-prop-hidden="{{ $property->id }}">
-                                    <input type="hidden" name="{{ $prefix }}[status]" value="{{ $statusVal }}"
-                                        data-field="status">
+                                <div class="property-hidden-data" data-prop-hidden="{{ $property->id }}"
+                                    data-prop-name="{{ $property->name }}"
+                                    data-existing-attachments="{{ $propAttachIds }}">
+                                    <input type="hidden" name="{{ $prefix }}[status]"
+                                        value="{{ $statusVal }}" data-field="status">
                                     <input type="hidden" name="{{ $prefix }}[opening_price]"
                                         value="{{ old('results.' . $property->id . '.opening_price', $property->pivot->opening_price) }}"
                                         data-field="opening_price">
@@ -302,13 +342,14 @@
                 {{-- ملاحظات النتيجة --}}
                 <div class="col-12 border-top pt-3">
                     <x-form.controls.textarea name="modal_result_notes" id="modal_result_notes" label="ملاحظات النتيجة"
-                        col="col-12" />
+                        :required="true" col="col-12" />
                 </div>
 
                 {{-- صور فك اللوحات --}}
                 <div class="col-12 border-top pt-3">
                     <x-form.controls.file name="modal_board_images_after[]" id="modal_board_images_after"
-                        label="صور فك اللوحات" multiple accept=".png,.jpg,.jpeg,.webp" col="col-12" />
+                        label="صور فك اللوحات" multiple accept=".png,.jpg,.jpeg,.webp" :required="true"
+                        col="col-12" />
 
                     <div id="modal_existing_attachments_container" class="mt-3 d-none">
                         <h6 class="text-muted small fw-bold mb-2">المرفقات السابقة لفك اللوحات</h6>

@@ -55,6 +55,8 @@
     $baseNameProp = rtrim($name, '[]');
     $cleanPropName = str_replace(['[', ']', '.'], '_', $baseNameProp);
     $existingInputName = 'existing_' . ($multiple ? $baseNameProp . '[]' : $baseNameProp);
+    $dotName = str_replace(['[', ']'], ['.', ''], $baseNameProp);
+    $hasFieldError = isset($errors) && ($errors->has($name) || $errors->has($dotName));
 @endphp
 
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$fieldHelp" :col="$col" :wrapper-id="$wrapperId" :wrapper-style="$wrapperStyle">
@@ -79,12 +81,12 @@
             data-file-input
             data-max-size-mb="{{ $maxSize }}"
             aria-describedby="{{ $errorId }}"
-            aria-invalid="{{ (isset($errors) && $errors->has($name)) ? 'true' : 'false' }}"
+            aria-invalid="{{ $hasFieldError ? 'true' : 'false' }}"
             {{ $attributes->except(['class', 'value', 'title', 'desc', 'compact', 'maxSize', 'hint', 'help', 'required']) }}
         >
 
         <div
-            class="file-upload-area {{ $compact ? 'file-upload-compact' : '' }} {{ (isset($errors) && $errors->has($name)) ? 'is-invalid' : '' }}"
+            class="file-upload-area {{ $compact ? 'file-upload-compact' : '' }} {{ $hasFieldError ? 'is-invalid' : '' }}"
             id="{{ $fieldId }}-upload-zone"
             data-file-upload-zone
             data-max-size-mb="{{ $maxSize }}"

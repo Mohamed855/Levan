@@ -149,11 +149,38 @@ function isNonInteractiveControl(control) {
 }
 
 function isControlInvisible(control) {
+    if (control.type === "file") {
+        const wrapper = control.closest("[data-file-upload-wrapper]");
+        if (wrapper) {
+            return Boolean(
+                wrapper.closest(".d-none") ||
+                wrapper.closest("[hidden]") ||
+                wrapper.offsetParent === null,
+            );
+        }
+    }
     const target = control._flatpickr?.altInput || control;
     return (
         (control.type !== "hidden" || Boolean(control._flatpickr?.altInput)) &&
         target.offsetParent === null
     );
+}
+
+function isControlHidden(control) {
+    if (!control || control.disabled || control.closest("[hidden]")) {
+        return true;
+    }
+    if (control.type === "file") {
+        const wrapper = control.closest("[data-file-upload-wrapper]");
+        if (wrapper) {
+            return Boolean(
+                wrapper.closest(".d-none") ||
+                wrapper.closest("[hidden]") ||
+                wrapper.offsetParent === null,
+            );
+        }
+    }
+    return Boolean(control.closest(".d-none") || isControlInvisible(control));
 }
 
 function stateTargets(control) {
@@ -337,6 +364,19 @@ function setFieldError(form, fieldName, message) {
     });
 
     if (wrappers.length === 0 && findControls(form, fieldName).length === 0) {
+        if (
+            fieldName.startsWith("data.properties.") ||
+            fieldName.startsWith("data[properties]") ||
+            /^attachments\.(deed|valuation|representative_authority)/.test(fieldName) ||
+            /^attachments\[(deed|valuation|representative_authority)\]/.test(fieldName) ||
+            fieldName.startsWith("results.") ||
+            fieldName.startsWith("results[") ||
+            fieldName.startsWith("board_images_after.") ||
+            fieldName.startsWith("board_images_after[")
+        ) {
+            return;
+        }
+
         const rootName = fieldName.split(".")[0];
         const rootWrappers = findFieldWrappers(form, rootName);
         if (rootWrappers.length > 0) {
@@ -724,9 +764,18 @@ function currentStepNumber(form) {
 function restoreDraftValues(form, values, prefix = "") {
     Object.entries(values || {}).forEach(([key, value]) => {
         const name = prefix ? prefix + "[" + key + "]" : key;
-        if (value && typeof value === "object" && !Array.isArray(value)) {
-            restoreDraftValues(form, value, name);
-            return;
+        if (value && typeof value === "object") {
+            if (Array.isArray(value)) {
+                if (value.some((item) => item && typeof item === "object")) {
+                    value.forEach((item, index) => {
+                        restoreDraftValues(form, item, `${name}[${index}]`);
+                    });
+                    return;
+                }
+            } else {
+                restoreDraftValues(form, value, name);
+                return;
+            }
         }
 
         let field = form.elements.namedItem(name);
@@ -1186,13 +1235,7 @@ function validationFieldsFromStep(step) {
  * Returns true if valid, false if invalid.
  */
 function validateControlClientSide(form, control) {
-    if (
-        !control ||
-        control.disabled ||
-        control.closest(".d-none") ||
-        control.closest("[hidden]") ||
-        isControlInvisible(control)
-    ) {
+    if (isControlHidden(control)) {
         return true;
     }
 
@@ -1428,12 +1471,7 @@ function isStepValid(form, step) {
             if (isNonInteractiveControl(control)) {
                 return false;
             }
-            if (
-                control.disabled ||
-                control.closest(".d-none") ||
-                control.closest("[hidden]") ||
-                isControlInvisible(control)
-            ) {
+            if (isControlHidden(control)) {
                 return false;
             }
             return true;
@@ -1780,6 +1818,12 @@ async function validateFields(form, fieldNames, { force = false } = {}) {
                     "تعذر التحقق من الحقل الآن. يرجى المحاولة مرة أخرى.",
             );
         }
+
+        form.dispatchEvent(
+            new CustomEvent("stepValidationFailed", {
+                detail: { errors, fields, payload },
+            }),
+        );
 
         return false;
     } catch (error) {

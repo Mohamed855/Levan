@@ -56,8 +56,8 @@
 
             {{-- الاستخدام الآخر (إن وجد) --}}
             <div class="col-md-6 d-none" id="modal_prop_usage_other_col">
-                <x-form.controls.input name="modal_prop_usage_other" id="modal_prop_usage_other"
-                    label="الاستخدام الآخر" col="col-12" />
+                <x-form.controls.input name="modal_prop_usage_other" id="modal_prop_usage_other" label="الاستخدام الآخر"
+                    col="col-12" />
             </div>
 
             {{-- عمر العقار --}}
@@ -65,9 +65,9 @@
                 type="number" min="0" max="200" step="1" required col="col-md-6" />
 
             {{-- المدينة / الحي --}}
-            <x-form.controls.input name="modal_prop_city_district" id="modal_prop_city_district"
-                label="المدينة / الحي" required col="col-md-6" :readonly="true" class="bg-light cursor-not-allowed"
-                tabindex="-1" style="pointer-events: none;" help="مستورد من موقع العقار" />
+            <x-form.controls.input name="modal_prop_city_district" id="modal_prop_city_district" label="المدينة / الحي"
+                required col="col-md-6" :readonly="true" class="bg-light cursor-not-allowed" tabindex="-1"
+                style="pointer-events: none;" help="مستورد من موقع العقار" />
 
             {{-- الحالة النظامية --}}
             <x-form.controls.select name="modal_prop_status" id="modal_prop_status" label="الحالة النظامية"
@@ -100,18 +100,17 @@
 
             {{-- قيمة افتتاح المزاد --}}
             <x-form.controls.input name="modal_prop_opening_value" id="modal_prop_opening_value"
-                label="قيمة افتتاح المزاد" type="number" min="0" step="0.01" :price="true"
-                required col="col-md-4" />
+                label="قيمة افتتاح المزاد" type="number" min="0" step="0.01" :price="true" required
+                col="col-md-4" />
 
             {{-- مبلغ الدخول --}}
-            <x-form.controls.input name="modal_prop_entry_amount" id="modal_prop_entry_amount"
-                label="مبلغ الدخول" type="number" min="0" step="0.01" :price="true" required
-                col="col-md-4" />
+            <x-form.controls.input name="modal_prop_entry_amount" id="modal_prop_entry_amount" label="مبلغ الدخول"
+                type="number" min="0" step="0.01" :price="true" required col="col-md-4" />
 
             {{-- القيمة التقديرية --}}
             <x-form.controls.input name="modal_prop_estimated_value" id="modal_prop_estimated_value"
-                label="القيمة التقديرية" type="number" min="0" step="0.01" :price="true"
-                required col="col-md-4" />
+                label="القيمة التقديرية" type="number" min="0" step="0.01" :price="true" required
+                col="col-md-4" />
 
             {{-- الإفصاح الخاص بالعقار --}}
             <x-form.controls.textarea name="modal_prop_disclosure" id="modal_prop_disclosure"
@@ -119,7 +118,7 @@
 
             <div class="col-md-4">
                 <x-form.controls.file name="modal_file_deed" id="modal_file_deed"
-                    label="وثيقة الملكية (الصك الإلكتروني)" accept=".pdf,.png,.jpg,.jpeg" col="col-12" />
+                    label="وثيقة الملكية (الصك الإلكتروني)" accept=".pdf,.png,.jpg,.jpeg" col="col-12" required />
             </div>
 
             <div class="col-md-4">

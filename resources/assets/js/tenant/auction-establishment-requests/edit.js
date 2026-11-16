@@ -80,6 +80,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (isComplete) {
+            const entryVal = parseFloat(getVal("entry_amount").replace(/,/g, ""));
+            const estimatedVal = parseFloat(getVal("estimated_value").replace(/,/g, ""));
+            if (!isNaN(entryVal) && !isNaN(estimatedVal) && entryVal > estimatedVal) {
+                isComplete = false;
+            }
+
             const status = getVal("status");
             if (status === "other" && !getVal("status_other")) {
                 isComplete = false;
@@ -216,6 +222,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const fieldWrapper = inputEl.closest("[data-form-field]") || inputEl.parentElement;
         if (fieldWrapper) {
             fieldWrapper.classList.add("is-invalid");
+            const uploadArea = fieldWrapper.querySelector(".file-upload-area");
+            if (uploadArea) {
+                uploadArea.classList.add("is-invalid");
+            }
             let errorEl = fieldWrapper.querySelector("[data-form-error]");
             if (errorEl) {
                 errorEl.textContent = message;
@@ -260,6 +270,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const fieldWrapper = inputEl.closest("[data-form-field]") || inputEl.parentElement;
         if (fieldWrapper) {
             fieldWrapper.classList.remove("is-invalid");
+            const uploadArea = fieldWrapper.querySelector(".file-upload-area");
+            if (uploadArea) {
+                uploadArea.classList.remove("is-invalid");
+            }
             const errorEl = fieldWrapper.querySelector("[data-form-error]");
             if (errorEl) {
                 errorEl.textContent = "";
@@ -465,6 +479,86 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // Automatically inspect server-side validation errors for property data or attachments and open the modal
+    const handlePropertyServerErrors = (errors) => {
+        if (!errors || typeof errors !== "object") return false;
+
+        for (const [key, messages] of Object.entries(errors)) {
+            const message = Array.isArray(messages) ? messages[0] : messages;
+            if (!message) continue;
+
+            // Match data.properties.{index}.{field} or data[properties][{index}][{field}]
+            const propFieldMatch = key.match(/^(?:data\.)?properties\.(\d+)\.([a-z_]+)$/) ||
+                                   key.match(/^data\[properties\]\[(\d+)\]\[([a-z_]+)\]$/);
+            if (propFieldMatch) {
+                const index = parseInt(propFieldMatch[1], 10);
+                const field = propFieldMatch[2];
+                const row = form.querySelector(`.establishment-property-row[data-property-index="${index}"]`);
+                if (row) {
+                    const propId = row.dataset.propertyId;
+                    const propIndex = row.dataset.propertyIndex;
+                    const propName = row.dataset.propertyName;
+                    const propNumber = row.dataset.propertyNumber;
+                    const propType = row.dataset.propertyType;
+
+                    const stepper = getStepper();
+                    if (stepper && typeof stepper.to === "function") {
+                        stepper.to(3);
+                    }
+
+                    openPropertyModal(propId, propIndex, propName, propNumber, propType);
+
+                    const modalInput = getModalEl(`modal_prop_${field}`);
+                    if (modalInput) {
+                        setModalFieldError(modalInput, message);
+                        setTimeout(() => {
+                            if (window.jQuery && $(modalInput).data("select2")) {
+                                $(modalInput).select2("open");
+                            } else if (typeof modalInput.focus === "function") {
+                                modalInput.focus();
+                            }
+                            modalInput.scrollIntoView({ behavior: "smooth", block: "center" });
+                        }, 200);
+                    }
+                    return true;
+                }
+            }
+
+            // Match attachments.{type}.{propId} or attachments[{type}][{propId}]
+            const attachMatch = key.match(/^attachments\.(deed|valuation|representative_authority)\.(\d+)$/) ||
+                                key.match(/^attachments\[(deed|valuation|representative_authority)\]\[(\d+)\]$/);
+            if (attachMatch) {
+                const type = attachMatch[1];
+                const propId = attachMatch[2];
+                const row = form.querySelector(`.establishment-property-row[data-property-id="${propId}"]`);
+                if (row) {
+                    const propIndex = row.dataset.propertyIndex;
+                    const propName = row.dataset.propertyName;
+                    const propNumber = row.dataset.propertyNumber;
+                    const propType = row.dataset.propertyType;
+
+                    const stepper = getStepper();
+                    if (stepper && typeof stepper.to === "function") {
+                        stepper.to(3);
+                    }
+
+                    openPropertyModal(propId, propIndex, propName, propNumber, propType);
+
+                    const modalInput = getModalEl(`modal_file_${type}`);
+                    if (modalInput) {
+                        setModalFieldError(modalInput, message);
+                        setTimeout(() => {
+                            modalInput.scrollIntoView({ behavior: "smooth", block: "center" });
+                        }, 200);
+                    }
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    };
+
     // Row click and edit button click listeners
     $(document).on("click", ".establishment-property-row, .edit-establishment-prop-btn", function (e) {
         if ($(e.target).closest("input[type='checkbox'], a").length) return;
@@ -562,6 +656,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 error = "مبلغ الدخول مطلوب.";
             } else if (isNaN(Number(cleanEntry)) || Number(cleanEntry) < 0) {
                 error = "مبلغ الدخول يجب أن يكون رقماً غير سالب.";
+            } else {
+                const estimatedVal = (getModalEl("modal_prop_estimated_value")?.value || "").trim().replace(/,/g, "");
+                if (estimatedVal && !isNaN(Number(estimatedVal)) && Number(cleanEntry) > Number(estimatedVal)) {
+                    error = "مبلغ الدخول لا يمكن أن يكون أكبر من القيمة التقديرية.";
+                }
             }
         } else if (id === "modal_prop_estimated_value") {
             const cleanEstimated = val.replace(/,/g, "");
@@ -569,6 +668,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 error = "القيمة التقديرية مطلوبة.";
             } else if (isNaN(Number(cleanEstimated)) || Number(cleanEstimated) < 0) {
                 error = "القيمة التقديرية يجب أن تكون رقماً غير سالب.";
+            } else {
+                const entryInp = getModalEl("modal_prop_entry_amount");
+                const entryVal = (entryInp?.value || "").trim().replace(/,/g, "");
+                if (entryVal && !isNaN(Number(entryVal))) {
+                    if (Number(entryVal) > Number(cleanEstimated)) {
+                        if (entryInp) setModalFieldError(entryInp, "مبلغ الدخول لا يمكن أن يكون أكبر من القيمة التقديرية.");
+                    } else if (entryInp && entryInp.classList.contains("is-invalid")) {
+                        const currentErr = entryInp.closest("[data-form-field]")?.querySelector("[data-form-error]")?.textContent || "";
+                        if (currentErr.includes("القيمة التقديرية")) {
+                            clearModalFieldError(entryInp);
+                        }
+                    }
+                }
             }
         } else if (id === "modal_prop_disclosure") {
             if (!val) {
@@ -692,6 +804,15 @@ document.addEventListener("DOMContentLoaded", () => {
         validate(getModalEl("modal_prop_opening_value"));
         validate(getModalEl("modal_prop_entry_amount"));
         validate(getModalEl("modal_prop_estimated_value"));
+        const cleanEntryAmount = (getModalEl("modal_prop_entry_amount")?.value || "").replace(/,/g, "");
+        const cleanEstimatedAmount = (getModalEl("modal_prop_estimated_value")?.value || "").replace(/,/g, "");
+        if (cleanEntryAmount && cleanEstimatedAmount && !isNaN(Number(cleanEntryAmount)) && !isNaN(Number(cleanEstimatedAmount))) {
+            if (Number(cleanEntryAmount) > Number(cleanEstimatedAmount)) {
+                setModalFieldError(getModalEl("modal_prop_entry_amount"), "مبلغ الدخول لا يمكن أن يكون أكبر من القيمة التقديرية.");
+                hasError = true;
+                if (!firstInvalid) firstInvalid = getModalEl("modal_prop_entry_amount");
+            }
+        }
         validate(getModalEl("modal_prop_disclosure"));
 
         const agentName = getModalEl("modal_prop_agent_name")?.value?.trim();
@@ -1123,6 +1244,57 @@ document.addEventListener("DOMContentLoaded", () => {
                             const pNum = firstIncomplete.dataset.propertyNumber;
                             const pType = firstIncomplete.dataset.propertyType;
                             openPropertyModal(pId, pIdx, pName, pNum, pType);
+
+                            // Trigger live validation inside modal so user immediately sees what is missing or invalid
+                            const modalFieldsToCheck = [
+                                "modal_prop_owner_name",
+                                "modal_prop_deed_number",
+                                "modal_prop_contract_number",
+                                "modal_prop_area",
+                                "modal_prop_type",
+                                "modal_prop_usage",
+                                "modal_prop_age",
+                                "modal_prop_city_district",
+                                "modal_prop_status",
+                                "modal_prop_ownership_share",
+                                "modal_prop_opening_value",
+                                "modal_prop_entry_amount",
+                                "modal_prop_estimated_value",
+                                "modal_prop_disclosure",
+                            ];
+                            let firstErr = null;
+                            modalFieldsToCheck.forEach((fid) => {
+                                const inp = getModalEl(fid);
+                                if (inp && !validateEstablishmentModalField(inp) && !firstErr) {
+                                    firstErr = inp;
+                                }
+                            });
+                            // Check deed file
+                            const deedInput = getModalEl("modal_file_deed");
+                            const deedController = window.SharedFileUpload?.getController(deedInput);
+                            let existingAttachments = {};
+                            try {
+                                existingAttachments = JSON.parse(document.getElementById("establishment-properties-table")?.dataset?.existingAttachments || "{}");
+                            } catch (_) {}
+                            const propExisting = existingAttachments[pId] || {};
+                            const hasExistingDeed = Boolean(propExisting.deed && propExisting.deed.url);
+                            const stagedDeed = form.querySelector(`[data-prop-files="${pId}"] input[name="attachments[deed][${pId}]"]`);
+                            const hasSelectedDeed = (deedInput && deedInput.files && deedInput.files.length > 0) || (deedController && deedController.getFiles().length > 0);
+                            const isDeedPresent = hasExistingDeed || (stagedDeed && (!deedController || deedController.getFiles().length > 0)) || hasSelectedDeed;
+                            if (!isDeedPresent && deedInput) {
+                                setModalFieldError(deedInput, "وثيقة الملكية (الصك الإلكتروني) مطلوبة لكل عقار.");
+                                if (!firstErr) firstErr = deedInput;
+                            }
+                            if (firstErr) {
+                                setTimeout(() => {
+                                    if (window.jQuery && $(firstErr).data("select2")) {
+                                        $(firstErr).select2("open");
+                                    } else if (typeof firstErr.focus === "function") {
+                                        firstErr.focus();
+                                    }
+                                    firstErr.scrollIntoView({ behavior: "smooth", block: "center" });
+                                }, 200);
+                            }
                         }
                         return false;
                     }
@@ -1136,14 +1308,46 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAllPropertiesCompleteness();
     updateReviewCardValues();
 
+    // Check for initial server validation errors on page load
+    const stepperElement = form.closest("[data-form-stepper]");
+    if (stepperElement?.dataset?.validationErrors) {
+        try {
+            const initialErrors = JSON.parse(stepperElement.dataset.validationErrors || "{}");
+            handlePropertyServerErrors(initialErrors);
+        } catch (_) {}
+    }
+
     // Listen to stepper step change
     form.addEventListener("stepChanged", () => {
         updateAllPropertiesCompleteness();
         updateReviewCardValues();
     });
 
+    // Listen to wizard step validation failure to open property modal on errors
+    form.addEventListener("stepValidationFailed", (e) => {
+        handlePropertyServerErrors(e.detail?.errors);
+    });
+
     // Listen to wizard draft restored event
-    form.addEventListener("wizardDraftRestored", () => {
+    form.addEventListener("wizardDraftRestored", (e) => {
+        const draftProperties = e.detail?.data?.data?.properties || e.detail?.data?.properties;
+        if (Array.isArray(draftProperties) && draftProperties.length > 0) {
+            draftProperties.forEach((propItem, idx) => {
+                if (!propItem || typeof propItem !== "object") return;
+                const propId = propItem.property_id;
+                const hiddenContainer = propId
+                    ? form.querySelector(`[data-prop-hidden="${propId}"]`)
+                    : form.querySelector(`[data-prop-index="${idx}"]`);
+                if (hiddenContainer) {
+                    Object.entries(propItem).forEach(([fieldKey, fieldVal]) => {
+                        const input = hiddenContainer.querySelector(`[data-field="${fieldKey}"]`);
+                        if (input && fieldVal !== undefined && fieldVal !== null) {
+                            input.value = String(fieldVal);
+                        }
+                    });
+                }
+            });
+        }
         setupConditionalFields();
         updateAllPropertiesCompleteness();
         updateReviewCardValues();

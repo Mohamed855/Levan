@@ -184,19 +184,29 @@ class GenerateAuctionReportsJob implements ShouldQueue
             }
         } catch (Throwable $e) {
             Storage::disk('tenant_private')->delete([$outputsPath, $reportPath]);
-            $generation->update([
-                'status' => 'failed',
-                'progress' => 0,
-                'outputs_path' => null,
-                'report_path' => null,
-                'error_message' => $e->getMessage(),
-                'completed_at' => now(),
-            ]);
+            $isQueuedRetryAvailable = $this->job !== null && $this->attempts() < $this->tries;
+            if (! $isQueuedRetryAvailable) {
+                $generation->update([
+                    'status' => 'failed',
+                    'progress' => 0,
+                    'outputs_path' => null,
+                    'report_path' => null,
+                    'error_message' => $e->getMessage(),
+                    'completed_at' => now(),
+                ]);
+            } else {
+                $generation->update([
+                    'progress' => 5,
+                    'error_message' => null,
+                ]);
+            }
 
             Log::error('GenerateAuctionReportsJob failed: '.$e->getMessage(), [
                 'tenant_id' => $this->tenantId,
                 'auction_id' => $this->auctionId,
                 'generation_id' => $this->generationId,
+                'attempt' => $this->attempts(),
+                'max_tries' => $this->tries,
                 'exception' => $e,
             ]);
 

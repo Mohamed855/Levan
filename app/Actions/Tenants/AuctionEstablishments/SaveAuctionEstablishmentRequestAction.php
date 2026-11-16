@@ -31,12 +31,23 @@ final class SaveAuctionEstablishmentRequestAction
                 }
                 $requestRules = new SaveAuctionEstablishmentRequest;
                 $schema = app(AuctionEstablishmentRequestData::class);
-                Validator::make($input, $requestRules->rules(), $requestRules->messages(), $schema->attributes())->validate();
+                $validator = Validator::make($input, $requestRules->rules($auction), $requestRules->messages(), $schema->attributes());
+                foreach ($requestRules->after() as $afterHook) {
+                    $validator->after($afterHook);
+                }
+                $validator->validate();
                 $data = $schema->snapshot($auction, $input['data']);
                 Validator::make(['data' => $data], $schema->rules(), $requestRules->messages(), $schema->attributes())->validate();
                 $rights = $data['disclosures']['disposition_rights'];
                 if ((in_array('none', $rights, true) && count($rights) > 1) || (in_array('other', $rights, true) && blank($data['disclosures']['disposition_right_other'] ?? null))) {
                     throw ValidationException::withMessages(['data.disclosures.disposition_rights' => 'تحقق من حقوق التصرف وتفاصيلها.']);
+                }
+                foreach ($data['properties'] as $idx => $prop) {
+                    $entry = (float) str_replace(',', '', (string) ($prop['entry_amount'] ?? 0));
+                    $estimated = (float) str_replace(',', '', (string) ($prop['estimated_value'] ?? 0));
+                    if ($entry > $estimated) {
+                        throw ValidationException::withMessages(["data.properties.{$idx}.entry_amount" => 'مبلغ الدخول لا يمكن أن يكون أكبر من القيمة التقديرية للعقار.']);
+                    }
                 }
                 $data['attachments'] = $request?->data['attachments'] ?? [];
                 $this->storeAttachments($auction, $data, $input['attachments'] ?? [], $paths);

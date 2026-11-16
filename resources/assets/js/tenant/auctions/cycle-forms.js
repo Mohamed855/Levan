@@ -256,6 +256,42 @@ const mountCycleForm = () => {
         }
     };
 
+    const getPropertyImagesCount = (propId) => {
+        const hiddenDataEl = form.querySelector(
+            `[data-prop-hidden="${propId}"]`,
+        );
+        if (!hiddenDataEl) return 0;
+
+        const filesContainer = hiddenDataEl.querySelector(
+            `[data-prop-files="${propId}"]`,
+        );
+        const fileInput = filesContainer
+            ? filesContainer.querySelector("input[type='file']")
+            : null;
+        const newFilesCount =
+            fileInput && fileInput.files ? fileInput.files.length : 0;
+
+        const rawIds = hiddenDataEl.dataset.existingAttachments || "";
+        const existingIds = rawIds
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+
+        let activeExistingCount = 0;
+        existingIds.forEach((id) => {
+            const isRemoved = Boolean(
+                form.querySelector(
+                    `input[type="hidden"][name="remove_board_evidence[]"][value="${id}"]`,
+                ),
+            );
+            if (!isRemoved) {
+                activeExistingCount++;
+            }
+        });
+
+        return newFilesCount + activeExistingCount;
+    };
+
     const updateClosingStats = () => {
         let soldCount = 0;
         let unsoldCount = 0;
@@ -308,6 +344,18 @@ const mountCycleForm = () => {
         updateClosingStats();
     };
 
+    const fieldToModalId = {
+        opening_price: "modal_opening_price",
+        participants_count: "modal_participants_count",
+        bids_count: "modal_bids_count",
+        status: "modal_result_status",
+        buyer_name: "modal_buyer_name",
+        sale_price: "modal_sale_price",
+        unsold_reason: "modal_unsold_reason",
+        result_notes: "modal_result_notes",
+        board_images_after: "modal_board_images_after",
+    };
+
     // Helper functions for closing modal Select2 and validation
     const initClosingModalSelect2 = () => {
         const $select = $("#modal_result_status");
@@ -330,15 +378,59 @@ const mountCycleForm = () => {
         initClosingModalSelect2();
     });
 
+    const setFieldInlineError = (control, message) => {
+        if (!control) return;
+        control.classList.add("is-invalid");
+        control.setAttribute("aria-invalid", "true");
+
+        const inputGroup = control.closest(".input-group");
+        if (inputGroup) inputGroup.classList.add("is-invalid");
+
+        const wrapper =
+            control.closest("[data-form-field]") || control.parentElement;
+        if (wrapper) {
+            wrapper.classList.add("is-invalid");
+            const errorEl = wrapper.querySelector(
+                "[data-form-error], .invalid-feedback",
+            );
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.hidden = false;
+                errorEl.removeAttribute("hidden");
+                errorEl.classList.remove("hidden");
+                errorEl.style.setProperty("display", "block", "important");
+            }
+        }
+    };
+
+    const clearFieldInlineError = (control) => {
+        if (!control) return;
+        control.classList.remove("is-invalid");
+        control.removeAttribute("aria-invalid");
+
+        const inputGroup = control.closest(".input-group");
+        if (inputGroup) inputGroup.classList.remove("is-invalid");
+
+        const wrapper =
+            control.closest("[data-form-field]") || control.parentElement;
+        if (wrapper) {
+            wrapper.classList.remove("is-invalid");
+            const errorEl = wrapper.querySelector(
+                "[data-form-error], .invalid-feedback",
+            );
+            if (errorEl) {
+                errorEl.textContent = "";
+                errorEl.hidden = true;
+                errorEl.setAttribute("hidden", "true");
+                errorEl.classList.add("hidden");
+                errorEl.style.display = "none";
+            }
+        }
+    };
+
     const setClosingModalFieldError = (inputEl, message) => {
         if (!inputEl) return;
-        inputEl.classList.add("is-invalid");
-        inputEl.setAttribute("aria-invalid", "true");
-
-        const inputGroup = inputEl.closest(".input-group");
-        if (inputGroup) {
-            inputGroup.classList.add("is-invalid");
-        }
+        setFieldInlineError(inputEl, message);
 
         if (inputEl.tagName === "SELECT") {
             const select2Container = inputEl.nextElementSibling?.matches(
@@ -357,27 +449,16 @@ const mountCycleForm = () => {
         const fieldWrapper =
             inputEl.closest("[data-form-field]") || inputEl.parentElement;
         if (fieldWrapper) {
-            fieldWrapper.classList.add("is-invalid");
-            const errorEl = fieldWrapper.querySelector("[data-form-error]");
-            if (errorEl) {
-                errorEl.textContent = message;
-                errorEl.hidden = false;
-                errorEl.removeAttribute("hidden");
-                errorEl.classList.remove("hidden");
-                errorEl.style.display = "block";
-            }
+            const uploadZone = fieldWrapper.querySelector(
+                "[data-file-upload-zone]",
+            );
+            if (uploadZone) uploadZone.classList.add("is-invalid");
         }
     };
 
     const clearClosingModalFieldError = (inputEl) => {
         if (!inputEl) return;
-        inputEl.classList.remove("is-invalid");
-        inputEl.removeAttribute("aria-invalid");
-
-        const inputGroup = inputEl.closest(".input-group");
-        if (inputGroup) {
-            inputGroup.classList.remove("is-invalid");
-        }
+        clearFieldInlineError(inputEl);
 
         if (inputEl.tagName === "SELECT") {
             const select2Container = inputEl.nextElementSibling?.matches(
@@ -396,13 +477,10 @@ const mountCycleForm = () => {
         const fieldWrapper =
             inputEl.closest("[data-form-field]") || inputEl.parentElement;
         if (fieldWrapper) {
-            fieldWrapper.classList.remove("is-invalid");
-            const errorEl = fieldWrapper.querySelector("[data-form-error]");
-            if (errorEl) {
-                errorEl.textContent = "";
-                errorEl.hidden = true;
-                errorEl.style.display = "none";
-            }
+            const uploadZone = fieldWrapper.querySelector(
+                "[data-file-upload-zone]",
+            );
+            if (uploadZone) uploadZone.classList.remove("is-invalid");
         }
     };
 
@@ -469,7 +547,8 @@ const mountCycleForm = () => {
         if (!inputEl) return true;
         const id = inputEl.id;
         const val = (inputEl.value || "").trim();
-        const statusVal = document.getElementById("modal_result_status")?.value || "";
+        const statusVal =
+            document.getElementById("modal_result_status")?.value || "";
 
         let error = null;
 
@@ -477,7 +556,10 @@ const mountCycleForm = () => {
             const cleanOpening = val.replace(/,/g, "");
             if (!cleanOpening) {
                 error = "سعر الافتتاح مطلوب ويجب أن يكون رقمًا غير سالب.";
-            } else if (isNaN(Number(cleanOpening)) || Number(cleanOpening) < 0) {
+            } else if (
+                isNaN(Number(cleanOpening)) ||
+                Number(cleanOpening) < 0
+            ) {
                 error = "سعر الافتتاح يجب أن يكون رقمًا غير سالب.";
             }
         } else if (id === "modal_participants_count") {
@@ -515,6 +597,27 @@ const mountCycleForm = () => {
             } else if (val.length < 3) {
                 error = "سبب عدم البيع يجب ألا يقل عن 3 أحرف.";
             }
+        } else if (id === "modal_result_notes") {
+            if (!val) {
+                error = "ملاحظات النتيجة مطلوبة للعقار.";
+            }
+        } else if (id === "modal_board_images_after") {
+            const fileInp = document.getElementById("modal_board_images_after");
+            const newFilesCount =
+                fileInp && fileInp.files ? fileInp.files.length : 0;
+            const modalEl = document.getElementById("closingPropertyModal");
+            const existingCheckboxes = modalEl
+                ? modalEl.querySelectorAll(
+                      '#modal_existing_attachments_list input[name="remove_board_evidence[]"]',
+                  )
+                : [];
+            let activeExisting = 0;
+            existingCheckboxes.forEach((chk) => {
+                if (!chk.checked) activeExisting++;
+            });
+            if (newFilesCount + activeExisting === 0) {
+                error = "صور فك اللوحات مطلوبة للعقار.";
+            }
         }
 
         if (error) {
@@ -534,10 +637,27 @@ const mountCycleForm = () => {
     // Live validation listener for user changes inside closing modal (on change, blur, focusout, and live input if invalid)
     $(document).on(
         "change blur focusout input",
-        "#closingPropertyModal input:not([type='hidden']):not([type='file']), #closingPropertyModal select, #closingPropertyModal textarea",
+        "#closingPropertyModal input:not([type='hidden']), #closingPropertyModal select, #closingPropertyModal textarea",
         function (e) {
-            if (e.type === "focusout" || e.type === "blur" || e.type === "change" || $(this).hasClass("is-invalid")) {
+            if (
+                e.type === "focusout" ||
+                e.type === "blur" ||
+                e.type === "change" ||
+                $(this).hasClass("is-invalid")
+            ) {
                 validateClosingModalField(this);
+            }
+        },
+    );
+
+    // Live validation listener for existing attachments removal checkbox toggle
+    $(document).on(
+        "change",
+        '#modal_existing_attachments_list input[type="checkbox"]',
+        function () {
+            const fileInp = document.getElementById("modal_board_images_after");
+            if (fileInp) {
+                validateClosingModalField(fileInp);
             }
         },
     );
@@ -871,6 +991,8 @@ const mountCycleForm = () => {
             document.getElementById("modal_participants_count"),
             document.getElementById("modal_bids_count"),
             document.getElementById("modal_result_status"),
+            document.getElementById("modal_result_notes"),
+            document.getElementById("modal_board_images_after"),
         ];
 
         const status = document.getElementById("modal_result_status")?.value;
@@ -896,20 +1018,40 @@ const mountCycleForm = () => {
                     firstInvalidInput.focus();
                 }
             }
-            if (typeof window.toastr !== "undefined") {
-                window.toastr.warning(
-                    "يرجى إكمال جميع الحقول الإلزامية للعقار بشكل صحيح.",
-                );
+            if (window.toastr?.error) {
+                window.toastr.error("برجاء استكمال البيانات للحفظ");
             }
             return;
         }
 
-        const openingPrice = (document.getElementById("modal_opening_price")?.value?.trim() || "").replace(/,/g, "");
-        const participantsCount = document.getElementById("modal_participants_count")?.value?.trim() || "";
-        const bidsCount = document.getElementById("modal_bids_count")?.value?.trim() || "";
-        const buyerName = status === "sold" ? (document.getElementById("modal_buyer_name")?.value?.trim() || "") : "";
-        const salePrice = status === "sold" ? (document.getElementById("modal_sale_price")?.value?.trim() || "").replace(/,/g, "") : "";
-        const unsoldReason = status === "unsold" ? (document.getElementById("modal_unsold_reason")?.value?.trim() || "") : "";
+        const openingPrice = (
+            document.getElementById("modal_opening_price")?.value?.trim() || ""
+        ).replace(/,/g, "");
+        const participantsCount =
+            document
+                .getElementById("modal_participants_count")
+                ?.value?.trim() || "";
+        const bidsCount =
+            document.getElementById("modal_bids_count")?.value?.trim() || "";
+        const buyerName =
+            status === "sold"
+                ? document.getElementById("modal_buyer_name")?.value?.trim() ||
+                  ""
+                : "";
+        const salePrice =
+            status === "sold"
+                ? (
+                      document
+                          .getElementById("modal_sale_price")
+                          ?.value?.trim() || ""
+                  ).replace(/,/g, "")
+                : "";
+        const unsoldReason =
+            status === "unsold"
+                ? document
+                      .getElementById("modal_unsold_reason")
+                      ?.value?.trim() || ""
+                : "";
 
         const propId = document.getElementById("modal_property_id")?.value;
         if (!propId) return;
@@ -1022,7 +1164,8 @@ const mountCycleForm = () => {
             );
             if (openingCell && openingPrice) {
                 openingCell.innerHTML =
-                    Number(openingPrice).toLocaleString() + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>';
+                    Number(openingPrice).toLocaleString() +
+                    ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>';
             }
         }
 
@@ -1232,6 +1375,198 @@ const mountCycleForm = () => {
             }
         });
         $(form).on("wizardDraftRestored", handleDraftRestored);
+    }
+
+    const isClosingForm = Boolean(
+        form.querySelector("#closing-properties-data-container"),
+    );
+
+    if (isClosingForm) {
+        // Clear inline errors on input/change
+        form.querySelectorAll(
+            '[name="closing_date"], [name="board_removal_date"], [name="results_narrative"]',
+        ).forEach((inputEl) => {
+            inputEl.addEventListener("input", () =>
+                clearFieldInlineError(inputEl),
+            );
+            inputEl.addEventListener("change", () =>
+                clearFieldInlineError(inputEl),
+            );
+        });
+
+        form.addEventListener(
+            "submit",
+            function (e) {
+                let hasErrors = false;
+                let firstInvalid = null;
+
+                const boardRemovalDateInput = form.querySelector(
+                    '[name="board_removal_date"]',
+                );
+                if (
+                    boardRemovalDateInput &&
+                    !boardRemovalDateInput.value.trim()
+                ) {
+                    setFieldInlineError(
+                        boardRemovalDateInput,
+                        "حقل تاريخ فك اللوحات مطلوب.",
+                    );
+                    hasErrors = true;
+                    if (!firstInvalid) firstInvalid = boardRemovalDateInput;
+                } else if (boardRemovalDateInput) {
+                    clearFieldInlineError(boardRemovalDateInput);
+                }
+
+                const narrativeInput = form.querySelector(
+                    '[name="results_narrative"]',
+                );
+                if (narrativeInput && !narrativeInput.value.trim()) {
+                    setFieldInlineError(
+                        narrativeInput,
+                        "حقل تفاصيل نتائج المزاد مطلوب.",
+                    );
+                    hasErrors = true;
+                    if (!firstInvalid) firstInvalid = narrativeInput;
+                } else if (narrativeInput) {
+                    clearFieldInlineError(narrativeInput);
+                }
+
+                let completedCount = 0;
+                let firstIncompleteProperty = null;
+
+                const hiddenProps = form.querySelectorAll(
+                    "#closing-properties-data-container .property-hidden-data",
+                );
+
+                hiddenProps.forEach((propEl) => {
+                    const propId = propEl.dataset.propHidden;
+                    const propName =
+                        propEl.dataset.propName || `عقار رقم ${propId}`;
+                    const status =
+                        propEl.querySelector('[data-field="status"]')?.value ||
+                        "";
+
+                    if (status === "sold" || status === "unsold") {
+                        const openingPrice = propEl
+                            .querySelector('[data-field="opening_price"]')
+                            ?.value?.trim();
+                        const participantsCount = propEl
+                            .querySelector('[data-field="participants_count"]')
+                            ?.value?.trim();
+                        const bidsCount = propEl
+                            .querySelector('[data-field="bids_count"]')
+                            ?.value?.trim();
+                        const notes = propEl
+                            .querySelector('[data-field="result_notes"]')
+                            ?.value?.trim();
+                        const imagesCount = getPropertyImagesCount(propId);
+
+                        let isValid = true;
+                        let reason = "";
+
+                        if (
+                            !openingPrice ||
+                            isNaN(Number(openingPrice)) ||
+                            Number(openingPrice) < 0
+                        ) {
+                            isValid = false;
+                            reason = "سعر الافتتاح مطلوب";
+                        } else if (
+                            !participantsCount ||
+                            isNaN(Number(participantsCount)) ||
+                            Number(participantsCount) < 0
+                        ) {
+                            isValid = false;
+                            reason = "عدد المشاركين مطلوب";
+                        } else if (
+                            !bidsCount ||
+                            isNaN(Number(bidsCount)) ||
+                            Number(bidsCount) < 0
+                        ) {
+                            isValid = false;
+                            reason = "عدد المزايدات مطلوب";
+                        } else if (status === "sold") {
+                            const buyerName = propEl
+                                .querySelector('[data-field="buyer_name"]')
+                                ?.value?.trim();
+                            const salePrice = propEl
+                                .querySelector('[data-field="sale_price"]')
+                                ?.value?.trim();
+                            if (!buyerName || buyerName.length < 3) {
+                                isValid = false;
+                                reason = "اسم المشتري مطلوب";
+                            } else if (
+                                !salePrice ||
+                                isNaN(Number(salePrice)) ||
+                                Number(salePrice) <= 0
+                            ) {
+                                isValid = false;
+                                reason = "قيمة الترسية مطلوبة";
+                            }
+                        } else if (status === "unsold") {
+                            const unsoldReason = propEl
+                                .querySelector('[data-field="unsold_reason"]')
+                                ?.value?.trim();
+                            if (!unsoldReason || unsoldReason.length < 3) {
+                                isValid = false;
+                                reason = "سبب عدم البيع مطلوب";
+                            }
+                        }
+
+                        if (isValid && !notes) {
+                            isValid = false;
+                            reason = "ملاحظات النتيجة مطلوبة";
+                        }
+
+                        if (isValid && imagesCount === 0) {
+                            isValid = false;
+                            reason = "صور فك اللوحات مطلوبة";
+                        }
+
+                        if (isValid) {
+                            completedCount++;
+                        } else if (!firstIncompleteProperty) {
+                            firstIncompleteProperty = {
+                                propId,
+                                propName,
+                                reason,
+                            };
+                        }
+                    }
+                });
+
+                if (hasErrors) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+
+                    if (window.toastr?.error) {
+                        window.toastr.error("برجاء استكمال البيانات للحفظ");
+                    }
+
+                    if (firstInvalid) {
+                        firstInvalid.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center",
+                        });
+                        if (typeof firstInvalid.focus === "function") {
+                            firstInvalid.focus();
+                        }
+                    }
+
+                    const saveBtn = form.querySelector(
+                        'button[type="submit"], [data-save-button]',
+                    );
+                    if (saveBtn) {
+                        saveBtn.removeAttribute("disabled");
+                        saveBtn.removeAttribute("data-button-is-loading");
+                        saveBtn.removeAttribute("aria-busy");
+                    }
+
+                    return false;
+                }
+            },
+            true,
+        );
     }
 
     const channelsEl =

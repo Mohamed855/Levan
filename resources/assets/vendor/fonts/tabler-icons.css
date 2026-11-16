@@ -123,11 +123,15 @@
     }
 }
 .ti-spin {
-    animation: spin 2s linear infinite;
+    display: inline-block;
+    transform-origin: center center;
+    animation: spin 0.75s linear infinite;
 }
 
 .ti-spin-hover:hover {
-    animation: spin 2s linear infinite;
+    display: inline-block;
+    transform-origin: center center;
+    animation: spin 0.75s linear infinite;
 }
 
 .ti-tada {

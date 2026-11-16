@@ -701,7 +701,7 @@
                 pollInFlight = false;
             }
 
-            function startPolling(timeoutLimit, isManualRetry = false, pollImmediately = true) {
+            function startPolling(timeoutLimit, isManualRetry = false, pollImmediately = true, expectedGenerationId = null) {
                 stopPolling();
                 setProcessingUI();
 
@@ -744,10 +744,18 @@
                                 'Accept': 'application/json'
                             }
                         });
-                        if (!res.ok) {
+                        if (!res.ok || !pollInterval) {
                             return;
                         }
                         const data = await res.json();
+
+                        if (!pollInterval) {
+                            return;
+                        }
+
+                        if (expectedGenerationId && data.generation_id && data.generation_id < expectedGenerationId) {
+                            return;
+                        }
 
                         if (data.status === 'processing' || data.status === 'queued') {
                             setProcessingUI();
@@ -835,7 +843,7 @@
                         }
 
                         tracker.update(data.progress ?? 0, data.generation_id);
-                        startPolling(MANUAL_TIMEOUT_MS, true, false);
+                        startPolling(MANUAL_TIMEOUT_MS, true, false, data.generation_id);
                     } else {
                         if (loadingBox) {
                             loadingBox.classList.add('d-none');

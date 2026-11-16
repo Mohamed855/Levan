@@ -84,7 +84,7 @@
                     </x-form.wizard.step>
 
                     {{-- الخطوة 3: بيانات العقارات --}}
-                    <x-form.wizard.step id="step-establishment-properties" :fields="['data.properties']">
+                    <x-form.wizard.step id="step-establishment-properties" :fields="['data.properties', 'attachments.deed', 'attachments.valuation', 'attachments.representative_authority']">
                         @include('tenant.auction-establishment-requests.steps.step3-properties', [
                             'auction' => $auction,
                             'schema' => $schema,
@@ -118,7 +118,7 @@
                     </x-form.wizard.step>
 
                     {{-- الخطوة 5: المرفقات والمستندات (مستقلة بالكامل) --}}
-                    <x-form.wizard.step id="step-attachments" :fields="['attachments']">
+                    <x-form.wizard.step id="step-attachments" :fields="['attachments.manager_certificate', 'attachments.auctioneer_certificate']">
                         @include('tenant.auction-establishment-requests.steps.step5-attachments', [
                             'auction' => $auction,
                             'schema' => $schema,

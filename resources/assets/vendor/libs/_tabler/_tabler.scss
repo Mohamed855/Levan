@@ -217,13 +217,19 @@
   }
 }
 .ti-spin {
-  -webkit-animation: spin 2s linear infinite;
-  animation: spin 2s linear infinite;
+  display: inline-block;
+  -webkit-transform-origin: center center;
+  transform-origin: center center;
+  -webkit-animation: spin 0.75s linear infinite;
+  animation: spin 0.75s linear infinite;
 }
 
 .ti-spin-hover:hover {
-  -webkit-animation: spin 2s linear infinite;
-  animation: spin 2s linear infinite;
+  display: inline-block;
+  -webkit-transform-origin: center center;
+  transform-origin: center center;
+  -webkit-animation: spin 0.75s linear infinite;
+  animation: spin 0.75s linear infinite;
 }
 
 .ti-tada {
