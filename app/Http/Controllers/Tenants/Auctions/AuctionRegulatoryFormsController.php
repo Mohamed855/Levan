@@ -58,7 +58,12 @@ final class AuctionRegulatoryFormsController extends Controller
         $published = $this->forms->published($auction, $type);
         abort_unless($published?->isReady() && Storage::disk('tenant_private')->exists($published->file_path), 404);
 
-        return Storage::disk('tenant_private')->download($published->file_path, 'auction-'.$auction->id.'-'.$type.'.pdf');
+        $fileName = match ($type) {
+            'establishment' => 'نموذج-طلب-إقامة-مزاد-'.$auction->id.'.pdf',
+            'closing' => 'نموذج-إقفال-مزاد-'.$auction->id.'.pdf',
+        };
+
+        return Storage::disk('tenant_private')->download($published->file_path, $fileName);
     }
 
     private function authorizeForm(Auction $auction, string $type, string $ability = 'view'): void

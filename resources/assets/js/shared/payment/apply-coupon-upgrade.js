@@ -121,13 +121,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
             document.getElementById("subtotal-display").innerHTML =
                 formatNumber(originalSubtotal) +
-                ' <span class="icon-saudi_riyal mx-2"></span>';
+                ' <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>';
             document.getElementById("vat-display").innerHTML =
                 formatNumber(originalVat) +
-                ' <span class="icon-saudi_riyal mx-2"></span>';
+                ' <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>';
             document.getElementById("total-final").innerHTML =
                 formatNumber(originalTotal) +
-                ' <span class="icon-saudi_riyal mx-2"></span>';
+                ' <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>';
 
             couponMessage.innerHTML = "";
             applyCouponBtn.classList.remove("d-none");
@@ -153,14 +153,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         afterDiscountDisplay.innerHTML =
             formatNumber(newSubtotal) +
-            ' <span class="icon-saudi_riyal mx-2"></span>';
+            ' <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>';
         afterDiscountRow.classList.remove("d-none");
 
         document.getElementById("vat-display").innerHTML =
-            formatNumber(vat) + ' <span class="icon-saudi_riyal mx-2"></span>';
+            formatNumber(vat) + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>';
         document.getElementById("total-final").innerHTML =
             formatNumber(totalWithVat) +
-            ' <span class="icon-saudi_riyal mx-2"></span>';
+            ' <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>';
     }
 
     // رسالة حالة الكوبون

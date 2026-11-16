@@ -30,8 +30,9 @@ final class AuctionReportController extends Controller
     {
         $this->authorize('view', $auction);
 
+        $auction->loadMissing(['latestReportGeneration' => fn ($query) => $query->metadata()]);
         $generation = $auction->latestReportGeneration;
-        $published = $auction->publishedReportGeneration;
+        $published = $this->publishedGeneration($auction);
 
         if (! $generation) {
             return response()->json(['status' => 'none']);
@@ -63,7 +64,7 @@ final class AuctionReportController extends Controller
     {
         $this->authorize('view', $auction);
 
-        $generation = $auction->publishedReportGeneration;
+        $generation = $this->publishedGeneration($auction);
 
         abort_unless(
             $generation?->isReady() && filled($generation->outputs_path),
@@ -89,7 +90,7 @@ final class AuctionReportController extends Controller
     {
         $this->authorize('view', $auction);
 
-        $generation = $auction->publishedReportGeneration;
+        $generation = $this->publishedGeneration($auction);
 
         abort_unless(
             $generation?->isReady() && filled($generation->report_path),
@@ -120,8 +121,7 @@ final class AuctionReportController extends Controller
             if ($generation->status === 'queued') {
                 $generation = $this->reportService->startPendingGeneration($auction, $tenantId) ?? $generation;
             }
-            $published = ($auction->exists ? $auction->fresh()?->publishedReportGeneration : null)
-                ?? $auction->publishedReportGeneration;
+            $published = $this->publishedGeneration($auction->exists ? ($auction->fresh() ?? $auction) : $auction);
             $payload = $this->reportStatePayload($auction, $generation, $published);
 
             $isReady = $generation->isReady();
@@ -139,7 +139,7 @@ final class AuctionReportController extends Controller
                 'success' => true,
                 'message' => $isReady
                     ? 'تم تجهيز ملفات المزاد بنجاح.'
-                    : 'تمت جدولة إعادة تجهيز ملفات المزاد.',
+                    : 'جار إعادة تجهيز ملفات المزاد.',
             ]), $isReady ? 200 : 202);
         } catch (\Throwable $e) {
             Log::error('Auction report retry failed.', ['auction_id' => $auction->id, 'exception' => $e]);
@@ -149,6 +149,13 @@ final class AuctionReportController extends Controller
                 'message' => 'تعذر تجهيز ملفات المزاد. يُرجى المحاولة مرة أخرى.',
             ], 500);
         }
+    }
+
+    private function publishedGeneration(Auction $auction): ?AuctionReportGeneration
+    {
+        $auction->loadMissing(['publishedReportGeneration' => fn ($query) => $query->metadata()]);
+
+        return $auction->publishedReportGeneration;
     }
 
     /**

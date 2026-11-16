@@ -50,6 +50,34 @@ final class AuctionReportArtwork
         $svg = $document->documentElement;
         $svg->setAttribute('data-report-page', (string) $pageNumber);
         $xpath = new DOMXPath($document);
+        $hasCover = $design === 'haram' && $index === 0 && $this->isImage($images['cover_image'][0]['uri'] ?? null);
+        foreach ($page['backdrop_patches'] ?? [] as $patchIndex => [$box, $offset]) {
+            if ($hasCover) {
+                continue;
+            }
+            $backdrop = $xpath->query('//*[@data-backdrop="true"]')->item(0);
+            if (! $backdrop instanceof DOMElement) {
+                continue;
+            }
+            [$left, $top, $right, $bottom] = $box;
+            $clipId = 'report_'.$pageNumber.'_backdrop_patch_'.$patchIndex;
+            $clip = $document->createElementNS(self::SVG, 'clipPath');
+            $clip->setAttribute('id', $clipId);
+            $rect = $document->createElementNS(self::SVG, 'rect');
+            foreach (['x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top] as $key => $value) {
+                $rect->setAttribute($key, (string) $value);
+            }
+            $clip->appendChild($rect);
+            $svg->getElementsByTagName('defs')->item(0)->appendChild($clip);
+            $group = $document->createElementNS(self::SVG, 'g');
+            $group->setAttribute('clip-path', 'url(#'.$clipId.')');
+            $copy = $backdrop->cloneNode(true);
+            $copy->removeAttribute('data-backdrop');
+            [$offsetX, $offsetY] = is_array($offset) ? $offset : [0, $offset];
+            $copy->setAttribute('transform', 'translate('.$offsetX.' '.$offsetY.')');
+            $group->appendChild($copy);
+            $svg->appendChild($group);
+        }
         $cover = $images['cover_image'][0] ?? [];
         if ($design === 'haram' && $index === 0 && $this->isImage($cover['uri'] ?? null)) {
             $backdrop = $xpath->query('//*[@data-backdrop="true"]')->item(0);
@@ -75,6 +103,23 @@ final class AuctionReportArtwork
                 $key = $backdrop->cloneNode(true);
                 $key->removeAttribute('data-backdrop');
                 $key->setAttribute('filter', 'url(#'.$maskId.'_key)');
+                if (! empty($page['backdrop_patches'])) {
+                    $clip = $document->createElementNS(self::SVG, 'clipPath');
+                    $clip->setAttribute('id', $maskId.'_clean');
+                    $path = $document->createElementNS(self::SVG, 'path');
+                    $outline = 'M0 0H'.$page['width'].'V'.$page['height'].'H0Z';
+                    foreach ($page['backdrop_patches'] as [$box]) {
+                        [$left, $top, $right, $bottom] = $box;
+                        $outline .= 'M'.$left.' '.$top.'H'.$right.'V'.$bottom.'H'.$left.'Z';
+                    }
+                    $path->setAttribute('d', $outline);
+                    $path->setAttribute('clip-rule', 'evenodd');
+                    $path->setAttribute('fill-rule', 'evenodd');
+                    $clip->appendChild($path);
+                    $svg->getElementsByTagName('defs')->item(0)->appendChild($clip);
+                    $key->setAttribute('clip-path', 'url(#'.$maskId.'_clean)');
+                    $backdrop->setAttribute('clip-path', 'url(#'.$maskId.'_clean)');
+                }
                 $mask->appendChild($key);
                 $defs = $svg->getElementsByTagName('defs')->item(0);
                 $defs->appendChild($filter);
@@ -119,9 +164,10 @@ final class AuctionReportArtwork
                 $node->parentNode?->removeChild($node);
             }
         }
-        foreach ($page['clear_boxes'] ?? [] as [$left, $top, $right, $bottom]) {
+        foreach ($page['clear_boxes'] ?? [] as $box) {
+            [$left, $top, $right, $bottom] = $box;
             $rect = $document->createElementNS(self::SVG, 'rect');
-            foreach (['x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top, 'fill' => '#f5f6fa'] as $key => $value) {
+            foreach (['x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top, 'fill' => $box[4] ?? '#f5f6fa'] as $key => $value) {
                 $rect->setAttribute($key, (string) $value);
             }
             $svg->appendChild($rect);
@@ -275,15 +321,17 @@ final class AuctionReportArtwork
                         continue;
                     }
                     $field = $page['fields'][$fieldId];
-                    $field['x'] = $table['columns'][$column] + 4;
-                    $field['width'] = $table['columns'][$column + 1] - $table['columns'][$column] - 8;
+                    $field['color'] = $table['text_color'] ?? $field['color'];
+                    $padding = $table['padding'] ?? 4;
+                    $field['x'] = $table['columns'][$column] + $padding;
+                    $field['width'] = $table['columns'][$column + 1] - $table['columns'][$column] - 2 * $padding;
                     $field['y'] = $slot['top'] + ($slot['bottom'] - $slot['top']) / 2 + $field['sy'] * .32;
                     $field['rtl'] = preg_match('/[\x{0600}-\x{06ff}]/u', $value) === 1;
                     $this->textLayout ??= new AuctionReportTextLayout($this->root);
                     if ($this->textLayout->height(explode("\n", $value), $field['size'], $field['sy'], $field['font']) > $slot['bottom'] - $slot['top'] + 1) {
                         throw new InvalidArgumentException('A report field exceeds the available continuation page height.');
                     }
-                    $this->text($document, $svg, $field, $value, ['data-report-cell' => $id.':'.$rowIndex.':'.$column], true, true);
+                    $this->text($document, $svg, $field, $value, ['data-report-cell' => $id.':'.$rowIndex.':'.$column], ! ($table['align_right'] ?? false), true);
                 }
             }
         }
@@ -344,6 +392,9 @@ final class AuctionReportArtwork
         foreach ($boxes as [$key, $box, $background]) {
             if ($background !== null) {
                 $this->brandingBox($document, $box, $background);
+                if ($design === 'haram' && in_array($index, [0, 6], true)) {
+                    $svg->lastChild->setAttribute('fill-opacity', '0.4');
+                }
             }
             $uri = $branding[$key] ?? null;
             if (! $this->isImage($uri)) {
@@ -449,7 +500,10 @@ final class AuctionReportArtwork
                         $node->setAttribute($attribute, (string) $value);
                     }
                     if ($tag === 'rect') {
-                        $node->setAttribute('fill', '#ffffff');
+                        $fill = ($pageNumber === 1 && (str_starts_with($media, 'report_image') || str_starts_with($media, 'cover_image')))
+                            ? 'transparent'
+                            : '#ffffff';
+                        $node->setAttribute('fill', $fill);
                     } else {
                         $node->setAttribute('preserveAspectRatio', 'xMidYMid meet');
                         $node->setAttribute('data-report-contained', $media);
@@ -522,6 +576,9 @@ final class AuctionReportArtwork
         if (isset($table['row_fills'])) {
             foreach ($rows as $index => $row) {
                 $rect = $document->createElementNS(self::SVG, 'rect');
+                if ($table['align_right'] ?? false) {
+                    $rect->setAttribute('data-haram-table-row', $id);
+                }
                 foreach (['x' => $left, 'y' => $row['top'], 'width' => $right - $left, 'height' => $row['bottom'] - $row['top'], 'fill' => $table['row_fills'][$index % count($table['row_fills'])]] as $key => $value) {
                     $rect->setAttribute($key, (string) $value);
                 }
@@ -537,10 +594,11 @@ final class AuctionReportArtwork
             $svg->appendChild($rect);
             foreach ($header['labels'] as $column => $label) {
                 $field = $header['field'];
-                $field['x'] = $table['columns'][$column] + 4;
-                $field['width'] = $table['columns'][$column + 1] - $table['columns'][$column] - 8;
+                $padding = $table['padding'] ?? 4;
+                $field['x'] = $table['columns'][$column] + $padding;
+                $field['width'] = $table['columns'][$column + 1] - $table['columns'][$column] - 2 * $padding;
                 $field['y'] = ($header['top'] + $header['bottom']) / 2 + $field['sy'] * .32;
-                $this->text($document, $svg, $field, $label, ['data-result-header' => $id.':'.$column], true);
+                $this->text($document, $svg, $field, $label, ['data-result-header' => $id.':'.$column], ! ($table['align_right'] ?? false));
             }
         }
         foreach (array_slice($table['columns'], 1, -1) as $x) {

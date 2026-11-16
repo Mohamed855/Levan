@@ -810,7 +810,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const rTotal = document.getElementById("review-final-total");
         if (rTotal) {
-            rTotal.textContent = finalTotalText + " ر.س";
+            rTotal.innerHTML = finalTotalText + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>';
         }
     }
 

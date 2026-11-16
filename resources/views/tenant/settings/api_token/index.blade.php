@@ -82,7 +82,7 @@
                             <tbody>
                                 @forelse ($logs as $log)
                                     <tr>
-                                        <td>@datetime($log->created_at)</td>
+                                        <td>@datetimeColumn($log->created_at)</td>
                                         <td><span class="badge bg-secondary">{{ $log->method }}</span></td>
                                         <td>{{ $log->path }}</td>
                                         <td>

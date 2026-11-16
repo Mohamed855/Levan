@@ -115,6 +115,10 @@ class AppServiceProvider extends ServiceProvider
             return "<?php echo e(system_datetime({$expression})); ?>";
         });
 
+        Blade::directive('datetimeColumn', function (string $expression) {
+            return "<?php echo system_datetime_display({$expression}); ?>";
+        });
+
         Carbon::setLocale('ar');
         Carbon::setToStringFormat(system_date_format());
         CarbonImmutable::setToStringFormat(system_date_format());

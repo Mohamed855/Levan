@@ -54,6 +54,7 @@ class RoleService
         return DB::transaction(function () use ($data, $permissions) {
             $role = Role::create([
                 'name' => $data['name'],
+                'label' => $data['label'] ?? null,
                 'guard_name' => 'tenant',
             ]);
 
@@ -94,7 +95,11 @@ class RoleService
         }
 
         return DB::transaction(function () use ($role, $data, $permissions) {
-            $role->update(['name' => $data['name']]);
+            $updateData = ['name' => $data['name']];
+            if (array_key_exists('label', $data)) {
+                $updateData['label'] = $data['label'];
+            }
+            $role->update($updateData);
 
             $role->syncPermissions($permissions);
 
@@ -211,7 +216,7 @@ class RoleService
     public function getUserRoleData(User $user): array
     {
         return [
-            'roles' => Role::where('guard_name', 'tenant')->get()->map(fn ($role) => ['id' => $role->id, 'name' => $role->name, 'label' => AccessLabels::role($role->name)]),
+            'roles' => Role::where('guard_name', 'tenant')->get()->map(fn ($role) => ['id' => $role->id, 'name' => $role->name, 'label' => AccessLabels::role($role)]),
             'assigned_role' => $user->roles->first()?->id,
             'assigned_status' => $user->status,
             'status_options' => SelectOptions::fromEnum(ActivityStatus::class),

@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\Helpers;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 
@@ -28,7 +29,7 @@ if (! function_exists('parse_system_date')) {
             return $value->copy();
         }
 
-        if ($value instanceof \DateTimeInterface) {
+        if ($value instanceof DateTimeInterface) {
             return Carbon::instance($value);
         }
 
@@ -55,7 +56,7 @@ if (! function_exists('parse_system_date')) {
             }
 
             return Carbon::parse($trimmed);
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return null;
         }
     }
@@ -87,3 +88,53 @@ if (! function_exists('system_datetime')) {
     }
 }
 
+if (! function_exists('system_datetime_display')) {
+    function system_datetime_display(mixed $date, mixed $time = null, string $fallback = '-'): string
+    {
+        $parsedDate = parse_system_date($date);
+        if (! $parsedDate) {
+            return $fallback;
+        }
+
+        $formattedDate = $parsedDate->format(system_date_format());
+
+        $formattedTime = '';
+        if ($time !== null && $time !== '') {
+            $parsedTime = parse_system_date($time);
+            $formattedTime = $parsedTime
+                ? $parsedTime->copy()->locale('ar')->translatedFormat('h:i A')
+                : (string) $time;
+        } else {
+            $hasTime = false;
+            if ($date instanceof DateTimeInterface) {
+                $hasTime = ($parsedDate->hour !== 0 || $parsedDate->minute !== 0 || $parsedDate->second !== 0);
+            } elseif (is_string($date) && preg_match('/\d{1,2}:\d{2}/', $date) === 1) {
+                $hasTime = true;
+            }
+
+            if ($hasTime) {
+                $formattedTime = $parsedDate->copy()->locale('ar')->translatedFormat('h:i A');
+            }
+        }
+
+        if ($formattedTime === '') {
+            return '<div>'.e($formattedDate).'</div>';
+        }
+
+        return '<div>'.e($formattedDate).'</div><small class="text-muted">'.e($formattedTime).'</small>';
+    }
+}
+
+if (! function_exists('riyal_icon')) {
+    function riyal_icon(bool $dark = true): string
+    {
+        return Helpers::riyalIcon($dark);
+    }
+}
+
+if (! function_exists('format_price')) {
+    function format_price(mixed $amount, int $decimals = 2, bool $dark = true, string $fallback = '-'): string
+    {
+        return Helpers::formatPrice($amount, $decimals, $dark, $fallback);
+    }
+}

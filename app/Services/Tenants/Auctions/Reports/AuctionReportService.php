@@ -37,7 +37,7 @@ final class AuctionReportService
                 ]);
             });
 
-            return $generation->fresh();
+            return $generation;
         } catch (Throwable $exception) {
             Log::error('Auction report generation could not be queued.', [
                 'tenant_id' => $tenantId,
@@ -61,7 +61,7 @@ final class AuctionReportService
         try {
             $generation = DB::transaction(function () use ($auction, $tenantId, &$generation): ?AuctionReportGeneration {
                 $auction = Auction::query()->whereKey($auction->id)->lockForUpdate()->firstOrFail();
-                $generation = $auction->latestReportGeneration()->lockForUpdate()->first();
+                $generation = $auction->latestReportGeneration()->metadata()->lockForUpdate()->first();
                 if (! $generation || $generation->status !== 'queued') {
                     return null;
                 }
@@ -84,7 +84,7 @@ final class AuctionReportService
                 DB::afterCommit(fn () => $this->ensureQueueWorkerIsRunning());
             }
 
-            return $generation?->fresh();
+            return $generation ? AuctionReportGeneration::query()->metadata()->find($generation->id) : null;
         } catch (Throwable $exception) {
             Log::error('Auction report generation could not be started.', [
                 'tenant_id' => $tenantId, 'auction_id' => $auction->id, 'exception' => $exception,
@@ -95,7 +95,7 @@ final class AuctionReportService
                 ]);
             }
 
-            return $generation?->fresh();
+            return $generation ? AuctionReportGeneration::query()->metadata()->find($generation->id) : null;
         }
     }
 

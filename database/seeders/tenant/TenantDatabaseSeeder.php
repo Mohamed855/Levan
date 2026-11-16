@@ -18,5 +18,9 @@ class TenantDatabaseSeeder extends Seeder
             SettingsTableSeeder::class,
             UserSeeder::class,
         ]);
+
+        if (config('seeding.test_seeders_enabled', false)) {
+            $this->call(TestTenantDataCycleSeeder::class);
+        }
     }
 }

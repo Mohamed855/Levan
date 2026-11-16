@@ -52,7 +52,7 @@
                                 <div class="checkout-payment-total">
                                     <span>إجمالي الفاتورة</span>
                                     <strong>{{ number_format($bill->amount, 2) }} <span
-                                            class="icon-saudi_riyal"></span></strong>
+                                            class="icon-saudi_riyal icon-saudi_riyal--dark"></span></strong>
                                 </div>
 
                                 <x-payment.moyasar-form :amount-in-halala="$amountInHalala" :callback-url="$callbackUrl" :description="$description"

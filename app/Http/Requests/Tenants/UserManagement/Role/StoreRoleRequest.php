@@ -37,6 +37,11 @@ class StoreRoleRequest extends WizardFormRequest
                 Rule::unique('roles', 'name')->where('guard_name', 'tenant'),
                 'regex:/^[A-Za-z][A-Za-z0-9_-]*$/',
             ],
+            'label' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
             'permissions' => [
                 'required_unless:select_all,true',
                 'array',
@@ -107,8 +112,11 @@ class StoreRoleRequest extends WizardFormRequest
         $selectAllRaw = $this->input('select_all');
         $selectAll = filter_var($selectAllRaw, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
+        $resolved = AccessLabels::resolveRoleInput($this->input('name'), null, 'tenant');
+
         $this->merge([
-            'name' => AccessLabels::roleKey($this->input('name'), is_object($this->route('role')) ? $this->route('role')->name : null),
+            'name' => $resolved['name'],
+            'label' => $resolved['label'],
             'select_all' => $selectAll ?? false,
         ]);
     }

@@ -2,6 +2,7 @@
     display: inline-block;
     width: 1em;
     height: 1em;
+    vertical-align: -0.15em;
     background-image: url('/static/dashboard/icons/saudi-riyal.png');
     background-size: contain;
     background-repeat: no-repeat;
@@ -11,6 +12,42 @@
 }
 
 .icon-saudi_riyal--dark {
+    filter: none !important;
+    -webkit-filter: none !important;
+}
+
+.icon-saudi_riyal--white {
+    filter: brightness(0) invert(1) !important;
+    -webkit-filter: brightness(0) invert(1) !important;
+}
+
+/* Smart contextual defaults on light containers */
+.table .icon-saudi_riyal:not(.icon-saudi_riyal--white),
+.card .icon-saudi_riyal:not(.icon-saudi_riyal--white):not(.badge *),
+.input-group-text .icon-saudi_riyal:not(.icon-saudi_riyal--white),
+.form-control .icon-saudi_riyal:not(.icon-saudi_riyal--white),
+.dropdown-menu .icon-saudi_riyal:not(.icon-saudi_riyal--white),
+.bg-light .icon-saudi_riyal:not(.icon-saudi_riyal--white),
+.bg-white .icon-saudi_riyal:not(.icon-saudi_riyal--white),
+.bg-body-secondary .icon-saudi_riyal:not(.icon-saudi_riyal--white):not(.badge *) {
     filter: none;
     -webkit-filter: none;
 }
+
+/* Smart contextual defaults on dark/vibrant containers */
+.btn-primary .icon-saudi_riyal:not(.icon-saudi_riyal--dark),
+.btn-dark .icon-saudi_riyal:not(.icon-saudi_riyal--dark),
+.btn-success .icon-saudi_riyal:not(.icon-saudi_riyal--dark),
+.btn-danger .icon-saudi_riyal:not(.icon-saudi_riyal--dark),
+.btn-info .icon-saudi_riyal:not(.icon-saudi_riyal--dark),
+.badge.bg-primary .icon-saudi_riyal:not(.icon-saudi_riyal--dark),
+.badge.bg-dark .icon-saudi_riyal:not(.icon-saudi_riyal--dark),
+.badge.bg-success .icon-saudi_riyal:not(.icon-saudi_riyal--dark),
+.badge.bg-danger .icon-saudi_riyal:not(.icon-saudi_riyal--dark),
+.badge.bg-info .icon-saudi_riyal:not(.icon-saudi_riyal--dark),
+.text-white .icon-saudi_riyal:not(.icon-saudi_riyal--dark),
+[data-bs-theme="dark"] .icon-saudi_riyal:not(.icon-saudi_riyal--dark) {
+    filter: brightness(0) invert(1);
+    -webkit-filter: brightness(0) invert(1);
+}
+

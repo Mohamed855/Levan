@@ -5,6 +5,7 @@ return [
     'Admin' => 'مدير النظام',
     'User' => 'مستخدم',
     'Collector' => 'محصّل',
+    'SupportAgent' => 'الدعم الفني',
     'guards' => [
         'admin' => 'الإدارة الرئيسية',
         'tenant' => 'إدارة الشركة',

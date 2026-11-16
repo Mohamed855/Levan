@@ -63,13 +63,13 @@
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-currency-riyal text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">السعر الأساسي:</span>
-                                <span>{{ number_format((float) $plan->price, 2) }} ر.س</span>
+                                <span>{{ number_format((float) $plan->price, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-tag text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">السعر بعد الخصم:</span>
                                 <span class="text-success fw-bold">{{ number_format($plan->price_after_discount, 2) }}
-                                    ر.س</span>
+                                    <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-user text-primary me-2 fs-5"></i>
@@ -131,7 +131,7 @@
                                     </div>
                                     <div>
                                         <small class="text-muted d-block">السعر الأساسي للدورة</small>
-                                        <span class="fw-bold fs-5">{{ number_format((float) $plan->price, 2) }} ر.س</span>
+                                        <span class="fw-bold fs-5">{{ number_format((float) $plan->price, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                                     </div>
                                 </div>
                             </div>
@@ -159,7 +159,7 @@
                                         <small class="text-muted d-block">السعر النهائي</small>
                                         <span
                                             class="fw-bold fs-5 text-success">{{ number_format($plan->price_after_discount, 2) }}
-                                            ر.س</span>
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                                     </div>
                                 </div>
                             </div>
@@ -173,7 +173,7 @@
                                     <div>
                                         <small class="text-muted d-block">سعر العرض السنوي</small>
                                         <span
-                                            class="fw-bold fs-5">{{ $plan->yearly_renewal_price ? number_format((float) $plan->yearly_renewal_price, 2) . ' ر.س' : 'غير متوفر' }}</span>
+                                            class="fw-bold fs-5">@if ($plan->yearly_renewal_price){{ number_format((float) $plan->yearly_renewal_price, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>@else غير متوفر@endif</span>
                                     </div>
                                 </div>
                             </div>
@@ -187,7 +187,7 @@
                                     <div>
                                         <small class="text-muted d-block">ترخيص إضافي</small>
                                         <span
-                                            class="fw-bold fs-5">{{ $plan->isUnlimited() ? 'غير مطلوب' : ($plan->extra_user_license_price ? number_format((float) $plan->extra_user_license_price, 2) . ' ر.س' : '0.00 ر.س') }}</span>
+                                            class="fw-bold fs-5">@if ($plan->isUnlimited())غير مطلوب@elseif ($plan->extra_user_license_price){{ number_format((float) $plan->extra_user_license_price, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>@else 0.00 <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>@endif</span>
                                     </div>
                                 </div>
                             </div>

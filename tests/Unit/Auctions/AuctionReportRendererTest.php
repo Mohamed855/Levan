@@ -63,7 +63,7 @@ final class AuctionReportRendererTest extends TestCase
         }
     }
 
-    public function test_measured_result_overflow_also_uses_a_single_section_continuation(): void
+    public function test_long_result_rows_reach_native_tables_for_browser_measurement_without_truncation(): void
     {
         $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';
         $snapshot['auction']['name'] = 'مزاد جوار الحرم للعقارات السكنية';
@@ -78,15 +78,14 @@ final class AuctionReportRendererTest extends TestCase
         $document = new \DOMDocument;
         @$document->loadHTML($html);
         $xpath = new \DOMXPath($document);
-        $page = $xpath->query('//*[@data-page-type="haram-results-continuation"]')->item(0);
+        $page = $xpath->query('//*[@data-page-type="haram-results"]')->item(0);
         self::assertNotNull($page);
-        self::assertSame(0, $xpath->query('.//*[@data-report-cell and starts-with(@data-report-cell,"sold:")]', $page)->length);
+        self::assertSame(0, $xpath->query('.//*[local-name()="svg"]', $page)->length);
+        self::assertSame(1, $xpath->query('.//table[@data-native-result-table="sold"]/tbody/tr', $page)->length);
         self::assertSame(1, $xpath->query('.//*[@data-result-section="unsold"]', $page)->length);
-        self::assertLessThan(200, (float) $xpath->query('.//*[@data-report-cell="unsold:0:0"]', $page)->item(0)->getAttribute('y'));
+        self::assertSame(str_repeat('سبب عدم البيع ', 20), $xpath->query('.//*[@data-report-cell="unsold:0:0"]', $page)->item(0)->textContent);
         self::assertSame(7, $xpath->query('//*[@data-report-cell and starts-with(@data-report-cell,"unsold:") and substring(@data-report-cell,string-length(@data-report-cell)-1)=":2"]')->length);
-        $baseFooter = $xpath->query('//*[@data-page-type="haram-results"]//*[@data-report-field="footer"]')->item(0);
-        $continuedFooter = $xpath->query('.//*[@data-report-field="footer"]', $page)->item(0);
-        self::assertSame($baseFooter->getAttribute('font-size'), $continuedFooter->getAttribute('font-size'), 'Reflow must fit the original scalar, not previously wrapped fragments at a different size.');
+        self::assertSame(1, $xpath->query('.//*[@data-native-flow]', $page)->length);
     }
 
     public function test_campaign_appendices_preserve_each_metric_and_its_own_safe_link_and_evidence_channel(): void
@@ -141,7 +140,7 @@ final class AuctionReportRendererTest extends TestCase
             foreach (['cover', 'marketing', 'platform', 'social', 'closing'] as $role) {
                 self::assertFalse(str_contains($html, '-'.$role.'-continuation"'), 'A scalar '.$role.' value duplicated its page in '.$type);
             }
-            self::assertTrue(str_contains($html, '>1,000,006</tspan>'), 'A seven-digit metric was broken into separate text chunks.');
+            self::assertTrue(str_contains($html, '>1,000,006</tspan>') || str_contains($html, '>1,000,006</strong>'), 'A seven-digit metric was broken into separate text chunks.');
         }
     }
     public function test_unknown_statistics_never_reuse_the_reference_pie_and_metrics_stay_on_one_page(): void

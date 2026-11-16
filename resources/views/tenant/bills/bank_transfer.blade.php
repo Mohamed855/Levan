@@ -30,7 +30,7 @@
                 <div class="alert alert-outline-warning d-flex justify-content-around my-3 mx-3" role="alert">
                     <p class="m-0 fw-bold">رقم الفاتورة: {{ $bill->bill_number }}</p>
                     <p class="m-0 fw-bold">المبلغ المستحق: {{ number_format($amount, 2) }} <span
-                            class="icon-saudi_riyal"></span></p>
+                            class="icon-saudi_riyal icon-saudi_riyal--dark"></span></p>
                 </div>
 
                 <form action="{{ tenant_route_name('bills.upload-receipt', $bill->id) }}" method="POST"

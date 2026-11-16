@@ -24,8 +24,9 @@ final class MarketingCampaignsDataTable extends AbstractDataTable
             ->select('auctions.*')
             ->with([
                 'marketingCampaigns' => fn ($query) => $query->withCount('evidence'),
-                'assignment.issuingEntity',
-                'establishmentRequest',
+                'assignment:id,issuing_entity_id,name',
+                'assignment.issuingEntity:id,name',
+                'establishmentRequest' => fn ($q) => $q->select(['id', 'auction_id', 'approval_number', 'submitted_at', 'approved_at']),
                 'properties:id',
             ])
             ->withCount([

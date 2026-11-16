@@ -25,7 +25,7 @@
 
                 <x-form.wizard.step id="role-info" :fields="['name']">
                     <div class="row g-4 mb-4">
-                        <x-form.controls.input name="name" label="اسم الدور" :value="old('name', isset($role) ? \App\Support\AccessLabels::role($role->name) : '')"
+                        <x-form.controls.input name="name" label="اسم الدور" :value="old('name', isset($role) ? \App\Support\AccessLabels::role($role) : '')"
                             placeholder="مثال: مدير التسويق" required col="col-12" />
                     </div>
 

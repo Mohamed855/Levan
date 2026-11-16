@@ -22,7 +22,11 @@ function initPlanFormUI() {
     const setText = (card, field, value) => {
         card.querySelectorAll(`[data-plan-field="${field}"]`).forEach(
             (element) => {
-                element.textContent = value;
+                if (typeof value === "string" && value.includes("<")) {
+                    element.innerHTML = value;
+                } else {
+                    element.textContent = value;
+                }
             },
         );
     };
@@ -321,7 +325,7 @@ function initPlanFormUI() {
     }
 
     function updatePlanReviewCards() {
-        const price = Number.parseFloat(getValue("price", "0")) || 0;
+        const price = Number.parseFloat(String(getValue("price", "0")).replace(/,/g, "")) || 0;
         const discount = Math.min(
             100,
             Math.max(
@@ -331,9 +335,9 @@ function initPlanFormUI() {
         );
         const finalPrice = Math.max(0, price - (price * discount) / 100);
         const renewalPrice =
-            Number.parseFloat(getValue("yearly_renewal_price", "0")) || 0;
+            Number.parseFloat(String(getValue("yearly_renewal_price", "0")).replace(/,/g, "")) || 0;
         const extraPrice =
-            Number.parseFloat(getValue("extra_user_license_price", "0")) || 0;
+            Number.parseFloat(String(getValue("extra_user_license_price", "0")).replace(/,/g, "")) || 0;
         const isUnlimited = getValue("limits_mode", "limited") === "unlimited";
         const formatPrice = (value) =>
             value.toLocaleString("en-US", {
@@ -345,7 +349,13 @@ function initPlanFormUI() {
 
         const setReview = (id, val) => {
             const el = document.getElementById(id);
-            if (el) el.textContent = val || "—";
+            if (el) {
+                if (typeof val === "string" && val.includes("<")) {
+                    el.innerHTML = val;
+                } else {
+                    el.textContent = val || "—";
+                }
+            }
         };
 
         setReview("plan-review-name", getValue("name"));
@@ -390,16 +400,16 @@ function initPlanFormUI() {
             }
         }
 
-        setReview("plan-review-price", `${formatPrice(price)} ر.س`);
+        setReview("plan-review-price", `${formatPrice(price)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`);
         setReview(
             "plan-review-billing-cycle",
             getSelectLabel("subscription_billing_cycle"),
         );
         setReview("plan-review-discount", `${discount}%`);
-        setReview("plan-review-final-price", `${formatPrice(finalPrice)} ر.س`);
+        setReview("plan-review-final-price", `${formatPrice(finalPrice)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`);
         setReview(
             "plan-review-renewal-price",
-            renewalPrice > 0 ? `${formatPrice(renewalPrice)} ر.س` : "غير محدد",
+            renewalPrice > 0 ? `${formatPrice(renewalPrice)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>` : "غير محدد",
         );
 
         setReview(
@@ -409,7 +419,7 @@ function initPlanFormUI() {
         setReview("plan-review-users", limitValue("included_users", "مستخدم"));
         setReview(
             "plan-review-extra-user-price",
-            isUnlimited ? "غير مطبق" : `${formatPrice(extraPrice)} ر.س`,
+            isUnlimited ? "غير مطبق" : `${formatPrice(extraPrice)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`,
         );
         setReview(
             "plan-review-properties",
@@ -426,7 +436,7 @@ function initPlanFormUI() {
         const cards = document.querySelectorAll("[data-package-card]");
         if (!cards.length) return;
 
-        const price = Number.parseFloat(getValue("price", "0")) || 0;
+        const price = Number.parseFloat(String(getValue("price", "0")).replace(/,/g, "")) || 0;
         const discount = Math.min(
             100,
             Math.max(
@@ -470,7 +480,7 @@ function initPlanFormUI() {
                 "billing-cycle",
                 `لكل ${getSelectLabel("subscription_billing_cycle", "شهري")}`,
             );
-            setText(card, "original-price", `${formatPrice(price)} ر.س`);
+            setText(card, "original-price", `${formatPrice(price)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`);
             setText(card, "users", limitValue("included_users", "مستخدم"));
             setText(card, "properties", limitValue("properties_limit", "عقار"));
             setText(card, "storage", limitValue("storage_quota_gb", "GB"));

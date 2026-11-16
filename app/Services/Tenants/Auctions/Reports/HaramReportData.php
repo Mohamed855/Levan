@@ -11,7 +11,7 @@ final class HaramReportData
     public function page(array $snapshot, array $page): array
     {
         if (array_key_exists('gallery', $page['payload'])) {
-            return (new AuctionReportEvidencePage)->content($snapshot, $page, 'haram');
+            return (new HaramNativeContent)->gallery($snapshot, $page);
         }
         $type = preg_replace('/-continuation$/', '', $page['page_type']);
         $index = array_search($type, ['haram-cover', 'haram-index', 'haram-results', 'haram-marketing', 'haram-board-before', 'haram-brokers', 'haram-closing'], true);
@@ -27,8 +27,8 @@ final class HaramReportData
             'name' => $name, 'subtitle' => 'التقرير النهائي '.(str_starts_with($name, 'مزاد') ? 'ل'.$name : 'لمزاد '.$name),
             'manager' => (string) ($auction['project_manager_name'] ?? '-'),
             'project' => (string) ($snapshot['assignment']['name'] ?? '-'),
-            'start_date' => $this->format->date($auction['start_date'] ?? null),
-            'end_date' => $this->format->date($auction['end_date'] ?? null),
+            'start_date' => $this->dateTime($auction['start_date'] ?? null, $auction['start_time'] ?? null),
+            'end_date' => $this->dateTime($auction['end_date'] ?? null, $auction['end_time'] ?? null),
             'date_range' => $this->format->dateRange($auction['start_date'] ?? null, $auction['end_date'] ?? null),
             'property_count' => (string) count($snapshot['properties'] ?? []),
             'footer' => 'مخرجات المزاد - '.$name,
@@ -93,7 +93,7 @@ final class HaramReportData
             ], $payload['sold_properties']);
             $tables['unsold'] = array_map(static fn (array $property): array => [
                 (string) ($property['unsold_reason'] ?? '-'), (string) ($property['type'] ?? $property['name'] ?? '-'), $position($property),
-            ], $payload['unsold_properties']);
+            ], array_values(array_filter($payload['unsold_properties'], static fn (array $property): bool => trim((string) ($property['unsold_reason'] ?? '')) !== '')));
         }
 
         $content = ['index' => $index, 'values' => $values, 'tables' => $tables, 'images' => $payload];
@@ -101,10 +101,20 @@ final class HaramReportData
             $content['images']['cover_image'] = [['uri' => $auction['cover_image'], 'fit' => 'cover', 'kind' => 'photo']];
         }
         $content = (new AuctionReportNativeContent)->apply($content, $snapshot);
-        if ($index === 2 && str_ends_with($page['page_type'], '-continuation') && (empty($tables['sold']) xor empty($tables['unsold']))) {
-            return (new AuctionReportResultPage)->continuation($content, empty($tables['sold']) ? 'unsold' : 'sold');
+        if ($index === 2 && str_ends_with($page['page_type'], '-continuation')) {
+            $content['values']['narrative'] = '';
+        }
+        if (in_array($index, [1, 2, 3, 4, 5], true)) {
+            return (new HaramNativeContent)->prepare($content, $snapshot);
         }
 
-        return $content;
+        return (new HaramReportPresentation)->prepare($content, $snapshot);
+    }
+
+    private function dateTime(?string $date, ?string $time): string
+    {
+        $formattedTime = filled($time) ? parse_system_date($time)?->copy()->locale('ar')->translatedFormat('h:i A') : null;
+
+        return $this->format->date($date).($formattedTime ? ' - '.$formattedTime : '');
     }
 }

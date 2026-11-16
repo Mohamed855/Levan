@@ -46,7 +46,17 @@ Shared anonymous components are registered in `app/Providers/ViewServiceProvider
   - In `AbstractDataTable`, always rely on `$this->renderTableImage(...)` which automatically resolves the table's default module icon via `getDefaultTableIcon()`.
   - In Blade views rendering images, always provide an `onerror` handler that gracefully hides the broken image and displays the module icon placeholder.
 
+### 6. Cross-Platform Case Sensitivity & Zero UTF-8 BOM Invariants
+Because development occurs on Windows (case-insensitive) but deployment targets Linux (case-sensitive), you MUST enforce strict case-sensitivity across all files, paths, and identifiers:
+- **PSR-4 Namespaces & Classes:** Every namespace segment MUST match the exact directory name casing on disk (`app/`, `database/`, etc.). Class/Trait/Enum/Interface names MUST match the exact filename casing.
+- **Imports (`use` Statements):** The casing in `use` statements MUST strictly match the declared namespace and class name.
+- **Blade Views & Components:** View references in `view('...')`, `@include('...')`, `@extends('...')`, and `<x-component...>` MUST match the exact disk casing in `resources/views/`.
+- **Assets & Vite:** Paths referenced in `@vite([...])` and `asset('...')` MUST match the exact physical file and folder names on disk.
+- **Database Table Names:** In migrations, models, and query builder calls (`DB::table('...')`, `->join('...')`), table names MUST always use lowercase `snake_case` (Linux MySQL `lower_case_table_names = 0` is case-sensitive).
+- **Strict UTF-8 (No BOM):** All PHP, Blade, JS, SCSS, and JSON files MUST be saved as UTF-8 without BOM. Never introduce the `\xEF\xBB\xBF` Byte Order Mark, which breaks PHP namespace declarations, HTTP headers, and session cookies.
+
 ## Verification Commands
 - **Tests:** `php artisan test` (or targeted `php artisan test tests/Feature/...`)
 - **Code Style:** `./vendor/bin/pint --test`
 - **Frontend Build:** `npm run build`
+- **PSR-4 Strict Check:** `composer dump-autoload --strict-psr`

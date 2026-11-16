@@ -64,7 +64,7 @@ class AdminUserController extends Controller
                 ],
                 'roles' => $roles->map(fn (Role $role): array => [
                     'value' => $role->id,
-                    'label' => AccessLabels::role($role->name),
+                    'label' => AccessLabels::role($role),
                 ]),
             ];
 

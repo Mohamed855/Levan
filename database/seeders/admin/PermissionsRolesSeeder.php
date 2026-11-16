@@ -150,5 +150,35 @@ class PermissionsRolesSeeder extends Seeder
         );
 
         $roleSuperAdmin->syncPermissions(Permission::where('guard_name', 'admin')->get());
+
+        // -------------------------------------------------------
+        // دور الدعم الفني: لوحة رئيسية + التذاكر + طلبات التواصل
+        // -------------------------------------------------------
+        $roleSupportAgent = Role::firstOrCreate(
+            [
+                'name' => 'SupportAgent',
+                'guard_name' => 'admin',
+            ]
+        );
+
+        $roleSupportAgent->syncPermissions(
+            Permission::where('guard_name', 'admin')
+                ->whereIn('name', [
+                    // لوحة التحكم الرئيسية
+                    'dashboard.main',
+                    // إدارة التذاكر
+                    'tickets.view',
+                    'tickets.show',
+                    'tickets.reply',
+                    'tickets.delete',
+                    // طلبات التواصل والتجربة
+                    'contact_requests.view',
+                    'contact_requests.reply',
+                    'trial_requests.view',
+                    'trial_requests.approve',
+                    'trial_requests.reject',
+                ])
+                ->get()
+        );
     }
 }

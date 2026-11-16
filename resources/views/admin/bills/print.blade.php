@@ -121,31 +121,31 @@
             <tbody>
                 <tr>
                     <td>{{ $bill->type->label() }}</td>
-                    <td class="fw-semibold" style="text-align:center">{{ number_format($bill->amount, 2) }} ر.س</td>
+                    <td class="fw-semibold" style="text-align:center">{{ number_format($bill->amount, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></td>
                 </tr>
                 <tr class="sub-row">
                     <td>المجموع قبل الضريبة</td>
-                    <td style="text-align:center">{{ number_format($priceWithoutTax, 2) }} ر.س</td>
+                    <td style="text-align:center">{{ number_format($priceWithoutTax, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></td>
                 </tr>
                 <tr class="sub-row">
                     <td>ضريبة القيمة المضافة ({{ (int) ($vatRate * 100) }}%)</td>
-                    <td style="text-align:center">{{ number_format($vatAmount, 2) }} ر.س</td>
+                    <td style="text-align:center">{{ number_format($vatAmount, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></td>
                 </tr>
                 @if ($discount > 0)
                     <tr class="discount-row">
                         <td>الخصم @if ($bill->coupon_code)({{ $bill->coupon_code }})@endif</td>
-                        <td style="text-align:center">- {{ number_format($discount, 2) }} ر.س</td>
+                        <td style="text-align:center">- {{ number_format($discount, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></td>
                     </tr>
                 @endif
                 @if ($bill->settlement_amount && $bill->settlement_amount != 0)
                     <tr class="sub-row">
                         <td>التسوية</td>
-                        <td style="text-align:center">{{ number_format($bill->settlement_amount, 2) }} ر.س</td>
+                        <td style="text-align:center">{{ number_format($bill->settlement_amount, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></td>
                     </tr>
                 @endif
                 <tr class="total-row">
                     <td>الإجمالي</td>
-                    <td style="text-align:center">{{ number_format($bill->amount, 2) }} ر.س</td>
+                    <td style="text-align:center">{{ number_format($bill->amount, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></td>
                 </tr>
             </tbody>
         </table>

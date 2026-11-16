@@ -13,8 +13,8 @@ use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Models\Admin\Tenants\Tenant;
+use App\Models\Tenants\Settings\Settings;
 use App\Models\Tenants\UserMangment\User\User;
-use Database\Seeders\tenant\AuctionsAndPropertiesSeeder;
 use Database\Seeders\tenant\IssuingEntitySeeder;
 use Database\Seeders\tenant\TenantDatabaseSeeder;
 use Illuminate\Database\Seeder;
@@ -52,16 +52,30 @@ class TestTenantSeeder extends Seeder
         $plan = Plan::updateOrCreate(
             ['name' => 'الباقة الاحترافية الشاملة'],
             [
-                'description' => 'باقة متكاملة لجميع العمليات والتحصيل بدون قيود',
-                'price' => 5000.00,
-                'yearly_renewal_price' => 3000.00,
-                'extra_user_license_price' => 150.00,
-                'discount_percentage' => 0,
-                'is_active' => true,
-                'included_users' => 10,
+                'description'                => 'باقة متكاملة لجميع العمليات والتحصيل بدون قيود',
+                'price'                      => 5000.00,
+                'yearly_renewal_price'       => 3000.00,
+                'extra_user_license_price'   => 150.00,
+                'discount_percentage'        => 0,
+                'plan_type'                  => 'enterprise',
+                'limits_mode'               => 'unlimited',
+                'is_active'                  => true,
+                'included_users'             => 10,
                 'subscription_duration_type' => 'limited',
                 'subscription_billing_cycle' => 'yearly',
-                'created_by' => $adminUser?->id ?? 1,
+                'created_by'                 => $adminUser?->id ?? 1,
+                'features'                   => [
+                    'عقارات وإسنادات غير محدودة',
+                    'مزادات نشطة غير محدودة',
+                    '10 مستخدمين مشمولين',
+                    'تخزين غير محدود',
+                    'تقارير متقدمة وتحليلات',
+                    'إدارة حملات التسويق',
+                    'طلبات إقامة المزادات',
+                    'إدارة إقفال المزادات',
+                    'دعم فني على مدار الساعة',
+                    'مدير حساب مخصص',
+                ],
             ]
         );
 
@@ -109,7 +123,7 @@ class TestTenantSeeder extends Seeder
         try {
             $this->call(TenantDatabaseSeeder::class);
             $this->call(IssuingEntitySeeder::class);
-            $this->call(AuctionsAndPropertiesSeeder::class);
+            $this->seedTenantSettings();
         } finally {
             tenancy()->end();
         }
@@ -179,6 +193,44 @@ class TestTenantSeeder extends Seeder
         }
 
         $this->command?->info('Test tenant [test] created, migrated, seeded, and activated successfully.');
+    }
+
+    private function seedTenantSettings(): void
+    {
+        $settings = Settings::query()->first();
+
+        Settings::updateOrCreate(
+            ['id' => $settings?->getKey() ?? 1],
+            [
+                'office_name'          => 'شركة لوت للمزادات العقارية',
+                'logo_text'            => 'لوت LOT',
+                'image'                => empty($settings?->image) || $settings?->image === 'image/demo-office.jpg'
+                    ? 'default-office.png'
+                    : $settings->image,
+                'report_phone'         => '+966112345678',
+                'report_unified_phone' => '920012345',
+                'report_social'        => 'https://twitter.com/lot_auctions',
+                'whatsapp_enabled'     => true,
+                'breadcrumb_visibility' => true,
+                'maintenance_mode'     => false,
+                'support_emails'       => ['support@lot.com', 'info@lot.com'],
+                'operational_regions'  => [
+                    'المنطقة الشرقية',
+                    'منطقة الباحة',
+                    'منطقة الجوف',
+                    'منطقة الحدود الشمالية',
+                    'منطقة الرياض',
+                    'منطقة القصيم',
+                    'منطقة المدينة المنورة',
+                    'منطقة تبوك',
+                    'منطقة جازان',
+                    'منطقة حائل',
+                    'منطقة عسير',
+                    'منطقة مكة المكرمة',
+                    'منطقة نجران',
+                ],
+            ]
+        );
     }
 
     private function prepareTestDatabase(array $central, string $database): void

@@ -70,7 +70,7 @@ abstract class AbstractActivityLogDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'log_name_formatted', 'actions'];
+        return ['checkbox', 'log_name_formatted', 'created_at', 'actions'];
     }
 
     protected function getSearchableColumns(): array

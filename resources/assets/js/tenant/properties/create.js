@@ -506,7 +506,7 @@ document.addEventListener("DOMContentLoaded", () => {
             opacity !== undefined
                 ? `rgba(0, 0, 0, ${opacity})`
                 : "rgba(0, 0, 0, 0.5)";
-        context.fill("evenodd");
+        context.fill('evenodd');
         context.restore();
     }
 
@@ -1220,7 +1220,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 .map(
                     ([label, val]) => `
         <dt class="col-sm-4 text-muted mb-2">${label}:</dt>
-        <dd class="col-sm-8 fw-medium mb-2">${escapeHtml(val)}</dd>
+        <dd class="col-sm-8 fw-medium mb-2">${escapeHtml(val)}${label === "القيمة التقديرية" && val ? ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>' : ""}</dd>
       `,
                 )
                 .join("")}</dl>`;

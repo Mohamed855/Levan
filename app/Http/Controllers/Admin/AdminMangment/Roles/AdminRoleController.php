@@ -47,7 +47,7 @@ class AdminRoleController extends Controller
         try {
             $roles = $this->roleService->getAllRoles();
             $roleOptions = $roles->mapWithKeys(fn ($role) => [
-                $role->id => AccessLabels::role($role->name),
+                $role->id => AccessLabels::role($role),
             ])->toArray();
 
             return $dataTable->render($this->page.'.index', [

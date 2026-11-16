@@ -65,12 +65,12 @@
         <div class="package-card__price-line">
             <span class="package-card__price-value"
                 data-plan-field="final-price">{{ number_format($finalPrice, 2) }}</span>
-            <span class="package-card__currency">ر.س</span>
+            <span class="package-card__currency"><span class="icon-saudi_riyal icon-saudi_riyal--dark"></span></span>
         </div>
         <span class="package-card__price-note" data-plan-field="billing-cycle">لكل {{ $billingCycle }}</span>
         <span class="package-card__original-price" data-plan-field="original-price"
             @if ($discount <= 0) hidden @endif>
-            {{ number_format($price, 2) }} ر.س
+            {{ number_format($price, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
         </span>
     </section>
 

@@ -7,7 +7,6 @@ namespace App\DataTables\Tenants\AuctionClosings;
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionFormGeneration;
-use Carbon\Carbon;
 
 final class AuctionClosingsDataTable extends AbstractDataTable
 {
@@ -23,8 +22,9 @@ final class AuctionClosingsDataTable extends AbstractDataTable
         return Auction::query()
             ->addSelect(['closing_form_id' => AuctionFormGeneration::query()->select('id')->whereColumn('auction_id', 'auctions.id')->where('type', 'closing')->where('status', 'ready')->whereNotNull('file_path')->latest('id')->limit(1)])
             ->with([
-                'assignment.issuingEntity',
-                'establishmentRequest',
+                'assignment:id,issuing_entity_id,name',
+                'assignment.issuingEntity:id,name',
+                'establishmentRequest' => fn ($q) => $q->select(['id', 'auction_id', 'approval_number', 'submitted_at', 'approved_at']),
                 'properties:id',
                 'closing' => fn ($q) => $q->select(['id', 'auction_id', 'saved_at'])
                     ->selectRaw('finalized_snapshot IS NOT NULL as is_finalized'),

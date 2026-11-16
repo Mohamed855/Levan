@@ -97,7 +97,7 @@
 
                         <dt class="col-5 text-muted">إجمالي القيمة التقديرية</dt>
                         <dd class="col-7 fw-semibold" id="review-selected-props-val">
-                            {{ $isEdit ? number_format((float) $auction->properties->sum('estimated_value')) . ' ر.س' : '0 ر.س' }}
+                            {{ $isEdit ? number_format((float) $auction->properties->sum('estimated_value')) : 0 }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                         </dd>
                     </dl>
 

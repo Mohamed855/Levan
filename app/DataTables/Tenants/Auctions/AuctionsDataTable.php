@@ -21,7 +21,31 @@ class AuctionsDataTable extends AbstractDataTable
     protected function resource()
     {
         return Auction::query()
-            ->with(['assignment.issuingEntity', 'latestReportGeneration', 'publishedReportGeneration', 'establishmentRequest', 'properties:id', 'marketingCampaigns'])
+            ->with([
+                'assignment:id,issuing_entity_id,name',
+                'assignment.issuingEntity:id,name',
+                'latestReportGeneration' => fn ($q) => $q->select([
+                    'auction_report_generations.id',
+                    'auction_report_generations.auction_id',
+                    'auction_report_generations.status',
+                ]),
+                'publishedReportGeneration' => fn ($q) => $q->select([
+                    'id',
+                    'auction_id',
+                    'status',
+                    'outputs_path',
+                    'report_path',
+                ]),
+                'establishmentRequest' => fn ($q) => $q->select([
+                    'id',
+                    'auction_id',
+                    'approval_number',
+                    'submitted_at',
+                    'approved_at',
+                ]),
+                'properties:id',
+                'marketingCampaigns:id,auction_id',
+            ])
             ->withCount('properties');
     }
 

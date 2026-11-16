@@ -139,7 +139,7 @@
                 },
                 {
                     min: 5,
-                    label: '(تمت الجدولة)'
+                    label: '(جار المعالجة)'
                 },
                 {
                     min: 10,
@@ -369,7 +369,6 @@
                                 stopPolling();
                                 if (state.status === 'ready') {
                                     window.toastr?.success?.('تم تحضير وتجهيز النموذج بنجاح!');
-                                    setTimeout(() => location.reload(), 900);
                                 }
                             }
                         } catch (exception) {
@@ -417,7 +416,6 @@
                         if (state.status === 'ready') {
                             render(state);
                             window.toastr?.success?.('تم تحضير وتجهيز النموذج بنجاح!');
-                            setTimeout(() => location.reload(), 700);
                             return;
                         }
 

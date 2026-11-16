@@ -68,7 +68,7 @@
                         / {{ $totalProperties }}</span>
                     <span class="badge bg-info p-2">إجمالي المساحة: {{ number_format($totalArea) }} م²</span>
                     <span class="badge bg-success p-2">إجمالي القيمة: {{ number_format($totalEstimatedValue) }}
-                        ر.س</span>
+                        <span class="icon-saudi_riyal icon-saudi_riyal--white ms-1"></span></span>
                 </div>
             </div>
 
@@ -130,7 +130,7 @@
                                         {{ $property?->city ?? '-' }}{{ $property?->district ? ' - ' . $property->district : '' }}
                                     </td>
                                     <td>{{ number_format((float) ($property?->area ?? 0)) }} م²</td>
-                                    <td>{{ number_format((float) ($property?->estimated_value ?? 0)) }} ر.س</td>
+                                    <td>{{ number_format((float) ($property?->estimated_value ?? 0)) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></td>
                                     <td class="text-center">
                                         <span class="badge bg-label-warning property-status-badge"
                                             data-property-badge="{{ $propertyData['property_id'] }}">

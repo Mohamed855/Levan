@@ -1,0 +1,2186 @@
+
+
+
+
+<!DOCTYPE html>
+
+<html lang="ar" dir="ltr">
+
+<head><meta charset="UTF-8" /><meta http-equiv="X-UA-Compatible" content="IE=EDGE" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="csrf-token" content="{{ csrf_token() }}" /><script type="text/javascript" src="/ruxitagentjs_ICA2NVfgjqru_10245220704125537.js" data-dtconfig="rid=RID_-890001396|rpid=1223973631|domain=moj.gov.sa|reportUrl=/rb_bf15146xxt|app=a9b1fabf4e867166|srtbv=4|owasp=1|featureHash=ICA2NVfgjqru|nsfnv=1|rdnt=0|uxrgce=1|cuc=yezlhxym|mel=100000|dpvc=1|lastModification=1794743208156|tp=500,50,0|srbbv=3|agentUri=/ruxitagentjs_ICA2NVfgjqru_10245220704125537.js" defer></script><link rel="icon" href="/SiteAssets/FAVICONV4.ico" /><link rel="shortcut icon" href="/SiteAssets/FAVICONV4.png" /><link rel="preload" as="font" type="font/ttf" crossorigin="" href="/_catalogs/masterpage/HomePage/Fonts/regular.ttf" /><link rel="preload" as="font" type="font/ttf" crossorigin="" href="/_catalogs/masterpage/HomePage/Fonts/bold.ttf" /><link rel="preload" as="image" fetchpriority="high" href="/PublishingImages/Banners/MOJMinister.webp" type="image/webp" /><link rel="preload" as="image" fetchpriority="high" href="/PublishingImages/Banners/ConsultationBanner.webp" type="image/webp" />
+
+        <script src="/_catalogs/masterpage/js/jquery-4.0.0.min.js"></script>
+        <link rel="stylesheet" href="/_catalogs/masterpage/HomePage/css/style-validator-correct.css" />
+    	<script src="/_catalogs/masterpage/HomePage/JS/vue.global.prod.js"></script>            
+		<link rel="stylesheet" href="/_catalogs/masterpage/MOJPortalDesign2026/dist/ce/vue3-mui.min.css" /><link rel="stylesheet" href="/_catalogs/masterpage/js/CookiesPopup/styleEn.css" />
+    	<!-- Boxicons CSS -->
+    	<script src="/_catalogs/masterpage/js/CookiesPopup/scriptEn.js" defer></script>
+		<link rel="stylesheet" href="/_catalogs/masterpage/MOJPortalDesign2026/visibility-mods.css" /><title>
+	
+    filenotfoundpage
+
+</title><style id="SPThemeHideForms" type="text/css">body {opacity:0 !important}</style><link type="text/xml" rel="alternate" href="/English/_vti_bin/spsdisco.aspx" />
+
+    	<link rel="stylesheet" href="/_catalogs/masterpage/MOJPortalDesign2026/internal-pages/breadcrumb_en.css" />
+
+    <link rel="alternate" hreflang="ar" href="https://www.moj.gov.sa/ar/pages/filenotfoundpage.aspx" />
+<link rel="alternate" hreflang="en" href="https://www.moj.gov.sa/english/pages/filenotfoundpage.aspx" />
+<link rel="alternate" hreflang="x-default" href="https://www.moj.gov.sa/ar/pages/filenotfoundpage.aspx" />
+    
+<link rel="canonical" href="https://www.moj.gov.sa:443/English/pages/filenotfoundpage.aspx" /><meta name="google-site-verification" content="jZMPZ1MtH4FvnC9TlQANpyhH8qcCQ6OBekuQaPadvv4" />
+
+
+   
+   <style type="text/css">
+   
+iframe[title="عارض الصفحة"] {
+    height: 200px!important;
+}
+
+
+
+
+</style>
+           
+		
+    
+   
+ 
+
+
+
+        </head>
+ <body>
+
+<form method="post" action="./filenotfoundpage.aspx" onsubmit="javascript:return WebForm_OnSubmit();" id="aspnetForm">
+<div class="aspNetHidden">
+<input type="hidden" name="_wpcmWpid" id="_wpcmWpid" value="" />
+<input type="hidden" name="wpcmVal" id="wpcmVal" value="" />
+<input type="hidden" name="MSOWebPartPage_PostbackSource" id="MSOWebPartPage_PostbackSource" value="" />
+<input type="hidden" name="MSOTlPn_SelectedWpId" id="MSOTlPn_SelectedWpId" value="" />
+<input type="hidden" name="MSOTlPn_View" id="MSOTlPn_View" value="0" />
+<input type="hidden" name="MSOTlPn_ShowSettings" id="MSOTlPn_ShowSettings" value="False" />
+<input type="hidden" name="MSOGallery_SelectedLibrary" id="MSOGallery_SelectedLibrary" value="" />
+<input type="hidden" name="MSOGallery_FilterString" id="MSOGallery_FilterString" value="" />
+<input type="hidden" name="MSOTlPn_Button" id="MSOTlPn_Button" value="none" />
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="" />
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="" />
+<input type="hidden" name="__REQUESTDIGEST" id="__REQUESTDIGEST" value="noDigest" />
+<input type="hidden" name="MSOSPWebPartManager_DisplayModeName" id="MSOSPWebPartManager_DisplayModeName" value="Browse" />
+<input type="hidden" name="MSOSPWebPartManager_ExitingDesignMode" id="MSOSPWebPartManager_ExitingDesignMode" value="false" />
+<input type="hidden" name="MSOWebPartPage_Shared" id="MSOWebPartPage_Shared" value="" />
+<input type="hidden" name="MSOLayout_LayoutChanges" id="MSOLayout_LayoutChanges" value="" />
+<input type="hidden" name="MSOLayout_InDesignMode" id="MSOLayout_InDesignMode" value="" />
+<input type="hidden" name="MSOSPWebPartManager_OldDisplayModeName" id="MSOSPWebPartManager_OldDisplayModeName" value="Browse" />
+<input type="hidden" name="MSOSPWebPartManager_StartWebPartEditingName" id="MSOSPWebPartManager_StartWebPartEditingName" value="false" />
+<input type="hidden" name="MSOSPWebPartManager_EndWebPartEditing" id="MSOSPWebPartManager_EndWebPartEditing" value="false" />
+
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['aspnetForm'];
+if (!theForm) {
+    theForm = document.aspnetForm;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="/WebResource.axd?d=po3UgiUJfI84JWEcPTxmcE5dnQM5jAsHg8E4H0XLkAKEXSIRTzpuhGXIPFq0o__c9HBr_aSDpr8PVZYfPQRQtaDimvu_WRUnaBHQcafKM5c1&amp;t=639190941332169432" type="text/javascript"></script>
+
+
+<script type="text/javascript">
+//<![CDATA[
+var MSOWebPartPageFormName = 'aspnetForm';
+var g_presenceEnabled = true;
+var g_wsaEnabled = false;
+
+var g_correlationId = '07594fa2-2d9f-f09b-f4ee-8c537d72bdf3';
+var g_wsaQoSEnabled = false;
+var g_wsaQoSDataPoints = [];
+var g_wsaRUMEnabled = false;
+var g_wsaLCID = 1033;
+var g_wsaListTemplateId = 850;
+var g_wsaSiteTemplateId = 'BLANKINTERNET#2';
+var _spPageContextInfo={"webServerRelativeUrl":"/English","webAbsoluteUrl":"https://www.moj.gov.sa/English","viewId":"","listId":"{481e3a57-3b2e-4b5e-be78-975b49c75423}","listPermsMask":{"High":16,"Low":196673},"listUrl":"/English/Pages","listTitle":"Pages","listBaseTemplate":850,"viewOnlyExperienceEnabled":false,"blockDownloadsExperienceEnabled":false,"idleSessionSignOutEnabled":false,"cdnPrefix":"","siteAbsoluteUrl":"https://www.moj.gov.sa","siteId":"{0883f998-2f6d-4398-aa0f-00d9398dd076}","showNGSCDialogForSyncOnTS":false,"supportPoundStorePath":true,"supportPercentStorePath":true,"siteSubscriptionId":null,"CustomMarkupInCalculatedFieldDisabled":true,"AllowCustomMarkupInCalculatedField":false,"isSPO":false,"farmLabel":null,"serverRequestPath":"/english/pages/filenotfoundpage.aspx","layoutsUrl":"_layouts/15","webId":"{b4dbbbb3-0bb1-4885-8096-79f315bb6a2b}","webTitle":"Ministry Of Justice","webTemplate":"53","webTemplateConfiguration":"BLANKINTERNET#2","webDescription":"Ministry Of Justice - Kingdom Of Saudi Arabia","tenantAppVersion":"0","isAppWeb":false,"webLogoUrl":"/faviconV4.ico","webLanguage":1033,"currentLanguage":1033,"currentUICultureName":"en-US","currentCultureName":"en-US","currentCultureLCID":1033,"env":null,"nid":0,"fid":0,"serverTime":"2026-11-16T08:05:20.0180553Z","siteClientTag":"27536$$16.0.10417.20198","crossDomainPhotosEnabled":false,"openInClient":true,"Has2019Era":true,"webUIVersion":15,"webPermMasks":{"High":16,"Low":196673},"pageListId":"{481e3a57-3b2e-4b5e-be78-975b49c75423}","pageItemId":23,"pagePermsMask":{"High":16,"Low":196673},"pagePersonalizationScope":1,"userEmail":"","userId":0,"userLoginName":null,"userDisplayName":null,"isAnonymousUser":true,"isAnonymousGuestUser":false,"isEmailAuthenticationGuestUser":false,"isExternalGuestUser":false,"systemUserKey":null,"alertsEnabled":false,"siteServerRelativeUrl":"/","allowSilverlightPrompt":"True","themeCacheToken":"/English::11:","themedCssFolderUrl":null,"themedImageFileNames":null,"modernThemingEnabled":true,"isSiteAdmin":false,"ExpFeatures":[480216468,1884350801,1158731092,62197791,538521105,335811073,4194306,34614301,268500996,-1946025984,28445328,-2147475455,134291456,65536,288,950272,1282,808326148,134217873,0,0,-1073217536,545285252,18350656,-467402752,6291457,-2147483644,1074794496,-1728053184,1845537108,622628,4102,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"killSwitches":{},"InternalValidAuthorities":["www.moj.gov.sa","moj.gov.sa"],"CorrelationId":"07594fa2-2d9f-f09b-f4ee-8c537d72bdf3","hasManageWebPermissions":false,"isNoScriptEnabled":false,"groupId":null,"groupHasHomepage":true,"groupHasQuickLaunchConversationsLink":false,"departmentId":null,"hubSiteId":null,"hasPendingWebTemplateExtension":false,"isHubSite":false,"isWebWelcomePage":false,"siteClassification":"","hideSyncButtonOnODB":false,"showNGSCDialogForSyncOnODB":false,"sitePagesEnabled":false,"sitePagesFeatureVersion":0,"DesignPackageId":"00000000-0000-0000-0000-000000000000","groupType":null,"groupColor":"#d40ac7","siteColor":"#d40ac7","headerEmphasis":0,"navigationInfo":null,"guestsEnabled":false,"MenuData":{"SignInUrl":"/English/_layouts/15/Authenticate.aspx?Source=%2Fenglish%2Fpages%2Ffilenotfoundpage%2Easpx"},"RecycleBinItemCount":-1,"PublishingFeatureOn":true,"PreviewFeaturesEnabled":false,"disableAppViews":false,"disableFlows":false,"serverRedirectedUrl":null,"formDigestValue":"0xC89FAAB197A4B08724BFF30ABDF4CD95E1A21048B3A18907790CED29D7DF4A63D03ADF27B8CE6BA4629438D94DE200124D71855F5B0405E21EDD3625D0D17CAD,16 Nov 2026 08:05:20 -0000","maximumFileSize":10240,"formDigestTimeoutSeconds":1800,"canUserCreateMicrosoftForm":false,"canUserCreateVisioDrawing":true,"readOnlyState":null,"isTenantDevSite":false,"preferUserTimeZone":false,"userTimeZoneData":null,"userTime24":false,"userFirstDayOfWeek":null,"webTimeZoneData":null,"webTime24":false,"webFirstDayOfWeek":null,"isSelfServiceSiteCreationEnabled":null,"alternateWebAppHost":"","aadTenantId":"","aadUserId":"","aadInstanceUrl":"","msGraphEndpointUrl":"https://","allowInfectedDownload":true};_spPageContextInfo.updateFormDigestPageLoaded=new Date();_spPageContextInfo.clientServerTimeDelta=new Date(_spPageContextInfo.serverTime)-new Date();if(typeof(define)=='function'){define('SPPageContextInfo',[],function(){return _spPageContextInfo;});}//]]>
+</script>
+<script type="text/javascript" src="/_layouts/15/1033/initstrings.js?rev=9%2F9oa981qULWmqaNLzTKUA%3D%3DTAG0"></script><script type="text/javascript" src="/_layouts/15/init.js?rev=0pOMkQNRD5Qp5N%2Funav2Gw%3D%3DTAG0"></script><script type="text/javascript" src="/_layouts/15/theming.js?rev=SuLUbbwTXcxFWOWLFUsOkw%3D%3DTAG0"></script>
+<script type="text/javascript">
+//<![CDATA[
+ (function()
+{
+    if(typeof(window.SP) == "undefined") window.SP = {};
+    if(typeof(window.SP.YammerSwitch) == "undefined") window.SP.YammerSwitch = {};
+
+    var ysObj = window.SP.YammerSwitch;
+    ysObj.IsEnabled = false;
+    ysObj.TargetYammerHostName = "www.yammer.com";
+} )(); //]]>
+</script>
+
+<script src="/ScriptResource.axd?d=sdv7HvmcfZRg7AgxntJl0A8eD0Cqvmrg1WplMKxetHhHkF6GTlffXUkO8kkCjhE30MSKYAycmjQxQxxrZIniBbyQJQE3jDZ-sZbucTNlMTooxH9rfljKJCD1gkv7xZQ-sp5AWzjuL5dDZ-JAls8iRIWgkRaPhL5MuvayF6rRjWH85dUfFQAjb01kOib4kPHQ0&amp;t=ffffffffbec1863d" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=zJMB9nSEbAvfjFzs-VUzClksLB4SoA70CvD8_ps-nG-Z3sAmd9vQ8K1qVzZs0jBk7g_eKRM2kF63FpznVy9hIH7UiLL8KdGSQZ53dNkIlacHIPy3X4xqRcW2ZAW2sWm-lLHn5-LgpsxZ3-S0tdkKnphLsk-aBPuFPpgL9HHPhFmIFc6jKzflQCzyXtfnfedF0&amp;t=ffffffffbec1863d" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+window.SPThemeUtils && SPThemeUtils.RegisterCssReferences([]);
+function WebForm_OnSubmit() {
+UpdateFormDigest('\u002fEnglish', 1440000);if (typeof(_spFormOnSubmitWrapper) != 'undefined') {return _spFormOnSubmitWrapper();} else {return true;};
+return true;
+}
+//]]>
+</script>
+<script type="text/javascript">
+//<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('ctl00$ScriptManager', 'aspnetForm', [], [], [], 90, 'ctl00');
+//]]>
+</script>
+
+
+<div>
+	<div id="TurnOnAccessibility" style="display:none" class="s4-notdlg noindex"><a id="linkTurnOnAcc" href="#" class="ms-accessible ms-acc-button" onclick="SetIsAccessibilityFeatureEnabled(true);UpdateAccessibilityUI();document.getElementById('linkTurnOffAcc').focus();return false;">Turn on more accessible mode</a></div><div id="TurnOffAccessibility" style="display:none" class="s4-notdlg noindex"><a id="linkTurnOffAcc" href="#" class="ms-accessible ms-acc-button" onclick="SetIsAccessibilityFeatureEnabled(false);UpdateAccessibilityUI();document.getElementById('linkTurnOnAcc').focus();return false;">Turn off more accessible mode</a></div>
+</div>
+<div id="s4-workspace"><div id="s4-bodyContainer">
+  
+  
+<script type="module">
+  const base = "/_catalogs/masterpage/MOJPortalDesign2026/dist/ce/index-min.js";
+  let mod;
+  try {
+    const res = await fetch(base + ".gz");
+    if (!res.ok) throw new Error(res.status);
+    const code = await new Response(
+      res.body.pipeThrough(new DecompressionStream("gzip"))
+    ).text();
+    const blobUrl = URL.createObjectURL(new Blob([code], { type: "text/javascript" }));
+    mod = await import(blobUrl);
+    URL.revokeObjectURL(blobUrl);
+  } catch (e) {
+    // If anything fails, load the normal file instead
+    mod = await import(base);
+  }
+  mod.registerAllComponents();
+</script>
+
+
+
+
+<!-- ===================== digital-stamp (standalone web part) ===================== -->
+<div id="digital-stamp-root"></div>
+
+<template id="digital-stamp-tpl">
+  <section :dir="isAr ? 'rtl' : 'ltr'" :lang="isAr ? 'ar' : 'en'" class="digital-stamp n-position-relative n-bg-neutral-100 n-color-neutral-950">
+    <div class="digital-stamp__inner n-mx-auto n-py-xs n-flex-wrap n-flex n-align-center n-justify-between n-gap-xl">
+      <div class="digital-stamp__identity n-min-width-0 n-flex-wrap n-flex n-align-center n-gap-sm">
+        <img
+          class="digital-stamp__flag"
+          :src="flagIcon"
+          :alt="t.flagAlt"
+          width="20"
+          height="14"
+        />
+        <n-typography
+          as="span"
+          variant="text-sm"
+          class="digital-stamp__message n-color-neutral-700 n-font-weight-medium"
+        >
+          {{ t.message }}
+        </n-typography>
+
+        <!-- type="button" is required: SharePoint wraps the page in a <form>,
+             so a button without it submits the page (postback) instead of toggling. -->
+        <a
+          href="#digital-stamp-verification"
+          role="button"
+          class="digital-stamp__verify n-inline-flex n-color-primary-sa-flag-600 n-font-weight-regular"
+          color="primary"
+          variant="subtle"
+          size="md"
+          :append-icon="isVerificationOpen ? 'arrow-up-01' : 'arrow-down-01'"
+          :aria-expanded="String(isVerificationOpen)"
+          aria-controls="digital-stamp-verification"
+          @click.prevent="toggleVerification"
+        >
+          {{ t.howToVerify }} 
+        </a>
+      </div>
+
+      <div
+        class="digital-stamp__tools n-flex n-align-center n-gap-none"
+        role="group"
+        :aria-label="t.tools"
+      >
+        <!-- Display settings (the only place on the page; normal / dark / gray / brightness).
+             A native <button> (the click on <n-btn> did not reach Vue), and the menu is
+             teleported to <body> with fixed positioning so no SharePoint zone can clip it. -->
+        <button
+          ref="visionBtn"
+          type="button"
+          class="digital-stamp__tool digital-stamp__tool--native"
+          :class="{ 'is-active': isVisionOpen || visionMode !== 1 }"
+          aria-haspopup="true"
+          :aria-expanded="String(isVisionOpen)"
+          aria-controls="ds-vision-menu"
+          :aria-label="t.displaySettings"
+          :title="t.displaySettings"
+          @click.prevent.stop="toggleVision"
+        >
+          <i class="n-icon hgi-stroke hgi-view n-color-inherit n-icon-size-20" aria-hidden="true"></i>
+        </button>
+
+        <Teleport to="body">
+          <fieldset
+            v-show="isVisionOpen"
+            id="ds-vision-menu"
+            ref="visionMenu"
+            class="ds-vision"
+            :dir="isAr ? 'rtl' : 'ltr'"
+            :lang="isAr ? 'ar' : 'en'"
+            :style="visionStyle"
+            @click.stop
+          >
+            <legend class="ds-vision__title">{{ t.displaySettings }}</legend>
+            <label
+              v-for="mode in visionModes"
+              :key="mode.value"
+              class="ds-vision__option"
+              :for="'ds-vision-' + mode.value"
+            >
+              <input
+                :id="'ds-vision-' + mode.value"
+                type="radio"
+                name="ds-vision-mode"
+                :value="mode.value"
+                v-model="visionMode"
+              />
+              <span>{{ mode.label }}</span>
+            </label>
+          </fieldset>
+        </Teleport>
+        <n-btn
+          type="button"
+          class="digital-stamp__tool n-inline-flex n-p-sm n-color-neutral-700"
+          variant="transparent"
+          size="sm"
+          prepend-icon="zoom-out-area"
+          :aria-label="t.zoomOut"
+          :title="t.zoomOut"
+          :disabled="textScale <= MIN_SCALE"
+          @click.prevent="changeScale(-1)"
+        ></n-btn>
+        <n-btn
+          type="button"
+          class="digital-stamp__tool n-inline-flex n-p-sm n-color-neutral-700"
+          variant="transparent"
+          size="sm"
+          prepend-icon="zoom-in-area"
+          :aria-label="t.zoomIn"
+          :title="t.zoomIn"
+          :disabled="textScale >= MAX_SCALE"
+          @click.prevent="changeScale(1)"
+        ></n-btn>
+        <n-btn
+          type="button"
+          class="digital-stamp__tool n-inline-flex n-p-sm n-color-neutral-700"
+          variant="transparent"
+          size="sm"
+          prepend-icon="sign-language-c"
+          :aria-label="t.signLanguage"
+          :title="t.signLanguage"
+          @click.prevent="openSignLanguage"
+        ></n-btn>
+      </div>
+    </div>
+
+    <!-- The accordion panel (was missing: aria-controls pointed at an element that didn't exist) -->
+    <div
+      v-show="isVerificationOpen"
+      id="digital-stamp-verification"
+      class="digital-stamp__panel"
+      role="region"
+      :aria-label="t.panelLabel"
+    >
+      <div class="digital-stamp__panel-inner n-mx-auto n-flex n-flex-wrap n-gap-xl n-py-lg">
+        <div class="digital-stamp__point n-flex n-gap-sm">
+          <i class="n-icon hgi-stroke hgi-link-circle n-icon-size-24 n-color-primary-sa-flag-600" aria-hidden="true"></i>
+          <div>
+            <strong class="n-block n-text-sm">{{ t.govTitle }}</strong>
+            <span class="n-text-sm n-color-neutral-700">
+              {{ t.govText }}
+            </span>
+          </div>
+        </div>
+        <div class="digital-stamp__point n-flex n-gap-sm">
+          <i class="n-icon hgi-stroke hgi-square-lock-02 n-icon-size-24 n-color-primary-sa-flag-600" aria-hidden="true"></i>
+          <div>
+            <strong class="n-block n-text-sm">{{ t.httpsTitle }}</strong>
+            <span class="n-text-sm n-color-neutral-700">
+              {{ t.httpsText }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Third row: DGA registration -->
+      <div class="digital-stamp__panel-inner digital-stamp__registration n-mx-auto n-flex n-flex-wrap n-align-center n-gap-sm n-py-lg">
+        <img
+          class="digital-stamp__dga-logo"
+          :alt="t.dgaAlt"
+          src="https://najizcdn.moj.gov.sa/shared/V3/images/dist/svg/dga-logo.svg?v=50b8c4eb-de5d-434f-8ce9-c121dc95189c"
+          height="40"
+        />
+        <span class="digital-stamp__reg-label n-text-sm n-color-neutral-700">{{ registeredLabel }}</span>
+        <a
+          class="digital-stamp__reg-link n-text-sm n-font-weight-medium"
+          :href="DGA_LICENSE_URL"
+          target="_blank"
+          rel="noopener noreferrer"
+          dir="ltr"
+        >{{ DGA_REG_NUMBER }}</a>
+      </div>
+    </div>
+  </section>
+</template>
+
+
+
+<script type="module">
+  import { setupNajizVueApp } from "/_catalogs/masterpage/MOJPortalDesign2026/dist/ce/vue-app.js";
+
+  /* Language: same detection as the header (Arabic when the URL contains /ar/) */
+  const IS_AR = /\/ar(\/|$)/i.test(window.location.pathname);
+
+  const LABELS = {
+    ar: {
+      flagAlt: "علم المملكة العربية السعودية",
+      message: "موقع حكومي مسجل لدى هيئة الحكومة الرقمية",
+      howToVerify: "كيف تتحقق؟",
+      tools: "أدوات تسهيل الوصول",
+      displaySettings: "إعدادات الرؤية",
+      normal: "الوضع العادي",
+      dark: "الوضع الليلي",
+      gray: "الوضع الرمادي",
+      bright: "وضع السطوع",
+      zoomOut: "تصغير حجم النص",
+      zoomIn: "تكبير حجم النص",
+      signLanguage: "دعم لغة الإشارة",
+      panelLabel: "كيف تتحقق من الموقع الحكومي",
+      govTitle: "روابط المواقع الرسمية تنتهي بـ gov.sa",
+      govText: "جميع روابط المواقع الرسمية الخاصة بالجهات الحكومية في المملكة العربية السعودية تنتهي بـ gov.sa",
+      httpsTitle: "المواقع الحكومية تستخدم بروتوكول HTTPS",
+      httpsText: "المواقع الآمنة في المملكة العربية السعودية تستخدم بروتوكول HTTPS للتشفير.",
+      dgaAlt: "هيئة الحكومة الرقمية",
+      registeredWith: "مسجل لدى هيئة الحكومة الرقمية برقم:",
+      loadError: "تعذر تحميل هذا القسم",
+    },
+    en: {
+      flagAlt: "Flag of Saudi Arabia",
+      message: "An official website registered with the Digital Government Authority",
+      howToVerify: "How to verify?",
+      tools: "Accessibility tools",
+      displaySettings: "Display Settings",
+      normal: "Normal Mode",
+      dark: "Dark Mode",
+      gray: "Gray Mode",
+      bright: "High brightness",
+      zoomOut: "Decrease text size",
+      zoomIn: "Increase text size",
+      signLanguage: "Sign language support",
+      panelLabel: "How to verify a government website",
+      govTitle: "Official website links end with gov.sa",
+      govText: "All official websites of government entities in Saudi Arabia end with gov.sa",
+      httpsTitle: "Government websites use HTTPS",
+      httpsText: "Secure websites in Saudi Arabia use the HTTPS protocol for encryption.",
+      dgaAlt: "Digital Government Authority",
+      registeredWith: "Registered with the Digital Government Authority under number:",
+      loadError: "This section could not be loaded",
+    },
+  };
+  const T = IS_AR ? LABELS.ar : LABELS.en;
+
+  /* DGA registration (third row of the verification panel) */
+  const DGA_REG_NUMBER = "20260609252";
+  const DGA_LICENSE_URL =
+    "https://raqmi.dga.gov.sa/platforms/platforms/98887777-b59d-443c-ab16-8222cf955bb5/platform-license";
+
+  /* ---------- Display modes (the digital stamp is the only place they are set) ---------- */
+  const VISION_STORAGE_KEY = "moj.visionMode";
+  const VISION_CLASSES = { 2: "vision-dark", 3: "vision-gray", 4: "vision-bright" };
+
+  function readStoredVision() {
+    try {
+      const v = Number(localStorage.getItem(VISION_STORAGE_KEY));
+      return [1, 2, 3, 4].includes(v) ? v : 1;
+    } catch {
+      return 1;
+    }
+  }
+
+  const MIN_SCALE = -2;
+  const MAX_SCALE = 3;
+  const SCALE_STEP = 0.0625; // 1/16 of the base size per step
+  const STORAGE_KEY = "moj.a11y";
+  const SIGN_LANGUAGE_URL = "https://najiz.sa/applications/video-chat";
+
+  function readPrefs() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    } catch {
+      return {};
+    }
+  }
+
+  try {
+    const prefs = readPrefs();
+    const app = await setupNajizVueApp({
+      template: document.getElementById("digital-stamp-tpl").innerHTML,
+      data() {
+        return {
+          isAr: IS_AR,
+          t: T,
+          DGA_REG_NUMBER,
+          DGA_LICENSE_URL,
+          MIN_SCALE,
+          MAX_SCALE,
+          isVerificationOpen: false,
+          textScale: Number.isInteger(prefs.textScale) ? prefs.textScale : 0,
+          isVisionOpen: false,
+          visionStyle: {},
+          visionMode: readStoredVision(),
+          visionModes: [
+            { value: 1, key: "normal", label: T.normal },
+            { value: 2, key: "dark", label: T.dark },
+            { value: 3, key: "gray", label: T.gray },
+            { value: 4, key: "bright", label: T.bright },
+          ],
+          // Absolute path: an inline module's import.meta.url is the *page* URL,
+          // so "../assets/..." resolved relative to the SharePoint page, not the dist folder.
+          flagIcon: "/_catalogs/masterpage/MOJPortalDesign2026/assets/saudi-flag-mark.svg",
+        };
+      },
+      computed: {
+        // Falls back to the built-in text if the LABELS key is missing in a merged copy.
+        registeredLabel() {
+          return (
+            this.t.registeredWith ||
+            (this.isAr
+              ? "مسجل لدى هيئة الحكومة الرقمية برقم:"
+              : "Registered with the Digital Government Authority under number:")
+          );
+        },
+      },
+      watch: {
+        visionMode(mode) {
+          this.applyVision(mode);
+        },
+      },
+      mounted() {
+        this.applyPrefs();
+        this.applyVision(this.visionMode);
+        document.addEventListener("click", this.onDocumentClick);
+        document.addEventListener("keydown", this.onKeydown);
+        window.addEventListener("resize", this.positionVision);
+        window.addEventListener("scroll", this.positionVision, true);
+      },
+      beforeUnmount() {
+        document.removeEventListener("click", this.onDocumentClick);
+        document.removeEventListener("keydown", this.onKeydown);
+        window.removeEventListener("resize", this.positionVision);
+        window.removeEventListener("scroll", this.positionVision, true);
+      },
+      // These methods were missing, so every @click did nothing.
+      methods: {
+        toggleVerification() {
+          this.isVerificationOpen = !this.isVerificationOpen;
+        },
+        toggleVision() {
+          this.isVisionOpen = !this.isVisionOpen;
+          if (this.isVisionOpen) {
+            this.$nextTick(() => {
+              this.positionVision();
+              // move focus to the selected option for keyboard users
+              document.getElementById("ds-vision-" + this.visionMode)?.focus();
+            });
+          }
+        },
+        /* Place the menu right under the button, kept inside the window.
+           Arabic: menu starts at the button's left edge; English: ends at its right edge. */
+        positionVision() {
+          if (!this.isVisionOpen) return;
+          const btn = this.$refs.visionBtn;
+          const menu = this.$refs.visionMenu;
+          if (!btn || !menu) return;
+          const r = btn.getBoundingClientRect();
+          const w = menu.offsetWidth || 192;
+          const gap = 6;
+          let left = this.isAr ? r.left : r.right - w;
+          left = Math.max(8, Math.min(left, window.innerWidth - w - 8));
+          this.visionStyle = { top: `${Math.round(r.bottom + gap)}px`, left: `${Math.round(left)}px` };
+        },
+        closeVision(returnFocus = false) {
+          if (!this.isVisionOpen) return;
+          this.isVisionOpen = false;
+          if (returnFocus) this.$refs.visionBtn?.focus();
+        },
+        onDocumentClick() {
+          this.closeVision();
+        },
+        onKeydown(event) {
+          if (event.key === "Escape") this.closeVision(true);
+        },
+        applyVision(mode) {
+          const root = document.documentElement;
+          Object.values(VISION_CLASSES).forEach((c) => root.classList.remove(c));
+          if (VISION_CLASSES[mode]) root.classList.add(VISION_CLASSES[mode]);
+          try {
+            localStorage.setItem(VISION_STORAGE_KEY, String(mode));
+          } catch {
+            /* storage unavailable – mode still applies for this page view */
+          }
+        },
+        changeScale(delta) {
+          this.textScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, this.textScale + delta));
+          this.applyPrefs();
+        },
+        openSignLanguage() {
+          window.open(SIGN_LANGUAGE_URL, "_blank", "noopener");
+        },
+        applyPrefs() {
+          const root = document.documentElement;
+          root.classList.remove("ds-high-contrast"); // old contrast toggle, replaced by the display modes
+          root.style.fontSize = this.textScale === 0 ? "" : `${100 + this.textScale * SCALE_STEP * 100}%`;
+          try {
+            localStorage.setItem(
+              STORAGE_KEY,
+              JSON.stringify({ textScale: this.textScale }),
+            );
+          } catch {
+            /* storage unavailable – settings apply for this page view only */
+          }
+        },
+      },
+    });
+
+    app.mount("#digital-stamp-root");
+  } catch (error) {
+    console.error("[digital-stamp]", error);
+    document.getElementById("digital-stamp-root").textContent = T.loadError;
+  }
+</script>
+
+<!-- ===================== nav-header v2 (standalone web part, Vue-driven) ===================== -->
+<!-- Mount point: stays empty in the HTML; Vue renders the header into it.
+     The markup lives in the x-template below so the HTML validator never sees the Vue
+     attributes (:href, @click, v-for ...). A script with a non-JS type is plain text to the
+     browser and the validator, and Vue reads it as the template. -->
+<div id="nav-header-root"></div>
+
+<script type="text/x-template" id="nav-header-tpl">
+  <header
+    class="nav-header n-position-relative n-color-neutral-800"
+    :class="{ 'nav-header--menu-open': isMobileMenuOpen }"
+  >
+    <div class="nav-header__inner n-flex n-align-center">
+      <!-- Brand: ministry logo (home). The Vision 2030 logo is in the footer. -->
+      <div class="nav-header__brand n-inline-flex n-align-center">
+        <a class="nav-header__logo-link n-inline-flex n-align-center" :href="t.homeUrl">
+          <img
+            class="nav-header__logo"
+            :src="logoUrl"
+            :alt="t.logoAlt"
+            width="85"
+            height="95"
+          />
+        </a>
+      </div>
+
+      <!-- Mobile toggle -->
+      <button
+        type="button"
+        class="nav-header__mobile-toggle n-cursor-pointer n-radius-md"
+        :aria-expanded="String(isMobileMenuOpen)"
+        aria-controls="primary-navigation"
+        :aria-label="isMobileMenuOpen ? t.closeMenu : t.openMenu"
+        @click.stop="toggleMobileMenu"
+      >
+        <span></span><span></span><span></span>
+      </button>
+
+      <!-- Primary navigation -->
+      <nav id="primary-navigation" class="nav-header__navigation n-align-stretch" :aria-label="t.mainNav">
+        <ul class="nav-header__menu n-align-stretch n-m-0 n-p-0">
+          <li
+            v-for="(item, i) in menuItems"
+            :key="item.title || i"
+            class="nav-header__menu-item n-position-relative n-align-stretch"
+            :class="{ 'is-current': activeTop === i }"
+          >
+            <button
+              v-if="item.children"
+              type="button"
+              class="nav-header__menu-link nav-header__menu-link--button n-inline-flex n-align-center n-gap-xs n-color-neutral-800 n-text-md n-font-weight-medium n-text-decoration-none n-cursor-pointer"
+              :class="{ 'is-current': activeTop === i }"
+              :aria-expanded="String(openMenu === item.title)"
+              :aria-controls="'nav-dd-' + i"
+              @click.stop="toggleMenu(item.title)"
+            >
+              <span>{{ item.title }}</span>
+              <n-icon :name="openMenu === item.title ? 'arrow-up-01' : 'arrow-down-01'" size="16"></n-icon>
+            </button>
+            <a
+              v-else
+              class="nav-header__menu-link n-inline-flex n-align-center n-gap-xs n-color-neutral-800 n-text-md n-font-weight-medium n-text-decoration-none n-cursor-pointer"
+              :class="{ 'is-current': activeTop === i }"
+              :href="item.url"
+              :aria-current="activeTop === i ? 'page' : undefined"
+            >{{ item.title }}</a>
+
+            <div
+              v-if="item.children && openMenu === item.title"
+              :id="'nav-dd-' + i"
+              class="nav-header__dropdown n-position-absolute n-p-md n-shadow-md"
+              :class="{ 'nav-header__dropdown--two-cols': item.twoColumns }"
+              @click.stop
+            >
+              <a
+                v-for="(child, j) in item.children"
+                :key="child.title || j"
+                class="n-block n-color-neutral-700 n-text-sm n-text-decoration-none"
+                :href="child.url"
+                :aria-current="activeTop === i && activeChild === j ? 'page' : undefined"
+                @click="closeAll"
+              >{{ child.title }}</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Actions -->
+      <div class="nav-header__actions n-flex n-align-center n-gap-xs">
+        <!-- Search toggle (opens the search panel below the header) -->
+        <button
+          type="button"
+          class="nav-header__icon-btn n-cursor-pointer n-radius-md"
+          :aria-expanded="String(isSearchOpen)"
+          aria-controls="nav-search-panel"
+          :aria-label="t.search"
+          :title="t.search"
+          @click.stop="toggleSearch"
+        >
+          <i
+            class="n-icon hgi-stroke n-color-inherit n-icon-size-20"
+            :class="isSearchOpen ? 'hgi-cancel-01' : 'hgi-search-01'"
+            aria-hidden="true"
+          ></i>
+        </button>
+
+        <!-- Language -->
+        <a
+          id="LangLink"
+          :href="switchLangUrl"
+          :hreflang="isAr ? 'en' : 'ar'"
+          :title="t.language"
+          :aria-label="t.language + ' - ' + t.switchLabel"
+          class="nav-header__lang n-color-neutral-800 n-btn n-btn--transparent n-btn--lg"
+        >
+          <i class="n-icon hgi-stroke hgi-globe-02 n-color-inherit n-icon-size-20" aria-hidden="true"></i>
+          <span class="nav-header__lang-label">{{ t.switchLabel }}</span>
+        </a>
+
+        <!-- Najiz -->
+        <a
+          href="https://najiz.sa/applications/landing"
+          target="_blank"
+          rel="noopener"
+          class="nav-header__najiz n-btn n-btn--primary n-btn--lg"
+        >
+          {{ t.najiz }}
+          <i class="icon-link-square-02" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Search panel -->
+    <div v-show="isSearchOpen" id="nav-search-panel" class="nav-search" @click.stop>
+      <!-- No <form> here: SharePoint wraps the page in its own ASP.NET <form>,
+           and a nested form is dropped by the browser, so submit would post back to home. -->
+      <div class="nav-search__form n-flex n-align-center n-gap-xs" role="search">
+        <label for="navSearchInput" class="sr-only">{{ t.search }}</label>
+        <input
+          id="navSearchInput"
+          ref="searchInput"
+          type="search"
+          class="nav-search__input ds-text-input rounded"
+          v-model="searchQuery"
+          :placeholder="t.searchPlaceholder"
+          autocomplete="off"
+          enterkeyhint="search"
+          @keydown.enter.prevent.stop="submitSearch"
+        />
+        <button
+          type="button"
+          class="nav-search__submit n-btn n-btn--primary n-btn--lg"
+          :disabled="!searchQuery.trim()"
+          @click.prevent.stop="submitSearch"
+        >
+          <i class="n-icon hgi-stroke hgi-search-01 n-icon-size-20" aria-hidden="true"></i>
+          <span>{{ t.search }}</span>
+        </button>
+      </div>
+    </div>
+  </header>
+</script>
+
+
+
+<script type="module">
+  import { setupNajizVueApp } from "/_catalogs/masterpage/MOJPortalDesign2026/dist/ce/vue-app.js";
+
+  /* ---------- Server-side config (the only ASP.NET expressions outside the menu) ---------- */
+  const IS_AR = false;
+
+  /* ---------- Adjust these to your environment ---------- */
+  // Search results page (same as the old jQuery handler); the query is appended URL-encoded.
+  // The old script sent English pages to the Arabic results page too. If an English
+  // results page exists, change the second value to "/english/search/Pages/SearchResults.aspx?sw=".
+  const SEARCH_URL = IS_AR
+    ? "/ar/search/Pages/SearchResults.aspx?sw="
+    : "/english/search/Pages/SearchResults.aspx?sw=";
+  // The results page reads the last query from sessionStorage under this key.
+  const SEARCH_STORAGE_KEY = "searchVal";
+  // true  = switching language keeps the user on the same page (/ar/... <-> /english/...)
+  // false = always go to the other language's home page (old behaviour)
+  const KEEP_PAGE_ON_LANG_SWITCH = true;
+  const DESKTOP_QUERY = "(min-width: 58.8125rem)";
+
+  const LABELS = {
+    ar: {
+      homeUrl: "/ar/",
+      logoAlt: "شعار الوزارة",
+      mainNav: "القائمة الرئيسية",
+      openMenu: "فتح القائمة الرئيسية",
+      closeMenu: "إغلاق القائمة الرئيسية",
+      search: "بحث",
+      searchPlaceholder: "أدخل نص البحث ....",
+      language: "اللغة",
+      switchLabel: "En",
+      najiz: "منصة ناجز",
+    },
+    en: {
+      homeUrl: "/english/",
+      logoAlt: "Ministry logo",
+      mainNav: "Main navigation",
+      openMenu: "Open main menu",
+      closeMenu: "Close main menu",
+      search: "Search",
+      searchPlaceholder: "Enter search text ....",
+      language: "Language",
+      switchLabel: "Ar",
+      najiz: "Najiz Platform",
+    },
+  };
+
+  /* ---------- Current-page matching for the menu highlight ---------- */
+  // "/AR/MediaCenter/News/Pages/Default.aspx?x=1#y" -> "/ar/mediacenter/news/pages/default.aspx"
+  // Links to other sites (najiz.sa, …) return "" so they are never highlighted.
+  function normalizePath(url) {
+    if (!url) return "";
+    try {
+      const u = new URL(url, window.location.origin);
+      if (u.origin !== window.location.origin) return "";
+      let path = decodeURIComponent(u.pathname).toLowerCase().replace(/\/+$/, "");
+      if (!/\.aspx$/.test(path)) path += "/pages/default.aspx"; // "/ar/opendata" == its default page
+      return path;
+    } catch {
+      return "";
+    }
+  }
+  // The folder a link lives in, used to match the other pages of that section.
+  // "/ar/mediacenter/news/pages/default.aspx" -> "/ar/mediacenter/news/"
+  // Language roots ("/ar/", "/english/") are ignored, or every page would match the home link.
+  function sectionFolder(path) {
+    const folder = path.replace(/\/pages\/[^/]+\.aspx$/, "/").replace(/\/[^/]+\.aspx$/, "/");
+    return folder.split("/").filter(Boolean).length >= 2 ? folder : "";
+  }
+
+  try {
+    const app = await setupNajizVueApp({
+      // Read the template from the x-template above (textContent = the raw, unparsed markup)
+      template: document.getElementById("nav-header-tpl").textContent,
+      data() {
+        const t = IS_AR ? LABELS.ar : LABELS.en;
+        return {
+          isAr: IS_AR,
+          t,
+          isMobileMenuOpen: false,
+          isSearchOpen: false,
+          openMenu: null,
+          searchQuery: "",
+          // Absolute paths: an inline module's import.meta.url is the page URL, so keep these rooted at "/"
+          logoUrl: "/_catalogs/masterpage/MOJPortalDesign2023/images/logo.webp",
+          menuItems: [
+            {
+              title: 'About Ministry',
+              twoColumns: true,
+              children: [
+                { title: 'About us', url: '/English/Ministry/pages/aboutus.aspx' },
+                { title: 'MoJ’s History\r\n  ', url: '/English/Ministry/Pages/MOJHistory.aspx\r\n  ' },
+                { title: 'Organizational Structure\r\n  ', url: '/English/Ministry/Pages/OrganizationalStructure.aspx\r\n  ' },
+                { title: 'Leadership\r\n  ', url: '/English/Ministry/Pages/Leadership.aspx\r\n  ' },
+                { title: 'Policies and Strategies\r\n  ', url: '/English/Ministry/Policies/Pages/default.aspx\r\n  ' },
+                { title: 'Budget and Outlay\r\n  ', url: '/English/Ministry/Pages/Budget.aspx\r\n  ' },
+                { title: 'Procurements\r\n  ', url: '/English/Ministry/Pages/Procurement.aspx\r\n  ' },
+                { title: 'News and Events\r\n  ', url: '/English/Ministry/Pages/NewsAndEvents.aspx\r\n  ' },
+                { title: 'Participation\r\n  ', url: '/english/Ministry/eParticipation/Pages/default.aspx\r\n  ' },
+                { title: 'Contact Us\r\n  ', url: '/English/Ministry/Pages/ContactUs.aspx\r\n\r\n  ' },
+                { title: 'We Care about You\r\n  ', url: '/English/Ministry/WeCare/Pages/default.aspx\r\n  ' },
+                { title: 'Case Journey\r\n  ', url: '/english/Ministry/Pages/CaseTripInMOJ.aspx\r\n  ' },
+                { title: 'Our Partners\r\n  ', url: '/English/Ministry/vision2030/Pages/OurPartners.aspx\r\n  ' },
+                { title: 'MoJ’s Initiatives\r\n  ', url: '/English/Ministry/vision2030/Pages/Initiative.aspx\r\n  ' },
+                { title: 'Sustainable Development', url: '/english/Ministry/SustainableDevelopment/Pages/default.aspx' },
+                { title: 'Collaborative Training Program\r\n  ', url: 'https://training.moj.gov.sa/\r\n  ' },
+                { title: 'Recruitment', url: '/english/Ministry/recruitment/Pages/default.aspx' },
+                { title: 'Virtual Enforcement Court', url: '/English/Ministry/Pages/VirtualEnforcementCourt.aspx' },
+                { title: 'e-Litigation', url: '/English/Ministry/Pages/eLitigation.aspx' },
+                { title: 'Law Practice\r\n  ', url: '/english/Ministry/Departments/Mohammah/Pages/default.aspx\r\n  ' },
+                { title: 'General Directorate of Private Notaries\r\n  ', url: '/english/Ministry/Departments/notaries/Pages/default.aspx\r\n  ' },
+                { title: 'Marriage Registrars\r\n  ', url: '/English/Ministry/Departments/MarriageOfficial/Pages/default.aspx\r\n  ' },
+                { title: 'Vision Realization Office\r\n  ', url: '/English/Ministry/vision2030/Pages/default.aspx\r\n  ' },
+                { title: 'Najiz Judicial Services Center\r\n  ', url: '/english/Ministry/Departments/NajizCenter/Pages/default.aspx\r\n  ' },
+                { title: 'Research Center\r\n  ', url: '/English/Ministry/Departments/ResearchCenter/Pages/default.aspx\r\n  ' },
+                { title: 'Judicial Training Center\r\n  ', url: 'https://jtc.moj.gov.sa/\r\n  ' },
+                { title: 'Data Management and Privacy Office\r\n  ', url: '/english/Ministry/Departments/DataAndPrivacyManagementOffice/Pages/default.aspx\r\n  ' },
+                { title: 'Movable Properties for Sale\r\n  ', url: '/English/Ministry/Pages/TranscriptsList.aspx\r\n  ' },
+                { title: 'Courts\r\n  ', url: '/English/Ministry/Courts/Pages/default.aspx\r\n  ' },
+                { title: 'Notarial Offices\r\n  ', url: '/english/Ministry/Notary/Pages/default.aspx\r\n  ' },
+              ],
+            },
+            {
+              title: 'e-Services\r\n  ',
+              children: [
+                { title: 'Electronic Services Guide\r\n\r\n  ', url: '/english/eServices/Pages/default.aspx\r\n  ' },
+                { title: 'Electronic Services Platform (Najiz)\r\n\r\n  ', url: 'https://najiz.sa/applications/landing\r\n  ' },
+                { title: 'Taradhi Platform\r\n  ', url: 'https://taradhi.moj.gov.sa/\r\n  ' },
+              ],
+            },
+            {
+              title: 'Participation\r\n  ',
+              url: '/english/Ministry/eParticipation/Pages/default.aspx\r\n  ',
+            },
+            {
+              title: 'Laws \u0026 Circulars\r\n  ',
+              children: [
+                { title: 'Laws\r\n  ', url: 'https://laws.moj.gov.sa/?lang=en\r\n    ' },
+                { title: 'Circulars\r\n  ', url: 'https://www.moj.gov.sa/TameemPortal/Pages/default.aspx\r\n    ' },
+              ],
+            },
+            {
+              title: 'Open Data\r\n  ',
+              url: '/English/opendata/Pages/reports.aspx\r\n  ',
+            },
+            {
+              title: 'Media Center\r\n  ',
+              children: [
+                { title: 'MoJ News\r\n  ', url: '/English/MediaCenter/news/Pages/default.aspx\r\n  ' },
+                { title: 'Moon-Sighting Panel Decisions\r\n  ', url: '/English/MediaCenter/News/Pages/SupremeCourtNews.aspx\r\n  ' },
+                { title: 'Events Calendar\r\n  ', url: '/English/MediaCenter/Pages/MOJ-Events.aspx\r\n\t' },
+                { title: 'Announcements\r\n  ', url: '/English/MediaCenter/Announcements/Pages/default.aspx\r\n  ' },
+                { title: 'Publications\r\n  ', url: '/english/MediaCenter/Pages/Versions.aspx\r\n  ' },
+              ],
+            },
+          ],
+        };
+      },
+
+      computed: {
+        /* Which menu entry matches the page you are on.
+           1) exact page match wins; 2) otherwise the link whose folder is the longest
+              prefix of the current address (e.g. NewsDetails.aspx -> "أخبار الوزارة"). */
+        activeMatch() {
+          const here = normalizePath(window.location.href);
+          if (!here) return null;
+          let best = null;
+          const consider = (url, top, child) => {
+            const target = normalizePath(url);
+            if (!target) return;
+            let score = 0;
+            if (target === here) score = 10000 + target.length;
+            else {
+              const folder = sectionFolder(target);
+              if (folder && here.startsWith(folder)) score = folder.length;
+            }
+            // A top-level link (e.g. المشاركة الإلكترونية) beats a dropdown child with the same URL
+            if (score && child === null) score += 0.5;
+            if (score && (!best || score > best.score)) best = { score, top, child };
+          };
+          this.menuItems.forEach((item, i) => {
+            if (item.url) consider(item.url, i, null);
+            (item.children || []).forEach((child, j) => consider(child.url, i, j));
+          });
+          return best;
+        },
+        activeTop() {
+          return this.activeMatch ? this.activeMatch.top : -1;
+        },
+        activeChild() {
+          return this.activeMatch ? this.activeMatch.child : null;
+        },
+        switchLangUrl() {
+          const fallback = IS_AR ? "/english/pages/default.aspx" : "/ar/pages/default.aspx";
+          if (!KEEP_PAGE_ON_LANG_SWITCH) return fallback;
+          const { pathname, search, hash } = window.location;
+          const from = IS_AR ? /\/ar\//i : /\/english\//i;
+          const to = IS_AR ? "/english/" : "/ar/";
+          return from.test(pathname) ? pathname.replace(from, to) + search + hash : fallback;
+        },
+      },
+
+      mounted() {
+        document.addEventListener("click", this.closeAll);
+        document.addEventListener("keydown", this.onKeydown);
+        this.mq = window.matchMedia(DESKTOP_QUERY);
+        this.mq.addEventListener("change", this.onBreakpointChange);
+      },
+
+      beforeUnmount() {
+        document.removeEventListener("click", this.closeAll);
+        document.removeEventListener("keydown", this.onKeydown);
+        this.mq?.removeEventListener("change", this.onBreakpointChange);
+      },
+
+      methods: {
+        toggleMobileMenu() {
+          this.isMobileMenuOpen = !this.isMobileMenuOpen;
+          this.isSearchOpen = false;
+        },
+        toggleMenu(title) {
+          this.openMenu = this.openMenu === title ? null : title;
+          this.isSearchOpen = false;
+        },
+        toggleSearch() {
+          const open = !this.isSearchOpen;
+          this.closeAll();
+          this.isMobileMenuOpen = false;
+          this.isSearchOpen = open;
+          if (open) this.$nextTick(() => this.$refs.searchInput?.focus());
+        },
+        closeAll() {
+          this.openMenu = null;
+          this.isSearchOpen = false;
+        },
+        onKeydown(e) {
+          if (e.key !== "Escape") return;
+          this.closeAll();
+          this.isMobileMenuOpen = false;
+        },
+        onBreakpointChange(e) {
+          if (e.matches) this.isMobileMenuOpen = false;
+        },
+        submitSearch() {
+          const query = (this.searchQuery || "").trim();
+          if (!query) return;
+          const encoded = encodeURIComponent(query);
+          try {
+            sessionStorage.setItem(SEARCH_STORAGE_KEY, encoded);
+          } catch {
+            /* storage unavailable – the results page still gets ?sw= */
+          }
+          window.location.href = SEARCH_URL + encoded;
+        },
+      },
+    });
+
+    app.mount("#nav-header-root");
+  } catch (error) {
+    console.error("[nav-header]", error);
+    document.getElementById("nav-header-root").textContent =
+      IS_AR ? "تعذر تحميل هذا القسم" : "This section could not be loaded";
+  }
+</script>
+
+<div id="privacyPopup" class="popupwrapperEn">
+    <div class="popupheader" style="text-align: center!important;">
+        <i class="bx bx-cookie"></i>
+        <h2 class="popupheaderh2" style="color:#075e4a!important;" >Your privacy matters to us</h2>
+      </div>
+
+      <div class="data">
+        <p>We use only essential cookies to run this platform and its related services smoothly and improve your experience. For more details,  <a href="https://www.moj.gov.sa/english/Ministry/Pages/PrivacyPolicy.aspx" style="cursor:pointer;" target="_blank">See our Privacy Policy</a></p>
+      </div>
+
+      <div class="buttons" style="text-align: center!important;">
+        <button class="button" type='button' id="acceptBtn">Continue</button>
+      </div>
+    </div>
+
+
+       <link rel="stylesheet" href="/_catalogs/masterpage/HomePage/css/landing.css" />
+              
+
+
+<div id="DeltaPlaceHolderMain">
+	
+
+<script>
+  window.rsConf = { general: { usePost: true } };
+</script><script src="/_catalogs/masterpage/ReadSpeaker2.5/ReadSpeaker.js?pids=embhl"></script><script src="https://cdn-me.readspeaker.com/script/8340/webReader/webReader.js?pids=wr&amp;notools=1" id="rs_req_Init"></script><!-- ===================== Page header ===================== --><div class="page-header">
+  <div class="n-container">
+    <div class="page-header__bar">
+
+      <!-- Breadcrumb (Vue mounts here only) -->
+      <div id="page-breadcrumb-root" class="page-header__breadcrumb">
+        <page-breadcrumb :items="breadcrumbs"></page-breadcrumb>
+      </div>
+
+      <!-- Tool buttons -->
+      <div class="page-tools" role="toolbar" aria-label="Page tools">
+        <button type="button" class="icons-container" onclick="pageBookmark(event)" title="Bookmark" aria-label="Bookmark">
+          <i class="hgi-stroke hgi-bookmark-02 n-icon n-color-inherit n-icon-size-20" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="icons-container" onclick="pagePrint(event)" title="Print" aria-label="Print">
+          <i class="hgi-stroke hgi-printer n-icon n-color-inherit n-icon-size-20" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="icons-container" onclick="emailCurrentPage()" title="Share" aria-label="Share">
+          <i class="hgi-stroke hgi-share-05 n-icon n-color-inherit n-icon-size-20" aria-hidden="true"></i>
+        </button>
+
+        
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===================== Page content ===================== -->
+<div class="n-container">
+  
+
+  <div id="readspeaker" class="articleContainer">
+
+    <div class="page-title-row">
+      <h1 class="n-typography n-display-sm n-font-weight-bold n-color-base-black n-text-start n-m-0">
+        filenotfoundpage
+      </h1>
+
+      <div id="readspeaker_button1" class="rs_skip rsbtn rs_preserve listenPage">
+        <a rel="nofollow" class="rsbtn_play" accesskey="L" title="Listen to content"
+           href="https://app-as.readspeaker.com/cgi-bin/rsent?customerid=8340&amp;lang=en&amp;readid=readspeaker&amp;url=">
+          <span class="rsbtn_left rsimg rspart"><span class="rsbtn_text"><span>Listen</span></span></span>
+          <span class="rsbtn_right rsimg rsplay rspart"></span>
+        </a>
+      </div>
+    </div>
+
+    <div class="ms-webpart-zone ms-fullWidth">
+		<div id="MSOZoneCell_WebPartWPQ1" class="s4-wpcell-plain ms-webpartzone-cell ms-webpart-cell-vertical-inline-table ms-webpart-cell-vertical ms-fullWidth ">
+			<div class="ms-webpart-chrome ms-webpart-chrome-vertical ms-webpart-chrome-fullWidth ">
+				<div WebPartID="e97ce874-57d6-4ab5-9ef5-1860f88d8614" HasPers="false" id="WebPartWPQ1" width="100%" class="ms-WPBody " allowDelete="false" style="" ><div class="ms-rtestate-field"><section class="px-4 px-md-5">
+        
+         
+        <div class="row justify-content-center ">
+           
+              
+           
+              
+                
+                <div class="col-lg-9 px-4 pb-5">
+                    <div class="row justify-content-center ">
+                <div class="col-lg-8 col-xs-6"><img src="/_catalogs/masterpage/MOJPortalDesign2023/images/filenotfound.svg" class="mx-auto d-block img-fluid " alt=""/>
+                    
+                
+                    <h2 class="text-h2 text-black-font font-body-bold  pt-2 row justify-content-center">
+                       Page not found!
+                        </h2> 
+                        <span class="text-lg text-black-font font-body-bold row justify-content-center">
+                        Kindly, Inform us about the page you want &#160;&#160;<br/> <a href="/English/Pages/Ministry/Pages/ContactUs.aspx">Click here</a>
+                        </span> 
+                </div>
+                </div>
+            </div>
+               
+                <div class="col-lg-3 px-4 pt-4">
+                <div class="card-detils1 p-5 ">
+
+                    <div class="row mb-1">
+                        <div class="col-2 ml-1"><img src="/_catalogs/masterpage/MOJPortalDesign2023/images/mail.svg" alt=""/>&#160;</div>
+                        <span class="col-9 ml-3">
+                            <h4 class="text-lg font-body-bold"> Contact Us </h4>
+                            <span class="text-md m-0"><a href="mailto:1950@moj.gov.sa">1950@moj.gov.sa</a></span>
+                            
+                        </span>
+                    </div>
+                    <hr/>
+                    <div class="row mb-1 ">
+                        <div class="col-2 ml-1 mt-1 "><img src="/_catalogs/masterpage/MOJPortalDesign2023/images/tellphone.svg" alt=""/>&#160;</div>
+                        <span class="col-9 ml-3">
+                            <h4 class="text-lg font-body-bold">Call center</h4>
+                            <span class="text-md m-0">
+                                <a href="tel:1950"> Inside KSA : 1950</a><br/>
+                                <a href="tel:966920001950">Outside KSA : 966920001950</a>
+                            </span>
+                          
+                        </span>
+                    </div>
+                    <hr/>
+                    <div class="row mb-1 ">
+                        <div class="col-2 ml-1 mt-1 "><img src="/_catalogs/masterpage/MOJPortalDesign2023/images/najizLogo.png" alt=""/>&#160;</div>
+                        <span class="col-9 ml-3">
+                            <h4 class="text-lg font-body-bold">Eservices</h4>
+                            <span class="text-md m-0">
+                                <a href="https://najiz.sa/">Najiz Portal</a>
+                            </span>
+                          
+                        </span>
+                    </div>
+                <hr/>
+                <div class="row mb-1">
+                    <div class="col-2 ml-1"><img src="/_catalogs/masterpage/MOJPortalDesign2023/images/questions.svg" alt=""/>&#160;</div>
+                    <span class="col-9 ml-3">
+                        <h4 class="text-lg font-body-bold">FAQ</h4>
+                        <span class="text-md m-0"><a href="/ar/Ministry/Pages/FAQ.aspx">Click here</a><br/>
+                            
+                        </span>
+       
+                    </span>
+                </div>
+
+
+                </div>
+                </div>
+
+
+        </div>
+    </section>
+​<br/></div><div class="ms-clear"></div></div>
+			</div>
+		</div>
+	</div>
+  </div>
+
+  <div class="col-xs-12">
+		
+
+
+
+
+
+<div class="pageFoot" dir="ltr">
+    <div class="hd- en lastUpdated">
+        Last Modified :
+
+        <!--2/13/2024 5:30 PM-->
+
+        13 Feb 2024
+    </div>
+
+    <!-- ===================== Share bar (WhatsApp / X / Facebook / copy link) ===================== -->
+    <div class="share-bar" role="group" aria-labelledby="share-bar-title">
+        <span id="share-bar-title" class="share-bar__label">
+            Share:
+        </span>
+
+        <a id="whats" class="share-bar__btn" data-share="whatsapp" href="https://api.whatsapp.com/send?text=https://www.moj.gov.sa/" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+            </svg>
+        </a>
+
+        <a class="share-bar__btn" data-share="x" href="https://x.com/" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+        </a>
+
+        <a class="share-bar__btn" data-share="facebook" href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/>
+            </svg>
+        </a>
+
+        <!-- type="button": SharePoint wraps the page in a <form>, so a plain button would post back -->
+        <button type="button" class="share-bar__btn" data-share="copy">
+            <i class="n-icon hgi-stroke hgi-link-circle n-color-inherit n-icon-size-20" aria-hidden="true"></i>
+        </button>
+
+        <span class="share-bar__status" role="status" aria-live="polite"></span>
+    </div>
+
+    <div class="clearfix"></div>
+</div>
+
+
+<!-- Replaces the old jQuery WhatsApp script, the X injection script and the Facebook SDK -->
+<script type="text/javascript">
+    (function () {
+        var IS_AR = /\/ar(\/|$)/i.test(window.location.pathname);
+        var T = IS_AR
+            ? { whatsapp: "مشاركة عبر واتساب", x: "مشاركة عبر منصة X", facebook: "مشاركة عبر فيسبوك", copy: "نسخ الرابط", copied: "تم نسخ الرابط", newWindow: "(يفتح في نافذة جديدة)" }
+            : { whatsapp: "Share on WhatsApp", x: "Share on X", facebook: "Share on Facebook", copy: "Copy link", copied: "Link copied", newWindow: "(opens in a new window)" };
+
+        function init() {
+            // Share the page the visitor is on
+            var pageUrl = window.location.origin + window.location.pathname;
+            var pageTitle = (document.title || "").split(/[-|–]/)[0].trim();
+            var u = encodeURIComponent(pageUrl);
+
+            var links = {
+                whatsapp: "https://api.whatsapp.com/send?text=" + encodeURIComponent(pageTitle + " " + pageUrl),
+                x: "https://x.com/intent/post?text=" + encodeURIComponent(pageTitle) + "&url=" + u,
+                facebook: "https://www.facebook.com/sharer/sharer.php?u=" + u
+            };
+
+            var bars = document.querySelectorAll(".share-bar");
+            for (var b = 0; b < bars.length; b++) {
+                var bar = bars[b];
+                var status = bar.querySelector(".share-bar__status");
+                var buttons = bar.querySelectorAll("[data-share]");
+
+                for (var i = 0; i < buttons.length; i++) {
+                    (function (btn) {
+                        var kind = btn.getAttribute("data-share");
+                        btn.setAttribute("title", T[kind]);
+
+                        if (kind !== "copy") {
+                            btn.setAttribute("href", links[kind]);
+                            btn.setAttribute("aria-label", T[kind] + " " + T.newWindow);
+                            return;
+                        }
+
+                        btn.setAttribute("aria-label", T.copy);
+                        btn.addEventListener("click", function (e) {
+                            e.preventDefault();
+                            var done = function () {
+                                btn.classList.add("is-copied");
+                                if (status) status.textContent = T.copied;
+                                setTimeout(function () {
+                                    btn.classList.remove("is-copied");
+                                    if (status) status.textContent = "";
+                                }, 2000);
+                            };
+                            if (navigator.clipboard && window.isSecureContext) {
+                                navigator.clipboard.writeText(pageUrl).then(done);
+                            } else {
+                                // http:// pages (e.g. the dev server) have no clipboard API
+                                var tmp = document.createElement("textarea");
+                                tmp.value = pageUrl;
+                                tmp.style.position = "fixed";
+                                tmp.style.opacity = "0";
+                                document.body.appendChild(tmp);
+                                tmp.select();
+                                try { document.execCommand("copy"); done(); } catch (err) { }
+                                document.body.removeChild(tmp);
+                            }
+                        });
+                    })(buttons[i]);
+                }
+            }
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", init);
+        } else {
+            init();
+        }
+    })();
+</script>
+	</div>
+</div>
+
+<!-- ===================== Breadcrumb (Vue 3) ===================== -->
+<script type="module">
+  import { setupNajizVueApp } from "/_catalogs/masterpage/MOJPortalDesign2026/dist/ce/vue-app.js";
+
+  const pageBreadcrumb = {
+    name: "PageBreadcrumb",
+    props: {
+      items: { type: Array, default: () => [] },
+      highlighted: { type: Boolean, default: false },
+      ariaLabel: { type: String, default: "Breadcrumb" },
+    },
+    template: `
+      <nav v-if="items.length" :aria-label="ariaLabel"
+           :class="['breadcrumb n-position-relative n-z-index-1', { 'n-bg-primary-sa-flag-25': highlighted }]">
+        <ol class="breadcrumb__list n-flex n-align-center n-gap-xs n-m-0 n-p-0">
+          <template v-for="(item, index) in items" :key="\`\${item.text}-\${index}\`">
+            <li v-if="index > 0" class="n-inline-flex n-align-center" aria-hidden="true">
+              <n-icon name="arrow-right-01" size="16"></n-icon>
+            </li>
+            <li class="breadcrumb__item n-inline-flex n-align-center">
+              <span v-if="item.disabled || index === items.length - 1"
+                    class="breadcrumb__current n-color-neutral-500 n-text-sm" aria-current="page">
+                {{ item.text }}
+              </span>
+              <a v-else :href="item.href"
+                 class="breadcrumb__link n-color-neutral-700 hover:n-color-primary-sa-flag-600 n-text-sm n-text-decoration-none"
+                 @click="onItemClick($event, item)">
+                {{ item.text }}
+              </a>
+            </li>
+          </template>
+        </ol>
+      </nav>
+    `,
+    methods: {
+      onItemClick(event, item) {
+        if (item.external || !item.href) return;
+        event.preventDefault();
+        window.dispatchEvent(new CustomEvent("najiz-breadcrumb-navigate", { detail: { item } }));
+        window.location.href = item.href;
+      },
+    },
+  };
+
+  try {
+    const app = await setupNajizVueApp({
+      data() {
+        const buildBreadcrumbs = () => {
+          const spContext = window._spPageContextInfo || null;
+          const origin = window.location.origin;
+          const pathSegments = window.location.pathname.split('/').filter(Boolean);
+
+          // English site lives under /english/ (also accepts /en/)
+          const languageCodes = ['english', 'en', 'ar'];
+          const homeLabels = { english: 'Home', en: 'Home', ar: 'الرئيسية' };
+          const hiddenSegments = ['pages', 'sitepages'];
+
+          // English display names for known folder segments
+          const subsiteMap = {
+            'ministry': 'Ministry',
+            'about': 'About the Ministry',
+            'services': 'Services',
+            'eservices': 'E-Services',
+            'mediacenter': 'Media Center',
+            'departments': 'Departments'
+            // Add any other folder names here (keys in lowercase)
+          };
+
+          const isHidden = (value) =>
+            !!value && hiddenSegments.includes(value.trim().toLowerCase());
+
+          const prettifySegment = (segment) =>
+            decodeURIComponent(segment)
+              .replace(/[-_]+/g, ' ')
+              .replace(/\.[a-zA-Z]+$/, '')
+              .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+              .split(' ')
+              .filter(Boolean)
+              .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+              .join(' ');
+
+          const firstSegment = pathSegments[0] ? pathSegments[0].toLowerCase() : '';
+          const langCode = languageCodes.includes(firstSegment) ? firstSegment : 'english';
+
+          const crumbs = [{
+            text: homeLabels[langCode] || homeLabels.english,
+            href: `${origin}/${langCode}/pages/default.aspx`,
+          }];
+
+          let pathSoFar = '';
+          const siteLevels = [];
+          pathSegments.forEach((segment, index) => {
+            pathSoFar += '/' + segment;
+            if (index === 0 && languageCodes.includes(segment.toLowerCase())) return;
+            if (isHidden(segment)) return;
+            siteLevels.push({ segment, href: origin + pathSoFar });
+          });
+
+          siteLevels.forEach((level, index) => {
+            const isLast = index === siteLevels.length - 1;
+            const lowerSegment = level.segment.toLowerCase();
+            let label;
+
+            if (isLast) {
+             label = document.title ? document.title.split(/\s+[-|–]\s+/)[0].trim() : prettifySegment(level.segment);           
+              } else if (subsiteMap[lowerSegment]) {
+              label = subsiteMap[lowerSegment];
+            } else if (spContext && spContext.webTitle && spContext.webAbsoluteUrl &&
+                       spContext.webAbsoluteUrl.toLowerCase().endsWith('/' + lowerSegment)) {
+              label = spContext.webTitle.trim();
+            } else {
+              label = prettifySegment(level.segment);
+            }
+
+            if (isHidden(label)) return;
+
+            crumbs.push({
+              text: label,
+              href: isLast ? undefined : level.href,
+              disabled: isLast,
+            });
+          });
+
+          return crumbs;
+        };
+
+        return { breadcrumbs: buildBreadcrumbs() };
+      },
+    });
+
+    app.component("page-breadcrumb", pageBreadcrumb);
+    app.mount("#page-breadcrumb-root");
+  } catch (error) {
+    console.error("[page-breadcrumb]", error);
+    document.getElementById("page-breadcrumb-root").textContent = "Unable to load this section.";
+  }
+</script>
+
+<script>
+  ExecuteOrDelayUntilScriptLoaded(function () {
+    var context = SP.ClientContext.get_current();
+    var web = context.get_web();
+    context.load(web);
+    context.executeQueryAsync(
+      function () { $('.text-1').text(web.get_title()); },
+      function (sender, args) { console.error(args.get_message()); }
+    );
+  }, "SP.JS");
+</script>
+
+<div style='display:none' id='hidZone'><menu class="ms-hide">
+		
+	</menu></div>
+</div>
+        
+
+
+
+
+<!-- ===================== site-footer (standalone web part) ===================== -->
+<!-- Mount point: stays empty in the HTML; Vue renders the footer into it.
+     The markup lives in the x-template below so the HTML validator never sees the Vue
+     attributes (:href, @click, v-for ...). The ASP.NET server tags inside it still run as before. -->
+<div id="site-footer-root"></div>
+
+<script type="text/x-template" id="site-footer-tpl">
+  <footer
+    class="site-footer n-bg-neutral-100 n-color-neutral-800"
+    aria-labelledby="footer-title"
+  >
+    <n-typography
+      id="footer-title"
+      as="h2"
+      variant="text-lg"
+      class="site-footer__sr-only n-sr-only"
+    >
+      {{ t.footerTitle }}
+    </n-typography>
+
+    <div class="site-footer__inner n-mx-auto n-pt-5xl n-pb-3xl">
+      <div class="site-footer__columns">
+        <section
+          v-for="group in linkGroups"
+          :key="group.title"
+          class="site-footer__column"
+        >
+          <n-typography
+            as="h3"
+            variant="text-md"
+            class="site-footer__title n-color-neutral-900 n-font-weight-medium"
+          >
+            {{ group.title }}
+          </n-typography>
+
+          <ul class="site-footer__links n-m-0 n-p-0 n-flex n-flex-column">
+            <li v-for="link in group.links" :key="link.title">
+              <a :href="link.url" @click.prevent="openFooterLink(link)">
+                {{ link.title }}
+                <i v-if="isExternal(link)" class="n-icon hgi-stroke hgi-link-square-01 n-color-inherit n-icon-size-16 site-footer__external-icon" aria-hidden="true"></i>
+                <span v-if="isExternal(link)" class="n-sr-only">{{ t.newWindow }}</span>
+              </a>
+            </li>
+          </ul>
+        </section>
+
+        <section class="site-footer__column site-footer__social-column">
+         		  
+		  <n-typography
+            as="h3"
+            variant="text-md"
+            class="site-footer__title n-color-neutral-900 n-font-weight-medium"
+          >
+            MOJ on Social Media
+          </n-typography>
+          <ul
+            class="site-footer__icon-list n-m-0 n-p-0"
+            :aria-label="t.socialLabel"
+          >
+            <li v-for="social in socials" :key="social.icon">
+              <a
+                :href="social.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="site-footer__icon-btn"
+                :aria-label="social.name + ' ' + t.newWindow"
+                :title="social.name"
+                @click="openSocial(social)"
+              >
+                <i :class="'n-icon hgi-stroke hgi-' + social.icon + ' n-color-inherit n-icon-size-20'" aria-hidden="true"></i>
+              </a>
+            </li>
+          </ul>
+
+          <n-typography
+            as="h3"
+            variant="text-md"
+            class="site-footer__title site-footer__tools-title n-color-neutral-900 n-font-weight-medium"
+          >
+            Accessibility Tools
+          </n-typography>
+          <!-- Same set as the Najiz landing footer: text size -/+, sign language, live chat.
+               type="button" matters: SharePoint wraps the page in a <form>. -->
+          <ul
+            class="site-footer__icon-list n-m-0 n-p-0"
+            :aria-label="t.toolsLabel"
+          >
+            <li>
+              <button
+                type="button"
+                class="site-footer__icon-btn"
+                :aria-label="t.zoomOut"
+                :title="t.zoomOut"
+                :disabled="textScale <= MIN_SCALE"
+                @click.prevent="changeScale(-1)"
+              >
+                <i class="n-icon hgi-stroke hgi-zoom-out-area n-color-inherit n-icon-size-20" aria-hidden="true"></i>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="site-footer__icon-btn"
+                :aria-label="t.zoomIn"
+                :title="t.zoomIn"
+                :disabled="textScale >= MAX_SCALE"
+                @click.prevent="changeScale(1)"
+              >
+                <i class="n-icon hgi-stroke hgi-zoom-in-area n-color-inherit n-icon-size-20" aria-hidden="true"></i>
+              </button>
+            </li>
+            <li>
+              <a
+                href='https://najiz.sa/applications/video-chat'
+                target="_blank"
+                rel="noopener noreferrer"
+                class="site-footer__icon-btn site-footer__icon-btn--label"
+                title='Technical Support in Sign Language'
+                aria-label='Technical Support in Sign Language'
+              >
+                <i class="n-icon hgi-stroke hgi-sign-language-c n-color-inherit n-icon-size-20" aria-hidden="true"></i>
+                <span>Technical Support in Sign Language</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href='https://najiz.sa/applications/landing'
+                target="_blank"
+                rel="noopener noreferrer"
+                class="site-footer__icon-btn"
+                title='Live Chat'
+                aria-label='Live Chat'
+              >
+                <i class="n-icon hgi-stroke hgi-bubble-chat n-color-inherit n-icon-size-20" aria-hidden="true"></i>
+              </a>
+            </li>
+          </ul>
+
+        </section>
+		  
+			
+        <section class="site-footer__column site-footer__app-column">
+          <n-typography
+            as="h3"
+            variant="text-md"
+            class="site-footer__title n-color-neutral-900 n-font-weight-medium"
+          >
+            Najiz App
+          </n-typography>
+          <div class="app-stores">
+                    <a href="https://apps.apple.com/ca/app/najiz-%D9%86%D8%A7%D8%AC%D8%B2/id1524792474" target="_blank" rel="noopener noreferrer">
+                        <span class="n-sr-only">Download Najiz Apps</span>
+                        <img alt="Download Najiz Apps" class="app-store-icon" src="https://najizcdn.moj.gov.sa/shared/V3/images/dist/svg/app-store.svg?v=3d944a9b-5159-4b08-bd75-675a3345f88b">
+                    </a>
+
+                    <a href="https://play.google.com/store/apps/details?id=com.moj.najiz&amp;hl=ar&amp;gl=US" target="_blank" rel="noopener noreferrer">
+                        <span class="n-sr-only">Download Najiz Apps</span>
+                        <img alt="Download Najiz Apps" class="app-store-icon" src="https://najizcdn.moj.gov.sa/shared/V3/images/dist/svg/google-play.svg?v=f5638328-37ad-45f1-8f77-66987cc22549">
+                    </a>
+                </div>
+        </section>
+      </div>
+
+      <n-divider
+        class="site-footer__divider n-block n-mt-4xl n-mb-3xl"
+      ></n-divider>
+
+      <div
+        class="site-footer__bottom n-flex n-align-center n-justify-between n-gap-4xl"
+      >
+	  
+
+			
+			
+        <div class="site-footer__legal">
+          <nav
+            class="site-footer__legal-links n-flex n-flex-wrap n-mb-lg"
+            :aria-label="t.legalLabel"
+          >
+            <a
+              v-for="link in legalLinks"
+              :key="link.title"
+              :href="link.url"
+              @click.prevent="openFooterLink(link)"
+            >
+              {{ link.title }}
+            </a>
+          </nav>
+          <n-typography
+            as="p"
+            variant="text-sm"
+            class="site-footer__copyright n-m-0 n-color-neutral-600 n-font-weight-semibold"
+          >
+             Copyright © Ministry of Justice  {{ currentYear }}
+          </n-typography>
+         
+        </div>
+		
+		<div class="re-edited-box-icon"> 
+		<!-- W3C badge: same card look as the footer icon buttons -->
+		<a
+		  class="w3c-badge"
+		  href="https://jigsaw.w3.org/css-validator/validator?uri=https%3A%2F%2Fwww.moj.gov.sa%2Fenglish%2Fpages%2Fdefault.aspx"
+		  target="_blank"
+		  rel="noopener noreferrer"
+		  :aria-label="t.w3cLabel + ' ' + t.newWindow"
+		  :title="t.w3cLabel"
+		>
+		  <span class="w3c-badge__text">
+		    <span class="w3c-badge__title">{{ t.w3cTitle }}</span>
+		    <span class="w3c-badge__sub">{{ t.w3cSub }}</span>
+		  </span>
+		  <span class="w3c-badge__check" aria-hidden="true">
+		    <i class="n-icon hgi-stroke hgi-checkmark-circle-02 n-color-inherit n-icon-size-20"></i>
+		  </span>
+		</a>
+		  
+		</div>
+		<div class="sealing">
+		
+		<!-- Vision 2030 logo (same as the header's) -->
+		<a
+		  class="site-footer__vision-link n-inline-flex n-align-center"
+		  :href="t.visionUrl"
+		  target="_blank"
+		  rel="noopener noreferrer"
+		  :aria-label="t.visionAlt + ' ' + t.newWindow"
+		>
+		  <img
+		    class="site-footer__vision-logo"
+		    :src="visionLogoUrl"
+		    :alt="t.visionAlt"
+		    width="111"
+		    height="75"
+		  />
+		</a>
+      </div>
+    </div>
+    </div><!-- /.site-footer__inner (this closing tag was missing) -->
+  </footer>
+</script>
+
+
+
+<!-- Najiz-style footer CSS. Kept in a data block and added to <head> by the script below,
+     because a <style> element inside <body> fails the HTML validator. -->
+<script type="text/plain" id="site-footer-css">
+  /* Five equal columns, as in the Najiz footer */
+  #site-footer-root .site-footer__columns {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 32px 16px;
+    align-items: start;
+  }
+
+  #site-footer-root .site-footer__column {
+    min-inline-size: 0;
+  }
+
+  /* Column heading with a full-width line under it */
+  #site-footer-root .site-footer__title {
+    display: block;
+    margin-block: 0 10px;
+    padding-block-end: 10px;
+    border-block-end: 1px solid #d2d6db;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  /* One line per heading: only the outer heading element draws it */
+  #site-footer-root .site-footer__title * {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  #site-footer-root .site-footer__title::before,
+  #site-footer-root .site-footer__title::after,
+  #site-footer-root .site-footer__title *::before,
+  #site-footer-root .site-footer__title *::after {
+    content: none;
+  }
+
+  #site-footer-root .site-footer__tools-title {
+    margin-block-start: 32px;
+  }
+
+  /* Links: sizes are in rem so the text-size buttons keep working */
+  #site-footer-root .site-footer__links {
+    gap: 12px;
+    list-style: none;
+  }
+
+  #site-footer-root .site-footer__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    line-height: 1.43;
+    color: #4d5761;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  #site-footer-root .site-footer__links a:hover {
+    color: #1b8354;
+    text-decoration: underline;
+  }
+
+  #site-footer-root .site-footer__links a:focus-visible,
+  #site-footer-root .site-footer__icon-btn:focus-visible {
+    outline: 2px solid #1b8354;
+    outline-offset: 2px;
+  }
+
+  #site-footer-root .site-footer__external-icon {
+    flex: 0 0 auto;
+    color: #6c737f;
+  }
+
+  #site-footer-root .site-footer__icon-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+  }
+
+  /* The resets matter: SharePoint's corev15.css gives every <button> a white background,
+     a minimum width and a side margin. */
+  #site-footer-root .site-footer__icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-sizing: border-box;
+    inline-size: 36px;
+    min-inline-size: 0;
+    block-size: 36px;
+    margin: 0;
+    padding: 0;
+    font-family: inherit;
+    color: #1f2a37;
+    text-decoration: none;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid #d2d6db;
+    border-radius: 6px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  #site-footer-root .site-footer__icon-btn:hover {
+    color: #1f2a37;
+    background: #e5e7eb;
+    border-color: #9da4ae;
+  }
+
+  #site-footer-root .site-footer__icon-btn:disabled,
+  #site-footer-root .site-footer__icon-btn:disabled:hover {
+    cursor: not-allowed;
+    background: transparent;
+    border-color: #d2d6db;
+    opacity: 0.45;
+  }
+
+  #site-footer-root .site-footer__icon-btn--label {
+    inline-size: auto;
+    padding-inline: 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.43;
+    white-space: nowrap;
+  }
+
+  /* App column: heading centered; badges at the end of the row (left in Arabic, right in English) */
+  #site-footer-root .site-footer__app-column .site-footer__title {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  }
+
+  #site-footer-root .app-stores {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    inline-size: 100%;
+    gap: 8px;
+  }
+
+  #site-footer-root .app-stores a {
+    display: block;
+  }
+
+  #site-footer-root .app-store-icon {
+    display: block;
+    inline-size: 120px;
+    block-size: auto;
+  }
+
+  @media (max-width: 1199px) {
+    #site-footer-root .site-footer__columns {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 767px) {
+    #site-footer-root .site-footer__columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 479px) {
+    #site-footer-root .site-footer__columns {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</script>
+
+<script type="module">
+ 
+      import { setupNajizVueApp } from "/_catalogs/masterpage/MOJPortalDesign2026/dist/ce/vue-app.js";
+	 const homeUrl = window.location.origin + '/English';
+  const IS_AR = /\/ar(\/|$)/i.test(window.location.pathname);
+
+  const T = IS_AR
+    ? {
+        socialLabel: "حسابات التواصل الاجتماعي",
+        w3cTitle: "W3C CSS",
+        w3cSub: "متوافق مع المعايير",
+        w3cLabel: "التحقق من توافق الموقع مع معايير W3C",
+        toolsLabel: "أدوات تسهيل الوصول",
+        zoomOut: "تصغير حجم النص",
+        zoomIn: "تكبير حجم النص",
+        newWindow: "(يفتح في نافذة جديدة)",
+        visionUrl: "https://www.vision2030.gov.sa/ar/",
+        visionAlt: "رؤية المملكة 2030",
+        footerTitle: "تذييل موقع وزارة العدل",
+        legalLabel: "الروابط القانونية",
+        loadError: "تعذر تحميل هذا القسم",
+      }
+    : {
+        socialLabel: "MOJ social media accounts",
+        w3cTitle: "W3C CSS",
+        w3cSub: "Standards compliant",
+        w3cLabel: "Check the site's W3C standards compliance",
+        toolsLabel: "Accessibility tools",
+        zoomOut: "Decrease text size",
+        zoomIn: "Increase text size",
+        newWindow: "(opens in a new window)",
+        visionUrl: "https://www.vision2030.gov.sa/en",
+        visionAlt: "Saudi Vision 2030",
+        footerTitle: "Ministry of Justice website footer",
+        legalLabel: "Legal links",
+        loadError: "This section could not be loaded",
+      };
+
+  /* Text size: same storage and steps as the digital stamp, so both stay in sync */
+  const MIN_SCALE = -2;
+  const MAX_SCALE = 3;
+  const SCALE_STEP = 0.0625;
+  const A11Y_KEY = "moj.a11y";
+  function readScale() {
+    try {
+      const v = (JSON.parse(localStorage.getItem(A11Y_KEY)) || {}).textScale;
+      return Number.isInteger(v) ? v : 0;
+    } catch {
+      return 0;
+    }
+  }
+    
+	  
+
+  try {
+    const footerStyle = document.createElement("style");
+    footerStyle.textContent = document.getElementById("site-footer-css").textContent;
+    document.head.appendChild(footerStyle);
+
+    const app = await setupNajizVueApp({
+      // Read the template from the x-template above (textContent = the raw, unparsed markup)
+      template: document.getElementById("site-footer-tpl").textContent,
+      data() {
+        return {
+          currentYear: new Date().getFullYear(),
+          t: T,
+          MIN_SCALE,
+          MAX_SCALE,
+          textScale: readScale(),
+          highContrast: false,
+          // Absolute path (an inline module's import.meta.url is the page URL)
+          visionLogoUrl: "/_catalogs/masterpage/MOJPortalDesign2023/images/vision2030.svg",
+          linkGroups: [
+            {
+              title: 'About MOJ Portal',
+              links: [
+				{ title: 'About Us', url: '/ar/Ministry/Pages/AboutUs.aspx' },
+                { title: 'Information Security Strategy', url: '/English/Ministry/Pages/informationSecurityStrategy.aspx' },
+                { title: 'News', url: '/english/MediaCenter/News/Pages/default.aspx' },
+                { title: 'Subscribe to the newsletter', url: 'https://www.moj.gov.sa/english/Ministry/Pages/Newsletters.aspx' },
+                { title:'Service Level Agreement', url: '/English/Ministry/Pages/sla.aspx' },
+				{ title:'Accessibility', url: '/english/Ministry/Pages/Accessibility.aspx' },
+              ],
+            },
+            {
+			
+			
+			
+              title: 'Contact Us',
+              links: [
+                { title: 'e-Participation\r\n  ', url: '/english/Ministry/eParticipation/Pages/default.aspx\r\n  ' },
+				{ title: 'Complaint', url: 'https://najiz.sa/applications/crm/create' },
+				{ title: 'Nazaha', url: 'https://my.gov.sa/en/content/report-corruption' },
+				{ title: 'Rights to Information', url: '/English/Ministry/Pages/Info-Rights.aspx' },
+				{ title: 'FAQ', url: '/English/Ministry/Pages/FAQ.aspx' },
+				
+              ],
+            },
+			
+		
+			
+            {
+              title: 'Important Links',
+              links: [
+               { title: 'Supreme Judicial Council', url: 'https://www.scj.gov.sa/' },
+				{ title: 'National Portal\r\n  ', url: 'https://my.gov.sa/en\r\n  ' },
+				{ title: 'Saudi Open Data portal \r\n\r\n  ', url: 'https://od.data.gov.sa/en\r\n\r\n  ' },
+				{ title: 'e-Participation Portal\r\n  ', url: 'https://eparticipation.my.gov.sa/\r\n  ' },
+				{ title: 'Public consultation platform (Istitlaa (\r\n\r\n  ', url: 'https://istitlaa.ncc.gov.sa/ar/Pages/default.aspx\r\n\r\n\r\n  ' },
+				{ title: 'Saudi Press Agency', url: 'https://www.spa.gov.sa/en' },
+				{ title: 'Um Alqura NewsPaper', url: 'https://www.uqn.gov.sa/' },
+				{ title: 'Bureau of Experts of Council of Ministers', url: 'https://www.boe.gov.sa/en/Pages/default.aspx' },
+				{ title: 'Saudi Bar Association', url: 'https://sba.gov.sa/' },
+				{ title: 'Nafaqah Fund', url: 'https://nafaqah.sa/' },
+				{ title: 'Taradhi Platform', url: 'https://taradhi.moj.gov.sa/' },
+				{ title: 'Najiz Center', url: 'https://najizsa.com/' },
+				{ title: 'Judicial Training Center', url: 'https://tms-jtc.moj.gov.sa/' },
+              ],
+            },
+          ],
+           socials: [
+            { name: IS_AR ? "إكس" : "X", icon: "new-twitter", url: 'https://x.com/mojksa_en' },
+            { name: IS_AR ? "فيسبوك" : "Facebook", icon: "facebook-01", url: 'https://www.facebook.com/MojKsaEn/' },
+            { name: IS_AR ? "يوتيوب" : "YouTube", icon: "youtube", url: "https://youtube.com/MOJKSA" },
+            { name: IS_AR ? "سناب شات" : "Snapchat", icon: "snapchat", url: "https://snapchat.com/add/MOJKSA" },
+            { name: IS_AR ? "إنستغرام" : "Instagram", icon: "instagram", url: "https://instagram.com/MOJKSA" },
+            { name: IS_AR ? "لينكد إن" : "LinkedIn", icon: "linkedin-01", url: "https://linkedin.com/company/MOJKSA" },
+          ],
+          legalLinks: [
+           { title: 'Privacy Policy', url: '/english/Ministry/Pages/PrivacyPolicy.aspx' },
+		   { title: 'Terms Of Use', url: '/english/Ministry/Pages/TermsofUse.aspx' },
+		   { title: 'Site Map', url: '/English/Pages/SiteMap.aspx' },
+          ],
+        };
+      },
+      mounted() {
+        this.applyScale();
+      },
+      methods: {
+        changeScale(direction) {
+          this.textScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, this.textScale + direction));
+          this.applyScale();
+        },
+        applyScale() {
+          document.documentElement.style.fontSize =
+            this.textScale === 0 ? "" : `${100 + this.textScale * SCALE_STEP * 100}%`;
+          try {
+            localStorage.setItem(A11Y_KEY, JSON.stringify({ textScale: this.textScale }));
+          } catch {
+            /* storage unavailable – applies for this page view only */
+          }
+        },
+        toggleContrast() {
+          this.highContrast = !this.highContrast;
+          document.documentElement.classList.toggle("page-high-contrast", this.highContrast);
+        },
+		 isExternal(link) {
+			return Boolean(link.external) || /^https?:\/\//i.test(link.url || "");
+		 },
+		 openFooterLink(link) {
+			if (!link.url) return;
+
+			window.dispatchEvent(new CustomEvent("najiz-footer-link-open", { detail: { link } }));
+
+			// روابط خارجية (http/https خارج نطاق الموقع) تُفتح في تبويب جديد،
+			// وروابط الموقع الداخلية تُفتح في نفس الصفحة
+			if (this.isExternal(link)) {
+			  window.open(link.url, "_blank", "noopener,noreferrer");
+			} else {
+			  window.location.href = link.url;
+			}
+		  },
+        openSocial(social) {
+          window.dispatchEvent(new CustomEvent("najiz-social-open", { detail: { social } }));
+        },
+        openStore(store) {
+          window.dispatchEvent(new CustomEvent("najiz-store-open", { detail: { store } }));
+        },
+      },
+    });
+
+    app.mount("#site-footer-root");
+  } catch (error) {
+    console.error("[site-footer]", error);
+    document.getElementById("site-footer-root").textContent = T.loadError;
+  }
+</script>
+     
+<script type="text/javascript">
+ 
+   
+    
+$(function () {
+    
+		var input = document.getElementById("txtSearchValue");
+			// Execute a function when the user presses a key on the keyboard
+		input.addEventListener("keypress", function(event) {
+		  // If the user presses the "Enter" key on the keyboard
+		  if (event.key === "Enter") {
+			// Cancel the default action, if needed
+			event.preventDefault();
+			// Trigger the button element with a click
+			document.getElementById("submitForm").click();
+		  }
+		});
+
+
+     $('#submitForm').on('click', function(event) {
+    
+         			   event.preventDefault();
+                       var queryString = encodeURIComponent($('#txtSearchValue').val());
+                       
+                       
+                      var searchTxtBox = document.getElementById("txtSearchValue");
+					  var autoCompletInputEvent = new Event('change');
+					  searchTxtBox.dispatchEvent(autoCompletInputEvent);
+
+					  sessionStorage.setItem("searchVal", queryString );
+                       var location = "/english/search/Pages/SearchResults.aspx?sw=" + queryString ;
+                       //$('#search-input').attr("value", '');
+                       window.location.href = location;
+					   $('#txtSearchPageValue').val(queryString);
+ 						$('#Sites').val('https://www.moj.gov.sa/Lists/eservicesListNew/');
+
+                       return;
+    })
+    
+	 $('#submitFormAdvanced').on('click', function(event) {
+    
+         			   event.preventDefault();
+                       var queryString = encodeURIComponent($('#txtSearchValue').val());
+                       
+
+					   sessionStorage.setItem("searchVal", queryString );
+                       var location = "/english/search/Pages/SearchResults.aspx?sw=" + queryString ;
+                       $('#search-input').attr("value", '');
+                       window.location.href = location;
+					  $('#txtSearchPageValue').val(queryString);
+						$('#Sites').val('https://www.moj.gov.sa/Lists/eservicesListNew/');
+                       return;
+    })
+    });
+    
+   
+
+
+
+
+</script> 
+
+   
+
+  
+
+
+ 
+ 
+
+
+
+</div></div><div id="DeltaFormDigest">
+
+</div>
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="1BCC5989" />
+</div>
+<script type="text/javascript">RegisterSod("require.js", "\u002f_layouts\u002f15\u002frequire.js?rev=bv3fWJhk0uFGpVwBxnZKNQ\u00253D\u00253DTAG0");</script>
+<script type="text/javascript">
+//<![CDATA[
+var _spFormDigestRefreshInterval = 1440000;window.SPThemeUtils && SPThemeUtils.ApplyCurrentTheme(true); IsSPSocialSwitchEnabled = function() { return true; };var _fV4UI = true;//]]>
+</script>
+<script type="text/javascript">RegisterSod("browserScript", "\u002f_layouts\u002f15\u002fnon_ie.js?rev=PODAcPJKCTv6u9khpIXfNQ\u00253D\u00253DTAG0");RegisterSodDep("browserScript", "strings.js");</script>
+<script type="text/javascript">
+//<![CDATA[
+var __wpmExportWarning='This Web Part Page has been personalized. As a result, one or more Web Part properties may contain confidential information. Make sure the properties contain information that is safe for others to read. After exporting this Web Part, view properties in the Web Part description file (.WebPart) by using a text editor such as Microsoft Notepad.';var __wpmCloseProviderWarning='You are about to close this Web Part.  It is currently providing data to other Web Parts, and these connections will be deleted if this Web Part is closed.  To close this Web Part, click OK.  To keep this Web Part, click Cancel.';var __wpmDeleteWarning='You are about to permanently delete this Web Part.  Are you sure you want to do this?  To delete this Web Part, click OK.  To keep this Web Part, click Cancel.';var g_clientIdDeltaPlaceHolderMain = "DeltaPlaceHolderMain";
+var g_clientIdDeltaPlaceHolderUtilityContent = "DeltaPlaceHolderUtilityContent";
+//]]>
+</script>
+</form><span id="DeltaPlaceHolderUtilityContent"></span>
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+  (function () {
+    var loaded = false;
+    var events = ["scroll", "touchstart", "keydown", "click"];
+
+    function loadHudhud() {
+      if (loaded) return;
+      loaded = true;
+      events.forEach(function (e) { window.removeEventListener(e, loadHudhud); });
+
+      var s = document.createElement("script");
+      s.type = "module";
+      s.src = "https://hudhud.services/get_hudhud_widget/6fbcee03-769a-4245-9088-a0370594204b";
+      s.referrerPolicy = "no-referrer-when-downgrade";
+      document.body.appendChild(s);
+    }
+
+    events.forEach(function (e) {
+      window.addEventListener(e, loadHudhud, { once: true, passive: true });
+    });
+  })();
+</script>
+
+
+
+</body>
+
+</html>

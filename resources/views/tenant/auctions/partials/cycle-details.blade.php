@@ -33,11 +33,13 @@
         </div>
         @if ($hasCampaigns)
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover align-middle mb-0">
                     <thead>
                         <tr>
+                            <th style="width: 50px;" class="text-center">الشعار</th>
                             <th>نوع الحملة</th>
-                            <th>عدد المرفقات</th>
+                            <th class="text-center">التاريخ</th>
+                            <th class="text-center">عدد المرفقات</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -47,19 +49,22 @@
                                 $channelIcon = $channelIcons[$campaign->channel] ?? 'ti ti-speakerphone text-primary';
                             @endphp
                             <tr>
-                                <td>
-                                    {{ $channelLabel }}
-                                    @if ($campaign->campaign_date)
-                                        <small class="text-muted"><i class="ti ti-calendar me-1"></i>@date($campaign->campaign_date)</small>
-                                    @endif
+                                <td class="text-center">
+                                    <i class="{{ $channelIcon }} fs-4"></i>
                                 </td>
                                 <td>
+                                    <span class="fw-medium">{{ $channelLabel }}</span>
+                                </td>
+                                <td class="text-center">
+                                    {{ system_date($campaign->campaign_date) }}
+                                </td>
+                                <td class="text-center">
                                     @if ($campaign->evidence->count() > 0)
-                                        <span class="badge bg-label-info">{{ $campaign->evidence->count() . ' مرفق' }}</span>
+                                        <span
+                                            class="badge bg-label-info">{{ $campaign->evidence->count() . ' مرفق' }}</span>
                                     @else
-                                        <span>لا يوجد</span>
+                                        <span>-</span>
                                     @endif
-
                                 </td>
                             </tr>
                         @endforeach

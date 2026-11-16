@@ -17,8 +17,8 @@
     </fieldset>
     <div class="property-description">
         <div class="two-fields">
-            @include('tenant.auctions.regulatory-forms.field', ['label' => 'مساحة العقار', 'content' => $pv('area'), 'labelWidth' => 76])
-            @include('tenant.auctions.regulatory-forms.field', ['label' => 'عُمر العقار', 'content' => $pv('age'), 'labelWidth' => 78])
+            @include('tenant.auctions.regulatory-forms.field', ['label' => 'مساحة العقار', 'content' => $pv('area'), 'labelWidth' => 76, 'ltr' => true])
+            @include('tenant.auctions.regulatory-forms.field', ['label' => 'عُمر العقار', 'content' => $pv('age'), 'labelWidth' => 78, 'ltr' => true])
         </div>
         <div class="two-fields">
             <table class="form-field"><tbody><tr><th>نوع العقار <small>(فيلا، شقة، دبلكس، إلخ)</small></th><td><span class="data-value">{{ $pv('type') }}</span></td></tr></tbody></table>
@@ -30,8 +30,8 @@
             @endforeach
             <span class="other-detail">يتم تحديدها<br><span class="data-value">{{ $pv('status_other') }}</span></span>
         </td></tr></tbody></table>
-        @include('tenant.auctions.regulatory-forms.field', ['label' => 'الحد الأدنى لقيمة بدء المزاد العقاري', 'content' => $pv('opening_value'), 'labelWidth' => 166, 'class' => 'opening-value'])
-        @include('tenant.auctions.regulatory-forms.field', ['label' => 'مبلغ الدخول في المزايدة - إن وجد -', 'note' => '- في حال تم تحديد مبلغ الدخول في المزايدة يجب إرفاق نموذج التقييم العقاري المعتمد على ألا يتجاوز مبلغ الدخول نسبة ٥٪ من القيمة التقديرية للعقار بناءً على تقييم من مقيم عقاري معتمد', 'content' => $pv('entry_amount'), 'labelWidth' => 242, 'class' => 'entry-amount'])
+        @include('tenant.auctions.regulatory-forms.field', ['label' => 'الحد الأدنى لقيمة بدء المزاد العقاري', 'content' => $pv('opening_value'), 'labelWidth' => 166, 'class' => 'opening-value', 'ltr' => true])
+        @include('tenant.auctions.regulatory-forms.field', ['label' => 'مبلغ الدخول في المزايدة - إن وجد -', 'note' => '- في حال تم تحديد مبلغ الدخول في المزايدة يجب إرفاق نموذج التقييم العقاري المعتمد على ألا يتجاوز مبلغ الدخول نسبة ٥٪ من القيمة التقديرية للعقار بناءً على تقييم من مقيم عقاري معتمد', 'content' => $pv('entry_amount'), 'labelWidth' => 242, 'class' => 'entry-amount', 'ltr' => true])
     </div>
     <section class="property-rights">
         <h2 class="section-heading">الحقوق والقيود محل المزاد العقاري</h2>
@@ -44,7 +44,7 @@
         <table class="form-field ownership-share"><tbody><tr><th style="width:117pt">نسبة ملكية العقار</th><td class="choices compact-choices">
             @include('tenant.auctions.regulatory-forms.choices', ['label' => '100%', 'checked' => $pv('ownership_share') === '100'])
             @include('tenant.auctions.regulatory-forms.choices', ['label' => 'غير ذلك', 'checked' => $pv('ownership_share') !== '' && $pv('ownership_share') !== '100'])
-            <span class="data-value">{{ $pv('ownership_share') !== '100' ? $pv('ownership_share') : '' }}</span>
+            <span class="data-value" dir="ltr">{{ $pv('ownership_share') !== '100' ? $pv('ownership_share') : '' }}</span>
         </td></tr></tbody></table>
         @foreach([
             'real_rights' => ['هل توجد حقوق عينية أو التزامات مرتبطة بالعقار', 275],

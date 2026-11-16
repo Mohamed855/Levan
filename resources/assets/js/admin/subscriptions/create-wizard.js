@@ -18,7 +18,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function setElemText(id, text) {
         const el = document.getElementById(id);
-        if (el) el.textContent = text;
+        if (el) {
+            if (typeof text === "string" && text.includes("<")) {
+                el.innerHTML = text;
+            } else {
+                el.textContent = text;
+            }
+        }
     }
 
     function setElemValue(id, val) {
@@ -238,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const priceStr =
             formatNumber(
                 parseFloat(plan.price_after_discount || plan.price || 0),
-            ) + " ر.س";
+            ) + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>';
         setElemText("pd-price", priceStr);
         setElemText("pd-users", (plan.included_users || 1) + " مستخدمين");
         setElemText(
@@ -420,14 +426,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
             setElemText(
                 "calc-plan-price",
-                formatNumber(calculatedBase) + " ر.س",
+                formatNumber(calculatedBase) + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>',
             );
-            setElemText("calc-discount", formatNumber(discountVal) + " ر.س");
-            setElemText("calc-tax", formatNumber(includedVat) + " ر.س");
-            setElemText("calc-final-total", formatNumber(finalTotal) + " ر.س");
+            setElemText("calc-discount", formatNumber(discountVal) + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>');
+            setElemText("calc-tax", formatNumber(includedVat) + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>');
+            setElemText("calc-final-total", formatNumber(finalTotal) + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>');
             setElemText(
                 "sub_review-final-total",
-                formatNumber(finalTotal) + " ر.س",
+                formatNumber(finalTotal) + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>',
             );
         }
     }
@@ -523,7 +529,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         discountAmount: parseFloat(payload.discount_amount || 0),
                     };
                     setCouponFeedback(
-                        `${payload.message || "تم تطبيق الكوبون"} (خصم ${formatNumber(appliedCoupon.discountAmount)} ر.س)`,
+                        `${payload.message || "تم تطبيق الكوبون"} (خصم ${formatNumber(appliedCoupon.discountAmount)} ريال)`,
                         "text-success fw-semibold",
                     );
                 } else {

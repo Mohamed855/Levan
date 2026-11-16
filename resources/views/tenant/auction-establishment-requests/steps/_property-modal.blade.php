@@ -100,17 +100,17 @@
 
             {{-- قيمة افتتاح المزاد --}}
             <x-form.controls.input name="modal_prop_opening_value" id="modal_prop_opening_value"
-                label="قيمة افتتاح المزاد (ر.س)" type="number" min="0" step="0.01" :price="true"
+                label="قيمة افتتاح المزاد" type="number" min="0" step="0.01" :price="true"
                 required col="col-md-4" />
 
             {{-- مبلغ الدخول --}}
             <x-form.controls.input name="modal_prop_entry_amount" id="modal_prop_entry_amount"
-                label="مبلغ الدخول (ر.س)" type="number" min="0" step="0.01" :price="true" required
+                label="مبلغ الدخول" type="number" min="0" step="0.01" :price="true" required
                 col="col-md-4" />
 
             {{-- القيمة التقديرية --}}
             <x-form.controls.input name="modal_prop_estimated_value" id="modal_prop_estimated_value"
-                label="القيمة التقديرية (ر.س)" type="number" min="0" step="0.01" :price="true"
+                label="القيمة التقديرية" type="number" min="0" step="0.01" :price="true"
                 required col="col-md-4" />
 
             {{-- الإفصاح الخاص بالعقار --}}

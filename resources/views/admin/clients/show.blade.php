@@ -287,7 +287,7 @@
                                                                         </span>
                                                                     </td>
                                                                     <td>{{ $p->used_users_snapshot ?? 0 }} / {{ $p->total_users_snapshot ?? $sub->total_users }}</td>
-                                                                    <td>{{ number_format($p->price_snapshot ?? $sub->price, 2) }} ر.س</td>
+                                                                    <td>{{ number_format($p->price_snapshot ?? $sub->price, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></td>
                                                                 </tr>
                                                             @endforeach
                                                         </tbody>

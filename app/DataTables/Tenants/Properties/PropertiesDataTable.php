@@ -33,6 +33,7 @@ class PropertiesDataTable extends AbstractDataTable
             ['data' => 'city', 'name' => 'city', 'title' => 'المدينة', 'width' => '110px'],
             ['data' => 'type', 'name' => 'type', 'title' => 'النوع', 'width' => '110px'],
             ['data' => 'area', 'name' => 'area', 'title' => 'المساحة (م²)', 'width' => '100px'],
+            ['data' => 'estimated_value', 'name' => 'estimated_value', 'title' => 'القيمة التقديرية', 'width' => '130px'],
             ['data' => 'deed_number', 'name' => 'deed_number', 'title' => 'رقم الصك', 'width' => '120px'],
             ['data' => 'data_status', 'name' => 'data_status', 'title' => 'حالة البيانات', 'width' => '110px', 'className' => 'text-center'],
             ['data' => 'assignment_status', 'name' => 'assignment_id', 'title' => 'حالة الارتباط', 'width' => '130px', 'className' => 'text-center'],
@@ -78,6 +79,9 @@ class PropertiesDataTable extends AbstractDataTable
             ->editColumn('area', function ($row): string {
                 return number_format((float) $row->area).' م²';
             })
+            ->editColumn('estimated_value', function ($row): string {
+                return $this->formatPrice($row->estimated_value);
+            })
             ->editColumn('deed_number', function ($row): string {
                 return $row->deed_number ? $this->copyableCode($row->deed_number) : '-';
             })
@@ -116,7 +120,7 @@ class PropertiesDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'property_number', 'image', 'name', 'type', 'deed_number', 'data_status', 'assignment_status', 'status', 'actions'];
+        return ['checkbox', 'property_number', 'image', 'name', 'type', 'estimated_value', 'deed_number', 'data_status', 'assignment_status', 'status', 'actions'];
     }
 
     protected function applyCustomFilters($query)

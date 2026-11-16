@@ -41,6 +41,18 @@
     }
 
     $errorsBag = $errors ?? view()->shared('errors') ?? new \Illuminate\Support\ViewErrorBag;
+
+    $effectiveType = $isPrice ? 'text' : $type;
+    $rawValue = old($name, $value);
+    $displayValue = $rawValue;
+    if ($isPrice && $rawValue !== null && $rawValue !== '' && is_numeric(str_replace(',', '', (string) $rawValue))) {
+        $cleanNum = str_replace(',', '', (string) $rawValue);
+        $parts = explode('.', $cleanNum);
+        $displayValue = number_format((float) $parts[0]);
+        if (isset($parts[1]) && strlen($parts[1]) > 0) {
+            $displayValue .= '.' . $parts[1];
+        }
+    }
 @endphp
 
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help"
@@ -50,9 +62,10 @@
             'input-group input-group-merge',
             'is-invalid' => $errorsBag->has($name),
         ])>
-            <input id="{{ $fieldId }}" name="{{ $name }}" type="{{ $type }}" value="{{ old($name, $value) }}"
+            <input id="{{ $fieldId }}" name="{{ $name }}" type="{{ $effectiveType }}" value="{{ $displayValue }}"
                 @required($isRequired)
                 @if ($placeholder) placeholder="{{ $placeholder }}" @endif data-form-control
+                @if ($isPrice) data-price-input="true" inputmode="decimal" autocomplete="off" @endif
                 aria-describedby="{{ $errorId }}" aria-invalid="{{ $errorsBag->has($name) ? 'true' : 'false' }}"
                 {{ $attributes->class(['form-control', 'is-invalid' => $errorsBag->has($name)]) }}>
             @if ($isPrice)
@@ -63,9 +76,10 @@
             {{ $slot }}
         </div>
     @else
-        <input id="{{ $fieldId }}" name="{{ $name }}" type="{{ $type }}" value="{{ old($name, $value) }}"
+        <input id="{{ $fieldId }}" name="{{ $name }}" type="{{ $effectiveType }}" value="{{ $displayValue }}"
             @required($isRequired)
-                @if ($placeholder) placeholder="{{ $placeholder }}" @endif data-form-control
+            @if ($placeholder) placeholder="{{ $placeholder }}" @endif data-form-control
+            @if ($isPrice) data-price-input="true" inputmode="decimal" autocomplete="off" @endif
             aria-describedby="{{ $errorId }}" aria-invalid="{{ $errorsBag->has($name) ? 'true' : 'false' }}"
             {{ $attributes->class(['form-control', 'is-invalid' => $errorsBag->has($name)]) }}>
         {{ $slot }}

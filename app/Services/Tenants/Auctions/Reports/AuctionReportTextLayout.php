@@ -140,14 +140,15 @@ final class AuctionReportTextLayout
         $chunks = [];
         $chunk = ['rows' => [], 'layout' => ['rows' => [], 'dynamic' => false]];
         $cursor = $top;
+        $padding = $table['padding'] ?? 4;
         foreach ($rows as $index => $row) {
             $slot = $table['rows'][min($index, count($table['rows']) - 1)];
             $height = $slot['bottom'] - $slot['top'];
             $wrapped = [];
             foreach ($row as $column => $value) {
                 $field = $definition['fields'][$slot['cells'][$column]['fields'][0]];
-                $lines = $this->wrap((string) $value, $table['columns'][$column + 1] - $table['columns'][$column] - 8, $field['size'], $field['font']);
-                $height = max($height, $this->height($lines, $field['size'], $field['sy'], $field['font']) + 4);
+                $lines = $this->wrap((string) $value, $table['columns'][$column + 1] - $table['columns'][$column] - 2 * $padding, $field['size'], $field['font']);
+                $height = max($height, $this->height($lines, $field['size'], $field['sy'], $field['font']) + (($table['align_right'] ?? false) ? 2 * $padding : 4));
                 $wrapped[] = implode("\n", $lines);
             }
             if ($height > $bottom - $top) {

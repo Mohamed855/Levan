@@ -82,8 +82,9 @@
                         <div>
                             <h5 class="mb-0 text-success">
                                 {{ number_format((float) $auction->properties->sum('estimated_value')) }}
+                                <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                             </h5>
-                            <small class="text-muted">إجمالي التقدير (ر.س)</small>
+                            <small class="text-muted">إجمالي التقدير</small>
                         </div>
                     </div>
 
@@ -94,7 +95,7 @@
                                     <i class="ti ti-notes text-primary me-2 fs-5"></i>
                                     <div>
                                         <span class="fw-bold me-2">الوصف:</span>
-                                        <span class="text-muted small">{{ $auction->description }}</span>
+                                        <span>{{ $auction->description }}</span>
                                     </div>
                                 </li>
                             @endif
@@ -305,7 +306,7 @@
                                     </td>
                                     <td><span class="badge bg-label-info">{{ $prop->type_label }}</span></td>
                                     <td>{{ number_format((float) $prop->area) }} م²</td>
-                                    <td>{{ number_format((float) $prop->estimated_value) }} ر.س</td>
+                                    <td>{{ $prop->estimated_value ? number_format((float) $prop->estimated_value) : '-' }} @if($prop->estimated_value)<span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>@endif</td>
                                     <td class="text-center">
                                         <x-actions.show :url="tenant_route_name('properties.show', $prop->id)" title="عرض تفاصيل العقار"
                                             permission="properties.view" class="btn-icon btn-label-primary btn-sm" />
@@ -568,7 +569,7 @@
                 },
                 {
                     min: 5,
-                    label: '(تمت الجدولة)'
+                    label: '(جار المعالجة)'
                 },
                 {
                     min: 10,
@@ -756,13 +757,16 @@
                         } else if (data.status === 'ready') {
                             stopPolling();
                             tracker.update(100, data.generation_id);
+                            if (loadingBox) {
+                                loadingBox.classList.add('d-none');
+                            }
                             ui.renderBadge(headerBadge, 'ready');
                             syncDownloadButtons(data);
+                            resetRetryButton('إعادة توليد الملفات');
 
                             if (window.toastr) {
                                 toastr.success('تم تحضير وتجهيز تقارير المزاد بنجاح!');
                             }
-                            setTimeout(() => location.reload(), 900);
                         } else if (data.status === 'failed') {
                             stopPolling();
                             if (window.toastr) {
@@ -814,12 +818,15 @@
                     if (res.ok && data.success) {
                         if (data.status === 'ready') {
                             tracker.update(100, data.generation_id);
+                            if (loadingBox) {
+                                loadingBox.classList.add('d-none');
+                            }
                             ui.renderBadge(headerBadge, 'ready');
                             syncDownloadButtons(data);
+                            resetRetryButton('إعادة توليد الملفات');
                             if (window.toastr) {
                                 toastr.success(data.message || 'تم تحضير وتجهيز تقارير المزاد بنجاح!');
                             }
-                            setTimeout(() => location.reload(), 700);
                             return;
                         }
 

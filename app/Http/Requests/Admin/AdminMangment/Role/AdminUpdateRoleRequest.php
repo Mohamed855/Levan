@@ -46,6 +46,11 @@ class AdminUpdateRoleRequest extends FormRequest
                 Rule::unique('roles', 'name')->ignore($roleId),
                 'regex:/^[A-Za-z][A-Za-z0-9_-]*$/',
             ],
+            'label' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
             'permissions' => [
                 'required_unless:select_all,true',
                 'array',
@@ -116,8 +121,12 @@ class AdminUpdateRoleRequest extends FormRequest
         $selectAllRaw = $this->input('select_all');
         $selectAll = filter_var($selectAllRaw, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
+        $currentRole = is_object($this->route('role')) ? $this->route('role') : null;
+        $resolved = AccessLabels::resolveRoleInput($this->input('name'), $currentRole, 'admin');
+
         $this->merge([
-            'name' => AccessLabels::roleKey($this->input('name'), is_object($this->route('role')) ? $this->route('role')->name : null),
+            'name' => $resolved['name'],
+            'label' => $resolved['label'],
             'select_all' => $selectAll ?? false,
         ]);
     }

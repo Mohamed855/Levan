@@ -12,9 +12,11 @@ use App\Models\Admin\PublicRequests\TrialRequest;
 use App\Models\Tenants\AuctionEstablishments\AuctionEstablishmentRequest;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\MarketingCampaigns\MarketingCampaign;
+use App\Models\Tenants\UserMangment\User\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Tests\TestCase;
 
 final class SystemDateFormatTest extends TestCase
@@ -51,10 +53,32 @@ final class SystemDateFormatTest extends TestCase
         $dateHtml = Blade::render('@date($d)', ['d' => Carbon::parse('2026-11-10')]);
         $datetimeHtml = Blade::render('@datetime($d)', ['d' => Carbon::parse('2026-11-10 14:30:00')]);
         $fallbackHtml = Blade::render('@date($d, "غير متاح")', ['d' => null]);
+        $datetimeColumnHtml = Blade::render('@datetimeColumn($d)', ['d' => Carbon::parse('2026-11-10 14:30:00')]);
+        $datetimeWithTimeHtml = Blade::render('@datetimeColumn($d, $t)', ['d' => Carbon::parse('2026-11-10'), 't' => '14:30']);
 
         self::assertSame('10-11-2026', trim($dateHtml));
         self::assertSame('10-11-2026 02:30 م', trim($datetimeHtml));
         self::assertSame('غير متاح', trim($fallbackHtml));
+        self::assertSame('<div>10-11-2026</div><small class="text-muted">02:30 م</small>', trim($datetimeColumnHtml));
+        self::assertSame('<div>10-11-2026</div><small class="text-muted">02:30 م</small>', trim($datetimeWithTimeHtml));
+    }
+
+    public function test_system_datetime_display_renders_unified_date_and_sub_time_design(): void
+    {
+        self::assertSame(
+            '<div>10-11-2026</div><small class="text-muted">02:30 م</small>',
+            system_datetime_display('2026-11-10 14:30:00')
+        );
+        self::assertSame(
+            '<div>10-11-2026</div><small class="text-muted">02:30 م</small>',
+            system_datetime_display('2026-11-10', '14:30')
+        );
+        self::assertSame(
+            '<div>10-11-2026</div>',
+            system_datetime_display('2026-11-10')
+        );
+        self::assertSame('-', system_datetime_display(null));
+        self::assertSame('—', system_datetime_display(null, null, '—'));
     }
 
     public function test_abstract_datatable_exposes_client_side_auto_date_renderer_and_helpers(): void
@@ -72,6 +96,7 @@ final class SystemDateFormatTest extends TestCase
         $fake = new class
         {
             public array $added = [];
+
             public array $edited = [];
 
             public function addColumn(string $name, $cb): self
@@ -170,11 +195,11 @@ final class SystemDateFormatTest extends TestCase
 
     public function test_key_blade_partials_render_formatted_dates(): void
     {
-        $user = new \App\Models\Tenants\UserMangment\User\User;
+        $user = new User;
         $user->id = 1;
         $this->actingAs($user);
         $this->actingAs($user, 'tenant');
-        \Illuminate\Support\Facades\Gate::before(static fn (): bool => true);
+        Gate::before(static fn (): bool => true);
 
         $auction = new Auction;
         $auction->id = 1;
@@ -196,8 +221,8 @@ final class SystemDateFormatTest extends TestCase
             'establishment' => $establishment,
         ])->render();
 
-        self::assertStringContainsString('10-11-2026 02:30 م', $estHtml);
-        self::assertStringContainsString('10-11-2026 04:45 م', $estHtml);
+        self::assertStringContainsString('<div>10-11-2026</div><small class="text-muted">02:30 م</small>', $estHtml);
+        self::assertStringContainsString('<div>10-11-2026</div><small class="text-muted">04:45 م</small>', $estHtml);
         self::assertStringNotContainsString('2026/11/10', $estHtml);
 
         $campaign = new MarketingCampaign;

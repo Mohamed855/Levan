@@ -321,7 +321,7 @@
                                         <span class="fw-bold">{{ $auction->properties_count }}</span>
                                     </td>
                                     <td>
-                                        <small class="text-muted">@date($auction->start_date)</small>
+                                        @datetimeColumn($auction->start_date, $auction->start_time)
                                     </td>
                                     <td>
                                         <span class="badge {{ $auction->status_badge_class }}">

@@ -16,12 +16,12 @@
 @endsection
 
 @section('content')
-    <x-auth.split-layout form-title="مرحباً بك مجدداً" form-subtitle="تسجيل الدخول للوحة تحكم الإدارة المركزية (Super Admin)"
-        :bg-image="asset('static/auth/backgrounds/admin-login-bg.jpg')" media-tagline="بوابة الإدارة المركزية | Super Admin"
+    <x-auth.split-layout form-title="مرحباً بك مجدداً" form-subtitle="تسجيل الدخول للوحة تحكم الإدارة المركزية"
+        :bg-image="asset('static/auth/backgrounds/admin-login-bg.jpg')" media-tagline="بوابة الإدارة المركزية"
         media-title="منظومة الإدارة والتحكم الشامل | إدارة وتشغيل المنصة المركزية"
         media-desc="مركز التحكم القيادي الموحد لإدارة المشتركين والمنشآت، إدارة الخطط والاشتراكات، ومراقبة أداء وأمان المنظومة بدقة وكفاءة عالية."
         :features="[
-            ['icon' => 'ti ti-server-cog', 'text' => 'إدارة شاملة للمنشآت والمستأجرين (Tenants)'],
+            ['icon' => 'ti ti-server-cog', 'text' => 'إدارة شاملة للمنشآت والمستأجرين'],
             ['icon' => 'ti ti-chart-arrows', 'text' => 'مؤشرات أداء وتقارير تشغيلية مركزية'],
             ['icon' => 'ti ti-shield-lock', 'text' => 'حوكمة وأمان ورقابة صلاحيات متقدمة'],
         ]">
@@ -29,8 +29,7 @@
             data-validation-url="{{ route('admin.form-validation') }}">
             @csrf
             <x-form.controls.input name="email" label="البريد الإلكتروني" placeholder="أدخل البريد الإلكتروني"
-                type="email" :value="old('email')" required autocomplete="username" col="col-12 mb-3"
-                icon="ti ti-mail" />
+                type="email" :value="old('email')" required autocomplete="username" col="col-12 mb-3" icon="ti ti-mail" />
 
             <x-form.controls.password name="password" label="كلمة المرور" placeholder="أدخل كلمة المرور" required
                 autocomplete="current-password" col="col-12 mb-3" icon="ti ti-lock" />

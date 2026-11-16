@@ -151,9 +151,9 @@
                                                     <td data-opening-cell="{{ $property->id }}">
                                                         @if ($property->pivot->opening_price)
                                                             {{ number_format((float) $property->pivot->opening_price) }}
-                                                            ر.س
+                                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                                                         @elseif ($property->estimated_value)
-                                                            {{ number_format((float) $property->estimated_value) }} ر.س
+                                                            {{ number_format((float) $property->estimated_value) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                                                         @else
                                                             -
                                                         @endif

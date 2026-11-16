@@ -142,7 +142,7 @@
         <x-form.wizard.step id="pricing-validation" :fields="['price', 'subscription_billing_cycle', 'discount_percentage', 'yearly_renewal_price']">
             <div class="row g-4">
                 <x-form.controls.input type="number" step="0.01" min="0" name="price" id="price"
-                    label="سعر الدورة الأساسية (ر.س)" placeholder="500" :value="old('price', $target?->price)" required col="col-md-6" :price="true" />
+                    label="سعر الدورة الأساسية" placeholder="500" :value="old('price', $target?->price)" required col="col-md-6" :price="true" />
 
                 @if ($is_edit && $hasSubscriptions)
                     <x-form.controls.select name="subscription_billing_cycle" id="subscription_billing_cycle"
@@ -165,7 +165,7 @@
                     col="col-md-6" />
 
                 <x-form.controls.input type="number" step="0.01" min="0" name="yearly_renewal_price"
-                    id="yearly_renewal_price" label="سعر العرض السنوي الترويجي (ر.س)" :value="old('yearly_renewal_price', $target?->yearly_renewal_price)"
+                    id="yearly_renewal_price" label="سعر العرض السنوي الترويجي" :value="old('yearly_renewal_price', $target?->yearly_renewal_price)"
                     col="col-md-6" help="عرض سنوي للباقات الشهرية والربع سنوية." :price="true" />
             </div>
 
@@ -212,7 +212,7 @@
                     label="عدد المستخدمين المشمولين" :value="old('included_users', $target?->included_users ?? 5)" required col="col-md-6 limits-field" />
 
                 <x-form.controls.input type="number" step="0.01" min="0" name="extra_user_license_price"
-                    id="extra_user_license_price" label="سعر المستخدم الإضافي (ر.س)" :value="old('extra_user_license_price', $target?->extra_user_license_price ?? 50)" required
+                    id="extra_user_license_price" label="سعر المستخدم الإضافي" :value="old('extra_user_license_price', $target?->extra_user_license_price ?? 50)" required
                     col="col-md-6 limits-field" :price="true" />
 
                 <x-form.controls.input type="number" min="1" name="properties_limit" id="properties_limit"
@@ -308,7 +308,12 @@
                                 <dl class="row mb-0 small">
                                     <dt class="col-5 text-muted">السعر الأساسي</dt>
                                     <dd class="col-7 fw-semibold" id="plan-review-price">
-                                        {{ $target?->price ? number_format((float) $target->price, 2) . ' ر.س' : '-' }}
+                                        @if ($target?->price)
+                                            {{ number_format((float) $target->price, 2) }}
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
+                                        @else
+                                            -
+                                        @endif
                                     </dd>
                                     <dt class="col-5 text-muted">دورة الفوترة الأساسية</dt>
                                     <dd class="col-7 fw-semibold" id="plan-review-billing-cycle">
@@ -319,11 +324,21 @@
                                     </dd>
                                     <dt class="col-5 text-muted">السعر بعد الخصم</dt>
                                     <dd class="col-7 fw-semibold text-primary" id="plan-review-final-price">
-                                        {{ $target?->final_price ? number_format((float) $target->final_price, 2) . ' ر.س' : '-' }}
+                                        @if ($target?->final_price)
+                                            {{ number_format((float) $target->final_price, 2) }}
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
+                                        @else
+                                            -
+                                        @endif
                                     </dd>
                                     <dt class="col-5 text-muted">سعر العرض السنوي</dt>
                                     <dd class="col-7 fw-semibold" id="plan-review-renewal-price">
-                                        {{ $target?->yearly_renewal_price ? number_format((float) $target->yearly_renewal_price, 2) . ' ر.س' : '-' }}
+                                        @if ($target?->yearly_renewal_price)
+                                            {{ number_format((float) $target->yearly_renewal_price, 2) }}
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
+                                        @else
+                                            -
+                                        @endif
                                     </dd>
                                 </dl>
                             </x-form.wizard.review-card>
@@ -341,7 +356,12 @@
                                         {{ $target?->included_users ?? '-' }}</dd>
                                     <dt class="col-5 text-muted">سعر ترخيص المستخدم الإضافي</dt>
                                     <dd class="col-7 fw-semibold" id="plan-review-extra-user-price">
-                                        {{ $target?->extra_user_license_price ? number_format((float) $target->extra_user_license_price, 2) . ' ر.س' : '-' }}
+                                        @if ($target?->extra_user_license_price)
+                                            {{ number_format((float) $target->extra_user_license_price, 2) }}
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
+                                        @else
+                                            -
+                                        @endif
                                     </dd>
                                     <dt class="col-5 text-muted">حد العقارات</dt>
                                     <dd class="col-7 fw-semibold" id="plan-review-properties">

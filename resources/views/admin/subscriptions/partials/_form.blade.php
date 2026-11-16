@@ -214,20 +214,19 @@
                                     <div class="row g-2 text-dark">
                                         <div class="col-sm-6 col-md-3">
                                             <span class="text-muted d-block small">قيمة الباقة الأصلية:</span>
-                                            <span class="fw-bold fs-6" id="calc-plan-price">0.00 ر.س</span>
+                                            <span class="fw-bold fs-6" id="calc-plan-price">0.00 <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                                         </div>
                                         <div class="col-sm-6 col-md-3">
                                             <span class="text-muted d-block small">قيمة الخصم:</span>
-                                            <span class="fw-bold fs-6 text-danger" id="calc-discount">0.00 ر.س</span>
+                                            <span class="fw-bold fs-6 text-danger" id="calc-discount">0.00 <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                                         </div>
                                         <div class="col-sm-6 col-md-3">
                                             <span class="text-muted d-block small">ضريبة القيمة المضافة (15% مشمولة):</span>
-                                            <span class="fw-bold fs-6" id="calc-tax">0.00 ر.س</span>
+                                            <span class="fw-bold fs-6" id="calc-tax">0.00 <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                                         </div>
                                         <div class="col-sm-6 col-md-3">
                                             <span class="text-muted d-block small">المبلغ الإجمالي شامل الضريبة:</span>
-                                            <span class="fw-bold fs-5 text-primary" id="calc-final-total">0.00
-                                                ر.س</span>
+                                            <span class="fw-bold fs-5 text-primary" id="calc-final-total">0.00 <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                                         </div>
                                     </div>
                                 </div>
@@ -326,7 +325,7 @@
                                             </dd>
                                             <dt class="col-5 text-muted">المبلغ الإجمالي النهائي</dt>
                                             <dd class="col-7 fw-bold text-primary fs-5" id="sub_review-final-total">
-                                                0.00 ر.س</dd>
+                                                0.00 <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></dd>
                                         </dl>
                                     </x-form.wizard.review-card>
                                 </div>

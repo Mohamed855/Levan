@@ -42,7 +42,7 @@
         <x-ui.stat-card title="القوالب الإعلانية" :value="number_format($kpis['central_templates'])" subtitle="قالب إعلاني متاح" icon="ti-template"
             color="secondary" />
 
-        <x-ui.stat-card title="المدفوعات هذا الشهر" :value="number_format($kpis['monthly_payments'], 0)" subtitle="ر.س إجمالي هذا الشهر" icon="ti-wallet"
+        <x-ui.stat-card title="المدفوعات هذا الشهر" :value="number_format($kpis['monthly_payments'], 0)" subtitle="إجمالي هذا الشهر" icon="ti-wallet"
             color="label-dark text-dark" />
     </div>
 
@@ -320,7 +320,7 @@
                                         <small class="text-muted">@date($request->starts_at ?? $request->created_at)</small>
                                     </td>
                                     <td>
-                                        <span class="fw-bold">{{ number_format($request->price, 2) }} ر.س</span>
+                                        <span class="fw-bold">{{ number_format($request->price, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                                     </td>
                                     <td>
                                         <span

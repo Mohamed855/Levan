@@ -11,7 +11,8 @@ body{background:#fff}
 .form-header{position:relative;height:136.49pt}
 .form-logo{position:absolute;inset-block-start:33.2pt;inset-inline-start:35.876pt;width:154.6pt;height:43.1pt}
 .submission{position:absolute;inset-block-start:56.6pt;inset-inline-end:36.85pt;display:flex;gap:4pt;align-items:baseline;font-size:7pt;font-weight:400;color:var(--navy)}
-.dotted{display:inline-block;min-width:70pt;min-height:8pt;border-block-end:.7pt dotted currentColor;vertical-align:baseline}
+.dotted{display:inline-block;min-width:70pt;min-height:8pt;border-block-end:.7pt dotted currentColor;vertical-align:baseline;text-align:center}
+.dotted[dir=ltr],.dotted.data-value[dir=ltr]{direction:ltr;text-align:center;unicode-bidi:isolate}
 h1,h2,p,ul{margin:0}
 h1{position:absolute;inset-block-start:101.4pt;inset-inline:36pt;text-align:center;font-size:15pt;font-weight:800;line-height:1.4}
 .form-panel{position:absolute;inset-block-start:136.49pt;inset-inline-start:36pt;width:523.276pt;height:669.4pt;border:.45pt solid var(--green);padding-inline:13.65pt}
@@ -20,13 +21,13 @@ h1{position:absolute;inset-block-start:101.4pt;inset-inline:36pt;text-align:cent
 .section-heading:before{content:"";position:absolute;inset-inline-start:-13.7pt;inset-block-end:2pt;width:12.56pt;height:6.49pt;background:var(--green)}
 .form-field{border-collapse:collapse;table-layout:fixed;width:100%;height:25.32pt;border:.45pt solid var(--navy);font-size:9pt;line-height:1.25}
 .form-field th{width:124pt;text-align:start;padding:2pt 4pt;font-weight:800;vertical-align:middle}
-.form-field td{background:var(--tint);padding:1pt 4pt;font-weight:400;vertical-align:middle;overflow-wrap:anywhere}
-.data-value{font-family:FormData,sans-serif;font-weight:400;unicode-bidi:plaintext;white-space:pre-wrap;overflow-wrap:anywhere}
-.data-value[dir=ltr]{display:inline-block;unicode-bidi:isolate;text-align:right;direction:ltr}
-.form-field .data-value{font-size:9pt;line-height:1.15}
-.form-field td>.data-value{display:block;max-height:21pt;overflow:visible}
-.form-field td>.data-value[dir=ltr]{text-align:right}
-.start-time td.data-value{text-align:center}
+.form-field td{background:var(--tint);padding:1pt 4pt;font-weight:400;vertical-align:middle;overflow-wrap:anywhere;text-align:center}
+.data-value{font-family:FormData,sans-serif;font-weight:400;text-align:center;white-space:pre-wrap;overflow-wrap:anywhere}
+.data-value[dir=ltr]{display:inline-block;unicode-bidi:isolate;text-align:center;direction:ltr}
+.form-field .data-value{font-size:9pt;line-height:1.15;text-align:center}
+.form-field td>.data-value{display:block;max-height:21pt;overflow:visible;text-align:center}
+.form-field td>.data-value[dir=ltr]{text-align:center;direction:ltr;unicode-bidi:isolate}
+.start-time td.data-value,.start-time td .data-value{text-align:center;direction:ltr;unicode-bidi:isolate}
 .statement-table td .data-value{text-align:center}
 small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:1.5}
 .form-field th>small{display:block}
@@ -45,7 +46,7 @@ small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:
 .auction-summary th:nth-of-type(2){width:85pt}
 .auction-summary th:nth-of-type(3){width:61pt}
 .auction-summary td:first-of-type{width:153pt}
-.auction-summary td{padding-inline:2pt}
+.auction-summary td{padding-inline:2pt;text-align:center}
 .auction-summary th{white-space:nowrap;font-size:8.7pt}
 .choices{font-family:FormSans,sans-serif;font-size:8pt}
 .choices .choice{display:inline-flex;align-items:center;gap:5pt;white-space:nowrap;margin-inline-end:25pt;vertical-align:middle}
@@ -64,13 +65,13 @@ small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:
 .end-date{margin-inline-start:12pt}
 .start-time{border:.45pt solid var(--navy);border-collapse:collapse;width:112.6pt;height:30.6pt;table-layout:fixed}
 .start-time th{background:#808080;color:white;height:11.5pt;font-size:5pt;font-weight:400;padding:0}
-.start-time td{text-align:center;font-size:9pt;font-weight:400}
+.start-time td{display:table-cell!important;text-align:center;vertical-align:middle;font-size:9pt;font-weight:400}
 .other-detail{display:inline-block;text-align:center;font-family:FormSans,sans-serif;font-size:5.5pt;line-height:1.7;max-width:72pt;vertical-align:middle}
-.other-detail .data-value{display:block;min-width:45pt;border-block-end:.4pt dotted #aaa;font-size:7pt}
+.other-detail .data-value{display:block;min-width:45pt;border-block-end:.4pt dotted #aaa;font-size:7pt;text-align:center}
 .auction-fields>.short-row{height:22.1pt}
 .short-row td{font-family:FormSans,sans-serif;font-size:8pt}
 .auction-fields>.short-row:nth-child(8) td{white-space:nowrap;font-size:7pt}
-.auction-fields>.short-row:nth-child(8) td>.data-value,.auction-fields>.form-field:nth-child(10) td>.data-value{display:inline-block;min-width:25pt;border-block-end:.4pt dotted #aaa;vertical-align:baseline}
+.auction-fields>.short-row:nth-child(8) td>.data-value,.auction-fields>.form-field:nth-child(10) td>.data-value{display:inline-block;min-width:25pt;border-block-end:.4pt dotted #aaa;vertical-align:baseline;text-align:center}
 .auction-fields>.form-field:nth-child(10) td{white-space:nowrap;font-family:FormSans,sans-serif;font-size:7pt}
 .short-row .choice-box{width:13pt;height:10pt}
 .auction-fields>.disposition-row{height:19.6pt}
@@ -92,8 +93,8 @@ small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:
 .two-fields .form-field{height:20pt;flex:1;width:0}
 .two-fields th{width:117pt;font-size:8pt}
 .two-fields small{display:inline;font-size:5pt}
-.two-fields .form-field td>.data-value{max-height:16pt;font-size:8pt}
-.two-fields .form-field td.usage-value>.data-value{display:inline-block;max-width:42pt;vertical-align:middle}
+.two-fields .form-field td>.data-value{max-height:16pt;font-size:8pt;text-align:center}
+.two-fields .form-field td.usage-value>.data-value{display:inline-block;max-width:68pt;font-size:7pt;vertical-align:middle;text-align:center}
 .usage-value .choice{display:inline-flex;font-size:5pt;gap:3pt;align-items:center}
 .usage-value .choice-box{width:9pt;height:7pt}
 .property-description .property-status{height:26.3pt}
@@ -114,9 +115,9 @@ small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:
 .disclosure-row{height:20.9pt}
 .disclosure-row th{width:255pt;font-size:8pt}
 .disclosure-row .choice{margin-inline-end:6pt;font-size:5.5pt}
-.disclosure-row .dotted{min-width:55pt;font-size:6pt}
-.disclosure-row .data-value{max-height:14pt;max-width:70pt}
-.disclosure-row td>.data-value{display:inline-block;vertical-align:baseline}
+.disclosure-row .dotted{min-width:55pt;font-size:6pt;text-align:center}
+.disclosure-row .data-value{max-height:14pt;max-width:70pt;text-align:center}
+.disclosure-row td>.data-value{display:inline-block;vertical-align:baseline;text-align:center}
 .statement-table{border-collapse:collapse;table-layout:fixed;width:100%;font-size:9pt}
 .statement-table th,.statement-table td{border:.55pt solid #303b3b;padding:2pt 3pt;text-align:center;vertical-align:middle}
 .statement-table th{font-size:9pt;font-weight:800;line-height:1.45;background:rgba(205,211,219,.35)}
@@ -148,7 +149,7 @@ small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:
 .form-page--closing h1{inset-block-start:38pt;inset-inline:240pt;font-size:17pt;font-weight:400}
 .form-page--closing .header-note{inset-block-start:68pt;inset-inline:180pt;font-size:10pt;font-weight:400}
 .closing-dates{position:absolute;inset-block-start:29.8pt;inset-inline-end:30.5pt;font-size:7pt;line-height:2.4}
-.closing-dates .dotted{width:100pt;min-width:100pt;font-size:8pt}
+.closing-dates .dotted{width:100pt;min-width:100pt;font-size:8pt;text-align:center;direction:ltr;unicode-bidi:isolate}
 .closing-statement{position:absolute;inset-block-start:97.04pt;inset-inline-start:65.65pt;width:710.6pt}
 .closing-table th{height:29.4pt;font-family:FormPlex,sans-serif;font-weight:700;font-size:8.03pt;line-height:1.35}
 .closing-table th small{font-family:FormPlex,sans-serif;font-weight:500;font-size:5.35pt}
@@ -166,12 +167,12 @@ small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:
 .request-requirements{position:absolute;inset-block-start:113.5pt;inset-inline:13.65pt}
 .declaration-text{position:absolute;inset-block-start:187pt;inset-inline:13.65pt}
 .declarant{display:flex;align-items:baseline;gap:3pt;font-size:9pt;line-height:1.7;margin-block-start:10pt}
-.declarant .dotted{flex:1}
-.declarant .data-value{max-height:20pt;overflow:visible}
+.declarant .dotted{flex:1;text-align:center}
+.declarant .data-value{max-height:20pt;overflow:visible;text-align:center}
 .organization-declarant{margin-block-start:10pt;white-space:nowrap}
-.organization-declarant .data-value{white-space:nowrap;font-size:8pt}
-.organization-declarant .dotted{min-width:90pt}
-.organization-declarant .dotted:last-child{flex:0 0 70pt;min-width:70pt}
+.organization-declarant .data-value{white-space:nowrap;font-size:8pt;text-align:center}
+.organization-declarant .dotted{min-width:90pt;text-align:center}
+.organization-declarant .dotted:last-child{flex:0 0 70pt;min-width:70pt;text-align:center;direction:ltr;unicode-bidi:isolate}
 .commitment-intro{font-size:9pt;margin-block-start:11pt}
 .declaration-panel .commitments{font-size:8pt;line-height:1.8;margin-block-start:3pt;padding-inline-start:10pt}
 .commitments li{padding-inline-start:0;margin-block-end:1pt}

@@ -31,7 +31,7 @@
                     <p class="mb-2 text-muted fw-medium">{{ $couponDetails->name }}</p>
                     <span class="badge bg-label-primary mb-3 fs-6">
                         @if ($couponDetails->discount_type === 'fixed')
-                            خصم {{ number_format($couponDetails->discount_value, 2) }} ر.س
+                            خصم {{ number_format($couponDetails->discount_value, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                         @else
                             خصم {{ number_format($couponDetails->discount_value, 0) }}%
                         @endif
@@ -62,7 +62,7 @@
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-coin text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">الحد الأقصى للخصم:</span>
-                                <span>{{ $couponDetails->max_discount ? number_format($couponDetails->max_discount, 2) . ' ر.س' : 'غير محدد' }}</span>
+                                <span>@if ($couponDetails->max_discount){{ number_format($couponDetails->max_discount, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>@else غير محدد@endif</span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-calendar-plus text-primary me-2 fs-5"></i>
@@ -170,7 +170,7 @@
                                     </div>
                                     <div>
                                         <small class="text-muted d-block">إجمالي مبالغ الفواتير</small>
-                                        <span class="fw-bold fs-5">{{ number_format($totalAmount, 2) }} ر.س</span>
+                                        <span class="fw-bold fs-5">{{ number_format($totalAmount, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                                     </div>
                                 </div>
                             </div>
@@ -241,7 +241,7 @@
                                         <span class="badge bg-label-info">{{ $couponBills->count() }} مرة</span>
                                     </td>
                                     <td>
-                                        <span class="fw-bold">{{ number_format($tenantTotalAmount, 2) }} ر.س</span>
+                                        <span class="fw-bold">{{ number_format($tenantTotalAmount, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                                     </td>
                                     <td>
                                         <div>@date($lastBill?->created_at)

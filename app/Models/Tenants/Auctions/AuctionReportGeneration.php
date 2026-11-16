@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Tenants\Auctions;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -32,6 +33,15 @@ final class AuctionReportGeneration extends Model
     public function auction(): BelongsTo
     {
         return $this->belongsTo(Auction::class);
+    }
+
+    public function scopeMetadata(Builder $query): Builder
+    {
+        return $query->select($this->qualifyColumns([
+            'id', 'auction_id', 'revision_token', 'status', 'progress',
+            'outputs_path', 'report_path', 'error_message',
+            'started_at', 'completed_at', 'created_at', 'updated_at',
+        ]));
     }
 
     public function isReady(): bool

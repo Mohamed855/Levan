@@ -59,7 +59,7 @@ class RoleController extends Controller
         try {
             $roles = $this->roleService->getAllRoles();
             $roleOptions = $roles->mapWithKeys(fn ($role) => [
-                $role->id => AccessLabels::role($role->name),
+                $role->id => AccessLabels::role($role),
             ])->toArray();
 
             return $dataTable->render('tenant.user-management.roles.index', [

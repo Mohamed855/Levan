@@ -474,9 +474,10 @@ const mountCycleForm = () => {
         let error = null;
 
         if (id === "modal_opening_price") {
-            if (!val) {
+            const cleanOpening = val.replace(/,/g, "");
+            if (!cleanOpening) {
                 error = "سعر الافتتاح مطلوب ويجب أن يكون رقمًا غير سالب.";
-            } else if (isNaN(Number(val)) || Number(val) < 0) {
+            } else if (isNaN(Number(cleanOpening)) || Number(cleanOpening) < 0) {
                 error = "سعر الافتتاح يجب أن يكون رقمًا غير سالب.";
             }
         } else if (id === "modal_participants_count") {
@@ -502,9 +503,10 @@ const mountCycleForm = () => {
                 error = "اسم المشتري يجب ألا يقل عن 3 أحرف.";
             }
         } else if (id === "modal_sale_price" && statusVal === "sold") {
-            if (!val) {
+            const cleanSale = val.replace(/,/g, "");
+            if (!cleanSale) {
                 error = "قيمة الترسية مطلوبة ويجب أن تكون أكبر من صفر.";
-            } else if (isNaN(Number(val)) || Number(val) <= 0) {
+            } else if (isNaN(Number(cleanSale)) || Number(cleanSale) <= 0) {
                 error = "قيمة الترسية يجب أن تكون أكبر من صفر.";
             }
         } else if (id === "modal_unsold_reason" && statusVal === "unsold") {
@@ -902,11 +904,11 @@ const mountCycleForm = () => {
             return;
         }
 
-        const openingPrice = document.getElementById("modal_opening_price")?.value?.trim() || "";
+        const openingPrice = (document.getElementById("modal_opening_price")?.value?.trim() || "").replace(/,/g, "");
         const participantsCount = document.getElementById("modal_participants_count")?.value?.trim() || "";
         const bidsCount = document.getElementById("modal_bids_count")?.value?.trim() || "";
         const buyerName = status === "sold" ? (document.getElementById("modal_buyer_name")?.value?.trim() || "") : "";
-        const salePrice = status === "sold" ? (document.getElementById("modal_sale_price")?.value?.trim() || "") : "";
+        const salePrice = status === "sold" ? (document.getElementById("modal_sale_price")?.value?.trim() || "").replace(/,/g, "") : "";
         const unsoldReason = status === "unsold" ? (document.getElementById("modal_unsold_reason")?.value?.trim() || "") : "";
 
         const propId = document.getElementById("modal_property_id")?.value;
@@ -1019,8 +1021,8 @@ const mountCycleForm = () => {
                 `[data-opening-cell="${propId}"]`,
             );
             if (openingCell && openingPrice) {
-                openingCell.textContent =
-                    Number(openingPrice).toLocaleString() + " ر.س";
+                openingCell.innerHTML =
+                    Number(openingPrice).toLocaleString() + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>';
             }
         }
 

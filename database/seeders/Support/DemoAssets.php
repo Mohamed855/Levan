@@ -19,6 +19,26 @@ final class DemoAssets
         return self::copy('images.jpg', $path, $disk);
     }
 
+    /**
+     * Copy a named fixture image (e.g. 'issuing-entities/moj.png') if it exists,
+     * otherwise fall back to the generic placeholder image.
+     */
+    public static function namedImage(string $fixtureName, string $targetPath, string $disk = 'tenant_public'): string
+    {
+        $fixturePath = database_path('seeders/fixtures/'.$fixtureName);
+
+        if (file_exists($fixturePath) && filesize($fixturePath) > 1000) {
+            if (! Storage::disk($disk)->put($targetPath, file_get_contents($fixturePath))) {
+                throw new RuntimeException('Could not store named fixture ['.$fixtureName.'] on disk ['.$disk.']: '.$targetPath);
+            }
+
+            return $targetPath;
+        }
+
+        // Graceful fallback to the generic placeholder
+        return self::image($targetPath, $disk);
+    }
+
     public static function document(string $path, string $disk = 'tenant_public'): string
     {
         return self::copy('sample.pdf', $path, $disk);

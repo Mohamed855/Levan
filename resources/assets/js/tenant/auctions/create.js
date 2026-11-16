@@ -710,7 +710,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                     <td><span class="badge bg-label-info">${escapeHtml(prop.type_label || prop.type || "-")}</span></td>
                                     <td>${escapeHtml(prop.city || "")}${prop.district ? " - " + escapeHtml(prop.district) : ""}</td>
                                     <td>${Number(prop.area || 0).toLocaleString()} م²</td>
-                                    <td>${Number(prop.estimated_value || 0).toLocaleString()} ر.س</td>
+                                    <td>${Number(prop.estimated_value || 0).toLocaleString()} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></td>
                                     <td class="text-center">${statusBadge}</td>
                                 </tr>
                             `;
@@ -824,14 +824,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         $("#selected-props-count").text(count);
         $("#selected-props-area").text(totalArea.toLocaleString() + " م²");
-        $("#selected-props-val").text(totalVal.toLocaleString() + " ر.س");
+        $("#selected-props-val").html(totalVal.toLocaleString() + ' <span class="icon-saudi_riyal icon-saudi_riyal--white ms-1"></span>');
 
         // Review step indicators
         $("#review-selected-props-count").text(count + " عقار");
         $("#review-selected-props-area").text(
             totalArea.toLocaleString() + " م²",
         );
-        $("#review-selected-props-val").text(totalVal.toLocaleString() + " ر.س");
+        $("#review-selected-props-val").html(totalVal.toLocaleString() + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>');
         const names = [...selectedProperties.values()]
             .map((p) => p.name)
             .filter(Boolean)

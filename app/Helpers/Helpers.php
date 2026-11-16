@@ -121,7 +121,20 @@ class Helpers
 
         return false;
     }
-    // //////////////////////////////////////////////////////////
-    // /////// New Helper Functions To Active Route /////////////
-    // //////////////////////////////////////////////////////////
+
+    public static function riyalIcon(bool $dark = true): string
+    {
+        $class = $dark ? 'icon-saudi_riyal icon-saudi_riyal--dark' : 'icon-saudi_riyal icon-saudi_riyal--white';
+
+        return '<span class="'.$class.' ms-1" title="ريال سعودي" aria-label="ريال سعودي"></span>';
+    }
+
+    public static function formatPrice(mixed $amount, int $decimals = 2, bool $dark = true, string $fallback = '-'): string
+    {
+        if ($amount === null || $amount === '') {
+            return $fallback;
+        }
+
+        return number_format((float) $amount, $decimals).' '.self::riyalIcon($dark);
+    }
 }

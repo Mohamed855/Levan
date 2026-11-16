@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const originalPrice = parseFloat(range.price);
 
             // أسعار المستخدمين ثابتة ولا تتأثر بالخصم
-            priceCell.innerHTML = `<span class="fw-semibold">${originalPrice.toFixed(2)} <span class="icon-saudi_riyal mx-2"></span></span>`;
+            priceCell.innerHTML = `<span class="fw-semibold">${originalPrice.toFixed(2)} <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span></span>`;
         });
     }
 
@@ -241,7 +241,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     ? `
                 <div class="alert alert-success py-2 px-3 mb-0 mt-2">
                     <i class="ti ti-discount-check me-1"></i>
-                    <strong>توفير: ${savingsAmount.toFixed(2)} <span class="icon-saudi_riyal mx-2"></span> سنوياً</strong>
+                    <strong>توفير: ${savingsAmount.toFixed(2)} <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span> سنوياً</strong>
                     <br><small>خصم ${yearlyDiscount}% على سعر الباقة الأساسية فقط</small>
                 </div>`
                     : "";
@@ -263,7 +263,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     isYearly && yearlyDiscount > 0
                                         ? `<span class="text-success">${basePriceDisplay}</span> <small class="text-muted text-decoration-line-through">${basePriceMonthly.toFixed(2)}</small>`
                                         : basePriceDisplay
-                                } <span class="icon-saudi_riyal mx-2"></span>/شهر
+                                } <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>/شهر
                             </strong>
                         </div>
                     </div>
@@ -289,7 +289,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     isYearly && yearlyDiscount > 0
                                         ? `<span class="text-success">${basePriceDisplay}</span> <small class="text-muted text-decoration-line-through">${basePriceMonthly.toFixed(2)}</small>`
                                         : basePriceDisplay
-                                } <span class="icon-saudi_riyal mx-2"></span>/شهر
+                                } <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>/شهر
                             </strong>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
@@ -297,11 +297,11 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <i class="ti ti-user me-1"></i>
                                 ${userCount} مستخدم إضافي × ${userPriceOriginal.toFixed(2)}:
                             </span>
-                            <strong class="small">${usersMonthlyPrice.toFixed(2)} <span class="icon-saudi_riyal mx-2"></span>/شهر</strong>
+                            <strong class="small">${usersMonthlyPrice.toFixed(2)} <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>/شهر</strong>
                         </div>
                         <div class="d-flex justify-content-between pt-2 border-top">
                             <span class="fw-bold">الإجمالي ${isYearly ? "الشهري" : ""}:</span>
-                            <strong class="text-primary">${(isYearly ? yearlyMonthlyEquivalent : monthlyTotal).toFixed(2)} <span class="icon-saudi_riyal mx-2"></span></strong>
+                            <strong class="text-primary">${(isYearly ? yearlyMonthlyEquivalent : monthlyTotal).toFixed(2)} <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span></strong>
                         </div>
                         <small class="text-muted d-block mt-2">
                             <i class="ti ti-info-circle me-1"></i>

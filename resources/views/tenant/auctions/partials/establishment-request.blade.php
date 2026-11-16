@@ -25,18 +25,17 @@
 
         @if ($establishment)
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover align-middle mb-0">
                     <thead>
                         <tr>
-                            <th>تاريخ تقديم الطلب</th>
                             <th>رقم الموافقة</th>
                             <th>الحالة</th>
+                            <th>تاريخ تقديم الطلب</th>
                             <th>تاريخ الاعتماد</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>@datetime($establishment->submitted_at)</td>
                             <td>
                                 @if ($establishment->isApproved() && filled($establishment->approval_number))
                                     <div class="d-inline-flex align-items-center gap-1 copyable-code-wrapper"
@@ -58,9 +57,10 @@
                                     <span class="badge bg-label-warning">قيد المراجعة</span>
                                 @endif
                             </td>
+                            <td>@datetimeColumn($establishment->submitted_at)</td>
                             <td>
                                 @if ($establishment->isApproved())
-                                    @datetime($establishment->approved_at)
+                                    @datetimeColumn($establishment->approved_at)
                                 @else
                                     <span class="text-muted">—</span>
                                 @endif

@@ -63,7 +63,7 @@
                             @if ($template->description)
                                 <li class="mb-2">
                                     <span class="fw-bold me-1">الوصف:</span>
-                                    <span class="text-muted small">{{ $template->description }}</span>
+                                    <span>{{ $template->description }}</span>
                                 </li>
                             @endif
                             <li class="mb-2">
@@ -135,7 +135,7 @@
                                             {{ $version->status === 'published' ? 'منشور ومتاح' : 'مسودة' }}
                                         </span>
                                     </td>
-                                    <td>{{ system_datetime($version->published_at, '—') }}</td>
+                                    <td>@datetimeColumn($version->published_at, null, '—')</td>
                                     <td>{{ $version->creator?->name ?? '—' }}</td>
                                     <td>
                                         @if ($version->status !== 'published')

@@ -560,25 +560,17 @@ abstract class AbstractDataTable extends DataTable
 
     protected function formatDateTime(mixed $value, string $fallback = '-'): string
     {
-        return system_datetime($value, $fallback);
+        return system_datetime_display($value, null, $fallback);
     }
 
     protected function formatDateWithSubTime(mixed $date, mixed $time = null, string $fallback = '-'): string
     {
-        $formattedDate = system_date($date, '');
-        if ($formattedDate === '') {
-            return $fallback;
-        }
+        return system_datetime_display($date, $time, $fallback);
+    }
 
-        $formattedTime = '';
-        if ($time !== null && $time !== '') {
-            $parsedTime = parse_system_date($time);
-            $formattedTime = $parsedTime
-                ? $parsedTime->copy()->locale('ar')->translatedFormat('h:i A')
-                : (string) $time;
-        }
-
-        return '<div>'.e($formattedDate).'</div><small class="text-muted">'.e($formattedTime).'</small>';
+    protected function formatPrice(mixed $value, int $decimals = 2, bool $isDark = true, string $fallback = '-'): string
+    {
+        return format_price($value, $decimals, $isDark, $fallback);
     }
 
     /**

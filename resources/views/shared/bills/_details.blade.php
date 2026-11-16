@@ -388,7 +388,7 @@
                                     @if ($isAdmin && !empty($metadata['new_licenses_count']))
                                         <small class="text-muted d-block">
                                             {{ $metadata['new_licenses_count'] }} مستخدم
-                                            × {{ number_format($metadata['license_unit_price'] ?? 0, 2) }} ر.س
+                                            × {{ number_format($metadata['license_unit_price'] ?? 0, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                                         </small>
                                     @endif
                                 </td>

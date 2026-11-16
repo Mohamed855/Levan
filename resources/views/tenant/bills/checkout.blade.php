@@ -77,7 +77,7 @@
                                         </p>
                                         <h6 class="mb-0" id="subtotal-display">
                                             {{ number_format($priceWithoutTax, 2) }}
-                                            <span class="icon-saudi_riyal mx-2"></span>
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>
                                         </h6>
                                     </div>
 
@@ -85,7 +85,7 @@
                                         <span>الضريبة ({{ (int) ($vatRate * 100) }}%)</span>
                                         <h6 class="mb-0" id="vat-display">
                                             {{ number_format($vatAmount, 2) }}
-                                            <span class="icon-saudi_riyal mx-2"></span>
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>
                                         </h6>
                                     </div>
 
@@ -104,7 +104,7 @@
                                                 <span class="text-danger">
                                                     {{ number_format($bill->settlement_amount, 2) }}
                                                 </span>
-                                                <span class="icon-saudi_riyal mx-2"></span>
+                                                <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>
                                             </h6>
                                         </div>
                                     @endif
@@ -113,7 +113,7 @@
                                         <h5 class="mb-0 fw-bold">المبلغ الإجمالي</h5>
                                         <h5 class="mb-0 fw-bold text-primary" id="total-final">
                                             {{ number_format($bill->amount, 2) }}
-                                            <span class="icon-saudi_riyal mx-2"></span>
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>
                                         </h5>
                                     </div>
 

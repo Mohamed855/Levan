@@ -90,7 +90,7 @@ class UsersDataTable extends AbstractDataTable
                     return '<span class="text-muted">-</span>';
                 }
 
-                return $user->roles->map(fn ($role) => '<span class="badge bg-info me-1">'.e(AccessLabels::role($role->name)).'</span>')->implode('');
+                return $user->roles->map(fn ($role) => '<span class="badge bg-info me-1">'.e(AccessLabels::role($role)).'</span>')->implode('');
             })
             ->editColumn('status', function (User $user) {
                 $checked = $user->status === 'active' ? 'checked' : '';

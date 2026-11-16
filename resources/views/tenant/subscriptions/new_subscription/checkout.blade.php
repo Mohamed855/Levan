@@ -71,7 +71,7 @@
                                         </div>
                                         <h6 class="mb-0 text-primary" id="total-display">
                                             {{ number_format($plan->price_after_discount, 2) }}
-                                            <span class="icon-saudi_riyal mx-2"></span>
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>
                                         </h6>
                                     </div>
                                 </div>
@@ -99,7 +99,7 @@
                                         </p>
                                         <h6 class="mb-0" id="subtotal-display">
                                             {{ number_format($priceWithoutTax, 2) }}
-                                            <span class="icon-saudi_riyal mx-2"></span>
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>
                                         </h6>
                                     </div>
 
@@ -107,7 +107,7 @@
                                         <p class="mb-0 text-body">ضريبة القيمة المضافة (15%)</p>
                                         <h6 class="mb-0" id="vat-display">
                                             {{ number_format($taxAmount, 2) }}
-                                            <span class="icon-saudi_riyal mx-2"></span>
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>
                                         </h6>
                                     </div>
 
@@ -126,7 +126,7 @@
                                         </p>
                                         <h6 class="mb-0 text-danger">
                                             -<span id="discount-display">0.00</span>
-                                            <span class="icon-saudi_riyal mx-2"></span>
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>
                                         </h6>
                                     </div>
 
@@ -134,7 +134,7 @@
                                         <h5 class="mb-0 fw-bold">المبلغ الإجمالي</h5>
                                         <h5 class="mb-0 fw-bold text-primary" id="total-final">
                                             {{ number_format($plan->price_after_discount, 2) }}
-                                            <span class="icon-saudi_riyal mx-2"></span>
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>
                                         </h5>
                                     </div>
 

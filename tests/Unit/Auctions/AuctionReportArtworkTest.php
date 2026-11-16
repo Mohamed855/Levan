@@ -190,6 +190,9 @@ final class AuctionReportArtworkTest extends TestCase
         self::assertNotNull($node, 'Tall evidence must remain fully visible by default.');
         self::assertSame('xMidYMid meet', $node->getAttribute('preserveAspectRatio'));
         $document->loadXML($artwork->render('asir', 0, [], [], ['report_image' => [1 => ['uri' => $uri, 'fit' => 'cover', 'focal_y' => 100]]], 1));
+        $bgRect = (new DOMXPath($document))->query('//*[@clip-path="url(#report_1_p0_clip_12)"]/*[local-name()="rect"]')->item(0);
+        self::assertNotNull($bgRect);
+        self::assertSame('transparent', $bgRect->getAttribute('fill'));
         $node = (new DOMXPath($document))->query('//*[@data-report-cover="report_image:1"]')->item(0);
         self::assertNotNull($node, 'A replacement landscape needs its own clean frame, not the old skyline mask.');
         self::assertLessThan(0, (float) $node->getAttribute('y'));

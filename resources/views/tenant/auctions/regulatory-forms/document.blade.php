@@ -13,7 +13,7 @@
         <header class="form-header">
             <img class="form-logo" src="{{ $asset('logo.png') }}" alt="الهيئة العامة للعقار REGA">
             @if(!in_array($page['template'], ['properties', 'closing']))
-                <div class="submission"><span>تاريخ تقديم الطلب</span> <span class="dotted data-value">{{ $value('submission_date') }}</span></div>
+                <div class="submission"><span>تاريخ تقديم الطلب</span> <span class="dotted data-value" dir="ltr">{{ $value('submission_date') }}</span></div>
             @endif
             @if(in_array($page['template'], ['organization', 'auction', 'property', 'declaration']))
                 <h1>نموذج طلب إقامة مزاد عقاري</h1>
@@ -24,8 +24,8 @@
                 <p class="header-note">يمكن تكرار البيان عند زيادة العقارات محل المزاد العقاري</p>
             @else
                 <div class="closing-dates">
-                    <div>تاريخ إقفال المزاد <span class="dotted data-value">{{ $value('closing.date') }}</span></div>
-                    <div>رقم الموافقة على إقامة المزاد <span class="dotted data-value">{{ $value('closing.approval_number') }}</span></div>
+                    <div>تاريخ إقفال المزاد <span class="dotted data-value" dir="ltr">{{ $value('closing.date') }}</span></div>
+                    <div>رقم الموافقة على إقامة المزاد <span class="dotted data-value" dir="ltr">{{ $value('closing.approval_number') }}</span></div>
                 </div>
                 <h1>نموذج إقفال المزاد العقاري</h1>
                 <p class="header-note">جدول البيان لنموذج إقفال المزاد العقاري</p>

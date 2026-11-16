@@ -79,6 +79,18 @@
                                 <span>{{ $property->usage_classification_label }}</span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-cash text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">القيمة التقديرية:</span>
+                                <span>
+                                    @if ($property->estimated_value !== null && $property->estimated_value !== '')
+                                        {{ number_format((float) $property->estimated_value, fmod((float) $property->estimated_value, 1) !== 0.0 ? 2 : 0) }}
+                                        <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
+                                    @else
+                                        -
+                                    @endif
+                                </span>
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-map-pin text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">المدينة:</span>
                                 <span>{{ $property->city ?? '-' }}</span>
@@ -150,7 +162,7 @@
                                     <i class="ti ti-notes text-primary me-2 fs-5"></i>
                                     <div>
                                         <span class="fw-bold me-2">الوصف:</span>
-                                        <span class="text-muted">{{ $property->short_description }}</span>
+                                        <span>{{ $property->short_description }}</span>
                                     </div>
                                 </li>
                             @endif

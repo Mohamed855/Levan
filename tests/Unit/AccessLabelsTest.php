@@ -109,4 +109,35 @@ class AccessLabelsTest extends TestCase
         self::assertSame('CustomRole', AccessLabels::role('CustomRole'));
         self::assertSame('Admin', AccessLabels::roleKey('مدير النظام', 'Admin'));
     }
+
+    public function test_custom_arabic_role_name_auto_generates_slug_and_preserves_label(): void
+    {
+        $resolved = AccessLabels::resolveRoleInput('مدير التسويق', null, 'admin');
+        self::assertSame('mdyr_altsoyk', $resolved['name']);
+        self::assertSame('مدير التسويق', $resolved['label']);
+
+        // Model with label displays Arabic label directly
+        $roleWithLabel = (new Role)->forceFill([
+            'id' => 99,
+            'name' => 'mdyr_altsoyk',
+            'label' => 'مدير التسويق',
+            'guard_name' => 'admin',
+        ]);
+        self::assertSame('مدير التسويق', AccessLabels::role($roleWithLabel));
+        self::assertSame([99 => 'مدير التسويق'], AccessLabels::roleOptions([$roleWithLabel]));
+
+        // Requests auto-normalize custom Arabic role to slug and pass regex validation
+        foreach ([
+            AdminStoreRoleRequest::class,
+            AdminUpdateRoleRequest::class,
+            StoreRoleRequest::class,
+            UpdateRoleRequest::class,
+        ] as $class) {
+            $request = $class::create('/', 'POST', ['name' => 'مدير التسويق']);
+            (new \ReflectionMethod($request, 'prepareForValidation'))->invoke($request);
+            self::assertSame('mdyr_altsoyk', $request->input('name'));
+            self::assertSame('مدير التسويق', $request->input('label'));
+            self::assertSame(1, preg_match('/^[A-Za-z][A-Za-z0-9_-]*$/', $request->input('name')));
+        }
+    }
 }

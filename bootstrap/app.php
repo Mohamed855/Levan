@@ -6,22 +6,28 @@ use App\Http\Middleware\DiscardCompletedWizardDraft;
 use App\Http\Middleware\EnsureAdminTwoFactorIsEnforced;
 use App\Http\Middleware\EnsureAuthenticatedAndActiveAdmin;
 use App\Http\Middleware\IsolatePanelSession;
+use App\Http\Middleware\NormalizeMonetaryInputs;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\SecurityHeadersMiddleware;
 use App\Http\Middleware\Tenancy\CheckSubscription;
 use App\Http\Middleware\Tenancy\EnsureTenantTwoFactorIsEnforced;
 use App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense;
 use App\Http\Middleware\Tenancy\InitializeTenancyBySession;
+use App\Http\Middleware\Tenancy\RedirectTenantAuthToShared;
 use App\Http\Middleware\Tenancy\TenantMaintenance;
 use App\Http\Middleware\Tenancy\VerifyTenantToken;
 use App\Http\Middleware\VerifyTenantUpgradeRequest;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Stancl\Tenancy\Contracts\TenantCouldNotBeIdentifiedException;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
@@ -38,6 +44,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(SecurityHeadersMiddleware::class);
         $middleware->append(changeEnvAttributes::class);
         $middleware->append(DiscardCompletedWizardDraft::class);
+        $middleware->append(NormalizeMonetaryInputs::class);
 
         $middleware->validateCsrfTokens(except: [
             'wizard-drafts/validate-step',
@@ -55,18 +62,18 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Middleware aliases
         $middleware->priority([
-            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            EncryptCookies::class,
             IsolatePanelSession::class,
-            \Illuminate\Session\Middleware\StartSession::class,
-            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class,
-            \App\Http\Middleware\Tenancy\InitializeTenancyBySession::class,
-            \App\Http\Middleware\Tenancy\RedirectTenantAuthToShared::class,
-            \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
-            \App\Http\Middleware\Authenticate::class,
-            \App\Http\Middleware\RedirectIfAuthenticated::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            InitializeTenancyByPath::class,
+            InitializeTenancyBySession::class,
+            RedirectTenantAuthToShared::class,
+            InitializeTenancyByDomain::class,
+            Authenticate::class,
+            RedirectIfAuthenticated::class,
             // Bind tenant records only after the session/domain/path initialized its database.
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            SubstituteBindings::class,
         ]);
 
         $middleware->alias([

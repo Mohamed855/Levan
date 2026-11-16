@@ -550,21 +550,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 error = "نسبة الملكية المعروضة يجب أن تكون بين 0.01% و 100%.";
             }
         } else if (id === "modal_prop_opening_value") {
-            if (!val) {
+            const cleanOpening = val.replace(/,/g, "");
+            if (!cleanOpening) {
                 error = "قيمة افتتاح المزاد مطلوبة.";
-            } else if (isNaN(Number(val)) || Number(val) < 0) {
+            } else if (isNaN(Number(cleanOpening)) || Number(cleanOpening) < 0) {
                 error = "قيمة افتتاح المزاد يجب أن تكون رقماً غير سالب.";
             }
         } else if (id === "modal_prop_entry_amount") {
-            if (!val) {
+            const cleanEntry = val.replace(/,/g, "");
+            if (!cleanEntry) {
                 error = "مبلغ الدخول مطلوب.";
-            } else if (isNaN(Number(val)) || Number(val) < 0) {
+            } else if (isNaN(Number(cleanEntry)) || Number(cleanEntry) < 0) {
                 error = "مبلغ الدخول يجب أن يكون رقماً غير سالب.";
             }
         } else if (id === "modal_prop_estimated_value") {
-            if (!val) {
+            const cleanEstimated = val.replace(/,/g, "");
+            if (!cleanEstimated) {
                 error = "القيمة التقديرية مطلوبة.";
-            } else if (isNaN(Number(val)) || Number(val) < 0) {
+            } else if (isNaN(Number(cleanEstimated)) || Number(cleanEstimated) < 0) {
                 error = "القيمة التقديرية يجب أن تكون رقماً غير سالب.";
             }
         } else if (id === "modal_prop_disclosure") {
@@ -776,7 +779,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const input = getModalEl(`modal_prop_${field}`);
             const hidden = hiddenContainer.querySelector(`[data-field="${field}"]`);
             if (input && hidden) {
-                hidden.value = (input.value || "").trim();
+                let cleanVal = (input.value || "").trim();
+                if (["opening_value", "entry_amount", "estimated_value"].includes(field) || input.dataset.priceInput === "true") {
+                    cleanVal = cleanVal.replace(/,/g, "");
+                }
+                hidden.value = cleanVal;
             }
         });
 

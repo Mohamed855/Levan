@@ -64,7 +64,7 @@ class Bank extends Model
     {
         return [
             'bank_name' => 'اسم البنك',
-            'icon' => 'الأيقونة',
+            'icon' => 'الشعار',
             'account_name' => 'اسم الحساب',
             'iban' => 'رقم الآيبان',
             'account_number' => 'رقم الحساب',

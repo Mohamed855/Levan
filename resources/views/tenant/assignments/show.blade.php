@@ -141,19 +141,41 @@
                     </div>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
+                    <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
+                                <th style="width: 60px;" class="text-center">الصورة</th>
                                 <th>رقم الأصل</th>
                                 <th>اسم العقار</th>
                                 <th>النوع</th>
                                 <th>المساحة</th>
-                                <th>حالة البيانات</th>
+                                <th>القيمة التقديرية</th>
+                                <th style="width: 80px;" class="text-center">الإجراء</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($assignment->properties as $prop)
                                 <tr>
+                                    <td class="text-center">
+                                        @php
+                                            $propRealImage = $prop->main_image ? tasset($prop->main_image) : null;
+                                        @endphp
+                                        @if ($propRealImage)
+                                            <img src="{{ $propRealImage }}" class="rounded object-fit-cover"
+                                                style="width: 36px; height: 36px;"
+                                                alt="{{ $prop->name }}"
+                                                onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-inline-flex'); }">
+                                            <div class="rounded border d-none align-items-center justify-content-center bg-label-dark text-dark"
+                                                style="width: 36px; height: 36px; font-size: 18px;" title="{{ $prop->name }}">
+                                                <i class="ti ti-building"></i>
+                                            </div>
+                                        @else
+                                            <div class="rounded border d-inline-flex align-items-center justify-content-center bg-label-dark text-dark"
+                                                style="width: 36px; height: 36px; font-size: 18px;" title="{{ $prop->name }}">
+                                                <i class="ti ti-building"></i>
+                                            </div>
+                                        @endif
+                                    </td>
                                     <td><code>{{ $prop->property_number }}</code></td>
                                     <td>
                                         <a href="{{ tenant_route_name('properties.show', $prop->id) }}"
@@ -163,13 +185,15 @@
                                     </td>
                                     <td><span class="badge bg-label-info">{{ $prop->type_label }}</span></td>
                                     <td>{{ number_format((float) $prop->area) }} م²</td>
-                                    <td><span
-                                            class="badge {{ $prop->data_status_badge_class }}">{{ $prop->data_status_label }}</span>
+                                    <td>{{ $prop->estimated_value ? number_format((float) $prop->estimated_value) : '-' }} @if($prop->estimated_value)<span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>@endif</td>
+                                    <td class="text-center">
+                                        <x-actions.show :url="tenant_route_name('properties.show', $prop->id)" title="عرض تفاصيل العقار"
+                                            permission="properties.view" class="btn-icon btn-label-primary btn-sm" />
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">لا توجد عقارات مضافة لهذا الإسناد
+                                    <td colspan="7" class="text-center py-4 text-muted">لا توجد عقارات مضافة لهذا الإسناد
                                         حتى الآن.</td>
                                 </tr>
                             @endforelse

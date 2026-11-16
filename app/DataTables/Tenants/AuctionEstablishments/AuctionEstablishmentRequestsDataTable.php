@@ -67,7 +67,7 @@ final class AuctionEstablishmentRequestsDataTable extends AbstractDataTable
 
                 return '<a href="'.e(tenant_route_name('auctions.forms.download', ['auction' => $row->id, 'type' => 'establishment'])).'" class="badge bg-secondary" title="تحميل نموذج طلب إقامة المزاد"><i class="ti ti-file-text me-1"></i>نموذج الطلب</a>';
             })
-            ->addColumn('submitted_at', fn ($row): string => $this->formatDate($row->establishmentRequest?->submitted_at))
+            ->addColumn('submitted_at', fn ($row): string => $this->formatDateTime($row->establishmentRequest?->submitted_at))
             ->orderColumn('submitted_at', function ($query, $order): void {
                 $direction = strtolower((string) $order) === 'desc' ? 'desc' : 'asc';
                 $subquery = AuctionEstablishmentRequest::query()
@@ -82,7 +82,7 @@ final class AuctionEstablishmentRequestsDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'image', 'name', 'assignment_number', 'properties_count', 'request_status', 'approval_number', 'establishment_model', 'actions'];
+        return ['checkbox', 'image', 'name', 'assignment_number', 'properties_count', 'request_status', 'approval_number', 'establishment_model', 'submitted_at', 'actions'];
     }
 
     protected function filterableColumns(): array

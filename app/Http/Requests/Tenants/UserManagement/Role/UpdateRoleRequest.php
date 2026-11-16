@@ -46,6 +46,11 @@ class UpdateRoleRequest extends FormRequest
                 Rule::unique('roles', 'name')->where('guard_name', 'tenant')->ignore($roleId),
                 'regex:/^[A-Za-z][A-Za-z0-9_-]*$/',
             ],
+            'label' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
             'permissions' => [
                 'required_unless:select_all,true',
                 'array',
@@ -116,8 +121,12 @@ class UpdateRoleRequest extends FormRequest
         $selectAllRaw = $this->input('select_all');
         $selectAll = filter_var($selectAllRaw, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
+        $currentRole = is_object($this->route('role')) ? $this->route('role') : null;
+        $resolved = AccessLabels::resolveRoleInput($this->input('name'), $currentRole, 'tenant');
+
         $this->merge([
-            'name' => AccessLabels::roleKey($this->input('name'), is_object($this->route('role')) ? $this->route('role')->name : null),
+            'name' => $resolved['name'],
+            'label' => $resolved['label'],
             'select_all' => $selectAll ?? false,
         ]);
     }

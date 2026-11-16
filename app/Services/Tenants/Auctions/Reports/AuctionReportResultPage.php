@@ -37,7 +37,7 @@ final class AuctionReportResultPage
             'groups' => ['footer' => ['f84'], 'continuation_heading' => ['continuation_heading']],
             'layouts' => ['footer' => ['max_width' => 84.749, 'wrap_width' => 78.749, 'max_lines' => 2], 'continuation_heading' => ['box' => [46, 75, 553, 115], 'fit' => 'shrink', 'min_font_size' => 8, 'max_lines' => 2]],
             'tables' => [$section => $table], 'clear_boxes' => [[25, 65, 575, 770]],
-            'hide_fields' => array_values(array_diff(array_keys($definition['fields']), ['f84'])),
+            'hide_fields' => array_values(array_diff(array_keys($definition['fields']), ['f0', 'f1', 'f84'])),
         ];
 
         return $content;

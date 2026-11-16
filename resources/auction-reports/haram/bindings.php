@@ -17,7 +17,7 @@ return [
         'images' => [],
         'layouts' => [
             'name' => ['box' => [70, 335, 535, 433], 'fit' => 'shrink', 'min_font_size' => 36, 'max_lines' => 2, 'center' => true],
-            'subtitle' => ['max_width' => 350, 'max_lines' => 2],
+            'subtitle' => ['box' => [45, 435, 550.5, 455], 'fit' => 'shrink', 'min_font_size' => 5, 'max_lines' => 2, 'center' => true],
             'manager' => ['max_width' => 85, 'max_lines' => 2],
             'project' => ['max_width' => 85, 'max_lines' => 2],
             'property_count' => ['max_width' => 35],
@@ -26,7 +26,14 @@ return [
     ],
     1 => [
         'groups' => ['manager' => ['f5'], 'name' => ['f6'], 'project' => ['f7'], 'end_date' => ['f11'], 'start_date' => ['f12'], 'footer' => ['f89']],
-        'layouts' => ['manager' => ['max_width' => 150, 'center' => true], 'name' => ['max_width' => 150, 'center' => true], 'project' => ['max_width' => 150, 'center' => true], 'footer' => ['max_width' => 84.749, 'wrap_width' => 78.749, 'max_lines' => 2]],
+        'layouts' => [
+            'manager' => ['box' => [54, 145, 220, 191], 'fit' => 'shrink', 'min_font_size' => 6, 'max_lines' => 6],
+            'name' => ['box' => [230, 145, 370, 191], 'fit' => 'shrink', 'min_font_size' => 6, 'max_lines' => 6],
+            'project' => ['box' => [382, 145, 552, 191], 'fit' => 'shrink', 'min_font_size' => 6, 'max_lines' => 6],
+            'start_date' => ['box' => [310, 247, 543, 269], 'fit' => 'shrink', 'min_font_size' => 8, 'max_lines' => 1],
+            'end_date' => ['box' => [55, 247, 282, 269], 'fit' => 'shrink', 'min_font_size' => 8, 'max_lines' => 1],
+            'footer' => ['max_width' => 84.749, 'wrap_width' => 78.749, 'max_lines' => 2],
+        ],
         'images' => [],
     ],
     2 => [

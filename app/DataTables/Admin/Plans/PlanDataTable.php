@@ -111,7 +111,7 @@ class PlanDataTable extends AbstractDataTable
             })
 
             ->editColumn('price', function ($row) {
-                return '<span>'.number_format((float) $row->price, 2).' ر.س</span>';
+                return '<span>'.number_format((float) $row->price, 2).' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>';
             })
 
             ->editColumn('discount_percentage', function ($row) {
@@ -123,7 +123,7 @@ class PlanDataTable extends AbstractDataTable
             })
 
             ->addColumn('price_after_discount', function ($row) {
-                return '<span class="text-success">'.number_format($row->price_after_discount, 2).' ر.س</span>';
+                return '<span class="text-success">'.number_format($row->price_after_discount, 2).' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>';
             })
 
             ->editColumn('yearly_renewal_price', function ($row) {
@@ -131,7 +131,7 @@ class PlanDataTable extends AbstractDataTable
                     return '<span class="text-muted">-</span>';
                 }
 
-                return '<span class="text-primary">'.number_format((float) $row->yearly_renewal_price, 2).' ر.س</span>';
+                return '<span class="text-primary">'.number_format((float) $row->yearly_renewal_price, 2).' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>';
             })
 
             ->editColumn('limits_mode', function ($row) {
@@ -176,7 +176,7 @@ class PlanDataTable extends AbstractDataTable
 
             ->editColumn('available_from', function ($row) {
                 if ($row->available_from?->isFuture()) {
-                    return '<span class="badge bg-secondary" title="'.e($this->formatDateTime($row->available_from)).'">'.e($this->formatDate($row->available_from)).'</span>';
+                    return '<span class="badge bg-secondary" title="'.e(system_datetime($row->available_from)).'">'.e($this->formatDate($row->available_from)).'</span>';
                 }
 
                 return '<span class="badge bg-success">متاحة</span>';

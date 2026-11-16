@@ -49,7 +49,7 @@
 
                                     <div class="plan-price">
                                         {{ number_format($plan->price_after_discount) }}
-                                        <span class="icon-saudi_riyal"></span>
+                                        <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>
                                     </div>
 
                                     <div class="price-note">
@@ -58,7 +58,7 @@
                                 @else
                                     <div class="plan-price">
                                         {{ number_format($plan->price) }}
-                                        <span class="icon-saudi_riyal"></span>
+                                        <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>
                                     </div>
 
                                     <div class="price-note">
@@ -73,7 +73,7 @@
                                 </div>
                                 <div class="fw-bold">
                                     {{ number_format($plan->yearly_renewal_price) }}
-                                    <span class="icon-saudi_riyal"></span>
+                                    <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>
                                 </div>
 
                                 <div class="text-muted plan-section-title mt-1">
@@ -81,7 +81,7 @@
                                 </div>
                                 <div class="fw-bold">
                                     {{ number_format($plan->extra_user_license_price) }} <span
-                                        class="icon-saudi_riyal"></span>
+                                        class="icon-saudi_riyal icon-saudi_riyal--dark"></span>
                                 </div>
                             </div>
                         </div>

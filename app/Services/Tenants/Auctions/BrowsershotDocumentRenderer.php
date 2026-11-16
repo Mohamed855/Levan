@@ -115,13 +115,17 @@ final class BrowsershotDocumentRenderer implements BrowserDocumentRenderer
     }
     return window.regulatoryFormReady === true;
 })()
-JS, timeout: 10000);
+JS, timeout: max(60000, (int) config('auction-renderer.timeout', 60) * 1000));
         }
 
         if (str_contains($html, 'name="auction-report-design"')) {
             $browser->waitForFunction(<<<'JS'
 (async () => {
     await document.fonts.ready;
+    if (document.querySelector('[data-haram-layout]')) {
+        if (window.haramReportError) throw new Error(window.haramReportError);
+        if (window.haramReportReady !== true) return false;
+    }
     // Navigation already waits for the SVG image resources. Decoding duplicate
     // 600-DPI images here exhausts Chromium's decoded-image memory budget.
     return document.readyState === 'complete'

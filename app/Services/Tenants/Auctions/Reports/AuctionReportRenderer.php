@@ -41,6 +41,11 @@ final class AuctionReportRenderer
                 $pageSnapshot['marketing']['whatsapp_date'] = $whatsapp['campaign_date'] ?? null;
             }
             $content = $pageData->page($pageSnapshot, $page);
+            if ($design === 'haram' && isset($content['native_template'])) {
+                $pages[] = ['page_type' => $page['page_type'], 'page_number' => count($pages) + 1, 'content' => $content];
+
+                continue;
+            }
             if (array_key_exists('branding', $snapshot)) {
                 $content['artwork_overrides']['branding'] = $snapshot['branding'];
             }
@@ -50,9 +55,20 @@ final class AuctionReportRenderer
                 if ($design === 'haram' && $content['index'] === 2 && $index > 0 && (empty($part['tables']['sold']) xor empty($part['tables']['unsold']))) {
                     $part['values']['footer'] = $content['values']['footer'];
                     $part = (new AuctionReportResultPage)->continuation($part, empty($part['tables']['sold']) ? 'unsold' : 'sold');
+                    $part = (new HaramReportPresentation)->prepare($part, $pageSnapshot);
+                    if (array_key_exists('branding', $snapshot)) {
+                        $part['artwork_overrides']['branding'] = $snapshot['branding'];
+                    }
                     unset($part['field_layouts'], $part['table_layouts']);
                     $partDefinition = array_replace($definition, $part['artwork_overrides']);
                     $part = $this->textLayout->flow($part, $partDefinition)[0];
+                }
+                if ($design === 'haram' && $content['index'] === 2) {
+                    foreach (['sold', 'unsold'] as $table) {
+                        if (empty($part['tables'][$table])) {
+                            $part['values'][$table.'_heading'] = '';
+                        }
+                    }
                 }
                 $part['links'] = (new AuctionReportLinks)->forPage($pageSnapshot, $partDefinition, $part['field_layouts'] ?? [], $part['link_destinations'] ?? []);
                 $pages[] = [

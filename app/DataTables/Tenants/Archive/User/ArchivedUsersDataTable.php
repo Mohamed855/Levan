@@ -86,7 +86,7 @@ class ArchivedUsersDataTable extends AbstractDataTable
             })
             ->editColumn('roles', function ($row) {
                 if ($row->roles && $row->roles->count() > 0) {
-                    $roleNames = $row->roles->map(fn ($role) => AccessLabels::role($role->name))->toArray();
+                    $roleNames = $row->roles->map(fn ($role) => AccessLabels::role($role))->toArray();
 
                     return '<span class="text-info">'.e(implode('، ', $roleNames)).'</span>';
                 }

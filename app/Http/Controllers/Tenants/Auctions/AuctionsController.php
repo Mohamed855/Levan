@@ -101,7 +101,12 @@ class AuctionsController extends Controller
 
     public function show(Auction $auction): View
     {
-        $auction->load(['assignment', 'platformEntity', 'properties', 'attachments', 'latestReportGeneration', 'publishedReportGeneration', 'marketingCampaigns.evidence', 'closing', 'establishmentRequest']);
+        $auction->load([
+            'assignment', 'platformEntity', 'properties', 'attachments',
+            'latestReportGeneration' => fn ($query) => $query->metadata(),
+            'publishedReportGeneration' => fn ($query) => $query->metadata(),
+            'marketingCampaigns.evidence', 'closing', 'establishmentRequest',
+        ]);
 
         return view('tenant.auctions.show', [
             'auction' => $auction,

@@ -60,7 +60,7 @@ class AdminUserDataTable extends AbstractDataTable
             ->addColumn('roles', function (AdminUser $user) {
                 $roleBadges = $user->roles->isEmpty()
                     ? '<span class="text-muted">-</span>'
-                    : $user->roles->map(fn ($role) => '<span class="badge bg-info me-1">'.e(AccessLabels::role($role->name)).'</span>')->implode('');
+                    : $user->roles->map(fn ($role) => '<span class="badge bg-info me-1">'.e(AccessLabels::role($role)).'</span>')->implode('');
 
                 if ($user->isSuperAdmin() || ! auth('admin')->user()?->can('roles.assign')) {
                     return $roleBadges;

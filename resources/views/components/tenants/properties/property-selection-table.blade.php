@@ -22,7 +22,7 @@
                 <div class="d-flex flex-wrap gap-2 text-start">
                     <span class="badge bg-primary p-2">المحددة: <span id="selected-props-count">{{ $initialCount }}</span></span>
                     <span class="badge bg-info p-2">إجمالي المساحة: <span id="selected-props-area">0 م²</span></span>
-                    <span class="badge bg-success p-2">إجمالي القيمة: <span id="selected-props-val">0 ر.س</span></span>
+                    <span class="badge bg-success p-2">إجمالي القيمة: <span id="selected-props-val">0 <span class="icon-saudi_riyal icon-saudi_riyal--white ms-1"></span></span></span>
                 </div>
             @endif
         </div>

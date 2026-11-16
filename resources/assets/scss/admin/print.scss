@@ -10,4 +10,5 @@
 @use '../shared/print';
 
 // Page-specific
+@use '../../css/components/icons.css';
 @use 'pages/invoice';

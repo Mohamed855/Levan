@@ -99,7 +99,7 @@ $(function () {
                         <td>${p.period_end}</td>
                         <td><span class="badge bg-label-${p.status_color}">${p.status_label}</span></td>
                         <td>${p.used_users} / ${p.total_users}</td>
-                        <td>${p.price} ر.س</td>
+                        <td>${p.price} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></td>
                     </tr>`;
                 });
 
