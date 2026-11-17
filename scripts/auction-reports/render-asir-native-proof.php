@@ -61,7 +61,7 @@ function originalAsirHtml(array $snapshot): string
             $pageSnapshot['marketing']['whatsapp_date'] = $campaign['campaign_date'] ?? null;
         }
         $content = $binder->page($pageSnapshot, $page);
-        unset($content['native_template']);
+        unset($content['native_template'], $content['native_cover']);
         if (array_key_exists('branding', $snapshot)) {
             $content['artwork_overrides']['branding'] = $snapshot['branding'];
         }

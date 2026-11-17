@@ -39,6 +39,7 @@ final class AuctionReportArtwork
     public function render(string $design, int $index, array $values, array $tables, array $images, int $pageNumber, array $tableLayouts = [], array $fieldLayouts = [], array $overrides = []): string
     {
         $page = array_replace($this->page($design, $index), $overrides);
+        $coverDecoration = $design === 'asir' && in_array($index, [0, 20], true) && ($page['cover_decoration'] ?? false);
         $source = file_get_contents($this->path($design.'/page-'.($index + 1).'.svg'));
         if (str_contains($source, '__BACKGROUND__')) {
             $source = str_replace('__BACKGROUND__', $this->uri($design.'/background-'.($index + 1).'.png', 'image/png'), $source);
@@ -280,6 +281,9 @@ final class AuctionReportArtwork
             }
         }
 
+        if ($coverDecoration) {
+            $values = array_fill_keys(array_keys($page['groups']), '');
+        }
         foreach ($page['groups'] as $role => $ids) {
             $fields = array_map(static fn (string $id): array => $page['fields'][$id], $ids);
             $field = $fields[0];
@@ -336,7 +340,33 @@ final class AuctionReportArtwork
             }
         }
 
-        if (isset($page['branding'])) {
+        if ($coverDecoration) {
+            // Keep source curves and the dynamically cropped photograph. Only
+            // the original logo and fixed contact icons move into native HTML.
+            $prefix = 'report_'.$pageNumber.'_';
+            $queries = $index === 0
+                ? ['//*[@mask="url(#'.$prefix.'p0_mask_9)"]']
+                : ['//*[@clip-path="url(#'.$prefix.'p20_clip_18)"]/*[local-name()="path"]', '//*[@clip-path="url(#'.$prefix.'p20_clip_23)"]'];
+            foreach ($queries as $query) {
+                foreach ($xpath->query($query) as $node) {
+                    $node->parentNode?->removeChild($node);
+                }
+            }
+            if ($index === 0) {
+                $curves = $xpath->query('//*[@clip-path="url(#'.$prefix.'p0_clip_1)"]/*[local-name()="path" and @stroke="#332832"]');
+                if ($curves->length > 0) {
+                    $group = $document->createElementNS(self::SVG, 'g');
+                    $group->setAttribute('data-cover-curves', 'true');
+                    $curves->item(0)->parentNode->insertBefore($group, $curves->item(0));
+                    foreach ($curves as $curve) {
+                        $group->appendChild($curve);
+                    }
+                }
+            }
+            $svg->setAttribute('data-cover-decoration', 'true');
+            $svg->setAttribute('aria-hidden', 'true');
+            $svg->setAttribute('class', 'asir-cover-decoration');
+        } elseif (isset($page['branding'])) {
             $this->brand($document, $design, $index, $page['branding']);
         }
 

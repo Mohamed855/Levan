@@ -153,7 +153,9 @@ final class AsirReportData
 
         $content = (new AuctionReportNativeContent)->apply(['index' => $index, 'values' => $values, 'tables' => $tables, 'images' => $images, 'artwork_overrides' => $overrides], $snapshot);
 
-        return in_array($index, [0, 20], true) ? $content : (new AsirNativeContent)->prepare($content, $snapshot, $page);
+        return in_array($index, [0, 20], true)
+            ? (new AsirNativeContent)->prepareCover($content, $snapshot)
+            : (new AsirNativeContent)->prepare($content, $snapshot, $page);
     }
 
     private function position(array $snapshot, array $property): string

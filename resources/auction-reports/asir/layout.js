@@ -7,6 +7,132 @@
             ? Promise.resolve()
             : new Promise((resolve, reject) => { image.onload = resolve; image.onerror = () => reject(new Error('An Asir report image could not load.')); })));
 
+        for (const cover of document.querySelectorAll('[data-asir-cover]')) {
+            const scale = cover.getBoundingClientRect().width / 595.276;
+            const height = element => element.getBoundingClientRect().height / scale;
+            const fitText = (element, maximum, minimum, availableHeight) => {
+                let size = maximum;
+                element.style.fontSize = `${size}pt`;
+                const fits = () => height(element) <= availableHeight + .2 && element.scrollWidth <= element.clientWidth + 1;
+                while (!fits() && size > minimum) {
+                    size = Math.max(minimum, size - .25);
+                    element.style.fontSize = `${size}pt`;
+                }
+                return fits();
+            };
+            const titles = cover.querySelector('.asir-cover-titles');
+            if (titles) {
+                const name = titles.querySelector('[data-report-field="name"]');
+                const subtitle = titles.querySelector('[data-report-field="subtitle"]');
+                const nameFits = fitText(name, 95, 36, 150);
+                const subtitleFits = fitText(subtitle, 30, 18, 60);
+                if (!nameFits || !subtitleFits) {
+                    titles.classList.add('asir-cover-titles--expanded');
+                    const fullNameFits = fitText(name, 95, 18, 250);
+                    let fullSubtitleFits = fitText(subtitle, 30, 12, 370 - 12 - height(name));
+                    let nameSize = parseFloat(name.style.fontSize);
+                    while (!fullSubtitleFits && nameSize > 18) {
+                        nameSize = Math.max(18, nameSize - .25);
+                        name.style.fontSize = `${nameSize}pt`;
+                        fullSubtitleFits = fitText(subtitle, 30, 12, 370 - 12 - height(name));
+                    }
+                    if (!fullNameFits || !fullSubtitleFits) throw new Error('Asir cover titles exceed their readable cover area.');
+                }
+                if (!titles.classList.contains('asir-cover-titles--expanded')) {
+                    // Preserve the source SVG's baseline and horizontal font
+                    // scaling for ordinary single-line titles. Wrapped titles
+                    // retain the measured flow and its explicit inter-title gap.
+                    for (const [text, baseline, stretch] of [[name, 281.802, 97.381 / 95], [subtitle, 356.932, 30.752 / 30]]) {
+                        const style = getComputedStyle(text);
+                        const lineHeight = parseFloat(style.lineHeight);
+                        if (text.getBoundingClientRect().height > lineHeight + 1) continue;
+                        const context = document.createElement('canvas').getContext('2d');
+                        context.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+                        const metrics = context.measureText(text.textContent);
+                        const top = text.getBoundingClientRect().top - cover.getBoundingClientRect().top;
+                        const current = (top + (lineHeight - metrics.fontBoundingBoxAscent - metrics.fontBoundingBoxDescent) / 2 + metrics.fontBoundingBoxAscent) / scale;
+                        text.style.transform = `translateY(${baseline - current}pt) scaleX(${stretch})`;
+                    }
+                } else {
+                    // Keep the source strokes intact. Long title regions push
+                    // their decorative layer down, behind the original photo.
+                    const curves = cover.querySelector('[data-cover-curves]');
+                    const titleBounds = titles.getBoundingClientRect();
+                    let firstStroke = Infinity;
+                    for (const path of curves?.querySelectorAll('path') ?? []) {
+                        const length = path.getTotalLength();
+                        const matrix = path.getScreenCTM();
+                        for (let index = 0; index <= 128; index++) {
+                            const point = path.getPointAtLength(length * index / 128).matrixTransform(matrix);
+                            if (point.x >= titleBounds.left && point.x <= titleBounds.right) firstStroke = Math.min(firstStroke, point.y);
+                        }
+                    }
+                    if (firstStroke < titleBounds.bottom + 12 * scale) curves.setAttribute('transform', `translate(0 ${(titleBounds.bottom - firstStroke) / scale + 12})`);
+                }
+            }
+            for (const frame of cover.querySelectorAll('[data-asir-logo]')) {
+                const image = frame.querySelector('img');
+                await image.decode();
+                const style = getComputedStyle(frame);
+                const padding = parseFloat(style.paddingLeft) / scale;
+                const bounds = frame.getBoundingClientRect();
+                const width = bounds.width / scale, frameHeight = bounds.height / scale;
+                const ratio = Math.min((width - padding * 2) / image.naturalWidth, (frameHeight - padding * 2) / image.naturalHeight);
+                const fittedWidth = image.naturalWidth * ratio + padding * 2;
+                const fittedHeight = image.naturalHeight * ratio + padding * 2;
+                frame.style.left = `${parseFloat(style.left) * .75 + (width - fittedWidth) / 2}pt`;
+                frame.style.top = `${parseFloat(style.top) * .75 + (frameHeight - fittedHeight) / 2}pt`;
+                frame.style.width = `${fittedWidth}pt`;
+                frame.style.height = `${fittedHeight}pt`;
+                const sample = document.createElement('canvas');
+                sample.width = sample.height = 64;
+                const context = sample.getContext('2d', { willReadFrequently: true });
+                context.drawImage(image, 0, 0, 64, 64);
+                const pixels = context.getImageData(0, 0, 64, 64).data;
+                let ink = 0, luminance = 0, transparent = false;
+                for (let index = 0; index < pixels.length; index += 4) {
+                    const alpha = pixels[index + 3] / 255;
+                    if (alpha < .95) transparent = true;
+                    if (alpha < .1) continue;
+                    luminance += (.2126 * pixels[index] + .7152 * pixels[index + 1] + .0722 * pixels[index + 2]) / 255 * alpha;
+                    ink += alpha;
+                }
+                const light = ink > 0 && luminance / ink > .65;
+                const dark = ink > 0 && luminance / ink < .4;
+                if (transparent && frame.dataset.logoBackground === 'light' && light) frame.style.backgroundColor = '#303039';
+                if (transparent && frame.dataset.logoBackground === 'dark' && dark) frame.style.backgroundColor = 'rgba(255,255,255,.92)';
+            }
+            const contacts = cover.querySelector('.asir-cover-contacts');
+            if (contacts) {
+                const phoneTexts = [...contacts.querySelectorAll('.asir-cover-phones [data-report-field]')];
+                for (const text of phoneTexts) fitText(text, 48.642, 28, 55);
+                const social = contacts.querySelector('.asir-cover-contact--social');
+                if (social) {
+                    const text = social.querySelector('[data-report-field]');
+                    let size = 16.529;
+                    while (height(contacts) > 270 && size > 10) {
+                        size = Math.max(10, size - .25);
+                        text.style.fontSize = `${size}pt`;
+                    }
+                    if (height(contacts) > 270) social.style.marginTop = '12pt';
+                }
+                // Unicode numeric symbols are accepted by the existing phone
+                // validation and may be much wider than ordinary digits.
+                while (height(contacts) > 270 && phoneTexts.some(text => parseFloat(text.style.fontSize) > 18)) {
+                    for (const text of phoneTexts) text.style.fontSize = `${Math.max(18, parseFloat(text.style.fontSize) - .25)}pt`;
+                }
+                if (height(contacts) > 270) contacts.style.top = `${820 - height(contacts)}pt`;
+                if (height(contacts) > 320.5) throw new Error('Asir contact groups exceed the closing cover.');
+            }
+            const bounds = cover.getBoundingClientRect();
+            for (const element of cover.querySelectorAll('[data-report-field],[data-asir-logo]')) {
+                const box = element.getBoundingClientRect();
+                if (box.left < bounds.left - 1 || box.right > bounds.right + 1 || box.top < bounds.top - 1 || box.bottom > bounds.bottom - 12 * scale) {
+                    throw new Error('Asir cover content exceeds its printable area.');
+                }
+            }
+        }
+
         // Keep thumbnail names inside the original blue frame at readable sizes.
         // A valid name can still be too long at 8pt; let that full name flow as
         // ordinary content rather than stretching or cropping the thumbnail.

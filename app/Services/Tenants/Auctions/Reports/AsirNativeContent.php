@@ -6,6 +6,27 @@ namespace App\Services\Tenants\Auctions\Reports;
 
 final class AsirNativeContent
 {
+    public function prepareCover(array $content, array $snapshot): array
+    {
+        $content['native_cover'] = true;
+        $content['native_template'] = $content['index'] === 0 ? 'cover' : 'closing';
+        $branding = $snapshot['branding'] ?? null;
+        $content['cover_legacy_branding'] = $branding === null;
+        $content['company_logo'] = $branding === null ? $this->asset('cover-company-logo.svg') : $this->imageUri($branding['company_logo'] ?? null);
+        $content['issuing_logo'] = $branding === null ? $this->asset('cover-issuing-logo.svg') : $this->imageUri($branding['issuing_entity_logo'] ?? null);
+        $destinations = (new AuctionReportLinks)->destinations($snapshot);
+        $content['cover_contacts'] = [];
+        foreach ($snapshot['marketing']['contacts'] ?? [] as $role => $value) {
+            if (! in_array($role, ['phone', 'unified_phone', 'social'], true) || trim((string) $value) === '') {
+                continue;
+            }
+            $content['cover_contacts'][$role] = ['value' => (string) $value, 'url' => $destinations[$role] ?? null];
+        }
+        $content['cover_icons'] = ['phone' => $this->asset('cover-phone.svg'), 'social' => $this->asset('cover-social.svg')];
+
+        return $content;
+    }
+
     public function prepare(array $content, array $snapshot, array $page): array
     {
         $index = $content['index'];

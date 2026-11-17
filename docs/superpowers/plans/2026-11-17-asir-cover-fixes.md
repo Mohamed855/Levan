@@ -41,11 +41,11 @@
 
 **Interfaces:** Add `AsirNativeContent::prepareCover(array $content, array $snapshot): array` for cover indices 0/20. Keep its preparation separate from the internal marketing template match. Add a dedicated cover root/measurement hook; preserve the existing `window.asirReportReady`/`window.asirReportError` contract.
 
-- [ ] Add failing regressions using the audited 31-character name, 99-character Arabic name and maximum 255-character Arabic/Latin names. Assert full text preservation, no generation exception, centered titles and bounds separated from the subtitle.
-- [ ] Separate the existing decorative cover artwork from dynamic text/branding using source geometry. Reuse the source artwork; do not redesign the image crop or decorative curves. Final decorative asset names/element removal must be confirmed against the SVG during extraction.
-- [ ] Render name/subtitle as a shared flowing title region. Start with source typography; allow additional wrapped lines and adjust font size/spacing within the available cover area. Set the readable lower bound through actual PDF comparison, not an arbitrary tiny fallback. Normalize layout whitespace without removing text.
-- [ ] Branch the document's decorative layer for covers so that blue internal-page panels are not added. Measure cover bounds before reporting ready.
-- [ ] Verify all name cases through browser measurement and the application's actual PDF renderer. Update the old direct-SVG-cover assertion to check retained decorative artwork plus native dynamic content.
+- [x] Add failing regressions using the audited 31-character name, 99-character Arabic name and maximum 255-character Arabic/Latin names. Assert full text preservation, no generation exception, centered titles and bounds separated from the subtitle.
+- [x] Separate the existing decorative cover artwork from dynamic text/branding using source geometry. Reuse the source artwork; do not redesign the image crop or decorative curves. Final decorative asset names/element removal must be confirmed against the SVG during extraction.
+- [x] Render name/subtitle as a shared flowing title region. Start with source typography; allow additional wrapped lines and adjust font size/spacing within the available cover area. Set the readable lower bound through actual PDF comparison, not an arbitrary tiny fallback. Normalize layout whitespace without removing text.
+- [x] Branch the document's decorative layer for covers so that blue internal-page panels are not added. Measure cover bounds before reporting ready.
+- [x] Verify all name cases through browser measurement and the application's actual PDF renderer. Update the old direct-SVG-cover assertion to check retained decorative artwork plus native dynamic content.
 
 ### Task 2: Fit closing contacts and preserve the closing artwork
 
@@ -56,11 +56,11 @@
 
 **Interfaces:** Consume prepared phone/unified-phone/social display values and the existing `AuctionReportLinks` destinations. Each contact group owns its icon, full value and link. Decorative source artwork must exclude the original fixed contact symbols and replaced logo so these are not duplicated.
 
-- [ ] Add failing regressions for `+966 55 123 4567`, 18 digits, 30-character accepted phone values, a valid 255-character social URL and missing/null contacts. Assert separate icon/text rectangles and complete values.
-- [ ] Build contact groups with separate icon and text columns, a real gap and LTR phone text. Wrap long values inside their allotted area while preserving the complete value and existing safe link.
-- [ ] Omit the entire contact group when its value is missing. Keep the original X icon for the current social field in this repair; platform detection would be a separate product decision.
-- [ ] Use the original background/decorations directly rather than the current full-width branding mask. Keep the thank-you wording and source visual proportions; let contact spacing adapt when a value wraps.
-- [ ] Verify that long or missing contacts neither overlap each other nor add blank/extra cover pages.
+- [x] Add failing regressions for `+966 55 123 4567`, 18 digits, 30-character accepted phone values, a valid 255-character social URL and missing/null contacts. Assert separate icon/text rectangles and complete values.
+- [x] Build contact groups with separate icon and text columns, a real gap and LTR phone text. Wrap long values inside their allotted area while preserving the complete value and existing safe link.
+- [x] Omit the entire contact group when its value is missing. Keep the original X icon for the current social field in this repair; platform detection would be a separate product decision.
+- [x] Use the original background/decorations directly rather than the current full-width branding mask. Keep the thank-you wording and source visual proportions; let contact spacing adapt when a value wraps.
+- [x] Verify that long or missing contacts neither overlap each other nor add blank/extra cover pages.
 
 ### Task 3: Handle logo contrast and verify both covers
 
@@ -71,12 +71,26 @@
 
 **Interfaces:** Consume current `branding.company_logo`/`branding.issuing_entity_logo` data images. Preserve the original asset fallback policy for legacy snapshots. A missing current logo must not introduce another organization's old logo.
 
-- [ ] Add regressions using dark/white transparent PNGs, opaque images, wide/tall images and missing branding. Verify complete image bounds, aspect ratio and readable contrast in rasterized PDFs.
-- [ ] Keep each logo within a padded frame using contain. Use a compact neutral backing when transparent artwork lacks contrast; keep the source logo colors unchanged. Confirm the contrast choice against the actual pixels before printing.
-- [ ] Re-run the original 13-case audit and additional cover regressions. Compare each cover against its original at normal inputs and visually inspect the extreme cases. Preserve the original design; record any necessary spacing/font adaptation for long inputs.
-- [ ] Run focused PHP tests, Asir cover/internal browser tests, Haram regressions, Pint and scoped syntax/BOM/diff checks. Confirm generated PDF page counts and readiness behavior.
-- [ ] Deliver before/after review images and actual PDFs, with a point-by-point outcome for every reproduced issue. Do not claim exact visual identity beyond what the comparison establishes.
+- [x] Add regressions using dark/white transparent PNGs, opaque images, wide/tall images and missing branding. Verify complete image bounds, aspect ratio and readable contrast in rasterized PDFs.
+- [x] Keep each logo within a padded frame using contain. Use a compact neutral backing when transparent artwork lacks contrast; keep the source logo colors unchanged. Confirm the contrast choice against the actual pixels before printing.
+- [x] Re-run the original 13-case audit and additional cover regressions. Compare each cover against its original at normal inputs and visually inspect the extreme cases. Preserve the original design; record any necessary spacing/font adaptation for long inputs.
+- [x] Run focused PHP tests, Asir cover/internal browser tests, Haram regressions, Pint and scoped syntax/BOM/diff checks. Confirm generated PDF page counts and readiness behavior.
+- [x] Deliver before/after review images and actual PDFs, with a point-by-point outcome for every reproduced issue. Do not claim exact visual identity beyond what the comparison establishes.
 
 ## Execution Order
 
 Fix front-cover generation failures, then closing contact fit/visibility, then logo contrast and final visual comparison. Deliver this as one bounded Asir-cover change; no unrelated refactoring, database changes or generation-button changes.
+
+## Execution ledger
+
+- User authorized implementation with “go on”. Ruling: continue in the existing shared checkout as specified in the approved plan, preserving concurrent edits; do not create another checkout or commit unrelated work.
+- RED: all 10 new cover browser tests failed before implementation. Long-name/contact cases reproduce the production title-fit exception; ordinary covers lack native content and conditional groups.
+- Ruling: preserve the original SVG files and expose a narrowly scoped decorative rendering option for Asir indices 0/20. Remove only the known source logo/contact groups from that decorative output. This retains dynamic report-image cropping and source curves without opaque repainting or duplicating a whole template asset.
+- GREEN: the first 13 browser checks passed, including actual application-PDF pixel checks for logo backings and the visible photograph. Ordinary single-line titles are pinned to independently measured source geometry within 1.5pt.
+- Fresh review found accepted Unicode numeric symbols can be wider than standard digits. Added failing regressions for both 30-character Unicode phones plus a 255-character URL, and for pasted social text containing 200 newlines. Collective fitting now adapts exceptional groups down to a readable 18pt phone size and, if necessary, moves their region upwards while keeping it below the original thank-you text and above the 820pt bottom limit. Display whitespace collapses without altering the underlying value or safe-link policy. All three targeted contact cases passed; independent follow-up review found no further important issue.
+- Ruling: keep the source thank-you lettering as fixed decorative SVG glyphs; titles, logos, phone numbers and social values are native HTML. This preserves the original fixed lettering exactly while all variable content is measurable.
+- Final PDF visual QA exposed decorative strokes intersecting expanded 255-character titles. Two additional regressions reproduced this before the fix. The original six paths are now grouped without changing their path data; only expanded titles move that layer downward below their text region. Both regressions passed and independent follow-up review found no important issue. Ordinary source geometry and photograph placement stay unchanged.
+- Comparison PNGs use Poppler. The Node canvas PDF rasterizer incorrectly flattened the legacy issuing-logo luminosity mask in both original and native PDFs; Poppler verified the logo correctly in the actual application-generated file. No production logo change was made for this inspection-tool artifact.
+- Final verification: 131 focused PHP tests passed with 1,462 assertions; all 38 browser tests passed, including Asir cover/content and Haram regressions. Pint, JavaScript syntax, scoped whitespace and UTF-8 BOM checks passed. The asset manifest verifies 179 local assets.
+- Fifteen scenarios were generated by the application's injected PDF renderer, producing all 30 cover images. Normal/legacy before-and-after comparisons and long-name/contact/contrast/empty-state examples were inspected from Poppler-rendered PDF pages. Internal continuation pages account for the six-page long-name examples; both covers remain single pages.
+- Delivery: `output/pdf/asir-cover-fixes/review.html`, `normal.pdf`, the per-scenario PDFs/PNGs and `receipt.json`. Current source template SVG files are unchanged. No application database writes, unrelated module edits, commit or publication was performed by this task.

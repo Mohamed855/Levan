@@ -27,21 +27,22 @@
                             <i class="ti ti-cube fs-1"></i>
                         </div>
                     </div>
-                    <h5 class="mb-1 fw-bold text-primary">{{ $plan->name }}</h5>
-                    @if ($plan->code)
-                        <div class="mb-2">
+                    <h5 class="mb-2 fw-bold text-primary">{{ $plan->name }}</h5>
+                    <div class="d-flex align-items-center justify-content-center gap-2 mb-3 flex-wrap">
+                        @if ($plan->code)
                             <div class="d-inline-flex align-items-center gap-1 copyable-code-wrapper"
+                                style="width: auto !important; max-width: fit-content !important;"
                                 data-code="{{ $plan->code }}" role="button" tabindex="0" title="اضغط لنسخ الكود">
                                 <code class="copyable-code">{{ $plan->code }}</code>
                                 <i class="ti ti-copy text-muted"></i>
                             </div>
-                        </div>
-                    @else
-                        <p class="mb-2 text-muted fw-medium">-</p>
-                    @endif
-                    <span class="badge bg-label-{{ $plan->plan_type?->color() ?? 'primary' }} mb-3">
-                        {{ $plan->plan_type?->label() ?? 'أساسي' }}
-                    </span>
+                        @else
+                            <span class="text-muted fw-medium">-</span>
+                        @endif
+                        <span class="badge bg-label-{{ $plan->plan_type?->color() ?? 'primary' }}">
+                            {{ $plan->plan_type?->label() ?? 'أساسي' }}
+                        </span>
+                    </div>
 
                     <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
                         <div>
