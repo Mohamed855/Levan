@@ -12,9 +12,9 @@
             <div class="asir-date">
                 <h2>{{ $label }}</h2>
                 <div class="asir-date-card">
+                    <span class="asir-date-weekday">{{ $content['values'][$key.'_weekday'] }}</span>
                     <strong data-report-field="{{ $key }}_day">{{ $content['values'][$key.'_day'] }}</strong>
                     <div class="asir-date-calendar">
-                        <span>{{ $content['values'][$key.'_weekday'] }}</span>
                         <span>{{ $content['values'][$key.'_month'] }}</span>
                         <span>{{ $content['values'][$key.'_year'] }}</span>
                     </div>

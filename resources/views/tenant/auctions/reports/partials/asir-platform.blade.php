@@ -7,7 +7,7 @@
         @include('tenant.auctions.reports.partials.asir-thumbnail', ['image' => $content['image_items'][0] ?? null])
         <div class="asir-platform-details">
             <div class="asir-platform-count"><span>عدد المنتجات</span><strong>{{ $content['values']['property_count'] }}</strong></div>
-            <div><span>المزاد</span><p data-report-field="date_range">{{ $content['values']['date_range'] }}</p><p>{{ $content['values']['end_time_short'] }}</p><small data-report-field="duration">{{ $content['values']['duration'] }}</small></div>
+            <div><small data-report-field="duration">{{ $content['values']['duration'] }}</small><p data-report-field="date_range">{{ $content['values']['date_range'] }}</p><p>{{ $content['values']['end_time_short'] }}</p></div>
             <div class="asir-platform-bottom">
                 <strong class="asir-platform-status">{{ $content['values']['status'] }}</strong>
                 @if ($content['company_logo'])<img src="{{ $content['company_logo'] }}" alt="" data-report-branding="company_logo">@endif

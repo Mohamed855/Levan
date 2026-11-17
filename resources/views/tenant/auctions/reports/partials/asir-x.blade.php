@@ -11,6 +11,7 @@
             @foreach ($content['channels']['x']['metrics'] as $key => $metric)
                 @if ($key !== 'posts')<span>{{ in_array($key, ['views', 'impressions'], true) ? 'بمجمل مشاهدات' : $metric['label'] }}</span> <bdi data-report-field="x_{{ $key }}">{{ $metric['value'] }}</bdi>@endif
             @endforeach
+            @if ($content['image_items'] !== [])<span> منها :</span>@endif
             @if (!empty($content['destinations']['x']))</a>@endif
         </section>
     @endif

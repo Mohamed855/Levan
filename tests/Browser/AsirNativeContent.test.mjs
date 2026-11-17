@@ -5,13 +5,18 @@ import test from 'node:test';
 import puppeteer from 'puppeteer';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 
-async function render(scenario, callback) {
+async function render(scenario, callback, beforeLayout = null) {
     execFileSync(process.env.PHP_BINARY || 'php', ['scripts/auction-reports/render-asir-native-proof.php', scenario], { stdio: 'pipe' });
     const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
     try {
         const page = await browser.newPage();
         await page.emulateMediaType('print');
-        await page.setContent(readFileSync(`output/pdf/asir-native-content/${scenario}.html`, 'utf8'), { waitUntil: 'load' });
+        const html = readFileSync(`output/pdf/asir-native-content/${scenario}.html`, 'utf8');
+        await page.setContent(beforeLayout ? html.replace(/<script data-asir-layout>[\s\S]*?<\/script>/, '') : html, { waitUntil: 'load' });
+        if (beforeLayout) {
+            await beforeLayout(page);
+            await page.addScriptTag({ content: readFileSync('resources/auction-reports/asir/layout.js', 'utf8') });
+        }
         await page.waitForFunction('window.asirReportReady === true || window.asirReportError !== null');
         assert.equal(await page.evaluate(() => window.asirReportError), null);
         await callback(page);
@@ -39,6 +44,28 @@ test('every internal Asir page uses native content and every PDF page matches th
     });
 });
 
+test('maximum valid thumbnail names remain complete without breaking PDF generation or duplicating evidence', async () => {
+    for (const name of ['W'.repeat(255), 'م'.repeat(255)]) {
+        let attachments;
+        await render('populated', async page => {
+            const result = await page.evaluate(() => ({
+                names: [...document.querySelectorAll('.asir-thumbnail-name [data-asir-paragraph]')].map(node => node.textContent),
+                attachments: [...document.querySelectorAll('.asir-native-page [data-report-attachment]')].map(node => node.dataset.reportAttachment),
+                count: document.querySelectorAll('.auction-print-page').length,
+            }));
+            assert.deepEqual(result.names, [name, name]);
+            assert.deepEqual(result.attachments, attachments);
+            const pdf = await getDocument({ data: new Uint8Array(await page.pdf({ preferCSSPageSize: true, printBackground: true })) }).promise;
+            try { assert.equal(pdf.numPages, result.count); } finally { await pdf.destroy(); }
+        }, async page => {
+            attachments = await page.evaluate(name => {
+                document.querySelectorAll('.asir-platform-name strong').forEach(node => { node.textContent = name; });
+                return [...document.querySelectorAll('.asir-native-page [data-report-attachment]')].map(node => node.dataset.reportAttachment);
+            }, name);
+        });
+    }
+});
+
 test('native evidence frames retain the measured original Asir positions and dimensions', async () => {
     await render('populated', async page => {
         const frames = await page.evaluate(() => Object.fromEntries(['asir-board-installation-1', 'asir-board-installation-2', 'asir-brochure', 'asir-video', 'asir-x', 'asir-whatsapp', 'asir-brokers'].map(type => {
@@ -48,6 +75,13 @@ test('native evidence frames retain the measured original Asir positions and dim
             const rect = image.getBoundingClientRect();
             return [type, [(rect.x - bounds.x) * .75, (rect.y - bounds.y) * .75, rect.width * .75, rect.height * .75]];
         })));
+        const dates = await page.evaluate(() => {
+            const page = document.querySelector('[data-page-type="asir-index"]');
+            const frame = page.getBoundingClientRect();
+            const card = page.querySelector('.asir-date-card').getBoundingClientRect();
+            return [(card.x - frame.x) * .75, (card.y - frame.y) * .75, card.width * .75, card.height * .75];
+        });
+        [319.22, 234.94, 242.21, 88.04].forEach((expected, index) => assert.ok(Math.abs(dates[index] - expected) < 1.5, `Original date card ${expected}, native ${dates[index]}`));
         for (const [type, original] of Object.entries({
             'asir-board-installation-1': [334.681, 364.393, 156.362, 106.731],
             'asir-brochure': [440.795, 371.261, 57.369, 81.146],

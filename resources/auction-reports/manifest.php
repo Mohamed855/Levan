@@ -17,7 +17,7 @@ return array (
     'asir/icon-tiktok.svg' => '0d8ab43d8ab4624d40e79fbe426a66aa7cd915728c36b1985e4b0600bea18b5b',
     'asir/icon-x.svg' => '3bb80208906d9a5a6a5043ec6eebfd9ebc744ee79e5636e8d705d45654df23a7',
     'asir/image-frames.php' => '4870fb4d70da76f5d169c54b1f930adfaa35c7c73b652c828697900ca81b467e',
-    'asir/layout.js' => 'baaa162d1e0d265f54fd74f0a140def94a54f565af206f17db3fb391469ee6af',
+    'asir/layout.js' => 'f6e0d16ed76bf3b0ae08a248571e76bb5094d9eea7b871eee84406659aff1d85',
     'asir/native-copy.php' => '8fc28f772c98f414cf26a3655513ad4cea8be8f034c470597943d7fc5eb8c7e3',
     'asir/page-1.svg' => '8f16b52c3d583adb757d304ed00d3fb675764ff0883daebd5f57404a7d8756cc',
     'asir/page-10.svg' => '06cb53a3b22cb08f2e3739fbd5332c02109617820b9ff169dca0b31612839c42',

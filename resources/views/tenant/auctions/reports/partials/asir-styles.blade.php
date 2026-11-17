@@ -42,18 +42,18 @@
     .asir-index-metadata dt { min-height:40.17pt; padding:9pt 6pt; background:var(--asir-blue); color:white; font:17.894pt/1.2 NizarReport,sans-serif; }
     .asir-index-metadata dd { min-height:37.13pt; padding:9pt 7pt 6pt; margin:0; font-size:17.894pt; line-height:1.2; overflow-wrap:anywhere; }
     .asir-index-metadata dl > div + div { border-inline-start:.6pt solid var(--asir-blue); }
-    .asir-dates { display:flex; justify-content:space-between; gap:30pt; margin-inline:37.29pt; margin-block-start:36pt !important; }
+    .asir-dates { display:flex; justify-content:space-between; gap:30pt; margin-inline:33.846pt 37.29pt; margin-block-start:31.87pt !important; }
     .asir-date { width:242.21pt; min-width:0; }
     .asir-date h2 { text-align:center; font-size:30.301pt; line-height:1.1; margin-block-end:8pt; }
-    .asir-date-card { display:flex; align-items:center; gap:7pt; min-height:88.04pt; padding:5pt 10pt; border-radius:12pt; background:#b2beca; }
-    .asir-date-card > strong { font:62.333pt/.9 NizarReport,sans-serif; }
+    .asir-date-card { display:grid; grid-template-columns:58pt 55pt minmax(0,1fr); grid-template-rows:21pt 1fr; align-items:center; column-gap:7pt; min-height:88.04pt; padding:5pt 10pt; border-radius:12pt; background:#b2beca; }
+    .asir-date-weekday { grid-column:1 / 3; grid-row:1; text-align:right; font:21.082pt/1 NizarReport,sans-serif; }
+    .asir-date-card > strong { grid-column:1; grid-row:2; font:62.333pt/.9 NizarReport,sans-serif; }
     .asir-date-calendar,.asir-date-time { display:flex; flex-direction:column; justify-content:center; gap:2pt; text-align:center; min-width:0; }
-    .asir-date-calendar { flex:1.1; font-size:16.866pt; }
-    .asir-date-calendar span:first-child { font-size:16pt; }
-    .asir-date-time { flex:1.25; border-inline-start:1pt solid white; padding-inline-start:5pt; font-size:15pt; }
+    .asir-date-calendar { grid-column:2; grid-row:2; font-size:16.866pt; }
+    .asir-date-time { grid-column:3; grid-row:1 / 3; border-inline-start:1pt solid white; padding-inline-start:5pt; font-size:15pt; }
     .asir-date-time span:first-child { font-size:20pt; }
     .asir-date-time span:last-child { font-size:10pt; }
-    .asir-index-table-frame { margin-inline:52.52pt 57.55pt; margin-block-start:48pt !important; border:1pt solid var(--asir-blue); border-radius:10pt 0 10pt 0; }
+    .asir-index-table-frame { margin-inline:52.52pt 57.55pt; margin-block-start:56.54pt !important; padding-block-start:6.56pt; border:1pt solid var(--asir-blue); border-radius:10pt 0 10pt 0; }
     .asir-property-table { width:calc(100% + 24pt); margin-inline:-12pt; }
     .asir-property-table th { background:var(--asir-blue); color:white; font:14.758pt/1.05 NizarReport,sans-serif; height:25.56pt; padding:4pt; }
     .asir-property-table td { height:29.13pt; font:14.758pt/1.1 NizarReport,sans-serif; padding:4pt 5pt; border:.6pt solid var(--asir-blue); }
@@ -156,7 +156,7 @@
     .asir-x-badge { position:absolute; inset-inline-end:51.5525pt; inset-block-start:313.2331pt; width:65.739pt; height:65.739pt; padding:10.9095pt 11.0295pt; background:white; border-radius:12pt; }
     .asir-x-badge span { display:block; width:43.68pt; height:43.92pt; background:#202020; mask-size:100% 100%; mask-mode:luminance; }
     .asir-x-main > section[data-asir-section]:has(.asir-x-grid) { margin-block-start:31.72pt; }
-    .asir-x-summary { font:18.109pt/1.2 TheSansReportBold,sans-serif; }
+    .asir-x-summary { width:calc(100% + 44pt); margin-inline-end:-44pt; font:18.109pt/1.2 TheSansReportBold,sans-serif; }
     .asir-x-summary:first-child { padding-block-start:51pt; }
     .asir-x-summary bdi { color:var(--asir-accent); }
     .asir-x-summary a { color:inherit; text-decoration:none; }
