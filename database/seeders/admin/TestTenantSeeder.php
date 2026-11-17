@@ -52,19 +52,21 @@ class TestTenantSeeder extends Seeder
         $plan = Plan::updateOrCreate(
             ['name' => 'الباقة الاحترافية الشاملة'],
             [
-                'description'                => 'باقة متكاملة لجميع العمليات والتحصيل بدون قيود',
-                'price'                      => 5000.00,
-                'yearly_renewal_price'       => 3000.00,
-                'extra_user_license_price'   => 150.00,
-                'discount_percentage'        => 0,
-                'plan_type'                  => 'enterprise',
-                'limits_mode'               => 'unlimited',
-                'is_active'                  => true,
-                'included_users'             => 10,
+                'code'                       => 'ENTERPRISE',
+                'code' => 'ENTERPRISE',
+                'description' => 'باقة متكاملة لجميع العمليات والتحصيل بدون قيود',
+                'price' => 5000.00,
+                'yearly_renewal_price' => 3000.00,
+                'extra_user_license_price' => 150.00,
+                'discount_percentage' => 0,
+                'plan_type' => 'enterprise',
+                'limits_mode' => 'unlimited',
+                'is_active' => true,
+                'included_users' => 10,
                 'subscription_duration_type' => 'limited',
                 'subscription_billing_cycle' => 'yearly',
-                'created_by'                 => $adminUser?->id ?? 1,
-                'features'                   => [
+                'created_by' => $adminUser?->id ?? 1,
+                'features' => [
                     'عقارات وإسنادات غير محدودة',
                     'مزادات نشطة غير محدودة',
                     '10 مستخدمين مشمولين',
@@ -202,19 +204,19 @@ class TestTenantSeeder extends Seeder
         Settings::updateOrCreate(
             ['id' => $settings?->getKey() ?? 1],
             [
-                'office_name'          => 'شركة لوت للمزادات العقارية',
-                'logo_text'            => 'لوت LOT',
-                'image'                => empty($settings?->image) || $settings?->image === 'image/demo-office.jpg'
+                'office_name' => 'شركة لوت للمزادات العقارية',
+                'logo_text' => 'لوت LOT',
+                'image' => empty($settings?->image) || $settings?->image === 'image/demo-office.jpg'
                     ? 'default-office.png'
                     : $settings->image,
-                'report_phone'         => '+966112345678',
+                'report_phone' => '+966112345678',
                 'report_unified_phone' => '920012345',
-                'report_social'        => 'https://twitter.com/lot_auctions',
-                'whatsapp_enabled'     => true,
+                'report_social' => 'https://twitter.com/lot_auctions',
+                'whatsapp_enabled' => true,
                 'breadcrumb_visibility' => true,
-                'maintenance_mode'     => false,
-                'support_emails'       => ['support@lot.com', 'info@lot.com'],
-                'operational_regions'  => [
+                'maintenance_mode' => false,
+                'support_emails' => ['support@lot.com', 'info@lot.com'],
+                'operational_regions' => [
                     'المنطقة الشرقية',
                     'منطقة الباحة',
                     'منطقة الجوف',

@@ -21,7 +21,7 @@
                     <div class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill bg-white/10 my-2">
                         <span class="text-2xl font-bold text-white">{{ number_format($plan->price_after_discount) }}</span>
                         <span class="icon-saudi_riyal"></span>
-                        <span class="text-sm text-white/80">| دفعة واحدة</span>
+                        <span class="text-sm text-white/80">دفعة واحدة</span>
                     </div>
                 </div>
             </div>

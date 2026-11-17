@@ -11,8 +11,14 @@ return array (
   'files' => 
   array (
     'asir/bindings.php' => '39d4cda8a56fd1e3f0c6c2cdb205c2c0c85bb71380d88155067cd10173a0ac0c',
+    'asir/company-logo.svg' => '291b06b9f596fe18c94635558bfb9fde57997c30870ff9282599bd19d7cfaeda',
     'asir/default-report-image.jpg' => 'f3d9171a96a6b1635ceb6976da9a53824184bca7ddb45aa7dbed602a9d0c0fb4',
+    'asir/icon-snapchat.svg' => '4cd8c76fe7b2c5067e8abe23e3273610b9084308d71f7958eefe450745d9984c',
+    'asir/icon-tiktok.svg' => '0d8ab43d8ab4624d40e79fbe426a66aa7cd915728c36b1985e4b0600bea18b5b',
+    'asir/icon-x.svg' => '3bb80208906d9a5a6a5043ec6eebfd9ebc744ee79e5636e8d705d45654df23a7',
     'asir/image-frames.php' => '4870fb4d70da76f5d169c54b1f930adfaa35c7c73b652c828697900ca81b467e',
+    'asir/layout.js' => 'baaa162d1e0d265f54fd74f0a140def94a54f565af206f17db3fb391469ee6af',
+    'asir/native-copy.php' => '8fc28f772c98f414cf26a3655513ad4cea8be8f034c470597943d7fc5eb8c7e3',
     'asir/page-1.svg' => '8f16b52c3d583adb757d304ed00d3fb675764ff0883daebd5f57404a7d8756cc',
     'asir/page-10.svg' => '06cb53a3b22cb08f2e3739fbd5332c02109617820b9ff169dca0b31612839c42',
     'asir/page-11.svg' => '5b7b91f03f7ee37a63a5866766004a4fb14b8b867539d0516cab6b5f51aea259',
@@ -164,6 +170,8 @@ return array (
     'haram/background-6.png' => '06f01bde3cdf3cb625267adfe2c36495bbb215102fca9174e16c78364a03b207',
     'haram/background-7.png' => 'e2cc02a8a4dd08e726e416323b94c961732aa4916001195c63e3a9b13df1653d',
     'haram/bindings.php' => '93eb724905a10d7f88ca407ac6dd709e9bec68c2f178adbea586063ed3ae6b71',
+    'haram/icons/snapchat.svg' => '313a521e30887f7cafb0e417486dc0c2ba70749025ebc7b00ecf3258d495fc01',
+    'haram/icons/tiktok.svg' => '5f4fb1cffac8eb53ab9aa452a15883a0f54c608c0960c836fd410f1a23348dec',
     'haram/layout.js' => '89aa2539bf51a94bf623550c80de19ffa6d09f1ff492670c61980bc307e21799',
     'haram/page-1.svg' => 'e833cb1e90305a18c62273e086f5f145c1752e11db5bb8bac1c1fafbbb2c0cd9',
     'haram/page-2.svg' => '615d2ced7a4ffa52ed62b66663f92b4c50b95111dcbb832f722cefed37191a64',

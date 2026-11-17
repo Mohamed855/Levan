@@ -154,7 +154,11 @@
                 <div class="pricing-grid">
                     @foreach ($plans as $plan)
                         <div class="scroll-revealed">
-                            <x-ui.package-card :plan="$plan" :action-url="route('site.plans.checkout', $plan->id)" />
+                            <x-ui.package-card
+                                :plan="$plan"
+                                :action-url="route('site.plans.checkout', $plan->id)"
+                                :is-popular="$mostRequestedPlanId !== null && (int) $plan->id === (int) $mostRequestedPlanId"
+                            />
                         </div>
                     @endforeach
                 </div>

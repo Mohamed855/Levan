@@ -9,18 +9,24 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\StoreContactRequest;
 use App\Models\Admin\Faq;
 use App\Models\Admin\Plans\Plan;
+use App\Services\Admin\Plans\PlanService;
+use App\Services\Shared\Mail\SystemMailService;
 use Illuminate\Support\Facades\Schema;
 
 class LandingPageController extends Controller
 {
-    public function __construct(private readonly CreateContactRequestAction $createContactRequest) {}
+    public function __construct(
+        private readonly CreateContactRequestAction $createContactRequest,
+        private readonly PlanService $planService,
+    ) {}
 
     public function index()
     {
         $plans = Plan::publiclyAvailable()->orderBy('sort_order', 'asc')->get();
+        $mostRequestedPlanId = $this->planService->getMostRequestedPlanId();
         $faqs = Schema::hasTable('faqs') ? Faq::query()->active()->latest()->get() : collect();
 
-        return view('web.index', compact('plans', 'faqs'));
+        return view('web.index', compact('plans', 'faqs', 'mostRequestedPlanId'));
     }
 
     public function contactRequest(StoreContactRequest $request)
@@ -29,13 +35,13 @@ class LandingPageController extends Controller
             $validated = $request->validated();
             $contact = $this->createContactRequest->execute($validated);
 
-            \App\Services\Shared\Mail\SystemMailService::sendContactRequestReceived(
+            SystemMailService::sendContactRequestReceived(
                 $validated['customer_email'],
                 $validated['customer_name'],
                 null,
                 $validated['message']
             );
-            \App\Services\Shared\Mail\SystemMailService::sendContactRequestAdminAlert(
+            SystemMailService::sendContactRequestAdminAlert(
                 $validated['customer_name'],
                 $validated['customer_email'],
                 $validated['message'],

@@ -3,9 +3,11 @@
     'preview' => false,
     'actionUrl' => null,
     'actionLabel' => 'اطلب الآن',
+    'isPopular' => false,
 ])
 
 @php
+    $isPopular = (bool) $isPopular;
     $rawColor = old('color', $plan?->color instanceof \BackedEnum ? $plan->color->value : $plan?->color ?? 'primary');
     $planColorEnum =
         $rawColor instanceof \App\Enums\Admin\Plans\PlanColor
@@ -29,7 +31,7 @@
         $plan?->subscription_billing_cycle?->value ?? ($plan?->subscription_billing_cycle ?? ''),
     );
     $billingCycle =
-        \App\Enums\Admin\Subscriptions\SubscriptionBillingCycle::tryFrom($billingCycleValue)?->label() ?? 'شهري';
+        \App\Enums\Admin\Subscriptions\SubscriptionBillingCycle::tryFrom($billingCycleValue)?->label() ?? 'شهرياً';
     $limitsMode = old('limits_mode', $plan?->limits_mode?->value ?? ($plan?->limits_mode ?? 'limited'));
     $isUnlimited = $limitsMode === 'unlimited' || $plan?->isUnlimited();
     $features = array_values(
@@ -47,13 +49,21 @@
 @endphp
 
 <article
-    {{ $attributes->except('style')->class(['package-card'])->merge([
+    {{ $attributes->except('style')->class(['package-card', 'package-card--popular' => $isPopular])->merge([
             'data-package-card' => $preview ? '' : null,
             'data-plan-color' => $planColorValue,
             'style' => $styleAttr,
         ]) }}>
     <header class="package-card__header">
-        <span class="package-card__eyebrow" data-plan-field="type">{{ $planType }}</span>
+        <div class="package-card__eyebrow-wrap">
+            <span class="package-card__eyebrow" data-plan-field="type">{{ $planType }}</span>
+            @if ($isPopular)
+                <span class="package-card__popular-badge" aria-label="الباقة الأكثر طلباً">
+                    <i class="ti ti-flame" aria-hidden="true"></i>
+                    <span>الأكثر طلباً</span>
+                </span>
+            @endif
+        </div>
         <h3 class="package-card__title" data-plan-field="name">{{ $planName }}</h3>
         <p class="package-card__description" data-plan-field="description">{{ $description }}</p>
     </header>
@@ -67,7 +77,7 @@
                 data-plan-field="final-price">{{ number_format($finalPrice, 2) }}</span>
             <span class="package-card__currency"><span class="icon-saudi_riyal icon-saudi_riyal--dark"></span></span>
         </div>
-        <span class="package-card__price-note" data-plan-field="billing-cycle">لكل {{ $billingCycle }}</span>
+        <span class="package-card__price-note" data-plan-field="billing-cycle">{{ $billingCycle }}</span>
         <span class="package-card__original-price" data-plan-field="original-price"
             @if ($discount <= 0) hidden @endif>
             {{ number_format($price, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>

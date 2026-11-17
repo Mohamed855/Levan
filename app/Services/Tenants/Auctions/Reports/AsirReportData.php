@@ -20,7 +20,7 @@ final class AsirReportData
     public function page(array $snapshot, array $page): array
     {
         if (array_key_exists('gallery', $page['payload'])) {
-            return (new AuctionReportEvidencePage)->content($snapshot, $page, 'asir');
+            return (new AsirNativeContent)->gallery((new AuctionReportEvidencePage)->content($snapshot, $page, 'asir'), $snapshot, $page);
         }
         $type = preg_replace('/-continuation$/', '', $page['page_type']);
         $index = array_search($type, self::TYPES, true);
@@ -151,7 +151,9 @@ final class AsirReportData
             $overrides['empty_regions'] = [[144.445, 635.937, 464.458, 732.191]];
         }
 
-        return (new AuctionReportNativeContent)->apply(['index' => $index, 'values' => $values, 'tables' => $tables, 'images' => $images, 'artwork_overrides' => $overrides], $snapshot);
+        $content = (new AuctionReportNativeContent)->apply(['index' => $index, 'values' => $values, 'tables' => $tables, 'images' => $images, 'artwork_overrides' => $overrides], $snapshot);
+
+        return in_array($index, [0, 20], true) ? $content : (new AsirNativeContent)->prepare($content, $snapshot, $page);
     }
 
     private function position(array $snapshot, array $property): string

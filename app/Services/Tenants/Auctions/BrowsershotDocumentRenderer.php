@@ -126,6 +126,10 @@ JS, timeout: max(60000, (int) config('auction-renderer.timeout', 60) * 1000));
         if (window.haramReportError) throw new Error(window.haramReportError);
         if (window.haramReportReady !== true) return false;
     }
+    if (document.querySelector('[data-asir-layout]')) {
+        if (window.asirReportError) throw new Error(window.asirReportError);
+        if (window.asirReportReady !== true) return false;
+    }
     // Navigation already waits for the SVG image resources. Decoding duplicate
     // 600-DPI images here exhausts Chromium's decoded-image memory budget.
     return document.readyState === 'complete'

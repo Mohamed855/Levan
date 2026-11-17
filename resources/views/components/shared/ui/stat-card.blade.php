@@ -7,6 +7,7 @@
     'col' => 'col-sm-6 col-xl',
     'valueClass' => null,
     'avatarClass' => 'rounded',
+    'currency' => false,
 ])
 
 @php
@@ -22,7 +23,7 @@
                 <div class="content-left d-flex flex-column justify-content-between h-100">
                     <span class="text-heading">{{ $title }}</span>
                     <div class="d-flex align-items-center my-1">
-                        <h4 class="mt-2 mb-0 me-2 fw-semibold {{ $valueClass }}">{{ $value }}</h4>
+                        <h4 class="mt-2 mb-0 me-2 fw-semibold {{ $valueClass }}">{!! $value !!}@if ($currency && !str_contains((string) $value, 'icon-saudi_riyal')){!! \riyal_icon($currency !== 'white') !!}@endif</h4>
                     </div>
                     {{-- @if ($subtitle)
                         <small class="mb-0">{{ $subtitle }}</small>

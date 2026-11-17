@@ -43,7 +43,7 @@
             color="secondary" />
 
         <x-ui.stat-card title="المدفوعات هذا الشهر" :value="number_format($kpis['monthly_payments'], 0)" subtitle="إجمالي هذا الشهر" icon="ti-wallet"
-            color="label-dark text-dark" />
+            color="label-dark text-dark" :currency="true" />
     </div>
 
     <div class="row g-4 mb-4">

@@ -13,9 +13,9 @@ enum SubscriptionBillingCycle: string
     public function label(): string
     {
         return match ($this) {
-            self::MONTHLY => 'شهري',
-            self::QUARTERLY => 'ربع سنوي',
-            self::YEARLY => 'سنوي',
+            self::MONTHLY => 'شهرياً',
+            self::QUARTERLY => 'كل 3 أشهر',
+            self::YEARLY => 'سنوياً',
         };
     }
 

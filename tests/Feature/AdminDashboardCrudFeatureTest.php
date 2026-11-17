@@ -89,6 +89,8 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $response = $this->get($this->adminUrl('/'));
         $response->assertStatus(200);
         $response->assertSee('لوحة القيادة');
+        $response->assertSee('المدفوعات هذا الشهر');
+        $response->assertSee('icon-saudi_riyal--dark', false);
     }
 
     public function test_client_wizard_returns_a_validation_error_for_an_existing_company_name(): void
@@ -155,7 +157,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         // 4. Store
         $userName = 'مشرف اختباري';
         $phone = '05'.rand(10000000, 99999999);
-        $adminRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'admin']);
+        $adminRole = Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'admin']);
         $storeResponse = $this->post($this->adminUrl('users'), [
             'name' => $userName,
             'email' => $uniqueEmail,

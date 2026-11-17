@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const plans = window.plansData || [];
     let isYearly = false;
 
-    // Toggle بين الشهري والسنوي
     const durationToggler = document.querySelector(".price-duration-toggler");
     if (durationToggler) {
         durationToggler.addEventListener("change", function () {

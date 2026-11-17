@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Enums\Admin\Plans\PlanColor;
 use App\Models\Admin\Plans\Plan;
+use App\Services\Admin\Subscriptions\AdminSubscriptionService;
 use Tests\TestCase;
 
 final class PublicPlanVisibilityFeatureTest extends TestCase
@@ -37,7 +39,7 @@ final class PublicPlanVisibilityFeatureTest extends TestCase
         $this->assertNull($trial->subscription_billing_cycle);
         $this->assertSame('limited', $trial->subscription_duration_type);
 
-        $subscriptionService = app(\App\Services\Admin\Subscriptions\AdminSubscriptionService::class);
+        $subscriptionService = app(AdminSubscriptionService::class);
         $startDate = now();
         $refMethod = new \ReflectionMethod($subscriptionService, 'calculatePeriodEndForPlan');
         $refMethod->setAccessible(true);
@@ -52,7 +54,7 @@ final class PublicPlanVisibilityFeatureTest extends TestCase
         if ($plan) {
             $originalColor = $plan->color;
             try {
-                $plan->update(['color' => \App\Enums\Admin\Plans\PlanColor::BLUE]);
+                $plan->update(['color' => PlanColor::BLUE]);
 
                 $response = $this->get(route('site.index'))->assertOk();
                 $response->assertSee('data-plan-color="blue"', false);
@@ -61,5 +63,21 @@ final class PublicPlanVisibilityFeatureTest extends TestCase
                 $plan->update(['color' => $originalColor]);
             }
         }
+    }
+
+    public function test_landing_page_renders_plans_with_null_code(): void
+    {
+        $enterprise = Plan::query()->where('name', 'الباقة الاحترافية الشاملة')->first();
+        if ($enterprise) {
+            $response = $this->get(route('site.index'))->assertOk();
+            $response->assertSee('الباقة الاحترافية الشاملة');
+        }
+    }
+
+    public function test_landing_page_renders_most_requested_badge(): void
+    {
+        $response = $this->get(route('site.index'))->assertOk();
+        $response->assertSee('package-card--popular');
+        $response->assertSee('الأكثر طلباً');
     }
 }

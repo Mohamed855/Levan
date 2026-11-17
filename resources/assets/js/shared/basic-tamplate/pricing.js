@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const plans = window.plansData || [];
     let isYearly = false;
 
-    // Toggle بين الشهري والسنوي
     const durationToggler = document.querySelector(".price-duration-toggler");
     if (durationToggler) {
         durationToggler.addEventListener("change", function () {
@@ -261,7 +260,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <strong class="small">
                                 ${
                                     isYearly && yearlyDiscount > 0
-                                        ? `<span class="text-success">${basePriceDisplay}</span> <small class="text-muted text-decoration-line-through">${basePriceMonthly.toFixed(2)}</small>`
+                                        ? `<span>${basePriceDisplay}</span> <small class="text-muted text-decoration-line-through">${basePriceMonthly.toFixed(2)}</small>`
                                         : basePriceDisplay
                                 } <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>/شهر
                             </strong>
@@ -287,7 +286,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <strong class="small">
                                 ${
                                     isYearly && yearlyDiscount > 0
-                                        ? `<span class="text-success">${basePriceDisplay}</span> <small class="text-muted text-decoration-line-through">${basePriceMonthly.toFixed(2)}</small>`
+                                        ? `<span>${basePriceDisplay}</span> <small class="text-muted text-decoration-line-through">${basePriceMonthly.toFixed(2)}</small>`
                                         : basePriceDisplay
                                 } <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>/شهر
                             </strong>

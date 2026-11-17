@@ -21,11 +21,6 @@
     display: flex;
     flex-direction: column;
     border-radius: var(--site-radius-card);
-    transition: all var(--site-transition-fast);
-
-    &:hover {
-      box-shadow: var(--site-shadow-lg);
-    }
   }
 }
 

@@ -82,6 +82,18 @@ final class CurrencyAndMonetaryInputsTest extends TestCase
         $this->assertStringContainsString('value="1,000"', $rendered);
     }
 
+    public function test_stat_card_component_renders_dark_currency_icon_when_requested(): void
+    {
+        $rendered = Blade::render('<x-ui.stat-card title="المدفوعات هذا الشهر" :value="number_format(15000, 0)" :currency="true" />');
+
+        $this->assertStringContainsString('15,000', $rendered);
+        $this->assertStringContainsString('icon-saudi_riyal', $rendered);
+        $this->assertStringContainsString('icon-saudi_riyal--dark', $rendered);
+
+        $defaultRendered = Blade::render('<x-ui.stat-card title="العملاء" :value="50" />');
+        $this->assertStringNotContainsString('icon-saudi_riyal', $defaultRendered);
+    }
+
     public function test_properties_datatable_includes_estimated_value_column(): void
     {
         $dataTable = app(PropertiesDataTable::class);

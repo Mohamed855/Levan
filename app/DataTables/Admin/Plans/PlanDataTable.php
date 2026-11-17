@@ -123,7 +123,7 @@ class PlanDataTable extends AbstractDataTable
             })
 
             ->addColumn('price_after_discount', function ($row) {
-                return '<span class="text-success">'.number_format($row->price_after_discount, 2).' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>';
+                return '<span>'.number_format($row->price_after_discount, 2).' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>';
             })
 
             ->editColumn('yearly_renewal_price', function ($row) {

@@ -41,7 +41,7 @@ final class AuctionReportRenderer
                 $pageSnapshot['marketing']['whatsapp_date'] = $whatsapp['campaign_date'] ?? null;
             }
             $content = $pageData->page($pageSnapshot, $page);
-            if ($design === 'haram' && isset($content['native_template'])) {
+            if (isset($content['native_template'])) {
                 $pages[] = ['page_type' => $page['page_type'], 'page_number' => count($pages) + 1, 'content' => $content];
 
                 continue;
