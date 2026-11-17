@@ -127,11 +127,7 @@
             <h4>تشمل الباقة</h4>
             <ul data-plan-features>
                 @forelse ($features as $feature)
-                    @if (filled($feature))
-                        <li><i class="ti ti-circle-check" aria-hidden="true"></i><span>{{ $feature }}</span></li>
-                    @endif
-                @empty
-                    <li class="package-card__empty-feature">أضف ميزات الباقة لتظهر هنا.</li>
+                    <li><i class="ti ti-circle-check" aria-hidden="true"></i><span>{{ $feature }}</span></li>
                 @endforelse
             </ul>
         </section>

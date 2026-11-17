@@ -182,8 +182,12 @@ function initPlanFormUI() {
     }
 
     function toggleUserLimitsMode() {
-        const selectedRadio = form.querySelector('input[name="users_limit_mode"]:checked');
-        const isUnlimited = selectedRadio ? selectedRadio.value === "unlimited" : false;
+        const selectedRadio = form.querySelector(
+            'input[name="users_limit_mode"]:checked',
+        );
+        const isUnlimited = selectedRadio
+            ? selectedRadio.value === "unlimited"
+            : false;
 
         document.querySelectorAll(".user-limits-field").forEach((element) => {
             element.hidden = isUnlimited;
@@ -206,17 +210,19 @@ function initPlanFormUI() {
         if (!limitsModeSelect) return;
         const isUnlimited = limitsModeSelect.value === "unlimited";
 
-        document.querySelectorAll(".operational-limits-field").forEach((element) => {
-            element.hidden = isUnlimited;
-            if (isUnlimited) {
-                element.querySelectorAll("[name]").forEach((control) => {
-                    window.SharedFormValidation?.clearFieldError?.(
-                        form,
-                        control.name,
-                    );
-                });
-            }
-        });
+        document
+            .querySelectorAll(".operational-limits-field")
+            .forEach((element) => {
+                element.hidden = isUnlimited;
+                if (isUnlimited) {
+                    element.querySelectorAll("[name]").forEach((control) => {
+                        window.SharedFormValidation?.clearFieldError?.(
+                            form,
+                            control.name,
+                        );
+                    });
+                }
+            });
 
         if (unlimitedAlert) unlimitedAlert.hidden = !isUnlimited;
         refreshStepNextButton(limitsModeSelect);
@@ -233,7 +239,10 @@ function initPlanFormUI() {
     });
 
     if (limitsModeSelect) {
-        limitsModeSelect.addEventListener("change", toggleOperationalLimitsMode);
+        limitsModeSelect.addEventListener(
+            "change",
+            toggleOperationalLimitsMode,
+        );
     }
 
     const featuresList = getInput("features-list");
@@ -461,19 +470,30 @@ function initPlanFormUI() {
                 : "غير محدد",
         );
 
-        const selectedUsersRadio = form.querySelector('input[name="users_limit_mode"]:checked');
-        const hasUnlimitedUsers = selectedUsersRadio ? selectedUsersRadio.value === "unlimited" : false;
+        const selectedUsersRadio = form.querySelector(
+            'input[name="users_limit_mode"]:checked',
+        );
+        const hasUnlimitedUsers = selectedUsersRadio
+            ? selectedUsersRadio.value === "unlimited"
+            : false;
 
         setReview(
             "plan-review-limits-mode",
             isUnlimited ? "غير محدود" : "محدد",
         );
-        setReview("plan-review-users", hasUnlimitedUsers ? "غير محدود (∞)" : limitValue("included_users", "مستخدم"));
+        setReview(
+            "plan-review-users",
+            hasUnlimitedUsers
+                ? "غير محدود (∞)"
+                : limitValue("included_users", "مستخدم"),
+        );
         setReview(
             "plan-review-extra-user-price",
             hasUnlimitedUsers
                 ? "غير متاح (مستخدمين غير محدودين)"
-                : (extraPrice > 0 ? `${formatPrice(extraPrice)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>` : "0.00"),
+                : extraPrice > 0
+                  ? `${formatPrice(extraPrice)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`
+                  : "0.00",
         );
         setReview(
             "plan-review-properties",
@@ -535,16 +555,26 @@ function initPlanFormUI() {
             setText(
                 card,
                 "billing-cycle",
-                `لكل ${getSelectLabel("subscription_billing_cycle", "شهرياً")}`,
+                `${getSelectLabel("subscription_billing_cycle", "شهرياً")}`,
             );
             setText(
                 card,
                 "original-price",
                 `${formatPrice(price)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`,
             );
-            const selectedUsersRadio = form.querySelector('input[name="users_limit_mode"]:checked');
-            const hasUnlimitedUsers = selectedUsersRadio ? selectedUsersRadio.value === "unlimited" : false;
-            setText(card, "users", hasUnlimitedUsers ? "غير محدود" : limitValue("included_users", "مستخدم"));
+            const selectedUsersRadio = form.querySelector(
+                'input[name="users_limit_mode"]:checked',
+            );
+            const hasUnlimitedUsers = selectedUsersRadio
+                ? selectedUsersRadio.value === "unlimited"
+                : false;
+            setText(
+                card,
+                "users",
+                hasUnlimitedUsers
+                    ? "غير محدود"
+                    : limitValue("included_users", "مستخدم"),
+            );
             setText(card, "properties", limitValue("properties_limit", "عقار"));
             setText(card, "storage", limitValue("storage_quota_gb", "GB"));
             setText(
