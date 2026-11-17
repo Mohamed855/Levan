@@ -35,12 +35,12 @@
                             </div>
                         @endif
                     </div>
-                    <h4 class="mb-1 fw-bold text-primary">{{ $property->name }}</h4>
+                    <h5 class="mb-1 fw-bold text-primary">{{ $property->name }}</h5>
                     <p class="mb-2 text-muted fw-medium">{{ $property->property_number }}</p>
                     <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
-                        <span class="badge bg-label-primary fs-6">{{ $property->type_label }}</span>
+                        <span class="badge bg-label-primary">{{ $property->type_label }}</span>
                         <span
-                            class="badge {{ $property->data_status_badge_class }} fs-6">{{ $property->data_status_label }}</span>
+                            class="badge {{ $property->data_status_badge_class }}">{{ $property->data_status_label }}</span>
                     </div>
 
                     <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">

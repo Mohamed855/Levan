@@ -122,7 +122,8 @@
                             $ext = strtolower(pathinfo(parse_url((string) $rawPath, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
                         }
 
-                        $isExistingImg = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg']) || str_starts_with((string) $rawPath, 'data:image/');
+                        $mime = is_object($fileUrl) ? ($fileUrl->mime ?? '') : (is_array($fileUrl) ? ($fileUrl['mime'] ?? '') : '');
+                        $isExistingImg = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg']) || str_starts_with($mime, 'image/') || str_starts_with((string) $rawPath, 'data:image/');
 
                         if (preg_match('#^(https?:)?//#', (string) $rawPath) || str_starts_with((string) $rawPath, '/') || str_starts_with((string) $rawPath, 'data:')) {
                             $resolvedUrl = $rawPath;

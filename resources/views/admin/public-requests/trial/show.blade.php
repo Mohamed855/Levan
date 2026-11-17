@@ -41,9 +41,9 @@
                             <i class="ti ti-building-store fs-1 text-primary"></i>
                         </div>
                     </div>
-                    <h4 class="mb-1 fw-bold text-primary">{{ $trialRequest->company_name ?? 'طلب قديم غير مكتمل' }}</h4>
+                    <h5 class="mb-1 fw-bold text-primary">{{ $trialRequest->company_name ?? 'طلب قديم غير مكتمل' }}</h5>
                     <p class="mb-2 text-muted fw-medium">{{ $trialRequest->customer_name }}</p>
-                    <span class="badge bg-label-{{ $statusColor }} mb-3 fs-6">
+                    <span class="badge bg-label-{{ $statusColor }} mb-3">
                         {{ $trialRequest->status->label() }}
                     </span>
 

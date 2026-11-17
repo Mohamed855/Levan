@@ -34,9 +34,9 @@
                     </div>
                 </div>
 
-                <h4 class="mb-1 fw-bold text-primary">#{{ $bill->bill_number }}</h4>
+                <h5 class="mb-1 fw-bold text-primary">#{{ $bill->bill_number }}</h5>
                 <p class="mb-2 text-muted fw-medium">{{ $bill->type->label() }}</p>
-                <span class="badge bg-label-{{ $bill->status->color() }} mb-3 fs-6">
+                <span class="badge bg-label-{{ $bill->status->color() }} mb-3">
                     {{ $bill->status->label() }}
                 </span>
 

@@ -27,9 +27,9 @@
                             <i class="ti ti-discount-2 fs-1 text-primary"></i>
                         </div>
                     </div>
-                    <h4 class="mb-1 fw-bold text-primary">{{ $couponDetails->code }}</h4>
+                    <h5 class="mb-1 fw-bold text-primary">{{ $couponDetails->code }}</h5>
                     <p class="mb-2 text-muted fw-medium">{{ $couponDetails->name }}</p>
-                    <span class="badge bg-label-primary mb-3 fs-6">
+                    <span class="badge bg-label-primary mb-3">
                         @if ($couponDetails->discount_type === 'fixed')
                             خصم {{ number_format($couponDetails->discount_value, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                         @else

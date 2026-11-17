@@ -41,7 +41,7 @@
                         style="width: 100px; height: 100px;">
                         <i class="ti ti-template text-white" style="font-size: 3rem;"></i>
                     </div>
-                    <h5 class="mb-1">{{ $template->name }}</h5>
+                    <h5 class="mb-1 fw-bold text-primary">{{ $template->name }}</h5>
                     <span class="badge bg-primary mb-3">
                         {{ $template->type instanceof \BackedEnum ? $template->type->value : (string) $template->type }}
                     </span>

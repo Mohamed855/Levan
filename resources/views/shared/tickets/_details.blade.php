@@ -79,12 +79,12 @@
                     </div>
                 </div>
 
-                <h4 class="mb-1 fw-bold text-primary">#{{ $ticket->ticket_number }}</h4>
+                <h5 class="mb-1 fw-bold text-primary">#{{ $ticket->ticket_number }}</h5>
                 <p class="mb-2 text-muted fw-medium">{{ $ticket->title }}</p>
 
                 <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
                     {!! $status !!}
-                    <span class="badge bg-label-primary fs-6">{{ $sectionName }}</span>
+                    <span class="badge bg-label-primary">{{ $sectionName }}</span>
                 </div>
 
                 <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">

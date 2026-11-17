@@ -188,7 +188,7 @@
                                                                 data-closing-badge="{{ $property->id }}">غير محددة</span>
                                                         @endif
                                                     </td>
-                                                    <td class="text-center" onclick="event.stopPropagation();">
+                                                    <td class="text-center">
                                                         <button type="button"
                                                             class="btn btn-icon btn-label-primary edit-closing-prop-btn"
                                                             data-property-id="{{ $property->id }}"
@@ -335,10 +335,6 @@
                         label="صور فك اللوحات" multiple accept=".png,.jpg,.jpeg,.webp" :required="true"
                         col="col-12" />
 
-                    <div id="modal_existing_attachments_container" class="mt-3 d-none">
-                        <h6 class="text-muted small fw-bold mb-2">المرفقات السابقة لفك اللوحات</h6>
-                        <div class="row g-3" id="modal_existing_attachments_list"></div>
-                    </div>
                 </div>
             </div>
         </div>

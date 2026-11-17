@@ -36,17 +36,17 @@
                             <i class="ti ti-building fs-1 text-primary"></i>
                         </div>
                     </div>
-                    <h4 class="mb-1 fw-bold text-primary">{{ $target->company_name }}</h4>
+                    <h5 class="mb-1 fw-bold text-primary">{{ $target->company_name }}</h5>
                     <p class="mb-2 text-muted fw-medium">معرف العميل: {{ $target->id }}</p>
                     <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
                         @if ($activeSub)
-                            <span class="badge bg-label-{{ $activeSub->status->color() }} fs-6">
+                            <span class="badge bg-label-{{ $activeSub->status->color() }}">
                                 {{ $activeSub->status->label() }}
                             </span>
                         @else
-                            <span class="badge bg-label-secondary fs-6">بدون اشتراك</span>
+                            <span class="badge bg-label-secondary">بدون اشتراك</span>
                         @endif
-                        <span class="badge bg-label-info fs-6">
+                        <span class="badge bg-label-info">
                             {{ $activeSub?->plan?->name ?? 'عميل لوت' }}
                         </span>
                     </div>

@@ -62,9 +62,9 @@
                         @endif
                     </div>
                 </div>
-                <h4 class="mb-1 fw-bold text-primary">{{ $activityData['user_name'] }}</h4>
+                <h5 class="mb-1 fw-bold text-primary">{{ $activityData['user_name'] }}</h5>
                 <p class="mb-2 text-muted fw-medium">{{ $activityData['log_name_arabic'] }}</p>
-                <span class="badge {{ $activityData['event_badge_class'] ?? 'bg-label-primary' }} mb-3 fs-6">
+                <span class="badge {{ $activityData['event_badge_class'] ?? 'bg-label-primary' }} mb-3">
                     {{ $activityData['event_arabic'] }}
                 </span>
 

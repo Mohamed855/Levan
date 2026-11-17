@@ -54,23 +54,25 @@
                 <div class="card-body text-center">
                     <div class="mb-3 text-center mx-auto" style="width: 100px; height: 100px;">
                         @if ($auction->cover_image && tasset($auction->cover_image))
-                            <img src="{{ tasset($auction->cover_image) }}"
-                                alt="{{ $auction->name }}" class="rounded border shadow-sm w-100 h-100 object-fit-cover"
+                            <img src="{{ tasset($auction->cover_image) }}" alt="{{ $auction->name }}"
+                                class="rounded border shadow-sm w-100 h-100 object-fit-cover"
                                 onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-flex'); }">
-                            <div class="rounded border shadow-sm w-100 h-100 d-none align-items-center justify-content-center bg-label-dark text-dark">
+                            <div
+                                class="rounded border shadow-sm w-100 h-100 d-none align-items-center justify-content-center bg-label-dark text-dark">
                                 <i class="ti ti-gavel" style="font-size: 50px;"></i>
                             </div>
                         @else
-                            <div class="rounded border shadow-sm w-100 h-100 d-flex align-items-center justify-content-center bg-label-dark text-dark">
+                            <div
+                                class="rounded border shadow-sm w-100 h-100 d-flex align-items-center justify-content-center bg-label-dark text-dark">
                                 <i class="ti ti-gavel" style="font-size: 50px;"></i>
                             </div>
                         @endif
                     </div>
-                    <h4 class="mb-1 fw-bold text-primary">{{ $auction->name }}</h4>
+                    <h5 class="mb-3 fw-bold text-primary">{{ $auction->name }}</h5>
                     <div class="d-flex justify-content-center flex-wrap gap-2 my-2 mb-3">
-                        <span class="badge bg-label-primary fs-6">{{ $auction->category_label }}</span>
-                        <span class="badge {{ $auction->status_badge_class }} fs-6">{{ $auction->status_label }}</span>
-                        <span class="badge bg-label-{{ $auction->completion_status->color() }} fs-6">حالة الاكتمال:
+                        <span class="badge bg-label-primary">{{ $auction->category_label }}</span>
+                        <span class="badge {{ $auction->status_badge_class }}">{{ $auction->status_label }}</span>
+                        <span class="badge bg-label-{{ $auction->completion_status->color() }}">حالة الاكتمال:
                             {{ $auction->completion_status->label() }}</span>
                     </div>
 
@@ -283,16 +285,17 @@
                                         @endphp
                                         @if ($propRealImage)
                                             <img src="{{ $propRealImage }}" class="rounded object-fit-cover"
-                                                style="width: 36px; height: 36px;"
-                                                alt="{{ $prop->name }}"
+                                                style="width: 36px; height: 36px;" alt="{{ $prop->name }}"
                                                 onerror="this.style.display='none'; if(this.nextElementSibling){ this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-inline-flex'); }">
                                             <div class="rounded border d-none align-items-center justify-content-center bg-label-dark text-dark"
-                                                style="width: 36px; height: 36px; font-size: 18px;" title="{{ $prop->name }}">
+                                                style="width: 36px; height: 36px; font-size: 18px;"
+                                                title="{{ $prop->name }}">
                                                 <i class="ti ti-building"></i>
                                             </div>
                                         @else
                                             <div class="rounded border d-inline-flex align-items-center justify-content-center bg-label-dark text-dark"
-                                                style="width: 36px; height: 36px; font-size: 18px;" title="{{ $prop->name }}">
+                                                style="width: 36px; height: 36px; font-size: 18px;"
+                                                title="{{ $prop->name }}">
                                                 <i class="ti ti-building"></i>
                                             </div>
                                         @endif
@@ -306,7 +309,11 @@
                                     </td>
                                     <td><span class="badge bg-label-info">{{ $prop->type_label }}</span></td>
                                     <td>{{ number_format((float) $prop->area) }} م²</td>
-                                    <td>{{ $prop->estimated_value ? number_format((float) $prop->estimated_value) : '-' }} @if($prop->estimated_value)<span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>@endif</td>
+                                    <td>{{ $prop->estimated_value ? number_format((float) $prop->estimated_value) : '-' }}
+                                        @if ($prop->estimated_value)
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
+                                        @endif
+                                    </td>
                                     <td class="text-center">
                                         <x-actions.show :url="tenant_route_name('properties.show', $prop->id)" title="عرض تفاصيل العقار"
                                             permission="properties.view" class="btn-icon btn-label-primary btn-sm" />
@@ -703,7 +710,8 @@
                 pollInFlight = false;
             }
 
-            function startPolling(timeoutLimit, isManualRetry = false, pollImmediately = true, expectedGenerationId = null) {
+            function startPolling(timeoutLimit, isManualRetry = false, pollImmediately = true,
+                expectedGenerationId = null) {
                 stopPolling();
                 setProcessingUI();
 
@@ -756,7 +764,8 @@
                             return;
                         }
 
-                        if (expectedGenerationId && data.generation_id && data.generation_id < expectedGenerationId) {
+                        if (expectedGenerationId && data.generation_id && data.generation_id <
+                            expectedGenerationId) {
                             return;
                         }
 

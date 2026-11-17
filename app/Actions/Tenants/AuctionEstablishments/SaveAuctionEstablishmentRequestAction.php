@@ -22,14 +22,16 @@ final class SaveAuctionEstablishmentRequestAction
     public function execute(Auction $auction, array $input, ?int $actorId): AuctionEstablishmentRequest
     {
         $paths = [];
+        $removedPaths = [];
         try {
-            $request = DB::transaction(function () use ($auction, $input, $actorId, &$paths): AuctionEstablishmentRequest {
+            $request = DB::transaction(function () use ($auction, $input, $actorId, &$paths, &$removedPaths): AuctionEstablishmentRequest {
                 $auction = Auction::query()->lockForUpdate()->findOrFail($auction->id);
                 $request = AuctionEstablishmentRequest::query()->where('auction_id', $auction->id)->lockForUpdate()->first();
                 if ($auction->isClosed() || $request?->isApproved()) {
                     throw ValidationException::withMessages(['data' => 'لا يمكن تعديل طلب معتمد أو طلب مزاد مقفل.']);
                 }
                 $requestRules = new SaveAuctionEstablishmentRequest;
+                $requestRules->merge($input);
                 $schema = app(AuctionEstablishmentRequestData::class);
                 $validator = Validator::make($input, $requestRules->rules($auction), $requestRules->messages(), $schema->attributes());
                 foreach ($requestRules->after() as $afterHook) {
@@ -50,7 +52,16 @@ final class SaveAuctionEstablishmentRequestAction
                     }
                 }
                 $data['attachments'] = $request?->data['attachments'] ?? [];
-                $this->storeAttachments($auction, $data, $input['attachments'] ?? [], $paths);
+                $previousPaths = collect($data['attachments'])->flatten(1)->pluck('path')->all();
+                $removals = $input['remove_attachments'] ?? [];
+                foreach (['manager_certificate', 'auctioneer_certificate'] as $type) {
+                    if (! empty($input['remove_attachments_'.$type])) {
+                        $removals[$type][0] = true;
+                    }
+                }
+                $this->storeAttachments($auction, $data, $input['attachments'] ?? [], $paths, $removals);
+                $retainedPaths = collect($data['attachments'])->flatten(1)->pluck('path')->all();
+                $removedPaths = array_values(array_diff($previousPaths, $retainedPaths));
                 $request ??= new AuctionEstablishmentRequest(['auction_id' => $auction->id, 'created_by' => $actorId]);
                 $request->fill(['data' => $data, 'submitted_at' => now(), 'updated_by' => $actorId]);
                 $request->save();
@@ -61,15 +72,30 @@ final class SaveAuctionEstablishmentRequestAction
             Storage::disk('tenant_private')->delete($paths);
             throw $error;
         }
+        if ($removedPaths !== []) {
+            DB::afterCommit(fn () => Storage::disk('tenant_private')->delete($removedPaths));
+        }
         app(AuctionRegulatoryFormService::class)->requestGeneration($auction->fresh(), 'establishment');
 
         return $request;
     }
 
-    private function storeAttachments(Auction $auction, array &$data, array $uploads, array &$paths): void
+    private function storeAttachments(Auction $auction, array &$data, array $uploads, array &$paths, array $removals = []): void
     {
         $required = ['manager_certificate' => [0], 'auctioneer_certificate' => [0], 'deed' => [], 'valuation' => [], 'representative_authority' => []];
         $propertyIds = array_column($data['properties'], 'property_id');
+        foreach ($removals as $type => $items) {
+            $allowedIds = in_array($type, ['manager_certificate', 'auctioneer_certificate'], true) ? [0] : $propertyIds;
+            foreach ($items as $id => $remove) {
+                if (! $remove) {
+                    continue;
+                }
+                if (! array_key_exists($type, $required) || ! ctype_digit((string) $id) || ! in_array((int) $id, $allowedIds, true)) {
+                    throw ValidationException::withMessages(['remove_attachments' => 'المرفق لا يخص عقارات هذا المزاد.']);
+                }
+                unset($data['attachments'][$type][$id]);
+            }
+        }
         foreach ($data['properties'] as $row) {
             $required['deed'][] = $row['property_id'];
             if (preg_match('/[1-9]/', (string) $row['entry_amount'])) {

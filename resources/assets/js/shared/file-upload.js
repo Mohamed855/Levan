@@ -332,7 +332,9 @@ export function initFileUploadZone(zone) {
 
   function createExistingCard(fileData) {
     if (!fileData) return null;
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
     const name = fileData.name || 'الملف المرفق';
+    const safeName = escapeHtml(name);
     const rawPath = fileData.path || fileData.url || '';
     const resolvedUrl = fileData.url || (rawPath.startsWith('http') || rawPath.startsWith('/') ? rawPath : `/storage/${rawPath}`);
     const ext = (fileData.extension || name.split('.').pop() || '').toLowerCase();
@@ -349,7 +351,7 @@ export function initFileUploadZone(zone) {
 
     let mediaHtml = '';
     if (isImg && resolvedUrl && resolvedUrl !== '#') {
-      mediaHtml = `<img src="${resolvedUrl}" alt="${name}" class="file-item-preview">`;
+      mediaHtml = `<img src="${escapeHtml(resolvedUrl)}" alt="${safeName}" class="file-item-preview">`;
     } else {
       let iconClass = 'ti-file';
       let modClass = '';
@@ -367,18 +369,18 @@ export function initFileUploadZone(zone) {
     }
 
     const viewBtn = resolvedUrl && resolvedUrl !== '#'
-      ? `<a href="${resolvedUrl}" target="_blank" class="btn-view-file text-decoration-none me-1" style="text-decoration: none;" title="معاينة الملف" aria-label="معاينة الملف"><i class="ti ti-eye"></i></a>`
+      ? `<a href="${escapeHtml(resolvedUrl)}" target="_blank" class="btn-view-file text-decoration-none me-1" style="text-decoration: none;" title="معاينة الملف" aria-label="معاينة الملف"><i class="ti ti-eye"></i></a>`
       : '';
 
     card.innerHTML = `
-      <input type="hidden" name="${existingInputName}" value="${rawPath}" data-existing-file-input>
+      <input type="hidden" name="${escapeHtml(existingInputName)}" value="${escapeHtml(rawPath)}" data-existing-file-input>
       ${mediaHtml}
       <div class="file-item-info">
-        <div class="file-item-name" title="${name}">${name}</div>
+        <div class="file-item-name" title="${safeName}">${safeName}</div>
         <div class="file-item-size text-success small">ملف محفوظ مسبقاً</div>
       </div>
       ${viewBtn}
-      <button type="button" class="btn-remove-file" data-remove-existing-file="remove_${cleanPropName}" title="إزالة الملف" aria-label="إزالة الملف">
+      <button type="button" class="btn-remove-file" data-remove-existing-file="remove_${escapeHtml(cleanPropName)}" title="إزالة الملف" aria-label="إزالة الملف">
         <i class="ti ti-trash"></i>
       </button>
     `;

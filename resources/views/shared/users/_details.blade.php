@@ -30,22 +30,22 @@
                     @endif
                 </div>
 
-                <h4 class="mb-1 fw-bold text-primary">{{ $user->name }}</h4>
+                <h5 class="mb-1 fw-bold text-primary">{{ $user->name }}</h5>
                 <p class="mb-2 text-muted fw-medium">{{ $user->email }}</p>
 
                 <div class="d-flex justify-content-center flex-wrap gap-1 mb-3">
-                    <span class="badge bg-label-{{ $isActive ? 'success' : 'danger' }} fs-6">
+                    <span class="badge bg-label-{{ $isActive ? 'success' : 'danger' }}">
                         {{ $isActive ? 'نشط' : 'غير نشط' }}
                     </span>
                     @if (!empty($isAdminRole))
-                        <span class="badge bg-label-info fs-6">مدير النظام</span>
+                        <span class="badge bg-label-info">مدير النظام</span>
                     @endif
                     @forelse ($user->roles as $roleItem)
-                        <span class="badge bg-label-primary fs-6">
+                        <span class="badge bg-label-primary">
                             {{ \App\Support\AccessLabels::role($roleItem->name) }}
                         </span>
                     @empty
-                        <span class="badge bg-label-secondary fs-6">بدون دور</span>
+                        <span class="badge bg-label-secondary">بدون دور</span>
                     @endforelse
                 </div>
 

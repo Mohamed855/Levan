@@ -4,6 +4,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.querySelector("#establishment-request-form");
     if (!form) return;
 
+    const isAttachmentRemoved = (type, propertyId) =>
+        form.querySelector(`[name="remove_attachments[${type}][${propertyId}]"]`)?.value === "1";
+    const hasModalExistingFile = (input) => Boolean(
+        input?.closest("[data-file-upload-wrapper]")?.querySelector("[data-existing-file-card]:not(.d-none)"),
+    );
+    form.querySelectorAll("[data-certificate-removal]").forEach((flag) => {
+        const input = form.querySelector(`[name="attachments[${flag.dataset.certificateRemoval}]"]`);
+        input?.closest("[data-file-upload-wrapper]")?.appendChild(flag);
+    });
+
     // Helper: Escape HTML
     const escapeHtml = (str) => {
         if (str === null || str === undefined) return "";
@@ -80,6 +90,24 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (isComplete) {
+            const numericLimits = {
+                area: [0, 999999999],
+                ownership_share: [0, 100],
+                age: [0, 200],
+                opening_value: [0, 999999999999],
+                entry_amount: [0, 999999999999],
+                estimated_value: [0, 999999999999],
+            };
+            for (const [field, [min, max]] of Object.entries(numericLimits)) {
+                const value = Number(getVal(field).replace(/,/g, ""));
+                if (!Number.isFinite(value) || value < min || value > max || (field === "age" && !Number.isInteger(value))) {
+                    isComplete = false;
+                }
+            }
+            if (getVal("owner_name").length < 3 || !/^\d+$/.test(getVal("deed_number"))) {
+                isComplete = false;
+            }
+
             const entryVal = parseFloat(getVal("entry_amount").replace(/,/g, ""));
             const estimatedVal = parseFloat(getVal("estimated_value").replace(/,/g, ""));
             if (!isNaN(entryVal) && !isNaN(estimatedVal) && entryVal > estimatedVal) {
@@ -98,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const agentName = getVal("agent_name");
             const agencyNum = getVal("agency_number");
-            if ((agentName && !agencyNum) || (!agentName && agencyNum)) {
+            if ((agentName && !agencyNum) || (!agentName && agencyNum) || (agencyNum && !/^\d+$/.test(agencyNum))) {
                 isComplete = false;
             }
 
@@ -109,17 +137,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 existingAttachments = JSON.parse(table?.dataset?.existingAttachments || "{}");
             } catch (_) {}
             const propExisting = existingAttachments[propertyId] || {};
-            const hasExistingDeed = Boolean(propExisting.deed && propExisting.deed.url);
+            const hasExistingDeed = Boolean(propExisting.deed?.url) && !isAttachmentRemoved("deed", propertyId);
             const stagedDeed = hiddenDataEl.querySelector(`[data-prop-files="${propertyId}"] input[name="attachments[deed][${propertyId}]"]`);
-            if (!hasExistingDeed && !stagedDeed) {
+            if (!hasExistingDeed && !stagedDeed?.files?.length) {
+                isComplete = false;
+            }
+
+            const stagedValuation = hiddenDataEl.querySelector(`input[name="attachments[valuation][${propertyId}]"]`);
+            if (entryVal > 0 && (!propExisting.valuation?.url || isAttachmentRemoved("valuation", propertyId)) && !stagedValuation?.files?.length) {
                 isComplete = false;
             }
 
             // Check representative authority if agent specified
             if (agentName) {
-                const hasExistingAuth = Boolean(propExisting.representative_authority && propExisting.representative_authority.url);
+                const hasExistingAuth = Boolean(propExisting.representative_authority?.url) && !isAttachmentRemoved("representative_authority", propertyId);
                 const stagedAuth = hiddenDataEl.querySelector(`[data-prop-files="${propertyId}"] input[name="attachments[representative_authority][${propertyId}]"]`);
-                if (!hasExistingAuth && !stagedAuth) {
+                if (!hasExistingAuth && !stagedAuth?.files?.length) {
                     isComplete = false;
                 }
             }
@@ -160,6 +193,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const countEl = document.getElementById("completed-establishment-props-count");
         if (countEl) {
             countEl.textContent = String(completedCount);
+        }
+        const nextButton = form.querySelector('#step-establishment-properties .btn-next, #step-establishment-properties [data-wizard-next]');
+        if (nextButton) {
+            nextButton.disabled = rows.length === 0 || completedCount !== rows.length;
         }
     };
 
@@ -456,11 +493,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (controller) {
                 controller.clear();
-                if (existing && existing.url) {
+                fileInp.closest("[data-file-upload-wrapper]")?.querySelectorAll('input[name^="remove_"]').forEach((input) => input.remove());
+                if (existing?.url && !isAttachmentRemoved(type, propertyId)) {
                     controller.setExistingFile({
                         name: existing.name || "مستند سابق",
                         url: existing.url,
                         path: existing.url,
+                        extension: existing.mime === "image/jpeg" ? "jpg" : existing.mime?.split("/")[1],
                     });
                 } else {
                     controller.clearExistingFiles();
@@ -758,7 +797,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    $(document).on("change", "#modal_file_deed, #modal_file_representative_authority", function () {
+    $(document).on("change", "#modal_file_deed, #modal_file_valuation, #modal_file_representative_authority", function () {
         if (this.files && this.files.length > 0) {
             clearModalFieldError(this);
         }
@@ -823,18 +862,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Validate required deed attachment
-        const table = document.getElementById("establishment-properties-table");
-        let existingAttachments = {};
-        try {
-            existingAttachments = JSON.parse(table?.dataset?.existingAttachments || "{}");
-        } catch (_) {}
-        const propExisting = existingAttachments[propertyId] || {};
         const deedInput = getModalEl("modal_file_deed");
         const deedController = window.SharedFileUpload?.getController(deedInput);
-        const hasExistingDeed = Boolean(propExisting.deed && propExisting.deed.url);
-        const stagedDeed = hiddenContainer.querySelector(`[data-prop-files="${propertyId}"] input[name="attachments[deed][${propertyId}]"]`);
+        const hasExistingDeed = hasModalExistingFile(deedInput);
         const hasSelectedDeed = (deedInput && deedInput.files && deedInput.files.length > 0) || (deedController && deedController.getFiles().length > 0);
-        const isDeedPresent = hasExistingDeed || (stagedDeed && (!deedController || deedController.getFiles().length > 0)) || hasSelectedDeed;
+        const isDeedPresent = hasExistingDeed || hasSelectedDeed;
 
         if (!isDeedPresent) {
             setModalFieldError(deedInput, "وثيقة الملكية (الصك الإلكتروني) مطلوبة لكل عقار.");
@@ -842,14 +874,20 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!firstInvalid) firstInvalid = deedInput;
         }
 
+        const valuationInput = getModalEl("modal_file_valuation");
+        if (Number(cleanEntryAmount) > 0 && !hasModalExistingFile(valuationInput) && !valuationInput?.files?.length) {
+            setModalFieldError(valuationInput, "نموذج التقييم العقاري مطلوب عند وجود مبلغ دخول.");
+            hasError = true;
+            if (!firstInvalid) firstInvalid = valuationInput;
+        }
+
         // Validate agent representative authority if agent specified
         if (agentName) {
             const authInput = getModalEl("modal_file_representative_authority");
             const authController = window.SharedFileUpload?.getController(authInput);
-            const hasExistingAuth = Boolean(propExisting.representative_authority && propExisting.representative_authority.url);
-            const stagedAuth = hiddenContainer.querySelector(`[data-prop-files="${propertyId}"] input[name="attachments[representative_authority][${propertyId}]"]`);
+            const hasExistingAuth = hasModalExistingFile(authInput);
             const hasSelectedAuth = (authInput && authInput.files && authInput.files.length > 0) || (authController && authController.getFiles().length > 0);
-            const isAuthPresent = hasExistingAuth || (stagedAuth && (!authController || authController.getFiles().length > 0)) || hasSelectedAuth;
+            const isAuthPresent = hasExistingAuth || hasSelectedAuth;
 
             if (!isAuthPresent) {
                 setModalFieldError(authInput, "مستند التفويض أو الوكالة مطلوب عند وجود وكيل مسجل.");
@@ -916,21 +954,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 const existingStaged = filesContainer.querySelector(`input[name="attachments[${type}][${propertyId}]"]`);
                 const controller = window.SharedFileUpload?.getController(modalFileInp);
                 const hasSelectedFiles = modalFileInp && modalFileInp.files && modalFileInp.files.length > 0;
+                const removalFlag = hiddenContainer.querySelector(`[name="remove_attachments[${type}][${propertyId}]"]`);
+                if (removalFlag) {
+                    const removedInModal = modalFileInp?.closest("[data-file-upload-wrapper]")?.querySelector('input[name^="remove_"]')?.value === "1";
+                    removalFlag.value = removedInModal || isAttachmentRemoved(type, propertyId) ? "1" : "0";
+                }
 
                 if (hasSelectedFiles) {
-                    const hiddenFileInput = document.createElement("input");
-                    hiddenFileInput.type = "file";
-                    hiddenFileInput.name = `attachments[${type}][${propertyId}]`;
-                    hiddenFileInput.classList.add("d-none");
                     if (window.DataTransfer) {
                         const dt = new DataTransfer();
                         dt.items.add(modalFileInp.files[0]);
-                        hiddenFileInput.files = dt.files;
+                        existingStaged.files = dt.files;
                     }
-                    if (existingStaged) existingStaged.remove();
-                    filesContainer.appendChild(hiddenFileInput);
                 } else if (existingStaged && (!controller || controller.getFiles().length === 0)) {
-                    existingStaged.remove();
+                    existingStaged.value = "";
                 }
             });
         }
@@ -1272,15 +1309,9 @@ document.addEventListener("DOMContentLoaded", () => {
                             // Check deed file
                             const deedInput = getModalEl("modal_file_deed");
                             const deedController = window.SharedFileUpload?.getController(deedInput);
-                            let existingAttachments = {};
-                            try {
-                                existingAttachments = JSON.parse(document.getElementById("establishment-properties-table")?.dataset?.existingAttachments || "{}");
-                            } catch (_) {}
-                            const propExisting = existingAttachments[pId] || {};
-                            const hasExistingDeed = Boolean(propExisting.deed && propExisting.deed.url);
-                            const stagedDeed = form.querySelector(`[data-prop-files="${pId}"] input[name="attachments[deed][${pId}]"]`);
+                            const hasExistingDeed = hasModalExistingFile(deedInput);
                             const hasSelectedDeed = (deedInput && deedInput.files && deedInput.files.length > 0) || (deedController && deedController.getFiles().length > 0);
-                            const isDeedPresent = hasExistingDeed || (stagedDeed && (!deedController || deedController.getFiles().length > 0)) || hasSelectedDeed;
+                            const isDeedPresent = hasExistingDeed || hasSelectedDeed;
                             if (!isDeedPresent && deedInput) {
                                 setModalFieldError(deedInput, "وثيقة الملكية (الصك الإلكتروني) مطلوبة لكل عقار.");
                                 if (!firstErr) firstErr = deedInput;
@@ -1330,6 +1361,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Listen to wizard draft restored event
     form.addEventListener("wizardDraftRestored", (e) => {
+        form.querySelectorAll('[data-certificate-removal]').forEach((flag) => {
+            if (flag.value !== "1") return;
+            const input = form.querySelector(`[name="attachments[${flag.dataset.certificateRemoval}]"]`);
+            window.SharedFileUpload?.getController(input)?.clearExistingFiles();
+        });
         const draftProperties = e.detail?.data?.data?.properties || e.detail?.data?.properties;
         if (Array.isArray(draftProperties) && draftProperties.length > 0) {
             draftProperties.forEach((propItem, idx) => {
@@ -1356,6 +1392,7 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("input", updateReviewCardValues);
     form.addEventListener("change", (e) => {
         if (e.target?.type === "file") {
+            updateAllPropertiesCompleteness();
             updateReviewCardValues();
         }
     });

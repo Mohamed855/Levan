@@ -22,10 +22,10 @@
                             <i class="ti ti-mail-opened fs-1 text-primary"></i>
                         </div>
                     </div>
-                    <h4 class="mb-1 fw-bold text-primary">{{ $contactRequest->customer_name }}</h4>
+                    <h5 class="mb-1 fw-bold text-primary">{{ $contactRequest->customer_name }}</h5>
                     <p class="mb-2 text-muted fw-medium text-break">{{ $contactRequest->customer_email }}</p>
                     <span
-                        class="badge bg-label-{{ $contactRequest->status->value === 'pending' ? 'warning' : 'success' }} mb-3 fs-6">
+                        class="badge bg-label-{{ $contactRequest->status->value === 'pending' ? 'warning' : 'success' }} mb-3">
                         {{ $contactRequest->status->label() }}
                     </span>
 

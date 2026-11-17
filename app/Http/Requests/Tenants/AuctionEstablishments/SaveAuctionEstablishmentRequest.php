@@ -100,11 +100,16 @@ final class SaveAuctionEstablishmentRequest extends WizardFormRequest
         }
         $rules['data.attachments'] = ['prohibited'];
         $rules['attachments'] = ['nullable', 'array:manager_certificate,auctioneer_certificate,deed,valuation,representative_authority'];
+        $rules['remove_attachments'] = ['nullable', 'array:deed,valuation,representative_authority'];
         foreach (['manager_certificate', 'auctioneer_certificate'] as $type) {
-            $hasExisting = filled($auction?->establishmentRequest?->data['attachments'][$type][0]['path'] ?? null);
+            $rules['remove_attachments_'.$type] = ['nullable', 'boolean'];
+            $hasExisting = filled($auction?->establishmentRequest?->data['attachments'][$type][0]['path'] ?? null)
+                && ! $this->boolean('remove_attachments_'.$type);
             $rules['attachments.'.$type] = [$hasExisting ? 'nullable' : 'required', 'file', 'mimes:pdf,png,jpg,jpeg', 'max:10240'];
         }
         foreach (['deed', 'valuation', 'representative_authority'] as $type) {
+            $rules['remove_attachments.'.$type] = ['nullable', 'array'];
+            $rules['remove_attachments.'.$type.'.*'] = ['boolean'];
             $rules['attachments.'.$type] = ['nullable', 'array'];
             $rules['attachments.'.$type.'.*'] = ['nullable', 'file', 'mimes:pdf,png,jpg,jpeg', 'max:10240'];
         }

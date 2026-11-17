@@ -10,6 +10,7 @@
             'deed' => isset($data['attachments']['deed'][$prop->id])
                 ? [
                     'name' => $data['attachments']['deed'][$prop->id]['name'] ?? 'وثيقة الملكية',
+                    'mime' => $data['attachments']['deed'][$prop->id]['mime'] ?? '',
                     'url' => tenant_route_name('auction-establishment-requests.attachment', [
                         'auction' => $auction,
                         'type' => 'deed',
@@ -20,6 +21,7 @@
             'valuation' => isset($data['attachments']['valuation'][$prop->id])
                 ? [
                     'name' => $data['attachments']['valuation'][$prop->id]['name'] ?? 'نموذج التقييم',
+                    'mime' => $data['attachments']['valuation'][$prop->id]['mime'] ?? '',
                     'url' => tenant_route_name('auction-establishment-requests.attachment', [
                         'auction' => $auction,
                         'type' => 'valuation',
@@ -32,6 +34,7 @@
                     'name' =>
                         $data['attachments']['representative_authority'][$prop->id]['name'] ??
                         'مستند التفويض أو الوكالة',
+                    'mime' => $data['attachments']['representative_authority'][$prop->id]['mime'] ?? '',
                     'url' => tenant_route_name('auction-establishment-requests.attachment', [
                         'auction' => $auction,
                         'type' => 'representative_authority',
@@ -189,7 +192,14 @@
                     value="{{ old("data.properties.{$index}.{$fieldKey}", $propertyData[$fieldKey] ?? '') }}"
                     data-field="{{ $fieldKey }}">
             @endforeach
-            <div class="property-file-inputs" data-prop-files="{{ $propId }}"></div>
+            <div class="property-file-inputs" data-prop-files="{{ $propId }}">
+                @foreach (['deed', 'valuation', 'representative_authority'] as $type)
+                    <input type="file" name="attachments[{{ $type }}][{{ $propId }}]"
+                        accept=".pdf,.png,.jpg,.jpeg" class="d-none">
+                    <input type="hidden" name="remove_attachments[{{ $type }}][{{ $propId }}]"
+                        value="{{ old('remove_attachments.' . $type . '.' . $propId, '0') }}">
+                @endforeach
+            </div>
         </div>
     @endforeach
 </div>

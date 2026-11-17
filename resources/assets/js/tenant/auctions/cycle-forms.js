@@ -374,8 +374,13 @@ const mountCycleForm = () => {
         }
     };
 
+    let closingModalIsShown = false;
     $(document).on("shown.bs.modal", "#closingPropertyModal", function () {
+        closingModalIsShown = true;
         initClosingModalSelect2();
+    });
+    $(document).on("hide.bs.modal", "#closingPropertyModal", function () {
+        closingModalIsShown = false;
     });
 
     const setFieldInlineError = (control, message) => {
@@ -497,51 +502,24 @@ const mountCycleForm = () => {
         });
     };
 
-    const resetClosingModalFiles = () => {
-        const fileInp = document.getElementById("modal_board_images_after");
-        if (fileInp) {
-            try {
-                fileInp.value = "";
-            } catch (_) {}
-            if (
-                fileInp._fileUploadController &&
-                typeof fileInp._fileUploadController.clear === "function"
-            ) {
-                fileInp._fileUploadController.clear();
-            }
+    let isUpdatingClosingModal = false;
+    const updateClosingModal = (callback) => {
+        const wasUpdating = isUpdatingClosingModal;
+        isUpdatingClosingModal = true;
+        try {
+            return callback();
+        } finally {
+            isUpdatingClosingModal = wasUpdating;
         }
-
-        const zone = document.getElementById(
-            "modal_board_images_after-upload-zone",
-        );
-        if (zone) {
-            zone.classList.remove("has-files", "drag-over");
-            if (
-                zone._fileUploadController &&
-                typeof zone._fileUploadController.clear === "function"
-            ) {
-                zone._fileUploadController.clear();
-            }
-        }
-
-        const previewContainer =
-            document.getElementById("modal_board_images_after-preview-list") ||
-            document.querySelector(
-                '[data-field-name="modal_board_images_after[]"] [data-file-preview-container]',
-            );
-        if (previewContainer) {
-            previewContainer.innerHTML = "";
-        }
-
-        const attachContainer = document.getElementById(
-            "modal_existing_attachments_container",
-        );
-        const attachList = document.getElementById(
-            "modal_existing_attachments_list",
-        );
-        if (attachContainer) attachContainer.classList.add("d-none");
-        if (attachList) attachList.innerHTML = "";
     };
+
+    const resetClosingModalFiles = () => updateClosingModal(() => {
+        const fileInp = document.getElementById("modal_board_images_after");
+        const controller = window.SharedFileUpload?.getController(fileInp);
+        controller?.clear();
+        controller?.clearExistingFiles();
+        fileInp?.closest("[data-file-upload-wrapper]")?.querySelectorAll('input[name^="remove_"]').forEach((input) => input.remove());
+    });
 
     const validateClosingModalField = (inputEl) => {
         if (!inputEl) return true;
@@ -605,16 +583,7 @@ const mountCycleForm = () => {
             const fileInp = document.getElementById("modal_board_images_after");
             const newFilesCount =
                 fileInp && fileInp.files ? fileInp.files.length : 0;
-            const modalEl = document.getElementById("closingPropertyModal");
-            const existingCheckboxes = modalEl
-                ? modalEl.querySelectorAll(
-                      '#modal_existing_attachments_list input[name="remove_board_evidence[]"]',
-                  )
-                : [];
-            let activeExisting = 0;
-            existingCheckboxes.forEach((chk) => {
-                if (!chk.checked) activeExisting++;
-            });
+            const activeExisting = fileInp?.closest("[data-file-upload-wrapper]")?.querySelectorAll("[data-existing-file-card]:not(.d-none)").length || 0;
             if (newFilesCount + activeExisting === 0) {
                 error = "صور فك اللوحات مطلوبة للعقار.";
             }
@@ -639,6 +608,7 @@ const mountCycleForm = () => {
         "change blur focusout input",
         "#closingPropertyModal input:not([type='hidden']), #closingPropertyModal select, #closingPropertyModal textarea",
         function (e) {
+            if (isUpdatingClosingModal) return;
             if (
                 e.type === "focusout" ||
                 e.type === "blur" ||
@@ -650,23 +620,12 @@ const mountCycleForm = () => {
         },
     );
 
-    // Live validation listener for existing attachments removal checkbox toggle
-    $(document).on(
-        "change",
-        '#modal_existing_attachments_list input[type="checkbox"]',
-        function () {
-            const fileInp = document.getElementById("modal_board_images_after");
-            if (fileInp) {
-                validateClosingModalField(fileInp);
-            }
-        },
-    );
-
     // Open single modal for property editing via AJAX (click on row or edit button)
+    let closingModalRequestId = 0;
     $(document).on(
         "click",
         ".closing-property-row, .edit-closing-prop-btn",
-        function (e) {
+        function (e, validationErrors = {}) {
             if (
                 $(e.target).closest("input, select, textarea, label, a")
                     .length &&
@@ -675,6 +634,8 @@ const mountCycleForm = () => {
                 return;
             }
             e.preventDefault();
+            e.stopPropagation();
+            const requestId = ++closingModalRequestId;
 
             const $btn = $(this).hasClass("edit-closing-prop-btn")
                 ? $(this)
@@ -722,7 +683,8 @@ const mountCycleForm = () => {
                 });
             }
 
-            const populateModal = (data) => {
+            const populateModal = (data) => updateClosingModal(() => {
+                if (requestId !== closingModalRequestId) return;
                 resetClosingModalFiles();
 
                 const titleEl = document.getElementById(
@@ -857,50 +819,36 @@ const mountCycleForm = () => {
                     }
                 }
 
-                // Existing server attachments for THIS property
-                const attachContainer = document.getElementById(
-                    "modal_existing_attachments_container",
+                const attachments = data.attachments || [];
+                if (hiddenDataEl) hiddenDataEl.dataset.existingAttachments = attachments.map((file) => file.id).join(",");
+                const uploadInput = document.getElementById("modal_board_images_after");
+                window.SharedFileUpload?.getController(uploadInput)?.setExistingFiles(
+                    attachments.filter((file) => !form.querySelector(`input[name="remove_board_evidence[]"][value="${file.id}"]`))
+                        .map((file) => ({ name: file.file_name, url: file.file_url, path: String(file.id), isImage: true })),
                 );
-                const attachList = document.getElementById(
-                    "modal_existing_attachments_list",
-                );
-                if (attachContainer && attachList) {
-                    if (data.attachments && data.attachments.length > 0) {
-                        attachContainer.classList.remove("d-none");
-                        attachList.innerHTML = data.attachments
-                            .map((file) => {
-                                const isMarkedRemoved = Boolean(
-                                    form.querySelector(
-                                        `input[type="hidden"][name="remove_board_evidence[]"][value="${file.id}"]`,
-                                    ),
-                                );
-                                return `
-                        <div class="col-md-6" id="existing-attach-${file.id}">
-                            <div class="border rounded p-2">
-                                <div class="d-flex align-items-center justify-content-between mb-2">
-                                    <span class="text-truncate small fw-semibold" title="${file.file_name}">${file.file_name}</span>
-                                    <a href="${file.file_url}" target="_blank" class="btn btn-sm btn-icon btn-label-primary" title="معاينة"><i class="ti ti-eye"></i></a>
-                                </div>
-                                <div class="form-check">
-                                    <input type="checkbox" name="remove_board_evidence[]" value="${file.id}" class="form-check-input" id="remove-board-${file.id}" ${isMarkedRemoved ? "checked" : ""}>
-                                    <label for="remove-board-${file.id}" class="form-check-label text-danger small">حذف الصورة عند الحفظ</label>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                            })
-                            .join("");
-                    } else {
-                        attachContainer.classList.add("d-none");
-                        attachList.innerHTML = "";
-                    }
-                }
+                clearClosingModalFieldError(uploadInput);
 
                 if (spinner && content) {
                     spinner.classList.add("d-none");
                     content.classList.remove("d-none");
                 }
-            };
+                let firstInvalid = null;
+                Object.entries(validationErrors).forEach(([field, message]) => {
+                    const input = document.getElementById(fieldToModalId[field]);
+                    if (!input) return;
+                    setClosingModalFieldError(input, message);
+                    firstInvalid ||= input;
+                });
+                if (firstInvalid) {
+                    const focusInvalidField = () => {
+                        if (requestId !== closingModalRequestId) return;
+                        firstInvalid.closest("[data-form-field]")?.scrollIntoView({ block: "center" });
+                        if (firstInvalid.type !== "file") firstInvalid.focus();
+                    };
+                    if (closingModalIsShown) focusInvalidField();
+                    else $(modalEl).one("shown.bs.modal", focusInvalidField);
+                }
+            });
 
             if (propUrl) {
                 $.ajax({
@@ -936,12 +884,41 @@ const mountCycleForm = () => {
                         });
                     },
                 });
+            } else {
+                populateModal({ name: hiddenDataEl?.dataset.propName, attachments: [] });
             }
         },
     );
 
+    const handleClosingPropertyErrors = (errors) => {
+        if (!errors || typeof errors !== "object") return;
+        const propertyErrors = new Map();
+        for (const [key, messages] of Object.entries(errors)) {
+            const normalized = key.replace(/\[([^\]]+)\]/g, ".$1");
+            const resultMatch = normalized.match(/^results\.(\d+)(?:\.([a-z_]+))?$/);
+            const imageMatch = normalized.match(/^board_images_after\.(\d+)(?:\.\d+)?$/);
+            if (!resultMatch && !imageMatch) continue;
+            const propertyId = (resultMatch || imageMatch)[1];
+            const field = imageMatch ? "board_images_after" : (resultMatch[2] || "status");
+            const message = Array.isArray(messages) ? messages[0] : messages;
+            if (!fieldToModalId[field] || !message) continue;
+            const row = form.querySelector(`.closing-property-row[data-property-id="${propertyId}"]`);
+            if (!row) continue;
+            if (!propertyErrors.has(propertyId)) propertyErrors.set(propertyId, { row, fields: {} });
+            const fields = propertyErrors.get(propertyId).fields;
+            fields[field] ||= message;
+        }
+        const firstProperty = propertyErrors.values().next().value;
+        if (firstProperty) $(firstProperty.row).trigger("click", [firstProperty.fields]);
+    };
+
+    form.addEventListener("stepValidationFailed", (event) => {
+        handleClosingPropertyErrors(event.detail?.errors);
+    });
+
     // Toggle sold vs unsold inside modal
     $(document).on("change", "#modal_result_status", function () {
+        if (isUpdatingClosingModal) return;
         const val = $(this).val();
         const soldSec = document.getElementById("modal_sold_section");
         const unsoldSec = document.getElementById("modal_unsold_section");
@@ -1108,23 +1085,20 @@ const mountCycleForm = () => {
                         hiddenFileInput.files = dt.files;
                     }
                     filesContainer.replaceChildren(hiddenFileInput);
-                } else if (
-                    !filesContainer.querySelector("input[type='file']")
-                ) {
+                } else {
                     filesContainer.innerHTML = "";
                 }
             }
         }
 
-        // Sync remove_board_evidence checkboxes for this property
-        modalEl
-            .querySelectorAll('[name="remove_board_evidence[]"]')
-            .forEach((chk) => {
-                const val = chk.value;
+        // Keep the component's retained cards and persist removals only on modal save.
+        const retainedIds = new Set(Array.from(modalEl.querySelectorAll("[data-existing-file-card]"), (card) => card.dataset.filePath));
+        (hiddenDataEl?.dataset.existingAttachments || "").split(",").filter(Boolean)
+            .forEach((val) => {
                 const existingHidden = form.querySelector(
                     `input[type="hidden"][name="remove_board_evidence[]"][value="${val}"]`,
                 );
-                if (chk.checked) {
+                if (!retainedIds.has(val)) {
                     if (!existingHidden) {
                         const hiddenChk = document.createElement("input");
                         hiddenChk.type = "hidden";
@@ -1382,40 +1356,55 @@ const mountCycleForm = () => {
     );
 
     if (isClosingForm) {
-        // Clear inline errors on input/change
-        form.querySelectorAll(
-            '[name="closing_date"], [name="board_removal_date"], [name="results_narrative"]',
-        ).forEach((inputEl) => {
-            inputEl.addEventListener("input", () =>
-                clearFieldInlineError(inputEl),
-            );
-            inputEl.addEventListener("change", () =>
-                clearFieldInlineError(inputEl),
-            );
+        const closingDateInput = form.querySelector('[name="closing_date"]');
+        const boardRemovalDateInput = form.querySelector('[name="board_removal_date"]');
+        const syncBoardRemovalMinimum = () => {
+            if (boardRemovalDateInput) boardRemovalDateInput.min = closingDateInput?.value || "";
+        };
+        const validateClosingDates = (requireValues = false) => {
+            syncBoardRemovalMinimum();
+            let firstInvalid = null;
+            for (const input of [closingDateInput, boardRemovalDateInput]) {
+                if (!input) continue;
+                const value = input.value;
+                let message = "";
+                if (!value && requireValues) {
+                    message = input === closingDateInput ? "حقل تاريخ الإقفال مطلوب." : "حقل تاريخ فك اللوحات مطلوب.";
+                } else if (value && input === closingDateInput) {
+                    if (form.dataset.auctionStartDate && value < form.dataset.auctionStartDate) {
+                        message = "تاريخ الإقفال يجب أن يكون في نفس يوم تاريخ بداية المزاد أو بعده.";
+                    } else if (form.dataset.auctionEndDate && value > form.dataset.auctionEndDate) {
+                        message = "تاريخ الإقفال يجب ألا يتجاوز تاريخ نهاية المزاد.";
+                    }
+                } else if (value && closingDateInput?.value && value < closingDateInput.value) {
+                    message = "تاريخ فك اللوحات يجب أن يكون في نفس يوم تاريخ الإقفال أو بعده.";
+                }
+                if (message) {
+                    setFieldInlineError(input, message);
+                    firstInvalid ||= input;
+                } else {
+                    clearFieldInlineError(input);
+                }
+            }
+            return firstInvalid;
+        };
+        [closingDateInput, boardRemovalDateInput].forEach((input) => {
+            input?.addEventListener("input", () => validateClosingDates());
+            input?.addEventListener("change", () => validateClosingDates());
+        });
+        form.addEventListener("wizardDraftRestored", () => validateClosingDates());
+        syncBoardRemovalMinimum();
+
+        const narrative = form.querySelector('[name="results_narrative"]');
+        ["input", "change"].forEach((type) => {
+            narrative?.addEventListener(type, () => clearFieldInlineError(narrative));
         });
 
         form.addEventListener(
             "submit",
             function (e) {
-                let hasErrors = false;
-                let firstInvalid = null;
-
-                const boardRemovalDateInput = form.querySelector(
-                    '[name="board_removal_date"]',
-                );
-                if (
-                    boardRemovalDateInput &&
-                    !boardRemovalDateInput.value.trim()
-                ) {
-                    setFieldInlineError(
-                        boardRemovalDateInput,
-                        "حقل تاريخ فك اللوحات مطلوب.",
-                    );
-                    hasErrors = true;
-                    if (!firstInvalid) firstInvalid = boardRemovalDateInput;
-                } else if (boardRemovalDateInput) {
-                    clearFieldInlineError(boardRemovalDateInput);
-                }
+                let firstInvalid = validateClosingDates(true);
+                let hasErrors = Boolean(firstInvalid);
 
                 const narrativeInput = form.querySelector(
                     '[name="results_narrative"]',
@@ -1578,6 +1567,11 @@ const mountCycleForm = () => {
 
     initClosingModalSelect2();
     updateAll();
+    if (isClosingForm) {
+        try {
+            handleClosingPropertyErrors(JSON.parse(form.dataset.validationErrors || "{}"));
+        } catch (_) {}
+    }
     setTimeout(updateAll, 50);
     setTimeout(updateAll, 200);
     setTimeout(updateAll, 500);
