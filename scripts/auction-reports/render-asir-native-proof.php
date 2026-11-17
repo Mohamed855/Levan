@@ -23,7 +23,7 @@ DB::listen(static function (): void {
     throw new RuntimeException('Asir visual proofs must not query a database.');
 });
 $scenario = $argv[1] ?? 'reference';
-if (! in_array($scenario, ['reference', 'populated', 'sparse', 'many', 'long'], true)) {
+if (! in_array($scenario, ['reference', 'populated', 'sparse', 'many', 'long', 'appendix'], true)) {
     throw new InvalidArgumentException('Unknown Asir proof scenario.');
 }
 $snapshot = (require base_path('tests/Fixtures/AuctionReports/asir-native.php'))($scenario);

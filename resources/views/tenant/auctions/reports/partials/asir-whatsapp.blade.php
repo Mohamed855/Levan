@@ -10,8 +10,12 @@
             @if (($content['values']['whatsapp_date'] ?? '') !== '')<p class="asir-whatsapp-date">{{ $content['values']['whatsapp_date'] }}</p>@endif
             <div class="asir-whatsapp-data">
                 @if ($content['whatsapp_chart'])
-                    @php($stops = implode(',', array_map(static fn ($segment) => $segment['color'].' '.$segment['start'].'% '.$segment['end'].'%', $content['whatsapp_chart'])))
-                    <div class="asir-whatsapp-chart" role="img" aria-label="إحصاءات تسليم رسائل واتساب" data-report-chart="whatsapp" style="background:conic-gradient({{ $stops }})">
+                    @php
+                        $visibleSegments = array_values(array_filter($content['whatsapp_chart'], static fn ($segment) => $segment['percent'] > 0));
+                        $stops = implode(',', array_map(static fn ($segment) => $segment['color'].' '.$segment['start'].'% '.$segment['end'].'%', $visibleSegments));
+                        $chartBackground = count($visibleSegments) === 1 ? $visibleSegments[0]['color'] : 'conic-gradient('.$stops.')';
+                    @endphp
+                    <div class="asir-whatsapp-chart" role="img" aria-label="إحصاءات تسليم رسائل واتساب" data-report-chart="whatsapp" style="background:{{ $chartBackground }}">
                         @foreach ($content['whatsapp_chart'] as $state => $segment)<span class="asir-chart-value" data-chart-state="{{ $state }}" data-percent="{{ $segment['percent'] }}">{{ $state }}: {{ $segment['percent'] }}%</span>@endforeach
                     </div>
                 @else
@@ -33,6 +37,6 @@
         </div></section>
     @endif
     @if (!empty($content['destinations']['whatsapp']))
-        <section class="asir-whatsapp-link" data-asir-section><a href="{{ $content['destinations']['whatsapp'] }}" data-link-role="whatsapp" aria-label="رابط حملة الواتساب"><span style="mask-image:url('{{ $content['whatsapp_icon'] }}')"></span></a></section>
+        <section class="asir-whatsapp-link" data-asir-section><a href="{{ $content['destinations']['whatsapp'] }}" data-link-role="whatsapp" aria-label="رابط حملة الواتساب"><img src="{{ $content['whatsapp_icon'] }}" alt=""></a></section>
     @endif
 </main>

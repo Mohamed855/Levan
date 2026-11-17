@@ -10,6 +10,7 @@ use App\Http\Middleware\NormalizeMonetaryInputs;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\SecurityHeadersMiddleware;
 use App\Http\Middleware\Tenancy\CheckSubscription;
+use App\Http\Middleware\Tenancy\EnsureTenantLimitNotExceeded;
 use App\Http\Middleware\Tenancy\EnsureTenantTwoFactorIsEnforced;
 use App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense;
 use App\Http\Middleware\Tenancy\InitializeTenancyBySession;
@@ -93,6 +94,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.license' => EnsureUserHasActiveLicense::class,
             'tenant.maintenance' => TenantMaintenance::class,
             'tenant.2fa.force' => EnsureTenantTwoFactorIsEnforced::class,
+            'tenant.limit' => EnsureTenantLimitNotExceeded::class,
             'prevent.central' => PreventAccessFromCentralDomains::class,
 
             // Tenant API Middleware

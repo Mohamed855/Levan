@@ -42,7 +42,6 @@ class AdminSubscriptionService
 
         $cycle = $billingCycle ?? ($plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle ?: 'monthly');
         $cycleMonths = match ($cycle) {
-            'quarterly' => 3,
             'yearly' => 12,
             default => 1,
         };
@@ -70,6 +69,9 @@ class AdminSubscriptionService
                             ->where('period_end', '>=', $now);
                     })->orWhereDoesntHave('periods');
                 })
+                ->count(),
+            'queued' => (clone $baseQuery)
+                ->whereHas('periods', fn ($q) => $q->where('status', SubscriptionPeriodStatus::QUEUED))
                 ->count(),
             'expired' => (clone $baseQuery)
                 ->whereIn('status', [SubscriptionStatus::EXPIRED, SubscriptionStatus::CANCELLED])
@@ -330,14 +332,10 @@ class AdminSubscriptionService
 
         $cycle = $billingCycle ?? ($plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle);
 
-        if ($cycle === 'monthly') {
-            return $startDate->copy()->addMonth();
+        if ($cycle === 'yearly') {
+            return $startDate->copy()->addYear();
         }
 
-        if ($cycle === 'quarterly') {
-            return $startDate->copy()->addMonths(3);
-        }
-
-        return $startDate->copy()->addYear();
+        return $startDate->copy()->addMonth();
     }
 }

@@ -29,16 +29,19 @@
 
     <x-data-table.page table-id="subscriptions-table">
         <x-slot:stats>
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي الاشتراكات" :value="$totalSubscriptions ?? 0"
+            <x-ui.stat-card col="col-sm-6 col-lg-4 col-xl" title="إجمالي الاشتراكات" :value="$totalSubscriptions ?? 0"
                 subtitle="جميع الاشتراكات الصادرة" icon="ti-packages" color="primary" />
 
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="الاشتراكات النشطة" :value="$activeSubscriptions ?? 0"
+            <x-ui.stat-card col="col-sm-6 col-lg-4 col-xl" title="الاشتراكات النشطة" :value="$activeSubscriptions ?? 0"
                 subtitle="اشتراكات سارية حالياً" icon="ti-circle-check" color="success" />
 
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="تقارب على الانتهاء" :value="$expiringSubscriptions ?? 0"
-                subtitle="تنتهي خلال 30 يوماً" icon="ti-alert-triangle" color="info" />
+            <x-ui.stat-card col="col-sm-6 col-lg-4 col-xl" title="تجديدات قادمة" :value="$queuedSubscriptions ?? 0"
+                subtitle="مجدولة ومسبقة الدفع" icon="ti-calendar-plus" color="info" />
 
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="الاشتراكات المنتهية" :value="$expiredSubscriptions ?? 0"
+            <x-ui.stat-card col="col-sm-6 col-lg-4 col-xl" title="تقارب على الانتهاء" :value="$expiringSubscriptions ?? 0"
+                subtitle="تنتهي خلال 30 يوماً" icon="ti-alert-triangle" color="warning" />
+
+            <x-ui.stat-card col="col-sm-6 col-lg-4 col-xl" title="اشتراكات سابقة" :value="$expiredSubscriptions ?? 0"
                 subtitle="اشتراكات منتهية أو ملغاة" icon="ti-clock-x" color="danger" />
         </x-slot:stats>
 

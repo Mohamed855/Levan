@@ -40,7 +40,7 @@
 - Modify: `routes/tenant.php`
 - Test: `tests/Feature/Tenant/TenantLimitsEnforcementFeatureTest.php`
 
-- [ ] **Step 1: كتابة اختبار فاشل للتحقق من منع تجاوز حد العقارات والمزادات**
+- [x] **Step 1: كتابة اختبار فاشل للتحقق من منع تجاوز حد العقارات والمزادات**
   - إنشاء `tests/Feature/Tenant/TenantLimitsEnforcementFeatureTest.php`.
   - كتابة اختبار يحاكي مستأجراً يملك باقة بحد 2 عقار ومزاد واحد:
     - التحقق من نجاح إضافة العقار الأول والثاني.
@@ -51,13 +51,13 @@
     php artisan test tests/Feature/Tenant/TenantLimitsEnforcementFeatureTest.php
     ```
 
-- [ ] **Step 2: تزويد `CentralSubscriptionContextGateway` بدوال فحص الحدود**
+- [x] **Step 2: تزويد `CentralSubscriptionContextGateway` بدوال فحص الحدود**
   - إضافة ميثود `getPropertyLimitInfo()` لاحتساب حد العقارات وحالة "غير محدود".
   - إضافة ميثود `canCreateProperty(int $currentCount): bool`.
   - إضافة ميثود `getAuctionLimitInfo()` لاحتساب حد المزادات النشطة وحالة "غير محدود".
   - إضافة ميثود `canCreateAuction(int $currentActiveCount): bool`.
 
-- [ ] **Step 3: إنشاء `EnsureTenantLimitNotExceeded` Middleware**
+- [x] **Step 3: إنشاء `EnsureTenantLimitNotExceeded` Middleware**
   - في `app/Http/Middleware/Tenancy/EnsureTenantLimitNotExceeded.php`:
     - استقبال البارامتر `$resource` (`properties` أو `auctions`).
     - عند `$resource === 'properties'`: احتساب عدد عقارات المستأجر غير المحذوفة، ومقارنتها بالحد.
@@ -66,13 +66,13 @@
       - إذا كان الطلب AJAX/JSON: إرجاع `response()->json(['message' => 'لقد وصلت إلى الحد الأقصى المسموح به في باقتك...'], 403)`.
       - لطلبات الويب: التوجيه لصفحة الفهرس مع `with('error', 'لقد استنفدت الحد المتاح في باقتك...')`.
 
-- [ ] **Step 4: تسجيل الـ Middleware وتطبيقه على مسارات المستأجر**
+- [x] **Step 4: تسجيل الـ Middleware وتطبيقه على مسارات المستأجر**
   - في `bootstrap/app.php`: تسجيل الاسم المستعار `tenant.limit => EnsureTenantLimitNotExceeded::class`.
   - في `routes/tenant.php`: تطبيق الـ middleware:
     - مسارات العقارات: `properties.create`, `properties.store` تأخذ `tenant.limit:properties`.
     - مسارات المزادات: `auctions.create`, `auctions.store` تأخذ `tenant.limit:auctions`.
 
-- [ ] **Step 5: تشغيل الاختبار والتحقق من النجاح**
+- [x] **Step 5: تشغيل الاختبار والتحقق من النجاح**
   - تشغيل `php artisan test tests/Feature/Tenant/TenantLimitsEnforcementFeatureTest.php`.
   - التأكد من اجتياز كافة الاختبارات بنجاح.
 
@@ -89,7 +89,7 @@
 - Modify: `resources/views/tenant/subscriptions/index.blade.php`
 - Test: `tests/Feature/Tenant/TenantUserLimitsFeatureTest.php`
 
-- [ ] **Step 1: كتابة اختبار فاشل للتحقق من سلوك الباقات غير المحدودة للمستخدمين**
+- [x] **Step 1: كتابة اختبار فاشل للتحقق من سلوك الباقات غير المحدودة للمستخدمين**
   - إنشاء `tests/Feature/Tenant/TenantUserLimitsFeatureTest.php`.
   - التحقق من:
     - عند كون الباقة `included_users === null`، يستطيع المستأجر إضافة أي عدد من الموظفين دون مانع.
@@ -100,11 +100,11 @@
     php artisan test tests/Feature/Tenant/TenantUserLimitsFeatureTest.php
     ```
 
-- [ ] **Step 2: تحديث نموذج الباقة `Plan.php` بدوال واضحة**
+- [x] **Step 2: تحديث نموذج الباقة `Plan.php` بدوال واضحة**
   - إضافة `hasUnlimitedUsers(): bool` (تُرجع `true` إذا كان `included_users === null`).
   - إضافة `allowsExtraUserLicenses(): bool` (تُرجع `true` فقط إذا كان المستخدمون محددين ويوجد سعر ترخيص إضافي `> 0`).
 
-- [ ] **Step 3: تحديث التحقق والخدمة (`PlanRequest` & `PlanService`)**
+- [x] **Step 3: تحديث التحقق والخدمة (`PlanRequest` & `PlanService`)**
   - في `PlanRequest.php`:
     - إضافة حقل اختياري للواجهة `users_limit_mode` (`limited` / `unlimited`).
     - إذا كان `users_limit_mode === 'unlimited'`: يتم دمج `included_users = null` و `extra_user_license_price = null`.
@@ -112,14 +112,14 @@
   - في `PlanService.php`:
     - التأكد من عدم تصفير `included_users` عند اختيار وضع العمليات غير المحدود إذا كان حد المستخدمين محدداً.
 
-- [ ] **Step 4: حماية وتحديث مسار شراء التراخيص في المستأجر**
+- [x] **Step 4: حماية وتحديث مسار شراء التراخيص في المستأجر**
   - في `TenantSubscriptionController::licenseCheckout` و `processLicense`:
     - فحص هل الباقة تملك مستخدمين غير محدودين (`$plan->hasUnlimitedUsers()`).
     - في حال كان غير محدود: إعادة التوجيه الفوري مع رسالة: `باقات المستخدمين غير المحدودين لا تتطلب شراء تراخيص إضافية.`
   - في `resources/views/tenant/subscriptions/index.blade.php`:
     - إخفاء زر "شراء تراخيص إضافية" بالكامل إذا كانت الباقة الحالية غير محدودة للمستخدمين.
 
-- [ ] **Step 5: تشغيل الاختبار والتأكد من النجاح**
+- [x] **Step 5: تشغيل الاختبار والتأكد من النجاح**
   - تشغيل `php artisan test tests/Feature/Tenant/TenantUserLimitsFeatureTest.php`.
 
 ---
@@ -133,12 +133,12 @@
 - Modify: `resources/views/admin/plans/show.blade.php`
 - Test: `tests/Feature/Admin/PlanManagementUiFeatureTest.php`
 
-- [ ] **Step 1: كتابة اختبار لواجهات إدارة الباقات**
+- [x] **Step 1: كتابة اختبار لواجهات إدارة الباقات**
   - إنشاء `tests/Feature/Admin/PlanManagementUiFeatureTest.php`.
   - التأكد من إمكانية حفظ باقة بـ "مستخدمين محددين + عمليات غير محدودة" والعكس.
   - التأكد من خلو `PlanDataTable` من الأخطاء عند استعراض الباقات بعد دمج الأعمدة.
 
-- [ ] **Step 2: تحديث الخطوة 3 (الحدود) في `_form.blade.php` و `form-ui.js`**
+- [x] **Step 2: تحديث الخطوة 3 (الحدود) في `_form.blade.php` و `form-ui.js`**
   - تقسيم الخطوة الثالثة بوضوح إلى قسمين:
     1. **حدود المستخدمين (Users Limit):**
        - اختيار: [عدد محدد | غير محدود].
@@ -149,7 +149,7 @@
        - عند "محددة": إظهار حقول العقارات، المزادات النشطة، وحصة التخزين.
        - عند "غير محدودة": إظهار رسالة التنبيه وإخفاء الحقول الثلاثة.
 
-- [ ] **Step 3: تبسيط وتقليص جدول الباقات `PlanDataTable.php`**
+- [x] **Step 3: تبسيط وتقليص جدول الباقات `PlanDataTable.php`**
   - تقليص الأعمدة الـ 20 إلى **9 أعمدة مركزة وأنيقة**:
     1. `checkbox`
     2. `color`
@@ -163,10 +163,10 @@
     10. `actions`
   - إزالة الأعمدة المكررة المنفصلة لتجنب السكرول الأفقي المزعج.
 
-- [ ] **Step 4: تحديث صفحة تفاصيل الباقة `show.blade.php`**
+- [x] **Step 4: تحديث صفحة تفاصيل الباقة `show.blade.php`**
   - عكس التقسيم الجديد بوضوح: إظهار وضع المستخدمين المستقل (مع سعر الترخيص فقط إن كان محدداً)، وقسم الحدود التشغيلية بشكل منفصل.
 
-- [ ] **Step 5: تشغيل الاختبار والتحقق**
+- [x] **Step 5: تشغيل الاختبار والتحقق**
   - تشغيل `php artisan test tests/Feature/Admin/PlanManagementUiFeatureTest.php`.
 
 ---
@@ -178,19 +178,19 @@
 - Modify: `resources/assets/scss/shared/package-card.scss`
 - Test: `tests/Feature/PublicPlanVisibilityFeatureTest.php`
 
-- [ ] **Step 1: كتابة اختبار لعرض بطاقة الباقة الجديد**
+- [x] **Step 1: كتابة اختبار لعرض بطاقة الباقة الجديد**
   - تحديث `tests/Feature/PublicPlanVisibilityFeatureTest.php`:
     - فحص أن الباقة المحدودة للمستخدمين تعرض بوضوح سعر المستخدم الإضافي للمشتري.
     - فحص أن الباقة غير المحدودة تعرض `غير محدود` ولا تذكر سعر ترخيص إضافي.
 
-- [ ] **Step 2: تحديث قسم حدود البطاقة في `package-card.blade.php`**
+- [x] **Step 2: تحديث قسم حدود البطاقة في `package-card.blade.php`**
   - في بطاقة المستخدمين (`users` limit):
     - إذا كان `hasUnlimitedUsers()`: عرض "غير محدود".
     - إذا كان محدداً: عرض `X مستخدم` وأسفلها بخط ناعم وواضح: `+Y ر.س لكل مستخدم إضافي` (إذا كان السعر متوفراً).
   - في بطاقات العقارات والتخزين والمزادات:
     - عرض الرقم المسموح بوضوح، أو `غير محدود` في حال اختيار الأدمن وضع العمليات غير المحدود.
 
-- [ ] **Step 3: بناء الأصول والتحقق من التناسق**
+- [x] **Step 3: بناء الأصول والتحقق من التناسق**
   - تشغيل `npm run build`.
   - تشغيل الاختبارات:
     ```bash
@@ -207,21 +207,21 @@
 - Modify: `app/Http/Controllers/Tenants/Subscriptions/TenantSubscriptionController.php`
 - Test: `tests/Feature/Tenant/TenantSubscriptionRenewalFeatureTest.php`
 
-- [ ] **Step 1: كتابة اختبار فاشل لتجديد الاشتراك بالسعر الفعلي**
+- [x] **Step 1: كتابة اختبار فاشل لتجديد الاشتراك بالسعر الفعلي**
   - إنشاء `tests/Feature/Tenant/TenantSubscriptionRenewalFeatureTest.php`.
   - التحقق من أن تجديد اشتراك باقة شهرية بسعر 500 ريال يقوم بمحاسبة المستأجر على 500 ريال لدورة شهرية، ولا يفرض عليه `yearly_renewal_price` بشكل أعمى.
 
-- [ ] **Step 2: تصحيح كود التجديد في `TenantSubscriptionController.php`**
+- [x] **Step 2: تصحيح كود التجديد في `TenantSubscriptionController.php`**
   - في `renewCheckout` و `processRenew`:
     - اعتماد السعر الفعلي للباقة بعد الخصم (`$plan->price_after_discount > 0 ? $plan->price_after_discount : $plan->price`).
     - تحديد فترة التجديد تلقائياً بحسب دورة فوترة الباقة (`subscription_billing_cycle`).
 
-- [ ] **Step 3: حذف ملفات القالب القديمة الميتة**
+- [x] **Step 3: حذف ملفات القالب القديمة الميتة**
   - حذف الملفين المهجورين:
     - `resources/assets/js/shared/basic-tamplate/pricing.js`
     - `resources/assets/js/web/basic-tamplate/pricing.js`
 
-- [ ] **Step 4: فحص التوافقية والأكواد العامة**
+- [x] **Step 4: فحص التوافقية والأكواد العامة**
   - تشغيل فحص التنسيق: `./vendor/bin/pint --test`
   - تشغيل فحص الـ Autoload الصارم: `composer dump-autoload --strict-psr`
   - تشغيل كامل حزمة الاختبارات ذات الصلة:

@@ -55,9 +55,15 @@ class PlanRequest extends WizardFormRequest
                 : (string) $plan->limits_mode;
         }
 
-        // When limits_mode is unlimited, force numeric limits to null.
-        if ($limitsMode === PlanLimitsMode::UNLIMITED->value) {
+        $usersLimitMode = (string) $this->input('users_limit_mode', $this->filled('included_users') ? 'limited' : 'unlimited');
+
+        if ($usersLimitMode === 'unlimited') {
             $mergeData['included_users'] = null;
+            $mergeData['extra_user_license_price'] = null;
+        }
+
+        // When limits_mode is unlimited, force operational numeric limits to null.
+        if ($limitsMode === PlanLimitsMode::UNLIMITED->value) {
             $mergeData['properties_limit'] = null;
             $mergeData['storage_quota_gb'] = null;
             $mergeData['active_auctions_limit'] = null;
@@ -98,18 +104,24 @@ class PlanRequest extends WizardFormRequest
             'features.*' => ['required', 'string', 'max:255'],
         ];
 
-        if ($limitsMode === PlanLimitsMode::LIMITED->value) {
+        $usersLimitMode = (string) $this->input('users_limit_mode', $this->filled('included_users') ? 'limited' : 'unlimited');
+
+        if ($usersLimitMode === 'limited') {
             $rules['included_users'] = ['required', 'integer', 'min:1'];
-            $rules['properties_limit'] = ['required', 'integer', 'min:1'];
-            $rules['storage_quota_gb'] = ['required', 'integer', 'min:1'];
-            $rules['active_auctions_limit'] = ['required', 'integer', 'min:1'];
             $rules['extra_user_license_price'] = ['required', 'numeric', 'min:0'];
         } else {
             $rules['included_users'] = ['nullable'];
+            $rules['extra_user_license_price'] = ['nullable'];
+        }
+
+        if ($limitsMode === PlanLimitsMode::LIMITED->value) {
+            $rules['properties_limit'] = ['required', 'integer', 'min:1'];
+            $rules['storage_quota_gb'] = ['required', 'integer', 'min:1'];
+            $rules['active_auctions_limit'] = ['required', 'integer', 'min:1'];
+        } else {
             $rules['properties_limit'] = ['nullable'];
             $rules['storage_quota_gb'] = ['nullable'];
             $rules['active_auctions_limit'] = ['nullable'];
-            $rules['extra_user_license_price'] = ['nullable', 'numeric', 'min:0'];
         }
 
         return $rules;

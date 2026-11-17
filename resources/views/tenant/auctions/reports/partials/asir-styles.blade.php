@@ -127,6 +127,9 @@
     .asir-platform-brand > span { position:absolute; inset-inline-start:-15.84pt; inset-block-start:69.21pt; display:grid; place-items:center; width:37.565pt; min-height:16.435pt; padding:2pt; background:#036e64; border-radius:6.848pt; font:9.449pt/1 STVReport,sans-serif; }
     .asir-platform-name { margin-block-start:auto; font:12.276pt/1.02 TheSansReport,sans-serif; }
     .asir-platform-name strong { display:block; }
+    .asir-thumbnail-name { font:12.276pt/1.3 TheSansReport,sans-serif; }
+    .asir-thumbnail-name h3 { font-family:TheSansReportBold,sans-serif; margin-block-end:5pt; }
+    .asir-thumbnail-name + .asir-platform-card,.asir-thumbnail-name + .asir-video-hero { margin-block-start:15pt !important; }
     .asir-platform-brand img { max-height:40pt; object-fit:contain; }
     .asir-platform-brand strong { overflow-wrap:anywhere; }
     .asir-platform-details { padding:17pt; min-height:187.3pt; position:relative; font:20pt/1.2 TheSansReport,sans-serif; }
@@ -154,7 +157,7 @@
     .asir-x-grid img { height:149pt; background:white; }
     .asir-x-main { margin-inline:94pt 149.087pt; }
     .asir-x-badge { position:absolute; inset-inline-end:51.5525pt; inset-block-start:313.2331pt; width:65.739pt; height:65.739pt; padding:10.9095pt 11.0295pt; background:white; border-radius:12pt; }
-    .asir-x-badge span { display:block; width:43.68pt; height:43.92pt; background:#202020; mask-size:100% 100%; mask-mode:luminance; }
+    .asir-x-badge img { display:block; width:43.68pt; height:43.92pt; }
     .asir-x-main > section[data-asir-section]:has(.asir-x-grid) { margin-block-start:31.72pt; }
     .asir-x-summary { width:calc(100% + 44pt); margin-inline-end:-44pt; font:18.109pt/1.2 TheSansReportBold,sans-serif; }
     .asir-x-summary:first-child { padding-block-start:51pt; }
@@ -177,7 +180,7 @@
     .asir-whatsapp-grid img { height:116pt; border-radius:0; background:white; }
     .asir-whatsapp-link { text-align:center; margin-block-start:36.5pt !important; }
     .asir-whatsapp-link a { display:inline-block; width:65.74pt; height:65.74pt; padding:6pt; border-radius:12pt; background:white; }
-    .asir-whatsapp-link span { display:block; width:100%; height:100%; background:#00c75f; mask-size:contain; mask-position:center; mask-repeat:no-repeat; mask-mode:luminance; }
+    .asir-whatsapp-link img { display:block; width:100%; height:100%; object-fit:contain; }
     .asir-social-grid { display:grid; grid-template-columns:repeat(2,116.93pt); justify-items:center; gap:17.77pt 79.78pt; margin-inline:17pt 50pt; }
     .asir-social-main > section:has(.asir-social-grid):first-child { margin-block-start:53.5pt; }
     .asir-social-card { min-width:0; width:116.93pt; text-align:center; }
@@ -187,13 +190,14 @@
     .asir-social-card:last-child:nth-child(odd) { grid-column:1 / -1; }
     .asir-social-image img { width:85.9pt; height:176.23pt; margin:auto; padding:4.18pt; border:1.2pt solid #202020; border-radius:12pt; background:white; }
     .asir-social-image figcaption { font-size:7pt; }
-    .asir-social-label { position:relative; margin-block-start:10pt; padding-block:3pt; padding-inline:5pt 30pt; min-height:27.76pt; border:1pt solid #0a395c; border-radius:0 0 25pt 0; background:white; color:var(--asir-blue); font-size:8pt; }
+    .asir-social-label { position:relative; margin-block-start:10pt; padding-block:3pt; padding-inline:5pt 42pt; min-height:27.76pt; border-radius:27.76pt 0 27.76pt 0; background:white; color:var(--asir-blue); font-size:8pt; }
+    .asir-social-label::before { content:''; position:absolute; inset-block:0; left:0; width:56.36pt; border-radius:27.76pt 0 27.76pt 0; background:#000; }
+    [data-asir-channel="snapchat"] .asir-social-label::before { background:#f4ee1e; }
     .asir-social-label strong,.asir-social-label small { display:block; overflow-wrap:anywhere; }
     .asir-social-label a { color:inherit; text-decoration:none; }
     .asir-social-label small { font:5.7pt/1 TheSansReport,sans-serif; }
-    .asir-social-icon { position:absolute; inset-inline-end:5pt; inset-block-start:4pt; width:20pt; height:20pt; padding:1pt; background:#202020; }
+    .asir-social-icon { position:absolute; inset-inline-end:9pt; inset-block-start:4pt; width:20pt; height:20pt; padding:1pt; }
     .asir-social-icon img { width:100%; height:100%; object-fit:contain; }
-    [data-asir-channel="snapchat"] .asir-social-icon { background:#ffe600; border-radius:50%; }
     .asir-social-image { position:relative; }
     .asir-social-image::after { content:''; position:absolute; inset-block-start:4pt; inset-inline-start:calc(50% - 8pt); width:16pt; height:2.3pt; background:#202020; border-radius:3pt; }
     .asir-social-label strong { font:14.2pt/1.1 STVReport,sans-serif; }
@@ -209,9 +213,10 @@
     .asir-broker-image { position:relative; }
     .asir-broker-image img { width:356.1pt; height:463.6pt; margin-inline:auto; }
     .asir-broker-letterhead { position:absolute; inset-block-start:6pt; inset-inline-end:6pt; width:100pt; height:25pt; object-fit:contain; }
-    .asir-broker-watermark { position:absolute; inset:60pt 12pt 28pt; background:#333; opacity:.07; mask-size:contain; mask-repeat:no-repeat; mask-position:center; mask-mode:luminance; }
-    .asir-broker-pattern { position:absolute; inset-block:0; inset-inline-start:8pt; width:9pt; height:463.6pt; background:#cab7a4; mask-size:100% 100%; mask-mode:luminance; }
-    .asir-broker-image figcaption { font-size:9pt; margin-block-start:4pt; overflow-wrap:anywhere; }
+    .asir-broker-watermark { position:absolute; inset-block-start:60pt; inset-inline:12pt; width:calc(100% - 24pt); height:375.6pt; opacity:.07; object-fit:contain; }
+    .asir-broker-watermark-image { position:absolute; inset-block-start:60pt; inset-inline:12pt; width:calc(100% - 24pt); height:375.6pt; opacity:.07; object-fit:contain; }
+    .asir-broker-pattern { position:absolute; inset-block:0; inset-inline-start:8pt; width:9pt; height:463.6pt; }
+    .asir-broker-image figcaption { color:var(--asir-blue); font-size:9pt; margin-block-start:4pt; overflow-wrap:anywhere; }
     .asir-contract { padding:16pt; background:white; color:var(--asir-blue); font-size:9pt; }
     .asir-native-results .asir-header { min-height:177pt; padding-block-start:65pt; margin-inline-start:95pt; }
     .asir-native-results .asir-header h1 { font:67.3pt/1 STVReport,sans-serif; }
@@ -235,10 +240,23 @@
     .asir-unsold-frame { margin-block-start:19pt !important; }
     .asir-unsold-table th { background:white; color:#034175; font:14.4pt/1.1 NizarReport,sans-serif; height:36pt; }
     .asir-unsold-table th:first-child { background:transparent; }
+    .asir-unsold-table th:last-child { clip-path:polygon(8.661pt 0,100% 0,100% 100%,0 100%,0 10.435pt); }
+    .asir-unsold-table th:nth-child(2) { clip-path:polygon(0 0,100% 0,100% calc(100% - 9.391pt),calc(100% - 8.151pt) 100%,0 100%); }
     .asir-unsold-table td { border-block-end:1.5pt solid #30d2df; border-inline-end:1.5pt solid #30d2df; font:14pt/1.2 NizarReport,sans-serif; min-height:32pt; padding:7pt 6pt; }
     .asir-unsold-table td:first-child { background:white; color:var(--asir-blue); font-size:17.894pt; border:0; }
+    .asir-unsold-table tbody tr:last-child td:first-child { clip-path:polygon(0 0,100% 0,100% calc(100% - 10.435pt),calc(100% - 8.661pt) 100%,0 100%); }
     .asir-unsold-table td:last-child { font-size:10pt; border-inline-end:0; }
-    .asir-gallery-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:25pt; }
+    .asir-gallery-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18.13pt 25pt; direction:ltr; }
+    .asir-gallery-grid figure { direction:rtl; }
     .asir-gallery-grid img { height:100pt; }
-    .asir-gallery-main { padding-block-start:40pt; }
+    .asir-gallery-grid figcaption { text-align:center; font:11pt/1.17 NotoReport,sans-serif; }
+    .asir-gallery-grid--broker figure { grid-column:1 / -1; width:400pt; justify-self:end; }
+    .asir-gallery-grid--broker img { height:400pt; }
+    .asir-gallery-main { padding-block-start:102pt; margin-inline:95.276pt 95pt; }
+    .asir-gallery-main--campaign { display:flex; flex-direction:column; min-height:600pt; padding-block-start:172pt; margin-inline:95.276pt 100pt; font:11pt/1.17 NotoReport,sans-serif; }
+    .asir-gallery-main--campaign .asir-campaign-heading h2 { font:16pt/1.17 NotoReport,sans-serif; }
+    .asir-gallery-main--campaign > [data-asir-section] + [data-asir-section] { margin-block-start:7.13pt; }
+    .asir-gallery-main--campaign > .asir-campaign-heading + [data-asir-section] { margin-block-start:25.8pt; }
+    .asir-gallery-main--campaign > .asir-link-section[data-asir-section] { margin-block-start:auto; text-align:right; }
+    .asir-campaign-link { color:white; font:11pt/1.17 NotoReport,sans-serif; }
 </style>

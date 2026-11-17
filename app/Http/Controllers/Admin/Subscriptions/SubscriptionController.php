@@ -41,10 +41,11 @@ class SubscriptionController extends Controller
 
         $filterOptions = [
             'statuses' => [
-                ['value' => 'active', 'label' => 'نشط'],
+                ['value' => 'active', 'label' => 'نشط (ساري حالياً)'],
+                ['value' => 'queued', 'label' => 'مجدول مسبقاً (قادم)'],
                 ['value' => 'pending', 'label' => 'معلق'],
                 ['value' => 'suspended', 'label' => 'موقوف'],
-                ['value' => 'expired', 'label' => 'منتهي'],
+                ['value' => 'expired', 'label' => 'منتهي (سابق)'],
                 ['value' => 'trial', 'label' => 'تجريبي'],
                 ['value' => 'cancelled', 'label' => 'ملغي'],
             ],
@@ -65,6 +66,7 @@ class SubscriptionController extends Controller
         return $dataTable->render('admin.subscriptions.index', [
             'totalSubscriptions' => $statistics['total'],
             'activeSubscriptions' => $statistics['active'],
+            'queuedSubscriptions' => $statistics['queued'] ?? 0,
             'pendingSubscriptions' => $statistics['pending'],
             'expiredSubscriptions' => $statistics['expired'],
             'expiringSubscriptions' => $statistics['expiring_soon'],

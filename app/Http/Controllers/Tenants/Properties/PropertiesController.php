@@ -31,6 +31,7 @@ class PropertiesController extends Controller
         $this->authorizeResource(Property::class, 'property');
         $this->middleware('can:properties.view')->only(['index', 'show']);
         $this->middleware('can:properties.create')->only(['create', 'store']);
+        $this->middleware('tenant.limit:properties')->only(['create', 'store']);
         $this->middleware('can:properties.edit')->only(['edit', 'update', 'toggleStatus']);
         $this->middleware('can:properties.delete')->only(['destroy']);
     }

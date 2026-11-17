@@ -18,6 +18,16 @@ return static function (string $scenario): array {
             'fit' => 'contain', 'display_name' => 'مرفق '.$id,
         ];
     };
+    if ($scenario === 'appendix') {
+        $snapshot['evidence']['marketing_evidence'] = [
+            $image(901, 'marketing_evidence') + ['channel' => 'tiktok', 'document_page' => 2],
+            $image(902, 'marketing_evidence') + ['channel' => 'x'],
+            $image(903, 'marketing_evidence'),
+        ];
+        $snapshot['marketing']['campaigns'] = [['platform' => 'other', 'platform_label' => 'حملة إضافية', 'views' => 42, 'url' => 'https://example.com/extra']];
+
+        return $snapshot;
+    }
     if ($scenario === 'reference') {
         foreach (['board_before', 'board_after'] as $offset => $section) {
             for ($i = 0; $i < 13; $i++) {

@@ -12,6 +12,7 @@ use App\Models\Admin\Licenses\LicenseSeat;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Subscription\SubscriptionPeriod;
+use App\Models\Admin\Tenants\Domain;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\Settings\Settings;
 use App\Models\Tenants\UserMangment\User\User;
@@ -103,6 +104,14 @@ class TestTenantSeeder extends Seeder
         );
 
         Cache::forget("tenant_connection_{$tenant->id}");
+
+        // 3. Create Domain mapping
+        Domain::updateOrCreate(
+            ['domain' => 'test.localhost'],
+            [
+                'tenant_id' => $tenant->id,
+            ]
+        );
 
         // 4. Run Tenant Migrations and Seeders
         $migrationPath = database_path('migrations/tenant');

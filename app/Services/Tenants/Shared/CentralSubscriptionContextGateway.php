@@ -84,7 +84,7 @@ final class CentralSubscriptionContextGateway
                 ];
             }
 
-            if ($plan->isUnlimited()) {
+            if ($plan->hasUnlimitedUsers()) {
                 return [
                     'is_unlimited' => true,
                     'user_limit' => null,
@@ -111,5 +111,157 @@ final class CentralSubscriptionContextGateway
         }
 
         return $currentUsersCount < ($info['user_limit'] ?? 1);
+    }
+
+    /**
+     * @return array{
+     *     is_unlimited: bool,
+     *     limit: ?int,
+     *     plan_name: string
+     * }
+     */
+    public function getPropertyLimitInfo(): array
+    {
+        $tenant = tenant();
+        if (! $tenant) {
+            return [
+                'is_unlimited' => false,
+                'limit' => 0,
+                'plan_name' => 'غير محدد',
+            ];
+        }
+
+        $tenantId = (string) $tenant->id;
+
+        return Tenancy::central(function () use ($tenantId): array {
+            $tenant = Tenant::query()->with('lastSubscription.plan')->find($tenantId);
+            $subscription = $tenant?->lastSubscription;
+            $plan = $subscription?->plan;
+
+            if (! $subscription) {
+                return [
+                    'is_unlimited' => false,
+                    'limit' => 0,
+                    'plan_name' => 'غير محدد',
+                ];
+            }
+
+            if ($subscription->is_trial && ! $subscription->plan_id) {
+                return [
+                    'is_unlimited' => false,
+                    'limit' => (int) config('trial.limits.properties_limit', 1),
+                    'plan_name' => 'تجربة مجانية',
+                ];
+            }
+
+            if (! $plan) {
+                return [
+                    'is_unlimited' => false,
+                    'limit' => 0,
+                    'plan_name' => 'غير محدد',
+                ];
+            }
+
+            if ($plan->isUnlimited()) {
+                return [
+                    'is_unlimited' => true,
+                    'limit' => null,
+                    'plan_name' => $plan->name,
+                ];
+            }
+
+            return [
+                'is_unlimited' => false,
+                'limit' => $plan->properties_limit !== null ? (int) $plan->properties_limit : 50,
+                'plan_name' => $plan->name,
+            ];
+        });
+    }
+
+    public function canCreateProperty(int $currentCount): bool
+    {
+        $info = $this->getPropertyLimitInfo();
+
+        if ($info['is_unlimited']) {
+            return true;
+        }
+
+        return $currentCount < ($info['limit'] ?? 0);
+    }
+
+    /**
+     * @return array{
+     *     is_unlimited: bool,
+     *     limit: ?int,
+     *     plan_name: string
+     * }
+     */
+    public function getAuctionLimitInfo(): array
+    {
+        $tenant = tenant();
+        if (! $tenant) {
+            return [
+                'is_unlimited' => false,
+                'limit' => 0,
+                'plan_name' => 'غير محدد',
+            ];
+        }
+
+        $tenantId = (string) $tenant->id;
+
+        return Tenancy::central(function () use ($tenantId): array {
+            $tenant = Tenant::query()->with('lastSubscription.plan')->find($tenantId);
+            $subscription = $tenant?->lastSubscription;
+            $plan = $subscription?->plan;
+
+            if (! $subscription) {
+                return [
+                    'is_unlimited' => false,
+                    'limit' => 0,
+                    'plan_name' => 'غير محدد',
+                ];
+            }
+
+            if ($subscription->is_trial && ! $subscription->plan_id) {
+                return [
+                    'is_unlimited' => false,
+                    'limit' => (int) config('trial.limits.active_auctions_limit', 1),
+                    'plan_name' => 'تجربة مجانية',
+                ];
+            }
+
+            if (! $plan) {
+                return [
+                    'is_unlimited' => false,
+                    'limit' => 0,
+                    'plan_name' => 'غير محدد',
+                ];
+            }
+
+            if ($plan->isUnlimited()) {
+                return [
+                    'is_unlimited' => true,
+                    'limit' => null,
+                    'plan_name' => $plan->name,
+                ];
+            }
+
+            return [
+                'is_unlimited' => false,
+                'limit' => $plan->active_auctions_limit !== null ? (int) $plan->active_auctions_limit : 10,
+                'plan_name' => $plan->name,
+            ];
+        });
+    }
+
+    public function canCreateAuction(int $currentActiveCount): bool
+    {
+        $info = $this->getAuctionLimitInfo();
+
+        if ($info['is_unlimited']) {
+            return true;
+        }
+
+        return $currentActiveCount < ($info['limit'] ?? 0);
     }
 }

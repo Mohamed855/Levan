@@ -206,6 +206,16 @@ class Plan extends Model
         return (string) $this->limits_mode === 'unlimited';
     }
 
+    public function hasUnlimitedUsers(): bool
+    {
+        return $this->included_users === null;
+    }
+
+    public function allowsExtraUserLicenses(): bool
+    {
+        return ! $this->hasUnlimitedUsers() && (float) ($this->extra_user_license_price ?? 0) > 0;
+    }
+
     public function isAvailable(): bool
     {
         if (! $this->is_active) {

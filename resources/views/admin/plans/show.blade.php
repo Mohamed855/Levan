@@ -68,23 +68,23 @@
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-tag text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">السعر بعد الخصم:</span>
-                                <span class="text-success fw-bold">{{ number_format($plan->price_after_discount, 2) }}
+                                <span class="text-heading fw-bold">{{ number_format($plan->price_after_discount, 2) }}
                                     <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-user text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">المستخدمين:</span>
-                                <span>{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->included_users . ' مستخدم' }}</span>
+                                <span>{{ $plan->hasUnlimitedUsers() ? 'غير محدود (∞)' : $plan->included_users . ' مستخدم' }}</span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-building text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">حد العقارات:</span>
-                                <span>{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->properties_limit ?? '-' }}</span>
+                                <span>{{ $plan->isUnlimited() ? 'غير محدود (∞)' : ($plan->properties_limit ?? '-') }}</span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-gavel text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">حد المزادات:</span>
-                                <span>{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->active_auctions_limit ?? '-' }}</span>
+                                <span>{{ $plan->isUnlimited() ? 'غير محدود (∞)' : ($plan->active_auctions_limit ?? '-') }}</span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-server text-primary me-2 fs-5"></i>
@@ -158,7 +158,7 @@
                                     <div>
                                         <small class="text-muted d-block">السعر النهائي</small>
                                         <span
-                                            class="fw-bold fs-5 text-success">{{ number_format($plan->price_after_discount, 2) }}
+                                            class="fw-bold fs-5 text-heading">{{ number_format($plan->price_after_discount, 2) }}
                                             <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                                     </div>
                                 </div>
@@ -187,7 +187,7 @@
                                     <div>
                                         <small class="text-muted d-block">ترخيص إضافي</small>
                                         <span
-                                            class="fw-bold fs-5">@if ($plan->isUnlimited())غير مطلوب@elseif ($plan->extra_user_license_price){{ number_format((float) $plan->extra_user_license_price, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>@else 0.00 <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>@endif</span>
+                                            class="fw-bold fs-5">@if ($plan->hasUnlimitedUsers())غير متاح (مستخدمين غير محدودين)@elseif ($plan->extra_user_license_price){{ number_format((float) $plan->extra_user_license_price, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>@else 0.00 <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>@endif</span>
                                     </div>
                                 </div>
                             </div>

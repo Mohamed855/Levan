@@ -24,8 +24,9 @@
             @foreach ($content['image_items'] as $image)
                 <div class="asir-broker-document" data-asir-item>
                     @if ($content['company_logo'])<img class="asir-broker-letterhead" src="{{ $content['company_logo'] }}" alt="" aria-hidden="true">@endif
-                    @if ($content['broker_watermark'])<span class="asir-broker-watermark" style="mask-image:url('{{ $content['broker_watermark'] }}')" aria-hidden="true"></span>@endif
-                    @if ($content['broker_pattern'])<span class="asir-broker-pattern" style="mask-image:url('{{ $content['broker_pattern'] }}')" aria-hidden="true"></span>@endif
+                    @if ($content['broker_watermark'])<img class="asir-broker-watermark" src="{{ $content['broker_watermark'] }}" alt="" aria-hidden="true">@endif
+                    @if (!$content['broker_watermark'] && $content['company_logo'])<img class="asir-broker-watermark-image" src="{{ $content['company_logo'] }}" alt="" aria-hidden="true">@endif
+                    @if ($content['broker_pattern'])<img class="asir-broker-pattern" src="{{ $content['broker_pattern'] }}" alt="" aria-hidden="true">@endif
                     @include('tenant.auctions.reports.partials.asir-image', ['image' => $image, 'frameClass' => 'asir-broker-image'])
                 </div>
             @endforeach

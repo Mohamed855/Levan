@@ -13,7 +13,7 @@
 - [x] Implement Asir data preparation, native Blade partials, and scoped CSS matching original frames, typography, colors, and background treatment.
 - [x] Implement measured pagination, including long paragraphs/tables and evidence continuation; wire renderer readiness into the PDF browser.
 - [x] Render reference, populated, sparse, long, and many-item cases. Compare every template family against its SVG reference; keep a side-by-side review artifact.
-- [ ] Run focused PHP/browser checks, style/syntax checks, and Haram regression checks. Review the final diff and record limitations honestly.
+- [x] Run focused PHP/browser checks, style/syntax checks, and Haram regression checks. Review the final diff and record limitations honestly.
 
 ## Verification focus
 
@@ -34,3 +34,17 @@
 - Reference image-frame measurements are pinned in browser tests (installation, video, X, WhatsApp, brokers; tolerance 1.5pt). Both populated/reference fixtures retain their original section structure.
 - Tests that require `levan_report_ci_central` / `levan_report_ci_tenant` cannot run in this environment: isolated schemas are absent. No application database was changed. Renderer proofs explicitly reject database queries.
 - Other module changes appeared concurrently in the shared checkout (plans, checkout, dashboard, seeders). They were left untouched.
+- Final review reproduced an internal thumbnail overflow with a valid 255-character name. Names fit the original blue frame down to a readable 8pt; if still too tall, the complete name becomes a normal flowing paragraph in the same section. No characters are truncated and attachments are not duplicated. Maximum-length Latin/Arabic names are covered by a browser regression.
+- Appendix galleries retain the original LTR slot order and 190x100pt frames at (95,350), (310,350), (95,485); captions retain channel labels and document pages. Generic campaign appendices retain their original body heading, metrics, and footer link layout. The campaign identity repeats on continuation pages.
+- Broker letterheads retain the original decorative pattern and use the current company's logo for the watermark when branding is provided.
+- A 255-character document caption exposed another full-page figure overflow. If its caption cannot fit, the image height adapts to the actual remaining space (without changing fit/focal metadata); the complete caption remains visible. Broker captions use navy on the white letterhead. A browser regression checks text preservation, media identity, and physical PDF page count.
+- Application-rendered PDF inspection exposed Chromium printing luminance masks as solid rectangles. Four transparent PNGs were extracted from the original template masks, preserving their pixels, colors and placement. Ordinary image elements now print WhatsApp/X symbols and broker decorations correctly. A PDF pixel regression also verifies that a 100% delivery chart has no zero-segment seam.
+- Final side-by-side review restored the original opposing curves and colored icon areas of social metric badges and the slanted corners of the unsold table using CSS. These details have a browser regression.
+
+## Final verification
+
+- 127 focused PHP/report tests passed with 1,420 assertions; 20 browser tests passed, including Haram regressions and actual application-PDF pixel checks.
+- Pint, JavaScript syntax checks, scoped diff whitespace checks and UTF-8 BOM checks passed. The asset manifest verifies 175 local assets.
+- Fresh comparison renders completed with no readiness/layout errors: reference 21 pages, populated 21, sparse 5, many 53, long 133, appendix 21. Every physical PDF count matches the measured HTML page count.
+- The application's injected PDF renderer generated the populated 21-page proof. Rasterized PDF pages 2, 11–16, 19 and 20 were inspected, including the printed WhatsApp/X symbols, broker watermark/pattern, social badges and unsold table corners.
+- Review artifacts: `output/pdf/asir-native-content/review.html`, `receipt.json`, `populated-engine.pdf` and `engine-validation.json`. Database-backed integration checks remain unavailable because the isolated report test schemas are absent; no application data was modified.

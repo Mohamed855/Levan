@@ -40,14 +40,21 @@ class PlanService
                 ? strtoupper(trim((string) $data['code']))
                 : $this->generateUniqueCode();
 
+            $includedUsers = array_key_exists('included_users', $data)
+                ? ($data['included_users'] !== null && $data['included_users'] !== '' ? (int) $data['included_users'] : null)
+                : 1;
+            $extraPrice = $includedUsers === null
+                ? null
+                : (isset($data['extra_user_license_price']) ? (float) $data['extra_user_license_price'] : 0.0);
+
             $plan = Plan::create([
                 ...$data,
                 'code' => $code,
                 'yearly_renewal_price' => $data['yearly_renewal_price'] ?? 0,
-                'extra_user_license_price' => $data['extra_user_license_price'] ?? 0,
+                'extra_user_license_price' => $extraPrice,
                 'discount_percentage' => $data['discount_percentage'] ?? 0,
                 'limits_mode' => $limitsMode,
-                'included_users' => $isUnlimited ? null : ($data['included_users'] ?? 1),
+                'included_users' => $includedUsers,
                 'properties_limit' => $isUnlimited ? null : ($data['properties_limit'] ?? null),
                 'storage_quota_gb' => $isUnlimited ? null : ($data['storage_quota_gb'] ?? null),
                 'active_auctions_limit' => $isUnlimited ? null : ($data['active_auctions_limit'] ?? null),
@@ -97,8 +104,14 @@ class PlanService
                 'updated_by' => auth()->id(),
             ];
 
+            if (array_key_exists('included_users', $data)) {
+                $updateData['included_users'] = ($data['included_users'] !== null && $data['included_users'] !== '') ? (int) $data['included_users'] : null;
+                $updateData['extra_user_license_price'] = $updateData['included_users'] === null
+                    ? null
+                    : (isset($data['extra_user_license_price']) ? (float) $data['extra_user_license_price'] : 0.0);
+            }
+
             if ($isUnlimited) {
-                $updateData['included_users'] = null;
                 $updateData['properties_limit'] = null;
                 $updateData['storage_quota_gb'] = null;
                 $updateData['active_auctions_limit'] = null;

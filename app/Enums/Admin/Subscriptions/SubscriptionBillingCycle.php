@@ -7,14 +7,12 @@ namespace App\Enums\Admin\Subscriptions;
 enum SubscriptionBillingCycle: string
 {
     case MONTHLY = 'monthly';
-    case QUARTERLY = 'quarterly';
     case YEARLY = 'yearly';
 
     public function label(): string
     {
         return match ($this) {
             self::MONTHLY => 'شهرياً',
-            self::QUARTERLY => 'كل 3 أشهر',
             self::YEARLY => 'سنوياً',
         };
     }
@@ -23,8 +21,7 @@ enum SubscriptionBillingCycle: string
     {
         return match ($this) {
             self::MONTHLY => 'info',
-            self::QUARTERLY => 'warning',
-            self::YEARLY => 'primary',
+            self::YEARLY => 'warning',
         };
     }
 
@@ -32,7 +29,6 @@ enum SubscriptionBillingCycle: string
     {
         return match ($this) {
             self::MONTHLY => 1,
-            self::QUARTERLY => 3,
             self::YEARLY => 12,
         };
     }

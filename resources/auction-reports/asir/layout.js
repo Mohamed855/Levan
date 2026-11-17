@@ -7,6 +7,34 @@
             ? Promise.resolve()
             : new Promise((resolve, reject) => { image.onload = resolve; image.onerror = () => reject(new Error('An Asir report image could not load.')); })));
 
+        // Keep thumbnail names inside the original blue frame at readable sizes.
+        // A valid name can still be too long at 8pt; let that full name flow as
+        // ordinary content rather than stretching or cropping the thumbnail.
+        for (const name of document.querySelectorAll('.asir-platform-name strong')) {
+            const frame = name.closest('.asir-native-page');
+            const scale = frame.getBoundingClientRect().width / 595.276;
+            let size = parseFloat(getComputedStyle(name).fontSize) * .75;
+            const fitsName = () => name.getBoundingClientRect().height <= 72 * scale + .5
+                && name.scrollWidth <= name.clientWidth + 1;
+            while (!fitsName() && size > 8) {
+                size = Math.max(8, size - .25);
+                name.style.fontSize = `${size}pt`;
+            }
+            if (fitsName()) continue;
+            const section = document.createElement('section');
+            section.className = 'asir-thumbnail-name';
+            section.setAttribute('data-asir-section', '');
+            const heading = document.createElement('h3');
+            heading.textContent = 'اسم المزاد';
+            const paragraph = document.createElement('p');
+            paragraph.setAttribute('data-asir-paragraph', '');
+            paragraph.dataset.reportField = 'name';
+            paragraph.textContent = name.textContent;
+            section.append(heading, paragraph);
+            name.closest('[data-asir-section]').before(section);
+            name.remove();
+        }
+
         // Reassemble only property pages. Campaign/evidence pages keep their own
         // payload context, even when consecutive pages use the same template.
         for (const family of ['asir-index', 'asir-sold-assets', 'asir-unsold-assets']) {
@@ -113,7 +141,21 @@
                     }
                     target.append(item);
                     if (fits(part)) continue;
-                    if (item.tagName !== 'TR') throw new Error('An Asir evidence item exceeds its printable page.');
+                    if (item.tagName !== 'TR') {
+                        const image = item.querySelector('[data-report-attachment]');
+                        if (image && item.querySelector('figcaption')) {
+                            const frame = page.getBoundingClientRect();
+                            const scale = frame.width / 595.276;
+                            const overflow = part.getBoundingClientRect().bottom - frame.top - 825 * scale;
+                            const height = image.getBoundingClientRect().height;
+                            // Keep full captions readable. Only unusually tall
+                            // figures need a smaller contained image to fit.
+                            const minimum = Math.min(height, 100 * scale);
+                            image.style.height = `${Math.max(minimum, height - overflow - 1) / scale}pt`;
+                            if (fits(part)) continue;
+                        }
+                        throw new Error('An Asir evidence item exceeds its printable page.');
+                    }
                     // An unusually long table cell continues as row fragments. Its
                     // identifiers remain repeated, while its text is consumed once.
                     const cells = [...item.cells];

@@ -32,24 +32,17 @@ class PlanDataTable extends AbstractDataTable
         return [
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'color', 'name' => 'color', 'title' => 'اللون', 'width' => '50px', 'className' => 'text-center align-middle', 'orderable' => true],
-            ['data' => 'name', 'name' => 'name', 'title' => 'اسم الباقة', 'className' => 'text-center'],
-            ['data' => 'code', 'name' => 'code', 'title' => 'الكود', 'className' => 'text-center'],
+            ['data' => 'code', 'name' => 'code', 'title' => 'الكود', 'className' => 'text-center align-middle'],
+            ['data' => 'name', 'name' => 'name', 'title' => 'اسم الباقة', 'className' => 'text-center align-middle'],
             ['data' => 'is_most_requested', 'name' => 'is_most_requested', 'title' => 'الأكثر طلباً', 'width' => '95px', 'className' => 'text-center align-middle', 'orderable' => false, 'searchable' => false],
-            ['data' => 'plan_type', 'name' => 'plan_type', 'title' => 'النوع', 'className' => 'text-center'],
-            ['data' => 'subscription_billing_cycle', 'name' => 'subscription_billing_cycle', 'title' => 'دورة الفوترة', 'className' => 'text-center'],
-            ['data' => 'price', 'name' => 'price', 'title' => 'السعر'],
-            ['data' => 'discount_percentage', 'name' => 'discount_percentage', 'title' => 'الخصم', 'className' => 'text-center'],
-            ['data' => 'price_after_discount', 'name' => 'price', 'title' => 'السعر النهائي'],
-            ['data' => 'yearly_renewal_price', 'name' => 'yearly_renewal_price', 'title' => 'العرض السنوي'],
-            ['data' => 'limits_mode', 'name' => 'limits_mode', 'title' => 'الحدود', 'className' => 'text-center'],
-            ['data' => 'included_users', 'name' => 'included_users', 'title' => 'المستخدمين', 'className' => 'text-center'],
-            ['data' => 'properties_limit', 'name' => 'properties_limit', 'title' => 'العقارات', 'className' => 'text-center'],
-            ['data' => 'storage_quota_gb', 'name' => 'storage_quota_gb', 'title' => 'التخزين', 'className' => 'text-center'],
-            ['data' => 'active_auctions_limit', 'name' => 'active_auctions_limit', 'title' => 'المزادات', 'className' => 'text-center'],
-            ['data' => 'available_from', 'name' => 'available_from', 'title' => 'الإتاحة', 'className' => 'text-center'],
-            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-center', 'width' => '130px'],
-            ['data' => 'is_active', 'name' => 'is_active', 'title' => 'التفعيل', 'className' => 'text-center'],
-            ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
+            ['data' => 'plan_type', 'name' => 'plan_type', 'title' => 'النوع', 'className' => 'text-center align-middle'],
+            ['data' => 'price', 'name' => 'price', 'title' => 'السعر', 'className' => 'text-center align-middle'],
+            ['data' => 'duration', 'name' => 'subscription_billing_cycle', 'title' => 'المدة', 'className' => 'text-center align-middle'],
+            ['data' => 'included_users', 'name' => 'included_users', 'title' => 'عدد المستخدمين', 'className' => 'text-center align-middle'],
+            ['data' => 'extra_user_license_price', 'name' => 'extra_user_license_price', 'title' => 'سعر المستخدم الإضافي', 'className' => 'text-center align-middle'],
+            ['data' => 'limits_summary', 'name' => 'limits_mode', 'title' => 'الحدود التشغيلية', 'className' => 'text-center align-middle'],
+            ['data' => 'is_active', 'name' => 'is_active', 'title' => 'الحالة', 'className' => 'text-center align-middle', 'width' => '90px'],
+            ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px', 'className' => 'text-center align-middle'],
         ];
     }
 
@@ -71,12 +64,18 @@ class PlanDataTable extends AbstractDataTable
                 return '<span class="d-inline-block rounded shadow-xs" style="background-color: '.e($colorHex).'; width: 22px; height: 22px; border: 1px solid rgba(0,0,0,0.08); vertical-align: middle;" title="'.e($colorLabel).'" data-bs-toggle="tooltip"></span>';
             })
 
-            ->editColumn('name', function ($row) {
-                return '<span class="text-heading fw-semibold">'.e($row->name).'</span>';
-            })
+            ->editColumn('code', fn ($row) => $this->copyableCode($row))
 
-            ->editColumn('code', function ($row) {
-                return $this->copyableCode($row);
+            ->editColumn('name', function ($row) {
+                $futureBadge = '';
+                if ($row->available_from && $row->available_from->isFuture()) {
+                    $futureBadge = '<span class="badge bg-label-warning mt-1 d-inline-flex align-items-center"><i class="ti ti-clock me-1"></i>مجدولة لـ '.$this->formatDate($row->available_from).'</span>';
+                }
+
+                return '<div class="d-flex flex-column align-items-center justify-content-center text-center">
+                    <span class="text-heading fw-semibold fs-6">'.e($row->name).'</span>
+                    '.$futureBadge.'
+                </div>';
             })
 
             ->addColumn('is_most_requested', function ($row) use ($mostRequestedPlanId) {
@@ -95,94 +94,86 @@ class PlanDataTable extends AbstractDataTable
                 return '<span class="badge bg-'.e($color).'">'.e($label).'</span>';
             })
 
-            ->editColumn('subscription_billing_cycle', function ($row) {
-                if ($row->code === 'trial_7_days') {
-                    return '<span class="badge bg-secondary">7 أيام</span>';
-                }
+            ->editColumn('price', function ($row) {
+                $finalPrice = number_format($row->price_after_discount, 2);
+                $originalPrice = number_format((float) $row->price, 2);
+                $hasDiscount = (float) ($row->discount_percentage ?? 0) > 0;
 
+                $priceHtml = '<div class="d-flex flex-column align-items-center">
+                    <div>
+                        <span class="fw-bold text-heading">'.$finalPrice.'</span> <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>';
+                if ($hasDiscount) {
+                    $priceHtml .= ' <del class="text-muted small ms-1">'.$originalPrice.'</del>';
+                }
+                $priceHtml .= '</div>';
+                if ($hasDiscount) {
+                    $priceHtml .= '<span class="badge bg-label-danger mt-1 small">خصم '.(float) $row->discount_percentage.'%</span>';
+                }
+                $priceHtml .= '</div>';
+
+                return $priceHtml;
+            })
+
+            ->addColumn('duration', function ($row) {
                 $cycle = $row->subscription_billing_cycle instanceof SubscriptionBillingCycle
                     ? $row->subscription_billing_cycle
                     : SubscriptionBillingCycle::tryFrom((string) $row->subscription_billing_cycle);
+                $cycleLabel = $row->code === 'trial_7_days' ? '7 أيام' : ($cycle ? $cycle->label() : '-');
+                $cycleColor = $row->code === 'trial_7_days' ? 'secondary' : ($cycle ? $cycle->color() : 'secondary');
 
-                $label = $cycle ? $cycle->label() : ($row->subscription_billing_cycle ? (string) $row->subscription_billing_cycle : '-');
-                $color = $cycle ? $cycle->color() : 'secondary';
-
-                return '<span class="badge bg-'.e($color).'">'.e($label).'</span>';
-            })
-
-            ->editColumn('price', function ($row) {
-                return '<span>'.number_format((float) $row->price, 2).' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>';
-            })
-
-            ->editColumn('discount_percentage', function ($row) {
-                if (empty($row->discount_percentage) || (float) $row->discount_percentage <= 0) {
-                    return '<span class="text-muted">-</span>';
-                }
-
-                return '<span class="badge bg-success">'.(float) $row->discount_percentage.' %</span>';
-            })
-
-            ->addColumn('price_after_discount', function ($row) {
-                return '<span>'.number_format($row->price_after_discount, 2).' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>';
-            })
-
-            ->editColumn('yearly_renewal_price', function ($row) {
-                if (empty($row->yearly_renewal_price) || (float) $row->yearly_renewal_price <= 0) {
-                    return '<span class="text-muted">-</span>';
-                }
-
-                return '<span class="text-primary">'.number_format((float) $row->yearly_renewal_price, 2).' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>';
-            })
-
-            ->editColumn('limits_mode', function ($row) {
-                if ($row->isUnlimited()) {
-                    return '<span class="badge bg-primary"><i class="ti ti-infinity me-1"></i>غير محدود</span>';
-                }
-
-                return '<span class="badge bg-info">محدود</span>';
+                return '<span class="badge bg-label-'.$cycleColor.'">'.e($cycleLabel).'</span>';
             })
 
             ->editColumn('included_users', function ($row) {
+                if ($row->hasUnlimitedUsers()) {
+                    return '<span class="badge bg-label-success">غير محدود</span>';
+                }
+
+                $users = (string) ($row->included_users ?? 1);
+
+                return '<span class="badge bg-label-secondary d-inline-flex align-items-center gap-1 py-1 px-2">
+                    <i class="ti ti-users"></i>
+                    <span>'.e($users).' مستخدم</span>
+                </span>';
+            })
+
+            ->editColumn('extra_user_license_price', function ($row) {
+                if ($row->hasUnlimitedUsers()) {
+                    return '<span class="text-muted">-</span>';
+                }
+
+                $extraPrice = (float) ($row->extra_user_license_price ?? 0);
+                if ($extraPrice > 0) {
+                    return '<span class="fw-semibold text-heading">'.number_format($extraPrice, 2).' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>';
+                }
+
+                return '<span class="text-muted">-</span>';
+            })
+
+            ->addColumn('limits_summary', function ($row) {
                 if ($row->isUnlimited()) {
-                    return '<span class="text-primary">∞</span>';
+                    return '<span class="badge bg-label-success">غير محدودة</span>';
                 }
 
-                return $row->included_users ? (string) $row->included_users : '-';
+                $properties = $row->properties_limit !== null ? (string) $row->properties_limit : '-';
+                $auctions = $row->active_auctions_limit !== null ? (string) $row->active_auctions_limit : '-';
+                $storage = $row->storage_quota_gb !== null ? $row->storage_quota_gb.' GB' : '-';
+
+                return '<div class="d-inline-flex align-items-center justify-content-center gap-1 text-nowrap">
+                    <span class="badge bg-label-secondary d-inline-flex align-items-center gap-1 py-1 px-2" title="الحد الأقصى للعقارات">
+                        <i class="ti ti-building"></i>
+                        <span>'.e($properties).' عقار</span>
+                    </span>
+                    <span class="badge bg-label-secondary d-inline-flex align-items-center gap-1 py-1 px-2" title="الحد الأقصى للمزادات النشطة">
+                        <i class="ti ti-gavel"></i>
+                        <span>'.e($auctions).' مزاد</span>
+                    </span>
+                    <span class="badge bg-label-secondary d-inline-flex align-items-center gap-1 py-1 px-2" title="مساحة التخزين">
+                        <i class="ti ti-server"></i>
+                        <span>'.e($storage).'</span>
+                    </span>
+                </div>';
             })
-
-            ->editColumn('properties_limit', function ($row) {
-                if ($row->isUnlimited()) {
-                    return '<span class="text-primary">∞</span>';
-                }
-
-                return $row->properties_limit ? (string) $row->properties_limit : '-';
-            })
-
-            ->editColumn('storage_quota_gb', function ($row) {
-                if ($row->isUnlimited()) {
-                    return '<span class="text-primary">∞</span>';
-                }
-
-                return $row->storage_quota_gb ? $row->storage_quota_gb.' GB' : '-';
-            })
-
-            ->editColumn('active_auctions_limit', function ($row) {
-                if ($row->isUnlimited()) {
-                    return '<span class="text-primary">∞</span>';
-                }
-
-                return $row->active_auctions_limit ? (string) $row->active_auctions_limit : '-';
-            })
-
-            ->editColumn('available_from', function ($row) {
-                if ($row->available_from?->isFuture()) {
-                    return '<span class="badge bg-secondary" title="'.e(system_datetime($row->available_from)).'">'.e($this->formatDate($row->available_from)).'</span>';
-                }
-
-                return '<span class="badge bg-success">متاحة</span>';
-            })
-
-            ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
 
             ->editColumn('is_active', function ($row) {
                 if (! auth()->user()?->can('plans.edit')) {
@@ -214,22 +205,16 @@ class PlanDataTable extends AbstractDataTable
     {
         return [
             'checkbox',
+            'color',
             'code',
             'name',
-            'color',
             'is_most_requested',
             'plan_type',
-            'subscription_billing_cycle',
             'price',
-            'discount_percentage',
-            'price_after_discount',
-            'yearly_renewal_price',
-            'limits_mode',
+            'duration',
             'included_users',
-            'properties_limit',
-            'storage_quota_gb',
-            'active_auctions_limit',
-            'available_from',
+            'extra_user_license_price',
+            'limits_summary',
             'is_active',
             'actions',
         ];

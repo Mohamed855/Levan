@@ -36,6 +36,7 @@ class AuctionsController extends Controller
         $this->authorizeResource(Auction::class, 'auction');
         $this->middleware('can:auctions.view')->only(['index']);
         $this->middleware('can:auctions.create')->only(['create', 'store']);
+        $this->middleware('tenant.limit:auctions')->only(['create', 'store']);
         $this->middleware('can:auctions.edit')->only(['edit', 'update', 'toggleStatus']);
         $this->middleware('can:auctions.delete')->only(['destroy']);
     }

@@ -5,6 +5,7 @@ import { initScrollReveal } from './_scroll-reveal.js';
 import { initNavbar } from './_navbar.js';
 import { initTestimonialSwiper } from './_swiper.js';
 import { initContactForms } from './_contact.js';
+import { initPricingSwitcher } from './_pricing-switcher.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Dismiss page loading overlay first so it never gets blocked by other scripts
@@ -27,4 +28,5 @@ document.addEventListener('DOMContentLoaded', () => {
   try { initNavbar(); } catch (e) { console.error('Navbar init error:', e); }
   try { initTestimonialSwiper(); } catch (e) { console.error('Swiper init error:', e); }
   try { initContactForms(); } catch (e) { console.error('Contact forms init error:', e); }
+  try { initPricingSwitcher(); } catch (e) { console.error('Pricing switcher init error:', e); }
 });

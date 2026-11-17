@@ -1,5 +1,5 @@
 @include('tenant.auctions.reports.partials.asir-header')
-<div class="asir-x-badge" aria-hidden="true"><span style="mask-image:url('{{ $content['x_icon_mask'] }}')"></span></div>
+<div class="asir-x-badge" aria-hidden="true"><img src="{{ $content['x_icon'] }}" alt=""></div>
 <main class="asir-marketing-main asir-x-main" data-asir-flow>
     @if (($content['values']['x_context'] ?? '') !== '')
         <section data-asir-section><p class="asir-context" data-asir-paragraph data-report-field="x_context">{{ $content['values']['x_context'] }}</p></section>

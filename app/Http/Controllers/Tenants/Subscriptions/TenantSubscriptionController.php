@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenants\Subscriptions;
 
 use App\Enums\Admin\Billing\BillType;
 use App\Enums\Admin\Billing\PaymentMethod;
+use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Exceptions\Payment\PaymentInitiationException;
 use App\Exceptions\Payment\PaymentVerificationException;
 use App\Exceptions\Subscription\SubscriptionCreationException;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Payment\PaymentRequest;
 use App\Http\Requests\Tenants\Subscriptions\LicenseCheckoutRequest;
 use App\Http\Requests\Tenants\Subscriptions\ProcessLicensePaymentRequest;
+use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Services\Shared\Bills\BillService;
 use App\Services\Shared\Coupons\CouponService;
@@ -78,11 +80,12 @@ class TenantSubscriptionController extends Controller
         }
         try {
             $plan = $this->getCentralPlan();
+            $renewalPrice = $this->getRenewalPrice($plan);
             $taxRate = 0.15;
-            $taxAmount = round($plan->yearly_renewal_price * $taxRate, 2);
-            $priceWithoutTax = round($plan->yearly_renewal_price - $taxAmount, 2);
+            $taxAmount = round($renewalPrice * $taxRate, 2);
+            $priceWithoutTax = round($renewalPrice - $taxAmount, 2);
 
-            return view('tenant.subscriptions.renew.checkout', compact('plan', 'priceWithoutTax', 'taxAmount'));
+            return view('tenant.subscriptions.renew.checkout', compact('plan', 'renewalPrice', 'priceWithoutTax', 'taxAmount'));
             //
         } catch (\Exception $e) {
             report($e);
@@ -95,8 +98,9 @@ class TenantSubscriptionController extends Controller
     {
         try {
             $plan = $this->getCentralPlan();
+            $renewalPrice = $this->getRenewalPrice($plan);
 
-            $couponData = $this->couponService->processCoupon($request->input('coupon_code'), $plan->yearly_renewal_price);
+            $couponData = $this->couponService->processCoupon($request->input('coupon_code'), $renewalPrice);
 
             if (isset($couponData['error'])) {
                 return redirect()->back()->with('error', $couponData['error'])->withInput();
@@ -105,7 +109,7 @@ class TenantSubscriptionController extends Controller
             $this->moyasarFormConfiguration->getPublishableKey();
             $this->moyasarFormConfiguration->amountInHalala((float) $couponData['final_total']);
 
-            $pendingBill = $this->createPendingBill($plan, $couponData, BillType::RENEWAL, $plan->yearly_renewal_price);
+            $pendingBill = $this->createPendingBill($plan, $couponData, BillType::RENEWAL, $renewalPrice);
 
             return $this->showMoyasarCheckout(
                 $pendingBill,
@@ -120,6 +124,19 @@ class TenantSubscriptionController extends Controller
 
             return redirect()->back()->with('error', 'حدث خطأ أثناء معالجة التجديد');
         }
+    }
+
+    private function getRenewalPrice(Plan $plan): float
+    {
+        $cycle = $plan->subscription_billing_cycle instanceof SubscriptionBillingCycle
+            ? $plan->subscription_billing_cycle->value
+            : (string) $plan->subscription_billing_cycle;
+
+        if ($cycle === 'yearly' && (float) ($plan->yearly_renewal_price ?? 0) > 0) {
+            return (float) $plan->yearly_renewal_price;
+        }
+
+        return (float) ($plan->price_after_discount > 0 ? $plan->price_after_discount : $plan->price);
     }
 
     //  Callback
@@ -156,10 +173,15 @@ class TenantSubscriptionController extends Controller
     {
         app(CentralTrialAccessGateway::class)->assertUserCreationAllowed();
         try {
+            $plan = $this->getCentralPlan();
+            if ($plan->hasUnlimitedUsers()) {
+                return redirect()->to(tenant_route_name('subscriptions.index'))
+                    ->with('error', 'باقات المستخدمين غير المحدودين لا تتطلب شراء تراخيص إضافية.');
+            }
+
             $newLicensesCount = (int) $request->validated('new_licenses_count');
 
-            $plan = $this->getCentralPlan();
-            $total = $plan->extra_user_license_price * $newLicensesCount;
+            $total = (float) ($plan->extra_user_license_price ?? 0) * $newLicensesCount;
             $taxRate = 0.15;
             $taxAmount = round($total * $taxRate, 2);
             $priceWithoutTax = round($total - $taxAmount, 2);
@@ -177,11 +199,16 @@ class TenantSubscriptionController extends Controller
     {
         app(CentralTrialAccessGateway::class)->assertUserCreationAllowed();
         try {
+            $plan = $this->getCentralPlan();
+            if ($plan->hasUnlimitedUsers()) {
+                return redirect()->to(tenant_route_name('subscriptions.index'))
+                    ->with('error', 'باقات المستخدمين غير المحدودين لا تتطلب شراء تراخيص إضافية.');
+            }
+
             $validated = $request->validated();
             $newLicensesCount = (int) $validated['new_licenses_count'];
 
-            $plan = $this->getCentralPlan();
-            $total = $plan->extra_user_license_price * $newLicensesCount;
+            $total = (float) ($plan->extra_user_license_price ?? 0) * $newLicensesCount;
 
             $couponData = $this->couponService->processCoupon($validated['coupon_code'] ?? null, $total);
 

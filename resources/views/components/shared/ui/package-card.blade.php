@@ -38,6 +38,8 @@
         array_filter(old('features', $plan?->features ?? []), static fn($feature) => filled($feature)),
     );
     $includedUsers = old('included_users', $plan?->included_users);
+    $hasUnlimitedUsers = $plan ? $plan->hasUnlimitedUsers() : $includedUsers === null || $includedUsers === '';
+    $extraLicensePrice = (float) old('extra_user_license_price', $plan?->extra_user_license_price ?? 0);
     $propertiesLimit = old('properties_limit', $plan?->properties_limit);
     $storageQuota = old('storage_quota_gb', $plan?->storage_quota_gb);
     $activeAuctionsLimit = old('active_auctions_limit', $plan?->active_auctions_limit);
@@ -88,8 +90,17 @@
         <div class="package-card__limit">
             <i class="ti ti-user" aria-hidden="true"></i>
             <span>المستخدمون</span>
-            <strong
-                data-plan-field="users">{{ $isUnlimited ? 'غير محدود' : ($includedUsers ?? '—') . ' مستخدم' }}</strong>
+            @if ($hasUnlimitedUsers)
+                <strong data-plan-field="users">غير محدود</strong>
+            @else
+                <strong data-plan-field="users">{{ ($includedUsers ?? '—') . ' مستخدم' }}</strong>
+                @if ($extraLicensePrice > 0)
+                    <small class="package-card__extra-note">
+                        +{{ number_format($extraLicensePrice, 2) }} <span
+                            class="icon-saudi_riyal icon-saudi_riyal--dark"></span> / مستخدم إضافي
+                    </small>
+                @endif
+            @endif
         </div>
         <div class="package-card__limit">
             <i class="ti ti-building-estate" aria-hidden="true"></i>

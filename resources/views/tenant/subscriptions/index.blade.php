@@ -294,6 +294,15 @@
                             </div>
                         </div>
                     </div>
+                @elseif (isset($subscription_data->plan) && $subscription_data->plan->hasUnlimitedUsers())
+                    <div class="card-body pb-0">
+                        <div class="alert alert-info d-flex align-items-center mb-4">
+                            <i class="ti ti-info-circle ti-lg me-3"></i>
+                            <div class="small">
+                                <p class="mb-0 fw-medium">باقتك الحالية تتضمن مستخدمين غير محدودين! لا تحتاج إلى شراء تراخيص إضافية.</p>
+                            </div>
+                        </div>
+                    </div>
                 @else
                     <form action="{{ tenant_route_name('subscriptions.licenses.checkout') }}" method="GET"
                         id="upgrade-form" novalidate data-form-validate
@@ -471,7 +480,7 @@
             const currentPlanUsers = {{ $subscription_data->plan->included_users ?? 0 }};
             const currentTotalUsers = {{ $subscription_formatted['total_users'] ?? 0 }};
             const pricePerLicense =
-                {{ str_replace(',', '', $subscription_formatted['extra_user_license_price']) }};
+                {{ str_replace(',', '', (string) ($subscription_formatted['extra_user_license_price'] ?? '0')) ?: 0 }};
 
             const plans = @json($plans);
             plans.sort((a, b) => a.included_users - b.included_users);
@@ -484,6 +493,8 @@
 
             // ==================== عناصر الصفحة ====================
             const input = document.getElementById('custom-licenses');
+            if (!input) return;
+
             const increaseBtn = document.getElementById('increase-licenses');
             const totalCostElement = document.getElementById('licenses-cost');
             const newPlanBadge = document.getElementById('summary-new-range');

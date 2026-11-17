@@ -151,9 +151,46 @@
                 <x-web.section-header title="باقات مرنة تناسب طموحك" subtitle="الباقات والأسعار"
                     desc="نوفر باقات اشتراك مدروسة وشفافة تمنحك كافة الإمكانات لتوسيع أعمالك وإدارة مزاداتك بأمان." />
 
-                <div class="pricing-grid">
+                @php
+                    $hasMonthlyPlans = $plans->contains(fn ($p) => ($p->subscription_billing_cycle?->value ?? (string) $p->subscription_billing_cycle) === 'monthly');
+                    $hasYearlyPlans = $plans->contains(fn ($p) => ($p->subscription_billing_cycle?->value ?? (string) $p->subscription_billing_cycle) === 'yearly');
+                    $showSwitcher = ($hasMonthlyPlans && $hasYearlyPlans) || $plans->isNotEmpty();
+                    $defaultCycle = $hasMonthlyPlans ? 'monthly' : ($hasYearlyPlans ? 'yearly' : 'monthly');
+                @endphp
+
+                @if ($showSwitcher)
+                    <div class="pricing-switcher-wrapper scroll-revealed" data-pricing-switcher>
+                        <div class="pricing-switcher" role="tablist" aria-label="دورة الفوترة">
+                            <button type="button"
+                                class="pricing-switcher__btn {{ $defaultCycle === 'monthly' ? 'is-active' : '' }}"
+                                role="tab"
+                                id="pricing-tab-monthly"
+                                aria-selected="{{ $defaultCycle === 'monthly' ? 'true' : 'false' }}"
+                                aria-controls="pricing-grid"
+                                data-billing-target="monthly">
+                                <span class="pricing-switcher__label">شهرياً</span>
+                            </button>
+                            <button type="button"
+                                class="pricing-switcher__btn {{ $defaultCycle === 'yearly' ? 'is-active' : '' }}"
+                                role="tab"
+                                id="pricing-tab-yearly"
+                                aria-selected="{{ $defaultCycle === 'yearly' ? 'true' : 'false' }}"
+                                aria-controls="pricing-grid"
+                                data-billing-target="yearly">
+                                <span class="pricing-switcher__label">سنوياً</span>
+                            </button>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="pricing-grid" id="pricing-grid" data-pricing-grid data-active-cycle="{{ $defaultCycle }}">
                     @foreach ($plans as $plan)
-                        <div class="scroll-revealed">
+                        @php
+                            $cycleValue = $plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle;
+                            $isHidden = ($showSwitcher && $cycleValue !== $defaultCycle);
+                        @endphp
+                        <div class="pricing-grid__item scroll-revealed {{ $isHidden ? 'is-hidden' : '' }}"
+                            data-billing-cycle="{{ $cycleValue }}">
                             <x-ui.package-card
                                 :plan="$plan"
                                 :action-url="route('site.plans.checkout', $plan->id)"
@@ -161,6 +198,14 @@
                             />
                         </div>
                     @endforeach
+
+                    <div class="pricing-grid__empty is-hidden" id="pricing-empty-state">
+                        <div class="pricing-empty-card">
+                            <i class="ti ti-calendar-off pricing-empty-icon"></i>
+                            <h4 class="pricing-empty-title">لا توجد باقات متاحة حالياً لهذه الدورة</h4>
+                            <p class="pricing-empty-desc">يمكنك التبديل إلى دورة الفوترة الأخرى للاطلاع على الباقات المتوفرة.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

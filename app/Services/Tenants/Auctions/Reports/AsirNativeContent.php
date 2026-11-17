@@ -36,11 +36,11 @@ final class AsirNativeContent
         foreach (['snapchat', 'tiktok', 'x'] as $channel) {
             $content['icons'][$channel] = $this->asset('icon-'.$channel.'.svg');
         }
-        $content['whatsapp_icon'] = $this->asset('static-5ec3d00846e2c7b71f4b.png');
+        $content['whatsapp_icon'] = $this->asset('native-whatsapp-icon.png');
         $content['youtube_icon'] = $this->asset('static-16fb58e6172207b55b87.jpg');
-        $content['x_icon_mask'] = $this->asset('static-ce9301aaca9bcf21b952.jpg');
-        $content['broker_watermark'] = $branding === null ? $this->asset('static-596e6cfc0b2857cef974.png') : null;
-        $content['broker_pattern'] = $branding === null ? $this->asset('static-a36b19636627501e457e.png') : null;
+        $content['x_icon'] = $this->asset('native-x-symbol.png');
+        $content['broker_watermark'] = $branding === null ? $this->asset('native-broker-watermark.png') : null;
+        $content['broker_pattern'] = $this->asset('native-broker-pattern.png');
         $content['destinations'] = (new AuctionReportLinks)->destinations($snapshot);
         $content['campaigns'] = $snapshot['marketing']['campaigns'] ?? [];
         $content['legacy'] = ($snapshot['cycle_version'] ?? 0) < 1;
@@ -62,6 +62,11 @@ final class AsirNativeContent
         $content['section_title'] = $content['values']['gallery_title'] ?? $content['values']['campaign_heading'] ?? 'مرفقات التسويق';
         $content['section_number'] = '';
         $content['image_items'] = $page['payload']['gallery'] ?? [];
+        $content['gallery_campaign'] = isset($content['values']['campaign_heading']);
+        $content['gallery_single_broker'] = ($page['payload']['gallery_section'] ?? null) === 'brokers' && count($content['image_items']) === 1;
+        if ($content['gallery_campaign']) {
+            $content['section_title'] = '';
+        }
 
         return $content;
     }

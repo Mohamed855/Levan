@@ -172,6 +172,7 @@ function initPlanFormUI() {
 
     const limitsModeSelect = getInput("limits_mode");
     const unlimitedAlert = getInput("unlimited-mode-alert");
+    const unlimitedUsersAlert = getInput("unlimited-users-alert");
 
     function refreshStepNextButton(control) {
         const step = control?.closest("[data-form-step], .content");
@@ -180,11 +181,32 @@ function initPlanFormUI() {
         }
     }
 
-    function toggleLimitsMode() {
+    function toggleUserLimitsMode() {
+        const selectedRadio = form.querySelector('input[name="users_limit_mode"]:checked');
+        const isUnlimited = selectedRadio ? selectedRadio.value === "unlimited" : false;
+
+        document.querySelectorAll(".user-limits-field").forEach((element) => {
+            element.hidden = isUnlimited;
+            if (isUnlimited) {
+                element.querySelectorAll("[name]").forEach((control) => {
+                    window.SharedFormValidation?.clearFieldError?.(
+                        form,
+                        control.name,
+                    );
+                });
+            }
+        });
+
+        if (unlimitedUsersAlert) unlimitedUsersAlert.hidden = !isUnlimited;
+        if (selectedRadio) refreshStepNextButton(selectedRadio);
+        updatePackageCards();
+    }
+
+    function toggleOperationalLimitsMode() {
         if (!limitsModeSelect) return;
         const isUnlimited = limitsModeSelect.value === "unlimited";
 
-        document.querySelectorAll(".limits-field").forEach((element) => {
+        document.querySelectorAll(".operational-limits-field").forEach((element) => {
             element.hidden = isUnlimited;
             if (isUnlimited) {
                 element.querySelectorAll("[name]").forEach((control) => {
@@ -201,8 +223,17 @@ function initPlanFormUI() {
         updatePackageCards();
     }
 
+    function toggleLimitsMode() {
+        toggleUserLimitsMode();
+        toggleOperationalLimitsMode();
+    }
+
+    form.querySelectorAll('input[name="users_limit_mode"]').forEach((radio) => {
+        radio.addEventListener("change", toggleUserLimitsMode);
+    });
+
     if (limitsModeSelect) {
-        limitsModeSelect.addEventListener("change", toggleLimitsMode);
+        limitsModeSelect.addEventListener("change", toggleOperationalLimitsMode);
     }
 
     const featuresList = getInput("features-list");
@@ -430,16 +461,19 @@ function initPlanFormUI() {
                 : "غير محدد",
         );
 
+        const selectedUsersRadio = form.querySelector('input[name="users_limit_mode"]:checked');
+        const hasUnlimitedUsers = selectedUsersRadio ? selectedUsersRadio.value === "unlimited" : false;
+
         setReview(
             "plan-review-limits-mode",
             isUnlimited ? "غير محدود" : "محدد",
         );
-        setReview("plan-review-users", limitValue("included_users", "مستخدم"));
+        setReview("plan-review-users", hasUnlimitedUsers ? "غير محدود (∞)" : limitValue("included_users", "مستخدم"));
         setReview(
             "plan-review-extra-user-price",
-            isUnlimited
-                ? "غير مطبق"
-                : `${formatPrice(extraPrice)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`,
+            hasUnlimitedUsers
+                ? "غير متاح (مستخدمين غير محدودين)"
+                : (extraPrice > 0 ? `${formatPrice(extraPrice)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>` : "0.00"),
         );
         setReview(
             "plan-review-properties",
@@ -508,7 +542,9 @@ function initPlanFormUI() {
                 "original-price",
                 `${formatPrice(price)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`,
             );
-            setText(card, "users", limitValue("included_users", "مستخدم"));
+            const selectedUsersRadio = form.querySelector('input[name="users_limit_mode"]:checked');
+            const hasUnlimitedUsers = selectedUsersRadio ? selectedUsersRadio.value === "unlimited" : false;
+            setText(card, "users", hasUnlimitedUsers ? "غير محدود" : limitValue("included_users", "مستخدم"));
             setText(card, "properties", limitValue("properties_limit", "عقار"));
             setText(card, "storage", limitValue("storage_quota_gb", "GB"));
             setText(

@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import puppeteer from 'puppeteer';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
+import { createCanvas } from '@napi-rs/canvas';
 
 async function render(scenario, callback, beforeLayout = null) {
     execFileSync(process.env.PHP_BINARY || 'php', ['scripts/auction-reports/render-asir-native-proof.php', scenario], { stdio: 'pipe' });
@@ -49,11 +50,13 @@ test('maximum valid thumbnail names remain complete without breaking PDF generat
         let attachments;
         await render('populated', async page => {
             const result = await page.evaluate(() => ({
-                names: [...document.querySelectorAll('.asir-thumbnail-name [data-asir-paragraph]')].map(node => node.textContent),
+                names: [...document.querySelectorAll('.asir-thumbnail-name [data-asir-paragraph],.asir-platform-name strong')].map(node => node.textContent),
+                thumbnailFits: [...document.querySelectorAll('.asir-platform-name strong')].every(node => node.getBoundingClientRect().bottom <= node.closest('.asir-platform-hero').getBoundingClientRect().bottom + 1 && parseFloat(getComputedStyle(node).fontSize) >= 8 / .75 - .1),
                 attachments: [...document.querySelectorAll('.asir-native-page [data-report-attachment]')].map(node => node.dataset.reportAttachment),
                 count: document.querySelectorAll('.auction-print-page').length,
             }));
             assert.deepEqual(result.names, [name, name]);
+            assert.equal(result.thumbnailFits, true);
             assert.deepEqual(result.attachments, attachments);
             const pdf = await getDocument({ data: new Uint8Array(await page.pdf({ preferCSSPageSize: true, printBackground: true })) }).promise;
             try { assert.equal(pdf.numPages, result.count); } finally { await pdf.destroy(); }
@@ -64,6 +67,33 @@ test('maximum valid thumbnail names remain complete without breaking PDF generat
             }, name);
         });
     }
+});
+
+test('long document captions stay visible and fit without cropping text or duplicating evidence', async () => {
+    const caption = 'W'.repeat(255);
+    let attachments;
+    await render('populated', async page => {
+        const result = await page.evaluate(() => ({
+            text: document.querySelector('.asir-broker-image figcaption').textContent,
+            color: getComputedStyle(document.querySelector('.asir-broker-image figcaption')).color,
+            fit: document.querySelector('.asir-broker-image [data-report-attachment]').style.objectFit,
+            attachments: [...document.querySelectorAll('.asir-native-page [data-report-attachment]')].map(node => node.dataset.reportAttachment),
+            count: document.querySelectorAll('.auction-print-page').length,
+        }));
+        assert.equal(result.text, caption);
+        assert.equal(result.color, 'rgb(10, 57, 92)');
+        assert.equal(result.fit, 'contain');
+        assert.deepEqual(result.attachments, attachments);
+        const pdf = await getDocument({ data: new Uint8Array(await page.pdf({ preferCSSPageSize: true, printBackground: true })) }).promise;
+        try { assert.equal(pdf.numPages, result.count); } finally { await pdf.destroy(); }
+    }, async page => {
+        attachments = await page.evaluate(text => {
+            const label = document.createElement('figcaption');
+            label.textContent = text;
+            document.querySelector('.asir-broker-image').append(label);
+            return [...document.querySelectorAll('.asir-native-page [data-report-attachment]')].map(node => node.dataset.reportAttachment);
+        }, caption);
+    });
 });
 
 test('native evidence frames retain the measured original Asir positions and dimensions', async () => {
@@ -92,6 +122,76 @@ test('native evidence frames retain the measured original Asir positions and dim
         })) {
             original.forEach((expected, index) => assert.ok(Math.abs(frames[type][index] - expected) < 1.5, `${type}: original ${expected}, native ${frames[type][index]}`));
         }
+    });
+});
+
+test('evidence appendices retain original frames, complete captions and campaign metadata', async () => {
+    await render('appendix', async page => {
+        const result = await page.evaluate(() => {
+            const gallery = [...document.querySelectorAll('.asir-native-gallery')].find(node => node.querySelector('[data-report-attachment="901"]'));
+            const frame = gallery.getBoundingClientRect();
+            return {
+                frames: [...gallery.querySelectorAll('[data-report-attachment]')].map(node => {
+                    const rect = node.getBoundingClientRect();
+                    return [(rect.x - frame.x) * .75, (rect.y - frame.y) * .75, rect.width * .75, rect.height * .75];
+                }),
+                caption: gallery.querySelector('figcaption').textContent,
+                campaign: document.querySelector('.asir-gallery-main--campaign').textContent,
+                url: document.querySelector('.asir-gallery-main--campaign a').href,
+            };
+        });
+        [[95, 350, 190, 100], [310, 350, 190, 100], [95, 485, 190, 100]].forEach((original, slot) => original.forEach((expected, index) => assert.ok(Math.abs(result.frames[slot][index] - expected) < 1.5, `Appendix frame ${slot}: original ${expected}, native ${result.frames[slot][index]}`)));
+        assert.equal(result.caption, 'تيك توك - مرفق 901 - 2');
+        assert.ok(result.campaign.includes('حملة إضافية'));
+        assert.ok(result.campaign.includes('42'));
+        assert.equal(result.url, 'https://example.com/extra');
+    });
+});
+
+test('social badges and unsold table corners preserve their original CSS geometry', async () => {
+    await render('populated', async page => {
+        const styles = await page.evaluate(() => {
+            const badge = document.querySelector('.asir-social-label');
+            const table = document.querySelector('.asir-unsold-table');
+            return {
+                badgeRadius: getComputedStyle(badge).borderTopLeftRadius,
+                badgeColor: getComputedStyle(badge, '::before').backgroundColor,
+                headerClip: getComputedStyle(table.querySelector('th:last-child')).clipPath,
+                lastClip: getComputedStyle(table.querySelector('tbody tr:last-child td:first-child')).clipPath,
+            };
+        });
+        assert.ok(Math.abs(parseFloat(styles.badgeRadius) * .75 - 27.76) < .1);
+        assert.equal(styles.badgeColor, 'rgb(244, 238, 30)');
+        assert.notEqual(styles.headerClip, 'none');
+        assert.notEqual(styles.lastClip, 'none');
+    });
+});
+
+test('the application PDF preserves logo transparency and a solid complete delivery chart', async () => {
+    await render('populated', async page => {
+        const points = await page.evaluate(() => {
+            const frame = document.querySelector('[data-page-type="asir-whatsapp"]');
+            const bounds = frame.getBoundingClientRect();
+            const logo = frame.querySelector('.asir-whatsapp-link a').getBoundingClientRect();
+            const chart = frame.querySelector('[data-report-chart="whatsapp"]').getBoundingClientRect();
+            return {
+                page: [...document.querySelectorAll('.auction-print-page')].indexOf(frame) + 1,
+                clear: [(logo.x - bounds.x) * .75 + 8, (logo.y - bounds.y) * .75 + 8],
+                chart: [-1, 0, 1].map(offset => [(chart.x - bounds.x + chart.width / 2) * .75 + offset, (chart.y - bounds.y) * .75 + 15]),
+            };
+        });
+        execFileSync(process.env.PHP_BINARY || 'php', ['scripts/auction-reports/render-asir-native-proof.php', 'populated', '--pdf'], { stdio: 'pipe' });
+        const pdf = await getDocument({ data: new Uint8Array(readFileSync('output/pdf/asir-native-content/populated-engine.pdf')) }).promise;
+        try {
+            const sheet = await pdf.getPage(points.page);
+            const viewport = sheet.getViewport({ scale: 2 });
+            const canvas = createCanvas(Math.ceil(viewport.width), Math.ceil(viewport.height));
+            const context = canvas.getContext('2d');
+            await sheet.render({ canvasContext: context, viewport }).promise;
+            const rgb = point => [...context.getImageData(Math.floor(point[0] * 2), Math.floor(point[1] * 2), 1, 1).data].slice(0, 3);
+            assert.deepEqual(rgb(points.clear), [255, 255, 255], 'The transparent corner of the WhatsApp icon must reveal the white card.');
+            for (const point of points.chart) assert.deepEqual(rgb(point), [0, 85, 137], 'A complete delivery chart must be uniformly blue, without a zero-value seam.');
+        } finally { await pdf.destroy(); }
     });
 });
 

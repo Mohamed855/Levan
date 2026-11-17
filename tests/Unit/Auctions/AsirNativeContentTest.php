@@ -84,4 +84,16 @@ final class AsirNativeContentTest extends TestCase
         self::assertStringContainsString('تيك توك - وثيقة - 2', $gallery->textContent);
         self::assertStringNotContainsString(' - 2 - 2', $gallery->textContent);
     }
+
+    public function test_broker_letterhead_uses_the_current_company_logo_for_its_watermark(): void
+    {
+        $snapshot = require __DIR__.'/../../Fixtures/AuctionReports/asir.php';
+        $logo = 'data:image/svg+xml;base64,'.base64_encode(file_get_contents(resource_path('auction-reports/fallback.svg')));
+        $snapshot['branding'] = ['company_logo' => $logo, 'issuing_entity_logo' => null];
+        $snapshot['evidence']['brokers'] = [['id' => 45, 'uri' => $logo]];
+        $xpath = $this->document($snapshot);
+        $watermark = $xpath->query('//*[@data-page-type="asir-brokers"]//img[@class="asir-broker-watermark-image"]')->item(0);
+        self::assertNotNull($watermark);
+        self::assertSame($logo, $watermark->getAttribute('src'));
+    }
 }

@@ -310,9 +310,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const defaultCycleMonths =
                     plan.subscription_billing_cycle === "yearly"
                         ? 12
-                        : plan.subscription_billing_cycle === "quarterly"
-                          ? 3
-                          : 1;
+                        : 1;
                 monthsField.value = String(defaultCycleMonths);
             }
         }
@@ -402,9 +400,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const cycleMonths =
                     plan.subscription_billing_cycle === "yearly"
                         ? 12
-                        : plan.subscription_billing_cycle === "quarterly"
-                          ? 3
-                          : 1;
+                        : 1;
                 calculatedBase = +(unitPrice * (months / cycleMonths)).toFixed(
                     2,
                 );

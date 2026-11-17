@@ -13,7 +13,7 @@ const review = [];
 try {
     for (const scenario of scenarios) {
         execFileSync(process.env.PHP_BINARY || 'php', ['scripts/auction-reports/render-asir-native-proof.php', scenario], { stdio: 'pipe' });
-        const variants = ['reference', 'populated'].includes(scenario) ? ['original', 'native'] : ['native'];
+        const variants = ['reference', 'populated', 'appendix'].includes(scenario) ? ['original', 'native'] : ['native'];
         if (variants.includes('original') && !existsSync(path.join(directory, `${scenario}-original.html`))) {
             execFileSync(process.env.PHP_BINARY || 'php', ['scripts/auction-reports/render-asir-native-proof.php', scenario, '--baseline'], { stdio: 'pipe' });
         }
@@ -33,12 +33,13 @@ try {
             await page.evaluate(() => document.fonts.ready);
             if (variant === 'native') await page.waitForFunction('window.asirReportReady === true || window.asirReportError !== null');
             const data = await page.evaluate(() => ({
+                ready: window.asirReportReady === true,
                 error: window.asirReportError ?? null,
                 pages: [...document.querySelectorAll('.auction-print-page')].map(node => ({ type: node.dataset.pageType, title: node.querySelector('h1')?.textContent })),
                 failingRows: [...document.querySelectorAll('.asir-native-page tr')].filter(row => row.getBoundingClientRect().bottom - row.closest('.auction-print-page').getBoundingClientRect().top > 1088).slice(0, 2).map(row => ({ type: row.closest('.auction-print-page').dataset.pageType, text: row.textContent.slice(0, 80), top: (row.getBoundingClientRect().top - row.closest('.auction-print-page').getBoundingClientRect().top) * .75, height: row.getBoundingClientRect().height * .75 })),
             }));
             receipt[`${scenario}-${variant}`] = data;
-            if (data.error) { console.log(JSON.stringify({ scenario, ...data, pages: data.pages.length })); await page.close(); continue; }
+            if (data.error || (variant === 'native' && !data.ready)) throw new Error(`${scenario}: ${data.error ?? 'Asir layout did not become ready.'}`);
             await page.pdf({ path: path.join(directory, `${scenario}-${variant}.pdf`), preferCSSPageSize: true, printBackground: true });
             const pdf = await getDocument({ data: new Uint8Array(readFileSync(path.join(directory, `${scenario}-${variant}.pdf`))) }).promise;
             data.pdf_pages = pdf.numPages;

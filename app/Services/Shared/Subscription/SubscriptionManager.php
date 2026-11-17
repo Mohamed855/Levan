@@ -10,6 +10,7 @@ use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Models\Admin\Tenants\Tenant;
 use App\Services\Shared\Subscription\SubscriptionPeriod\SubscriptionPeriodService;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -230,9 +231,9 @@ class SubscriptionManager
         $endDate = $period?->period_end?->copy();
 
         if (! $endDate && $fallbackEndDate) {
-            $endDate = $fallbackEndDate instanceof \Carbon\CarbonInterface
+            $endDate = $fallbackEndDate instanceof CarbonInterface
                 ? $fallbackEndDate->copy()
-                : \Carbon\Carbon::parse($fallbackEndDate);
+                : Carbon::parse($fallbackEndDate);
         }
 
         if (! $endDate) {
@@ -296,9 +297,8 @@ class SubscriptionManager
         $cycle = $billingCycle ?? $plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle;
 
         return match ($cycle) {
-            'monthly' => $startDate->copy()->addMonth(),
-            'quarterly' => $startDate->copy()->addMonths(3),
-            default => $startDate->copy()->addYear(),
+            'yearly' => $startDate->copy()->addYear(),
+            default => $startDate->copy()->addMonth(),
         };
     }
 

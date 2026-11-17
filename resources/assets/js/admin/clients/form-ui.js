@@ -77,9 +77,8 @@ document.addEventListener("DOMContentLoaded", () => {
         ).toLowerCase();
         const isMonthly = cycle === "monthly";
         const isYearly = cycle === "yearly";
-        const isQuarterly = cycle === "quarterly";
 
-        if (!isMonthly && !isYearly && !isQuarterly) {
+        if (!isMonthly && !isYearly) {
             if (endDate.dataset.autoCalculated === "true") {
                 endDate.value = "";
                 delete endDate.dataset.autoCalculated;
@@ -97,8 +96,6 @@ document.addEventListener("DOMContentLoaded", () => {
         let end;
         if (isMonthly) {
             end = addMonths(start, 1);
-        } else if (isQuarterly) {
-            end = addMonths(start, 3);
         } else if (isYearly) {
             end = addYears(start, 1);
         }

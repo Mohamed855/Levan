@@ -17,6 +17,7 @@
         $target?->subscription_billing_cycle?->value ?? ($target?->subscription_billing_cycle ?? 'monthly'),
     );
     $currentLimitsMode = old('limits_mode', $target?->limits_mode?->value ?? ($target?->limits_mode ?? 'limited'));
+    $currentUsersLimitMode = old('users_limit_mode', ($target && $target->included_users === null) ? 'unlimited' : 'limited');
     $featuresList = old('features', $target?->features ?? []);
 @endphp
 
@@ -184,46 +185,91 @@
 
         <!-- 3. الحدود -->
         <x-form.wizard.step id="limits-validation" :fields="[
-            'limits_mode',
+            'users_limit_mode',
             'included_users',
             'extra_user_license_price',
+            'limits_mode',
             'properties_limit',
             'storage_quota_gb',
             'active_auctions_limit',
         ]">
             <div class="row g-4">
+                <!-- قسم حدود المستخدمين -->
+                <div class="col-12">
+                    <h6 class="fw-bold mb-1 text-primary d-flex align-items-center">
+                        <i class="ti ti-users me-2"></i>حدود المستخدمين والتراخيص
+                    </h6>
+                    <p class="text-muted small mb-0">حدد ما إذا كان عدد مستخدمي الباقة محدداً أو غير محدود، وتكلفة التراخيص الإضافية.</p>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label required">نوع حد المستخدمين</label>
+                    <div class="d-flex gap-4 mt-1">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="users_limit_mode" id="users_limit_mode_limited" value="limited"
+                                {{ $currentUsersLimitMode === 'limited' ? 'checked' : '' }}>
+                            <label class="form-check-label fw-medium" for="users_limit_mode_limited">
+                                عدد محدد من المستخدمين
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="users_limit_mode" id="users_limit_mode_unlimited" value="unlimited"
+                                {{ $currentUsersLimitMode === 'unlimited' ? 'checked' : '' }}>
+                            <label class="form-check-label fw-medium" for="users_limit_mode_unlimited">
+                                مستخدمين غير محدودين (لا تراخيص إضافية)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12" id="unlimited-users-alert" hidden>
+                    <div class="alert alert-info mb-0">
+                        <i class="ti ti-infinity me-2"></i>هذه الباقة تتيح إضافة عدد غير محدود من المستخدمين والموظفين دون أي قيود، وسيتم إلغاء شراء التراخيص الإضافية.
+                    </div>
+                </div>
+
+                <x-form.controls.input type="number" min="1" name="included_users" id="included_users"
+                    label="عدد المستخدمين المشمولين" :value="old('included_users', $target?->included_users ?? 5)" required col="col-md-6 user-limits-field" />
+
+                <x-form.controls.input type="number" step="0.01" min="0" name="extra_user_license_price"
+                    id="extra_user_license_price" label="سعر المستخدم الإضافي" :value="old('extra_user_license_price', $target?->extra_user_license_price ?? 50)" required
+                    col="col-md-6 user-limits-field" :price="true" />
+
+                <div class="col-12"><hr class="my-2"></div>
+
+                <!-- قسم الحدود التشغيلية -->
+                <div class="col-12">
+                    <h6 class="fw-bold mb-1 text-primary d-flex align-items-center">
+                        <i class="ti ti-building me-2"></i>الحدود التشغيلية (العقارات والمزادات والتخزين)
+                    </h6>
+                    <p class="text-muted small mb-0">تحكم في الطاقة الاستيعابية للباقة من حيث عدد العقارات والمزادات النشطة وحصة التخزين.</p>
+                </div>
+
                 @if ($is_edit && $hasSubscriptions)
-                    <x-form.controls.select name="limits_mode" id="limits_mode" label="وضع الحدود" required
+                    <x-form.controls.select name="limits_mode" id="limits_mode" label="وضع الحدود التشغيلية" required
                         :value="$currentLimitsMode" col="col-md-6" :enum="\App\Enums\Admin\Plans\PlanLimitsMode::class" disabled
                         help="وضع الحدود مقفل لارتباط الباقة باشتراكات قائمة." />
                     <input type="hidden" name="limits_mode" value="{{ $currentLimitsMode }}">
                 @else
-                    <x-form.controls.select name="limits_mode" id="limits_mode" label="وضع الحدود" required
+                    <x-form.controls.select name="limits_mode" id="limits_mode" label="وضع الحدود التشغيلية" required
                         :value="$currentLimitsMode" col="col-md-6" :enum="\App\Enums\Admin\Plans\PlanLimitsMode::class" />
                 @endif
 
                 <div class="col-12" id="unlimited-mode-alert" hidden>
                     <div class="alert alert-primary mb-0">
-                        <i class="ti ti-infinity me-2"></i>لن تُفرض حدود استخدام على هذه الباقة.
+                        <i class="ti ti-infinity me-2"></i>لن تُفرض حدود استخدام على العقارات أو المزادات أو المساحة التخزينية لهذه الباقة.
                     </div>
                 </div>
 
-                <x-form.controls.input type="number" min="1" name="included_users" id="included_users"
-                    label="عدد المستخدمين المشمولين" :value="old('included_users', $target?->included_users ?? 5)" required col="col-md-6 limits-field" />
-
-                <x-form.controls.input type="number" step="0.01" min="0" name="extra_user_license_price"
-                    id="extra_user_license_price" label="سعر المستخدم الإضافي" :value="old('extra_user_license_price', $target?->extra_user_license_price ?? 50)" required
-                    col="col-md-6 limits-field" :price="true" />
-
                 <x-form.controls.input type="number" min="1" name="properties_limit" id="properties_limit"
-                    label="حد العقارات" :value="old('properties_limit', $target?->properties_limit ?? 50)" required col="col-md-6 limits-field" />
+                    label="حد العقارات" :value="old('properties_limit', $target?->properties_limit ?? 50)" required col="col-md-4 operational-limits-field" />
 
                 <x-form.controls.input type="number" min="1" name="storage_quota_gb" id="storage_quota_gb"
-                    label="حصة التخزين (GB)" :value="old('storage_quota_gb', $target?->storage_quota_gb ?? 10)" required col="col-md-6 limits-field" />
+                    label="حصة التخزين (GB)" :value="old('storage_quota_gb', $target?->storage_quota_gb ?? 10)" required col="col-md-4 operational-limits-field" />
 
                 <x-form.controls.input type="number" min="1" name="active_auctions_limit"
                     id="active_auctions_limit" label="حد المزادات النشطة" :value="old('active_auctions_limit', $target?->active_auctions_limit ?? 10)" required
-                    col="col-md-6 limits-field" />
+                    col="col-md-4 operational-limits-field" />
 
             </div>
 
@@ -348,30 +394,32 @@
                             <x-form.wizard.review-card title="الحدود والصلاحيات" step="3" col=""
                                 class="h-100 assignment-review__card">
                                 <dl class="row mb-0 small">
-                                    <dt class="col-5 text-muted">وضع الحدود</dt>
-                                    <dd class="col-7 fw-semibold" id="plan-review-limits-mode">
-                                        {{ $target?->limits_mode?->label() ?? '-' }}</dd>
-                                    <dt class="col-5 text-muted">عدد المستخدمين المشمولين</dt>
+                                    <dt class="col-5 text-muted">حدود المستخدمين</dt>
                                     <dd class="col-7 fw-semibold" id="plan-review-users">
-                                        {{ $target?->included_users ?? '-' }}</dd>
+                                        {{ $target ? ($target->hasUnlimitedUsers() ? 'غير محدود (∞)' : $target->included_users . ' مستخدم') : '-' }}</dd>
                                     <dt class="col-5 text-muted">سعر ترخيص المستخدم الإضافي</dt>
                                     <dd class="col-7 fw-semibold" id="plan-review-extra-user-price">
-                                        @if ($target?->extra_user_license_price)
+                                        @if ($target && $target->hasUnlimitedUsers())
+                                            <span class="text-muted">- (غير متاح)</span>
+                                        @elseif ($target?->extra_user_license_price)
                                             {{ number_format((float) $target->extra_user_license_price, 2) }}
                                             <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                                         @else
                                             -
                                         @endif
                                     </dd>
+                                    <dt class="col-5 text-muted">وضع الحدود التشغيلية</dt>
+                                    <dd class="col-7 fw-semibold" id="plan-review-limits-mode">
+                                        {{ $target?->limits_mode?->label() ?? '-' }}</dd>
                                     <dt class="col-5 text-muted">حد العقارات</dt>
                                     <dd class="col-7 fw-semibold" id="plan-review-properties">
-                                        {{ $target?->properties_limit ?? '-' }}</dd>
+                                        {{ $target ? ($target->isUnlimited() ? 'غير محدود (∞)' : ($target->properties_limit ?? '-')) : '-' }}</dd>
                                     <dt class="col-5 text-muted">حصة التخزين</dt>
                                     <dd class="col-7 fw-semibold" id="plan-review-storage">
-                                        {{ $target?->storage_quota_gb ? $target->storage_quota_gb . ' GB' : '-' }}</dd>
+                                        {{ $target ? ($target->isUnlimited() ? 'غير محدود (∞)' : ($target->storage_quota_gb ? $target->storage_quota_gb . ' GB' : '-')) : '-' }}</dd>
                                     <dt class="col-5 text-muted">حد المزادات النشطة</dt>
                                     <dd class="col-7 fw-semibold" id="plan-review-auctions">
-                                        {{ $target?->active_auctions_limit ?? '-' }}</dd>
+                                        {{ $target ? ($target->isUnlimited() ? 'غير محدود (∞)' : ($target->active_auctions_limit ?? '-')) : '-' }}</dd>
                                 </dl>
                             </x-form.wizard.review-card>
                         </div>

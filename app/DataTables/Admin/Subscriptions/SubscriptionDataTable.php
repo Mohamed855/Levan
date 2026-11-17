@@ -34,7 +34,13 @@ class SubscriptionDataTable extends AbstractDataTable
     {
         // Filter: status
         if (request()->filled('status')) {
-            $query->where('subscriptions.status', request('status'));
+            if (request('status') === 'queued') {
+                $query->whereHas('periods', function ($q) {
+                    $q->where('status', SubscriptionPeriodStatus::QUEUED);
+                });
+            } else {
+                $query->where('subscriptions.status', request('status'));
+            }
         }
 
         // Filter: plan
