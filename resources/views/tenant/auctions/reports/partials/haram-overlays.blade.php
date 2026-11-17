@@ -1,3 +1,6 @@
+@if (! empty($content['cover_identity']))
+    <div class="haram-cover-identity">@foreach ($content['cover_identity'] as $identity)<span>{{ $identity }}</span>@endforeach</div>
+@endif
 @if (isset($content['cards']))
     <div class="haram-cards">
         @foreach ($content['cards'] as $role => [$label, $value])

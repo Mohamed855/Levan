@@ -79,12 +79,10 @@ final class PlanCreationTest extends TestCase
     public function test_plan_creation_accepts_blank_optional_prices(): void
     {
         $this->post(route('admin.plans.store'), $this->payload([
-            'yearly_renewal_price' => '',
             'discount_percentage' => '',
         ]))->assertRedirect(route('admin.plans.index'))->assertSessionHasNoErrors();
 
         $plan = Plan::sole();
-        self::assertSame('0.00', $plan->yearly_renewal_price);
         self::assertSame(0.0, $plan->discount_percentage);
         self::assertSame('50.00', $plan->extra_user_license_price);
         self::assertSame(1, $plan->created_by);
@@ -98,7 +96,7 @@ final class PlanCreationTest extends TestCase
         ]))->assertRedirect(route('admin.plans.index'))->assertSessionHasNoErrors();
 
         $plan = Plan::sole();
-        self::assertSame('0.00', $plan->extra_user_license_price);
+        self::assertNull($plan->extra_user_license_price);
         self::assertNull($plan->included_users);
         self::assertNull($plan->properties_limit);
         self::assertNull($plan->storage_quota_gb);
@@ -108,13 +106,11 @@ final class PlanCreationTest extends TestCase
     public function test_plan_creation_preserves_explicit_optional_prices(): void
     {
         $this->post(route('admin.plans.store'), $this->payload([
-            'yearly_renewal_price' => '950.50',
             'discount_percentage' => '12.5',
             'extra_user_license_price' => '25.75',
         ]))->assertRedirect(route('admin.plans.index'))->assertSessionHasNoErrors();
 
         $plan = Plan::sole();
-        self::assertSame('950.50', $plan->yearly_renewal_price);
         self::assertSame(12.5, $plan->discount_percentage);
         self::assertSame('25.75', $plan->extra_user_license_price);
     }

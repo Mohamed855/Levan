@@ -34,7 +34,7 @@ test('reference index matches measured original geometry while using real HTML c
                 dates: point(page.querySelector('.haram-index-date-grid')),
                 properties: point(page.querySelector('.haram-index-property-frame')),
                 gap: (dateHeading.top - project.bottom) * .75,
-                cells: [...page.querySelectorAll('[data-native-property-table] td')].map(node => ({ align: getComputedStyle(node).textAlign, padding: parseFloat(getComputedStyle(node).paddingRight) * .75 })),
+                cells: [...page.querySelectorAll('th,td')].map(node => ({ align: getComputedStyle(node).textAlign, padding: parseFloat(getComputedStyle(node).paddingRight) * .75 })),
             };
         });
         // Measured from the original PDF, in points, rather than inferred from CSS.
@@ -44,7 +44,7 @@ test('reference index matches measured original geometry while using real HTML c
         assert.equal(result.graphics, 0);
         assert.ok(result.gap > 17);
         for (const cell of result.cells) {
-            assert.equal(cell.align, 'right');
+            assert.equal(cell.align, 'center');
             assert.ok(cell.padding >= 7.9);
         }
     });

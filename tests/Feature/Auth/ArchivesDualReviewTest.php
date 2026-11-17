@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Auth;
 
+use App\Enums\Admin\Billing\BillStatus;
+use App\Enums\Admin\Billing\BillType;
+use App\Enums\Admin\Billing\PaymentMethod;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Bills\Bill;
-use App\Models\Admin\Coupons\Coupon;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\Assignments\Assignment;
@@ -28,6 +30,7 @@ use Tests\TestCase;
 class TestArchiveTenancyBootstrapper implements TenancyBootstrapper
 {
     public static array $databases = [];
+
     public static string $defaultDb = '';
 
     public function bootstrap(\Stancl\Tenancy\Contracts\Tenant $tenant): void
@@ -50,16 +53,27 @@ class TestArchiveTenancyBootstrapper implements TenancyBootstrapper
 final class ArchivesDualReviewTest extends TestCase
 {
     private array $originalConfig = [];
+
     private array $tempFiles = [];
+
     private string $centralDb = '';
+
     private string $defaultTenantDb = '';
+
     private string $tenantDbA = '';
+
     private string $tenantDbB = '';
+
     private AdminUser $superAdmin;
+
     private AdminUser $limitedAdmin;
+
     private Tenant $tenantA;
+
     private Tenant $tenantB;
+
     private User $tenantUserA;
+
     private User $tenantUserB;
 
     protected function setUp(): void
@@ -73,19 +87,19 @@ final class ArchivesDualReviewTest extends TestCase
             'auth.guards' => config('auth.guards'),
         ];
 
-        $this->centralDb = tempnam(sys_get_temp_dir(), 'arc_cen_') . '.sqlite';
+        $this->centralDb = tempnam(sys_get_temp_dir(), 'arc_cen_').'.sqlite';
         touch($this->centralDb);
         $this->tempFiles[] = $this->centralDb;
 
-        $this->defaultTenantDb = tempnam(sys_get_temp_dir(), 'arc_ten_def_') . '.sqlite';
+        $this->defaultTenantDb = tempnam(sys_get_temp_dir(), 'arc_ten_def_').'.sqlite';
         touch($this->defaultTenantDb);
         $this->tempFiles[] = $this->defaultTenantDb;
 
-        $this->tenantDbA = tempnam(sys_get_temp_dir(), 'arc_ten_a_') . '.sqlite';
+        $this->tenantDbA = tempnam(sys_get_temp_dir(), 'arc_ten_a_').'.sqlite';
         touch($this->tenantDbA);
         $this->tempFiles[] = $this->tenantDbA;
 
-        $this->tenantDbB = tempnam(sys_get_temp_dir(), 'arc_ten_b_') . '.sqlite';
+        $this->tenantDbB = tempnam(sys_get_temp_dir(), 'arc_ten_b_').'.sqlite';
         touch($this->tenantDbB);
         $this->tempFiles[] = $this->tenantDbB;
 
@@ -224,7 +238,6 @@ final class ArchivesDualReviewTest extends TestCase
             $table->string('name');
             $table->decimal('price', 10, 2)->default(0);
             $table->decimal('discount_percentage', 5, 2)->nullable();
-            $table->decimal('yearly_renewal_price', 10, 2)->default(0);
             $table->integer('included_users')->default(1);
             $table->decimal('extra_user_license_price', 10, 2)->default(0);
             $table->boolean('is_active')->default(true);
@@ -570,7 +583,7 @@ final class ArchivesDualReviewTest extends TestCase
             $user = User::on('tenant')->create([
                 'name' => "Admin {$tenantId}",
                 'email' => "admin@{$tenantId}.com",
-                'phone' => "050000000" . ($tenantId === 'tenant-a' ? '1' : '2'),
+                'phone' => '050000000'.($tenantId === 'tenant-a' ? '1' : '2'),
                 'password' => Hash::make('password123'),
                 'status' => 'active',
             ]);
@@ -995,9 +1008,9 @@ final class ArchivesDualReviewTest extends TestCase
             'tenant_id' => 'tenant-a',
             'amount' => 500,
             'original_amount' => 500,
-            'type' => \App\Enums\Admin\Billing\BillType::NEW_SUBSCRIPTION,
-            'payment_method' => \App\Enums\Admin\Billing\PaymentMethod::BANK_TRANSFER,
-            'status' => \App\Enums\Admin\Billing\BillStatus::PAID,
+            'type' => BillType::NEW_SUBSCRIPTION,
+            'payment_method' => PaymentMethod::BANK_TRANSFER,
+            'status' => BillStatus::PAID,
         ]);
         $bill->delete();
         $this->assertTrue($bill->fresh()->trashed());

@@ -8,7 +8,7 @@
 @section('page-script')
     <script>
         window.paymentData = {
-            total: {{ $renewalPrice ?? $plan->yearly_renewal_price }},
+            total: {{ $renewalPrice ?? ($plan->price_after_discount > 0 ? $plan->price_after_discount : $plan->price) }},
         };
     </script>
 
@@ -70,7 +70,7 @@
                                         {{ $plan->name }}
                                     </div>
                                     <h6 class="mb-0 text-primary" id="total-display">
-                                        {{ number_format($renewalPrice ?? $plan->yearly_renewal_price, 2) }}
+                                        {{ number_format($renewalPrice ?? ($plan->price_after_discount > 0 ? $plan->price_after_discount : $plan->price), 2) }}
                                         <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>
                                     </h6>
                                 </div>
@@ -133,7 +133,7 @@
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <h5 class="mb-0 fw-bold">المبلغ الإجمالي</h5>
                                     <h5 class="mb-0 fw-bold text-primary" id="total-final">
-                                        {{ number_format($renewalPrice ?? $plan->yearly_renewal_price, 2) }}
+                                        {{ number_format($renewalPrice ?? ($plan->price_after_discount > 0 ? $plan->price_after_discount : $plan->price), 2) }}
                                         <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>
                                     </h5>
                                 </div>

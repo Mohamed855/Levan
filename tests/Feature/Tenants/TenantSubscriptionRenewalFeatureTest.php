@@ -43,7 +43,6 @@ class TenantSubscriptionRenewalFeatureTest extends TestCase
             $this->originalCycle = $plan->subscription_billing_cycle instanceof SubscriptionBillingCycle ? $plan->subscription_billing_cycle->value : (string) $plan->subscription_billing_cycle;
             $this->originalPrice = (float) $plan->price;
             $this->originalDiscount = (float) $plan->discount_percentage;
-            $this->originalYearlyRenewalPrice = (float) $plan->yearly_renewal_price;
         });
     }
 
@@ -55,7 +54,6 @@ class TenantSubscriptionRenewalFeatureTest extends TestCase
                 'subscription_billing_cycle' => $this->originalCycle,
                 'price' => $this->originalPrice,
                 'discount_percentage' => $this->originalDiscount,
-                'yearly_renewal_price' => $this->originalYearlyRenewalPrice,
             ]);
         });
 
@@ -74,7 +72,6 @@ class TenantSubscriptionRenewalFeatureTest extends TestCase
                 'subscription_billing_cycle' => SubscriptionBillingCycle::MONTHLY->value,
                 'price' => 500,
                 'discount_percentage' => 10,
-                'yearly_renewal_price' => 4500,
             ]);
         });
 
@@ -83,18 +80,16 @@ class TenantSubscriptionRenewalFeatureTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('450.00');
-        $response->assertDontSee('4,500.00');
     }
 
-    public function test_renew_checkout_uses_yearly_renewal_price_when_yearly_cycle(): void
+    public function test_renew_checkout_uses_discounted_plan_price_when_yearly_cycle(): void
     {
         Tenancy::central(function () {
             $subscription = Subscription::where('tenant_id', 'test')->latest('id')->first();
             $subscription->plan->update([
                 'subscription_billing_cycle' => SubscriptionBillingCycle::YEARLY->value,
                 'price' => 5000,
-                'discount_percentage' => 0,
-                'yearly_renewal_price' => 4200,
+                'discount_percentage' => 15,
             ]);
         });
 
@@ -102,7 +97,7 @@ class TenantSubscriptionRenewalFeatureTest extends TestCase
             ->get($this->tenantUrl('subscriptions/renew'));
 
         $response->assertOk();
-        $response->assertSee('4,200.00');
+        $response->assertSee('4,250.00');
     }
 
     public function test_early_renewal_extends_subscription_from_current_expiration_date_without_losing_days(): void

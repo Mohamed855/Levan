@@ -126,9 +126,9 @@
         <section class="package-card__features">
             <h4>تشمل الباقة</h4>
             <ul data-plan-features>
-                @forelse ($features as $feature)
+                @foreach ($features as $feature)
                     <li><i class="ti ti-circle-check" aria-hidden="true"></i><span>{{ $feature }}</span></li>
-                @endforelse
+                @endforeach
             </ul>
         </section>
     @endif

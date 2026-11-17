@@ -9,8 +9,11 @@ use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
+use App\Services\Shared\Payment\Moyasar\MoyasarCallbackHandler;
+use App\Services\Shared\Subscription\SubscriptionService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\ViewErrorBag;
 use Tests\TestCase;
 
 class MoyasarRegistrationCheckoutFeatureTest extends TestCase
@@ -30,7 +33,6 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
         $this->publicPlan->name = 'Public Test Plan';
         $this->publicPlan->is_active = true;
         $this->publicPlan->price = 100;
-        $this->publicPlan->yearly_renewal_price = 100;
         $this->publicPlan->save();
     }
 
@@ -292,22 +294,22 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
             ],
         ]);
 
-        $this->mock(\App\Services\Shared\Payment\Moyasar\MoyasarCallbackHandler::class, function ($mock) use ($bill) {
+        $this->mock(MoyasarCallbackHandler::class, function ($mock) use ($bill) {
             $mock->shouldReceive('verify')->once()->andReturn([
                 'bill' => $bill,
                 'payment' => ['id' => 'pay_test_123', 'status' => 'paid'],
             ]);
         });
 
-        $subscriptionServiceMock = $this->createMock(\App\Services\Shared\Subscription\SubscriptionService::class);
+        $subscriptionServiceMock = $this->createMock(SubscriptionService::class);
         $subscriptionServiceMock->expects($this->once())
             ->method('completeOnlineSubscription')
             ->willReturn([
                 'tenant_id' => 'test-tenant-uuid',
                 'message' => 'تم إنشاء الاشتراك بنجاح.',
             ]);
-        $this->app->instance(\App\Services\Shared\Subscription\SubscriptionService::class, $subscriptionServiceMock);
-        $this->app->instance(\App\Services\Shared\Subscription\SubscriptionService::class, $subscriptionServiceMock);
+        $this->app->instance(SubscriptionService::class, $subscriptionServiceMock);
+        $this->app->instance(SubscriptionService::class, $subscriptionServiceMock);
 
         $response = $this->get(route('site.plans.checkout.callback', ['bill' => $bill->bill_number, 'id' => 'pay_test_123']));
 
@@ -318,7 +320,7 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
 
     public function test_tenant_login_view_includes_toastr_and_renders_flash_success(): void
     {
-        view()->share('errors', new \Illuminate\Support\ViewErrorBag());
+        view()->share('errors', new ViewErrorBag);
 
         $rendered = $this->withSession([
             'success' => 'تم تفعيل أشتراكك بنجاح يمكنك الأن تسجيل الدخول',

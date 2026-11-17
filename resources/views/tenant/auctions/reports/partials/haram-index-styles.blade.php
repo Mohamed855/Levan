@@ -18,7 +18,7 @@
     .haram-index-section h2 { display: flex; align-items: center; min-height: 18.5pt; margin: 0; padding-inline-start: 8.5pt; padding-block-end: 2pt; border-inline-start: 2.5pt solid #269c93; font: 11.119pt/1.3 NotoReportBold, sans-serif; }
     .haram-index-project-frame { margin: 10.5pt 0 0 2pt; border-radius: 6pt; overflow: hidden; background: white; }
     .haram-native-page table { width: 100%; table-layout: fixed; border-collapse: collapse; border-spacing: 0; }
-    .haram-native-page th, .haram-native-page td { border: 0; text-align: right; overflow-wrap: anywhere; vertical-align: middle; }
+    .haram-native-page th, .haram-native-page td { border: 0; text-align: center; overflow-wrap: anywhere; vertical-align: middle; }
     .haram-index-project-table thead { color: white; }
     .haram-index-project-table th { height: 31.8pt; padding: 5pt 8pt 9pt; text-align: center; background: linear-gradient(90deg, #1f3b5e, #2b6796); font-family: NotoReportBold, sans-serif; }
     .haram-index-project-table td { height: 32pt; padding: 6pt 8pt 8pt; text-align: center; }
@@ -39,7 +39,7 @@
     .haram-index-property-table td { height: 31.33pt; padding: 7pt 8pt; color: #1f3b5e; font: 7.998pt/1.4 MontserratReport, NotoReport, sans-serif; }
     .haram-index-property-table tbody tr:nth-child(even) { background: #eff2f7; }
     .haram-index-property-table td:first-child { font-family: ArimoReportBold, sans-serif; }
-    .haram-index-type { display: inline-flex; align-items: center; min-width: 58pt; min-height: 16pt; max-width: 100%; padding: 0 6pt; border: .4pt solid #8bc8cf; border-radius: 2pt; background: #d9e9ec; text-align: right; font: 7.998pt/1.4 NotoReportBold, sans-serif; }
+    .haram-index-type { display: inline-flex; align-items: center; justify-content: center; min-width: 58pt; min-height: 16pt; max-width: 100%; padding: 0 6pt; border: .4pt solid #8bc8cf; border-radius: 2pt; background: #d9e9ec; text-align: center; font: 7.998pt/1.4 NotoReportBold, sans-serif; }
     .haram-index-footer { position: absolute; inset-inline: 0; bottom: 0; height: 30.75pt; display: flex; align-items: center; justify-content: space-between; padding: 0 83pt 0 28pt; background: #291f2b; color: #a49fa5; direction: ltr; }
     .haram-index-footer-caption { flex: 0 0 auto; width: 84.749pt; direction: rtl; text-align: right; font: 6.683pt/1.17 NotoReportBold, sans-serif; overflow-wrap: anywhere; }
     .haram-index-page-number { font: 7.683pt/1 MontserratReport, sans-serif; }

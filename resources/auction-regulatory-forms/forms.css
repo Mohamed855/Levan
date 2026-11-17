@@ -128,6 +128,8 @@ small{font-family:FormSans,sans-serif;font-size:6pt;font-weight:400;line-height:
 .signatures th,.signatures td{border:.35pt solid #8193b1;text-align:center;padding:3pt;font-weight:800}
 .signatures th{height:26pt;vertical-align:middle;background:rgba(255,255,255,.65)}
 .signatures td{background:var(--tint);height:68.5pt}
+.signatures td{position:relative}
+.signatures .establishment-signing-image{position:absolute;inset:4pt;width:calc(100% - 8pt);height:calc(100% - 8pt);object-fit:contain;object-position:center}
 .form-page--properties .form-logo{inset-block-start:20pt;inset-inline-start:24pt}
 .form-page--properties h1{inset-block-start:39.3pt;inset-inline:140pt;font-size:12pt}
 .header-note{position:absolute;inset-block-start:61pt;inset-inline:140pt;text-align:center;font-size:9pt;color:#008d9c}

@@ -13,10 +13,13 @@ DB::listen(static function (): void {
     throw new RuntimeException('Native content proofs must not query a database.');
 });
 $scenario = $argv[1] ?? 'reference';
-if (! in_array($scenario, ['reference', 'many', 'long', 'partial'], true)) {
-    throw new InvalidArgumentException('Use reference, many, long or partial.');
+if (! in_array($scenario, ['reference', 'many', 'long', 'partial', 'marketing'], true)) {
+    throw new InvalidArgumentException('Use reference, many, long, partial or marketing.');
 }
 $snapshot = require base_path('tests/Fixtures/AuctionReports/haram-native-index.php');
+$snapshot['branding']['company_name'] = 'شركة الاختبار العقارية';
+$snapshot['branding']['issuing_entity_name'] = 'مركز الإسناد والتصفية';
+$snapshot['auction']['category'] = 'مزاد عقاري';
 $snapshot['closing_saved'] = true;
 $snapshot['properties'][0] = array_replace($snapshot['properties'][0], [
     'result_status' => 'sold', 'opening_price' => 3000000, 'sale_price' => 3650000,
@@ -74,6 +77,16 @@ if ($scenario === 'partial') {
     $snapshot['closing_saved'] = false;
     $snapshot['evidence'] = [];
     $snapshot['marketing'] = ['campaigns' => [['platform' => 'x', 'views' => 0]]];
+}
+if ($scenario === 'marketing') {
+    $snapshot['marketing']['campaigns'][] = ['id' => 4, 'platform' => 'x', 'views' => 70, 'url' => 'https://example.com/x-second'];
+    $snapshot['evidence']['x'] = [];
+    $snapshot['evidence']['social'] = [];
+    $snapshot['evidence']['social'][] = $image('', 600, ['campaign_id' => 2, 'channel' => 'tiktok']);
+    foreach (range(1, 8) as $index) {
+        $snapshot['evidence']['x'][] = $image('', 400 + $index, ['campaign_id' => 1, 'channel' => 'x']);
+        $snapshot['evidence']['social'][] = $image('', 500 + $index, ['campaign_id' => 3, 'channel' => 'snapchat']);
+    }
 }
 $directory = base_path('output/pdf/haram-native-content');
 if (! is_dir($directory)) {

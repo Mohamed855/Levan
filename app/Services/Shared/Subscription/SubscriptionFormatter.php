@@ -18,6 +18,8 @@ class SubscriptionFormatter
         $currentPeriod = $subscription->currentPeriod;
         $lastPaidPeriod = $this->getLastPaidPeriod($subscription);
 
+        $renewalPrice = (float) ($subscription->plan?->price_after_discount > 0 ? $subscription->plan->price_after_discount : ($subscription->plan?->price ?? 0));
+
         return [
             'plan_name' => $subscription->is_trial && ! $subscription->plan_id ? 'تجربة مجانية — بدون باقة' : ($subscription->plan?->name ?? 'غير محدد'),
             'status' => $subscription->status->label(),
@@ -30,7 +32,7 @@ class SubscriptionFormatter
 
             'subscription_number' => $subscription->subscription_number,
             'next_payment_date' => system_date($subscription->next_payment_date, 'غير محدد'),
-            'yearly_renewal_price' => number_format((float) ($subscription->plan?->yearly_renewal_price ?? 0), 2),
+            'renewal_price' => number_format($renewalPrice, 2),
             'auto_renew' => $subscription->auto_renew,
             'status_value' => $subscription->status->value,
             'extra_user_license_price' => number_format((float) ($subscription->plan?->extra_user_license_price ?? 0), 2),
@@ -76,7 +78,7 @@ class SubscriptionFormatter
             'used_users' => 0,
             'subscription_number' => 'غير محدد',
             'next_payment_date' => 'غير محدد',
-            'yearly_renewal_price' => 0,
+            'renewal_price' => '0.00',
             'auto_renew' => 'غير محدد',
             'status_value' => 'غير محدد',
             'extra_user_license_price' => 0,

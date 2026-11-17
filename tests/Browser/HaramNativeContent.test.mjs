@@ -33,18 +33,17 @@ test('native results and marketing preserve original frames, colors, padding and
             return {
                 graphicText: document.querySelectorAll('.haram-native-page svg,.haram-native-page canvas').length,
                 narrative: point(results.querySelector('.haram-narrative-card'), results),
-                summary: point(marketing.querySelector('.haram-summary-grid'), marketing),
                 xImage: point(marketing.querySelector('[data-report-attachment="1"]'), marketing),
-                cells: [...results.querySelectorAll('td')].map(cell => ({ align: getComputedStyle(cell).textAlign, padding: parseFloat(getComputedStyle(cell).paddingRight) * .75, border: getComputedStyle(cell).borderWidth })),
-                links: [...marketing.querySelectorAll('a')].map(link => link.href),
+                cells: [...results.querySelectorAll('th,td')].map(cell => ({ align: getComputedStyle(cell).textAlign, padding: parseFloat(getComputedStyle(cell).paddingRight) * .75, border: getComputedStyle(cell).borderWidth })),
+                links: [...document.querySelectorAll('.haram-native-marketing a')].map(link => link.href),
             };
         });
         assert.equal(result.graphicText, 0);
-        for (const [actual, expected] of [[result.narrative.y, 130], [result.summary.y, 98.5], [result.xImage.y, 196.87], [result.xImage.width, 140.15], [result.xImage.height, 142.33]]) {
+        for (const [actual, expected] of [[result.narrative.y, 130], [result.xImage.width, 140.15], [result.xImage.height, 142.33]]) {
             assert.ok(Math.abs(actual - expected) < 1.5, `Original frame ${expected}, native frame ${actual}`);
         }
         for (const cell of result.cells) {
-            assert.equal(cell.align, 'right');
+            assert.equal(cell.align, 'center');
             assert.ok(cell.padding >= 7.9);
             assert.equal(cell.border, '0px');
         }
@@ -78,6 +77,43 @@ for (const scenario of ['many', 'long']) {
         });
     });
 }
+
+test('marketing flows all campaign images once without repeating TikTok metrics or shared links', async () => {
+    await render('marketing', async page => {
+        const result = await page.evaluate(() => ({
+            images: [...document.querySelectorAll('.haram-native-marketing [data-report-attachment]')].map(node => Number(node.dataset.reportAttachment)),
+            tiktok: document.querySelectorAll('[data-report-field="tiktok_views"]').length,
+            evidenceLinks: document.querySelectorAll('.haram-native-marketing [data-link-role="marketing_evidence"]').length,
+            secondX: document.querySelectorAll('.haram-native-marketing a[href="https://example.com/x-second"]').length,
+            channels: [...document.querySelectorAll('.haram-native-marketing [data-haram-channel]')].map(node => node.dataset.haramChannel),
+            sections: [...document.querySelectorAll('.haram-native-marketing [data-native-flow] > section')].map(node => ({ bottom: (node.getBoundingClientRect().bottom - node.closest('.auction-print-page').getBoundingClientRect().top) * .75, items: node.querySelector('[data-native-marketing-items]').children.length })),
+        }));
+        assert.deepEqual(result.images.sort((a, b) => a - b), [...Array.from({ length: 8 }, (_, i) => 401 + i), ...Array.from({ length: 8 }, (_, i) => 501 + i), 600]);
+        assert.equal(result.tiktok, 1);
+        assert.equal(result.evidenceLinks, 1);
+        assert.equal(result.secondX, 1);
+        assert.deepEqual([...new Set(result.channels)], ['x', 'tiktok', 'snapchat']);
+        assert.deepEqual(result.channels, [...result.channels].sort((a, b) => ['x', 'tiktok', 'snapchat'].indexOf(a) - ['x', 'tiktok', 'snapchat'].indexOf(b)));
+        assert.ok(result.sections.every(section => section.items > 0 && section.bottom <= 790.1));
+    });
+});
+
+test('short platforms follow each other on the same page', async () => {
+    await render('partial', async page => {
+        await page.evaluate(async () => {
+            const flow = document.querySelector('.haram-native-marketing [data-native-flow]');
+            const first = flow.firstElementChild;
+            flow.append(first.cloneNode(true), first.cloneNode(true));
+            const script = document.createElement('script');
+            script.textContent = document.querySelector('[data-haram-layout]').textContent;
+            document.body.append(script);
+            while (!window.haramReportReady) await new Promise(resolve => setTimeout(resolve, 10));
+        });
+        assert.equal(await page.evaluate(() => document.querySelectorAll('.haram-native-marketing').length), 1);
+        const gaps = await page.evaluate(() => [...document.querySelector('.haram-native-marketing [data-native-flow]').children].slice(1).map(node => (node.getBoundingClientRect().top - node.previousElementSibling.getBoundingClientRect().bottom) * .75));
+        assert.ok(gaps.every(gap => gap >= 0 && gap < 16));
+    });
+});
 
 test('partial data keeps zero, omits absent sections, and does not produce empty internal pages', async () => {
     await render('partial', async page => {

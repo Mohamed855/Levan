@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
             $table->decimal('yearly_renewal_price', 10, 2)->default(0);
-            $table->decimal('extra_user_license_price', 10, 2)->default(0);
+            $table->decimal('extra_user_license_price', 10, 2)->nullable()->default(null);
             $table->decimal('discount_percentage', 5, 2)->default(0);
             $table->json('features')->nullable();
             $table->boolean('is_active')->default(true);

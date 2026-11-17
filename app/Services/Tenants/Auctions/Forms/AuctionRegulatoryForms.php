@@ -101,6 +101,22 @@ final class AuctionRegulatoryForms
 
     private function validateData(array $data): void
     {
+        if (isset($data['signing_assets'])) {
+            if (! is_array($data['signing_assets'])) {
+                throw new InvalidArgumentException('Signing assets must be an object.');
+            }
+            foreach ($data['signing_assets'] as $asset => $source) {
+                if (! in_array($asset, ['signature', 'stamp'], true) || ! is_string($source) ||
+                    ! preg_match('#^data:image/png;base64,([A-Za-z0-9+/]+={0,2})$#D', $source, $matches)) {
+                    throw new InvalidArgumentException('Signing assets must contain embedded PNG images.');
+                }
+                $contents = base64_decode($matches[1], true);
+                if ($contents === false || strlen($contents) > 10240 * 1024 || (@getimagesizefromstring($contents)['mime'] ?? null) !== 'image/png') {
+                    throw new InvalidArgumentException('Signing assets must contain valid PNG images.');
+                }
+            }
+        }
+
         foreach (['organization', 'manager', 'auctioneer', 'auction', 'funds', 'property', 'disclosures', 'declaration', 'closing'] as $section) {
             if (! isset($data[$section])) {
                 continue;

@@ -201,7 +201,7 @@
                         <div class="col-md-6 col-lg-4">
                             <div class="d-flex flex-column">
                                 <small class="small mb-1">سعر التجديد القادم </small>
-                                <h6 class="mb-0">{{ $subscription_formatted['yearly_renewal_price'] }}</h6>
+                                <h6 class="mb-0">{{ $subscription_formatted['renewal_price'] ?? '0.00' }}</h6>
                             </div>
                         </div>
 

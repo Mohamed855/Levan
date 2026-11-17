@@ -21,6 +21,9 @@ final class HaramReportData
         $contacts = $marketing['contacts'] ?? [];
         $name = (string) $auction['name'];
         $values = [
+            'company_name' => (string) ($snapshot['branding']['company_name'] ?? ''),
+            'issuing_entity_name' => (string) ($snapshot['branding']['issuing_entity_name'] ?? ''),
+            'category' => (string) ($auction['category'] ?? ''),
             'name' => $name, 'subtitle' => 'التقرير النهائي '.(str_starts_with($name, 'مزاد') ? 'ل'.$name : 'لمزاد '.$name),
             'manager' => (string) ($auction['project_manager_name'] ?? '-'),
             'project' => (string) ($snapshot['assignment']['name'] ?? '-'),
@@ -36,7 +39,7 @@ final class HaramReportData
             'social' => (string) ($contacts['social'] ?? '-'),
         ];
         if (in_array($index, [0, 6], true)) {
-            $values['footer'] = '-'.$name.' '.$this->format->dateParts($auction['start_date'] ?? null)['year'];
+            $values['footer'] = $name.(filled($values['company_name']) ? ' - '.$values['company_name'] : '');
         }
         $campaigns = $marketing['campaigns'] ?? [];
         $channels = ['snapchat' => ['snapchat', 'سناب شات'], 'tiktok' => ['tiktok', 'تيك توك'], 'x' => ['x', 'أكس']];

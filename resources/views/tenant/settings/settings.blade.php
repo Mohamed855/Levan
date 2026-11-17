@@ -152,6 +152,27 @@
                                 help="الحد الأقصى لعدد الأحرف: 14." />
 
                             <div class="col-12 mt-4 pt-3 border-top">
+                                <h6 class="fw-bold mb-3">التوقيع والختم في النماذج التنظيمية</h6>
+                                <div class="row g-4">
+                                    @foreach (['signature' => 'توقيع المنشأة', 'stamp' => 'ختم المنشأة'] as $asset => $label)
+                                        <div class="col-md-6">
+                                            <x-form.controls.file :name="'establishment_'.$asset" :label="$label"
+                                                accept="image/png,.png" desc="PNG فقط — أقصى حجم 10 ميجابايت"
+                                                help="اختياري. اترك الحقل فارغاً للاحتفاظ بالصورة المحفوظة." :max-size="10" col="col-12" />
+                                            @if ($settings->getAttribute('establishment_'.$asset))
+                                                <div class="d-inline-flex align-items-center justify-content-center rounded border shadow-sm bg-label-dark text-dark mt-2" style="width:150px;height:90px">
+                                                    <img src="{{ tenant_route_name('settings.signing-assets.show', ['asset' => $asset]) }}"
+                                                        alt="{{ $label }}" class="w-100 h-100 object-fit-contain rounded"
+                                                        onerror="this.classList.add('d-none');this.nextElementSibling.classList.remove('d-none')">
+                                                    <i class="ti ti-settings fs-3 d-none" aria-hidden="true"></i>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="form-text mt-2">تُستخدم الصور الحالية عند توليد نموذج إقامة المزاد أو إقفاله مجدداً. حفظ الإعدادات لا يغيّر النماذج السابقة.</div>
+                            </div>
+                            <div class="col-12 mt-4 pt-3 border-top">
                                 <h6 class="fw-bold mb-3">بيانات التواصل في تقارير المزادات</h6>
                                 <div class="row g-4">
                                     <x-form.controls.input name="report_phone" label="هاتف التواصل" :value="old('report_phone', $settings->report_phone)" col="col-md-4" />

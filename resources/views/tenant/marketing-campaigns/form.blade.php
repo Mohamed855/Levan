@@ -145,7 +145,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/tenant/auctions/cycle-forms.js'])
+    @vite(['resources/assets/js/tenant/auctions/cycle-forms.js', 'resources/assets/js/tenant/auctions/campaign-brokers.js'])
 @endsection
 
 @section('content')
@@ -308,6 +308,11 @@
                                             @foreach ($metrics as $metric)
                                                 @continue($metric === 'property_id')
 
+                                                @if ($channel === 'brokers' && $metric === 'brokers')
+                                                    @include('tenant.marketing-campaigns.partials.brokers')
+                                                    @continue
+                                                @endif
+
                                                 @php
                                                     $metricCol = match (true) {
                                                         $channel === 'planning' && $metric === 'brochure_methodology'
@@ -355,14 +360,7 @@
                                                     };
                                                 @endphp
 
-                                                @if ($channel === 'brokers' && in_array($metric, ['display_name', 'broker_second_name'], true))
-                                                    <x-form.controls.input :name="'campaigns[' . $channel . '][metrics][' . $metric . ']'" :label="$textFields[$metric] ?? ($metric === 'display_name' ? 'اسم الوسيط' : 'اسم الوسيط الثاني')"
-                                                        type="text" :value="old(
-                                                            'campaigns.' . $channel . '.metrics.' . $metric,
-                                                            $campaign?->metrics[$metric] ?? null,
-                                                        )" :data-campaign-metric="$metric"
-                                                        :col="$metricCol" required />
-                                                @elseif (array_key_exists($metric, $textFields))
+                                                @if (array_key_exists($metric, $textFields))
                                                     <x-form.controls.textarea :name="'campaigns[' . $channel . '][metrics][' . $metric . ']'" :label="$textFields[$metric]"
                                                         :value="old(
                                                             'campaigns.' . $channel . '.metrics.' . $metric,
@@ -389,7 +387,7 @@
                                             @endforeach
 
                                             {{-- Evidence Upload Field (if applicable) --}}
-                                            @if ($hasEvidence)
+                                            @if ($hasEvidence && $channel !== 'brokers')
                                                 @php
                                                     $evidenceCol = in_array(
                                                         $channel,
@@ -405,7 +403,7 @@
                                             @endif
 
                                             {{-- Existing Evidence Cards (if editing) --}}
-                                            @if ($campaign && $campaign->evidence->isNotEmpty())
+                                            @if ($channel !== 'brokers' && $campaign && $campaign->evidence->isNotEmpty())
                                                 @foreach ($campaign->evidence as $file)
                                                     <div class="col-md-6">
                                                         <x-ui.file-card :file="$file" />

@@ -74,6 +74,29 @@ window.haramReportError = null;
             resultPages.slice(1).forEach(page => page.remove());
         }
 
+        const marketingPages = [...document.querySelectorAll('.haram-native-marketing')];
+        if (marketingPages.length) {
+            const flow = marketingPages[0].querySelector('[data-native-flow]');
+            for (const extra of marketingPages.slice(1)) {
+                flow.append(...extra.querySelector('[data-native-flow]').children);
+                extra.remove();
+            }
+            const links = new Set();
+            for (const section of flow.querySelectorAll('[data-native-marketing-links]')) {
+                for (const link of section.querySelectorAll('a[data-link-role]')) {
+                    const key = `${link.dataset.linkRole}:${link.href}`;
+                    if (links.has(key)) link.closest('.haram-snapchat-card').remove();
+                    else links.add(key);
+                }
+                if (!section.querySelector('a')) section.remove();
+            }
+            const channelOrder = ['x', 'tiktok', 'snapchat'];
+            flow.replaceChildren(...[...flow.children].sort((left, right) => {
+                const rank = node => node.dataset.haramChannel ? channelOrder.indexOf(node.dataset.haramChannel) : channelOrder.length;
+                return rank(left) - rank(right);
+            }));
+        }
+
         for (const original of [...document.querySelectorAll('[data-native-flow]')]) {
             let page = original.closest('.auction-print-page');
             const template = page.cloneNode(true);
@@ -153,7 +176,9 @@ window.haramReportError = null;
                 body.append(section);
                 if (fits(section)) continue;
                 section.remove();
-                if (section.querySelector('[data-native-result-table] tbody')) {
+                if (section.querySelector('[data-native-marketing-items]')) {
+                    flowItems(section, '[data-native-marketing-items]');
+                } else if (section.querySelector('[data-native-result-table] tbody')) {
                     flowItems(section, '[data-native-result-table] tbody');
                 } else if (section.querySelector('[data-native-grid]')) {
                     flowItems(section, '[data-native-grid]');
@@ -213,6 +238,21 @@ window.haramReportError = null;
             let size = 28;
             while (row.getBoundingClientRect().width > limit && size > 14) row.style.fontSize = `${--size}pt`;
             if (row.getBoundingClientRect().width > limit + 1) throw new Error('A Haram contact does not fit.');
+        }
+
+        for (const identity of document.querySelectorAll('.haram-cover-identity')) {
+            const page = identity.closest('.auction-print-page');
+            const frame = page.getBoundingClientRect();
+            const title = page.querySelector('[data-report-field="name"]')?.getBoundingClientRect();
+            const bounds = identity.getBoundingClientRect();
+            const scale = frame.width / 595.5;
+            if (title && bounds.bottom > title.top - 5 * scale) identity.style.top = `${(title.top - frame.top - bounds.height) / scale - 5}pt`;
+            let size = 8.561;
+            while ((identity.scrollHeight > identity.clientHeight + 1 || identity.scrollWidth > identity.clientWidth + 1) && size > 5) {
+                size = Math.max(5, size - .25);
+                identity.style.fontSize = `${size}pt`;
+            }
+            if (identity.scrollHeight > identity.clientHeight + 1 || identity.scrollWidth > identity.clientWidth + 1) throw new Error('The cover identity exceeds its printable area.');
         }
 
         document.querySelectorAll('.haram-index-page-number').forEach((number, index) => {

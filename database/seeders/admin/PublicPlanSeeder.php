@@ -24,7 +24,6 @@ final class PublicPlanSeeder extends Seeder
                 'name'                       => 'Public Test Plan',
                 'description'                => 'Public plan for testing the subscription checkout flow.',
                 'price'                      => 100,
-                'yearly_renewal_price'       => 100,
                 'extra_user_license_price'   => 25,
                 'discount_percentage'        => 0,
                 'plan_type'                  => 'basic',

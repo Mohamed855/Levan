@@ -13,6 +13,7 @@ final class HaramReportPresentation
         $definition = (new AuctionReportArtwork)->page('haram', $index);
         $overrides = $content['artwork_overrides'] ?? [];
         if ($index === 0) {
+            $content['cover_identity'] = array_values(array_filter(array_intersect_key($content['values'], array_flip(['company_name', 'issuing_entity_name', 'category'])), static fn (string $value): bool => trim($value) !== ''));
             $content['cards'] = [
                 'project' => ['اسم المشروع', $content['values']['project']],
                 'manager' => ['مدير المشروع', $content['values']['manager']],
@@ -24,8 +25,10 @@ final class HaramReportPresentation
             }
             $overrides['groups'] = $definition['groups'];
             $overrides['cover_panels'] = [];
-            $overrides['hide_fields'] = array_map(static fn (int $id): string => 'f'.$id, range(5, 12));
+            $overrides['hide_fields'] = array_merge(['f0', 'f1', 'f2'], array_map(static fn (int $id): string => 'f'.$id, range(5, 12)));
             $overrides['backdrop_patches'] = [[[40, 535, 558, 581], -162]];
+            $overrides['backdrop_patches'][] = [[274, 312, 278, 315], [0, -27]];
+            $overrides['backdrop_patches'][] = [[314.5, 312, 318.5, 315], [0, -27]];
         }
         if ($index === 6) {
             $content['contacts'] = array_intersect_key($content['values'], array_flip(['phone', 'unified_phone', 'social']));

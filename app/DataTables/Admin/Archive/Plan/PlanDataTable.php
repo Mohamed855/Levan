@@ -32,8 +32,6 @@ class PlanDataTable extends AbstractDataTable
             ['data' => 'discount_percentage', 'name' => 'discount_percentage',       'title' => 'نسبة الخصم'],
             ['data' => 'price_after_discount', 'name' => 'price',                     'title' => 'السعر بعد الخصم'],
 
-            ['data' => 'yearly_renewal_price', 'name' => 'yearly_renewal_price',                     'title' => 'سعر التجديد'],
-
             ['data' => 'included_users',     'name' => 'included_users',            'title' => 'عدد المستخدمين'],
             ['data' => 'extra_user_license_price',     'name' => 'extra_user_license_price',            'title' => 'سعر الترخيص الاضافي'],
             ['data' => 'deleted_at',         'name' => 'deleted_at',                'title' => 'تاريخ الحذف', 'className' => 'text-center', 'width' => '130px'],
@@ -71,10 +69,6 @@ class PlanDataTable extends AbstractDataTable
                 }
 
                 return number_format($finalPrice);
-            })
-
-            ->editColumn('yearly_renewal_price', function ($row) {
-                return number_format($row->yearly_renewal_price);
             })
 
             ->editColumn('deleted_at', fn ($row): string => $this->formatDate($row->deleted_at))

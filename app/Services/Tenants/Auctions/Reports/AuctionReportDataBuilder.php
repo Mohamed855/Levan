@@ -77,7 +77,7 @@ final class AuctionReportDataBuilder
             ->map(fn ($attachment): array => [
                 'id' => (int) $attachment->id,
                 'name' => (string) $attachment->file_name,
-                'display_name' => (string) ($auction->marketingCampaigns->firstWhere('id', $attachment->marketing_campaign_id)?->metrics['display_name'] ?? $attachment->report_metadata['display_name'] ?? ''),
+                'display_name' => (string) (filled($attachment->report_metadata['display_name'] ?? null) ? $attachment->report_metadata['display_name'] : ($auction->marketingCampaigns->firstWhere('id', $attachment->marketing_campaign_id)?->metrics['display_name'] ?? '')),
                 'channel' => $attachment->report_metadata['channel'] ?? null,
                 'kind' => $attachment->report_metadata['kind'] ?? null,
                 'link_role' => $attachment->report_metadata['link_role'] ?? null,
@@ -99,7 +99,7 @@ final class AuctionReportDataBuilder
 
         return (new AuctionReportBranding)->apply([
             'cycle_version' => 1,
-            'branding' => ['issuing_entity_logo' => (new AuctionReportBranding)->image($auction->assignment?->issuingEntity?->image)],
+            'branding' => ['issuing_entity_name' => $auction->assignment?->issuingEntity?->name, 'issuing_entity_logo' => (new AuctionReportBranding)->image($auction->assignment?->issuingEntity?->image)],
             'closing_saved' => $auction->closing !== null,
             'closing' => $auction->closing ? ['date' => $auction->closing->closing_date?->format('Y-m-d'), 'approval_number' => $auction->establishmentRequest?->isApproved() ? $auction->establishmentRequest->approval_number : $auction->closing->approval_number] : null,
             'generated_at' => now()->toIso8601String(),

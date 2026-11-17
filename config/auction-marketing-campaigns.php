@@ -8,7 +8,7 @@ return [
     'brochure' => ['brochure_context'],
     'platform' => ['platform_context'],
     'board_before' => ['property_id', 'board_count', 'board_dimensions', 'board_context'],
-    'brokers' => ['display_name', 'broker_second_name', 'contract_text'],
+    'brokers' => ['brokers', 'contract_text'],
     'youtube' => ['views', 'subscribers', 'watch_hours', 'video_context'],
     'x' => ['views', 'impressions', 'posts', 'x_context', 'social_context'],
     'snapchat' => ['impressions', 'views', 'social_context'],

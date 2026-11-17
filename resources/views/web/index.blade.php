@@ -154,7 +154,7 @@
                 @php
                     $hasMonthlyPlans = $plans->contains(fn ($p) => ($p->subscription_billing_cycle?->value ?? (string) $p->subscription_billing_cycle) === 'monthly');
                     $hasYearlyPlans = $plans->contains(fn ($p) => ($p->subscription_billing_cycle?->value ?? (string) $p->subscription_billing_cycle) === 'yearly');
-                    $showSwitcher = ($hasMonthlyPlans && $hasYearlyPlans) || $plans->isNotEmpty();
+                    $showSwitcher = ($hasMonthlyPlans && $hasYearlyPlans);
                     $defaultCycle = $hasMonthlyPlans ? 'monthly' : ($hasYearlyPlans ? 'yearly' : 'monthly');
                 @endphp
 

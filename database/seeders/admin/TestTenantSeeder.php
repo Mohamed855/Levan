@@ -53,11 +53,9 @@ class TestTenantSeeder extends Seeder
         $plan = Plan::updateOrCreate(
             ['name' => 'الباقة الاحترافية الشاملة'],
             [
-                'code'                       => 'ENTERPRISE',
                 'code' => 'ENTERPRISE',
                 'description' => 'باقة متكاملة لجميع العمليات والتحصيل بدون قيود',
                 'price' => 5000.00,
-                'yearly_renewal_price' => 3000.00,
                 'extra_user_license_price' => 150.00,
                 'discount_percentage' => 0,
                 'plan_type' => 'enterprise',

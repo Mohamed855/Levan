@@ -13,7 +13,7 @@ final class HaramNativeContent
         };
         $content['page_title'] = match ($content['index']) {
             1 => 'مخرجات المزاد', 2 => 'ملخص المزاد', 3 => 'التسويق الرقمي',
-            4 => 'صور تركيب اللوحات على أصول العقار', 5 => 'التسويق عبر الوسطاء العقاريين',
+            4 => 'صور تركيب اللوحات على أصول العقار', 5 => 'الوسطاء المشتركين',
         };
         if ($content['index'] === 3) {
             $content['channels'] = $this->channels($content, $snapshot);

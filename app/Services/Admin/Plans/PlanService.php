@@ -45,12 +45,11 @@ class PlanService
                 : 1;
             $extraPrice = $includedUsers === null
                 ? null
-                : (isset($data['extra_user_license_price']) ? (float) $data['extra_user_license_price'] : 0.0);
+                : (isset($data['extra_user_license_price']) && $data['extra_user_license_price'] !== '' ? (float) $data['extra_user_license_price'] : 0.0);
 
             $plan = Plan::create([
                 ...$data,
                 'code' => $code,
-                'yearly_renewal_price' => $data['yearly_renewal_price'] ?? 0,
                 'extra_user_license_price' => $extraPrice,
                 'discount_percentage' => $data['discount_percentage'] ?? 0,
                 'limits_mode' => $limitsMode,
@@ -108,7 +107,7 @@ class PlanService
                 $updateData['included_users'] = ($data['included_users'] !== null && $data['included_users'] !== '') ? (int) $data['included_users'] : null;
                 $updateData['extra_user_license_price'] = $updateData['included_users'] === null
                     ? null
-                    : (isset($data['extra_user_license_price']) ? (float) $data['extra_user_license_price'] : 0.0);
+                    : (isset($data['extra_user_license_price']) && $data['extra_user_license_price'] !== '' ? (float) $data['extra_user_license_price'] : 0.0);
             }
 
             if ($isUnlimited) {

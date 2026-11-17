@@ -52,6 +52,7 @@
     .haram-snapchat-grid { display: flex; gap: 14pt; margin-block-start: 8pt; }
     .haram-snapchat-images { width: 202pt; flex: 0 0 202pt; }
     .haram-snapchat-image-frame { display: flex; justify-content: center; min-height: 175.57pt; border-radius: 4pt; background: #efefef; overflow: hidden; }
+    [data-native-marketing-items] > .haram-snapchat-image-frame { margin-block-start: 8pt; }
     .haram-snapchat-image-frame img { width: 95.43pt; height: 175.57pt; }
     .haram-snapchat-details { flex: 1; min-width: 0; }
     .haram-snapchat-card { display: flex; flex-direction: column; gap: 4pt; min-height: 48pt; margin-block-end: 6pt; padding: 11pt 14pt; border-radius: 4pt; background: white; border-inline-start: 2pt solid #299d94; color: #333; font: 6.4pt/1.4 NotoReportBold, sans-serif; }

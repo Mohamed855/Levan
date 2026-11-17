@@ -100,11 +100,11 @@ final class AuctionReportPaginator
             $marketingStart = count($pages);
             foreach ($groups as $index => $group) {
                 $items = $this->campaignEvidence($evidence, $group, false);
-                $payload = ['campaigns' => $group, 'x' => [], 'snapchat' => []];
+                $payload = ['campaigns' => $group, 'x' => [], 'snapchat' => [], 'tiktok' => []];
                 foreach ($items as $section => $files) {
                     foreach ($files as $file) {
                         $channel = $file['channel'] ?? ($section === 'x' ? 'x' : null);
-                        if (in_array($channel, ['x', 'snapchat'], true)) {
+                        if (in_array($channel, ['x', 'snapchat', 'tiktok'], true)) {
                             $payload[$channel][] = $file;
                         }
                     }
@@ -115,17 +115,16 @@ final class AuctionReportPaginator
                     return array_filter($metrics, static fn ($value): bool => $value !== null && $value !== '') !== []
                         || (new AuctionReportLinks)->safeUrl($campaign['url'] ?? null) !== null;
                 }) !== [];
-                if (! $hasValues && $payload['x'] === [] && $payload['snapchat'] === []) {
+                if (! $hasValues && $payload['x'] === [] && $payload['snapchat'] === [] && $payload['tiktok'] === []) {
                     continue;
                 }
-                for ($slot = 0; $slot < max(1, count($payload['x']), count($payload['snapchat'])); $slot++) {
-                    $pages[] = $this->page('haram-marketing', ['campaigns' => $group, 'x' => array_slice($payload['x'], $slot, 1), 'snapchat' => array_slice($payload['snapchat'], $slot, 1)]);
-                }
+                $pages[] = $this->page('haram-marketing', $payload);
             }
             $legacy = $this->campaignEvidence($evidence, [], true);
             $legacyX = $legacy['x'] ?? [];
             $legacySnap = array_values(array_filter($legacy['social'] ?? [], fn ($item) => ($item['channel'] ?? '') === 'snapchat'));
-            $legacyCount = max(count($legacyX), count($legacySnap));
+            $legacyTiktok = array_values(array_filter($legacy['social'] ?? [], fn ($item) => ($item['channel'] ?? '') === 'tiktok'));
+            $legacyCount = max(count($legacyX), count($legacySnap), count($legacyTiktok));
             $linkCampaigns = array_values(array_filter($campaigns, fn ($campaign) => in_array($campaign['platform'] ?? '', ['marketing_evidence', 'board_before'], true) && (new AuctionReportLinks)->safeUrl($campaign['url'] ?? null) !== null));
             foreach ($linkCampaigns as $campaign) {
                 $pages[] = $this->page('haram-marketing', ['campaigns' => [$campaign], 'x' => [], 'snapchat' => []]);
@@ -133,8 +132,8 @@ final class AuctionReportPaginator
             if (count($pages) === $marketingStart && $linkCampaigns === [] && (! empty($snapshot['marketing']['evidence_url']) || ! empty($snapshot['marketing']['boards_url']))) {
                 $legacyCount = max(1, $legacyCount);
             }
-            for ($slot = 0; $slot < $legacyCount; $slot++) {
-                $pages[] = $this->page('haram-marketing', ['campaigns' => [], 'x' => array_slice($legacyX, $slot, 1), 'snapchat' => array_slice($legacySnap, $slot, 1)]);
+            if ($legacyCount > 0) {
+                $pages[] = $this->page('haram-marketing', ['campaigns' => [], 'x' => $legacyX, 'snapchat' => $legacySnap, 'tiktok' => $legacyTiktok]);
             }
             $before = array_chunk($evidence['board_before'] ?? [], 6);
             $after = $closed ? array_chunk($evidence['board_after'] ?? [], 2) : [];

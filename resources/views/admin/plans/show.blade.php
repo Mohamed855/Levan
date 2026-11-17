@@ -172,9 +172,9 @@
                                         <i class="ti ti-calendar-event fs-4 text-white"></i>
                                     </div>
                                     <div>
-                                        <small class="text-muted d-block">سعر العرض السنوي</small>
+                                        <small class="text-muted d-block">دورة الفوترة</small>
                                         <span
-                                            class="fw-bold fs-5">@if ($plan->yearly_renewal_price){{ number_format((float) $plan->yearly_renewal_price, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>@else غير متوفر@endif</span>
+                                            class="fw-bold fs-5">{{ $plan->subscription_billing_cycle?->label() ?? 'شهرياً' }}</span>
                                     </div>
                                 </div>
                             </div>

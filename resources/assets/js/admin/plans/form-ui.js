@@ -377,10 +377,6 @@ function initPlanFormUI() {
             ),
         );
         const finalPrice = Math.max(0, price - (price * discount) / 100);
-        const renewalPrice =
-            Number.parseFloat(
-                String(getValue("yearly_renewal_price", "0")).replace(/,/g, ""),
-            ) || 0;
         const extraPrice =
             Number.parseFloat(
                 String(getValue("extra_user_license_price", "0")).replace(
@@ -462,12 +458,6 @@ function initPlanFormUI() {
         setReview(
             "plan-review-final-price",
             `${formatPrice(finalPrice)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`,
-        );
-        setReview(
-            "plan-review-renewal-price",
-            renewalPrice > 0
-                ? `${formatPrice(renewalPrice)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`
-                : "غير محدد",
         );
 
         const selectedUsersRadio = form.querySelector(

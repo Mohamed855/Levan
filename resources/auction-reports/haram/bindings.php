@@ -21,7 +21,7 @@ return [
             'manager' => ['max_width' => 85, 'max_lines' => 2],
             'project' => ['max_width' => 85, 'max_lines' => 2],
             'property_count' => ['max_width' => 35],
-            'footer' => ['max_width' => 145],
+            'footer' => ['box' => [115, 783, 552, 813], 'fit' => 'shrink', 'min_font_size' => 6, 'max_lines' => 2],
         ],
     ],
     1 => [
@@ -90,7 +90,7 @@ return [
     6 => [
         'link_fields' => ['phone' => 'phone', 'unified_phone' => 'unified_phone', 'social' => 'social'],
         'layouts' => [
-            'footer' => ['max_width' => 145, 'max_lines' => 2],
+            'footer' => ['box' => [115, 783, 552, 813], 'fit' => 'shrink', 'min_font_size' => 6, 'max_lines' => 2],
             'phone' => ['box' => [130, 510, 470, 565], 'fit' => 'shrink', 'max_lines' => 1, 'min_font_size' => 28, 'center' => true],
             'unified_phone' => ['box' => [130, 570, 470, 625], 'fit' => 'shrink', 'max_lines' => 1, 'min_font_size' => 28, 'center' => true],
             'social' => ['box' => [140, 695, 455, 738], 'fit' => 'shrink', 'max_lines' => 2, 'min_font_size' => 10, 'center' => true],

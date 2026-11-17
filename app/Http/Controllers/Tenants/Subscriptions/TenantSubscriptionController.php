@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Tenants\Subscriptions;
 
 use App\Enums\Admin\Billing\BillType;
 use App\Enums\Admin\Billing\PaymentMethod;
-use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Exceptions\Payment\PaymentInitiationException;
 use App\Exceptions\Payment\PaymentVerificationException;
 use App\Exceptions\Subscription\SubscriptionCreationException;
@@ -128,14 +127,6 @@ class TenantSubscriptionController extends Controller
 
     private function getRenewalPrice(Plan $plan): float
     {
-        $cycle = $plan->subscription_billing_cycle instanceof SubscriptionBillingCycle
-            ? $plan->subscription_billing_cycle->value
-            : (string) $plan->subscription_billing_cycle;
-
-        if ($cycle === 'yearly' && (float) ($plan->yearly_renewal_price ?? 0) > 0) {
-            return (float) $plan->yearly_renewal_price;
-        }
-
         return (float) ($plan->price_after_discount > 0 ? $plan->price_after_discount : $plan->price);
     }
 

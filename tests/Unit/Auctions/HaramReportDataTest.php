@@ -6,10 +6,22 @@ namespace Tests\Unit\Auctions;
 
 use App\Services\Tenants\Auctions\Reports\AuctionReportFormat;
 use App\Services\Tenants\Auctions\Reports\HaramReportData;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 final class HaramReportDataTest extends TestCase
 {
+    public function test_covers_use_snapshot_brand_names_category_and_company_footer(): void
+    {
+        $snapshot = ['auction' => ['name' => 'مزاد اختبار', 'category' => 'مزاد منقولات'], 'branding' => ['company_name' => 'شركة الاختبار', 'issuing_entity_name' => 'جهة الاختبار']];
+        foreach (['haram-cover', 'haram-closing'] as $type) {
+            $page = (new HaramReportData(new AuctionReportFormat))->page($snapshot, ['page_type' => $type, 'payload' => []]);
+            self::assertSame('مزاد اختبار - شركة الاختبار', $page['values']['footer']);
+            self::assertSame('شركة الاختبار', $page['values']['company_name']);
+            self::assertSame('جهة الاختبار', $page['values']['issuing_entity_name']);
+            self::assertSame('مزاد منقولات', $page['values']['category']);
+        }
+    }
+
     public function test_duplicate_channel_summaries_never_mix_an_aggregate_with_the_first_campaign(): void
     {
         $campaigns = [

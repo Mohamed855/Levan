@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Tenants\Auctions\Forms;
 
 use App\Models\Tenants\Auctions\Auction;
+use App\Services\Tenants\Settings\EstablishmentSigningAssets;
 use DomainException;
 use InvalidArgumentException;
 
@@ -19,6 +20,11 @@ final class AuctionRegulatoryFormDataBuilder
         }
 
         $data = $request->data;
+        unset($data['signing_assets']);
+        $signingAssets = app(EstablishmentSigningAssets::class)->snapshot();
+        if ($signingAssets !== []) {
+            $data['signing_assets'] = $signingAssets;
+        }
         if ($type === 'establishment') {
             return $data;
         }

@@ -16,6 +16,8 @@ class Settings extends Model
     */
     protected $fillable = [
         'image',
+        'establishment_signature',
+        'establishment_stamp',
         'office_name',
         'logo_text',
         'operational_regions',

@@ -5,8 +5,32 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import puppeteer from 'puppeteer';
+import { createCanvas } from '@napi-rs/canvas';
 
 const php = process.env.PHP_BINARY || 'php';
+
+for (const type of ['establishment', 'closing']) {
+    test(`${type} signing images stay inside the allocated cells`, async () => {
+        const canvas = createCanvas(900, 150);
+        const context = canvas.getContext('2d');
+        context.fillStyle = '#175d9c';
+        context.fillRect(0, 0, 900, 150);
+        const source = canvas.toDataURL('image/png');
+        const { browser, page } = await render({ signing_assets: { signature: source, stamp: source } }, type);
+        try {
+            await page.evaluate(() => Promise.all([...document.images].map(image => image.decode())));
+            assert.equal(await page.evaluate(() => window.regulatoryFormError), null);
+            const images = await page.evaluate(() => [...document.querySelectorAll('.establishment-signing-image')].map(image => {
+                const bounds = image.getBoundingClientRect();
+                const cell = image.closest('td').getBoundingClientRect();
+                return { decoded: image.naturalWidth > 0, contained: bounds.left >= cell.left && bounds.right <= cell.right && bounds.top >= cell.top && bounds.bottom <= cell.bottom, fit: getComputedStyle(image).objectFit };
+            }));
+            assert.ok(images.length >= 2);
+            assert.ok(images.every(image => image.decoded && image.contained && image.fit === 'contain'));
+            assert.equal(await page.evaluate(() => [...document.querySelectorAll('.signatures tr')].filter(row => row.cells.length === 3 && row.cells[0].tagName === 'TD').every(row => !row.cells[2].querySelector('img'))), true);
+        } finally { await browser.close(); }
+    });
+}
 
 async function render(data, type) {
     const directory = mkdtempSync(path.join(os.tmpdir(), 'auction-regulatory-'));

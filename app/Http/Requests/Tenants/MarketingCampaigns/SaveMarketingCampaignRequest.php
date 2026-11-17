@@ -7,8 +7,10 @@ namespace App\Http\Requests\Tenants\MarketingCampaigns;
 use App\Models\Tenants\Auctions\Auction;
 use App\Services\Tenants\Auctions\Reports\AuctionReportInputCapacity;
 use App\Services\Tenants\Auctions\Reports\AuctionReportLinks;
+use App\Services\Tenants\MarketingCampaigns\MarketingCampaignBrokers;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
 
 final class SaveMarketingCampaignRequest extends FormRequest
@@ -62,12 +64,19 @@ final class SaveMarketingCampaignRequest extends FormRequest
                 $rules["{$prefix}.remove_evidence"] = ['nullable', 'array'];
                 $rules["{$prefix}.remove_evidence.*"] = ['integer', 'distinct'];
 
+                if ($channel === 'brokers') {
+                    $rules = array_replace($rules, $this->brokerRules($prefix.'.metrics'));
+
+                    continue;
+                }
+
                 if ($metrics !== []) {
                     $rules["{$prefix}.metrics"] = ['required', 'array'];
                     foreach ($metrics as $metric) {
                         $metricKey = "{$prefix}.metrics.{$metric}";
                         if (array_key_exists($metric, config('auction-marketing-fields.text'))) {
                             $rules[$metricKey] = ['required', 'string', 'max:10000'];
+
                             continue;
                         }
                         if ($metric === 'property_id') {
@@ -77,6 +86,7 @@ final class SaveMarketingCampaignRequest extends FormRequest
                                 Rule::exists('auction_properties', 'property_id')
                                     ->where('auction_id', is_scalar($auctionId) ? $auctionId : 0),
                             ];
+
                             continue;
                         }
                         $rules[$metricKey] = ['required', in_array($metric, config('auction-report-inputs.integer_metrics')) ? 'integer' : 'numeric'];
@@ -108,9 +118,14 @@ final class SaveMarketingCampaignRequest extends FormRequest
             'remove_evidence.*' => ['integer', 'distinct'],
         ];
 
+        if ($channel === 'brokers') {
+            return array_replace($rules, $this->brokerRules('metrics'));
+        }
+
         foreach ($metrics as $metric) {
             if (array_key_exists($metric, config('auction-marketing-fields.text'))) {
                 $rules['metrics.'.$metric] = ['required', 'string', 'max:10000'];
+
                 continue;
             }
             if ($metric === 'property_id') {
@@ -119,6 +134,7 @@ final class SaveMarketingCampaignRequest extends FormRequest
                     'integer',
                     Rule::exists('auction_properties', 'property_id')->where('auction_id', is_scalar($auctionId) ? $auctionId : 0),
                 ];
+
                 continue;
             }
             $rules['metrics.'.$metric] = ['required', in_array($metric, config('auction-report-inputs.integer_metrics')) ? 'integer' : 'numeric'];
@@ -134,6 +150,28 @@ final class SaveMarketingCampaignRequest extends FormRequest
         }
 
         return $rules;
+    }
+
+    private function brokerRules(string $prefix): array
+    {
+        if (! $this->has($prefix.'.brokers')) {
+            return [
+                $prefix => ['required', 'array:display_name,broker_second_name,contract_text'],
+                $prefix.'.display_name' => ['required', 'string', 'max:10000'],
+                $prefix.'.broker_second_name' => ['nullable', 'string', 'max:10000'],
+                $prefix.'.contract_text' => ['required', 'string', 'max:10000'],
+            ];
+        }
+
+        return [
+            $prefix => ['required', 'array:brokers,contract_text'],
+            $prefix.'.contract_text' => ['required', 'string', 'max:10000'],
+            $prefix.'.brokers' => ['required', 'array', 'min:1', 'max:50'],
+            $prefix.'.brokers.*' => ['required', 'array:key,name,evidence_id'],
+            $prefix.'.brokers.*.key' => ['required', 'string', 'regex:/^[a-zA-Z0-9_-]{1,80}$/', 'distinct'],
+            $prefix.'.brokers.*.name' => ['required', 'string', 'max:200'],
+            $prefix.'.brokers.*.evidence_id' => ['nullable', 'integer', 'distinct'],
+        ];
     }
 
     public function attributes(): array
@@ -240,6 +278,13 @@ final class SaveMarketingCampaignRequest extends FormRequest
                     $hasMetric = count(array_filter($values, static fn ($v) => $v !== null && $v !== '')) > 0;
                     $hasFiles = $this->hasFile("campaigns.{$channel}.evidence");
                     $existingCampaign = $auction?->marketingCampaigns()->where('channel', $channel)->first();
+                    if ($channel === 'brokers' && isset($values['brokers'])) {
+                        try {
+                            app(MarketingCampaignBrokers::class)->plan($existingCampaign, $values['brokers'], $this->file('campaigns.brokers.evidence', []), 'campaigns.brokers.metrics.brokers');
+                        } catch (ValidationException $error) {
+                            $validator->errors()->merge($error->errors());
+                        }
+                    }
                     $removeList = (array) ($channelData['remove_evidence'] ?? []);
                     $hasExistingEvidence = $existingCampaign && $existingCampaign->evidence()->whereNotIn('id', $removeList)->exists();
                     $hasEvidence = in_array($channel, config('auction-marketing-fields.evidence'), true) && ($hasFiles || $hasExistingEvidence);
@@ -280,6 +325,14 @@ final class SaveMarketingCampaignRequest extends FormRequest
             unset($values['property_id']);
             $hasMetric = count(array_filter($values, static fn ($value) => $value !== null && $value !== '')) > 0;
             $campaign = $this->route('campaign');
+            if ($channel === 'brokers' && isset($values['brokers'])) {
+                $campaign ??= Auction::find($this->input('auction_id'))?->marketingCampaigns()->where('channel', 'brokers')->first();
+                try {
+                    app(MarketingCampaignBrokers::class)->plan($campaign, $values['brokers'], $this->file('evidence', []));
+                } catch (ValidationException $error) {
+                    $validator->errors()->merge($error->errors());
+                }
+            }
             $hasEvidence = in_array($channel, config('auction-marketing-fields.evidence'), true) && ($this->hasFile('evidence') || ($campaign && $campaign->evidence()->whereNotIn('id', (array) $this->input('remove_evidence', []))->exists()));
             $hasUrl = in_array($channel, config('auction-marketing-fields.links'), true) && $this->filled('url');
             if ($hasUrl && app(AuctionReportLinks::class)->safeUrl($this->input('url')) === null) {

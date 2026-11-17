@@ -347,6 +347,8 @@ Route::middleware(['auth:tenant', EnsureInitialPasswordChanged::class.':tenant',
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::name('index')->get('/', [SettingsController::class, 'index']);
             Route::name('update')->put('/', [SettingsController::class, 'update']);
+            Route::name('signing-assets.show')->get('/signing-assets/{asset}', [SettingsController::class, 'signingAsset'])
+                ->whereIn('asset', ['signature', 'stamp']);
             // Route::name('center')->get('/center', [SettingsController::class, 'center']);
         });
 

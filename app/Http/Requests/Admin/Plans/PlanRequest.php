@@ -55,7 +55,12 @@ class PlanRequest extends WizardFormRequest
                 : (string) $plan->limits_mode;
         }
 
-        $usersLimitMode = (string) $this->input('users_limit_mode', $this->filled('included_users') ? 'limited' : 'unlimited');
+        $usersLimitMode = (string) $this->input(
+            'users_limit_mode',
+            $limitsMode === PlanLimitsMode::UNLIMITED->value
+                ? 'unlimited'
+                : ($this->filled('included_users') ? 'limited' : 'unlimited')
+        );
 
         if ($usersLimitMode === 'unlimited') {
             $mergeData['included_users'] = null;
@@ -94,7 +99,6 @@ class PlanRequest extends WizardFormRequest
             'description' => ['nullable', 'string', 'max:1000'],
             'price' => ['required', 'numeric', 'min:0'],
             'discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'yearly_renewal_price' => ['nullable', 'numeric', 'min:0'],
             'subscription_billing_cycle' => ['required', 'string', Rule::in(SubscriptionBillingCycle::values())],
             'available_from' => ['nullable', 'date'],
             'admin_notes' => ['nullable', 'string', 'max:2000'],
@@ -104,7 +108,12 @@ class PlanRequest extends WizardFormRequest
             'features.*' => ['required', 'string', 'max:255'],
         ];
 
-        $usersLimitMode = (string) $this->input('users_limit_mode', $this->filled('included_users') ? 'limited' : 'unlimited');
+        $usersLimitMode = (string) $this->input(
+            'users_limit_mode',
+            $limitsMode === PlanLimitsMode::UNLIMITED->value
+                ? 'unlimited'
+                : ($this->filled('included_users') ? 'limited' : 'unlimited')
+        );
 
         if ($usersLimitMode === 'limited') {
             $rules['included_users'] = ['required', 'integer', 'min:1'];
@@ -137,7 +146,6 @@ class PlanRequest extends WizardFormRequest
             'description' => 'وصف الباقة',
             'price' => 'سعر الدورة الأساسية (ر.س)',
             'discount_percentage' => 'نسبة الخصم (%)',
-            'yearly_renewal_price' => 'سعر العرض السنوي الترويجي (ر.س)',
             'subscription_billing_cycle' => 'دورة الفوترة الأساسية',
             'available_from' => 'تاريخ بدء الإتاحة',
             'admin_notes' => 'ملاحظات إدارية',
@@ -173,9 +181,6 @@ class PlanRequest extends WizardFormRequest
             'price.required' => 'سعر الدورة الأساسية للباقة مطلوب.',
             'price.numeric' => 'السعر يجب أن يكون رقماً.',
             'price.min' => 'السعر يجب ألا يقل عن 0.',
-
-            'yearly_renewal_price.numeric' => 'سعر العرض السنوي يجب أن يكون رقماً.',
-            'yearly_renewal_price.min' => 'سعر العرض السنوي لا يمكن أن يقل عن 0.',
 
             'extra_user_license_price.required' => 'سعر ترخيص المستخدم الإضافي مطلوب للباقة المحدودة.',
             'extra_user_license_price.numeric' => 'سعر ترخيص المستخدم الإضافي يجب أن يكون رقماً.',

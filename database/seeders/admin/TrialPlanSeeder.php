@@ -24,7 +24,6 @@ final class TrialPlanSeeder extends Seeder
                 'name'                       => 'باقة تجريبية',
                 'description'                => 'تجربة لمدة 7 أيام',
                 'price'                      => 0,
-                'yearly_renewal_price'       => 0,
                 'extra_user_license_price'   => 0,
                 'discount_percentage'        => 0,
                 'plan_type'                  => 'basic',

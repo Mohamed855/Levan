@@ -31,7 +31,6 @@ class Plan extends Model
         'color',
         'description',
         'price',
-        'yearly_renewal_price',
         'extra_user_license_price',
         'discount_percentage',
         'limits_mode',
@@ -52,7 +51,6 @@ class Plan extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
-        'yearly_renewal_price' => 'decimal:2',
         'extra_user_license_price' => 'decimal:2',
         'discount_percentage' => 'float',
         'included_users' => 'integer',
@@ -102,7 +100,6 @@ class Plan extends Model
             'color' => 'اللون',
             'description' => 'الوصف',
             'price' => 'السعر الأساسي',
-            'yearly_renewal_price' => 'سعر العرض السنوي',
             'extra_user_license_price' => 'سعر ترخيص المستخدم الإضافي',
             'discount_percentage' => 'نسبة الخصم',
             'limits_mode' => 'وضع الحدود',

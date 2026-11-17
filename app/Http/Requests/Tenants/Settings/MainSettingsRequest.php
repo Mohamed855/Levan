@@ -33,6 +33,8 @@ class MainSettingsRequest extends FormRequest
             'report_unified_phone' => ['nullable', 'string', 'max:30', 'regex:/^[+\p{N} ()-]+$/u'],
             'report_social' => ['nullable', 'string', 'max:255'],
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
+            'establishment_signature' => 'nullable|image|mimes:png|mimetypes:image/png|extensions:png|max:10240',
+            'establishment_stamp' => 'nullable|image|mimes:png|mimetypes:image/png|extensions:png|max:10240',
 
             // مناطق العمل
             'operational_regions' => 'nullable|array',
@@ -67,6 +69,8 @@ class MainSettingsRequest extends FormRequest
             'office_name' => 'إسم الشركة',
             'logo_text' => 'النص بجانب الشعار',
             'image' => 'شعار الشركة',
+            'establishment_signature' => 'توقيع المنشأة',
+            'establishment_stamp' => 'ختم المنشأة',
             'operational_regions' => 'مناطق العمل',
             'operational_regions.*' => 'منطقة العمل',
         ];

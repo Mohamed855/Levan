@@ -98,3 +98,19 @@ test('marketing overflow continues its own section before the following page fam
         assert.equal(result.families[end + 1], 'haram-closing');
     });
 });
+
+test('cover identity uses current names and category and fits long Arabic names', async () => {
+    const company = 'شركة الاختبار للاستثمار والتطوير العقاري '.repeat(6);
+    const issuer = 'جهة الإسناد وإدارة الأصول العقارية '.repeat(6);
+    await render({ branding: { company_name: company, issuing_entity_name: issuer }, auction: { name: 'مزاد جديد مزاد جديد مزاد الرياض', category: 'مزاد منقولات' } }, async page => {
+        const identity = await page.evaluate(() => {
+            const node = document.querySelector('.haram-cover-identity');
+            const bounds = node.getBoundingClientRect();
+            const title = document.querySelector('[data-report-field="name"]')?.getBoundingClientRect();
+            return { values: [...node.children].map(child => child.textContent), height: node.scrollHeight, limit: node.clientHeight, bottom: bounds.bottom, titleTop: title?.top };
+        });
+        assert.deepEqual(identity.values, [company, issuer, 'مزاد منقولات']);
+        assert.ok(identity.height <= identity.limit + 1);
+        if (identity.titleTop) assert.ok(identity.bottom < identity.titleTop, JSON.stringify(identity));
+    });
+});

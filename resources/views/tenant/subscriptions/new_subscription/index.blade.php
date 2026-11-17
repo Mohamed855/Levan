@@ -69,10 +69,10 @@
 
                             <div class="mt-3">
                                 <div class="text-muted plan-section-title">
-                                    التجديد السنوي
+                                    سعر التجديد للدورة
                                 </div>
                                 <div class="fw-bold">
-                                    {{ number_format($plan->yearly_renewal_price) }}
+                                    {{ number_format((float) ($plan->price_after_discount > 0 ? $plan->price_after_discount : $plan->price), 2) }}
                                     <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>
                                 </div>
 

@@ -8,9 +8,11 @@ use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\MarketingCampaigns\MarketingCampaign;
 use App\Services\Tenants\Auctions\Reports\AuctionReportLock;
 use App\Services\Tenants\Auctions\Reports\AuctionReportRefreshService;
+use App\Services\Tenants\MarketingCampaigns\MarketingCampaignBrokers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 use Throwable;
 
 final class SaveMarketingCampaignAction
@@ -39,6 +41,12 @@ final class SaveMarketingCampaignAction
                 $record = $campaign ? MarketingCampaign::query()->lockForUpdate()->findOrFail($campaign->id) : new MarketingCampaign;
                 if ($record->exists && (int) $record->auction_id !== (int) $campaign->auction_id) {
                     throw ValidationException::withMessages(['auction_id' => 'تغير المزاد المرتبط بالحملة. أعد تحميل الصفحة قبل الحفظ.']);
+                }
+                $brokerPlan = null;
+                if (($data['channel'] ?? '') === 'brokers' && isset($data['metrics']['brokers'])) {
+                    $brokerPlan = app(MarketingCampaignBrokers::class)->plan($record, $data['metrics']['brokers'], $files);
+                    $data['metrics']['brokers'] = $brokerPlan['brokers'];
+                    $removeEvidenceIds = $brokerPlan['remove_ids'];
                 }
                 $record->fill(array_intersect_key($data, array_flip(['auction_id', 'channel', 'campaign_date', 'platform_label', 'metrics', 'url', 'link_label', 'link_role'])));
                 if ($record->channel !== 'other') {
@@ -72,10 +80,14 @@ final class SaveMarketingCampaignAction
                         $evidence->update(['report_section' => $section, 'report_metadata' => array_replace($evidence->report_metadata ?? [], ['channel' => $record->channel])]);
                     }
                 }
+                $this->syncBrokerMetadata($record, $brokerPlan);
                 foreach ($files as $index => $file) {
                     $path = $file->store('auctions/report-evidence', 'tenant_public');
+                    if ($path === false) {
+                        throw new RuntimeException('Unable to store campaign evidence.');
+                    }
                     $stored[] = $path;
-                    $record->evidence()->create(['auction_id' => $record->auction_id, 'property_id' => $record->channel === 'board_before' ? $record->metrics['property_id'] : null, 'file_path' => $path, 'file_name' => $file->getClientOriginalName(), 'file_type' => $file->getClientOriginalExtension(), 'file_size' => $file->getSize(), 'category' => 'marketing', 'report_section' => $section, 'report_metadata' => ['channel' => $record->channel, 'kind' => $file->getMimeType() === 'application/pdf' ? 'document' : 'screenshot'], 'display_order' => $index, 'channels' => ['report']]);
+                    $record->evidence()->create(['auction_id' => $record->auction_id, 'property_id' => $record->channel === 'board_before' ? $record->metrics['property_id'] : null, 'file_path' => $path, 'file_name' => $file->getClientOriginalName(), 'file_type' => $file->getClientOriginalExtension(), 'file_size' => $file->getSize(), 'category' => 'marketing', 'report_section' => $section, 'report_metadata' => array_replace($brokerPlan['uploads'][$index]['metadata'] ?? [], ['channel' => $record->channel, 'kind' => $file->getMimeType() === 'application/pdf' ? 'document' : 'screenshot']), 'display_order' => $brokerPlan['uploads'][$index]['order'] ?? $index, 'channels' => ['report']]);
                 }
 
                 return $record;
@@ -126,6 +138,15 @@ final class SaveMarketingCampaignAction
 
                     $record = MarketingCampaign::where('auction_id', $auction->id)->where('channel', $channel)->first();
                     $record ??= new MarketingCampaign;
+                    $chFiles = $filesByChannel[$channel]['evidence'] ?? [];
+                    if (! is_array($chFiles) && $chFiles) {
+                        $chFiles = [$chFiles];
+                    }
+                    $brokerPlan = null;
+                    if ($channel === 'brokers' && isset($chData['metrics']['brokers'])) {
+                        $brokerPlan = app(MarketingCampaignBrokers::class)->plan($record, $chData['metrics']['brokers'], $chFiles, 'campaigns.brokers.metrics.brokers');
+                        $chData['metrics']['brokers'] = $brokerPlan['brokers'];
+                    }
                     $record->auction_id = $auction->id;
                     $record->channel = $channel;
                     $record->campaign_date = ($channel === 'whatsapp') ? ($chData['campaign_date'] ?? null) : null;
@@ -140,7 +161,7 @@ final class SaveMarketingCampaignAction
                     $record->save();
 
                     // Remove selected evidence files if any
-                    $removeIds = (array) ($chData['remove_evidence'] ?? []);
+                    $removeIds = $brokerPlan['remove_ids'] ?? (array) ($chData['remove_evidence'] ?? []);
                     if ($removeIds !== []) {
                         $evidence = $record->evidence()->whereKey($removeIds)->get();
                         $removedPaths = array_merge($removedPaths, $evidence->pluck('file_path')->all());
@@ -153,16 +174,16 @@ final class SaveMarketingCampaignAction
                     ]);
 
                     $section = $this->section($record->channel);
-                    $chFiles = $filesByChannel[$channel]['evidence'] ?? [];
-                    if (! is_array($chFiles) && $chFiles) {
-                        $chFiles = [$chFiles];
-                    }
+                    $this->syncBrokerMetadata($record, $brokerPlan);
 
                     foreach ($chFiles as $index => $file) {
                         if (! $file) {
                             continue;
                         }
                         $path = $file->store('auctions/report-evidence', 'tenant_public');
+                        if ($path === false) {
+                            throw new RuntimeException('Unable to store campaign evidence.');
+                        }
                         $stored[] = $path;
                         $record->evidence()->create([
                             'auction_id' => $record->auction_id,
@@ -173,8 +194,8 @@ final class SaveMarketingCampaignAction
                             'file_size' => $file->getSize(),
                             'category' => 'marketing',
                             'report_section' => $section,
-                            'report_metadata' => ['channel' => $record->channel, 'kind' => $file->getMimeType() === 'application/pdf' ? 'document' : 'screenshot'],
-                            'display_order' => $index,
+                            'report_metadata' => array_replace($brokerPlan['uploads'][$index]['metadata'] ?? [], ['channel' => $record->channel, 'kind' => $file->getMimeType() === 'application/pdf' ? 'document' : 'screenshot']),
+                            'display_order' => $brokerPlan['uploads'][$index]['order'] ?? $index,
                             'channels' => ['report'],
                         ]);
                     }
@@ -195,6 +216,17 @@ final class SaveMarketingCampaignAction
         }
 
         return $savedCampaigns;
+    }
+
+    private function syncBrokerMetadata(MarketingCampaign $campaign, ?array $plan): void
+    {
+        foreach ($plan['existing'] ?? [] as $id => $entry) {
+            $campaign->evidence->find($id)->update([
+                'report_section' => 'brokers',
+                'report_metadata' => $entry['metadata'],
+                'display_order' => $entry['order'],
+            ]);
+        }
     }
 
     private function section(string $channel): string

@@ -41,7 +41,7 @@ final class HaramReportPresentationTest extends TestCase
         self::assertSame(0, $xpath->query('//*[@data-page-type="haram-cover"]//*[@data-field="f12"]')->length);
     }
 
-    public function test_haram_tables_right_align_ltr_values_and_draw_only_existing_rows(): void
+    public function test_haram_tables_preserve_ltr_values_and_draw_only_existing_rows(): void
     {
         $snapshot = $this->snapshot();
         $snapshot['properties'][0]['number'] = 'PROP-01234';

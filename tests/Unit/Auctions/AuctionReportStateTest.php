@@ -27,9 +27,15 @@ final class AuctionReportStateTest extends TestCase
             foreach ($fields as $field) {
                 $metrics[$field] = isset(config('auction-marketing-fields.text')[$field]) ? 'Campaign details' : ($field === 'property_id' ? 1 : 0);
             }
+            if ($channel === 'brokers') {
+                $metrics['brokers'] = [['key' => 'broker-1', 'name' => 'Broker']];
+            }
             $campaigns[] = ['channel' => $channel, 'metrics' => $metrics, 'url' => 'https://example.com', 'campaign_date' => '2026-11-09'];
         }
         $state = new AuctionReportState;
+        self::assertSame('complete', $state->fromData($campaigns, false, [])->value);
+        $brokerIndex = array_search('brokers', array_column($campaigns, 'channel'), true);
+        $campaigns[$brokerIndex]['metrics'] = ['display_name' => 'Legacy first', 'broker_second_name' => 'Legacy second', 'contract_text' => 'Contract'];
         self::assertSame('complete', $state->fromData($campaigns, false, [])->value);
         $campaigns[0]['metrics']['planning_methodology'] = ' ';
         self::assertSame('incomplete', $state->fromData($campaigns, false, [])->value);

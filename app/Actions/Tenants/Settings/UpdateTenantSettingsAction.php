@@ -16,13 +16,13 @@ class UpdateTenantSettingsAction
     /**
      * @param  array<string, mixed>  $validated
      */
-    public function execute(array $validated, ?UploadedFile $image = null): Settings
+    public function execute(array $validated, ?UploadedFile $image = null, ?UploadedFile $signature = null, ?UploadedFile $stamp = null): Settings
     {
-        $storedFile = null;
-        $replacedFile = null;
+        $storedFiles = [];
+        $replacedFiles = [];
 
         try {
-            $settings = DB::transaction(function () use ($validated, $image, &$storedFile, &$replacedFile): Settings {
+            $settings = DB::transaction(function () use ($validated, $image, $signature, $stamp, &$storedFiles, &$replacedFiles): Settings {
                 $settings = Settings::query()->lockForUpdate()->first() ?? new Settings;
 
                 if (array_key_exists('office_name', $validated)) {
@@ -38,10 +38,21 @@ class UpdateTenantSettingsAction
                     }
                 }
 
-                if ($image !== null) {
-                    $replacedFile = $settings->image;
-                    $storedFile = $image->store('image', 'tenant_public');
-                    $settings->image = $storedFile;
+                foreach (['image' => $image, 'establishment_signature' => $signature, 'establishment_stamp' => $stamp] as $field => $upload) {
+                    if ($upload === null) {
+                        continue;
+                    }
+                    $disk = $field === 'image' ? 'tenant_public' : 'tenant_private';
+                    $directory = $field === 'image' ? 'image' : 'settings/signing-assets';
+                    $path = $upload->store($directory, $disk);
+                    if ($path === false) {
+                        throw new \RuntimeException('Unable to store the settings image.');
+                    }
+                    $storedFiles[] = [$disk, $path];
+                    if ($settings->{$field}) {
+                        $replacedFiles[] = [$disk, $settings->{$field}];
+                    }
+                    $settings->{$field} = $path;
                 }
 
                 if (array_key_exists('operational_regions', $validated)) {
@@ -58,14 +69,14 @@ class UpdateTenantSettingsAction
                 return $settings;
             });
         } catch (Throwable $exception) {
-            if ($storedFile !== null) {
-                Storage::disk('tenant_public')->delete($storedFile);
+            foreach ($storedFiles as [$disk, $path]) {
+                Storage::disk($disk)->delete($path);
             }
             throw $exception;
         }
 
-        if ($replacedFile !== null) {
-            Storage::disk('tenant_public')->delete($replacedFile);
+        foreach ($replacedFiles as [$disk, $path]) {
+            Storage::disk($disk)->delete($path);
         }
         Cache::forget('app_settings');
         if (function_exists('tenant') && tenant('id')) {
