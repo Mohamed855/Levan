@@ -158,6 +158,11 @@ final class UpdateAuctionAction
                     if ($auction->cover_image) {
                         $pathsToDelete[] = $auction->cover_image;
                     }
+                } elseif (! empty($data['remove_cover_image'])) {
+                    if ($auction->cover_image) {
+                        $pathsToDelete[] = $auction->cover_image;
+                    }
+                    $data['cover_image'] = null;
                 }
 
                 if ($reportImage instanceof UploadedFile) {
@@ -167,6 +172,24 @@ final class UpdateAuctionAction
                     if ($auction->report_image) {
                         $pathsToDelete[] = $auction->report_image;
                     }
+                } elseif (! empty($data['remove_report_image'])) {
+                    if ($auction->report_image) {
+                        $pathsToDelete[] = $auction->report_image;
+                    }
+                    $data['report_image'] = null;
+                }
+
+                $removedAttachmentIds = array_values(array_unique(array_map('intval', (array) ($data['remove_attachments'] ?? []))));
+                if ($removedAttachmentIds !== []) {
+                    $toRemove = $auction->attachments()
+                        ->where('category', 'auction_doc')
+                        ->whereKey($removedAttachmentIds)
+                        ->get();
+                    if ($toRemove->count() !== count($removedAttachmentIds)) {
+                        throw ValidationException::withMessages(['remove_attachments' => 'المرفقات المحددة لا تخص هذا المزاد.']);
+                    }
+                    $pathsToDelete = array_merge($pathsToDelete, $toRemove->pluck('file_path')->filter()->all());
+                    $auction->attachments()->whereKey($removedAttachmentIds)->delete();
                 }
 
                 if (array_key_exists('marketing', $data)) {
@@ -180,6 +203,9 @@ final class UpdateAuctionAction
                     $data['property_results'],
                     $data['marketing'],
                     $data['attachments'],
+                    $data['remove_cover_image'],
+                    $data['remove_report_image'],
+                    $data['remove_attachments'],
                     $data['marketing_evidence'],
                     $data['marketing_evidence_meta'],
                     $data['report_attachments'],

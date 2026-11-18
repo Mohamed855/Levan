@@ -111,9 +111,22 @@
                                 ? ($fileUrl->file_path ?? $fileUrl->url ?? $fileUrl->path ?? '')
                                 : (is_array($fileUrl) ? ($fileUrl['url'] ?? $fileUrl['file_path'] ?? $fileUrl['path'] ?? '') : ''));
 
+                        $itemId = is_object($fileUrl)
+                            ? ($fileUrl->id ?? null)
+                            : (is_array($fileUrl) ? ($fileUrl['id'] ?? null) : null);
+
+                        $itemRemoveName = is_array($fileUrl) ? ($fileUrl['remove_name'] ?? null) : null;
+                        $itemRemoveValue = is_array($fileUrl) && array_key_exists('remove_value', $fileUrl)
+                            ? $fileUrl['remove_value']
+                            : ($itemId ?? $rawPath);
+
+                        $itemDownloadUrl = is_object($fileUrl)
+                            ? ($fileUrl->download_url ?? null)
+                            : (is_array($fileUrl) ? ($fileUrl['download_url'] ?? null) : null);
+
                         $baseName = is_object($fileUrl)
-                            ? ($fileUrl->original_name ?? $fileUrl->name ?? null)
-                            : (is_array($fileUrl) ? ($fileUrl['original_name'] ?? $fileUrl['name'] ?? null) : null);
+                            ? ($fileUrl->original_name ?? $fileUrl->file_name ?? $fileUrl->name ?? null)
+                            : (is_array($fileUrl) ? ($fileUrl['original_name'] ?? $fileUrl['file_name'] ?? $fileUrl['name'] ?? null) : null);
 
                         $baseName = $baseName ?: (basename(parse_url((string) $rawPath, PHP_URL_PATH) ?? '') ?: 'الملف المرفق');
 
@@ -122,8 +135,12 @@
                             $ext = strtolower(pathinfo(parse_url((string) $rawPath, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
                         }
 
-                        $mime = is_object($fileUrl) ? ($fileUrl->mime ?? '') : (is_array($fileUrl) ? ($fileUrl['mime'] ?? '') : '');
-                        $isExistingImg = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg']) || str_starts_with($mime, 'image/') || str_starts_with((string) $rawPath, 'data:image/');
+                        $mime = is_object($fileUrl)
+                            ? ($fileUrl->mime_type ?? $fileUrl->mime ?? '')
+                            : (is_array($fileUrl) ? ($fileUrl['mime_type'] ?? $fileUrl['mime'] ?? '') : '');
+                        $isExistingImg = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'], true)
+                            || str_starts_with((string) $mime, 'image/')
+                            || str_starts_with((string) $rawPath, 'data:image/');
 
                         if (preg_match('#^(https?:)?//#', (string) $rawPath) || str_starts_with((string) $rawPath, '/') || str_starts_with((string) $rawPath, 'data:')) {
                             $resolvedUrl = $rawPath;
@@ -133,23 +150,39 @@
                             $resolvedUrl = '#';
                         }
 
+                        $resolvedDownloadUrl = $itemDownloadUrl ?: $resolvedUrl;
+                        $downloadName = $baseName;
+                        if ($ext !== '' && !str_ends_with(strtolower((string) $downloadName), '.' . $ext)) {
+                            $downloadName .= '.' . $ext;
+                        }
+
+                        $removeInputAttrName = $itemRemoveName
+                            ?: ($multiple ? 'remove_' . $cleanPropName . '[]' : 'remove_' . $cleanPropName);
+                        $removeMode = ($multiple || str_ends_with((string) $removeInputAttrName, '[]')) ? 'multiple' : 'single';
+                        $removeValueAttr = $removeMode === 'multiple' ? (string) $itemRemoveValue : '1';
+                        $existingInputValue = $itemId !== null && $itemId !== '' ? (string) $itemId : (string) $rawPath;
+
                         $iconClass = 'ti-file';
                         $modifierClass = '';
                         if ($ext === 'pdf') {
                             $iconClass = 'ti-file-type-pdf';
                             $modifierClass = 'file-item-icon-pdf';
-                        } elseif (in_array($ext, ['doc', 'docx'])) {
+                        } elseif (in_array($ext, ['doc', 'docx'], true)) {
                             $iconClass = 'ti-file-description';
                             $modifierClass = 'file-item-icon-word';
-                        } elseif (in_array($ext, ['xls', 'xlsx', 'csv'])) {
+                        } elseif (in_array($ext, ['xls', 'xlsx', 'csv'], true)) {
                             $iconClass = 'ti-file-spreadsheet';
                             $modifierClass = 'file-item-icon-excel';
                         }
                     @endphp
-                    <div class="file-item" data-existing-file-card data-file-path="{{ $rawPath }}">
-                        <input type="hidden" name="{{ $existingInputName }}" value="{{ $rawPath }}" data-existing-file-input>
+                    <div class="file-item" data-existing-file-card data-file-path="{{ $existingInputValue }}" @if ($itemId !== null && $itemId !== '') data-file-id="{{ $itemId }}" @endif>
+                        <input type="hidden" name="{{ $existingInputName }}" value="{{ $existingInputValue }}" data-existing-file-input>
                         @if ($isExistingImg && $resolvedUrl !== '#')
-                            <img src="{{ $resolvedUrl }}" alt="{{ $label ?: $baseName }}" class="file-item-preview">
+                            <img src="{{ $resolvedUrl }}" alt="{{ $label ?: $baseName }}" class="file-item-preview"
+                                onerror="this.classList.add('d-none');this.nextElementSibling?.classList.remove('d-none')">
+                            <div class="file-item-icon file-item-icon-image d-none">
+                                <i class="ti ti-photo"></i>
+                            </div>
                         @else
                             <div class="file-item-icon {{ $modifierClass }}">
                                 <i class="ti {{ $iconClass }}"></i>
@@ -159,14 +192,25 @@
                             <div class="file-item-name" title="{{ $baseName }}">{{ $baseName }}</div>
                             <div class="file-item-size text-success small">ملف محفوظ مسبقاً</div>
                         </div>
-                        @if ($resolvedUrl !== '#')
-                            <a href="{{ $resolvedUrl }}" target="_blank" class="btn-view-file text-decoration-none me-1" style="text-decoration: none;" title="معاينة الملف" aria-label="معاينة الملف">
-                                <i class="ti ti-eye"></i>
-                            </a>
-                        @endif
-                        <button type="button" class="btn-remove-file" data-remove-existing-file="remove_{{ $cleanPropName }}" title="إزالة الملف" aria-label="إزالة الملف">
-                            <i class="ti ti-trash"></i>
-                        </button>
+                        <div class="file-item-actions">
+                            @if ($resolvedUrl !== '#')
+                                <a href="{{ $resolvedUrl }}" target="_blank" rel="noopener noreferrer" class="btn-view-file text-decoration-none" style="text-decoration: none;" title="معاينة الملف" aria-label="معاينة الملف">
+                                    <i class="ti ti-eye"></i>
+                                </a>
+                            @endif
+                            @if ($resolvedDownloadUrl !== '#')
+                                <a href="{{ $resolvedDownloadUrl }}" download="{{ $downloadName }}" class="btn-download-file text-decoration-none" style="text-decoration: none;" title="تنزيل الملف" aria-label="تنزيل الملف">
+                                    <i class="ti ti-download"></i>
+                                </a>
+                            @endif
+                            <button type="button" class="btn-remove-file"
+                                data-remove-existing-file="{{ $removeInputAttrName }}"
+                                data-remove-mode="{{ $removeMode }}"
+                                data-remove-value="{{ $removeValueAttr }}"
+                                title="إزالة الملف" aria-label="إزالة الملف">
+                                <i class="ti ti-trash"></i>
+                            </button>
+                        </div>
                     </div>
                 @endforeach
             @endif

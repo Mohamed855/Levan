@@ -21,7 +21,7 @@
             align-items: stretch !important;
         }
 
-        .input-group.has-select2 > .select2-container {
+        .input-group.has-select2>.select2-container {
             display: flex !important;
             flex-direction: column !important;
             justify-content: stretch !important;
@@ -31,14 +31,14 @@
             margin: 0 !important;
         }
 
-        .input-group.has-select2 > .select2-container > .selection {
+        .input-group.has-select2>.select2-container>.selection {
             display: flex !important;
             flex: 1 1 auto !important;
             width: 100% !important;
             height: 100% !important;
         }
 
-        .input-group.has-select2 > .select2-container > .selection > .select2-selection {
+        .input-group.has-select2>.select2-container>.selection>.select2-selection {
             display: flex !important;
             flex: 1 1 auto !important;
             width: 100% !important;
@@ -50,7 +50,7 @@
             box-sizing: border-box !important;
         }
 
-        .input-group.has-select2 > .btn-select-all-regions {
+        .input-group.has-select2>.btn-select-all-regions {
             align-self: stretch !important;
             display: inline-flex !important;
             align-items: center !important;
@@ -77,21 +77,21 @@
             border-color: var(--bs-danger, #ff3e1d) !important;
         }
 
-        .input-group.has-select2.is-invalid > .select2-container .select2-selection,
-        .input-group.has-select2:has(.is-invalid) > .select2-container .select2-selection,
-        .input-group.has-select2:has(.select2-container.is-invalid) > .select2-container .select2-selection,
-        [data-form-field].is-invalid .input-group.has-select2 > .select2-container .select2-selection,
-        [data-form-field].has-error .input-group.has-select2 > .select2-container .select2-selection,
+        .input-group.has-select2.is-invalid>.select2-container .select2-selection,
+        .input-group.has-select2:has(.is-invalid)>.select2-container .select2-selection,
+        .input-group.has-select2:has(.select2-container.is-invalid)>.select2-container .select2-selection,
+        [data-form-field].is-invalid .input-group.has-select2>.select2-container .select2-selection,
+        [data-form-field].has-error .input-group.has-select2>.select2-container .select2-selection,
         .select2-container.is-invalid .select2-selection {
             border-color: var(--bs-danger, #ff3e1d) !important;
             border-inline-end: 0 !important;
         }
 
-        .input-group.has-select2.is-invalid > .btn-select-all-regions,
-        .input-group.has-select2:has(.is-invalid) > .btn-select-all-regions,
-        .input-group.has-select2:has(.select2-container.is-invalid) > .btn-select-all-regions,
-        [data-form-field].is-invalid .input-group.has-select2 > .btn-select-all-regions,
-        [data-form-field].has-error .input-group.has-select2 > .btn-select-all-regions {
+        .input-group.has-select2.is-invalid>.btn-select-all-regions,
+        .input-group.has-select2:has(.is-invalid)>.btn-select-all-regions,
+        .input-group.has-select2:has(.select2-container.is-invalid)>.btn-select-all-regions,
+        [data-form-field].is-invalid .input-group.has-select2>.btn-select-all-regions,
+        [data-form-field].has-error .input-group.has-select2>.btn-select-all-regions {
             border-color: var(--bs-danger, #ff3e1d) !important;
             border-inline-start: 0 !important;
         }
@@ -104,19 +104,19 @@
             border-color: var(--bs-success, #71dd37) !important;
         }
 
-        .input-group.has-select2.is-valid > .select2-container .select2-selection,
-        .input-group.has-select2:has(.is-valid) > .select2-container .select2-selection,
-        .input-group.has-select2:has(.select2-container.is-valid) > .select2-container .select2-selection,
-        [data-form-field].is-valid .input-group.has-select2 > .select2-container .select2-selection,
+        .input-group.has-select2.is-valid>.select2-container .select2-selection,
+        .input-group.has-select2:has(.is-valid)>.select2-container .select2-selection,
+        .input-group.has-select2:has(.select2-container.is-valid)>.select2-container .select2-selection,
+        [data-form-field].is-valid .input-group.has-select2>.select2-container .select2-selection,
         .select2-container.is-valid .select2-selection {
             border-color: var(--bs-success, #71dd37) !important;
             border-inline-end: 0 !important;
         }
 
-        .input-group.has-select2.is-valid > .btn-select-all-regions,
-        .input-group.has-select2:has(.is-valid) > .btn-select-all-regions,
-        .input-group.has-select2:has(.select2-container.is-valid) > .btn-select-all-regions,
-        [data-form-field].is-valid .input-group.has-select2 > .btn-select-all-regions {
+        .input-group.has-select2.is-valid>.btn-select-all-regions,
+        .input-group.has-select2:has(.is-valid)>.btn-select-all-regions,
+        .input-group.has-select2:has(.select2-container.is-valid)>.btn-select-all-regions,
+        [data-form-field].is-valid .input-group.has-select2>.btn-select-all-regions {
             border-color: var(--bs-success, #71dd37) !important;
             border-inline-start: 0 !important;
         }
@@ -152,34 +152,40 @@
                                 help="الحد الأقصى لعدد الأحرف: 14." />
 
                             <div class="col-12 mt-4 pt-3 border-top">
-                                <h6 class="fw-bold mb-3">التوقيع والختم في النماذج التنظيمية</h6>
                                 <div class="row g-4">
                                     @foreach (['signature' => 'توقيع المنشأة', 'stamp' => 'ختم المنشأة'] as $asset => $label)
-                                        <div class="col-md-6">
-                                            <x-form.controls.file :name="'establishment_'.$asset" :label="$label"
-                                                accept="image/png,.png" desc="PNG فقط — أقصى حجم 10 ميجابايت"
-                                                help="اختياري. اترك الحقل فارغاً للاحتفاظ بالصورة المحفوظة." :max-size="10" col="col-12" />
-                                            @if ($settings->getAttribute('establishment_'.$asset))
-                                                <div class="d-inline-flex align-items-center justify-content-center rounded border shadow-sm bg-label-dark text-dark mt-2" style="width:150px;height:90px">
-                                                    <img src="{{ tenant_route_name('settings.signing-assets.show', ['asset' => $asset]) }}"
-                                                        alt="{{ $label }}" class="w-100 h-100 object-fit-contain rounded"
-                                                        onerror="this.classList.add('d-none');this.nextElementSibling.classList.remove('d-none')">
-                                                    <i class="ti ti-settings fs-3 d-none" aria-hidden="true"></i>
-                                                </div>
-                                            @endif
-                                        </div>
+                                        @php
+                                            $savedAssetPath = $settings?->getAttribute('establishment_' . $asset);
+                                            $existingAsset = $savedAssetPath
+                                                ? [
+                                                    'url' => tenant_route_name('settings.signing-assets.show', ['asset' => $asset]),
+                                                    'name' => basename((string) $savedAssetPath),
+                                                    'mime' => 'image/png',
+                                                ]
+                                                : null;
+                                        @endphp
+                                        <x-form.controls.file :name="'establishment_' . $asset" :label="$label"
+                                            :value="$existingAsset" accept="image/png,.png"
+                                            desc="PNG فقط — أقصى حجم 10 ميجابايت"
+                                            help="اختياري. اترك الحقل فارغاً للاحتفاظ بالصورة المحفوظة."
+                                            :max-size="10" col="col-md-6" />
                                     @endforeach
                                 </div>
-                                <div class="form-text mt-2">تُستخدم الصور الحالية عند توليد نموذج إقامة المزاد أو إقفاله مجدداً. حفظ الإعدادات لا يغيّر النماذج السابقة.</div>
+                                <div class="form-text mt-2">تُستخدم الصور الحالية عند توليد نموذج إقامة المزاد أو إقفاله
+                                    مجدداً. حفظ الإعدادات لا يغيّر النماذج السابقة.</div>
                             </div>
                             <div class="col-12 mt-4 pt-3 border-top">
                                 <h6 class="fw-bold mb-3">بيانات التواصل في تقارير المزادات</h6>
                                 <div class="row g-4">
-                                    <x-form.controls.input name="report_phone" label="هاتف التواصل" :value="old('report_phone', $settings->report_phone)" col="col-md-4" />
-                                    <x-form.controls.input name="report_unified_phone" label="الرقم الموحد" :value="old('report_unified_phone', $settings->report_unified_phone)" col="col-md-4" />
-                                    <x-form.controls.input name="report_social" label="حساب التواصل الاجتماعي" :value="old('report_social', $settings->report_social)" col="col-md-4" />
+                                    <x-form.controls.input name="report_phone" label="هاتف التواصل" :value="old('report_phone', $settings->report_phone)"
+                                        col="col-md-4" />
+                                    <x-form.controls.input name="report_unified_phone" label="الرقم الموحد"
+                                        :value="old('report_unified_phone', $settings->report_unified_phone)" col="col-md-4" />
+                                    <x-form.controls.input name="report_social" label="حساب التواصل الاجتماعي"
+                                        :value="old('report_social', $settings->report_social)" col="col-md-4" />
                                 </div>
-                                <div class="form-text mt-2">تُستخدم أحدث بيانات التواصل والشعار عند إعادة توليد التقارير؛ تحديث الإعدادات وحده لا يعيد توليدها.</div>
+                                <div class="form-text mt-2">تُستخدم أحدث بيانات التواصل والشعار عند إعادة توليد التقارير؛
+                                    تحديث الإعدادات وحده لا يعيد توليدها.</div>
                             </div>
                             <div class="col-12 mt-4 pt-3 border-top">
                                 <h6 class="fw-bold mb-3 d-flex align-items-center">

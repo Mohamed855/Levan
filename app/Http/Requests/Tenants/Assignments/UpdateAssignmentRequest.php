@@ -78,13 +78,58 @@ class UpdateAssignmentRequest extends WizardFormRequest
                     })->whereNull('deleted_at'),
                 ),
             ],
-            'assignment_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:10240'],
-            'assignment_letter' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:10240'],
+            'assignment_image' => [
+                Rule::requiredIf(fn (): bool => $this->boolean('remove_assignment_image')),
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp,svg',
+                'max:10240',
+            ],
+            'assignment_letter' => [
+                Rule::requiredIf(fn (): bool => $this->boolean('remove_assignment_letter')),
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png,webp',
+                'max:10240',
+            ],
             'general_documents' => ['nullable', 'array'],
             'general_documents.*' => ['nullable', 'file', 'max:10240'],
             'additional_attachments' => ['nullable', 'array'],
             'additional_attachments.*' => ['nullable', 'file', 'max:10240'],
+            'remove_assignment_image' => ['nullable', 'boolean'],
+            'remove_assignment_letter' => ['nullable', 'boolean'],
+            'remove_general_documents' => ['nullable', 'array'],
+            'remove_general_documents.*' => ['integer', 'distinct'],
+            'remove_additional_attachments' => ['nullable', 'array'],
+            'remove_additional_attachments.*' => ['integer', 'distinct'],
         ];
+    }
+
+    public function withValidator(\Illuminate\Validation\Validator $validator): void
+    {
+        $validator->after(function (\Illuminate\Validation\Validator $validator): void {
+            $removedGeneralIds = array_values(array_unique(array_map('intval', (array) $this->input('remove_general_documents', []))));
+            if ($removedGeneralIds === [] || $this->hasFile('general_documents')) {
+                return;
+            }
+
+            $assignmentParam = $this->route('assignment');
+            $assignment = $assignmentParam instanceof \App\Models\Tenants\Assignments\Assignment
+                ? $assignmentParam
+                : \App\Models\Tenants\Assignments\Assignment::query()->find($assignmentParam);
+            if (! $assignment) {
+                return;
+            }
+
+            $remaining = $assignment->attachments()
+                ->where('category', \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::GENERAL_DOCUMENT->value)
+                ->whereNotIn('id', $removedGeneralIds)
+                ->count();
+
+            if ($remaining === 0) {
+                $validator->errors()->add('general_documents', 'يجب الإبقاء على مستند عام واحد على الأقل أو رفع مستند جديد.');
+            }
+        });
     }
 
     public function messages(): array

@@ -66,7 +66,7 @@ final class AsirNativeContent
         $content['campaigns'] = $snapshot['marketing']['campaigns'] ?? [];
         $content['legacy'] = ($snapshot['cycle_version'] ?? 0) < 1;
         $content['whatsapp_chart'] = $index === 13 ? $this->whatsappChart($snapshot) : null;
-        $content['paragraphs'] = $this->paragraphs($index, $content['values']);
+        $content['paragraphs'] = $this->paragraphs($index, $snapshot['marketing'] ?? []);
         $content['channels'] = $this->channels($content, $snapshot);
         $content['board_section'] = $index >= 16 ? 'board_after' : 'board_before';
         $content['board_offset'] = $page['payload']['offset'] ?? 0;
@@ -92,21 +92,17 @@ final class AsirNativeContent
         return $content;
     }
 
-    private function paragraphs(int $index, array $values): array
+    private function paragraphs(int $index, array $marketing): array
     {
         static $copy;
         $copy ??= require resource_path('auction-reports/asir/native-copy.php');
         $paragraphs = [];
-        foreach ($copy[$index] ?? [] as $block) {
-            $value = isset($block['role']) ? ($values[$block['role']] ?? '') : $block['text'];
-            if (isset($block['append_role'])) {
-                $value .= ' '.($values[$block['append_role']] ?? '');
-            }
-            if (isset($block['suffix'])) {
-                $value .= ' '.$block['suffix'];
-            }
-            if ($value !== '' && $value !== '-') {
-                $paragraphs[] = ['text' => $value, 'role' => $block['role'] ?? $block['append_role'] ?? null];
+        foreach ($copy[$index] ?? [] as $role) {
+            $recorded = array_column($marketing['campaigns'] ?? [], $role);
+            $value = $recorded === [] ? ($marketing[$role] ?? '') : implode("\n", array_filter($recorded, static fn ($text): bool => $text !== null && $text !== ''));
+            $value = (string) $value;
+            if (trim($value) !== '' && trim($value) !== '-') {
+                $paragraphs[] = ['text' => $value, 'role' => $role];
             }
         }
 
@@ -128,6 +124,15 @@ final class AsirNativeContent
                 }
                 $precision = in_array($key, ['watch_hours', 'profile_change', 'reach_change', 'views_change'], true) ? 2 : 0;
                 $metrics[$key] = ['label' => $metricLabel, 'value' => is_numeric($value) ? (new AuctionReportFormat)->number((float) $value, $precision) : (string) $value];
+            }
+            if ($channel === 'whatsapp') {
+                $ordered = [];
+                foreach (['messages' => 'تم الإرسال', 'views' => 'تم المشاهدة', 'delivered' => 'تم الاستلام', 'failed' => 'فشل', 'pending' => 'قيد الانتظار', 'total' => 'الكل'] as $key => $tableLabel) {
+                    if (isset($metrics[$key])) {
+                        $ordered[$key] = array_replace($metrics[$key], ['label' => $tableLabel]);
+                    }
+                }
+                $metrics = $ordered + $metrics;
             }
             $images = [];
             if ($content['index'] === 14) {

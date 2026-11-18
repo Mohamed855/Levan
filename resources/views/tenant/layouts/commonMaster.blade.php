@@ -65,6 +65,8 @@ $contentLayout = isset($container) ? ($container === 'container-xxl' ? 'layout-c
     data-username="{{ Auth::user()->name ?? '' }}"
     data-app-boundary="tenant"
     data-wizard-drafts-url="{{ tenant() ? tenant_route_name('wizard-drafts.index') : '' }}"
+    data-failed-draft-id="{{ session('_wizard_failed_draft.id', '') }}"
+    data-failed-draft-resource="{{ session('_wizard_failed_draft.resource_key', '') }}"
 >
 
     <!-- Layout Content -->

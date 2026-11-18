@@ -829,6 +829,13 @@ select[readonly] ~ .select2-container {
     }
   }
 
+  .file-item-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+
   .btn-remove-file {
     width: 1.85rem;
     height: 1.85rem;
@@ -869,7 +876,8 @@ select[readonly] ~ .select2-container {
     }
   }
 
-  .btn-view-file {
+  .btn-view-file,
+  .btn-download-file {
     width: 1.85rem;
     height: 1.85rem;
     padding: 0;
@@ -906,6 +914,16 @@ select[readonly] ~ .select2-container {
       line-height: 1;
       text-decoration: none !important;
       display: inline-block;
+    }
+  }
+
+  .btn-download-file {
+    background: rgba(2, 132, 199, 0.1);
+    color: #0284c7;
+
+    &:hover {
+      background: #0284c7;
+      color: #ffffff;
     }
   }
 }

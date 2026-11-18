@@ -24,6 +24,51 @@ async function render(scenario, callback, beforeLayout = null) {
     } finally { await browser.close(); }
 }
 
+test('Asir tables retain the original open grid, column proportions and interrupted detail frame', async () => {
+    await render('populated', async page => {
+        const result = await page.evaluate(() => {
+            const property = document.querySelector('.asir-property-table');
+            const cells = [...property.querySelector('tbody tr').cells];
+            const widths = cells.map(cell => cell.getBoundingClientRect().width / property.getBoundingClientRect().width);
+            const detail = document.querySelector('.asir-sold-table-frame');
+            return {
+                widths,
+                serialBorder: getComputedStyle(cells[0]).borderBottomWidth,
+                lastBorder: getComputedStyle(property.querySelector('tbody tr:last-child td:last-child')).borderBottomWidth,
+                detailTag: detail.tagName,
+                legend: detail.querySelector('legend')?.textContent.trim(),
+                deedSize: parseFloat(getComputedStyle(document.querySelector('.asir-sold-table td:first-child')).fontSize) * .75,
+                unsoldHeaderFont: getComputedStyle(document.querySelector('.asir-unsold-table th:nth-child(2)')).fontFamily,
+                unsoldSerialHeading: document.querySelector('.asir-unsold-table th:first-child').textContent.trim(),
+            };
+        });
+        [33, 81, 107, 80, 85, 116].forEach((width, index) => assert.ok(Math.abs(result.widths[index] - width / 502) < .002, `column ${index}`));
+        assert.equal(result.serialBorder, '0px');
+        assert.equal(result.lastBorder, '0px');
+        assert.equal(result.detailTag, 'FIELDSET');
+        assert.equal(result.legend, 'تفاصيل');
+        assert.ok(Math.abs(result.deedSize - 15.973) < .01);
+        assert.match(result.unsoldHeaderFont, /STVReport/);
+        assert.equal(result.unsoldSerialHeading, '');
+    });
+});
+
+test('WhatsApp keeps the original statistics order and separated total row', async () => {
+    await render('populated', async page => {
+        const rows = await page.evaluate(() => [...document.querySelectorAll('.asir-whatsapp-table tr')].map(row => ({
+            field: row.querySelector('[data-report-field]').dataset.reportField,
+            label: row.querySelector('th').textContent.trim(),
+            height: row.getBoundingClientRect().height * .75,
+            gap: parseFloat(getComputedStyle(row.querySelector('th')).borderTopWidth) * .75,
+        })));
+        assert.deepEqual(rows.map(row => row.field), ['whatsapp_messages', 'whatsapp_views', 'whatsapp_delivered', 'whatsapp_failed', 'whatsapp_pending', 'whatsapp_total']);
+        assert.equal(rows[0].label, 'تم الإرسال');
+        assert.equal(rows.at(-1).label, 'الكل');
+        assert.ok(rows.every(row => row.height >= 20));
+        assert.ok(rows.at(-1).gap >= 12);
+    });
+});
+
 test('every internal Asir page uses native content and every PDF page matches the measured DOM', async () => {
     await render('populated', async page => {
         const result = await page.evaluate(() => ({

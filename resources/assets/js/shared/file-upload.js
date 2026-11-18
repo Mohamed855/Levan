@@ -67,15 +67,33 @@ export function initFileUploadZone(zone) {
       e.stopPropagation();
       const existingCard = btn.closest('[data-existing-file-card]');
       const removeInputName = btn.dataset.removeExistingFile;
+      const removeMode = btn.dataset.removeMode || (isMultiple || String(removeInputName || '').endsWith('[]') ? 'multiple' : 'single');
+      const removeValue = btn.dataset.removeValue || existingCard?.dataset.fileId || existingCard?.dataset.filePath || '1';
+
       if (removeInputName) {
-        let hiddenInput = controlWrapper.querySelector(`input[name="${removeInputName}"]`);
-        if (!hiddenInput) {
-          hiddenInput = document.createElement('input');
-          hiddenInput.type = 'hidden';
-          hiddenInput.name = removeInputName;
-          controlWrapper.appendChild(hiddenInput);
+        if (removeMode === 'multiple') {
+          const existingHidden = Array.from(controlWrapper.querySelectorAll('input[type="hidden"]'))
+            .find((el) => el.name === removeInputName && el.value === String(removeValue));
+          if (!existingHidden) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = removeInputName;
+            hiddenInput.value = String(removeValue);
+            hiddenInput.dataset.generatedRemoveInput = 'multiple';
+            controlWrapper.appendChild(hiddenInput);
+          }
+        } else {
+          let hiddenInput = Array.from(controlWrapper.querySelectorAll('input[type="hidden"]'))
+            .find((el) => el.name === removeInputName);
+          if (!hiddenInput) {
+            hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = removeInputName;
+            hiddenInput.dataset.generatedRemoveInput = 'single';
+            controlWrapper.appendChild(hiddenInput);
+          }
+          hiddenInput.value = '1';
         }
-        hiddenInput.value = '1';
       }
       if (existingCard) existingCard.remove();
 
@@ -91,11 +109,23 @@ export function initFileUploadZone(zone) {
 
       input.dispatchEvent(new Event('input', { bubbles: true }));
       input.dispatchEvent(new Event('change', { bubbles: true }));
-      zone.dispatchEvent(new CustomEvent('file:removed-existing', { bubbles: true, detail: { input } }));
+      zone.dispatchEvent(new CustomEvent('file:removed-existing', {
+        bubbles: true,
+        detail: { input, removeInputName, removeMode, removeValue },
+      }));
     });
   }
 
   let isSyncing = false;
+
+  function syncInput() {
+    if (!window.DataTransfer) return;
+    const transfer = new DataTransfer();
+    currentFiles.forEach((f) => transfer.items.add(f));
+    isSyncing = true;
+    input.files = transfer.files;
+    isSyncing = false;
+  }
 
   function syncAndDispatch() {
     if (!window.DataTransfer) return;
@@ -106,6 +136,11 @@ export function initFileUploadZone(zone) {
 
     if (currentFiles.length > 0) {
       zone.classList.add('has-files');
+      if (!isMultiple) {
+        controlWrapper.querySelectorAll('input[type="hidden"][data-generated-remove-input="single"]').forEach((el) => {
+          el.value = '0';
+        });
+      }
       if (input.required) {
         input.required = false;
         input.removeAttribute('required');
@@ -202,17 +237,34 @@ export function initFileUploadZone(zone) {
       infoDiv.appendChild(sizeDiv);
       item.appendChild(infoDiv);
 
-      const viewUrl = file._draftUrl || (window.URL && typeof window.URL.createObjectURL === 'function' && file.size > 0 ? window.URL.createObjectURL(file) : null);
+      const actionsWrap = document.createElement('div');
+      actionsWrap.className = 'file-item-actions';
+
+      const objectUrl = !file._draftUrl && window.URL && typeof window.URL.createObjectURL === 'function' && file.size > 0
+        ? window.URL.createObjectURL(file)
+        : null;
+      const viewUrl = file._draftUrl || objectUrl;
       if (viewUrl) {
         const viewLink = document.createElement('a');
         viewLink.href = viewUrl;
         viewLink.target = '_blank';
-        viewLink.className = 'btn-view-file text-decoration-none me-1';
+        viewLink.rel = 'noopener noreferrer';
+        viewLink.className = 'btn-view-file text-decoration-none';
         viewLink.style.textDecoration = 'none';
         viewLink.title = 'معاينة الملف';
         viewLink.setAttribute('aria-label', `معاينة ${file.name}`);
         viewLink.innerHTML = '<i class="ti ti-eye"></i>';
-        item.appendChild(viewLink);
+        actionsWrap.appendChild(viewLink);
+
+        const downloadLink = document.createElement('a');
+        downloadLink.href = file._draftDownloadUrl || viewUrl;
+        downloadLink.download = file.name || 'file';
+        downloadLink.className = 'btn-download-file text-decoration-none';
+        downloadLink.style.textDecoration = 'none';
+        downloadLink.title = 'تنزيل الملف';
+        downloadLink.setAttribute('aria-label', `تنزيل ${file.name}`);
+        downloadLink.innerHTML = '<i class="ti ti-download"></i>';
+        actionsWrap.appendChild(downloadLink);
       }
 
       const removeBtn = document.createElement('button');
@@ -231,12 +283,25 @@ export function initFileUploadZone(zone) {
 
         if (removed && removed._draftKey) {
           const form = controlWrapper.closest('form');
-          const draftFileUrl = form?.dataset.draftFileUrl;
-          const resourceKey = form?.dataset.draftResourceKey || form?.dataset.wizardResourceKey;
+          let draftFileUrl = form?.dataset.draftFileUrl
+            || (form?.dataset.draftUrl ? `${form.dataset.draftUrl.replace(/\/$/, '')}/file` : '')
+            || (document.body?.dataset.wizardDraftsUrl ? `${document.body.dataset.wizardDraftsUrl.replace(/\/$/, '')}/file` : '');
+          if (draftFileUrl) {
+            try {
+              const parsed = new URL(draftFileUrl, window.location.origin);
+              if (parsed.origin !== window.location.origin && (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1')) {
+                draftFileUrl = parsed.pathname + parsed.search;
+              }
+            } catch (_) {}
+          }
+          const resourceKey = form?.dataset.draftResourceKey
+            || form?.dataset.wizardResourceKey
+            || form?.querySelector('input[name="_wizard_resource_key"]')?.value;
           if (draftFileUrl && resourceKey) {
             const csrfToken = form.querySelector('input[name="_token"]')?.value || document.querySelector('meta[name="csrf-token"]')?.content;
             fetch(draftFileUrl, {
               method: 'DELETE',
+              credentials: 'same-origin',
               headers: {
                 'X-CSRF-TOKEN': csrfToken,
                 'Content-Type': 'application/json',
@@ -256,7 +321,8 @@ export function initFileUploadZone(zone) {
         }));
       });
 
-      item.appendChild(removeBtn);
+      actionsWrap.appendChild(removeBtn);
+      item.appendChild(actionsWrap);
       previewContainer.appendChild(item);
     });
   }
@@ -337,21 +403,28 @@ export function initFileUploadZone(zone) {
     const safeName = escapeHtml(name);
     const rawPath = fileData.path || fileData.url || '';
     const resolvedUrl = fileData.url || (rawPath.startsWith('http') || rawPath.startsWith('/') ? rawPath : `/storage/${rawPath}`);
+    const downloadUrl = fileData.downloadUrl || fileData.download_url || resolvedUrl;
     const ext = (fileData.extension || name.split('.').pop() || '').toLowerCase();
     const isImg = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'].includes(ext) || Boolean(fileData.isImage);
 
     const baseNameProp = input.name.replace(/\[\]$/, '');
     const cleanPropName = baseNameProp.replace(/[\[\].]/g, '_');
     const existingInputName = fileData.inputName || ('existing_' + (isMultiple ? baseNameProp + '[]' : baseNameProp));
+    const removeInputName = fileData.removeName || fileData.remove_name || (isMultiple ? `remove_${cleanPropName}[]` : `remove_${cleanPropName}`);
+    const removeMode = isMultiple || String(removeInputName).endsWith('[]') ? 'multiple' : 'single';
+    const removeValue = fileData.removeValue ?? fileData.remove_value ?? fileData.id ?? rawPath;
 
     const card = document.createElement('div');
     card.className = 'file-item';
     card.dataset.existingFileCard = '';
     card.dataset.filePath = rawPath;
+    if (fileData.id !== undefined && fileData.id !== null && fileData.id !== '') {
+      card.dataset.fileId = String(fileData.id);
+    }
 
     let mediaHtml = '';
     if (isImg && resolvedUrl && resolvedUrl !== '#') {
-      mediaHtml = `<img src="${escapeHtml(resolvedUrl)}" alt="${safeName}" class="file-item-preview">`;
+      mediaHtml = `<img src="${escapeHtml(resolvedUrl)}" alt="${safeName}" class="file-item-preview" onerror="this.classList.add('d-none');this.nextElementSibling?.classList.remove('d-none')"><div class="file-item-icon file-item-icon-image d-none"><i class="ti ti-photo"></i></div>`;
     } else {
       let iconClass = 'ti-file';
       let modClass = '';
@@ -369,7 +442,10 @@ export function initFileUploadZone(zone) {
     }
 
     const viewBtn = resolvedUrl && resolvedUrl !== '#'
-      ? `<a href="${escapeHtml(resolvedUrl)}" target="_blank" class="btn-view-file text-decoration-none me-1" style="text-decoration: none;" title="معاينة الملف" aria-label="معاينة الملف"><i class="ti ti-eye"></i></a>`
+      ? `<a href="${escapeHtml(resolvedUrl)}" target="_blank" rel="noopener noreferrer" class="btn-view-file text-decoration-none" style="text-decoration: none;" title="معاينة الملف" aria-label="معاينة الملف"><i class="ti ti-eye"></i></a>`
+      : '';
+    const downloadBtn = downloadUrl && downloadUrl !== '#'
+      ? `<a href="${escapeHtml(downloadUrl)}" download="${safeName}" class="btn-download-file text-decoration-none" style="text-decoration: none;" title="تنزيل الملف" aria-label="تنزيل الملف"><i class="ti ti-download"></i></a>`
       : '';
 
     card.innerHTML = `
@@ -379,10 +455,13 @@ export function initFileUploadZone(zone) {
         <div class="file-item-name" title="${safeName}">${safeName}</div>
         <div class="file-item-size text-success small">ملف محفوظ مسبقاً</div>
       </div>
-      ${viewBtn}
-      <button type="button" class="btn-remove-file" data-remove-existing-file="remove_${escapeHtml(cleanPropName)}" title="إزالة الملف" aria-label="إزالة الملف">
-        <i class="ti ti-trash"></i>
-      </button>
+      <div class="file-item-actions">
+        ${viewBtn}
+        ${downloadBtn}
+        <button type="button" class="btn-remove-file" data-remove-existing-file="${escapeHtml(removeInputName)}" data-remove-mode="${escapeHtml(removeMode)}" data-remove-value="${escapeHtml(removeValue)}" title="إزالة الملف" aria-label="إزالة الملف">
+          <i class="ti ti-trash"></i>
+        </button>
+      </div>
     `;
 
     return card;
@@ -435,6 +514,7 @@ export function initFileUploadZone(zone) {
       renderPreviews();
     },
     renderPreviews,
+    syncInput,
     syncAndDispatch,
   };
 

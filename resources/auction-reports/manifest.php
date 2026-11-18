@@ -24,7 +24,7 @@ return array (
     'asir/layout.js' => '30009efa133024c2800e787068cd1fe85c0979dd76a023343a493f2c689b9999',
     'asir/native-broker-pattern.png' => 'bb9c6b236205a484981f37a7074d9d857ec057009aa6b4f409d4b013eeb8f82a',
     'asir/native-broker-watermark.png' => '0b242609d8ada4011f8bf26672e7c7c6da9a2f83c882105d9b901ae325fbf29d',
-    'asir/native-copy.php' => '8fc28f772c98f414cf26a3655513ad4cea8be8f034c470597943d7fc5eb8c7e3',
+    'asir/native-copy.php' => 'ea1bf82b1dc0a16878850d0dca63859c611ab3bf4a6d9cb409fe9a67771ad8fb',
     'asir/native-whatsapp-icon.png' => '1909c4978e576426c6fc184d0a53e1a2e0dc45e58f8150b1b995706afbeda49f',
     'asir/native-x-symbol.png' => 'f248df045383821833e1b9d40ed2c79c27389e024c920e66b15b2eca3069512d',
     'asir/page-1.svg' => '8f16b52c3d583adb757d304ed00d3fb675764ff0883daebd5f57404a7d8756cc',

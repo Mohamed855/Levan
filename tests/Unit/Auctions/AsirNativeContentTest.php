@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Auctions;
 
+use App\Services\Tenants\Auctions\Reports\AsirNativeContent;
 use App\Services\Tenants\Auctions\Reports\AuctionReportRenderer;
 use DOMDocument;
 use DOMXPath;
@@ -11,6 +12,54 @@ use Tests\TestCase;
 
 final class AsirNativeContentTest extends TestCase
 {
+    public function test_empty_narrative_fields_do_not_restore_template_copy_or_binder_defaults(): void
+    {
+        foreach ([3, 4, 5, 6] as $index) {
+            $content = app(AsirNativeContent::class)->prepare([
+                'index' => $index,
+                'values' => ['name_context' => 'عنوان افتراضي من اسم المزاد', 'planning_methodology' => 'نص افتراضي'],
+            ], ['marketing' => []], ['payload' => []]);
+            self::assertSame([], $content['paragraphs']);
+        }
+    }
+
+    public function test_narrative_contains_only_recorded_text_without_original_template_claims(): void
+    {
+        foreach ([0, 1] as $version) {
+            $snapshot = (require __DIR__.'/../../Fixtures/AuctionReports/asir-native.php')('populated');
+            $snapshot['cycle_version'] = $version;
+            $snapshot['marketing'] = [
+                'city_context' => 'النطاق الجغرافي المسجل فقط',
+                'planning_methodology' => 'خطة المستخدم فقط',
+                'brochure_methodology' => 'تصميم المستخدم فقط',
+                'audience_methodology' => 'الفئة المسجلة فقط',
+                'messages_methodology' => 'الرسالة المسجلة فقط',
+                'campaigns' => [],
+            ];
+            $xpath = $this->document($snapshot);
+            $paragraphs = $xpath->query('//*[contains(@class,"asir-narrative-main")]//*[@data-asir-paragraph]');
+            self::assertSame(array_values(array_slice($snapshot['marketing'], 0, 5)), array_map(static fn ($node): string => trim($node->textContent), iterator_to_array($paragraphs)));
+            self::assertSame(0, $xpath->query('//*[contains(@class,"asir-narrative-main")]//li')->length);
+        }
+    }
+
+    public function test_campaign_narrative_does_not_invent_unfilled_design_fields_or_mix_campaigns(): void
+    {
+        $snapshot = (require __DIR__.'/../../Fixtures/AuctionReports/asir-native.php')('sparse');
+        $snapshot['marketing'] = ['campaigns' => [
+            ['id' => 71, 'platform' => 'brochure', 'brochure_methodology' => 'تصميم الحملة الأولى فقط'],
+            ['id' => 72, 'platform' => 'brochure', 'brochure_methodology' => 'تصميم الحملة الثانية فقط'],
+        ]];
+        $xpath = $this->document($snapshot);
+        $pages = $xpath->query('//*[@data-page-type="asir-design"]');
+        self::assertSame(2, $pages->length);
+        foreach ($pages as $index => $page) {
+            $paragraphs = $xpath->query('.//*[@data-asir-paragraph]', $page);
+            self::assertSame(1, $paragraphs->length);
+            self::assertSame($snapshot['marketing']['campaigns'][$index]['brochure_methodology'], trim($paragraphs->item(0)->textContent));
+        }
+    }
+
     private function document(array $snapshot): DOMXPath
     {
         $document = new DOMDocument;

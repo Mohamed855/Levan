@@ -279,10 +279,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 metaLabel: "صورة الإسناد (جديدة)",
             });
         } else {
-            const existingImgCard = document.querySelector('[data-existing-card-field="assignment_image"] .assignment-file-card');
+            const existingImgCard = imgInput?.closest("[data-file-upload-wrapper]")?.querySelector("[data-existing-file-card]:not(.d-none)");
             if (existingImgCard) {
-                const name = existingImgCard.querySelector(".assignment-file-card__name")?.textContent?.trim() || "صورة الإسناد";
-                const url = existingImgCard.querySelector("a.assignment-file-card__action")?.href || existingImgCard.querySelector("img.assignment-file-card__img")?.src;
+                const name = existingImgCard.querySelector(".file-item-name")?.textContent?.trim() || "صورة الإسناد";
+                const url = existingImgCard.querySelector("a.btn-view-file")?.href || existingImgCard.querySelector("img.file-item-preview")?.src;
                 items.push({
                     name,
                     url: url || null,
@@ -299,10 +299,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 metaLabel: "خطاب الإسناد (جديد)",
             });
         } else {
-            const existingLetterCard = document.querySelector('[data-existing-card-field="assignment_letter"] .assignment-file-card');
+            const existingLetterCard = letterInput?.closest("[data-file-upload-wrapper]")?.querySelector("[data-existing-file-card]:not(.d-none)");
             if (existingLetterCard) {
-                const name = existingLetterCard.querySelector(".assignment-file-card__name")?.textContent?.trim() || "خطاب الإسناد";
-                const url = existingLetterCard.querySelector("a.assignment-file-card__action")?.href;
+                const name = existingLetterCard.querySelector(".file-item-name")?.textContent?.trim() || "خطاب الإسناد";
+                const url = existingLetterCard.querySelector("a.btn-view-file")?.href;
                 items.push({
                     name,
                     url: url || null,
@@ -328,13 +328,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!list) return;
 
         const items = [];
+        const input = document.getElementById(inputId);
 
-        // 1. Existing cards preserved in edit mode
-        const fieldKey = existingFieldKey || inputId;
-        document.querySelectorAll(`[data-existing-card-field="${fieldKey}"] .assignment-file-card`).forEach((card) => {
-            const name = card.querySelector(".assignment-file-card__name")?.textContent?.trim();
-            const url = card.querySelector("a.assignment-file-card__action")?.href || card.querySelector("img.assignment-file-card__img")?.src;
-            const meta = card.querySelector(".assignment-file-card__meta span")?.textContent?.trim() || "ملف محفوظ";
+        // 1. Existing cards preserved in edit mode inside the unified file-upload component
+        input?.closest("[data-file-upload-wrapper]")?.querySelectorAll("[data-existing-file-card]:not(.d-none)").forEach((card) => {
+            const name = card.querySelector(".file-item-name")?.textContent?.trim();
+            const url = card.querySelector("a.btn-view-file")?.href || card.querySelector("img.file-item-preview")?.src;
+            const meta = card.querySelector(".file-item-size")?.textContent?.trim() || "ملف محفوظ";
             if (name) {
                 items.push({
                     name,
@@ -345,7 +345,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // 2. Newly selected files from file input
-        const input = document.getElementById(inputId);
         const files = Array.from(input?.files || []);
         files.forEach((file) => {
             items.push({

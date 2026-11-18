@@ -123,6 +123,9 @@ class WizardDraftController extends Controller
             return $this->passesAuthorization();
         })->call($formRequest);
         abort_unless($authorized, 403);
+        if ($formRequest instanceof \App\Http\Requests\Concerns\WizardFormRequest) {
+            $formRequest->mergeWizardDraftIfPresent();
+        }
         $this->prepareForValidation($formRequest);
 
         $rules = $this->rulesForFields($formRequest->rules(), $request->validated('fields'));

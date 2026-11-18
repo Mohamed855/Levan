@@ -634,15 +634,25 @@ async function createFileFromDraftItem(item) {
 
     let blob = null;
     if (item.url) {
+        let fetchUrl = item.url;
         try {
-            const res = await fetch(item.url, { credentials: "same-origin" });
+            const parsed = new URL(fetchUrl, window.location.origin);
+            if (
+                parsed.origin !== window.location.origin &&
+                (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1")
+            ) {
+                fetchUrl = parsed.pathname + parsed.search;
+            }
+        } catch (_) {}
+        try {
+            const res = await fetch(fetchUrl, { credentials: "same-origin" });
             if (res.ok) {
                 blob = await res.blob();
             }
         } catch (e) {
             console.warn(
                 "Could not fetch draft file blob from URL:",
-                item.url,
+                fetchUrl,
                 e,
             );
         }
@@ -670,7 +680,17 @@ async function createFileFromDraftItem(item) {
     return file;
 }
 
-async function restoreDraftFiles(form, files) {
+function syncFormFileInputs(form) {
+    if (!form) return;
+    form.querySelectorAll('input[type="file"]').forEach((fileInput) => {
+        const controller = getFileUploadController(fileInput);
+        if (controller && typeof controller.syncInput === "function") {
+            controller.syncInput();
+        }
+    });
+}
+
+async function restoreDraftFiles(form, files, { skipPopulated = false } = {}) {
     if (!files || typeof files !== "object") return;
 
     form.querySelectorAll("[data-archived-draft-files]").forEach((element) =>
@@ -688,6 +708,7 @@ async function restoreDraftFiles(form, files) {
 
         const input = findFileInputForDraftKey(form, fileItem.key);
         if (!input) continue;
+        if (skipPopulated && input.files && input.files.length > 0) continue;
 
         if (!filesByInput.has(input)) {
             filesByInput.set(input, []);
@@ -923,14 +944,29 @@ async function resolveDraftTargetStep(form, defaultStep) {
 }
 
 async function restoreDraft(form) {
-    const draftUrl = form.dataset.draftUrl;
     const wizard = form.closest?.('[data-form-stepper]');
-    const recoveryId = wizard?.dataset?.failedDraftResource === draftResourceKey(form)
+    const bodyDataset = typeof document !== "undefined" ? document.body?.dataset : null;
+    const resourceKey = draftResourceKey(form);
+    const recoveryId = wizard?.dataset?.failedDraftResource === resourceKey
         ? wizard.dataset.failedDraftId
-        : null;
+        : (bodyDataset?.failedDraftResource === resourceKey ? bodyDataset.failedDraftId : null);
     const hasServerErrors = hasVisibleServerErrors(form);
-    if (!draftUrl || (hasServerErrors && !recoveryId)) {
+    const isFailedValidationRecovery = Boolean(recoveryId);
+    let draftUrl = form.dataset.draftUrl || (isFailedValidationRecovery ? bodyDataset?.wizardDraftsUrl : "");
+    if (!draftUrl || (hasServerErrors && !isFailedValidationRecovery)) {
         return;
+    }
+
+    if (typeof window !== "undefined" && window.location?.origin) {
+        try {
+            const parsed = new URL(draftUrl, window.location.origin);
+            if (
+                parsed.origin !== window.location.origin &&
+                (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1")
+            ) {
+                draftUrl = parsed.pathname + parsed.search;
+            }
+        } catch (_) {}
     }
 
     let resolved = false;
@@ -941,7 +977,7 @@ async function restoreDraft(form) {
         const response = await fetch(
             draftUrl +
                 "?resource_key=" +
-                encodeURIComponent(draftResourceKey(form)),
+                encodeURIComponent(resourceKey),
             {
                 credentials: "same-origin",
                 headers: { Accept: "application/json" },
@@ -957,11 +993,11 @@ async function restoreDraft(form) {
             return;
         }
 
-        if (hasServerErrors) {
+        if (hasServerErrors || isFailedValidationRecovery) {
             if (draft.draft_id === recoveryId) {
                 const serverErrors = getFormState(form).lastValidationErrors || {};
                 addHiddenField(form, "_wizard_draft_id", draft.draft_id);
-                addHiddenField(form, "_wizard_resource_key", draftResourceKey(form));
+                addHiddenField(form, "_wizard_resource_key", resourceKey);
                 await restoreDraftFiles(form, draft.files || {});
                 const restorationTasks = [];
                 form.dispatchEvent(new CustomEvent("wizardDraftRestored", {
@@ -973,13 +1009,23 @@ async function restoreDraft(form) {
                     },
                 }));
                 await Promise.allSettled(restorationTasks);
+                if (restorationTasks.length > 0 && draft.files && Object.keys(draft.files).length > 0) {
+                    await restoreDraftFiles(form, draft.files, { skipPopulated: true });
+                }
                 // File change handlers may clear feedback; keep the server errors authoritative.
                 getFormState(form).lastValidationErrors = serverErrors;
                 Object.entries(serverErrors).forEach(([field, messages]) => {
                     setFieldError(form, field, Array.isArray(messages) ? messages[0] : messages);
                 });
-                showFirstInvalidStep(form);
+                if (wizard) {
+                    showFirstInvalidStep(form);
+                }
             }
+            resolved = true;
+            return;
+        }
+
+        if (!form.dataset.draftUrl) {
             resolved = true;
             return;
         }
@@ -1029,6 +1075,9 @@ async function restoreDraft(form) {
             }),
         );
         await Promise.allSettled(restorationTasks);
+        if (restorationTasks.length > 0 && draft.files && Object.keys(draft.files).length > 0) {
+            await restoreDraftFiles(form, draft.files, { skipPopulated: true });
+        }
         const { targetStep, targetControl } = await resolveDraftNavigation(
             form,
             draft.step,
@@ -1081,7 +1130,15 @@ async function restoreDraft(form) {
 
 function initDrafts(form) {
     const draftUrl = form.dataset.draftUrl;
+    const bodyDataset = typeof document !== "undefined" ? document.body?.dataset : null;
+    const hasFailedRecovery = Boolean(
+        bodyDataset?.failedDraftId &&
+            bodyDataset?.failedDraftResource === draftResourceKey(form),
+    );
     if (!draftUrl) {
+        if (hasFailedRecovery) {
+            restoreDraft(form);
+        }
         return;
     }
 
@@ -1153,7 +1210,8 @@ function initDrafts(form) {
             button.dataset.loadingText || "جاري حفظ المسودة...",
         );
         try {
-            const data = new FormData(form);
+            syncFormFileInputs(form);
+    const data = new FormData(form);
             data.delete("_method");
             data.set("resource_key", draftResourceKey(form));
             data.set("step", String(currentStepNumber(form)));
@@ -1740,6 +1798,7 @@ async function validateFields(form, fieldNames, { force = false } = {}) {
         form.querySelector('input[name="_token"]')?.value ||
         "";
 
+    syncFormFileInputs(form);
     const data = new FormData(form);
     form.querySelectorAll('input[type="file"][name]').forEach((fileInput) => {
         const isRequestedFileField = fields.some((field) =>
@@ -2329,11 +2388,15 @@ function initForm(form) {
     form.dataset.formValidationInitialized = "true";
     form.noValidate = true;
     const wizard = form.closest('[data-form-stepper]');
+    const hasFileUpload = form.enctype === "multipart/form-data" || Boolean(form.querySelector('input[type="file"]'));
     if (wizard) {
         form.dataset.draftUrl ||= document.body?.dataset.wizardDraftsUrl || "";
         if (form.dataset.draftUrl) {
             form.dataset.validationUrl ||= `${form.dataset.draftUrl.replace(/\/$/, "")}/validate-step`;
         }
+        form.dataset.draftResourceKey ||= getTargetPath(form);
+        addHiddenField(form, "_wizard_resource_key", draftResourceKey(form));
+    } else if (hasFileUpload && document.body?.dataset.wizardDraftsUrl) {
         form.dataset.draftResourceKey ||= getTargetPath(form);
         addHiddenField(form, "_wizard_resource_key", draftResourceKey(form));
     }
@@ -2680,6 +2743,7 @@ function initForm(form) {
             return;
         }
 
+        syncFormFileInputs(form);
         HTMLFormElement.prototype.submit.call(form);
     });
 }

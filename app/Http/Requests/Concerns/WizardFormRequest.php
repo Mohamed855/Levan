@@ -16,6 +16,49 @@ use Throwable;
 
 abstract class WizardFormRequest extends FormRequest
 {
+    private bool $wizardDraftMerged = false;
+
+    protected function getValidatorInstance(): Validator
+    {
+        $this->mergeWizardDraftIfPresent();
+
+        return parent::getValidatorInstance();
+    }
+
+    public function mergeWizardDraftIfPresent(): void
+    {
+        if ($this->wizardDraftMerged) {
+            return;
+        }
+
+        if (! $this->filled('_wizard_draft_id') || ! $this->filled('_wizard_resource_key')) {
+            return;
+        }
+
+        $this->wizardDraftMerged = true;
+
+        [$input, $files] = app(WizardDraftService::class)->mergeIntoRequest(
+            $this,
+            (string) $this->input('_wizard_draft_id'),
+            (string) $this->input('_wizard_resource_key'),
+        );
+
+        $this->merge($input);
+        $this->files->add($files);
+        // allFiles() was read while merging the draft; invalidate that cached list.
+        $this->convertedFiles = null;
+        $this->attributes->set('wizard_draft_id', (string) $this->input('_wizard_draft_id'));
+        $this->attributes->set('wizard_resource_key', (string) $this->input('_wizard_resource_key'));
+        $this->attributes->set('wizard_tenant_id', tenant()?->getKey() ?? '');
+
+        if (app()->bound('request')) {
+            $rootRequest = app('request');
+            $rootRequest->attributes->set('wizard_draft_id', (string) $this->input('_wizard_draft_id'));
+            $rootRequest->attributes->set('wizard_resource_key', (string) $this->input('_wizard_resource_key'));
+            $rootRequest->attributes->set('wizard_tenant_id', tenant()?->getKey() ?? '');
+        }
+    }
+
     protected function failedValidation(Validator $validator): void
     {
         $this->preserveFailedDraft($validator);
@@ -52,13 +95,23 @@ abstract class WizardFormRequest extends FormRequest
                     if (! $file instanceof UploadedFile || ! $file->isValid()) {
                         continue;
                     }
-                    $fileRules = $rules[$field] ?? [];
+                    $wildcardField = preg_replace('/\.\d+(?=\.|$)/', '.*', (string) $field);
+                    $parentField = preg_replace('/\.\d+$/', '', (string) $field);
+                    $fileRules = array_merge(
+                        (array) ($rules[$field] ?? []),
+                        $wildcardField !== $field ? (array) ($rules[$wildcardField] ?? []) : [],
+                        $parentField !== $field ? (array) ($rules[$parentField] ?? []) : [],
+                    );
                     $isFileField = count(array_filter($fileRules, fn ($rule): bool => $rule instanceof File
                         || (is_string($rule) && preg_match('/^(file|image|mimes|mimetypes)(:|$)/i', $rule)))) > 0;
                     $hasError = count(array_filter($errors, fn (string $error): bool => $field === $error || str_starts_with($field, $error.'.'))) > 0;
                     if ($isFileField && ! $hasError) {
                         Arr::set($files, $field, $file);
                     }
+                }
+
+                if ($files === [] && ! $this->filled('_wizard_draft_id')) {
+                    return;
                 }
 
                 $draftRequest = Request::createFrom($this);
@@ -77,32 +130,10 @@ abstract class WizardFormRequest extends FormRequest
 
     public function validationData(): array
     {
-        if (! $this->filled('_wizard_draft_id') || ! $this->filled('_wizard_resource_key')) {
-            return parent::validationData();
+        if (! $this->wizardDraftMerged && $this->filled('_wizard_draft_id') && $this->filled('_wizard_resource_key')) {
+            $this->mergeWizardDraftIfPresent();
+            $this->prepareForValidation();
         }
-
-        [$input, $files] = app(WizardDraftService::class)->mergeIntoRequest(
-            $this,
-            (string) $this->input('_wizard_draft_id'),
-            (string) $this->input('_wizard_resource_key'),
-        );
-
-        $this->merge($input);
-        $this->files->add($files);
-        // allFiles() was read while merging the draft; invalidate that cached list.
-        $this->convertedFiles = null;
-        $this->attributes->set('wizard_draft_id', (string) $this->input('_wizard_draft_id'));
-        $this->attributes->set('wizard_resource_key', (string) $this->input('_wizard_resource_key'));
-        $this->attributes->set('wizard_tenant_id', tenant()?->getKey() ?? '');
-
-        if (app()->bound('request')) {
-            $rootRequest = app('request');
-            $rootRequest->attributes->set('wizard_draft_id', (string) $this->input('_wizard_draft_id'));
-            $rootRequest->attributes->set('wizard_resource_key', (string) $this->input('_wizard_resource_key'));
-            $rootRequest->attributes->set('wizard_tenant_id', tenant()?->getKey() ?? '');
-        }
-
-        $this->prepareForValidation();
 
         return parent::validationData();
     }

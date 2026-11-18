@@ -142,23 +142,20 @@ document.addEventListener("DOMContentLoaded", () => {
             const addItems = [];
             const addDocsInput = form.elements.namedItem("attachments[]");
 
-            // Existing attachments rendered in step 4
-            document
-                .querySelectorAll(
-                    "#step-reports-attachments .assignment-file-list .assignment-file-card",
-                )
+            // Existing attachments rendered inside the unified file-upload component in step 4
+            addDocsInput
+                ?.closest("[data-file-upload-wrapper]")
+                ?.querySelectorAll("[data-existing-file-card]:not(.d-none)")
                 .forEach((card) => {
                     const name = card
-                        .querySelector(".assignment-file-card__name")
+                        .querySelector(".file-item-name")
                         ?.textContent?.trim();
                     const url =
-                        card.querySelector("a.assignment-file-card__action")
-                            ?.href ||
-                        card.querySelector("img.assignment-file-card__img")
-                            ?.src;
+                        card.querySelector("a.btn-view-file")?.href ||
+                        card.querySelector("img.file-item-preview")?.src;
                     const meta =
                         card
-                            .querySelector(".assignment-file-card__meta span")
+                            .querySelector(".file-item-size")
                             ?.textContent?.trim() || "مرفق محفوظ";
                     if (name) {
                         addItems.push({

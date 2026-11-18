@@ -30,19 +30,63 @@ final class UpdateAssignmentAction
         array $additionalAttachments = [],
     ): Assignment {
         $storedPaths = [];
+        $pathsToDelete = [];
 
         $generalDocuments = is_array($generalDocuments) ? $generalDocuments : array_filter([$generalDocuments]);
         $additionalAttachments = is_array($additionalAttachments) ? $additionalAttachments : array_filter([$additionalAttachments]);
 
         try {
-            return DB::transaction(function () use ($assignment, $data, $image, $letter, $generalDocuments, $additionalAttachments, &$storedPaths): Assignment {
+            $updated = DB::transaction(function () use ($assignment, $data, $image, $letter, $generalDocuments, $additionalAttachments, &$storedPaths, &$pathsToDelete): Assignment {
                 $assignment = Assignment::query()->whereKey($assignment->getKey())->lockForUpdate()->firstOrFail();
 
                 if (array_key_exists('property_ids', $data)) {
                     $this->syncProperties($assignment, (array) $data['property_ids']);
                 }
 
+                $removedGeneralIds = array_values(array_unique(array_map('intval', (array) ($data['remove_general_documents'] ?? []))));
+                if ($removedGeneralIds !== []) {
+                    $toDelete = $assignment->attachments()
+                        ->where('category', AssignmentAttachmentCategory::GENERAL_DOCUMENT->value)
+                        ->whereKey($removedGeneralIds)
+                        ->get();
+                    if ($toDelete->count() !== count($removedGeneralIds)) {
+                        throw ValidationException::withMessages(['remove_general_documents' => 'المرفقات المحددة لا تخص هذا الإسناد.']);
+                    }
+                    foreach ($toDelete as $att) {
+                        if ($att->file_path) {
+                            $pathsToDelete[$att->disk ?: 'tenant_public'][] = $att->file_path;
+                        }
+                        $att->delete();
+                    }
+                }
+
+                $removedAdditionalIds = array_values(array_unique(array_map('intval', (array) ($data['remove_additional_attachments'] ?? []))));
+                if ($removedAdditionalIds !== []) {
+                    $toDelete = $assignment->attachments()
+                        ->where('category', AssignmentAttachmentCategory::ADDITIONAL_ATTACHMENT->value)
+                        ->whereKey($removedAdditionalIds)
+                        ->get();
+                    if ($toDelete->count() !== count($removedAdditionalIds)) {
+                        throw ValidationException::withMessages(['remove_additional_attachments' => 'المرفقات المحددة لا تخص هذا الإسناد.']);
+                    }
+                    foreach ($toDelete as $att) {
+                        if ($att->file_path) {
+                            $pathsToDelete[$att->disk ?: 'tenant_public'][] = $att->file_path;
+                        }
+                        $att->delete();
+                    }
+                }
+
                 if ($letter instanceof UploadedFile) {
+                    $oldLetters = $assignment->attachments()
+                        ->where('category', AssignmentAttachmentCategory::LETTER->value)
+                        ->get();
+                    foreach ($oldLetters as $oldLetter) {
+                        if ($oldLetter->file_path) {
+                            $pathsToDelete[$oldLetter->disk ?: 'tenant_public'][] = $oldLetter->file_path;
+                        }
+                        $oldLetter->delete();
+                    }
                     $path = $letter->store('assignments/attachments', 'tenant_public');
                     $storedPaths[] = $path;
                     $assignment->attachments()->create([
@@ -94,6 +138,10 @@ final class UpdateAssignmentAction
                     $data['assignment_letter'],
                     $data['general_documents'],
                     $data['additional_attachments'],
+                    $data['remove_assignment_image'],
+                    $data['remove_assignment_letter'],
+                    $data['remove_general_documents'],
+                    $data['remove_additional_attachments'],
                     $data['_wizard_draft_id'],
                     $data['_wizard_resource_key'],
                 );
@@ -122,6 +170,16 @@ final class UpdateAssignmentAction
             }
             throw $e;
         }
+
+        if ($pathsToDelete !== []) {
+            DB::afterCommit(function () use ($pathsToDelete): void {
+                foreach ($pathsToDelete as $disk => $paths) {
+                    Storage::disk($disk)->delete(array_values(array_unique($paths)));
+                }
+            });
+        }
+
+        return $updated;
     }
 
     /** @param array<int, int|string> $propertyIds */

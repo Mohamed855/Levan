@@ -214,6 +214,10 @@ class UpdateAuctionRequest extends WizardFormRequest
             'report_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             'attachments' => ['nullable', 'array'],
             'attachments.*' => ['file', 'max:10240', 'mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx'],
+            'remove_cover_image' => ['nullable', 'boolean'],
+            'remove_report_image' => ['nullable', 'boolean'],
+            'remove_attachments' => ['nullable', 'array'],
+            'remove_attachments.*' => ['integer', 'distinct'],
         ];
     }
 

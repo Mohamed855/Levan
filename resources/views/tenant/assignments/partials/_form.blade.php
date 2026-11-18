@@ -153,78 +153,43 @@
 
         {{-- الخطوة 3: الملفات والمستندات --}}
         <x-form.wizard.step id="assignment-files-validation" :fields="['assignment_image', 'assignment_letter', 'general_documents', 'additional_attachments']">
+            @php
+                $existingLetter = $is_edit
+                    ? $assignment->attachments->firstWhere(
+                        'category',
+                        \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::LETTER->value,
+                    )
+                    : null;
+                $existingGeneralDocs = $is_edit
+                    ? $assignment->attachments
+                        ->where('category', \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::GENERAL_DOCUMENT->value)
+                        ->values()
+                    : collect();
+                $existingAdditionalDocs = $is_edit
+                    ? $assignment->attachments
+                        ->where('category', \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::ADDITIONAL_ATTACHMENT->value)
+                        ->values()
+                    : collect();
+            @endphp
             <div class="row g-4">
-                <div class="col-md-6">
-                    <x-form.controls.file name="assignment_image" label="صورة الإسناد" :required="!$is_edit"
-                        accept="image/jpeg,image/png,image/webp,image/svg+xml"
-                        help="JPG أو PNG أو WebP أو SVG، بحد أقصى 10MB" col="col-12" />
-                    @if ($is_edit && $assignment->assignmentImage)
-                        <div class="mt-2" data-existing-card-field="assignment_image">
-                            <span class="text-muted small d-block mb-1">الصورة الحالية:</span>
-                            <x-ui.file-card :file="$assignment->assignmentImage" layout="card" />
-                        </div>
-                    @endif
-                </div>
+                <x-form.controls.file name="assignment_image" label="صورة الإسناد" required
+                    :value="$is_edit && $assignment->assignmentImage ? $assignment->assignmentImage : null"
+                    accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                    help="JPG أو PNG أو WebP أو SVG، بحد أقصى 10MB" col="col-md-6" />
 
-                <div class="col-md-6">
-                    <x-form.controls.file name="assignment_letter" label="خطاب الإسناد" :required="!$is_edit"
-                        accept="application/pdf,image/jpeg,image/png,image/webp" help="PDF أو JPG أو PNG أو WebP، بحد أقصى 10MB" col="col-12" />
-                    @if ($is_edit)
-                        @php
-                            $letter = $assignment->attachments->firstWhere(
-                                'category',
-                                \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::LETTER->value,
-                            );
-                        @endphp
-                        @if ($letter)
-                            <div class="mt-2" data-existing-card-field="assignment_letter">
-                                <span class="text-muted small d-block mb-1">الخطاب الحالي:</span>
-                                <x-ui.file-card :file="$letter" layout="card" />
-                            </div>
-                        @endif
-                    @endif
-                </div>
+                <x-form.controls.file name="assignment_letter" label="خطاب الإسناد" required
+                    :value="$existingLetter"
+                    accept="application/pdf,image/jpeg,image/png,image/webp"
+                    help="PDF أو JPG أو PNG أو WebP، بحد أقصى 10MB" col="col-md-6" />
 
-                <div class="col-md-6">
-                    <x-form.controls.file name="general_documents[]" id="general_documents" label="مستندات عامة"
-                        :required="!$is_edit" multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-12" />
-                    @if ($is_edit)
-                        @php
-                            $generalDocs = $assignment->attachments->where(
-                                'category',
-                                \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::GENERAL_DOCUMENT->value,
-                            );
-                        @endphp
-                        @if ($generalDocs->isNotEmpty())
-                            <div class="mt-2 d-flex flex-wrap gap-2" data-existing-card-field="general_documents">
-                                @foreach ($generalDocs as $doc)
-                                    <x-ui.file-card :file="$doc" layout="card" />
-                                @endforeach
-                            </div>
-                        @endif
-                    @endif
-                </div>
+                <x-form.controls.file name="general_documents[]" id="general_documents" label="مستندات عامة"
+                    required multiple :value="$existingGeneralDocs->isNotEmpty() ? $existingGeneralDocs : null"
+                    help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-6" />
 
-                <div class="col-md-6">
-                    <x-form.controls.file name="additional_attachments[]" id="additional_attachments"
-                        label="مرفقات إضافية" multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-12" />
-                    @if ($is_edit)
-                        @php
-                            $addDocs = $assignment->attachments->where(
-                                'category',
-                                \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::ADDITIONAL_ATTACHMENT
-                                    ->value,
-                            );
-                        @endphp
-                        @if ($addDocs->isNotEmpty())
-                            <div class="mt-2 d-flex flex-wrap gap-2" data-existing-card-field="additional_attachments">
-                                @foreach ($addDocs as $doc)
-                                    <x-ui.file-card :file="$doc" layout="card" />
-                                @endforeach
-                            </div>
-                        @endif
-                    @endif
-                </div>
+                <x-form.controls.file name="additional_attachments[]" id="additional_attachments"
+                    label="مرفقات إضافية" multiple
+                    :value="$existingAdditionalDocs->isNotEmpty() ? $existingAdditionalDocs : null"
+                    help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-6" />
             </div>
             <x-form.wizard.actions>
                 <x-form.wizard.previous-button />

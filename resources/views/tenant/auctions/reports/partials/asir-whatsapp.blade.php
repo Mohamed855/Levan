@@ -23,7 +23,7 @@
                 @endif
             <table class="asir-table asir-whatsapp-table" data-asir-table="metrics"><tbody>
                 @foreach ($content['channels']['whatsapp']['metrics'] ?? [] as $key => $metric)
-                    <tr><th>{{ $metric['label'] }}</th><td data-report-field="whatsapp_{{ $key }}"><bdi>{{ $metric['value'] }}</bdi></td></tr>
+                    <tr @class(['asir-whatsapp-total' => $key === 'total'])><th>{{ $metric['label'] }}</th><td data-report-field="whatsapp_{{ $key }}"><bdi>{{ $metric['value'] }}</bdi></td></tr>
                 @endforeach
             </tbody></table>
             </div>

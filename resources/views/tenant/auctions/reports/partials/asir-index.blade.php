@@ -30,7 +30,7 @@
     @if (!empty($content['tables']['properties']))
         <section class="asir-index-table-frame" data-asir-section>
             <table class="asir-table asir-property-table" data-asir-table="properties">
-                <colgroup><col style="width:5%"><col style="width:20%"><col style="width:22%"><col style="width:18%"><col style="width:17%"><col style="width:18%"></colgroup>
+                <colgroup><col style="width:6.574%"><col style="width:16.135%"><col style="width:21.315%"><col style="width:15.936%"><col style="width:16.932%"><col style="width:23.108%"></colgroup>
                 <thead><tr>@foreach (['م', 'نوع العقار', 'رقم الصك', 'رقم الأصل', 'عدد اللوحات', 'مقاس اللوحات'] as $label)<th>{{ $label }}</th>@endforeach</tr></thead>
                 <tbody>
                     @foreach ($content['tables']['properties'] as $row)

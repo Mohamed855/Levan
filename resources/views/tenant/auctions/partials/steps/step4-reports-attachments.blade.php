@@ -23,14 +23,13 @@
 
     {{-- 8. ملفات إضافية --}}
     <div class="col-12 border-top pt-3">
-        @if ($isEdit && $auction->attachments->where('category', 'auction_doc')->isNotEmpty())
-            <div class="assignment-file-list mb-3" data-existing-card-field="attachments">
-                @foreach ($auction->attachments->where('category', 'auction_doc') as $attachment)
-                    <x-ui.file-card :file="$attachment" />
-                @endforeach
-            </div>
-        @endif
+        @php
+            $existingAuctionAttachments = $isEdit
+                ? $auction->attachments->where('category', 'auction_doc')->values()
+                : collect();
+        @endphp
         <x-form.controls.file name="attachments[]" id="attachments" label="ملفات إضافية" multiple
+            :value="$existingAuctionAttachments->isNotEmpty() ? $existingAuctionAttachments : null"
             accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx" help="الحد الأقصى لكل ملف: 10MB" col="col-12" />
     </div>
 </div>
