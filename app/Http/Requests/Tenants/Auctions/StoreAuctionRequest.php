@@ -265,8 +265,7 @@ class StoreAuctionRequest extends WizardFormRequest
             'disclosures.no_conflict_of_interest' => ['accepted'],
             'disclosures.information_accuracy' => ['accepted'],
             'disclosures.adherence_to_regulations' => ['accepted'],
-            'brochure_evidence' => ['nullable', 'array', 'max:50'],
-            'brochure_evidence.*' => ['file', 'mimes:pdf,png,jpg,jpeg,webp', 'max:10240'],
+            'brochure_evidence' => ['nullable', 'file', 'mimes:pdf,png,jpg,jpeg,webp', 'max:10240'],
             'platform_evidence' => ['nullable', 'array', 'max:50'],
             'platform_evidence.*' => ['file', 'mimes:pdf,png,jpg,jpeg,webp', 'max:10240'],
             'broker_evidence' => ['nullable', 'array', 'max:50'],
@@ -536,8 +535,7 @@ class StoreAuctionRequest extends WizardFormRequest
             'campaigns.*.evidence.*' => 'مرفق إثبات الحملة',
 
             // الشواهد والمرفقات
-            'brochure_evidence' => 'مرفقات الكتيب التسويقي',
-            'brochure_evidence.*' => 'مرفق الكتيب التسويقي',
+            'brochure_evidence' => 'ملف الكتيب الإلكتروني',
             'platform_evidence' => 'لقطات العرض على المنصة',
             'platform_evidence.*' => 'لقطة العرض على المنصة',
             'broker_evidence' => 'مرفقات عقود الوسطاء',

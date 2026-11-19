@@ -9,16 +9,18 @@
     $existingBrochureEvidence = $isEdit
         ? $auction->attachments
             ->where('report_section', 'brochure')
+            ->whereNull('marketing_campaign_id')
+            ->sortBy('display_order')
             ->values()
             ->map(fn ($file): array => [
                 'id' => $file->id,
                 'url' => tasset($file->file_path),
                 'name' => $file->original_name ?? $file->file_name ?? basename((string) $file->file_path),
                 'mime' => $file->mime_type ?? '',
-                'remove_name' => 'remove_brochure_evidence[]',
-                'remove_value' => $file->id,
+                'remove_name' => 'remove_brochure_evidence',
+                'remove_value' => 1,
             ])
-            ->all()
+            ->first()
         : null;
 
     $existingPlatformEvidence = $isEdit
@@ -106,8 +108,8 @@
         label="سياق كتيب المزاد" placeholder="تفاصيل توزيع ونشر الكتيب..." :value="$marketing['brochure_context'] ?? null" col="col-md-6" />
 
     <div class="col-md-6">
-        <x-form.controls.file name="brochure_evidence[]" id="brochure_evidence" label="إثباتات الكتيب ونماذج التصفح"
-            multiple :value="$existingBrochureEvidence" accept=".pdf,.png,.jpg,.jpeg,.webp" help="صور أو PDF، حتى 10MB لكل ملف. يُحدَّد رابط الكتيب تلقائيًا من أول مرفق عند الحفظ."
+        <x-form.controls.file name="brochure_evidence" id="brochure_evidence" label="ملف الكتيب الإلكتروني"
+            :value="$existingBrochureEvidence" accept=".pdf,.png,.jpg,.jpeg,.webp" help="ملف واحد PDF أو صورة، حتى 10MB. يُحدَّد رابط الكتيب تلقائيًا من الملف المرفق عند الحفظ."
             col="col-12" />
     </div>
 

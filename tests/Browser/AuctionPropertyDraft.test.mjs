@@ -42,13 +42,17 @@ test('auction draft restores modal values and each property upload into the subm
                 data.properties_data[id] = { opening_value: `${id}00`, entry_amount: '0', ownership_share: '50', disclosure: `إفصاح ${id}`, board_count: '2', board_dimensions: '3x6' };
                 files.properties_data[id] = {
                     valuation: { name: `valuation-${id}.pdf`, mime: 'application/pdf', url: `/valuation-${id}` },
-                    board_before: [{ name: `board-${id}.pdf`, mime: 'application/pdf', url: `/board-${id}` }],
+                    board_before: [
+                        { name: `board-${id}.pdf`, mime: 'application/pdf', url: `/board-${id}` },
+                        { name: `board-extra-${id}.pdf`, mime: 'application/pdf', url: `/board-extra-${id}` },
+                    ],
                 };
             }
             const tasks = [];
             form.dispatchEvent(new CustomEvent('wizardDraftRestored', { detail: { data, files, waitUntil(task) { tasks.push(Promise.resolve(task)); } } }));
             await Promise.all(tasks);
             await window.restoreAuctionDraftFiles(form, files);
+            form.dispatchEvent(new CustomEvent('stepChanged', { detail: { stepIndex: 2 } }));
             const before = [...new FormData(form)].filter(([key]) => key.startsWith('properties_data')).map(([key, value]) => [key, value instanceof File ? value.name : value]);
             document.querySelector('[data-property-card="42"]').click();
             const opening = document.getElementById('modal_auction_opening_value').value;
@@ -63,6 +67,7 @@ test('auction draft restores modal values and each property upload into the subm
             assert.ok(result.before.some(([key, value]) => key === `properties_data[${id}][entry_amount]` && value === '0'));
             assert.ok(result.before.some(([key, value]) => key === `properties_data[${id}][valuation]` && value === `valuation-${id}.pdf`));
             assert.ok(result.before.some(([key, value]) => key === `properties_data[${id}][board_before][]` && value === `board-${id}.pdf`));
+            assert.ok(result.before.some(([key, value]) => key === `properties_data[${id}][board_before][]` && value === `board-extra-${id}.pdf`));
         }
         assert.deepEqual(errors, []);
     } finally {

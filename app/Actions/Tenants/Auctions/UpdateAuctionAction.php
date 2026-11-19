@@ -53,6 +53,9 @@ final class UpdateAuctionAction
         array $platformEvidence = [],
         array $brokerEvidence = [],
     ): Auction {
+        if (count($brochureEvidence) > 1) {
+            throw ValidationException::withMessages(['brochure_evidence' => 'يمكن إرفاق ملف واحد فقط للكتيب الإلكتروني.']);
+        }
         if ($userOrData instanceof User) {
             $data = (array) $dataOrCover;
             $cover = $coverOrAttachments instanceof UploadedFile ? $coverOrAttachments : null;
@@ -223,7 +226,13 @@ final class UpdateAuctionAction
                     $auction->attachments()->whereKey($removedAttachmentIds)->delete();
                 }
 
-                foreach (['brochure' => 'remove_brochure_evidence', 'platform' => 'remove_platform_evidence'] as $section => $removeKey) {
+                if ($brochureEvidence !== [] || filter_var($data['remove_brochure_evidence'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+                    $oldBrochures = $auction->attachments()->where('report_section', 'brochure')->whereNull('marketing_campaign_id')->get();
+                    $pathsToDelete = array_merge($pathsToDelete, $oldBrochures->pluck('file_path')->filter()->all());
+                    $auction->attachments()->whereKey($oldBrochures->modelKeys())->delete();
+                }
+
+                foreach (['platform' => 'remove_platform_evidence'] as $section => $removeKey) {
                     $removeIds = array_values(array_unique(array_map('intval', (array) ($data[$removeKey] ?? []))));
                     if ($removeIds !== []) {
                         $toRemove = $auction->attachments()

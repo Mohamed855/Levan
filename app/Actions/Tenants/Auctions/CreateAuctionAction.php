@@ -51,6 +51,9 @@ final class CreateAuctionAction
         array $platformEvidence = [],
         array $brokerEvidence = [],
     ): Auction {
+        if (count($brochureEvidence) > 1) {
+            throw ValidationException::withMessages(['brochure_evidence' => 'يمكن إرفاق ملف واحد فقط للكتيب الإلكتروني.']);
+        }
         if ($userOrData instanceof User) {
             $user = $userOrData;
             $data = (array) $dataOrCreatorId;

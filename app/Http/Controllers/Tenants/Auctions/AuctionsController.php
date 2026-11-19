@@ -88,7 +88,7 @@ class AuctionsController extends Controller
                 $request->file('marketing_evidence', []),
                 (array) $request->file('board_images_before', []),
                 (array) $request->file('board_images_after', []),
-                (array) $request->file('brochure_evidence', []),
+                $request->hasFile('brochure_evidence') ? [$request->file('brochure_evidence')] : [],
                 (array) $request->file('platform_evidence', []),
                 (array) $request->file('broker_evidence', []),
             );
@@ -169,7 +169,7 @@ class AuctionsController extends Controller
                 $request->file('marketing_evidence', []),
                 (array) $request->file('board_images_before', []),
                 (array) $request->file('board_images_after', []),
-                (array) $request->file('brochure_evidence', []),
+                $request->hasFile('brochure_evidence') ? [$request->file('brochure_evidence')] : [],
                 (array) $request->file('platform_evidence', []),
                 (array) $request->file('broker_evidence', []),
             );

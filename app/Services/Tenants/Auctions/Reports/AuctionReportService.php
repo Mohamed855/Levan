@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Laravel\Telescope\Telescope;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Throwable;
 
@@ -27,14 +28,19 @@ final class AuctionReportService
                 if ($refreshBranding) {
                     $snapshot = (new AuctionReportBranding)->apply($snapshot);
                 }
-                if ($auction->closing && $auction->closing->finalized_snapshot !== null) {
-                    $auction->closing->update(['finalized_snapshot' => $snapshot]);
-                }
+                $saveSnapshot = function () use ($auction, $snapshot): AuctionReportGeneration {
+                    if ($auction->closing && $auction->closing->finalized_snapshot !== null) {
+                        $auction->closing->update(['finalized_snapshot' => $snapshot]);
+                    }
 
-                return $auction->reportGenerations()->create([
-                    'revision_token' => (string) Str::uuid(), 'status' => 'queued', 'progress' => 0,
-                    'snapshot' => $snapshot,
-                ]);
+                    return $auction->reportGenerations()->create([
+                        'revision_token' => (string) Str::uuid(), 'status' => 'queued', 'progress' => 0,
+                        'snapshot' => $snapshot,
+                    ]);
+                };
+
+                // Expanding embedded image bindings into diagnostic SQL duplicates the entire snapshot.
+                return class_exists(Telescope::class) ? Telescope::withoutRecording($saveSnapshot) : $saveSnapshot();
             });
 
             return $generation;

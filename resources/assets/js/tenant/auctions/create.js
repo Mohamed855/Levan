@@ -880,6 +880,16 @@ document.addEventListener("DOMContentLoaded", () => {
             ).map(String);
         }
 
+        Object.entries(detailData.properties_data || {}).forEach(([id, values]) => {
+            if (!/^\d+$/.test(id) || !restoredPropertyIds.includes(id)) return;
+            selectedProperties.set(id, {
+                ...window.existingAuctionPropertiesData?.[id],
+                ...selectedProperties.get(id),
+                ...values,
+                id,
+            });
+        });
+
         if (detailData.assignment_id) {
             $("#assignment_id").val(detailData.assignment_id);
             const task = loadAssignmentProperties(
@@ -942,6 +952,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 board_dimensions: existing.board_dimensions ?? "",
                 valuation_file: existing.valuation_file ?? null,
                 board_before_files: existing.board_before_files ?? [],
+                _valFiles: existing._valFiles ?? null,
+                _boardFiles: existing._boardFiles ?? null,
                 is_complete: Boolean(existing.is_complete),
             });
         });
@@ -1039,6 +1051,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         renderSelectedPropertyCards();
+        selectedProperties.forEach((prop) => syncPropertyHiddenData(prop, prop._valFiles, prop._boardFiles));
         syncReportInputs();
 
         const allCount = $(".property-select-check").length;
@@ -1167,6 +1180,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function openAuctionPropertyModal(propertyId) {
         const prop = selectedProperties.get(String(propertyId));
         if (!prop) return;
+        syncPropertyFilesFromInputs(prop);
 
         currentEditingPropertyId = String(propertyId);
         clearModalErrors();
@@ -1308,6 +1322,17 @@ document.addEventListener("DOMContentLoaded", () => {
             `[data-prop-files="${propId}"]`,
         );
         if (filesWrapper) {
+            for (const [field, multiple] of [["valuation", false], ["board_before", true]]) {
+                const name = `properties_data[${propId}][${field}]${multiple ? "[]" : ""}`;
+                if (!filesWrapper.querySelector(`input[name="${name}"]`)) {
+                    const input = document.createElement("input");
+                    input.type = "file";
+                    input.name = name;
+                    input.multiple = multiple;
+                    input.style.display = "none";
+                    filesWrapper.appendChild(input);
+                }
+            }
             if (
                 valFiles &&
                 valFiles.length > 0 &&
@@ -1356,6 +1381,23 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     }
+
+    function syncPropertyFilesFromInputs(prop) {
+        const block = document.querySelector(`[data-prop-hidden="${CSS.escape(String(prop.id))}"]`);
+        const valuation = block?.querySelector('input[type="file"][name$="[valuation]"]');
+        const boards = block?.querySelector('input[type="file"][name$="[board_before][]"]');
+        if (valuation?.files.length) prop._valFiles = Array.from(valuation.files);
+        if (boards?.files.length) prop._boardFiles = Array.from(boards.files);
+    }
+
+    $(form).on("change", '#auction-properties-data-container input[type="file"]', function () {
+        const id = this.closest("[data-prop-hidden]")?.dataset.propHidden;
+        const prop = selectedProperties.get(id);
+        if (!prop) return;
+        syncPropertyFilesFromInputs(prop);
+        renderSelectedPropertyCards();
+        updatePropertiesCompletionAlert();
+    });
 
     function savePropertyModalData(propertyId) {
         const prop = selectedProperties.get(String(propertyId));
@@ -1849,9 +1891,9 @@ document.addEventListener("DOMContentLoaded", () => {
             form.elements.namedItem("marketing[planning_methodology]")?.value ||
                 "—",
         );
-        $("#review-brochure-url").text(
-            form.elements.namedItem("marketing[brochure_url]")?.value || "—",
-        );
+        const brochureInput = form.elements.namedItem("brochure_evidence");
+        const savedBrochure = brochureInput?.closest("[data-file-upload-wrapper]")?.querySelector("[data-existing-file-card]:not(.d-none) .file-item-name");
+        $("#review-brochure-url").text(brochureInput?.files?.[0]?.name || savedBrochure?.textContent?.trim() || "—");
         $("#review-board-url").text(
             form.elements.namedItem("marketing[board_url]")?.value || "—",
         );

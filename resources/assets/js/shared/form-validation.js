@@ -618,12 +618,15 @@ function findFileInputForDraftKey(form, key) {
         .replace(/\.([^.\[\]]+)/g, "[$1]");
     const bracketWithoutIndex = strKey.replace(/\.[0-9]+/g, "");
     const bracketRoot = bracketWithoutIndex.replace(/\.([^.\[\]]+)/g, "[$1]");
+    const bracketParent = bracketName.replace(/\[\d+\]$/, "");
 
     const selectors = [
         `input[type="file"][name="${CSS.escape(strKey)}"]`,
         `input[type="file"][name="${CSS.escape(strKey)}[]"]`,
         `input[type="file"][name="${CSS.escape(bracketName)}"]`,
         `input[type="file"][name="${CSS.escape(bracketName)}[]"]`,
+        `input[type="file"][name="${CSS.escape(bracketParent)}"]`,
+        `input[type="file"][name="${CSS.escape(bracketParent)}[]"]`,
         `input[type="file"][name="${CSS.escape(bracketRoot)}"]`,
         `input[type="file"][name="${CSS.escape(bracketRoot)}[]"]`,
         `input[type="file"][name="${CSS.escape(rootName)}"]`,
