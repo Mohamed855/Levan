@@ -15,7 +15,7 @@
             <span class="plan-price" id="total-display">{{ number_format($summaryPrice, 2) }}
                 <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>
                 @if (!empty($billingCycleLabel))
-                    <small class="ms-1" style="font-size: 0.75rem; font-weight: normal; opacity: 0.85;">/ {{ $billingCycleLabel }}</small>
+                    <small class="ms-1" style="font-size: 0.75rem; font-weight: normal; opacity: 0.85;">{{ $billingCycleLabel }}</small>
                 @endif
             </span>
         </div>

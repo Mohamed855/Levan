@@ -6,6 +6,8 @@ namespace App\Actions\Tenants\Properties;
 
 use App\Enums\Tenants\Properties\PropertyAttachmentCategory;
 use App\Enums\Tenants\Properties\PropertyDataStatus;
+use App\Enums\Tenants\Properties\PropertyLegalStatus;
+use App\Enums\Tenants\Properties\PropertyType;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Properties\OriginalPropertyImageService;
 use Illuminate\Http\UploadedFile;
@@ -101,6 +103,22 @@ final class CreatePropertyAction
                 $data['created_by'] = $creatorId;
                 $data['data_status'] = PropertyDataStatus::COMPLETED->value;
                 $data['is_active'] = true;
+
+                $propType = $data['type'] ?? null;
+                if ($propType instanceof PropertyType) {
+                    $propType = $propType->value;
+                }
+                if ($propType === PropertyType::LAND->value || $propType === 'land') {
+                    $data['age'] = null;
+                }
+
+                $legalStatus = $data['legal_status'] ?? null;
+                if ($legalStatus instanceof PropertyLegalStatus) {
+                    $legalStatus = $legalStatus->value;
+                }
+                if ($legalStatus !== PropertyLegalStatus::OTHER->value && $legalStatus !== 'other') {
+                    $data['legal_status_notes'] = null;
+                }
 
                 $property = Property::query()->create($data);
                 $this->originalImages->store($property, $originalImageInput, $storedPaths);

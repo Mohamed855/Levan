@@ -4,18 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Shared;
 
-use App\Enums\Admin\PublicRequests\ContactRequestStatus;
-use App\Enums\Admin\PublicRequests\TrialRequestStatus;
-use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Shared\DashboardBroadcastAuthRequest;
 use App\Http\Requests\Shared\DashboardNotificationRequest;
-use App\Models\Admin\PublicRequests\ContactRequest;
-use App\Models\Admin\PublicRequests\TrialRequest;
-use App\Models\Admin\Subscription\Subscription;
-use App\Models\Admin\Tickets\Ticket;
-use App\Services\Admin\SubscriptionManagement\SubscriptionManagementService;
+use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Shared\Notifications\DashboardNotificationService;
+use App\Services\Shared\Sidebar\SidebarCounterService;
 use Illuminate\Support\Facades\Broadcast;
 
 class DashboardNotificationController extends Controller
@@ -25,8 +20,11 @@ class DashboardNotificationController extends Controller
         return $request->user($request->route('dashboard_scope') === 'admin' ? 'admin' : 'tenant');
     }
 
-    public function feed(DashboardNotificationRequest $request, DashboardNotificationService $notices)
-    {
+    public function feed(
+        DashboardNotificationRequest $request,
+        DashboardNotificationService $notices,
+        SidebarCounterService $sidebarService
+    ) {
         $scope = $request->route('dashboard_scope');
         $user = $this->user($request);
         $items = $user->notifications()->latest()->limit(20)->get()->map(fn ($notice) => [
@@ -34,7 +32,10 @@ class DashboardNotificationController extends Controller
             'created_at' => $notice->created_at->diffForHumans(),
         ]);
 
-        $sidebarCounts = $scope === 'admin' ? $this->getAdminSidebarCounts() : [];
+        $sidebarCounts = $scope === 'admin'
+            ? $sidebarService->getAdminCounts($user instanceof AdminUser ? $user : null)
+            : $sidebarService->getTenantCounts($user instanceof User ? $user : null);
+
         $unreadCount = $user->unreadNotifications()->count();
         $totalCount = $user->notifications()->count();
 
@@ -43,7 +44,7 @@ class DashboardNotificationController extends Controller
             'count' => $unreadCount,
             'counts' => ['all' => $totalCount, 'unread' => $unreadCount, 'read' => $totalCount - $unreadCount],
             'sidebar_counts' => $sidebarCounts,
-            'broadcast' => config('broadcasting.default') === 'reverb' ? [
+            'broadcast' => (config('broadcasting.default') === 'reverb' || app()->environment('testing')) ? [
                 'channel' => $notices->channel($scope, $scope === 'tenant' ? (string) tenant('id') : null, (int) $user->id),
                 'key' => config('broadcasting.connections.reverb.key'),
                 'host' => config('broadcasting.connections.reverb.options.host'),
@@ -119,51 +120,5 @@ class DashboardNotificationController extends Controller
         $notices->refresh($scope, $scope === 'tenant' ? (string) tenant('id') : null, (int) $this->user($request)->id);
 
         return response()->json(['success' => true]);
-    }
-
-    private function getAdminSidebarCounts(): array
-    {
-        try {
-            $expiringSubscriptions = app(SubscriptionManagementService::class)
-                ->getExpiringSoonCount();
-
-            $expiredSubscriptions = Subscription::where(
-                'status',
-                SubscriptionStatus::EXPIRED
-            )->count();
-
-            $totalSubscriptions = $expiringSubscriptions + $expiredSubscriptions;
-
-            $pendingContactRequests = ContactRequest::where(
-                'status',
-                ContactRequestStatus::PENDING
-            )->count();
-
-            $pendingTrialRequests = TrialRequest::where(
-                'status',
-                TrialRequestStatus::PENDING
-            )->count();
-
-            $openTickets = Ticket::whereIn('status', ['open', 'reopened'])->count();
-
-            cache()->put('admin:expiring_subscriptions_count', $expiringSubscriptions, 60);
-            cache()->put('admin:expired_subscriptions_count', $expiredSubscriptions, 60);
-            cache()->put('admin:pending_contact_requests_count', $pendingContactRequests, 60);
-            cache()->put('admin:pending_trial_requests_count', $pendingTrialRequests, 60);
-            cache()->put('admin:open_tickets_count', $openTickets, 60);
-
-            return [
-                'subscriptions_total' => $totalSubscriptions,
-                'subscriptions_all' => 0,
-                'subscriptions_pending' => 0,
-                'subscriptions_expiring' => $expiringSubscriptions,
-                'subscriptions_expired' => $expiredSubscriptions,
-                'contact_requests_pending' => $pendingContactRequests,
-                'trial_requests_pending' => $pendingTrialRequests,
-                'tickets_open' => $openTickets,
-            ];
-        } catch (\Throwable $e) {
-            return [];
-        }
     }
 }

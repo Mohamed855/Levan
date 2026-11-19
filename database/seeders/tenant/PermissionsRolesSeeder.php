@@ -99,10 +99,10 @@ class PermissionsRolesSeeder extends Seeder
             ],
         ];
 
-        $permissions = array_merge($permissions, config('auction-report-permissions'));
+        $permissions = array_merge_recursive($permissions, config('auction-report-permissions'));
         foreach ($permissions as $section => $perms) {
             foreach ($perms as $perm) {
-                Permission::firstOrCreate(
+                Permission::updateOrCreate(
                     ['name' => $perm, 'guard_name' => 'tenant'],
                     ['section' => $section]
                 );

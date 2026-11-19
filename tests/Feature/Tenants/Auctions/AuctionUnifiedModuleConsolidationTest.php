@@ -6,11 +6,13 @@ namespace Tests\Feature\Tenants\Auctions;
 
 use App\Actions\Tenants\Auctions\CreateAuctionAction;
 use App\Actions\Tenants\Auctions\UpdateAuctionAction;
+use App\Actions\Tenants\Properties\UpdatePropertyAction;
 use App\Enums\Tenants\Properties\PropertyLegalStatus;
 use App\Http\Requests\Tenants\Auctions\StoreAuctionRequest;
 use App\Http\Requests\Tenants\Auctions\UpdateAuctionRequest;
 use App\Http\Requests\Tenants\Properties\StorePropertyRequest;
 use App\Http\Requests\Tenants\Properties\UpdatePropertyRequest;
+use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\Auctions\Auction;
@@ -26,7 +28,10 @@ final class AuctionUnifiedModuleConsolidationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        tenancy()->initialize('test');
+        $tenant = Tenant::first() ?? Tenant::find('test');
+        if ($tenant) {
+            tenancy()->initialize($tenant);
+        }
     }
 
     protected function tearDown(): void
@@ -76,11 +81,22 @@ final class AuctionUnifiedModuleConsolidationTest extends TestCase
         $user = User::where('email', 'demo@lot.com')->first();
         $this->assertNotNull($user);
 
-        $assignment = Assignment::where('is_active', true)->whereDate('end_date', '>=', now())->first();
-        $this->assertNotNull($assignment);
-
         $issuingEntity = IssuingEntity::first();
         $this->assertNotNull($issuingEntity);
+
+        $assignment = Assignment::where('is_active', true)->whereDate('end_date', '>=', now())->first();
+        if (! $assignment) {
+            $assignment = Assignment::create([
+                'name' => 'إسناد تجريبي للمزاد',
+                'assignment_number' => 'ASG-TEST-'.uniqid(),
+                'issuing_entity' => $issuingEntity->name,
+                'issuing_entity_id' => $issuingEntity->id,
+                'created_by' => $user->id,
+                'is_active' => true,
+                'start_date' => now()->toDateString(),
+                'end_date' => now()->addMonths(6)->toDateString(),
+            ]);
+        }
 
         $property = Property::where('assignment_id', $assignment->id)->first();
         if (! $property) {
@@ -240,18 +256,133 @@ final class AuctionUnifiedModuleConsolidationTest extends TestCase
         $storePropAttrs = $storeProperty->attributes();
         $storePropMsgs = $storeProperty->messages();
 
-        $this->assertSame('عمر العقار', $storePropAttrs['age']);
+        $this->assertSame('عمر العقار بالسنوات', $storePropAttrs['age']);
         $this->assertSame('الحالة النظامية', $storePropAttrs['legal_status']);
-        $this->assertSame('عمر العقار مطلوب.', $storePropMsgs['age.required']);
+        $this->assertSame('تفاصيل الحالة النظامية الأخرى', $storePropAttrs['legal_status_notes']);
+        $this->assertSame('عمر العقار بالسنوات مطلوب.', $storePropMsgs['age.required']);
         $this->assertSame('الحالة النظامية للعقار مطلوبة.', $storePropMsgs['legal_status.required']);
+        $this->assertSame('تفاصيل الحالة النظامية الأخرى مطلوبة عند اختيار أخرى.', $storePropMsgs['legal_status_notes.required_if']);
 
         $updateProperty = new UpdatePropertyRequest;
         $updatePropAttrs = $updateProperty->attributes();
         $updatePropMsgs = $updateProperty->messages();
 
-        $this->assertSame('عمر العقار', $updatePropAttrs['age']);
+        $this->assertSame('عمر العقار بالسنوات', $updatePropAttrs['age']);
         $this->assertSame('الحالة النظامية', $updatePropAttrs['legal_status']);
-        $this->assertSame('عمر العقار مطلوب.', $updatePropMsgs['age.required']);
+        $this->assertSame('تفاصيل الحالة النظامية الأخرى', $updatePropAttrs['legal_status_notes']);
+        $this->assertSame('عمر العقار بالسنوات مطلوب.', $updatePropMsgs['age.required']);
         $this->assertSame('الحالة النظامية للعقار مطلوبة.', $updatePropMsgs['legal_status.required']);
+        $this->assertSame('تفاصيل الحالة النظامية الأخرى مطلوبة عند اختيار أخرى.', $updatePropMsgs['legal_status_notes.required_if']);
+        $this->assertSame('مبلغ الدخول', $storeAuctionAttrs['properties_data.*.entry_amount']);
+    }
+
+    public function test_auction_request_validates_opening_and_entry_amount_hierarchy(): void
+    {
+        $property = Property::first();
+        $this->assertNotNull($property);
+        $property->update(['estimated_value' => 1000000]);
+
+        // 1. opening_value exceeds estimated_value
+        $requestData = [
+            'property_ids' => [$property->id],
+            'properties_data' => [
+                $property->id => [
+                    'opening_value' => 1200000,
+                    'entry_amount' => 50000,
+                    'estimated_value' => 1000000,
+                ],
+            ],
+        ];
+
+        // Test the custom after hook logic directly
+        $customValidator = validator($requestData, []);
+        $storeReq = new StoreAuctionRequest;
+        $ref = new \ReflectionClass($storeReq);
+        $prop = $ref->getProperty('validator');
+        $prop->setAccessible(true);
+        $prop->setValue($storeReq, $customValidator);
+
+        // Bind request input
+        $storeReq->merge($requestData);
+
+        foreach ($storeReq->after() as $hook) {
+            $hook($customValidator);
+        }
+
+        $this->assertTrue($customValidator->errors()->has("properties_data.{$property->id}.opening_value"));
+        $this->assertSame('قيمة افتتاح المزاد لا يمكن أن تتجاوز القيمة التقديرية للعقار.', $customValidator->errors()->first("properties_data.{$property->id}.opening_value"));
+
+        // 2. entry_amount exceeds opening_value
+        $requestData2 = [
+            'property_ids' => [$property->id],
+            'properties_data' => [
+                $property->id => [
+                    'opening_value' => 500000,
+                    'entry_amount' => 600000,
+                    'estimated_value' => 1000000,
+                ],
+            ],
+        ];
+        $customValidator2 = validator($requestData2, []);
+        $storeReq2 = new StoreAuctionRequest;
+        $prop->setValue($storeReq2, $customValidator2);
+        $storeReq2->merge($requestData2);
+
+        foreach ($storeReq2->after() as $hook) {
+            $hook($customValidator2);
+        }
+
+        $this->assertTrue($customValidator2->errors()->has("properties_data.{$property->id}.entry_amount"));
+        $this->assertSame('مبلغ الدخول لا يمكن أن يكون أكبر من قيمة افتتاح المزاد.', $customValidator2->errors()->first("properties_data.{$property->id}.entry_amount"));
+    }
+
+    public function test_property_age_and_legal_status_dynamic_validation_and_actions(): void
+    {
+        $user = User::where('email', 'demo@lot.com')->first();
+        $this->assertNotNull($user);
+
+        // Verify form view contains wrappers and dynamic IDs
+        $formView = file_get_contents(resource_path('views/tenant/properties/partials/_form.blade.php'));
+        $this->assertStringContainsString('id="property-type"', $formView);
+        $this->assertStringContainsString('id="property-age"', $formView);
+        $this->assertStringContainsString('wrapperId="property-age-wrapper"', $formView);
+        $this->assertStringContainsString('id="property-legal-status"', $formView);
+        $this->assertStringContainsString('id="property-legal-status-notes"', $formView);
+        $this->assertStringContainsString('wrapperId="property-legal-status-notes-wrapper"', $formView);
+
+        // Verify JavaScript contains sync functions
+        $jsContent = file_get_contents(resource_path('assets/js/tenant/properties/create.js'));
+        $this->assertStringContainsString('syncPropertyAgeVisibility', $jsContent);
+        $this->assertStringContainsString('syncLegalStatusNotesVisibility', $jsContent);
+
+        // Verify action nullifies age for land and notes for non-other
+        $property = Property::first();
+        $this->assertNotNull($property);
+
+        /** @var UpdatePropertyAction $updateAction */
+        $updateAction = app(UpdatePropertyAction::class);
+
+        // When updated to land with age provided, age must become null
+        $updated = $updateAction->execute($property, [
+            'type' => 'land',
+            'age' => 15,
+            'legal_status' => 'clear',
+            'legal_status_notes' => 'ملاحظات غير مطلوبة',
+        ]);
+
+        $this->assertNull($updated->age);
+        $this->assertNull($updated->legal_status_notes);
+
+        // When updated to other legal status, notes are preserved
+        $updatedOther = $updateAction->execute($property, [
+            'type' => 'commercial',
+            'age' => 7,
+            'legal_status' => 'other',
+            'legal_status_notes' => 'رهن بنكي قائم',
+        ]);
+
+        $this->assertSame(7, $updatedOther->age);
+        $this->assertSame(PropertyLegalStatus::OTHER, $updatedOther->legal_status);
+        $this->assertSame('رهن بنكي قائم', $updatedOther->legal_status_notes);
     }
 }

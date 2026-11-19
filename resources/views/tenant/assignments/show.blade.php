@@ -75,13 +75,13 @@
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-map-pin text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">المدينة:</span>
-                                <span>{{ $assignment->city ?? '-' }}</span>
+                                <span>{{ $assignment->city_label ?: '-' }}</span>
                             </li>
-                            @if ($assignment->district)
+                            @if (! empty($assignment->district))
                                 <li class="mb-3 d-flex align-items-center">
                                     <i class="ti ti-map text-primary me-2 fs-5"></i>
                                     <span class="fw-bold me-2">النطاق/الحي:</span>
-                                    <span>{{ $assignment->district }}</span>
+                                    <span>{{ $assignment->district_label }}</span>
                                 </li>
                             @endif
                             <li class="mb-3 d-flex align-items-center">

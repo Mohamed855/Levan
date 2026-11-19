@@ -15,7 +15,12 @@
                 @php
                     $logoText = App\Helpers\Tenants\Settings\SettingsHelper::get('logo_text');
                     $officeName = App\Helpers\Tenants\Settings\SettingsHelper::get('office_name');
-                    $brandText = ($logoText && $logoText !== 'لوت LOT') ? $logoText : ($officeName ?: ($logoText ?: config('app.name')));
+                    $brandText =
+                        $logoText && $logoText !== 'لوت LOT'
+                            ? $logoText
+                            : ($officeName ?:
+                            ($logoText ?:
+                            config('app.name')));
                 @endphp
                 <span class="app-brand-text demo menu-text fw-bold text-truncate" title="{{ $brandText }}">
                     {{ $brandText }}
@@ -76,37 +81,43 @@
         @endcanany
 
         {{-- المزادات والتقارير --}}
-        @can('auctions.view')
+        @canany(['auctions.view', 'pending_auctions.view'])
             <li class="menu-header small">
                 <span class="menu-header-text">المزادات والتقارير</span>
             </li>
 
-            <li class="menu-item @if (Helpers::isActiveRoute('auctions.*')) active @endif">
-                <a href="{{ tenant_route_name('auctions.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons ti ti-gavel"></i>
-                    <div>المزادات</div>
-                </a>
-            </li>
-        @endcan
+            @can('auctions.view')
+                <li class="menu-item @if (Helpers::isActiveRoute('auctions.*')) active @endif">
+                    <a href="{{ tenant_route_name('auctions.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons ti ti-gavel"></i>
+                        <div>المزادات</div>
+                    </a>
+                </li>
+            @endcan
+            @can('pending_auctions.view')
+                @php
+                    $tenantCounts = $tenantCounts ?? app(\App\Services\Shared\Sidebar\SidebarCounterService::class)->getTenantCounts(auth('tenant')->user());
+                    $pendingAuctionsCount = $tenantCounts['pending_auctions'] ?? 0;
+                @endphp
+                <li class="menu-item @if (Helpers::isActiveRoute('pending-auctions.*')) active @endif">
+                    <a href="{{ tenant_route_name('pending-auctions.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons ti ti-clock-check"></i>
+                        <div>بانتظار الاعتماد</div>
+                        <div class="badge bg-light text-primary rounded-pill ms-auto @if ($pendingAuctionsCount <= 0) d-none @endif"
+                            data-sidebar-counter="pending_auctions">{{ $pendingAuctionsCount }}</div>
+                    </a>
+                </li>
+            @endcan
+        @endcanany
 
         @can('tickets.view')
             <li class="menu-header small">
                 <span class="menu-header-text">التذاكر والدعم</span>
             </li>
             @php
-                $openTicketsCount = cache()->remember(
-                    'tenant:' . tenant('id') . ':open_tickets_count',
-                    60,
-                    function () {
-                        try {
-                            return app(
-                                \App\Services\Shared\Integration\EtmamTicketService::class,
-                            )->getTenantTicketStats()['open'] ?? 0;
-                        } catch (\Throwable $e) {
-                            return 0;
-                        }
-                    },
-                );
+                $sidebarCounterService = app(\App\Services\Shared\Sidebar\SidebarCounterService::class);
+                $tenantCounts = $sidebarCounterService->getTenantCounts(auth()->user());
+                $openTicketsCount = $tenantCounts['tickets_open'] ?? 0;
             @endphp
             <li class="menu-item @if (Helpers::isActiveRoute('tickets.*')) active @endif">
                 <a href="{{ tenant_route_name('tickets.index') }}" class="menu-link">
@@ -121,29 +132,10 @@
         {{-- الأرشيف --}}
         @canany(['user_archive.view', 'properties_archive.view', 'assignments_archive.view', 'auctions_archive.view'])
             @php
-                $tenantArchiveCounts = cache()->remember('tenant:' . tenant('id') . ':archive_sidebar_counts', 60, function () {
-                    return [
-                        'users' => \App\Models\Tenants\UserMangment\User\User::onlyTrashed()->count(),
-                        'properties' => \App\Models\Tenants\Properties\Property::onlyTrashed()->count(),
-                        'assignments' => \App\Models\Tenants\Assignments\Assignment::onlyTrashed()->count(),
-                        'auctions' => \App\Models\Tenants\Auctions\Auction::onlyTrashed()->count(),
-                    ];
-                });
-
-                $tenantUserCan = auth()->user();
-                $totalTenantArchiveCount = 0;
-                if ($tenantUserCan?->can('user_archive.view')) {
-                    $totalTenantArchiveCount += $tenantArchiveCounts['users'] ?? 0;
-                }
-                if ($tenantUserCan?->can('properties_archive.view')) {
-                    $totalTenantArchiveCount += $tenantArchiveCounts['properties'] ?? 0;
-                }
-                if ($tenantUserCan?->can('assignments_archive.view')) {
-                    $totalTenantArchiveCount += $tenantArchiveCounts['assignments'] ?? 0;
-                }
-                if ($tenantUserCan?->can('auctions_archive.view')) {
-                    $totalTenantArchiveCount += $tenantArchiveCounts['auctions'] ?? 0;
-                }
+                $tenantCounts =
+                    $tenantCounts ??
+                    app(\App\Services\Shared\Sidebar\SidebarCounterService::class)->getTenantCounts(auth()->user());
+                $totalTenantArchiveCount = $tenantCounts['archive_tenant_total'] ?? 0;
             @endphp
             <li class="menu-header small">
                 <span class="menu-header-text">الأرشيف</span>
@@ -160,8 +152,9 @@
                         <li class="menu-item @if (Helpers::isActiveRoute('archive.users.*')) active @endif">
                             <a href="{{ tenant_route_name('archive.users.index') }}" class="menu-link">
                                 <div>المستخدمين</div>
-                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($tenantArchiveCounts['users'] ?? 0) <= 0) d-none @endif"
-                                    data-sidebar-counter="archive_tenant_users">{{ $tenantArchiveCounts['users'] ?? 0 }}</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($tenantCounts['archive_tenant_users'] ?? 0) <= 0) d-none @endif"
+                                    data-sidebar-counter="archive_tenant_users">
+                                    {{ $tenantCounts['archive_tenant_users'] ?? 0 }}</div>
                             </a>
                         </li>
                     @endcan
@@ -169,8 +162,9 @@
                         <li class="menu-item @if (Helpers::isActiveRoute('archive.properties.*')) active @endif">
                             <a href="{{ tenant_route_name('archive.properties.index') }}" class="menu-link">
                                 <div>العقارات</div>
-                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($tenantArchiveCounts['properties'] ?? 0) <= 0) d-none @endif"
-                                    data-sidebar-counter="archive_tenant_properties">{{ $tenantArchiveCounts['properties'] ?? 0 }}</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($tenantCounts['archive_tenant_properties'] ?? 0) <= 0) d-none @endif"
+                                    data-sidebar-counter="archive_tenant_properties">
+                                    {{ $tenantCounts['archive_tenant_properties'] ?? 0 }}</div>
                             </a>
                         </li>
                     @endcan
@@ -178,8 +172,9 @@
                         <li class="menu-item @if (Helpers::isActiveRoute('archive.assignments.*')) active @endif">
                             <a href="{{ tenant_route_name('archive.assignments.index') }}" class="menu-link">
                                 <div>الإسنادات</div>
-                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($tenantArchiveCounts['assignments'] ?? 0) <= 0) d-none @endif"
-                                    data-sidebar-counter="archive_tenant_assignments">{{ $tenantArchiveCounts['assignments'] ?? 0 }}</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($tenantCounts['archive_tenant_assignments'] ?? 0) <= 0) d-none @endif"
+                                    data-sidebar-counter="archive_tenant_assignments">
+                                    {{ $tenantCounts['archive_tenant_assignments'] ?? 0 }}</div>
                             </a>
                         </li>
                     @endcan
@@ -187,8 +182,9 @@
                         <li class="menu-item @if (Helpers::isActiveRoute('archive.auctions.*')) active @endif">
                             <a href="{{ tenant_route_name('archive.auctions.index') }}" class="menu-link">
                                 <div>المزادات</div>
-                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($tenantArchiveCounts['auctions'] ?? 0) <= 0) d-none @endif"
-                                    data-sidebar-counter="archive_tenant_auctions">{{ $tenantArchiveCounts['auctions'] ?? 0 }}</div>
+                                <div class="badge bg-light text-primary rounded-pill ms-auto @if (($tenantCounts['archive_tenant_auctions'] ?? 0) <= 0) d-none @endif"
+                                    data-sidebar-counter="archive_tenant_auctions">
+                                    {{ $tenantCounts['archive_tenant_auctions'] ?? 0 }}</div>
                             </a>
                         </li>
                     @endcan

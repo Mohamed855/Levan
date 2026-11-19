@@ -1001,11 +1001,76 @@ document.addEventListener("DOMContentLoaded", () => {
         return propModalInstance;
     }
 
+    function clearModalErrors() {
+        const modalEl = document.getElementById("auctionPropertyModal");
+        if (!modalEl) return;
+        modalEl.querySelectorAll(".is-invalid").forEach((el) => {
+            el.classList.remove("is-invalid");
+        });
+        modalEl.querySelectorAll("[data-form-error], .invalid-feedback").forEach((el) => {
+            el.textContent = "";
+            el.hidden = true;
+            el.style.display = "none";
+        });
+    }
+
+    function showModalFieldError(fieldId, message) {
+        const input = document.getElementById(fieldId);
+        if (!input) return;
+        input.classList.add("is-invalid");
+        const inputGroup = input.closest(".input-group");
+        if (inputGroup) {
+            inputGroup.classList.add("is-invalid");
+        }
+        const fieldWrapper = input.closest("[data-form-field]") || input.parentElement;
+        if (fieldWrapper) {
+            fieldWrapper.classList.add("is-invalid");
+            let errorEl = fieldWrapper.querySelector("[data-form-error], .invalid-feedback");
+            if (!errorEl) {
+                errorEl = document.createElement("div");
+                errorEl.className = "invalid-feedback d-block";
+                errorEl.setAttribute("data-form-error", "");
+                errorEl.setAttribute("role", "alert");
+                fieldWrapper.appendChild(errorEl);
+            }
+            errorEl.textContent = message;
+            errorEl.hidden = false;
+            errorEl.style.display = "block";
+        }
+    }
+
+    function showModalFileError(inputId, message) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        const uploadWrapper = input.closest("[data-file-upload-wrapper]");
+        const fieldWrapper = input.closest("[data-form-field]") || uploadWrapper || input.parentElement;
+        if (uploadWrapper) {
+            uploadWrapper.classList.add("is-invalid");
+            uploadWrapper.querySelector(".file-upload-area")?.classList.add("is-invalid");
+        }
+        input.classList.add("is-invalid");
+        if (fieldWrapper) {
+            fieldWrapper.classList.add("is-invalid");
+            let errorEl = fieldWrapper.querySelector("[data-form-error], .invalid-feedback");
+            if (!errorEl) {
+                errorEl = document.createElement("div");
+                errorEl.className = "invalid-feedback d-block";
+                errorEl.setAttribute("data-form-error", "");
+                errorEl.setAttribute("role", "alert");
+                fieldWrapper.appendChild(errorEl);
+            }
+            errorEl.textContent = message;
+            errorEl.hidden = false;
+            errorEl.style.display = "block";
+        }
+    }
+
     function openAuctionPropertyModal(propertyId) {
         const prop = selectedProperties.get(String(propertyId));
         if (!prop) return;
 
         currentEditingPropertyId = String(propertyId);
+        clearModalErrors();
 
         $("#auctionPropertyModalTitle").text(prop.name || "-");
         $("#auctionPropertyModalNumber").text(prop.number || "-");
@@ -1153,10 +1218,27 @@ document.addEventListener("DOMContentLoaded", () => {
         const prop = selectedProperties.get(String(propertyId));
         if (!prop) return false;
 
-        const openingVal = $("#modal_auction_opening_value").val().trim();
-        const entryAmt = $("#modal_auction_entry_amount").val().trim();
-        const ownShare = $("#modal_auction_ownership_share").val().trim();
-        const bCount = $("#modal_auction_board_count").val().trim();
+        clearModalErrors();
+
+        const parseCleanNum = (val) => {
+            const clean = String(val ?? "").replace(/,/g, "").trim();
+            return clean === "" ? NaN : Number(clean);
+        };
+
+        const openingRaw = $("#modal_auction_opening_value").val().trim();
+        const openingNum = parseCleanNum(openingRaw);
+
+        const entryRaw = $("#modal_auction_entry_amount").val().trim();
+        const entryNum = parseCleanNum(entryRaw);
+
+        const estValNum = parseCleanNum(prop.estimated_value);
+
+        const ownShareRaw = $("#modal_auction_ownership_share").val().trim();
+        const ownShareNum = parseCleanNum(ownShareRaw);
+
+        const bCountRaw = $("#modal_auction_board_count").val().trim();
+        const bCountNum = parseCleanNum(bCountRaw);
+
         const bDim = $("#modal_auction_board_dimensions").val().trim();
         const disc = $("#modal_auction_disclosure").val().trim();
 
@@ -1165,42 +1247,99 @@ document.addEventListener("DOMContentLoaded", () => {
         const valCtrl = window.SharedFileUpload ? window.SharedFileUpload.getController(valInput) : null;
         const boardCtrl = window.SharedFileUpload ? window.SharedFileUpload.getController(boardInput) : null;
 
-        if (!openingVal || !entryAmt || !ownShare || !bCount || !bDim || !disc) {
-            if (window.toastr) {
-                window.toastr.error("يرجى تعبئة كافة الحقول المطلوبة للعقار.");
-            }
-            return false;
-        }
-
         const valWrapper = valInput?.closest("[data-file-upload-wrapper]");
         const boardWrapper = boardInput?.closest("[data-file-upload-wrapper]");
 
+        let hasErrors = false;
+
+        // 1. Validate opening_value
+        if (!openingRaw) {
+            showModalFieldError("modal_auction_opening_value", "قيمة افتتاح المزاد مطلوبة.");
+            hasErrors = true;
+        } else if (isNaN(openingNum) || openingNum < 0) {
+            showModalFieldError("modal_auction_opening_value", "قيمة افتتاح المزاد يجب أن تكون رقماً صالحاً.");
+            hasErrors = true;
+        } else if (!isNaN(estValNum) && estValNum > 0 && openingNum > estValNum) {
+            showModalFieldError(
+                "modal_auction_opening_value",
+                `قيمة افتتاح المزاد لا يمكن أن تتجاوز القيمة التقديرية (${estValNum.toLocaleString()} ر.س).`
+            );
+            hasErrors = true;
+        }
+
+        // 2. Validate entry_amount
+        if (!entryRaw) {
+            showModalFieldError("modal_auction_entry_amount", "مبلغ الدخول مطلوب.");
+            hasErrors = true;
+        } else if (isNaN(entryNum) || entryNum < 0) {
+            showModalFieldError("modal_auction_entry_amount", "مبلغ الدخول يجب أن يكون رقماً صالحاً.");
+            hasErrors = true;
+        } else if (!isNaN(openingNum) && openingNum >= 0 && entryNum > openingNum) {
+            showModalFieldError("modal_auction_entry_amount", "مبلغ الدخول لا يمكن أن يكون أكبر من قيمة افتتاح المزاد.");
+            hasErrors = true;
+        }
+
+        // 3. Validate ownership_share
+        if (!ownShareRaw) {
+            showModalFieldError("modal_auction_ownership_share", "نسبة الملكية المعروضة مطلوبة.");
+            hasErrors = true;
+        } else if (isNaN(ownShareNum) || ownShareNum <= 0 || ownShareNum > 100) {
+            showModalFieldError("modal_auction_ownership_share", "نسبة الملكية المعروضة يجب أن تكون بين 0.01% و 100%.");
+            hasErrors = true;
+        }
+
+        // 4. Validate board_count
+        if (!bCountRaw) {
+            showModalFieldError("modal_auction_board_count", "عدد اللوحات مطلوب.");
+            hasErrors = true;
+        } else if (isNaN(bCountNum) || bCountNum < 1) {
+            showModalFieldError("modal_auction_board_count", "عدد اللوحات يجب أن يكون 1 على الأقل.");
+            hasErrors = true;
+        }
+
+        // 5. Validate board_dimensions
+        if (!bDim) {
+            showModalFieldError("modal_auction_board_dimensions", "مقاس اللوحات مطلوب.");
+            hasErrors = true;
+        }
+
+        // 6. Validate disclosure
+        if (!disc) {
+            showModalFieldError("modal_auction_disclosure", "الإفصاح الخاص بالعقار مطلوب.");
+            hasErrors = true;
+        }
+
+        // 7. Validate valuation file
         const remainingValCards = valWrapper?.querySelectorAll("[data-existing-file-card]") || [];
         const newChosenValFiles = valCtrl ? valCtrl.getFiles() : (valInput?.files ? Array.from(valInput.files) : []);
         const hasValuation = remainingValCards.length > 0 || newChosenValFiles.length > 0 || Boolean(prop._valFiles && prop._valFiles.length > 0);
 
         if (!hasValuation) {
-            if (window.toastr) {
-                window.toastr.error("يرجى إرفاق نموذج التقييم العقاري.");
-            }
-            return false;
+            showModalFileError("modal_file_valuation", "يرجى إرفاق نموذج التقييم العقاري المعتمد.");
+            hasErrors = true;
         }
 
+        // 8. Validate board before files
         const remainingBoardCards = boardWrapper?.querySelectorAll("[data-existing-file-card]") || [];
         const newChosenBoardFiles = boardCtrl ? boardCtrl.getFiles() : (boardInput?.files ? Array.from(boardInput.files) : []);
         const hasBoard = remainingBoardCards.length > 0 || newChosenBoardFiles.length > 0 || Boolean(prop._boardFiles && prop._boardFiles.length > 0);
 
         if (!hasBoard) {
+            showModalFileError("modal_file_board_before", "يرجى إرفاق صورة واحدة على الأقل لتركيب اللوحات.");
+            hasErrors = true;
+        }
+
+        if (hasErrors) {
             if (window.toastr) {
-                window.toastr.error("يرجى إرفاق صورة واحدة على الأقل لتركيب اللوحات.");
+                window.toastr.error("يرجى تصحيح الأخطاء الموضحة في بيانات العقار للمتابعة.");
             }
             return false;
         }
 
-        prop.opening_value = openingVal;
-        prop.entry_amount = entryAmt;
-        prop.ownership_share = ownShare;
-        prop.board_count = bCount;
+        prop.opening_value = openingRaw.replace(/,/g, "");
+        prop.entry_amount = entryRaw.replace(/,/g, "");
+        prop.ownership_share = ownShareRaw;
+        prop.board_count = bCountRaw;
         prop.board_dimensions = bDim;
         prop.disclosure = disc;
 
@@ -1235,6 +1374,40 @@ document.addEventListener("DOMContentLoaded", () => {
         return true;
     }
 
+    // Modal input error clearing on user edit
+    $("#auctionPropertyModal").on("input change", "input, select, textarea", function () {
+        this.classList.remove("is-invalid");
+        this.closest(".input-group")?.classList.remove("is-invalid");
+        const wrapper = this.closest("[data-form-field]") || this.parentElement;
+        if (wrapper) {
+            wrapper.classList.remove("is-invalid");
+            const err = wrapper.querySelector("[data-form-error], .invalid-feedback");
+            if (err) {
+                err.textContent = "";
+                err.hidden = true;
+                err.style.display = "none";
+            }
+        }
+    });
+
+    $("#auctionPropertyModal").on("file:changed file:removed file:removed-existing", function (e) {
+        const wrapper = e.target.closest("[data-file-upload-wrapper]");
+        const fieldWrapper = e.target.closest("[data-form-field]") || wrapper;
+        if (wrapper) {
+            wrapper.classList.remove("is-invalid");
+            wrapper.querySelector(".file-upload-area")?.classList.remove("is-invalid");
+        }
+        if (fieldWrapper) {
+            fieldWrapper.classList.remove("is-invalid");
+            const err = fieldWrapper.querySelector("[data-form-error], .invalid-feedback");
+            if (err) {
+                err.textContent = "";
+                err.hidden = true;
+                err.style.display = "none";
+            }
+        }
+    });
+
     // Card click opens the unified property modal
     $(document).on("click", "#selected-properties-cards .assignment-property-card", function (e) {
         if (e.target.closest("[data-remove-auction-property], .remove-property-card-btn")) return;
@@ -1258,6 +1431,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Modal hidden cleanup to ensure no cross-property file leaks
     document.getElementById("auctionPropertyModal")?.addEventListener("hidden.bs.modal", function () {
+        clearModalErrors();
         const valInput = document.getElementById("modal_file_valuation");
         const boardInput = document.getElementById("modal_file_board_before");
         const valCtrl = window.SharedFileUpload ? window.SharedFileUpload.getController(valInput) : null;

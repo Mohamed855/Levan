@@ -34,4 +34,11 @@ class AdminSettingsHelper
 
         return $default;
     }
+
+    public static function getLogoUrl(): string
+    {
+        $settings = self::getSettings();
+
+        return $settings?->logo_url ?? asset('static/brand/logos/lot/trans-profile.png');
+    }
 }

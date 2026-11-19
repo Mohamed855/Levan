@@ -17,6 +17,12 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
     /** @var array<int, string>|string|null */
     protected array|string|null $assignmentCategory = null;
 
+    /** @var array<int, string>|string|null */
+    protected array|string|null $assignmentCity = null;
+
+    /** @var array<int, string>|string|null */
+    protected array|string|null $assignmentDistrict = null;
+
     public function forAssignment(?int $assignmentId): self
     {
         $this->assignmentId = $assignmentId;
@@ -30,6 +36,26 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
     public function forCategory(array|string|null $category): self
     {
         $this->assignmentCategory = $category;
+
+        return $this;
+    }
+
+    /**
+     * @param  array<int, string>|string|null  $city
+     */
+    public function forCity(array|string|null $city): self
+    {
+        $this->assignmentCity = $city;
+
+        return $this;
+    }
+
+    /**
+     * @param  array<int, string>|string|null  $district
+     */
+    public function forDistrict(array|string|null $district): self
+    {
+        $this->assignmentDistrict = $district;
 
         return $this;
     }
@@ -79,7 +105,7 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
                     ? $property->usage_classification->value
                     : (string) ($property->usage_classification ?? '');
 
-                return '<input type="checkbox" class="row-checkbox property-selector" value="'.(int) $property->id.'" data-name="'.e($property->name).'" data-number="'.e($property->property_number).'" data-type="'.e($property->type_label).'" data-classification="'.e($classification).'" data-city="'.e($property->city).'" data-image="'.e($image).'" aria-label="اختيار '.e($property->name).'">';
+                return '<input type="checkbox" class="row-checkbox property-selector" value="'.(int) $property->id.'" data-name="'.e($property->name).'" data-number="'.e($property->property_number).'" data-type="'.e($property->type_label).'" data-classification="'.e($classification).'" data-city="'.e($property->city).'" data-district="'.e((string) $property->district).'" data-image="'.e($image).'" aria-label="اختيار '.e($property->name).'">';
             })
             ->addColumn('image', function (Property $property): string {
                 $image = $property->main_image ? tasset($property->main_image) : null;
@@ -102,24 +128,7 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
     protected function applyCustomFilters($query)
     {
         $categoryValue = request('category') ?? request('category[]') ?? request('assignment_category') ?? $this->assignmentCategory;
-
-        $categoryList = [];
-        if (is_array($categoryValue)) {
-            $categoryList = $categoryValue;
-        } elseif (is_string($categoryValue) && $categoryValue !== '') {
-            $decoded = json_decode($categoryValue, true);
-            if (is_array($decoded)) {
-                $categoryList = $decoded;
-            } elseif (str_contains($categoryValue, ',')) {
-                $categoryList = explode(',', $categoryValue);
-            } else {
-                $categoryList = [$categoryValue];
-            }
-        } elseif ($categoryValue instanceof AssignmentCategory) {
-            $categoryList = [$categoryValue->value];
-        }
-
-        $categoryList = array_values(array_filter(array_map('trim', array_map('strval', $categoryList))));
+        $categoryList = $this->normalizeStringList($categoryValue);
 
         if (! empty($categoryList)) {
             $allowedClassifications = AssignmentCategory::allowedUsageClassificationsFor($categoryList);
@@ -130,11 +139,47 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
             }
         }
 
+        $cityValue = request('assignment_city') ?? request('assignment_city[]') ?? (request()->has('city') && is_array(request('city')) ? request('city') : null) ?? $this->assignmentCity;
+        $cities = $this->normalizeStringList($cityValue);
+        if (! empty($cities)) {
+            $query->whereIn('city', $cities);
+        }
+
+        $districtValue = request('assignment_district') ?? request('assignment_district[]') ?? (request()->has('district') && is_array(request('district')) ? request('district') : null) ?? $this->assignmentDistrict;
+        $districts = $this->normalizeStringList($districtValue);
+        if (! empty($districts)) {
+            $query->whereIn('district', $districts);
+        }
+
+        $propertyCity = request('property_city') ?? (! request()->has('assignment_city') && is_string(request('city')) && request('city') !== '' ? request('city') : null);
+
         return $query
             ->when(request()->filled('type'), fn ($builder) => $builder->where('type', request('type')))
-            ->when(request()->filled('city'), fn ($builder) => $builder->where('city', request('city')))
+            ->when(! empty($propertyCity), fn ($builder) => $builder->where('city', $propertyCity))
             ->when(request()->filled('data_status'), fn ($builder) => $builder->where('data_status', request('data_status')))
             ->when(request()->filled('status'), fn ($builder) => $builder->where('status', request('status')));
+    }
+
+    private function normalizeStringList(mixed $value): array
+    {
+        if (is_array($value)) {
+            $list = $value;
+        } elseif (is_string($value) && $value !== '') {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                $list = $decoded;
+            } elseif (str_contains($value, ',')) {
+                $list = explode(',', $value);
+            } else {
+                $list = [$value];
+            }
+        } elseif ($value instanceof \BackedEnum) {
+            $list = [$value->value];
+        } else {
+            $list = [];
+        }
+
+        return array_values(array_filter(array_map('trim', array_map('strval', $list)), static fn (string $v): bool => $v !== ''));
     }
 
     protected function filterableColumns(): array

@@ -364,4 +364,14 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
         $this->post(route('site.plans.checkout.resend', $this->publicPlan))->assertRedirect(route('site.plans.checkout', $this->publicPlan))->assertSessionHasErrors('otp');
         self::assertSame(3, session('checkout_verification.resend_count'));
     }
+
+    protected function tearDown(): void
+    {
+        if (isset($this->publicPlan) && $this->publicPlan->exists) {
+            $this->publicPlan->subscriptions()->forceDelete();
+            $this->publicPlan->forceDelete();
+        }
+
+        parent::tearDown();
+    }
 }

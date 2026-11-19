@@ -129,10 +129,34 @@ class DashboardNotificationService
         if (! config('dashboard-notifications.broadcast', true)) {
             return;
         }
-        foreach (AdminUser::where('status', 'active')->get() as $admin) {
-            if ($admin->isSuperAdmin()) {
+        try {
+            foreach (AdminUser::where('status', 'active')->get() as $admin) {
                 $this->refresh('admin', null, (int) $admin->id);
             }
+        } catch (Throwable $exception) {
+            Log::debug('Admin dashboard broadcast refresh failed.', ['error' => $exception->getMessage()]);
+        }
+    }
+
+    public function refreshTenant(string $tenantId): void
+    {
+        if (! config('dashboard-notifications.broadcast', true)) {
+            return;
+        }
+        try {
+            $tenant = Tenant::find($tenantId);
+            if (! $tenant) {
+                return;
+            }
+            $ids = tenancy()->initialized && (string) tenant('id') === (string) $tenantId
+                ? User::where('status', 'active')->pluck('id')->all()
+                : $tenant->run(fn (): array => User::where('status', 'active')->pluck('id')->all());
+
+            foreach ($ids as $id) {
+                $this->refresh('tenant', $tenantId, (int) $id);
+            }
+        } catch (Throwable $exception) {
+            Log::debug('Tenant dashboard broadcast refresh failed.', ['tenant_id' => $tenantId, 'error' => $exception->getMessage()]);
         }
     }
 

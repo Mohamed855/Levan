@@ -25,6 +25,16 @@ class StoreAssignmentRequest extends WizardFormRequest
             $this->merge(['category' => $trimmed !== '' ? [$trimmed] : []]);
         }
 
+        if ($this->has('city') && is_string($this->input('city'))) {
+            $trimmed = trim($this->input('city'));
+            $this->merge(['city' => $trimmed !== '' ? [$trimmed] : []]);
+        }
+
+        if ($this->has('district') && is_string($this->input('district'))) {
+            $trimmed = trim($this->input('district'));
+            $this->merge(['district' => $trimmed !== '' ? [$trimmed] : []]);
+        }
+
         if ($this->filled('issuing_entity_id')) {
             $name = IssuingEntity::whereKey($this->input('issuing_entity_id'))->value('name');
             if ($name) {
@@ -53,8 +63,10 @@ class StoreAssignmentRequest extends WizardFormRequest
             'name' => ['required', 'string', 'min:3', 'max:255'],
             'issuing_entity_id' => ['required_without:issuing_entity', 'nullable', 'integer', 'exists:issuing_entities,id'],
             'issuing_entity' => ['required_without:issuing_entity_id', 'nullable', 'string', 'max:255'],
-            'city' => ['required', 'string', 'max:100'],
-            'district' => ['nullable', 'string', 'max:255'],
+            'city' => ['required', 'array', 'min:1'],
+            'city.*' => ['required', 'string', 'max:100'],
+            'district' => ['required', 'array', 'min:1'],
+            'district.*' => ['required', 'string', 'max:255'],
             'category' => ['required', 'array', 'min:1'],
             'category.*' => ['required', 'string', Rule::enum(AssignmentCategory::class)],
             'start_date' => ['required', 'date'],
@@ -84,6 +96,13 @@ class StoreAssignmentRequest extends WizardFormRequest
             'issuing_entity.required_without' => 'الجهة المسندة مطلوبة.',
             'issuing_entity.required' => 'الجهة المسندة مطلوبة.',
             'city.required' => 'المدينة مطلوبة.',
+            'city.array' => 'المدينة غير صالحة.',
+            'city.min' => 'يجب اختيار مدينة واحدة على الأقل.',
+            'city.*.required' => 'المدينة مطلوبة.',
+            'district.required' => 'النطاق أو الحي مطلوب.',
+            'district.array' => 'النطاق أو الحي غير صالح.',
+            'district.min' => 'يجب اختيار نطاق أو حي واحد على الأقل.',
+            'district.*.required' => 'النطاق أو الحي مطلوب.',
             'category.required' => 'تصنيف الإسناد مطلوب.',
             'category.array' => 'تصنيف الإسناد غير صالح.',
             'category.min' => 'يجب اختيار تصنيف واحد على الأقل للإسناد.',

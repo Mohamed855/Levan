@@ -38,9 +38,10 @@
                     </p>
 
                     <div class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill bg-white/10 my-2">
-                        <span class="text-2xl font-bold text-white">{{ number_format($planCyclePrice ?? $plan->priceForCycle($billingCycle ?? 'monthly', true)) }}</span>
+                        <span
+                            class="text-2xl font-bold text-white">{{ number_format($planCyclePrice ?? $plan->priceForCycle($billingCycle ?? 'monthly', true)) }}</span>
                         <span class="icon-saudi_riyal"></span>
-                        <span class="text-sm text-white/80">/ {{ $billingCycleLabel ?? 'شهرياً' }}</span>
+                        <span class="text-sm text-white/80">{{ $billingCycleLabel ?? 'شهرياً' }}</span>
                     </div>
                 </div>
             </div>

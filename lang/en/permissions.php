@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'pending_auctions.view' => 'View auctions pending approval',
     'marketing_campaigns.view' => 'View marketing campaigns',
     'marketing_campaigns.create' => 'Create marketing campaigns',
     'marketing_campaigns.edit' => 'Edit marketing campaigns',
@@ -16,6 +17,7 @@ return [
     'auction_establishment_requests.regenerate' => 'Regenerate auction establishment forms',
     // Sections
     'sections' => [
+        'pending_auctions_management' => 'Auctions Pending Approval',
         'dashboard' => 'Dashboard',
         'issuing_entities_management' => 'Issuing Entities Management',
         'assignments_management' => 'Assignments Management',

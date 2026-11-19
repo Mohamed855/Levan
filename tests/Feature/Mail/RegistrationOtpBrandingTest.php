@@ -92,14 +92,14 @@ final class RegistrationOtpBrandingTest extends TestCase
             'central empty' => ['central', null, 'default-office.png'],
             'central demo' => ['central', 'image/demo-office.jpg', 'default-office.png'],
             'central custom' => ['central', 'image/custom-logo.png', 'image/custom-logo.png'],
-            'tenant empty' => ['tenant', null, 'default-office.png'],
-            'tenant demo' => ['tenant', 'image/demo-office.jpg', 'default-office.png'],
+            'tenant empty' => ['tenant', null, null],
+            'tenant demo' => ['tenant', 'image/demo-office.jpg', null],
             'tenant custom' => ['tenant', 'image/custom-logo.png', 'image/custom-logo.png'],
         ];
     }
 
     #[DataProvider('settingsLogos')]
-    public function test_demo_seeders_preserve_branding(string $scope, ?string $image, string $expected): void
+    public function test_demo_seeders_preserve_branding(string $scope, ?string $image, ?string $expected): void
     {
         $model = $scope === 'central' ? CentralSettings::class : TenantSettings::class;
         DB::setDefaultConnection($scope === 'central' ? 'mysql' : 'tenant');

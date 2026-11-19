@@ -65,7 +65,7 @@ final class AuctionEstablishmentRequestData
             'type' => $this->field('نوع العقار', 'text', true, [], ['string', 'max:100'], ['maxlength' => '100']),
             'usage' => $this->field('استخدام العقار', 'text', true, [], ['string', 'max:100'], ['maxlength' => '100']),
             'usage_other' => $this->field('الاستخدام الآخر', 'text', false, [], ['string', 'max:255'], ['maxlength' => '255']),
-            'age' => $this->field('عمر العقار بالسنوات (صفر للأرض)', 'number', true, [], ['integer', 'min:0', 'max:200'], ['min' => '0', 'max' => '200', 'step' => '1', 'inputmode' => 'numeric']),
+            'age' => $this->field('عمر العقار بالسنوات', 'number', true, [], ['integer', 'min:0', 'max:200'], ['min' => '0', 'max' => '200', 'step' => '1', 'inputmode' => 'numeric']),
             'city_district' => $this->field('المدينة / الحي', 'text', true, [], ['string', 'max:255'], ['maxlength' => '255']),
             'status' => $this->field('الحالة النظامية', 'select', true, ['clear' => 'سليم', 'seized' => 'محجوز', 'mortgaged' => 'مرهون', 'endowed' => 'وقف', 'other' => 'أخرى']),
             'status_other' => $this->field('تفاصيل الحالة الأخرى', 'text', false, [], ['string', 'max:255'], ['maxlength' => '255']),

@@ -29,11 +29,12 @@ class SettingsTableSeeder extends Seeder
 
         $settings = Settings::query()->first();
         $image = $settings?->image;
+        $isDefaultOrDemo = empty($image) || in_array($image, ['default-office.png', 'image/demo-office.jpg'], true);
 
         Settings::updateOrCreate(
             ['id' => $settings?->getKey() ?? 1],
             [
-                'image' => empty($image) || $image === 'image/demo-office.jpg' ? 'default-office.png' : $image,
+                'image' => $isDefaultOrDemo ? null : $image,
                 'office_name' => 'لوت LOT',
                 'logo_text' => 'لوت LOT',
                 'operational_regions' => $defaultRegions,

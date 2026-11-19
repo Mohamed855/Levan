@@ -79,11 +79,23 @@
                         : old('issuing_entity_id')" :options="$issuingEntityOptions ?? []" placeholder="اختر الجهة المسندة" required col="col-md-6" />
 
                 <x-form.controls.select name="city" id="assignment-city" label="المدينة" required col="col-md-6"
-                    :value="$is_edit ? $assignment->city : old('city')" :options="$cityOptions" />
+                    :value="$is_edit ? $assignment->city : (array) old('city', [])"
+                    :options="$cityOptions"
+                    :multiple="true"
+                    placeholder="اختر المدن"
+                    data-datatable-filter="true"
+                    data-datatable-target="#assignment-properties-table"
+                    data-filter-key="assignment_city" />
 
-                <x-form.controls.select name="district" id="assignment-district" label="النطاق/الحي" :value="$is_edit ? $assignment->district : old('district')"
-                    :options="$districtOptions ?? []" placeholder="اختر النطاق أو الحي أو اكتب حياً جديداً" data-tags="true"
-                    col="col-md-6" />
+                <x-form.controls.select name="district" id="assignment-district" label="النطاق/الحي" required col="col-md-6"
+                    :value="$is_edit ? $assignment->district : (array) old('district', [])"
+                    :options="$districtOptions ?? []"
+                    :multiple="true"
+                    placeholder="اختر النطاق أو الحي أو اكتب حياً جديداً"
+                    data-tags="true"
+                    data-datatable-filter="true"
+                    data-datatable-target="#assignment-properties-table"
+                    data-filter-key="assignment_district" />
 
                 <x-form.controls.input name="start_date" type="date" label="تاريخ البداية" :value="$is_edit ? $assignment->start_date?->format('Y-m-d') : old('start_date')"
                     placeholder="اختر التاريخ" required col="col-md-6" />
@@ -127,7 +139,7 @@
                                 placeholder="جميع الأنواع" :enum="\App\Enums\Tenants\Properties\PropertyType::class" col="col-md-4" />
                             <x-filter.select id="assignment-property-data-status" filterKey="data_status"
                                 label="حالة البيانات" placeholder="جميع الحالات" :enum="\App\Enums\Tenants\Properties\PropertyDataStatus::class" col="col-md-4" />
-                            <x-filter.select id="assignment-property-city" filterKey="city" label="المدينة"
+                            <x-filter.select id="assignment-property-city" filterKey="property_city" label="المدينة"
                                 placeholder="جميع المدن" :options="$cityOptions" col="col-md-4" />
                         </div>
                     </x-slot:filters>

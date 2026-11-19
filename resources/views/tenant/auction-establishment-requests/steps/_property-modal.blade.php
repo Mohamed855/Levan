@@ -61,8 +61,8 @@
             </div>
 
             {{-- عمر العقار --}}
-            <x-form.controls.input name="modal_prop_age" id="modal_prop_age" label="عمر العقار بالسنوات (صفر للأرض)"
-                type="number" min="0" max="200" step="1" required col="col-md-6" />
+            <x-form.controls.input name="modal_prop_age" id="modal_prop_age" label="عمر العقار بالسنوات" type="number"
+                min="0" max="200" step="1" required col="col-md-6" />
 
             {{-- المدينة / الحي --}}
             <x-form.controls.input name="modal_prop_city_district" id="modal_prop_city_district" label="المدينة / الحي"

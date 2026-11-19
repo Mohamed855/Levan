@@ -8,8 +8,7 @@
     use App\Helpers\Admin\Settings\AdminSettingsHelper;
 
     if (! $logoPath) {
-        $logoImage = AdminSettingsHelper::get('image');
-        $logoPath = $logoImage ? asset('storage/' . $logoImage) : asset('static/brand/logos/lot/trans-icon.png');
+        $logoPath = AdminSettingsHelper::getLogoUrl();
     }
 @endphp
 

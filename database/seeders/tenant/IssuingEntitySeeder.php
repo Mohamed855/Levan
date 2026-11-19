@@ -14,7 +14,6 @@ class IssuingEntitySeeder extends Seeder
     /**
      * Official fixture images for each issuing entity.
      * Keys match files in database/seeders/fixtures/issuing-entities/.
-     * Falls back to the generic placeholder when the file is absent.
      */
     private const ENTITY_FIXTURES = [
         'مركز الإسناد والتصفية (إنفاذ)' => 'issuing-entities/infath.png',
@@ -27,15 +26,15 @@ class IssuingEntitySeeder extends Seeder
         'لجنة الإفلاس' => 'issuing-entities/bankruptcy.png',
         'محكمة التنفيذ بمكة المكرمة' => 'issuing-entities/courts.png',
         'الهيئة العامة للأوقاف' => 'issuing-entities/awqaf.png',
+        'كتابة العدل الأولى' => 'issuing-entities/moj.png',
     ];
 
     /**
-     * Run the database seeds for test tenant issuing entities.
+     * Run the database seeds for tenant issuing entities.
      */
     public function run(): void
     {
         $firstUserId = User::first()?->id;
-        $isTest = (bool) config('seeding.test_seeders_enabled', false);
 
         $entities = [
             ['name' => 'مركز الإسناد والتصفية (إنفاذ)',     'is_active' => true],
@@ -52,14 +51,14 @@ class IssuingEntitySeeder extends Seeder
 
         foreach ($entities as $entity) {
             $imageAttributes = [];
+            $fixture = self::ENTITY_FIXTURES[$entity['name']] ?? null;
 
-            if ($isTest) {
-                $fixture = self::ENTITY_FIXTURES[$entity['name']] ?? null;
+            if ($fixture !== null) {
                 $targetPath = 'issuing-entities/'.md5($entity['name']).'.png';
-
-                $imageAttributes['image'] = $fixture !== null
-                    ? DemoAssets::namedImage($fixture, $targetPath)
-                    : DemoAssets::image('issuing-entities/demo-'.md5($entity['name']).'.jpg');
+                $storedPath = DemoAssets::namedImage($fixture, $targetPath);
+                if ($storedPath !== null) {
+                    $imageAttributes['image'] = $storedPath;
+                }
             }
 
             IssuingEntity::withTrashed()->updateOrCreate(
@@ -70,6 +69,15 @@ class IssuingEntitySeeder extends Seeder
                     'deleted_at' => null,
                 ], $imageAttributes)
             );
+        }
+
+        $notary = IssuingEntity::withTrashed()->where('name', 'كتابة العدل الأولى')->first();
+        if ($notary && empty($notary->image)) {
+            $notaryPath = 'issuing-entities/'.md5('كتابة العدل الأولى').'.png';
+            $notaryStored = DemoAssets::namedImage(self::ENTITY_FIXTURES['كتابة العدل الأولى'], $notaryPath);
+            if ($notaryStored !== null) {
+                $notary->update(['image' => $notaryStored]);
+            }
         }
     }
 }

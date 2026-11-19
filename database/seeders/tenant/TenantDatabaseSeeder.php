@@ -17,6 +17,7 @@ class TenantDatabaseSeeder extends Seeder
             PermissionsRolesSeeder::class,
             SettingsTableSeeder::class,
             UserSeeder::class,
+            IssuingEntitySeeder::class,
         ]);
 
         if (config('seeding.test_seeders_enabled', false)) {

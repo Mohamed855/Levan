@@ -5,6 +5,7 @@ namespace App\Models\Admin\Settings;
 use App\Traits\ActivityLogTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Settings extends Model
 {
@@ -34,6 +35,29 @@ class Settings extends Model
         'maintenance_mode' => 'boolean',
         'tickets_enabled' => 'boolean',
     ];
+
+    public function getLogoUrlAttribute(): string
+    {
+        $image = $this->image;
+        if (! $image || in_array($image, ['default-office.png', 'image/demo-office.jpg'], true)) {
+            return asset('static/brand/logos/lot/trans-profile.png');
+        }
+
+        if (preg_match('#^(https?:)?//#', $image) || str_starts_with($image, 'data:')) {
+            return $image;
+        }
+
+        $normalized = ltrim($image, '/');
+        if (str_starts_with($normalized, 'storage/')) {
+            $normalized = substr($normalized, 8);
+        }
+
+        if (Storage::disk('public')->exists($normalized) || file_exists(public_path('storage/' . $normalized))) {
+            return asset('storage/' . $normalized);
+        }
+
+        return asset('static/brand/logos/lot/trans-profile.png');
+    }
 
     /*
     |============================================================================

@@ -217,8 +217,8 @@ class TestTenantSeeder extends Seeder
                 'fal_license' => filled($settings?->fal_license) ? $settings->fal_license : '1200018492',
                 'representative_name' => filled($settings?->representative_name) ? $settings->representative_name : 'مدير النظام',
                 'logo_text' => 'لوت LOT',
-                'image' => empty($settings?->image) || $settings?->image === 'image/demo-office.jpg'
-                    ? 'default-office.png'
+                'image' => empty($settings?->image) || in_array($settings?->image, ['default-office.png', 'image/demo-office.jpg'], true)
+                    ? null
                     : $settings->image,
                 'report_phone' => '+966112345678',
                 'report_unified_phone' => '920012345',

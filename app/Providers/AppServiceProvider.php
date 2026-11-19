@@ -11,6 +11,7 @@ use App\Services\Tenants\Auctions\BrowsershotDocumentRenderer;
 use App\Support\Vite as AppVite;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Database\Seeders\tenant\IssuingEntitySeeder;
 use Database\Seeders\tenant\PermissionsRolesSeeder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Console\ServeCommand;
@@ -45,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TenantInitializer::class, function ($app) {
             return new TenantInitializer([
                 PermissionsRolesSeeder::class,
+                IssuingEntitySeeder::class,
             ]);
         });
     }

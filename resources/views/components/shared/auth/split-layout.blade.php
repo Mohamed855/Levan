@@ -26,7 +26,9 @@
             if (function_exists('tenant') && tenant()) {
                 $tenantLogo = class_exists(SettingsHelper::class) ? SettingsHelper::get('image') : null;
                 if (! empty($tenantLogo) && ! in_array($tenantLogo, ['default-office.png', 'image/demo-office.jpg'], true)) {
-                    $logoUrl = tasset($tenantLogo, 'static/brand/logos/lot/trans-profile.png');
+                    $logoUrl = tasset($tenantLogo, null);
+                } else {
+                    $logoUrl = null;
                 }
             } elseif (class_exists(AdminSettingsHelper::class)) {
                 $adminLogo = AdminSettingsHelper::get('image');
@@ -50,9 +52,11 @@
         <img class="auth-brand-watermark" src="{{ asset('static/brand/logos/lot/trans-icon.png') }}" alt="" aria-hidden="true">
 
         <div class="auth-form-inner" style="max-width: {{ $formMaxWidth }};">
-            <div class="auth-logo-wrapper">
-                <img src="{{ $logoUrl }}" alt="Logo" class="auth-logo-img">
-            </div>
+            @if ($logoUrl)
+                <div class="auth-logo-wrapper">
+                    <img src="{{ $logoUrl }}" alt="Logo" class="auth-logo-img">
+                </div>
+            @endif
 
             @if ($formTitle)
                 <h2 class="auth-form-title">{{ $formTitle }}</h2>

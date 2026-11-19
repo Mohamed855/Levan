@@ -13,6 +13,8 @@ class AuctionsDataTable extends AbstractDataTable
 {
     private string $route = 'auctions';
 
+    protected string $actionView = 'tenant.auctions.action';
+
     protected function getTableId(): string
     {
         return 'auctions-table';
@@ -153,7 +155,7 @@ class AuctionsDataTable extends AbstractDataTable
             })
             ->editColumn('created_at', fn ($row): string => $this->formatDate($row->created_at))
             ->addColumn('actions', function ($row) {
-                return view('tenant.auctions.action', ['row' => $row, 'route' => $this->route])->render();
+                return view($this->actionView, ['row' => $row, 'route' => $this->route])->render();
             });
     }
 

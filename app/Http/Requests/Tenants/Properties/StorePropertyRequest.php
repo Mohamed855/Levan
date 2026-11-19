@@ -42,6 +42,24 @@ class StorePropertyRequest extends WizardFormRequest
             }
         }
 
+        $propType = $data['type'] ?? $this->input('type');
+        if ($propType instanceof PropertyType) {
+            $propType = $propType->value;
+        }
+        if ($propType === PropertyType::LAND->value || $propType === 'land') {
+            $data['age'] = null;
+        } elseif (($data['age'] ?? '') === '') {
+            $data['age'] = null;
+        }
+
+        $legalStatus = $data['legal_status'] ?? $this->input('legal_status');
+        if ($legalStatus instanceof PropertyLegalStatus) {
+            $legalStatus = $legalStatus->value;
+        }
+        if ($legalStatus !== PropertyLegalStatus::OTHER->value && $legalStatus !== 'other') {
+            $data['legal_status_notes'] = null;
+        }
+
         return $data;
     }
 
@@ -58,7 +76,18 @@ class StorePropertyRequest extends WizardFormRequest
             'type' => ['required', Rule::enum(PropertyType::class)],
             'usage_classification' => ['required', Rule::enum(PropertyUsageClassification::class)],
             'area' => ['required', 'numeric', 'min:0.01'],
-            'age' => ['required', 'integer', 'min:0', 'max:200'],
+            'age' => [
+                Rule::requiredIf(function (): bool {
+                    $type = $this->input('type');
+                    $typeVal = $type instanceof PropertyType ? $type->value : (string) $type;
+
+                    return $typeVal !== PropertyType::LAND->value && $typeVal !== 'land';
+                }),
+                'nullable',
+                'integer',
+                'min:0',
+                'max:200',
+            ],
             'estimated_value' => ['required', 'numeric', 'min:0', 'max:9999999999999.99', 'decimal:0,2'],
             'is_active' => ['nullable', 'boolean'],
             'short_description' => ['required', 'string', 'max:1000'],
@@ -137,7 +166,17 @@ class StorePropertyRequest extends WizardFormRequest
             'issuing_authority' => ['required', 'string', 'max:255'],
             'ownership_type' => ['required', Rule::enum(PropertyOwnershipType::class)],
             'legal_status' => ['required', Rule::enum(PropertyLegalStatus::class)],
-            'legal_status_notes' => ['nullable', 'string', 'max:255', 'required_if:legal_status,other'],
+            'legal_status_notes' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::requiredIf(function (): bool {
+                    $status = $this->input('legal_status');
+                    $statusVal = $status instanceof PropertyLegalStatus ? $status->value : (string) $status;
+
+                    return $statusVal === PropertyLegalStatus::OTHER->value || $statusVal === 'other';
+                }),
+            ],
             'owners' => ['required', 'array', 'min:1'],
             'owners.*.owner_name' => ['required', 'string', 'max:255'],
             'owners.*.national_id_or_cr' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
@@ -184,10 +223,10 @@ class StorePropertyRequest extends WizardFormRequest
             'usage_classification.required' => 'تصنيف الاستخدام مطلوب.',
             'area.required' => 'المساحة مطلوبة.',
             'area.numeric' => 'المساحة يجب أن تكون رقماً.',
-            'age.required' => 'عمر العقار مطلوب.',
-            'age.integer' => 'عمر العقار يجب أن يكون رقماً صحيحاً.',
-            'age.min' => 'عمر العقار لا يمكن أن يكون سالباً.',
-            'age.max' => 'عمر العقار يجب ألا يتجاوز 200 سنة.',
+            'age.required' => 'عمر العقار بالسنوات مطلوب.',
+            'age.integer' => 'عمر العقار بالسنوات يجب أن يكون رقماً صحيحاً.',
+            'age.min' => 'عمر العقار بالسنوات لا يمكن أن يكون سالباً.',
+            'age.max' => 'عمر العقار بالسنوات يجب ألا يتجاوز 200 سنة.',
             'short_description.required' => 'الوصف المختصر للعقار مطلوب.',
             'short_description.max' => 'الوصف المختصر يجب ألا يتجاوز 1000 حرف.',
 
@@ -220,7 +259,8 @@ class StorePropertyRequest extends WizardFormRequest
             'issuing_authority.required' => 'جهة إصدار الصك مطلوبة.',
             'ownership_type.required' => 'نوع الملكية مطلوب.',
             'legal_status.required' => 'الحالة النظامية للعقار مطلوبة.',
-            'legal_status_notes.required_if' => 'تفاصيل الحالة النظامية مطلوبة عند اختيار أخرى.',
+            'legal_status_notes.required' => 'تفاصيل الحالة النظامية الأخرى مطلوبة عند اختيار أخرى.',
+            'legal_status_notes.required_if' => 'تفاصيل الحالة النظامية الأخرى مطلوبة عند اختيار أخرى.',
             'legal_status_notes.max' => 'تفاصيل الحالة النظامية يجب ألا تتجاوز 255 حرف.',
             'owners.required' => 'يجب إدخال مالك واحد على الأقل.',
             'owners.min' => 'يجب إدخال مالك واحد على الأقل.',
@@ -255,9 +295,9 @@ class StorePropertyRequest extends WizardFormRequest
             'type' => 'نوع العقار',
             'usage_classification' => 'تصنيف الاستخدام',
             'area' => 'المساحة (م²)',
-            'age' => 'عمر العقار',
+            'age' => 'عمر العقار بالسنوات',
             'legal_status' => 'الحالة النظامية',
-            'legal_status_notes' => 'تفاصيل الحالة النظامية',
+            'legal_status_notes' => 'تفاصيل الحالة النظامية الأخرى',
             'estimated_value' => 'القيمة التقديرية',
             'is_active' => 'حالة العقار',
             'short_description' => 'وصف العقار',

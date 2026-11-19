@@ -8,8 +8,7 @@
     use App\Helpers\Admin\Settings\AdminSettingsHelper;
 
     if (! $logoPath) {
-        $logoImage = AdminSettingsHelper::get('image');
-        $logoPath = $logoImage ? asset($logoImage) : asset('static/brand/logos/logo.svg');
+        $logoPath = AdminSettingsHelper::getLogoUrl();
     }
 @endphp
 

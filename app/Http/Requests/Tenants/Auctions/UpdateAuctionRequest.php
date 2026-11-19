@@ -376,6 +376,13 @@ class UpdateAuctionRequest extends WizardFormRequest
                 $pRow = $propertiesData[$pId];
                 $entry = (float) str_replace(',', '', (string) ($pRow['entry_amount'] ?? 0));
                 $opening = (float) str_replace(',', '', (string) ($pRow['opening_value'] ?? 0));
+                $estimated = isset($pRow['estimated_value']) && is_numeric(str_replace(',', '', (string) $pRow['estimated_value']))
+                    ? (float) str_replace(',', '', (string) $pRow['estimated_value'])
+                    : (float) (Property::find($pId)?->estimated_value ?? 0);
+
+                if ($estimated > 0 && $opening > $estimated) {
+                    $validator->errors()->add("properties_data.{$pId}.opening_value", 'قيمة افتتاح المزاد لا يمكن أن تتجاوز القيمة التقديرية للعقار.');
+                }
                 if ($entry > $opening) {
                     $validator->errors()->add("properties_data.{$pId}.entry_amount", 'مبلغ الدخول لا يمكن أن يكون أكبر من قيمة افتتاح المزاد.');
                 }
@@ -438,9 +445,9 @@ class UpdateAuctionRequest extends WizardFormRequest
             'properties_data.*.opening_value.required' => 'قيمة افتتاح المزاد مطلوبة لكل عقار مختار.',
             'properties_data.*.opening_value.numeric' => 'قيمة افتتاح المزاد يجب أن تكون رقماً.',
             'properties_data.*.opening_value.min' => 'قيمة افتتاح المزاد لا يمكن أن تكون سالبة.',
-            'properties_data.*.entry_amount.required' => 'مبلغ الدخول / الضمان مطلوب لكل عقار مختار.',
-            'properties_data.*.entry_amount.numeric' => 'مبلغ الدخول / الضمان يجب أن يكون رقماً.',
-            'properties_data.*.entry_amount.min' => 'مبلغ الدخول / الضمان لا يمكن أن يكون سالباً.',
+            'properties_data.*.entry_amount.required' => 'مبلغ الدخول مطلوب لكل عقار مختار.',
+            'properties_data.*.entry_amount.numeric' => 'مبلغ الدخول يجب أن يكون رقماً.',
+            'properties_data.*.entry_amount.min' => 'مبلغ الدخول لا يمكن أن يكون سالباً.',
             'properties_data.*.ownership_share.required' => 'نسبة الملكية المعروضة مطلوبة لكل عقار.',
             'properties_data.*.ownership_share.numeric' => 'نسبة الملكية المعروضة يجب أن تكون رقماً.',
             'properties_data.*.ownership_share.min' => 'نسبة الملكية المعروضة يجب أن تكون أكبر من 0%.',
@@ -526,14 +533,14 @@ class UpdateAuctionRequest extends WizardFormRequest
             'properties_data' => 'بيانات العقارات في المزاد',
             'properties_data.*' => 'بيانات العقار في المزاد',
             'properties_data.*.opening_value' => 'قيمة افتتاح المزاد',
-            'properties_data.*.entry_amount' => 'مبلغ الدخول / الضمان',
+            'properties_data.*.entry_amount' => 'مبلغ الدخول',
             'properties_data.*.estimated_value' => 'القيمة التقديرية للعقار',
             'properties_data.*.ownership_share' => 'نسبة الملكية المعروضة',
             'properties_data.*.board_count' => 'عدد اللوحات',
             'properties_data.*.board_dimensions' => 'مقاس اللوحات',
             'properties_data.*.disclosure' => 'الإفصاح الخاص بالعقار',
             'properties_data.*.valuation' => 'نموذج التقييم العقاري',
-            'properties_data.*.board_before' => 'صور تركيب اللوحات قبل المزاد',
+            'properties_data.*.board_before' => 'صور تركيب اللوحات',
             'properties_data.*.board_before.*' => 'صورة تركيب اللوحة',
 
             // التسويق والوسطاء

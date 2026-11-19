@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('properties', function (Blueprint $table): void {
-            $table->unsignedSmallInteger('age')->default(0)->after('area');
+            $table->unsignedSmallInteger('age')->nullable()->default(null)->after('area');
             $table->string('legal_status', 50)->default('clear')->after('ownership_type');
             $table->string('legal_status_notes', 255)->nullable()->after('legal_status');
         });

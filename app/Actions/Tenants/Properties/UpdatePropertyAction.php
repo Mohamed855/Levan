@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Actions\Tenants\Properties;
 
 use App\Enums\Tenants\Properties\PropertyAttachmentCategory;
+use App\Enums\Tenants\Properties\PropertyLegalStatus;
+use App\Enums\Tenants\Properties\PropertyType;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Auctions\Reports\AuctionReportRefreshService;
 use App\Services\Tenants\Properties\OriginalPropertyImageService;
@@ -155,6 +157,22 @@ final class UpdatePropertyAction
                     ]);
                 } elseif (is_string($aerialImageInput) && ! empty($aerialImageInput)) {
                     $data['aerial_image'] = $aerialImageInput;
+                }
+
+                $propType = $data['type'] ?? $property->type;
+                if ($propType instanceof PropertyType) {
+                    $propType = $propType->value;
+                }
+                if ($propType === PropertyType::LAND->value || $propType === 'land') {
+                    $data['age'] = null;
+                }
+
+                $legalStatus = $data['legal_status'] ?? $property->legal_status;
+                if ($legalStatus instanceof PropertyLegalStatus) {
+                    $legalStatus = $legalStatus->value;
+                }
+                if ($legalStatus !== PropertyLegalStatus::OTHER->value && $legalStatus !== 'other') {
+                    $data['legal_status_notes'] = null;
                 }
 
                 $property->update($data);

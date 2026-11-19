@@ -10,7 +10,9 @@ final class ApproveAuctionEstablishmentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user('tenant')?->can('auction_establishment_requests.approve') ?? false;
+        $user = $this->user('tenant');
+
+        return $user?->can('pending_auctions.view') && $user->can('auction_establishment_requests.approve');
     }
 
     public function rules(): array

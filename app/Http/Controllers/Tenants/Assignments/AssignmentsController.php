@@ -62,14 +62,21 @@ class AssignmentsController extends Controller
 
     public function create(AssignmentPropertySelectionDataTable $dataTable)
     {
-        $dataTable->forCategory(old('category', [AssignmentCategory::RESIDENTIAL->value]));
+        $city = (array) old('city', []);
+        $districts = (array) old('district', []);
+
+        $dataTable->forCategory(old('category', [AssignmentCategory::RESIDENTIAL->value]))
+            ->forCity($city)
+            ->forDistrict($districts);
+
         $generatedAssignmentNumber = $this->assignmentService->generateAssignmentNumber();
         $tenantImage = SettingsHelper::get('image');
 
-        $city = old('city');
-        $districtOptions = $city ? $this->cityOptionsGateway->districtsByCityName($city) : [];
-        if (old('district') && ! isset($districtOptions[old('district')])) {
-            $districtOptions[old('district')] = old('district');
+        $districtOptions = ! empty($city) ? $this->cityOptionsGateway->districtsByCityNames($city) : [];
+        foreach ($districts as $d) {
+            if ($d !== '' && ! isset($districtOptions[$d])) {
+                $districtOptions[$d] = $d;
+            }
         }
 
         return $dataTable->render('tenant.assignments.create', [
@@ -115,7 +122,7 @@ class AssignmentsController extends Controller
         $fallbackImage = $tenantImage ? tasset($tenantImage) : asset('static/brand/logos/logo.svg');
         $properties = Property::query()
             ->whereKey($request->validated('ids'))
-            ->get(['id', 'property_number', 'name', 'type', 'usage_classification', 'city', 'main_image'])
+            ->get(['id', 'property_number', 'name', 'type', 'usage_classification', 'city', 'district', 'main_image'])
             ->map(fn (Property $property): array => [
                 'id' => (string) $property->id,
                 'number' => $property->property_number,
@@ -123,6 +130,7 @@ class AssignmentsController extends Controller
                 'type' => $property->type_label,
                 'classification' => $property->usage_classification instanceof PropertyUsageClassification ? $property->usage_classification->value : (string) $property->usage_classification,
                 'city' => $property->city,
+                'district' => $property->district,
                 'image' => $property->main_image ? tasset($property->main_image) : $fallbackImage,
             ]);
 
@@ -143,14 +151,18 @@ class AssignmentsController extends Controller
         $tenantImage = SettingsHelper::get('image');
         $fallbackImage = $tenantImage ? tasset($tenantImage) : asset('static/brand/logos/logo.svg');
 
+        $city = (array) old('city', $assignment->city);
+        $currentDistricts = (array) old('district', $assignment->district);
+
         $dataTable->forAssignment($assignment->id);
         $dataTable->forCategory(old('category', $assignment->category));
+        $dataTable->forCity($city)->forDistrict($currentDistricts);
 
-        $city = old('city', $assignment->city);
-        $districtOptions = $city ? $this->cityOptionsGateway->districtsByCityName($city) : [];
-        $currentDistrict = old('district', $assignment->district);
-        if ($currentDistrict && ! isset($districtOptions[$currentDistrict])) {
-            $districtOptions[$currentDistrict] = $currentDistrict;
+        $districtOptions = ! empty($city) ? $this->cityOptionsGateway->districtsByCityNames($city) : [];
+        foreach ($currentDistricts as $d) {
+            if ($d !== '' && ! isset($districtOptions[$d])) {
+                $districtOptions[$d] = $d;
+            }
         }
 
         $issuingEntityOptions = $this->issuingEntityService->getActiveOptions();

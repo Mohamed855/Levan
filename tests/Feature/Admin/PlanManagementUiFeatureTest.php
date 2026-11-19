@@ -130,4 +130,11 @@ class PlanManagementUiFeatureTest extends TestCase
         $this->assertStringContainsString('bg-label-secondary', $content);
         $this->assertStringContainsString('text-nowrap', $content);
     }
+
+    protected function tearDown(): void
+    {
+        Plan::where('code', 'like', 'TEST_%')->forceDelete();
+
+        parent::tearDown();
+    }
 }

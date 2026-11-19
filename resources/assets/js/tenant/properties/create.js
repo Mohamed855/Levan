@@ -1208,14 +1208,26 @@ document.addEventListener("DOMContentLoaded", () => {
         // Review Basic Info
         const reviewBasic = document.getElementById("review-basic");
         if (reviewBasic) {
+            const propTypeVal = String(form.elements.namedItem("type")?.value || "").trim().toLowerCase();
             const basicFields = [
                 ["اسم العقار", getVal("name")],
                 ["نوع العقار", getSelectedText("type")],
+            ];
+
+            if (propTypeVal !== "land") {
+                const ageVal = getVal("age");
+                basicFields.push([
+                    "عمر العقار بالسنوات",
+                    ageVal && ageVal !== "-" ? `${ageVal} سنة` : "-",
+                ]);
+            }
+
+            basicFields.push(
                 ["تصنيف الاستخدام", getSelectedText("usage_classification")],
                 ["المساحة (م²)", getVal("area") + " م²"],
                 ["القيمة التقديرية", getVal("estimated_value")],
                 ["الوصف المختصر", getVal("short_description")],
-            ];
+            );
             reviewBasic.innerHTML = `<dl class="row mb-0">${basicFields
                 .map(
                     ([label, val]) => `
@@ -1292,6 +1304,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const unitsCount = unitsList
                 ? unitsList.querySelectorAll(".unit-row").length
                 : 0;
+            const legalStatusVal = String(form.elements.namedItem("legal_status")?.value || "").trim().toLowerCase();
             const ownershipFields = [
                 ["رقم الأصل", getVal("property_number")],
                 ["رقم الصك", getVal("deed_number")],
@@ -1303,13 +1316,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 ],
                 ["جهة الإصدار", getVal("issuing_authority")],
                 ["نوع الملكية", getSelectedText("ownership_type")],
+                ["الحالة النظامية", getSelectedText("legal_status")],
+            ];
+
+            if (legalStatusVal === "other" && getVal("legal_status_notes") && getVal("legal_status_notes") !== "-") {
+                ownershipFields.push([
+                    "تفاصيل الحالة النظامية الأخرى",
+                    getVal("legal_status_notes"),
+                ]);
+            }
+
+            ownershipFields.push(
                 ["عدد الملاك", `${ownersCount} مالك`],
                 ["اسم الوكيل", getVal("agent_name") || "لا يوجد وكيل"],
                 [
                     "عدد الوحدات",
                     unitsCount > 0 ? `${unitsCount} وحدات` : "لا توجد وحدات",
                 ],
-            ];
+            );
             reviewOwnership.innerHTML = `<dl class="row mb-0">${ownershipFields
                 .map(
                     ([label, val]) => `
@@ -1646,6 +1670,124 @@ document.addEventListener("DOMContentLoaded", () => {
         },
     );
 
+    // Dynamic visibility for age based on property type (hidden if land)
+    const syncPropertyAgeVisibility = () => {
+        const typeSelect = form.querySelector('select[name="type"]');
+        const ageWrapper = document.getElementById("property-age-wrapper");
+        const ageInput = document.getElementById("property-age") || form.elements.namedItem("age");
+        if (!typeSelect || !ageWrapper || !ageInput) return;
+
+        const isLand = String(typeSelect.value || "").trim().toLowerCase() === "land";
+
+        if (isLand) {
+            ageWrapper.style.display = "none";
+            ageInput.disabled = true;
+            ageInput.required = false;
+            ageInput.removeAttribute("required");
+            ageInput.value = "";
+
+            ageWrapper.classList.remove("is-invalid");
+            ageInput.classList.remove("is-invalid");
+            const errEl = ageWrapper.querySelector("[data-form-error]");
+            if (errEl) {
+                errEl.textContent = "";
+                errEl.hidden = true;
+                errEl.style.display = "none";
+            }
+            const asterisk = ageWrapper.querySelector("label.form-label span.text-danger");
+            if (asterisk) {
+                asterisk.remove();
+            }
+        } else {
+            ageWrapper.style.display = "";
+            ageInput.disabled = false;
+            ageInput.required = true;
+            ageInput.setAttribute("required", "required");
+
+            const labelEl = ageWrapper.querySelector("label.form-label");
+            if (labelEl && !labelEl.querySelector("span.text-danger")) {
+                const asterisk = document.createElement("span");
+                asterisk.className = "text-danger";
+                asterisk.setAttribute("aria-hidden", "true");
+                asterisk.textContent = " *";
+                labelEl.appendChild(asterisk);
+            }
+        }
+    };
+
+    // Dynamic visibility for legal_status_notes based on legal_status (only visible if other)
+    const syncLegalStatusNotesVisibility = () => {
+        const legalStatusSelect = form.querySelector('select[name="legal_status"]');
+        const notesWrapper = document.getElementById("property-legal-status-notes-wrapper");
+        const notesInput = document.getElementById("property-legal-status-notes") || form.elements.namedItem("legal_status_notes");
+        if (!legalStatusSelect || !notesWrapper || !notesInput) return;
+
+        const isOther = String(legalStatusSelect.value || "").trim().toLowerCase() === "other";
+
+        if (isOther) {
+            notesWrapper.style.display = "";
+            notesInput.disabled = false;
+            notesInput.required = true;
+            notesInput.setAttribute("required", "required");
+
+            const labelEl = notesWrapper.querySelector("label.form-label");
+            if (labelEl && !labelEl.querySelector("span.text-danger")) {
+                const asterisk = document.createElement("span");
+                asterisk.className = "text-danger";
+                asterisk.setAttribute("aria-hidden", "true");
+                asterisk.textContent = " *";
+                labelEl.appendChild(asterisk);
+            }
+        } else {
+            notesWrapper.style.display = "none";
+            notesInput.disabled = true;
+            notesInput.required = false;
+            notesInput.removeAttribute("required");
+            notesInput.value = "";
+
+            notesWrapper.classList.remove("is-invalid");
+            notesInput.classList.remove("is-invalid");
+            const errEl = notesWrapper.querySelector("[data-form-error]");
+            if (errEl) {
+                errEl.textContent = "";
+                errEl.hidden = true;
+                errEl.style.display = "none";
+            }
+            const asterisk = notesWrapper.querySelector("label.form-label span.text-danger");
+            if (asterisk) {
+                asterisk.remove();
+            }
+        }
+    };
+
+    const typeSelectEl = form.querySelector('select[name="type"]');
+    if (typeSelectEl) {
+        typeSelectEl.addEventListener("change", () => {
+            syncPropertyAgeVisibility();
+            buildReview();
+        });
+        if (window.jQuery) {
+            window.jQuery(typeSelectEl).on("change select2:select select2:clear", () => {
+                syncPropertyAgeVisibility();
+                buildReview();
+            });
+        }
+    }
+
+    const legalStatusSelectEl = form.querySelector('select[name="legal_status"]');
+    if (legalStatusSelectEl) {
+        legalStatusSelectEl.addEventListener("change", () => {
+            syncLegalStatusNotesVisibility();
+            buildReview();
+        });
+        if (window.jQuery) {
+            window.jQuery(legalStatusSelectEl).on("change select2:select select2:clear", () => {
+                syncLegalStatusNotesVisibility();
+                buildReview();
+            });
+        }
+    }
+
     form.addEventListener("change", buildReview);
     form.addEventListener("input", buildReview);
     form.addEventListener("file:changed", () => {
@@ -1743,11 +1885,15 @@ document.addEventListener("DOMContentLoaded", () => {
             loadImageSrc(aerialImageInput.value, data.boundary_geojson);
         }
 
+        syncPropertyAgeVisibility();
+        syncLegalStatusNotesVisibility();
         syncAgencyDocumentRequirement();
         buildReview();
     });
 
     // Initial check
+    syncPropertyAgeVisibility();
+    syncLegalStatusNotesVisibility();
     syncAgencyDocumentRequirement();
     buildReview();
 });

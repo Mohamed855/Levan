@@ -22,9 +22,17 @@ class IssuingEntityCrudTest extends TestCase
     {
         parent::setUp();
 
-        $this->tenant = Tenant::findOrFail('test');
+        $this->tenant = Tenant::find('test') ?? Tenant::first() ?? Tenant::create([
+            'id' => 'test',
+            'company_name' => 'شركة لوت التجريبية',
+        ]);
         tenancy()->initialize($this->tenant);
-        $this->user = User::where('email', 'demo@lot.com')->firstOrFail();
+        $this->user = User::where('email', 'demo@lot.com')->first() ?? User::create([
+            'name' => 'مدير النظام',
+            'email' => 'demo@lot.com',
+            'password' => bcrypt('password'),
+            'status' => 'active',
+        ]);
     }
 
     protected function tearDown(): void
@@ -50,7 +58,7 @@ class IssuingEntityCrudTest extends TestCase
     public function test_can_filter_issuing_entities_by_created_at_date_range(): void
     {
         $pastEntity = IssuingEntity::create([
-            'name' => 'جهة قديمة للتصفية ' . uniqid(),
+            'name' => 'جهة قديمة للتصفية '.uniqid(),
             'is_active' => true,
             'created_by' => $this->user->id,
         ]);
@@ -59,13 +67,13 @@ class IssuingEntityCrudTest extends TestCase
         $pastEntity->save();
 
         $todayEntity = IssuingEntity::create([
-            'name' => 'جهة اليوم للتصفية ' . uniqid(),
+            'name' => 'جهة اليوم للتصفية '.uniqid(),
             'is_active' => true,
             'created_by' => $this->user->id,
         ]);
 
         $response = $this->actingAs($this->user, 'tenant')
-            ->getJson(tenant_route_name('issuing-entities.index') . '?' . http_build_query([
+            ->getJson(tenant_route_name('issuing-entities.index').'?'.http_build_query([
                 'draw' => 1,
                 'created_from' => now()->format('Y-m-d'),
                 'created_to' => now()->format('Y-m-d'),
@@ -79,7 +87,7 @@ class IssuingEntityCrudTest extends TestCase
 
     public function test_can_create_new_issuing_entity(): void
     {
-        $uniqueName = 'محكمة التنفيذ بالدرعية ' . uniqid();
+        $uniqueName = 'محكمة التنفيذ بالدرعية '.uniqid();
 
         $response = $this->actingAs($this->user, 'tenant')
             ->post(tenant_route_name('issuing-entities.store'), [
@@ -96,12 +104,12 @@ class IssuingEntityCrudTest extends TestCase
     public function test_can_update_issuing_entity(): void
     {
         $entity = IssuingEntity::create([
-            'name' => 'جهة للتحديث ' . uniqid(),
+            'name' => 'جهة للتحديث '.uniqid(),
             'is_active' => true,
             'created_by' => $this->user->id,
         ]);
 
-        $updatedName = 'جهة بعد التحديث ' . uniqid();
+        $updatedName = 'جهة بعد التحديث '.uniqid();
 
         $response = $this->actingAs($this->user, 'tenant')
             ->put(tenant_route_name('issuing-entities.update', $entity->id), [
@@ -119,7 +127,7 @@ class IssuingEntityCrudTest extends TestCase
     public function test_can_toggle_issuing_entity_status_with_numeric_and_string_values(): void
     {
         $entity = IssuingEntity::create([
-            'name' => 'جهة للتبديل ' . uniqid(),
+            'name' => 'جهة للتبديل '.uniqid(),
             'is_active' => true,
             'created_by' => $this->user->id,
         ]);
@@ -162,7 +170,7 @@ class IssuingEntityCrudTest extends TestCase
     public function test_can_delete_unlinked_issuing_entity(): void
     {
         $entity = IssuingEntity::create([
-            'name' => 'جهة للحذف الفردي ' . uniqid(),
+            'name' => 'جهة للحذف الفردي '.uniqid(),
             'is_active' => true,
             'created_by' => $this->user->id,
         ]);
@@ -179,13 +187,13 @@ class IssuingEntityCrudTest extends TestCase
     public function test_cannot_delete_issuing_entity_linked_to_assignments(): void
     {
         $entity = IssuingEntity::create([
-            'name' => 'جهة مرتبطة ' . uniqid(),
+            'name' => 'جهة مرتبطة '.uniqid(),
             'is_active' => true,
             'created_by' => $this->user->id,
         ]);
 
         Assignment::create([
-            'assignment_number' => 'ASG-LINK-' . uniqid(),
+            'assignment_number' => 'ASG-LINK-'.uniqid(),
             'name' => 'إسناد مرتبط للتجربة',
             'issuing_entity_id' => $entity->id,
             'issuing_entity' => $entity->name,
@@ -210,13 +218,13 @@ class IssuingEntityCrudTest extends TestCase
     public function test_cannot_toggle_status_of_issuing_entity_linked_to_assignments(): void
     {
         $entity = IssuingEntity::create([
-            'name' => 'جهة مرتبطة للتعطيل ' . uniqid(),
+            'name' => 'جهة مرتبطة للتعطيل '.uniqid(),
             'is_active' => true,
             'created_by' => $this->user->id,
         ]);
 
         Assignment::create([
-            'assignment_number' => 'ASG-TOGGLE-' . uniqid(),
+            'assignment_number' => 'ASG-TOGGLE-'.uniqid(),
             'name' => 'إسناد مرتبط لمنع التعطيل',
             'issuing_entity_id' => $entity->id,
             'issuing_entity' => $entity->name,
@@ -281,7 +289,7 @@ class IssuingEntityCrudTest extends TestCase
                 'target_path' => tenant_route_name('issuing-entities.store'),
                 'target_method' => 'POST',
                 'fields' => ['name'],
-                'name' => 'جهة جديدة للتحقق ' . uniqid(),
+                'name' => 'جهة جديدة للتحقق '.uniqid(),
             ]);
 
         $response->assertOk();
@@ -293,7 +301,7 @@ class IssuingEntityCrudTest extends TestCase
     public function test_can_validate_step_for_issuing_entities_update_via_wizard_draft_endpoint(): void
     {
         $entity = IssuingEntity::create([
-            'name' => 'جهة للتحقق من التعديل ' . uniqid(),
+            'name' => 'جهة للتحقق من التعديل '.uniqid(),
             'is_active' => true,
             'created_by' => $this->user->id,
         ]);
@@ -303,7 +311,7 @@ class IssuingEntityCrudTest extends TestCase
                 'target_path' => tenant_route_name('issuing-entities.update', $entity->id),
                 'target_method' => 'PUT',
                 'fields' => ['name'],
-                'name' => 'جهة معدلة للتحقق ' . uniqid(),
+                'name' => 'جهة معدلة للتحقق '.uniqid(),
             ]);
 
         $response->assertOk();
@@ -314,7 +322,7 @@ class IssuingEntityCrudTest extends TestCase
 
     public function test_can_save_and_retrieve_issuing_entity_draft(): void
     {
-        $draftName = 'مسودة جهة مسندة ' . uniqid();
+        $draftName = 'مسودة جهة مسندة '.uniqid();
 
         // 1. Save draft
         $saveResponse = $this->actingAs($this->user, 'tenant')
@@ -335,7 +343,7 @@ class IssuingEntityCrudTest extends TestCase
 
         // 2. Retrieve draft
         $getResponse = $this->actingAs($this->user, 'tenant')
-            ->getJson(tenant_route_name('wizard-drafts.index') . '?resource_key=tenant.issuing-entity-create');
+            ->getJson(tenant_route_name('wizard-drafts.index').'?resource_key=tenant.issuing-entity-create');
 
         $getResponse->assertOk();
         $this->assertEquals($draftId, $getResponse->json('draft_id'));
@@ -344,7 +352,7 @@ class IssuingEntityCrudTest extends TestCase
 
     public function test_draft_is_purged_after_issuing_entity_creation(): void
     {
-        $draftName = 'جهة مسودة للتثبيت ' . uniqid();
+        $draftName = 'جهة مسودة للتثبيت '.uniqid();
 
         // 1. Save draft
         $saveResponse = $this->actingAs($this->user, 'tenant')
@@ -378,13 +386,13 @@ class IssuingEntityCrudTest extends TestCase
         ]);
     }
 
-    public function test_issuing_entity_seeder_is_linked_to_test_tenant_seeder_and_not_tenant_database_seeder(): void
+    public function test_issuing_entity_seeder_is_in_tenant_database_seeder_and_test_tenant_seeder(): void
     {
         $tenantDatabaseSeederContent = file_get_contents(base_path('database/seeders/tenant/TenantDatabaseSeeder.php'));
         $testTenantSeederContent = file_get_contents(base_path('database/seeders/admin/TestTenantSeeder.php'));
 
-        // Must NOT be seeded for all newly created tenants in TenantDatabaseSeeder
-        $this->assertStringNotContainsString('IssuingEntitySeeder::class', $tenantDatabaseSeederContent);
+        // Must be seeded for all newly created tenants in TenantDatabaseSeeder
+        $this->assertStringContainsString('IssuingEntitySeeder::class', $tenantDatabaseSeederContent);
 
         // MUST be called in TestTenantSeeder
         $this->assertStringContainsString('IssuingEntitySeeder::class', $testTenantSeederContent);
@@ -394,7 +402,7 @@ class IssuingEntityCrudTest extends TestCase
     {
         Storage::fake('tenant_public');
 
-        $uniqueName = 'محكمة التنفيذ مع صورة ' . uniqid();
+        $uniqueName = 'محكمة التنفيذ مع صورة '.uniqid();
         $fakeImage = UploadedFile::fake()->image('entity_logo.png', 200, 200);
 
         $response = $this->actingAs($this->user, 'tenant')
@@ -418,7 +426,7 @@ class IssuingEntityCrudTest extends TestCase
         $storedOldPath = $initialImage->store('issuing-entities', 'tenant_public');
 
         $entity = IssuingEntity::create([
-            'name' => 'جهة لتحديث الصورة ' . uniqid(),
+            'name' => 'جهة لتحديث الصورة '.uniqid(),
             'image' => $storedOldPath,
             'is_active' => true,
             'created_by' => $this->user->id,
@@ -450,7 +458,7 @@ class IssuingEntityCrudTest extends TestCase
         $storedOldPath = $initialImage->store('issuing-entities', 'tenant_public');
 
         $entity = IssuingEntity::create([
-            'name' => 'جهة لحذف الصورة ' . uniqid(),
+            'name' => 'جهة لحذف الصورة '.uniqid(),
             'image' => $storedOldPath,
             'is_active' => true,
             'created_by' => $this->user->id,
@@ -474,14 +482,14 @@ class IssuingEntityCrudTest extends TestCase
     public function test_datatable_renders_image_column_before_name(): void
     {
         $entityWithImage = IssuingEntity::create([
-            'name' => 'جهة مع صورة للجدول ' . uniqid(),
+            'name' => 'جهة مع صورة للجدول '.uniqid(),
             'image' => 'issuing-entities/sample.png',
             'is_active' => true,
             'created_by' => $this->user->id,
         ]);
 
         $response = $this->actingAs($this->user, 'tenant')
-            ->getJson(tenant_route_name('issuing-entities.index') . '?' . http_build_query(['draw' => 1]));
+            ->getJson(tenant_route_name('issuing-entities.index').'?'.http_build_query(['draw' => 1]));
 
         $response->assertOk();
         $data = collect($response->json('data'))->firstWhere('name', $entityWithImage->name);

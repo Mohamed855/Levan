@@ -26,13 +26,13 @@ final class TenantSidebarBrandingTest extends TestCase
         $this->assertStringContainsString("config('app.name')", $content);
     }
 
-    public function test_tenant_logo_component_checks_settings_and_falls_back(): void
+    public function test_tenant_logo_component_checks_settings_and_does_not_render_general_logo_by_default(): void
     {
         $content = file_get_contents(resource_path('views/components/partials/tenant-logo.blade.php'));
 
         $this->assertStringContainsString("SettingsHelper::get('image')", $content);
         $this->assertStringContainsString('tasset($logoImage', $content);
-        $this->assertStringContainsString('logo-light.svg', $content);
+        $this->assertStringNotContainsString('logo-light.svg', $content);
     }
 
     public function test_main_settings_request_allows_webp_images(): void

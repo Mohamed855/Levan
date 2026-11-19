@@ -8,6 +8,7 @@ use App\Models\Admin\City;
 use App\Models\Admin\District;
 use App\Models\Admin\Region;
 use App\Models\Tenants\Settings\Settings;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Schema;
 use Stancl\Tenancy\Facades\Tenancy;
 
@@ -100,29 +101,70 @@ final class CentralCityOptionsGateway
     /** @return array<string, string> */
     public function districtsByCityName(?string $cityName): array
     {
-        if (! $cityName) {
+        return $this->districtsByCityNames($cityName ? [$cityName] : []);
+    }
+
+    /**
+     * @param  array<int, string>|string|null  $cityNames
+     * @return array<string, string>
+     */
+    public function districtsByCityNames(array|string|null $cityNames): array
+    {
+        $names = is_array($cityNames) ? $cityNames : ($cityNames ? [$cityNames] : []);
+        $names = array_values(array_filter(array_map('trim', array_map('strval', $names)), static fn (string $v): bool => $v !== ''));
+
+        if (empty($names)) {
             return [];
         }
 
         return Tenancy::central(
             fn (): array => District::query()
-                ->whereHas('city', fn ($query) => $query->where('name', $cityName))
+                ->whereHas('city', fn ($query) => $query->whereIn('name', $names))
                 ->orderBy('name')
                 ->pluck('name', 'name')
                 ->all()
         );
     }
 
-    /** @return array<int, array{id: string, text: string}> */
-    public function districtsListForSelect2(?string $cityName): array
+    /**
+     * @param  array<int, string>|string|null  $cityNames
+     * @return array<int, array{id: string, text: string, city: string}>
+     */
+    public function districtsListForSelect2(array|string|null $cityNames): array
     {
-        $districts = $this->districtsByCityName($cityName);
-        $list = [];
+        $names = is_array($cityNames) ? $cityNames : ($cityNames ? [$cityNames] : []);
+        $names = array_values(array_filter(array_map('trim', array_map('strval', $names)), static fn (string $v): bool => $v !== ''));
 
-        foreach ($districts as $name) {
+        if (empty($names)) {
+            return [];
+        }
+
+        /** @var Collection<int, District> $districts */
+        $districts = Tenancy::central(
+            fn () => District::query()
+                ->whereHas('city', fn ($query) => $query->whereIn('name', $names))
+                ->with('city:id,name')
+                ->orderBy('name')
+                ->get(['id', 'city_id', 'name'])
+        );
+
+        $citiesByDistrict = [];
+        foreach ($districts as $district) {
+            $cityName = $district->city?->name ?? '';
+            if (! isset($citiesByDistrict[$district->name])) {
+                $citiesByDistrict[$district->name] = [];
+            }
+            if ($cityName !== '' && ! in_array($cityName, $citiesByDistrict[$district->name], true)) {
+                $citiesByDistrict[$district->name][] = $cityName;
+            }
+        }
+
+        $list = [];
+        foreach ($citiesByDistrict as $name => $cityList) {
             $list[] = [
                 'id' => $name,
                 'text' => $name,
+                'city' => implode(',', $cityList),
             ];
         }
 

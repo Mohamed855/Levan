@@ -57,7 +57,11 @@ final class AuctionEstablishmentRequestsController extends Controller
     {
         $action->execute($auction, $request->validated('approval_number'), $request->user('tenant')->id);
 
-        return redirect(tenant_route_name('auctions.show', $auction))->with('success', 'تم اعتماد طلب إقامة المزاد وحفظ رقم الموافقة.');
+        $redirect = $request->user('tenant')->can('pending_auctions.view')
+            ? tenant_route_name('pending-auctions.index')
+            : tenant_route_name('auctions.show', $auction);
+
+        return redirect($redirect)->with('success', 'تم اعتماد طلب إقامة المزاد وحفظ رقم الموافقة.');
     }
 
     public function attachment(Auction $auction, string $type, int $property = 0)

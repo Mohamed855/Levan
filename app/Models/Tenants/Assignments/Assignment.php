@@ -158,6 +158,108 @@ class Assignment extends Model
         return implode('، ', $this->category_labels);
     }
 
+    /**
+     * @return list<string>
+     */
+    public function getCityAttribute($value): array
+    {
+        if (is_array($value)) {
+            return array_values(array_filter(array_map('strval', $value)));
+        }
+
+        if (is_string($value) && $value !== '') {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                return array_values(array_filter(array_map('strval', $decoded)));
+            }
+
+            return [$value];
+        }
+
+        return [];
+    }
+
+    public function setCityAttribute(mixed $value): void
+    {
+        if (is_array($value)) {
+            $cleaned = array_values(array_filter(array_unique(array_map(
+                static fn ($item): string => trim((string) $item),
+                $value
+            )), static fn (string $v): bool => $v !== ''));
+            $this->attributes['city'] = json_encode($cleaned, JSON_UNESCAPED_UNICODE);
+        } elseif (is_string($value) && $value !== '') {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                $cleaned = array_values(array_filter(array_unique(array_map(
+                    static fn ($item): string => trim((string) $item),
+                    $decoded
+                )), static fn (string $v): bool => $v !== ''));
+                $this->attributes['city'] = json_encode($cleaned, JSON_UNESCAPED_UNICODE);
+            } else {
+                $trimmed = trim($value);
+                $this->attributes['city'] = $trimmed !== '' ? json_encode([$trimmed], JSON_UNESCAPED_UNICODE) : json_encode([]);
+            }
+        } else {
+            $this->attributes['city'] = json_encode([]);
+        }
+    }
+
+    public function getCityLabelAttribute(): string
+    {
+        return implode('، ', $this->city);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getDistrictAttribute($value): array
+    {
+        if (is_array($value)) {
+            return array_values(array_filter(array_map('strval', $value)));
+        }
+
+        if (is_string($value) && $value !== '') {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                return array_values(array_filter(array_map('strval', $decoded)));
+            }
+
+            return [$value];
+        }
+
+        return [];
+    }
+
+    public function setDistrictAttribute(mixed $value): void
+    {
+        if (is_array($value)) {
+            $cleaned = array_values(array_filter(array_unique(array_map(
+                static fn ($item): string => trim((string) $item),
+                $value
+            )), static fn (string $v): bool => $v !== ''));
+            $this->attributes['district'] = json_encode($cleaned, JSON_UNESCAPED_UNICODE);
+        } elseif (is_string($value) && $value !== '') {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                $cleaned = array_values(array_filter(array_unique(array_map(
+                    static fn ($item): string => trim((string) $item),
+                    $decoded
+                )), static fn (string $v): bool => $v !== ''));
+                $this->attributes['district'] = json_encode($cleaned, JSON_UNESCAPED_UNICODE);
+            } else {
+                $trimmed = trim($value);
+                $this->attributes['district'] = $trimmed !== '' ? json_encode([$trimmed], JSON_UNESCAPED_UNICODE) : json_encode([]);
+            }
+        } else {
+            $this->attributes['district'] = json_encode([]);
+        }
+    }
+
+    public function getDistrictLabelAttribute(): string
+    {
+        return implode('، ', $this->district);
+    }
+
     public function getStatusLabelAttribute(): string
     {
         return $this->is_active ? 'نشط' : 'متوقف';

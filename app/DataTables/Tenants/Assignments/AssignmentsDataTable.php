@@ -55,6 +55,7 @@ class AssignmentsDataTable extends AbstractDataTable
                 return $this->renderTableImage($image, (string) $row->name);
             })
             ->editColumn('name', fn ($row): string => '<a href="'.tenant_route_name($this->route.'.show', $row->id).'" class="text-body fw-medium">'.e($row->name).'</a>')
+            ->editColumn('city', fn ($row): string => e($row->city_label ?: (is_array($row->city) ? implode('، ', $row->city) : (string) $row->city)))
             ->editColumn('category', function ($row): string {
                 $labels = $row->category_labels;
                 $badges = array_map(static fn (string $lbl): string => '<span class="badge bg-primary me-1 mb-1">'.e($lbl).'</span>', $labels);
@@ -110,7 +111,15 @@ class AssignmentsDataTable extends AbstractDataTable
             })
             ->when($request->filled('start_date'), fn ($builder) => $builder->whereDate('start_date', $request->start_date))
             ->when($request->filled('end_date'), fn ($builder) => $builder->whereDate('end_date', $request->end_date))
-            ->when($request->filled('city'), fn ($builder) => $builder->where('city', $request->city));
+            ->when($request->filled('city'), function ($builder) use ($request): void {
+                $c = (string) $request->city;
+                $builder->where(function ($q) use ($c): void {
+                    $q->whereJsonContains('city', $c)
+                        ->orWhere('city', $c)
+                        ->orWhere('city', 'like', '%"'.$c.'"%')
+                        ->orWhere('city', 'like', '%'.$c.'%');
+                });
+            });
     }
 
     protected function filterableColumns(): array

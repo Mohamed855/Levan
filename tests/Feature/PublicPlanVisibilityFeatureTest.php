@@ -7,7 +7,9 @@ namespace Tests\Feature;
 use App\Enums\Admin\Plans\PlanColor;
 use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Models\Admin\Plans\Plan;
+use App\Services\Admin\Plans\PlanService;
 use App\Services\Admin\Subscriptions\AdminSubscriptionService;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 final class PublicPlanVisibilityFeatureTest extends TestCase
@@ -68,18 +70,33 @@ final class PublicPlanVisibilityFeatureTest extends TestCase
 
     public function test_landing_page_renders_plans_with_null_code(): void
     {
-        $enterprise = Plan::query()->where('name', 'الباقة الاحترافية الشاملة')->first();
-        if ($enterprise) {
+        $plan = Plan::publiclyAvailable()->first();
+        $this->assertNotNull($plan);
+
+        $originalCode = $plan->code;
+        try {
+            $plan->update(['code' => null]);
             $response = $this->get(route('site.index'))->assertOk();
-            $response->assertSee('الباقة الاحترافية الشاملة');
+            $response->assertSee($plan->name);
+        } finally {
+            $plan->update(['code' => $originalCode]);
         }
     }
 
     public function test_landing_page_renders_most_requested_badge(): void
     {
-        $response = $this->get(route('site.index'))->assertOk();
-        $response->assertSee('package-card--popular');
-        $response->assertSee('الأكثر طلباً');
+        $plan = Plan::publiclyAvailable()->first();
+        $this->assertNotNull($plan);
+
+        Cache::put(PlanService::MOST_REQUESTED_CACHE_KEY, $plan->id, 3600);
+
+        try {
+            $response = $this->get(route('site.index'))->assertOk();
+            $response->assertSee('package-card--popular');
+            $response->assertSee('الأكثر طلباً');
+        } finally {
+            Cache::forget(PlanService::MOST_REQUESTED_CACHE_KEY);
+        }
     }
 
     public function test_landing_page_renders_extra_user_license_note_for_limited_user_plans(): void

@@ -78,6 +78,13 @@
                                 <span class="fw-bold me-2">تصنيف الاستخدام:</span>
                                 <span>{{ $property->usage_classification_label }}</span>
                             </li>
+                            @if ($property->type !== \App\Enums\Tenants\Properties\PropertyType::LAND && $property->age !== null)
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="ti ti-hourglass-empty text-primary me-2 fs-5"></i>
+                                    <span class="fw-bold me-2">عمر العقار بالسنوات:</span>
+                                    <span>{{ $property->age }} سنة</span>
+                                </li>
+                            @endif
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-cash text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">القيمة التقديرية:</span>
@@ -149,6 +156,16 @@
                                 <span class="fw-bold me-2">نوع الملكية:</span>
                                 <span>{{ $property->ownership_type_label }}</span>
                             </li>
+                            @if ($property->legal_status)
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="ti ti-shield-check text-primary me-2 fs-5"></i>
+                                    <span class="fw-bold me-2">الحالة النظامية:</span>
+                                    <span>{{ $property->legal_status_label }}</span>
+                                    @if ($property->legal_status === \App\Enums\Tenants\Properties\PropertyLegalStatus::OTHER && $property->legal_status_notes)
+                                        <small class="text-muted ms-2">({{ $property->legal_status_notes }})</small>
+                                    @endif
+                                </li>
+                            @endif
                             <li
                                 class="{{ $property->short_description || $property->agent_name ? 'mb-3' : 'mb-2' }} d-flex align-items-center">
                                 <i class="ti ti-status-change text-primary me-2 fs-5"></i>

@@ -17,8 +17,20 @@ class LocationController extends Controller
 
     public function districts(Request $request): JsonResponse
     {
-        $city = (string) $request->query('city', '');
-        $districts = $this->gateway->districtsListForSelect2($city);
+        $input = $request->query('cities') ?? $request->query('city') ?? $request->input('cities') ?? $request->input('city');
+        $cities = [];
+
+        if (is_array($input)) {
+            $cities = $input;
+        } elseif (is_string($input) && trim($input) !== '') {
+            if (str_contains($input, ',')) {
+                $cities = explode(',', $input);
+            } else {
+                $cities = [$input];
+            }
+        }
+
+        $districts = $this->gateway->districtsListForSelect2($cities);
 
         return response()->json([
             'success' => true,

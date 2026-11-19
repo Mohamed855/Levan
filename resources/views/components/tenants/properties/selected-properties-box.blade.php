@@ -17,7 +17,7 @@
     <div id="{{ $id }}" class="assignment-selection__items">
         @if ($properties && $properties->isNotEmpty())
             @foreach ($properties as $prop)
-                <article class="assignment-property-card" data-property-card="{{ $prop->id }}">
+                <article class="assignment-property-card" data-property-card="{{ $prop->id }}" data-city="{{ $prop->city }}" data-district="{{ $prop->district }}">
                     @if ($prop->main_image && tasset($prop->main_image))
                         <img class="assignment-property-card__image"
                             src="{{ tasset($prop->main_image) }}"

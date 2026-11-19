@@ -172,6 +172,11 @@ $(function () {
                                 );
                             }
                             reloadClosestDataTable($btn);
+                            if (typeof window.refreshSidebarCounters === 'function') {
+                                window.refreshSidebarCounters();
+                            } else if (typeof window.updateNotificationCount === 'function') {
+                                window.updateNotificationCount();
+                            }
                         }
                     },
                     error: function (xhr) {

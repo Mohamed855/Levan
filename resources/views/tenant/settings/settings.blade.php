@@ -139,7 +139,8 @@
 
                     <div class="card-body pt-4">
                         <div class="row g-4">
-                            <x-form.controls.file name="image" label="شعار الشركة" :value="$settings?->image ? tasset($settings->image) : null"
+                            <x-form.controls.file name="image" label="شعار الشركة"
+                                :value="$settings?->image && ! in_array($settings->image, ['default-office.png', 'image/demo-office.jpg'], true) ? tasset($settings->image, null) : null"
                                 accept="image/png, image/jpeg, image/webp"
                                 help="الملفات المسموح بها: JPG, PNG أو WebP. الأبعاد الموصى بها: 150px × 150px"
                                 :max-size="10" col="col-12" />

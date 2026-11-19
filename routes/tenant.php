@@ -288,6 +288,7 @@ Route::middleware(['auth:tenant', EnsureInitialPasswordChanged::class.':tenant',
         | Auctions Management (المزادات ومخرجاتها)
         |--------------------------------------------------------------------------
         */
+        Route::get('pending-auctions', [\App\Http\Controllers\Tenants\Auctions\PendingAuctionsController::class, 'index'])->name('pending-auctions.index');
         Route::prefix('auctions')->name('auctions.')->group(function () {
             Route::name('toggle-status')->patch('{auction}/toggle-status', [AuctionsController::class, 'toggleStatus']);
             Route::prefix('{auction}/reports')->name('reports.')->group(function () {

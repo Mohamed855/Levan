@@ -1,16 +1,10 @@
 "use strict";
 
-import { initCityDistrictSelector } from "../../shared/city-district-selector.js";
 import { renderFileCardHtml } from "../../shared/file-card.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.querySelector("#assignment-create-form, #assignment-edit-form");
     if (!form) return;
-
-    initCityDistrictSelector({
-        citySelector: "#assignment-city",
-        districtSelector: "#assignment-district",
-    });
 
     // ==================== ASSIGNMENT NUMBER GENERATOR ====================
     window.generateAssignmentNumber = function () {
@@ -74,7 +68,8 @@ document.addEventListener("DOMContentLoaded", () => {
             name: card.querySelector("h6, .text-truncate")?.textContent.trim() || card.querySelector(".fw-semibold")?.textContent.trim() || "",
             number: card.querySelector("code")?.textContent.trim() || "",
             type: card.querySelector(".badge")?.textContent.trim() || "",
-            city: card.querySelector(".text-muted")?.textContent.replace(/[\n\r]+/g, " ").trim() || "",
+            city: card.dataset.city || card.querySelector(".text-muted")?.textContent.replace(/[\n\r]+/g, " ").trim() || "",
+            district: card.dataset.district || "",
             image: card.querySelector("img")?.src || propertyImageFallback,
         });
     });
@@ -177,6 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
             type: checkbox.dataset.type || "",
             classification: checkbox.dataset.classification || "",
             city: checkbox.dataset.city || "",
+            district: checkbox.dataset.district || "",
             image: checkbox.dataset.image || propertyImageFallback,
         };
     }
@@ -380,6 +376,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function selectedText(name) {
         const select =
+            document.getElementById(`assignment-${name}`) ||
             document.getElementById(`assignment_${name}`) ||
             document.getElementById(name) ||
             form.elements.namedItem(`${name}[]`) ||
@@ -512,6 +509,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     form.addEventListener("stepChanged", (e) => {
         if (e.detail?.stepIndex === 1) {
+            reloadPropertiesTable();
             syncProperties();
         }
     });
@@ -547,56 +545,247 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Filter properties in table and clear mismatched selections when category changes
+    // Filter properties in table and clear mismatched selections when category, city, or district changes
     const categorySelect = document.getElementById("assignment_category");
-    if (categorySelect) {
-        const getSelectedCategories = function () {
-            if (window.jQuery) {
-                const val = window.jQuery(categorySelect).val();
-                if (Array.isArray(val)) {
-                    return val.map(String).map((s) => s.trim()).filter(Boolean);
-                }
-                if (typeof val === "string" && val.trim() !== "") {
-                    return [val.trim()];
-                }
-                return [];
-            }
-            return Array.from(categorySelect.selectedOptions || [])
-                .map((opt) => String(opt.value || "").trim())
-                .filter(Boolean);
-        };
+    const citySelect = document.getElementById("assignment-city");
+    const districtSelect = document.getElementById("assignment-district");
+    const districtCityMap = new Map();
 
-        const handleCategoryChange = function () {
-            const selectedCats = getSelectedCategories();
+    const getSelectValues = function (element) {
+        if (!element) return [];
+        if (window.jQuery) {
+            const val = window.jQuery(element).val();
+            if (Array.isArray(val)) {
+                return val.map(String).map((s) => s.trim()).filter(Boolean);
+            }
+            if (typeof val === "string" && val.trim() !== "") {
+                return [val.trim()];
+            }
+            return [];
+        }
+        return Array.from(element.selectedOptions || [])
+            .map((opt) => String(opt.value || "").trim())
+            .filter(Boolean);
+    };
+
+    const getSelectedCategories = () => getSelectValues(categorySelect);
+    const getSelectedCities = () => getSelectValues(citySelect);
+    const getSelectedDistricts = () => getSelectValues(districtSelect);
+
+    // Seed districtCityMap from initial DOM options
+    if (districtSelect && window.jQuery) {
+        window.jQuery(districtSelect).find("option").each(function () {
+            const val = window.jQuery(this).val();
+            const cityAttr = window.jQuery(this).attr("data-city");
+            if (val && cityAttr) {
+                if (!districtCityMap.has(val)) districtCityMap.set(val, new Set());
+                String(cityAttr).split(",").map((c) => c.trim()).filter(Boolean).forEach((c) => districtCityMap.get(val).add(c));
+            }
+        });
+    }
+
+    let previousCities = getSelectedCities();
+
+    function filterSelectedProperties() {
+        const selectedCats = getSelectedCategories();
+        const selectedCities = getSelectedCities();
+        const selectedDistricts = getSelectedDistricts();
+
+        let removedAny = false;
+        selectedProperties.forEach((property, id) => {
+            let shouldRemove = false;
+
             if (selectedCats.length > 0) {
-                let removedAny = false;
-                selectedProperties.forEach((property, id) => {
-                    if (
-                        property.classification &&
-                        !selectedCats.includes(property.classification) &&
-                        property.classification !== "other"
-                    ) {
-                        selectedProperties.delete(id);
-                        removedAny = true;
-                    }
-                });
-                if (removedAny) {
-                    syncProperties();
+                if (
+                    property.classification &&
+                    !selectedCats.includes(property.classification) &&
+                    property.classification !== "other"
+                ) {
+                    shouldRemove = true;
                 }
             } else {
-                if (selectedProperties.size > 0) {
-                    selectedProperties.clear();
-                    syncProperties();
+                shouldRemove = true;
+            }
+
+            if (!shouldRemove && selectedCities.length > 0 && property.city) {
+                if (!selectedCities.includes(property.city)) {
+                    shouldRemove = true;
                 }
             }
-            if (window.jQuery && window.jQuery.fn.DataTable.isDataTable("#assignment-properties-table")) {
-                window.jQuery("#assignment-properties-table").DataTable().ajax.reload(null, false);
-            }
-        };
 
+            if (!shouldRemove && selectedDistricts.length > 0 && property.district) {
+                if (!selectedDistricts.includes(property.district)) {
+                    shouldRemove = true;
+                }
+            }
+
+            if (shouldRemove) {
+                selectedProperties.delete(id);
+                removedAny = true;
+            }
+        });
+
+        if (removedAny) {
+            syncProperties();
+        }
+    }
+
+    function reloadPropertiesTable() {
+        if (window.jQuery && window.jQuery.fn.DataTable.isDataTable("#assignment-properties-table")) {
+            window.jQuery("#assignment-properties-table").DataTable().ajax.reload(null, false);
+        }
+    }
+
+    let districtRequestVersion = 0;
+
+    async function handleCityChange() {
+        const currentCities = getSelectedCities();
+        const removedCities = previousCities.filter((c) => !currentCities.includes(c));
+        previousCities = [...currentCities];
+
+        // When a selected city is removed, remove its districts from the selection
+        if (removedCities.length > 0 && districtSelect && window.jQuery) {
+            const $district = window.jQuery(districtSelect);
+            let currentDistricts = getSelectedDistricts();
+            let districtRemoved = false;
+
+            currentDistricts = currentDistricts.filter((districtName) => {
+                const citiesForDistrict = districtCityMap.get(districtName);
+                if (citiesForDistrict && citiesForDistrict.size > 0) {
+                    const hasRemainingCity = [...citiesForDistrict].some((c) => currentCities.includes(c));
+                    if (!hasRemainingCity) {
+                        districtRemoved = true;
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            if (districtRemoved) {
+                $district.val(currentDistricts).trigger("change");
+            }
+        }
+
+        if (currentCities.length === 0) {
+            if (districtSelect && window.jQuery) {
+                window.jQuery(districtSelect).empty().val([]).trigger("change");
+            }
+            filterSelectedProperties();
+            reloadPropertiesTable();
+            buildReview();
+            return;
+        }
+
+        const lookupUrl = window.routes?.districts;
+        if (!lookupUrl) {
+            filterSelectedProperties();
+            reloadPropertiesTable();
+            buildReview();
+            return;
+        }
+
+        const currentRequest = ++districtRequestVersion;
+        const $district = window.jQuery ? window.jQuery(districtSelect) : null;
+        $district?.prop("disabled", true);
+
+        try {
+            const queryParams = new URLSearchParams();
+            currentCities.forEach((city) => queryParams.append("city[]", city));
+
+            const response = await fetch(`${lookupUrl}?${queryParams.toString()}`, {
+                headers: {
+                    Accept: "application/json",
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                credentials: "same-origin",
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (currentRequest !== districtRequestVersion) return;
+
+            const currentDistricts = getSelectedDistricts();
+            const existingCustomTags = [];
+
+            if ($district) {
+                $district.find("option:selected").each(function () {
+                    const val = window.jQuery(this).val();
+                    if (val && !data.districts?.some((d) => String(d.id) === String(val))) {
+                        existingCustomTags.push(val);
+                    }
+                });
+
+                $district.empty();
+
+                if (data.districts && Array.isArray(data.districts)) {
+                    data.districts.forEach((item) => {
+                        const id = String(item.id);
+                        const text = String(item.text || item.id);
+                        const cityStr = String(item.city || "");
+
+                        if (!districtCityMap.has(id)) districtCityMap.set(id, new Set());
+                        if (cityStr) {
+                            cityStr.split(",").map((c) => c.trim()).filter(Boolean).forEach((c) => districtCityMap.get(id).add(c));
+                        }
+
+                        const isSelected = currentDistricts.includes(id);
+                        const $opt = window.jQuery(new Option(text, id, isSelected, isSelected));
+                        if (cityStr) $opt.attr("data-city", cityStr);
+                        $district.append($opt);
+                    });
+                }
+
+                existingCustomTags.forEach((tag) => {
+                    const isSelected = currentDistricts.includes(tag);
+                    $district.append(new Option(tag, tag, isSelected, isSelected));
+                });
+
+                $district.prop("disabled", false).trigger("change");
+            }
+        } catch (error) {
+            if (currentRequest !== districtRequestVersion) return;
+            console.error("Failed to fetch districts:", error);
+            $district?.prop("disabled", false);
+        }
+
+        filterSelectedProperties();
+        reloadPropertiesTable();
+        buildReview();
+    }
+
+    function handleDistrictChange() {
+        filterSelectedProperties();
+        reloadPropertiesTable();
+        buildReview();
+    }
+
+    function handleCategoryChange() {
+        filterSelectedProperties();
+        reloadPropertiesTable();
+        buildReview();
+    }
+
+    if (categorySelect) {
         categorySelect.addEventListener("change", handleCategoryChange);
         if (window.jQuery) {
             window.jQuery(categorySelect).on("change select2:select select2:unselect select2:clear", handleCategoryChange);
+        }
+    }
+
+    if (citySelect) {
+        citySelect.addEventListener("change", handleCityChange);
+        if (window.jQuery) {
+            window.jQuery(citySelect).on("change select2:select select2:unselect select2:clear", handleCityChange);
+        }
+    }
+
+    if (districtSelect) {
+        districtSelect.addEventListener("change", handleDistrictChange);
+        if (window.jQuery) {
+            window.jQuery(districtSelect).on("change select2:select select2:unselect select2:clear", handleDistrictChange);
         }
     }
 

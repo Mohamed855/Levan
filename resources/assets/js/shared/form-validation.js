@@ -141,6 +141,12 @@ function validationSignature(form, fields) {
 function isNonInteractiveControl(control) {
     if (!control) return true;
     if (["submit", "button", "reset"].includes(control.type)) return true;
+    if (
+        control.matches("[data-validation-skip]") ||
+        control.closest("[data-validation-skip], .modal")
+    ) {
+        return true;
+    }
     return (
         control.type === "hidden" &&
         !control._flatpickr?.altInput &&
@@ -168,6 +174,12 @@ function isControlInvisible(control) {
 
 function isControlHidden(control) {
     if (!control || control.disabled || control.closest("[hidden]")) {
+        return true;
+    }
+    if (
+        control.matches("[data-validation-skip]") ||
+        control.closest("[data-validation-skip], .modal")
+    ) {
         return true;
     }
     if (control.type === "file") {
@@ -240,7 +252,8 @@ function ensureValidationContract(form) {
     ).forEach((control) => {
         if (
             isNonInteractiveControl(control) ||
-            control.matches("[data-validation-skip]")
+            control.matches("[data-validation-skip]") ||
+            control.closest("[data-validation-skip], .modal")
         ) {
             return;
         }
@@ -2435,7 +2448,8 @@ function initForm(form) {
     const validateImmediately = (control, step, { force = false } = {}) => {
         if (
             !control.name ||
-            control.matches("[data-validation-skip], [data-datatable-filter]")
+            control.matches("[data-validation-skip], [data-datatable-filter]") ||
+            control.closest("[data-validation-skip], .modal")
         ) {
             return Promise.resolve(true);
         }
@@ -2490,6 +2504,10 @@ function initForm(form) {
         form.querySelectorAll(
             "[data-form-control][name], input[name], select[name], textarea[name]",
         ),
+    ).filter(
+        (control) =>
+            !control.matches("[data-validation-skip]") &&
+            !control.closest("[data-validation-skip], .modal"),
     );
     const hasControlValue = (control) => {
         if (control.type === "checkbox" || control.type === "radio") {
@@ -2613,6 +2631,7 @@ function initForm(form) {
                 function (event) {
                     if (form.inert) return;
                     if (isAuth && !isPageReady) return;
+                    if (this.closest("[data-validation-skip], .modal")) return;
                     if (!shouldValidateInteraction(this, event.originalEvent))
                         return;
 
@@ -2629,6 +2648,7 @@ function initForm(form) {
                 "select2:close.sharedFormValidation",
                 validatedSelectSelector,
                 function () {
+                    if (this.closest("[data-validation-skip], .modal")) return;
                     if (form.inert) return;
                     if (isAuth && !isPageReady) return;
                     validateControlClientSide(form, this);
@@ -2645,7 +2665,8 @@ function initForm(form) {
             hasServerValidationErrors ||
             control.disabled ||
             isNonInteractiveControl(control) ||
-            control.matches("[data-validation-skip], [data-datatable-filter]")
+            control.matches("[data-validation-skip], [data-datatable-filter]") ||
+            control.closest("[data-validation-skip], .modal")
         ) {
             return false;
         }
@@ -2711,7 +2732,7 @@ function initForm(form) {
         };
 
         const fields = Array.from(form.querySelectorAll("[name]"))
-            .filter((control) => !control.matches("[data-validation-skip]"))
+            .filter((control) => !control.matches("[data-validation-skip]") && !control.closest("[data-validation-skip], .modal"))
             .map((control) => control.name);
 
         let valid = false;

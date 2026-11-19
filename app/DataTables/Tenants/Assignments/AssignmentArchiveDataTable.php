@@ -45,6 +45,7 @@ class AssignmentArchiveDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', fn ($row): string => $this->checkbox($row))
+            ->editColumn('city', fn ($row): string => e($row->city_label ?: (is_array($row->city) ? implode('، ', $row->city) : (string) $row->city)))
             ->editColumn('deleted_at', function ($row) {
                 return $this->formatDate($row->deleted_at);
             })

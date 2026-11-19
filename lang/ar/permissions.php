@@ -1,8 +1,9 @@
 <?php
 
 return [
-    // الأقسام الرئيسية
+    'pending_auctions.view' => 'عرض أعتماد المزادات',
     'sections' => [
+        'pending_auctions_management' => 'أعتماد المزادات',
         'dashboard' => 'لوحة القيادة',
         'issuing_entities_management' => 'إدارة الجهات المسندة',
         'assignments_management' => 'إدارة الإسنادات',

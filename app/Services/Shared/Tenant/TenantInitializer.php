@@ -5,6 +5,7 @@ namespace App\Services\Shared\Tenant;
 use App\Models\Admin\Licenses\LicenseSeat;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
+use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\Settings\Settings;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Shared\CentralCityOptionsGateway;
@@ -25,6 +26,10 @@ class TenantInitializer
             $this->runSeeders();
             $user = $this->createFirstUser($metadata);    // إنشاء المستخدم الأول
             $this->createSettings($metadata); // إنشاء الإعدادات الأساسية
+
+            if ($user) {
+                IssuingEntity::whereNull('created_by')->update(['created_by' => $user->id]);
+            }
 
             return $user;
         } finally {
@@ -116,11 +121,14 @@ class TenantInitializer
             if (! empty($metadata['billing_company_name'])) {
                 $settings->office_name = $metadata['billing_company_name'];
             }
+            if (in_array($settings->image, ['default-office.png', 'image/demo-office.jpg'], true)) {
+                $settings->image = null;
+            }
             $settings->save();
         } else {
             $companyName = ! empty($metadata['billing_company_name']) ? (string) $metadata['billing_company_name'] : null;
             Settings::create([
-                'image' => 'default-office.png',
+                'image' => null,
                 'office_name' => $companyName ?? 'لوت LOT',
                 'logo_text' => $companyName ? (mb_strlen($companyName) <= 14 ? $companyName : null) : 'لوت LOT',
                 'operational_regions' => $defaultRegions,

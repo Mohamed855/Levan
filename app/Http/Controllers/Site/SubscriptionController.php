@@ -159,7 +159,7 @@ class SubscriptionController extends Controller
         $checkout['otp_hash'] = $this->otpService->issue($checkout['billing_email']);
         $request->session()->put('checkout_verification', $checkout);
 
-        return redirect()->route('site.plans.checkout', ['plan' => $plan, 'cycle' => $checkout['billing_cycle']]);
+        return redirect()->route('site.plans.checkout', $this->checkoutRouteParameters($plan, $checkout['billing_cycle']));
     }
 
     public function resendOtp(Request $request, Plan $plan)
@@ -223,7 +223,7 @@ class SubscriptionController extends Controller
 
         $cycle = $checkout['billing_cycle'] ?? 'monthly';
 
-        return redirect()->route('site.plans.checkout', ['plan' => $plan, 'cycle' => $cycle])->withInput($safeInput);
+        return redirect()->route('site.plans.checkout', $this->checkoutRouteParameters($plan, $cycle))->withInput($safeInput);
     }
 
     public function verifyOtp(VerifyCheckoutOtpRequest $request, Plan $plan)
@@ -246,7 +246,7 @@ class SubscriptionController extends Controller
 
         $request->session()->put('checkout_verification', $updated);
 
-        return redirect()->route('site.plans.checkout', ['plan' => $plan, 'cycle' => $updated['billing_cycle'] ?? 'monthly']);
+        return redirect()->route('site.plans.checkout', $this->checkoutRouteParameters($plan, $updated['billing_cycle'] ?? 'monthly'));
     }
 
     public function completeCheckout(CompleteCheckoutPaymentRequest $request, Plan $plan)
@@ -455,7 +455,7 @@ class SubscriptionController extends Controller
 
             $couponData = $this->couponService->processCoupon($checkout['coupon_code'] ?? null, $planCyclePrice);
             if (isset($couponData['error'])) {
-                return redirect()->route('site.plans.checkout', ['plan' => $plan, 'cycle' => $billingCycle])->with('error', $couponData['error']);
+                return redirect()->route('site.plans.checkout', $this->checkoutRouteParameters($plan, $billingCycle))->with('error', $couponData['error']);
             }
 
             $request = Request::create('/', 'POST', $checkout);
@@ -479,12 +479,25 @@ class SubscriptionController extends Controller
 
             return $moyasarView;
         } catch (PaymentInitiationException $e) {
-            return redirect()->route('site.plans.checkout', ['plan' => $plan, 'cycle' => $checkout['billing_cycle'] ?? 'monthly'])->with('error', $e->getMessage());
+            return redirect()->route('site.plans.checkout', $this->checkoutRouteParameters($plan, $checkout['billing_cycle'] ?? 'monthly'))->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             report($e);
 
-            return redirect()->route('site.plans.checkout', ['plan' => $plan, 'cycle' => $checkout['billing_cycle'] ?? 'monthly'])->with('error', 'حدث خطأ غير متوقع.');
+            return redirect()->route('site.plans.checkout', $this->checkoutRouteParameters($plan, $checkout['billing_cycle'] ?? 'monthly'))->with('error', 'حدث خطأ غير متوقع.');
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function checkoutRouteParameters(Plan $plan, ?string $cycle = null): array
+    {
+        $params = ['plan' => $plan];
+        if ($cycle === 'yearly') {
+            $params['cycle'] = 'yearly';
+        }
+
+        return $params;
     }
 
     private function isPublicPlan(Plan $plan): bool

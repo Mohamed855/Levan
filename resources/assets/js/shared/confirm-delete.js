@@ -368,6 +368,11 @@ window.confirmRecordDelete = function (options = {}) {
                     throw { responseJSON: response };
                 }
                 wasDeleted = true;
+                if (typeof window.refreshSidebarCounters === 'function') {
+                    window.refreshSidebarCounters();
+                } else if (typeof window.updateNotificationCount === 'function') {
+                    window.updateNotificationCount();
+                }
 
                 const message = response.message || options.successMessage || 'تم الحذف بنجاح.';
                 const redirect = options.redirect || response.redirect;

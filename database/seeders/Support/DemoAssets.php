@@ -21,9 +21,9 @@ final class DemoAssets
 
     /**
      * Copy a named fixture image (e.g. 'issuing-entities/moj.png') if it exists,
-     * otherwise fall back to the generic placeholder image.
+     * otherwise returns null so entities without real media do not receive demo images.
      */
-    public static function namedImage(string $fixtureName, string $targetPath, string $disk = 'tenant_public'): string
+    public static function namedImage(string $fixtureName, string $targetPath, string $disk = 'tenant_public'): ?string
     {
         $fixturePath = database_path('seeders/fixtures/'.$fixtureName);
 
@@ -35,8 +35,7 @@ final class DemoAssets
             return $targetPath;
         }
 
-        // Graceful fallback to the generic placeholder
-        return self::image($targetPath, $disk);
+        return null;
     }
 
     public static function document(string $path, string $disk = 'tenant_public'): string

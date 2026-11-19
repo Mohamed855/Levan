@@ -16,9 +16,9 @@ class AuctionPolicy
 
     public function view(User $user, Auction $auction): bool
     {
-        return tenancy()->initialized && $user->hasAnyPermission([
+        return tenancy()->initialized && ($user->hasAnyPermission([
             'auctions.view', 'auction_establishment_requests.view', 'auction_closings.view',
-        ]);
+        ]) || ($user->can('pending_auctions.view') && ! $auction->isClosed() && ! $auction->establishmentRequest?->isApproved()));
     }
 
     public function create(User $user): bool

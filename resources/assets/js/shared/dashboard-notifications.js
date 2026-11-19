@@ -305,6 +305,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.updateNotificationCount = refresh;
+    window.refreshSidebarCounters = refresh;
+    window.addEventListener('sidebar-counters:refresh', refresh);
     window.markAllAsRead = () => {
         const url = getEndpoint('readAllUrl');
         return url ? mutate(url) : Promise.resolve();

@@ -9,12 +9,14 @@
 
     if (! $logoPath) {
         $logoImage = SettingsHelper::get('image');
-        $logoPath = ($logoImage && $logoImage !== 'default-office.png')
-            ? tasset($logoImage, '/static/brand/logos/logo-light.svg')
-            : asset('static/brand/logos/logo-light.svg');
+        $logoPath = ($logoImage && ! in_array($logoImage, ['default-office.png', 'image/demo-office.jpg'], true))
+            ? tasset($logoImage, null)
+            : null;
     }
 @endphp
 
-<span class="app-brand-logo demo">
-    <img src="{{ $logoPath }}" alt="Logo" height="{{ $height }}" style="max-height: {{ $height }}px; max-width: 100%; object-fit: contain;">
-</span>
+@if ($logoPath)
+    <span class="app-brand-logo demo">
+        <img src="{{ $logoPath }}" alt="Logo" height="{{ $height }}" style="max-height: {{ $height }}px; max-width: 100%; object-fit: contain;">
+    </span>
+@endif
