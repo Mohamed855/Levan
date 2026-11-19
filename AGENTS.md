@@ -60,6 +60,18 @@ Because development occurs on Windows (case-insensitive) but deployment targets 
 - **Database Table Names:** In migrations, models, and query builder calls (`DB::table('...')`, `->join('...')`), table names MUST always use lowercase `snake_case` (Linux MySQL `lower_case_table_names = 0` is case-sensitive).
 - **Strict UTF-8 (No BOM):** All PHP, Blade, JS, SCSS, and JSON files MUST be saved as UTF-8 without BOM. Never introduce the `\xEF\xBB\xBF` Byte Order Mark, which breaks PHP namespace declarations, HTTP headers, and session cookies.
 
+### 7. Unified File Upload, Draft & Validation-Error Recovery Invariants
+All forms with file or image uploads (Admin & Tenant, Create & Edit, Stepper & single-step non-Stepper) MUST follow the unified file-upload lifecycle:
+- **FormRequest Base Class (`WizardFormRequest`):** Every authenticated file-upload `FormRequest` MUST extend `App\Http\Requests\Concerns\WizardFormRequest` (and never override `failedValidation()` without calling `parent::failedValidation($validator)`). This guarantees restored draft files are merged via `mergeWizardDraftIfPresent()` **before** `prepareForValidation()` and `rules()` run (so `$this->hasFile(...)` and `required` rules always see restored files) and preserves valid uploads across server validation errors even on single-step non-Stepper forms.
+- **Display Inside `<x-form.controls.file>` Only:** Never display previously saved files outside `<x-form.controls.file>` / `<x-form.controls.image-upload>` (no separate `<x-ui.file-card>` blocks or custom preview HTML). Always pass saved files through `:value`:
+  - For private/route-served files whose URL lacks a file extension (e.g. signing assets, private attachments), pass an associative array `['url' => ..., 'name' => ..., 'mime' => ...]` (plus optional `id`, `download_url`, `remove_name`, `remove_value`).
+  - For Eloquent multi-file collections, pass the attachment models/arrays with `id` so the component renders Preview (`ti-eye`), Download (`ti-download`, identical circular size/design), Replace, and per-file Delete (`ti-trash`) without re-uploading existing files on submit.
+- **Deferred Removal on Submit + IDOR Protection:** Never delete persisted Edit-page files before form `submit`. Handle `remove_{field}` (single) and `remove_{field}[]` / custom `remove_name` (multiple) in the `FormRequest` and `Action`/`Service`:
+  - Enforce replacement via `Rule::requiredIf(...)` when removing mandatory fields.
+  - Scope multi-file deletions strictly to the parent model (`$model->attachments()->where('category', ...)->whereKey($ids)`) and throw `ValidationException` on count mismatch to prevent IDOR.
+  - Perform physical storage cleanup in `DB::afterCommit(...)` only after the transaction succeeds.
+- **Draft Forms:** Forms declaring `data-draft-url` should also declare `data-draft-file-url`; restored draft files keep immediate draft deletion/replacement and rely on `file-upload.js` `syncInput()` + `WizardFormRequest` merging on submit.
+
 ## Verification Commands
 - **Tests:** `php artisan test` (or targeted `php artisan test tests/Feature/...`)
 - **Code Style:** `./vendor/bin/pint --test`

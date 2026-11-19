@@ -32,7 +32,7 @@ final class HaramReportData
             'date_range' => $this->format->dateRange($auction['start_date'] ?? null, $auction['end_date'] ?? null),
             'property_count' => (string) count($snapshot['properties'] ?? []),
             'footer' => 'مخرجات المزاد - '.$name,
-            'narrative' => (string) (($marketing['results_narrative'] ?? '') ?: (($auction['description'] ?? '') ?: 'نتائج المزاد '.$name.' تحت إشراف '.($auction['supervising_entity'] ?? '-'))),
+            'narrative' => (string) ($marketing['results_narrative'] ?? ''),
             'removal_date' => 'فك اللوحات - '.$this->format->date($auction['end_date'] ?? null),
             'phone' => (string) ($contacts['phone'] ?? '-'),
             'unified_phone' => (string) ($contacts['unified_phone'] ?? '-'),
@@ -48,8 +48,10 @@ final class HaramReportData
             $slots[$channel] = AuctionReportChannels::campaign($campaigns, $channel);
         }
         foreach ($slots as $channel => $campaign) {
-            $impressions = $campaign['impressions'] ?? null;
-            $values[$channel.'_impressions'] = $this->format->number(is_numeric($impressions) ? (float) $impressions : null);
+            $metricVal = in_array($channel, ['x', 'snapchat'], true)
+                ? ($campaign['views'] ?? $campaign['impressions'] ?? null)
+                : ($campaign['impressions'] ?? $campaign['views'] ?? null);
+            $values[$channel.'_impressions'] = $this->format->number(is_numeric($metricVal) ? (float) $metricVal : null);
             $platform = mb_strtolower(trim((string) ($campaign['platform'] ?? '')));
             $values[$channel.'_label'] = $platform === '' || in_array($platform, $channels[$channel], true)
                 ? 'منصة '.$channels[$channel][1]
@@ -63,7 +65,7 @@ final class HaramReportData
         $destinations = (new AuctionReportLinks)->destinations($snapshot);
         $values['x_url'] = empty($destinations['x']) ? '-' : 'رابط حملة X';
         $values['tiktok_url'] = empty($destinations['tiktok']) ? '-' : 'رابط حملة تيك توك';
-        $values['snapchat_views'] = $this->format->number($slots['snapchat']['impressions'] ?? null);
+        $values['snapchat_views'] = $this->format->number($slots['snapchat']['views'] ?? $slots['snapchat']['impressions'] ?? null);
         $values['marketing_url'] = empty($destinations['marketing_evidence']) ? '-' : 'رابط أدلة التسويق';
         $values['boards_url'] = empty($destinations['boards']) ? '-' : 'رابط اللوحات';
         foreach (range(1, 3) as $slot) {

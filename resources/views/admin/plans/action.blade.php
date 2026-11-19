@@ -6,24 +6,26 @@
         </a>
     @endcan
 
-    @can('plans.edit')
-        <a href="{{ route($route . '.edit', $row->id) }}" class="btn btn-icon btn-primary bg-primary" title="تعديل الباقة">
-            <i class="ti ti-edit"></i>
-        </a>
-    @endcan
+    @if (! $row->isTrial())
+        @can('plans.edit')
+            <a href="{{ route($route . '.edit', $row->id) }}" class="btn btn-icon btn-primary bg-primary" title="تعديل الباقة">
+                <i class="ti ti-edit"></i>
+            </a>
+        @endcan
 
-    @can('plans.delete')
-        @if ($row->subscriptions_count <= 0)
-            <button type="button" class="btn btn-icon btn-primary bg-primary js-delete-btn" data-id="{{ $row->id }}"
-                title="حذف الباقة">
-                <i class="ti ti-trash"></i>
-            </button>
+        @can('plans.delete')
+            @if ($row->subscriptions_count <= 0)
+                <button type="button" class="btn btn-icon btn-primary bg-primary js-delete-btn" data-id="{{ $row->id }}"
+                    title="حذف الباقة">
+                    <i class="ti ti-trash"></i>
+                </button>
 
-            <form id="delete-form-{{ $row->id }}" action="{{ route($route . '.destroy', $row->id) }}" method="POST"
-                style="display: none;">
-                @csrf
-                @method('DELETE')
-            </form>
-        @endif
-    @endcan
+                <form id="delete-form-{{ $row->id }}" action="{{ route($route . '.destroy', $row->id) }}" method="POST"
+                    style="display: none;">
+                    @csrf
+                    @method('DELETE')
+                </form>
+            @endif
+        @endcan
+    @endif
 </div>

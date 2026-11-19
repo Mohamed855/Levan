@@ -11,12 +11,6 @@
     $channelLabels = __('auction_reports.channels', [], 'ar') ?: [];
 
     $channelIcons = [
-        'planning' => 'ti ti-clipboard-list',
-        'promotion' => 'ti ti-speakerphone',
-        'brochure' => 'ti ti-book',
-        'platform' => 'ti ti-device-laptop',
-        'board_before' => 'ti ti-ad-2',
-        'brokers' => 'ti ti-user',
         'youtube' => 'ti ti-brand-youtube',
         'x' => 'ti ti-brand-x',
         'snapchat' => 'ti ti-brand-snapchat',
@@ -31,7 +25,6 @@
         ->all();
 
     $currentAuctionId = old('auction_id', $auction->id);
-    $flatProperties = collect($propertyOptions)->collapse()->all();
 @endphp
 
 @section('title', $is_edit ? 'تعديل الحملات التسويقية' : 'إضافة حملات تسويقية')
@@ -68,7 +61,6 @@
             border-bottom: none !important;
         }
 
-        /* Kill all button animations & border-bottom effects */
         .campaign-scrolled-tabs .nav-link,
         .campaign-scrolled-tabs .nav-link:hover,
         .campaign-scrolled-tabs .nav-link:focus,
@@ -122,7 +114,6 @@
             display: none !important;
         }
 
-        /* Kill all tab pane & input appearing animations */
         .campaign-tabs-content {
             background-color: var(--bs-card-bg, #fff);
             min-height: 220px;
@@ -145,7 +136,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/tenant/auctions/cycle-forms.js', 'resources/assets/js/tenant/auctions/campaign-brokers.js'])
+    @vite(['resources/assets/js/tenant/auctions/cycle-forms.js'])
 @endsection
 
 @section('content')
@@ -160,8 +151,7 @@
                         data-draft-resource-key="tenant.marketing-campaign.{{ $auction->id }}"
                         action="{{ tenant_route_name('marketing-campaigns.update', $auction->id) }}"
                         data-campaign-metrics='@json($channelDefinitions)'
-                        data-campaign-fields='@json($channelFields)'
-                        data-campaign-properties='@json($propertyOptions)'>
+                        data-campaign-fields='@json($channelFields)'>
                         @csrf
                         @method('PUT')
 
@@ -197,7 +187,7 @@
                             <span>يجب اختيار نوع أو أكثر من أنواع الحملات التسويقية لعرض وتعديل بياناتها.</span>
                         </div>
 
-                        {{-- Top Controls: Auction & Channel Multi-Select --}}
+                        {{-- Top Controls: Auction, Channel Multi-Select, and Unified Social Context --}}
                         <div class="row g-4 mb-4">
                             @if ($is_edit)
                                 <x-form.controls.input name="_auction_display_name" label="المزاد" :value="$auction->name"
@@ -211,11 +201,16 @@
                             <x-form.controls.select name="channels" id="campaign-channels-select"
                                 label="أنواع الحملات التسويقية" :options="$channelSelectOptions" :value="old('channels', $selectedChannels)" multiple required
                                 col="col-md-6" />
+
+                            <x-form.controls.textarea name="social_context" id="campaign-social-context"
+                                label="تفاصيل حملات التواصل"
+                                placeholder="أدخل تفاصيل حملات التواصل الاجتماعي للمزاد..."
+                                :value="old('social_context', $auction->marketing_data['social_context'] ?? null)"
+                                rows="3" col="col-12" required />
                         </div>
 
                         {{-- Scrolled Tabs Wrapper --}}
                         <div id="campaign-tabs-wrapper" class="{{ $hasActiveSelection ? '' : 'd-none' }}">
-                            {{-- Horizontal Scrollable Tabs Header --}}
                             <div class="campaign-tabs-scroll-container">
                                 <ul class="nav nav-pills flex-nowrap campaign-scrolled-tabs" id="campaign-nav-pills"
                                     role="tablist">
@@ -270,12 +265,12 @@
                                         {!! $isSelectedChannel ? '' : 'style="display: none;"' !!}>
 
                                         <div class="row g-4">
-                                            {{-- URL Field (if applicable) --}}
+                                            {{-- URL Field --}}
                                             @if ($hasLink)
                                                 @php
                                                     $urlCol = in_array(
                                                         $channel,
-                                                        ['youtube', 'x', 'snapchat', 'marketing_evidence'],
+                                                        ['youtube', 'x', 'marketing_evidence'],
                                                         true,
                                                     )
                                                         ? 'col-12'
@@ -285,7 +280,7 @@
                                                     :value="old('campaigns.' . $channel . '.url', $campaign?->url)" :col="$urlCol" required />
                                             @endif
 
-                                            {{-- Date Field (if applicable) --}}
+                                            {{-- Date Field (WhatsApp) --}}
                                             @if ($hasDate)
                                                 <x-form.controls.input :name="'campaigns[' . $channel . '][campaign_date]'" label="تاريخ الحملة" type="date"
                                                     :value="old(
@@ -294,29 +289,10 @@
                                                     )" col="col-md-6" required />
                                             @endif
 
-                                            {{-- Property Select (if applicable) --}}
-                                            @if (in_array('property_id', $metrics, true))
-                                                <x-form.controls.select :name="'campaigns[' . $channel . '][metrics][property_id]'" label="العقار" :options="$flatProperties"
-                                                    :value="old(
-                                                        'campaigns.' . $channel . '.metrics.property_id',
-                                                        $campaign?->metrics['property_id'] ?? null,
-                                                    )" data-campaign-metric="property_id" required
-                                                    col="col-md-6" />
-                                            @endif
-
                                             {{-- Metrics Fields --}}
                                             @foreach ($metrics as $metric)
-                                                @continue($metric === 'property_id')
-
-                                                @if ($channel === 'brokers' && $metric === 'brokers')
-                                                    @include('tenant.marketing-campaigns.partials.brokers')
-                                                    @continue
-                                                @endif
-
                                                 @php
                                                     $metricCol = match (true) {
-                                                        $channel === 'planning' && $metric === 'brochure_methodology'
-                                                            => 'col-12',
                                                         $channel === 'google' && $metric === 'views' => 'col-12',
                                                         $channel === 'youtube' &&
                                                             in_array(
@@ -326,8 +302,8 @@
                                                             )
                                                             => 'col-md-4',
                                                         $channel === 'x' &&
-                                                            in_array($metric, ['views', 'impressions', 'posts'], true)
-                                                            => 'col-md-4',
+                                                            in_array($metric, ['views', 'posts'], true)
+                                                            => 'col-md-6',
                                                         $channel === 'tiktok' &&
                                                             in_array(
                                                                 $metric,
@@ -350,12 +326,13 @@
                                                                     'delivered',
                                                                     'failed',
                                                                     'pending',
-                                                                    'total',
                                                                     'views',
                                                                 ],
                                                                 true,
                                                             )
                                                             => 'col-md-4',
+                                                        $channel === 'x' && $metric === 'x_context' => 'col-12',
+                                                        $channel === 'youtube' && $metric === 'video_context' => 'col-12',
                                                         default => 'col-md-6',
                                                     };
                                                 @endphp
@@ -386,32 +363,25 @@
                                                 @endif
                                             @endforeach
 
-                                            {{-- Evidence Upload Field (if applicable) --}}
-                                            @if ($hasEvidence && $channel !== 'brokers')
+                                            {{-- Evidence Upload Field --}}
+                                            @if ($hasEvidence)
                                                 @php
-                                                    $evidenceCol = in_array(
-                                                        $channel,
-                                                        ['brochure', 'x', 'whatsapp'],
-                                                        true,
-                                                    )
-                                                        ? 'col-12'
-                                                        : 'col-md-6';
+                                                    $evidenceCol = 'col-12';
+                                                    $existingChannelEvidence = $campaign && $campaign->evidence->isNotEmpty()
+                                                        ? $campaign->evidence->map(fn ($file): array => [
+                                                            'id' => $file->id,
+                                                            'url' => tasset($file->file_path),
+                                                            'name' => $file->original_name ?? $file->file_name ?? basename((string) $file->file_path),
+                                                            'mime' => $file->mime_type ?? '',
+                                                            'remove_name' => 'campaigns[' . $channel . '][remove_evidence][]',
+                                                            'remove_value' => $file->id,
+                                                        ])->values()->all()
+                                                        : null;
                                                 @endphp
                                                 <x-form.controls.file :name="'campaigns[' . $channel . '][evidence][]'" label="أدلة الحملة" multiple
+                                                    :value="$existingChannelEvidence"
                                                     accept=".pdf,.png,.jpg,.jpeg,.webp" help="صور أو PDF، حتى 10MB للملف"
                                                     :col="$evidenceCol" />
-                                            @endif
-
-                                            {{-- Existing Evidence Cards (if editing) --}}
-                                            @if ($channel !== 'brokers' && $campaign && $campaign->evidence->isNotEmpty())
-                                                @foreach ($campaign->evidence as $file)
-                                                    <div class="col-md-6">
-                                                        <x-ui.file-card :file="$file" />
-                                                        <x-form.controls.checkbox :name="'campaigns[' . $channel . '][remove_evidence][]'" :id="'remove-evidence-' . $file->id"
-                                                            :value="$file->id" label="حذف هذا الدليل عند الحفظ"
-                                                            col="mt-3" />
-                                                    </div>
-                                                @endforeach
                                             @endif
                                         </div>
                                     </div>

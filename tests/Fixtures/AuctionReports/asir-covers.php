@@ -9,6 +9,16 @@ return static function (string $scenario): array {
     $snapshot['branding'] = ['company_logo' => $asset('static-3ba2f8c81664a1845f61.png'), 'issuing_entity_logo' => $asset('static-ebbe1f2e0fdcb1dceaaf.png')];
     $snapshot['marketing']['contacts'] = ['phone' => '0551234567', 'unified_phone' => '920001234', 'social' => 'https://example.com/auctions'];
     switch ($scenario) {
+        case 'photo-portrait':
+        case 'photo-wide':
+            $portrait = $scenario === 'photo-portrait';
+            $image = imagecreatetruecolor($portrait ? 100 : 800, $portrait ? 800 : 100);
+            imagefill($image, 0, 0, imagecolorallocate($image, 230, 0, 0));
+            ob_start();
+            imagepng($image);
+            $snapshot['auction']['report_image'] = 'data:image/png;base64,'.base64_encode(ob_get_clean());
+            imagedestroy($image);
+            break;
         case 'name-99':
             $snapshot['auction']['name'] = 'مزاد ريف الرياض الزراعي والسكني والتجاري والصناعي للأصول العقارية المتنوعة في مدينة الرياض وضواحيها';
             break;

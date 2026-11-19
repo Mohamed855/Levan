@@ -164,8 +164,14 @@
                                                     </td>
                                                     <td>{{ number_format((float) ($property->area ?? 0)) }} م²</td>
                                                     <td data-opening-cell="{{ $property->id }}">
-                                                        @if ($property->pivot->opening_price)
-                                                            {{ number_format((float) $property->pivot->opening_price) }}
+                                                        @php
+                                                            $estPropRow = collect($auction->establishmentRequest?->data['properties'] ?? [])->firstWhere('property_id', $property->id);
+                                                            $displayOpening = is_array($estPropRow) && filled($estPropRow['opening_value'] ?? null)
+                                                                ? $estPropRow['opening_value']
+                                                                : $property->pivot->opening_price;
+                                                        @endphp
+                                                        @if ($displayOpening !== null && $displayOpening !== '')
+                                                            {{ number_format((float) $displayOpening) }}
                                                             <span
                                                                 class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                                                         @elseif ($property->estimated_value)
@@ -234,9 +240,6 @@
                                     data-existing-attachments="{{ $propAttachIds }}">
                                     <input type="hidden" name="{{ $prefix }}[status]"
                                         value="{{ $statusVal }}" data-field="status">
-                                    <input type="hidden" name="{{ $prefix }}[opening_price]"
-                                        value="{{ old('results.' . $property->id . '.opening_price', $property->pivot->opening_price) }}"
-                                        data-field="opening_price">
                                     <input type="hidden" name="{{ $prefix }}[participants_count]"
                                         value="{{ old('results.' . $property->id . '.participants_count', $property->pivot->participants_count) }}"
                                         data-field="participants_count">
@@ -262,7 +265,7 @@
 
                         {{-- أزرار الحفظ والإجراءات الأصلية --}}
                         <x-form.wizard.actions>
-                            <x-form.wizard.previous-button :href="tenant_route_name('auction-closings.index')" />
+                            <x-form.wizard.previous-button :href="tenant_route_name('auctions.show', $auction)" />
                             <x-form.wizard.save-button :disabled="$auction->properties->isEmpty()" />
                         </x-form.wizard.actions>
                     </form>
@@ -292,13 +295,11 @@
         <div id="closing-modal-content">
             <input type="hidden" id="modal_property_id">
             <div class="row g-4 mb-3">
-                <x-form.controls.input name="modal_opening_price" id="modal_opening_price" label="سعر الافتتاح"
-                    type="number" min="0" step="0.01" :price="true" :required="true" col="col-md-4" />
                 <x-form.controls.input name="modal_participants_count" id="modal_participants_count"
                     label="عدد المشاركين" type="number" min="0" step="1" :required="true"
-                    col="col-md-4" />
+                    col="col-md-6" />
                 <x-form.controls.input name="modal_bids_count" id="modal_bids_count" label="عدد المزايدات"
-                    type="number" min="0" step="1" :required="true" col="col-md-4" />
+                    type="number" min="0" step="1" :required="true" col="col-md-6" />
 
                 <x-form.controls.select name="modal_result_status" id="modal_result_status" label="نتيجة العقار"
                     :options="[

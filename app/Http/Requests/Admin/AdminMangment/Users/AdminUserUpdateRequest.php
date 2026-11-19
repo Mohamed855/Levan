@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\Admin\AdminMangment\Users;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Validation\Rule;
 
-class AdminUserUpdateRequest extends FormRequest
+class AdminUserUpdateRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
@@ -34,6 +34,7 @@ class AdminUserUpdateRequest extends FormRequest
                 Rule::exists('roles', 'id')->where('guard_name', 'admin'),
             ],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240', 'dimensions:min_width=100,min_height=100,max_width=2000,max_height=2000'],
+            'remove_image' => ['nullable', 'boolean'],
         ];
     }
 

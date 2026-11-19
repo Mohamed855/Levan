@@ -91,8 +91,15 @@ class CompanyService
             $autoPassword = $data['password'] ?? TenantPasswordGenerator::generate();
             $data['password'] = $autoPassword;
 
+            $billingCycle = $data['billing_cycle'] ?? 'monthly';
+            if ($billingCycle === 'yearly' && ! $plan->hasYearlyPrice()) {
+                $billingCycle = 'monthly';
+            }
+            $data['billing_cycle'] = $billingCycle;
+
             $metadata = [
                 'plan_id' => $data['plan_id'],
+                'billing_cycle' => $billingCycle,
                 'billing_name' => $data['name'],
                 'billing_email' => $data['email'],
                 'billing_phone' => $data['phone'],
@@ -108,17 +115,17 @@ class CompanyService
                 'end_date' => $data['end_date'] ?? null,
                 'total_users' => $totalUsers,
                 'activate_immediately' => ! empty($data['activate_immediately']),
-                'email_notifications_enabled' => true,
-                'two_factor_enabled' => false,
-                'external_integrations_enabled' => false,
+                'email_notifications_enabled' => isset($data['email_notifications_enabled']) ? (bool) $data['email_notifications_enabled'] : true,
+                'two_factor_enabled' => ! empty($data['two_factor_enabled']),
+                'external_integrations_enabled' => ! empty($data['external_integrations_enabled']),
             ];
 
-            $amount = (float) $plan->price_after_discount;
+            $amount = (float) $plan->priceForCycle($billingCycle, true);
 
             $bill = $this->billService->createPendingBill(
                 amount: $amount,
                 paymentMethod: null,
-                originalAmount: (float) $plan->price_after_discount,
+                originalAmount: $amount,
                 type: BillType::NEW_SUBSCRIPTION,
                 couponData: [
                     'discount_amount' => 0,
@@ -172,6 +179,23 @@ class CompanyService
             }
 
             $company->update($updateData);
+
+            $settingsData = [];
+            if (array_key_exists('email_notifications_enabled', $data)) {
+                $settingsData['email_notifications_enabled'] = (bool) $data['email_notifications_enabled'];
+            }
+            if (array_key_exists('two_factor_enabled', $data)) {
+                $settingsData['two_factor_enabled'] = (bool) $data['two_factor_enabled'];
+            }
+            if (array_key_exists('external_integrations_enabled', $data)) {
+                $settingsData['external_integrations_enabled'] = (bool) $data['external_integrations_enabled'];
+            }
+            if (! empty($settingsData)) {
+                CompanySetting::updateOrCreate(
+                    ['tenant_id' => $company->id],
+                    $settingsData
+                );
+            }
 
             $this->clearCompanyCache($company->id);
 
@@ -283,9 +307,9 @@ class CompanyService
             'company' => $company,
             'settings' => $company->companySettings ?: new CompanySetting([
                 'tenant_id' => $company->id,
-                'email_notifications_enabled' => true,
-                'two_factor_enabled' => false,
-                'external_integrations_enabled' => false,
+                'email_notifications_enabled' => isset($data['email_notifications_enabled']) ? (bool) $data['email_notifications_enabled'] : true,
+                'two_factor_enabled' => ! empty($data['two_factor_enabled']),
+                'external_integrations_enabled' => ! empty($data['external_integrations_enabled']),
             ]),
             'activities' => $activities,
         ];

@@ -7,6 +7,8 @@ function initPlanFormUI() {
         document.querySelector("form[data-form-validate]:not(#logout-form)");
     if (!form) return;
 
+    let currentPreviewCycle = "monthly";
+
     const getInput = (id) =>
         document.getElementById(id) || form.querySelector(`[name="${id}"]`);
     const getValue = (id, fallback = "") =>
@@ -446,19 +448,41 @@ function initPlanFormUI() {
             }
         }
 
+        const yearlyPriceRaw = getValue("yearly_price", "").trim();
+        const hasYearlyPrice = yearlyPriceRaw !== "";
+        const yearlyPrice = hasYearlyPrice
+            ? Number.parseFloat(yearlyPriceRaw.replace(/,/g, "")) || 0
+            : null;
+        const yearlyFinalPrice = hasYearlyPrice
+            ? Math.max(0, yearlyPrice - (yearlyPrice * discount) / 100)
+            : null;
+
         setReview(
             "plan-review-price",
             `${formatPrice(price)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`,
-        );
-        setReview(
-            "plan-review-billing-cycle",
-            getSelectLabel("subscription_billing_cycle"),
         );
         setReview("plan-review-discount", `${discount}%`);
         setReview(
             "plan-review-final-price",
             `${formatPrice(finalPrice)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`,
         );
+
+        if (hasYearlyPrice) {
+            setReview(
+                "plan-review-yearly-price",
+                `${formatPrice(yearlyPrice)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`,
+            );
+            setReview(
+                "plan-review-yearly-final-price",
+                `${formatPrice(yearlyFinalPrice)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`,
+            );
+        } else {
+            setReview(
+                "plan-review-yearly-price",
+                "—",
+            );
+            setReview("plan-review-yearly-final-price", "—");
+        }
 
         const selectedUsersRadio = form.querySelector(
             'input[name="users_limit_mode"]:checked',
@@ -541,16 +565,20 @@ function initPlanFormUI() {
                 ),
             );
             setText(card, "discount-value", String(discount));
-            setText(card, "final-price", formatPrice(finalPrice));
-            setText(
-                card,
-                "billing-cycle",
-                `${getSelectLabel("subscription_billing_cycle", "شهرياً")}`,
-            );
+
+            const isYearlyPreview = currentPreviewCycle === "yearly";
+            const displayedPrice = isYearlyPreview ? (yearlyPrice ?? 0) : price;
+            const displayedFinalPrice = isYearlyPreview
+                ? (yearlyFinalPrice ?? 0)
+                : finalPrice;
+            const displayedCycleLabel = isYearlyPreview ? "سنوياً" : "شهرياً";
+
+            setText(card, "final-price", formatPrice(displayedFinalPrice));
+            setText(card, "billing-cycle", displayedCycleLabel);
             setText(
                 card,
                 "original-price",
-                `${formatPrice(price)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`,
+                `${formatPrice(displayedPrice)} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>`,
             );
             const selectedUsersRadio = form.querySelector(
                 'input[name="users_limit_mode"]:checked',
@@ -653,6 +681,24 @@ function initPlanFormUI() {
         stepperElement.addEventListener("show.bs-stepper", updatePackageCards);
         stepperElement.addEventListener("shown.bs-stepper", updatePackageCards);
     }
+
+    const previewCycleButtons = form.querySelectorAll("[data-preview-cycle]");
+    previewCycleButtons.forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const cycle = btn.getAttribute("data-preview-cycle");
+            if (cycle === currentPreviewCycle) {
+                return;
+            }
+            currentPreviewCycle = cycle;
+            previewCycleButtons.forEach((b) => {
+                const isActive = b.getAttribute("data-preview-cycle") === cycle;
+                b.classList.toggle("active", isActive);
+                b.setAttribute("aria-selected", isActive ? "true" : "false");
+            });
+            updatePackageCards();
+        });
+    });
 
     toggleLimitsMode();
     updatePackageCards();

@@ -40,14 +40,16 @@ class AdminSubscriptionService
             return 0.00;
         }
 
-        $cycle = $billingCycle ?? ($plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle ?: 'monthly');
-        $cycleMonths = match ($cycle) {
-            'yearly' => 12,
-            default => 1,
-        };
+        $cycle = $billingCycle ?: 'monthly';
+        if ($cycle === 'yearly' && $plan->hasYearlyPrice()) {
+            $unitPrice = (float) $plan->yearly_price_after_discount;
+            $cycleMonths = 12;
+        } else {
+            $unitPrice = (float) $plan->price_after_discount;
+            $cycleMonths = 1;
+        }
 
         $months = ($periodMonths !== null && $periodMonths > 0) ? $periodMonths : $cycleMonths;
-        $unitPrice = (float) ($plan->price_after_discount ?? $plan->price ?? 0);
 
         return max(0.00, round($unitPrice * ($months / $cycleMonths), 2));
     }
@@ -111,7 +113,10 @@ class AdminSubscriptionService
         return DB::connection('mysql')->transaction(function () use ($company, $data) {
             $plan = Plan::findOrFail($data['plan_id']);
 
-            $billingCycle = $data['billing_cycle'] ?? $plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle ?: 'monthly';
+            $billingCycle = $data['billing_cycle'] ?? 'monthly';
+            if ($billingCycle === 'yearly' && ! $plan->hasYearlyPrice()) {
+                $billingCycle = 'monthly';
+            }
             $periodMonths = ! empty($data['period_months']) ? (int) $data['period_months'] : null;
             $startDate = ! empty($data['start_date']) ? Carbon::parse($data['start_date']) : now();
             $endDate = ! empty($data['end_date'])
@@ -330,7 +335,7 @@ class AdminSubscriptionService
             return $startDate->copy()->addDays((int) config('trial.days', 7));
         }
 
-        $cycle = $billingCycle ?? ($plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle);
+        $cycle = $billingCycle ?: 'monthly';
 
         if ($cycle === 'yearly') {
             return $startDate->copy()->addYear();

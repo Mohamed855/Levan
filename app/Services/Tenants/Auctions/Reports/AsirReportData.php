@@ -49,10 +49,10 @@ final class AsirReportData
             'end_time' => $this->format->arabicDigits($this->format->time($auction['end_time'] ?? null)),
             'end_time_short' => $this->format->arabicDigits(str_replace(['الساعة ', 'صباحًا', 'مساءً'], ['', 'ص', 'م'], $this->format->time($auction['end_time'] ?? null))),
             'property_count' => $this->format->arabicDigits((string) count($snapshot['properties'])),
-            'introduction' => (string) (($marketing['introduction'] ?? '') ?: (($auction['description'] ?? '') ?: '-')),
+            'introduction' => (string) ($marketing['introduction'] ?? ''),
             'name_context' => 'اختيار اسم المزاد وإعداد الهوية البصرية - '.$name,
-            'city_context' => 'المملكة ومنطقة '.($auction['city'] ?? '-').' .',
-            'platform_context' => 'منصة المزاد المسجلة: '.($auction['platform_name'] ?? '-'),
+            'city_context' => is_array($marketing['city_context'] ?? null) ? implode('، ', array_filter($marketing['city_context'])) : (string) ($marketing['city_context'] ?? ''),
+            'platform_context' => (string) ($auction['notes'] ?? ''),
             'planning_methodology' => 'تشمل منهجية التخطيط دراسة الفئات المستهدفة ووسائل الوصول إليها والمقارنة بالمشروعات السابقة وواقع السوق العقاري. هذا وصف للمنهجية وليس إثباتًا لتنفيذها.',
             'brochure_context' => 'يُخصص هذا القسم لعرض الكتيب التسويقي ومرفقاته المضافة للمزاد، ولا يدل وجود القسم وحده على نشر الكتيب أو توزيعه.',
             'video_context' => 'أدلة الفيديو التسويقي المضافة للمزاد',
@@ -96,7 +96,7 @@ final class AsirReportData
         $values['whatsapp_summary'] = $values['whatsapp_messages'] === '-' ? 'لا تتوفر بيانات عن عدد الرسائل' : 'عدد الرسائل المسجلة: '.$values['whatsapp_messages'];
         $values['whatsapp_views_summary'] = $values['whatsapp_views'] === '-' ? 'لا تتوفر بيانات عن المشاهدات' : 'المشاهدات المسجلة: '.$values['whatsapp_views'];
         $socialCampaigns = array_values(array_filter($marketing['campaigns'] ?? [], static fn (array $campaign): bool => in_array(AuctionReportChannels::key($campaign['platform'] ?? null), ['snapchat', 'tiktok', 'x'], true)));
-        $views = array_map(static fn (array $campaign) => $campaign['impressions'] ?? null, $socialCampaigns);
+        $views = array_map(static fn (array $campaign) => $campaign['views'] ?? $campaign['impressions'] ?? null, $socialCampaigns);
         $total = $views !== [] && count(array_filter($views, 'is_numeric')) === count($views) ? array_sum($views) : null;
         $values['social_total'] = $this->format->arabicDigits($this->format->number($total));
         foreach (range(1, 3) as $slot) {
@@ -106,7 +106,7 @@ final class AsirReportData
             $channel = ['snapchat', 'tiktok', 'x'][$slot - 1];
             $campaign = AuctionReportChannels::campaign($marketing['campaigns'] ?? [], $channel);
             $values['campaign_'.$slot.'_name'] = (string) ($campaign['platform'] ?? '-');
-            $values['campaign_'.$slot.'_views'] = $this->format->number($campaign['impressions'] ?? null);
+            $values['campaign_'.$slot.'_views'] = $this->format->number($campaign['views'] ?? $campaign['impressions'] ?? null);
         }
         foreach (range(1, 13) as $slot) {
             $relative = $slot - (in_array($index, [8, 17], true) ? 7 : 1);

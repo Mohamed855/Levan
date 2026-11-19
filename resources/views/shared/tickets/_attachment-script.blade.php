@@ -106,6 +106,29 @@
             }
         }
 
+        function deleteDraftFileOnServer(file) {
+            if (!form || !file || !file._draftKey) return;
+            var baseDraftUrl = document.body && document.body.dataset ? document.body.dataset.wizardDraftsUrl : '';
+            var resourceKey = form.dataset.draftResourceKey || (form.querySelector('input[name="_wizard_resource_key"]') && form.querySelector('input[name="_wizard_resource_key"]').value) || '';
+            if (!baseDraftUrl || !resourceKey) return;
+            var draftFileUrl = baseDraftUrl.replace(/\/$/, '') + '/file';
+            var csrfToken = (form.querySelector('input[name="_token"]') && form.querySelector('input[name="_token"]').value)
+                || (document.querySelector('meta[name="csrf-token"]') && document.querySelector('meta[name="csrf-token"]').content) || '';
+            fetch(draftFileUrl, {
+                method: 'DELETE',
+                credentials: 'same-origin',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify({
+                    resource_key: resourceKey,
+                    file_key: file._draftKey,
+                }),
+            }).catch(function() {});
+        }
+
         function removePendingFile(entryId) {
             var index = pendingFiles.findIndex(function(item) {
                 return item.id === entryId;
@@ -115,6 +138,9 @@
             var removed = pendingFiles.splice(index, 1)[0];
             if (removed && removed.objectUrl) {
                 URL.revokeObjectURL(removed.objectUrl);
+            }
+            if (removed && removed.file) {
+                deleteDraftFileOnServer(removed.file);
             }
 
             syncFileInput();
@@ -229,6 +255,9 @@
                     if (entry.objectUrl) {
                         URL.revokeObjectURL(entry.objectUrl);
                     }
+                    if (entry.file) {
+                        deleteDraftFileOnServer(entry.file);
+                    }
                 });
                 pendingFiles = [];
                 closeDropdown();
@@ -236,6 +265,57 @@
                 renderAttachments();
                 syncSharedValidation();
             });
+        }
+
+        // Recover failed-validation reply attachments when form-validation.js is not active (e.g. Admin ticket reply)
+        if (form && fileInput && !form.hasAttribute('data-form-validate')) {
+            var bodyDataset = document.body && document.body.dataset ? document.body.dataset : {};
+            var resourceKey = form.dataset.draftResourceKey || (form.querySelector('input[name="_wizard_resource_key"]') && form.querySelector('input[name="_wizard_resource_key"]').value) || '';
+            var recoveryId = bodyDataset.failedDraftResource === resourceKey ? bodyDataset.failedDraftId : '';
+            var draftsUrl = bodyDataset.wizardDraftsUrl || '';
+            if (recoveryId && draftsUrl) {
+                fetch(draftsUrl + '?resource_key=' + encodeURIComponent(resourceKey), {
+                    credentials: 'same-origin',
+                    headers: { Accept: 'application/json' },
+                }).then(function(res) {
+                    return res.ok ? res.json() : null;
+                }).then(async function(draft) {
+                    if (!draft || draft.draft_id !== recoveryId || !draft.files || !draft.files.attachments) return;
+                    var hiddenDraftId = form.querySelector('input[name="_wizard_draft_id"]');
+                    if (!hiddenDraftId) {
+                        hiddenDraftId = document.createElement('input');
+                        hiddenDraftId.type = 'hidden';
+                        hiddenDraftId.name = '_wizard_draft_id';
+                        form.appendChild(hiddenDraftId);
+                    }
+                    hiddenDraftId.value = draft.draft_id;
+                    var items = Array.isArray(draft.files.attachments) ? draft.files.attachments : Object.values(draft.files.attachments);
+                    var restored = [];
+                    for (var i = 0; i < items.length; i++) {
+                        var item = items[i];
+                        if (!item || !item.url || !item.name) continue;
+                        try {
+                            var fetchUrl = item.url;
+                            var parsed = new URL(fetchUrl, window.location.origin);
+                            if (parsed.origin !== window.location.origin && (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1')) {
+                                fetchUrl = parsed.pathname + parsed.search;
+                            }
+                            var fileRes = await fetch(fetchUrl, { credentials: 'same-origin' });
+                            if (!fileRes.ok) continue;
+                            var blob = await fileRes.blob();
+                            var f = new File([blob], item.name, { type: item.mime || blob.type || 'application/octet-stream', lastModified: Date.now() });
+                            f._draftKey = item.key;
+                            f._draftUrl = item.url;
+                            restored.push(f);
+                        } catch (_) {}
+                    }
+                    if (restored.length > 0) {
+                        appendFiles(restored);
+                        syncFileInput();
+                        renderAttachments();
+                    }
+                }).catch(function() {});
+            }
         }
 
         if (messageInput) {

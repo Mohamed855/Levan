@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Tenants\Users;
 
+use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Models\Tenants\UserMangment\User\User;
-use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateUserProfileImageRequest extends FormRequest
+class UpdateUserProfileImageRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {

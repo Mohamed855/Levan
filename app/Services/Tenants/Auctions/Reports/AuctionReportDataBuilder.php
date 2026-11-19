@@ -22,20 +22,31 @@ final class AuctionReportDataBuilder
             'attachments' => fn ($query) => $query->orderBy('report_section')->orderBy('display_order')->orderBy('id'),
         ]);
 
-        $properties = $auction->properties->map(function ($property) use ($auction): array {
+        $establishmentProperties = collect($auction->establishmentRequest?->data['properties'] ?? [])
+            ->keyBy(static fn (array $row): int => (int) ($row['property_id'] ?? 0));
+
+        $properties = $auction->properties->map(function ($property) use ($establishmentProperties): array {
             $pivot = $property->pivot;
             $boardData = $pivot?->board_data;
             if (is_string($boardData)) {
                 $boardData = json_decode($boardData, true) ?: [];
             }
-            $boards = $auction->marketingCampaigns->where('channel', 'board_before')->filter(fn ($campaign) => (int) ($campaign->metrics['property_id'] ?? 0) === (int) $property->id);
-            foreach ($boards as $board) {
-                foreach (['board_count' => 'count', 'board_dimensions' => 'dimensions'] as $field => $key) {
-                    if (array_key_exists($field, $board->metrics ?? [])) {
-                        $boardData[$key] = $board->metrics[$field];
-                    }
+            if (! is_array($boardData)) {
+                $boardData = [];
+            }
+            $estProp = $establishmentProperties->get((int) $property->id);
+            if (is_array($estProp)) {
+                if (isset($estProp['board_count']) && $estProp['board_count'] !== '') {
+                    $boardData['count'] = (int) $estProp['board_count'];
+                }
+                if (isset($estProp['board_dimensions']) && $estProp['board_dimensions'] !== '') {
+                    $boardData['dimensions'] = (string) $estProp['board_dimensions'];
                 }
             }
+
+            $openingPrice = is_array($estProp) && is_numeric($estProp['opening_value'] ?? null)
+                ? (float) $estProp['opening_value']
+                : ($pivot?->opening_price !== null ? (float) $pivot->opening_price : null);
 
             $images = collect([$property->main_image ? ['disk' => 'tenant_public', 'path' => $property->main_image] : null])
                 ->merge($property->galleryAttachments->map(fn ($attachment): array => [
@@ -61,14 +72,14 @@ final class AuctionReportDataBuilder
                 'image' => $images[0] ?? null,
                 'images' => $images,
                 'result_status' => $pivot?->result_status ?: 'pending',
-                'opening_price' => $pivot?->opening_price !== null ? (float) $pivot->opening_price : null,
+                'opening_price' => $openingPrice,
                 'sale_price' => $pivot?->sale_price !== null ? (float) $pivot->sale_price : null,
                 'participants_count' => $pivot?->participants_count !== null ? (int) $pivot->participants_count : null,
                 'bids_count' => $pivot?->bids_count !== null ? (int) $pivot->bids_count : null,
                 'unsold_reason' => $pivot?->unsold_reason,
                 'buyer_name' => $pivot?->buyer_name,
                 'result_notes' => $pivot?->result_notes,
-                'board' => is_array($boardData) ? $boardData : [],
+                'board' => $boardData,
             ];
         })->values();
 
@@ -95,18 +106,35 @@ final class AuctionReportDataBuilder
             ])->groupBy('section')->map(fn ($items): array => $items->values()->all())->all();
 
         $marketing = is_array($auction->marketing_data) ? $auction->marketing_data : [];
-        $marketing['campaigns'] = $auction->marketingCampaigns->map(fn ($campaign) => $campaign->reportData())->all();
+        if (isset($marketing['city_context']) && is_array($marketing['city_context'])) {
+            $marketing['city_context'] = implode('، ', array_values(array_filter(array_map(
+                static fn (mixed $v): string => trim((string) $v),
+                $marketing['city_context']
+            ), static fn (string $v): bool => $v !== '')));
+        }
+        if (! empty($marketing['board_url']) && empty($marketing['boards_url'])) {
+            $marketing['boards_url'] = $marketing['board_url'];
+        }
+        $marketing['campaigns'] = $auction->marketingCampaigns->map(function ($campaign): array {
+            $row = $campaign->reportData();
+            if (($row['platform'] ?? '') === 'whatsapp' && (isset($row['delivered']) || isset($row['failed']) || isset($row['pending']))) {
+                $row['total'] = (int) ($row['delivered'] ?? 0) + (int) ($row['failed'] ?? 0) + (int) ($row['pending'] ?? 0);
+            }
+
+            return $row;
+        })->all();
 
         return (new AuctionReportBranding)->apply([
             'cycle_version' => 1,
             'branding' => ['issuing_entity_name' => $auction->assignment?->issuingEntity?->name, 'issuing_entity_logo' => (new AuctionReportBranding)->image($auction->assignment?->issuingEntity?->image)],
             'closing_saved' => $auction->closing !== null,
-            'closing' => $auction->closing ? ['date' => $auction->closing->closing_date?->format('Y-m-d'), 'approval_number' => $auction->establishmentRequest?->isApproved() ? $auction->establishmentRequest->approval_number : $auction->closing->approval_number] : null,
+            'closing' => $auction->closing ? ['date' => $auction->closing->closing_date?->format('Y-m-d'), 'approval_number' => $auction->establishmentRequest?->isApproved() ? $auction->establishmentRequest->approval_number : null] : null,
             'generated_at' => now()->toIso8601String(),
             'auction' => [
                 'id' => (int) $auction->id,
                 'name' => (string) $auction->name,
                 'description' => (string) ($auction->description ?: ''),
+                'notes' => (string) ($auction->notes ?: ''),
                 'city' => (string) ($auction->city ?: '-'),
                 'type' => (string) $auction->type_label,
                 'category' => (string) $auction->category_label,

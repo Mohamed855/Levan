@@ -49,10 +49,17 @@ final class SaveAuctionClosingAction
                         throw ValidationException::withMessages(['results' => 'سبب عدم البيع مطلوب.']);
                     }
                 }
+                $establishmentOpeningByProperty = collect($auction->establishmentRequest?->data['properties'] ?? [])
+                    ->keyBy(static fn (array $row): int => (int) ($row['property_id'] ?? 0))
+                    ->map(static fn (array $row): ?float => is_numeric($row['opening_value'] ?? null) ? (float) $row['opening_value'] : null);
+
                 $normalized = app(AuctionReportInputService::class)->pivotData($ids, $results, $properties);
                 foreach ($normalized as $id => &$pivot) {
                     $res = $results[$id] ?? $results[(string) $id] ?? null;
                     $current = $properties->firstWhere('id', $id);
+                    $establishmentOpening = $establishmentOpeningByProperty->get((int) $id);
+                    $pivot['opening_price'] = $establishmentOpening ?? $current?->pivot?->opening_price;
+
                     if ($res !== null) {
                         if (isset($res['status'])) {
                             $pivot['buyer_name'] = $res['status'] === 'sold' ? ($res['buyer_name'] ?? null) : null;
@@ -61,7 +68,7 @@ final class SaveAuctionClosingAction
                         if (array_key_exists('result_notes', $res)) {
                             $pivot['result_notes'] = $res['result_notes'] ?? null;
                         }
-                        foreach (['opening_price', 'participants_count', 'bids_count'] as $field) {
+                        foreach (['participants_count', 'bids_count'] as $field) {
                             if (array_key_exists($field, $res)) {
                                 $pivot[$field] = $res[$field];
                             } else {
@@ -102,7 +109,7 @@ final class SaveAuctionClosingAction
                 if (! $closing->exists) {
                     $closing->created_by = $actorId;
                 }
-                $closing->fill(['closing_date' => $data['closing_date'], 'approval_number' => $auction->establishmentRequest->approval_number, 'saved_at' => now(), 'updated_by' => $actorId]);
+                $closing->fill(['closing_date' => $data['closing_date'], 'saved_at' => now(), 'updated_by' => $actorId]);
                 $closing->save();
                 if ($auction->fresh()->isClosed()) {
                     $closing->update(['finalized_snapshot' => app(AuctionReportDataBuilder::class)->build($auction->fresh())]);

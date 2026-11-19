@@ -7,7 +7,7 @@ namespace App\DataTables\Tenants\Auctions;
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Enums\Tenants\Auctions\AuctionFilePreparationStatus;
 use App\Models\Tenants\Auctions\Auction;
-use App\Services\Tenants\Auctions\Reports\AuctionMarketingCompleteness;
+use App\Services\Tenants\Auctions\AuctionCompletenessService;
 
 class AuctionsDataTable extends AbstractDataTable
 {
@@ -44,7 +44,7 @@ class AuctionsDataTable extends AbstractDataTable
                     'approved_at',
                 ]),
                 'properties:id',
-                'marketingCampaigns:id,auction_id',
+                'attachments:id,auction_id,category,report_section,report_metadata',
             ])
             ->withCount('properties');
     }
@@ -186,7 +186,7 @@ class AuctionsDataTable extends AbstractDataTable
             }
         }
         if (in_array($request->input('completion_status'), ['complete', 'incomplete'], true)) {
-            $completeIds = app(AuctionMarketingCompleteness::class)->completeAuctionIds();
+            $completeIds = app(AuctionCompletenessService::class)->completeAuctionIds();
             $request->input('completion_status') === 'complete' ? $query->whereIn('auctions.id', $completeIds) : $query->whereNotIn('auctions.id', $completeIds);
         }
 

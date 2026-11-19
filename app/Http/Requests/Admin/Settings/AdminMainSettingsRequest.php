@@ -2,11 +2,9 @@
 
 namespace App\Http\Requests\Admin\Settings;
 
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class AdminMainSettingsRequest extends FormRequest
+class AdminMainSettingsRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
@@ -29,6 +27,7 @@ class AdminMainSettingsRequest extends FormRequest
             'office_name' => ['nullable', 'string', 'max:255'],
             'logo_text' => ['nullable', 'string', 'max:14'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240'],
+            'remove_image' => ['nullable', 'boolean'],
             'maintenance_mode' => ['nullable'],
             'trial_days_mode' => ['nullable'],
 
@@ -70,14 +69,5 @@ class AdminMainSettingsRequest extends FormRequest
             'phone_number' => 'رقم الهاتف', 'email' => 'البريد الإلكتروني', 'facebook_url' => 'رابط Facebook', 'x_url' => 'رابط X',
             'linkedin_url' => 'رابط LinkedIn', 'google_maps_embed_url' => 'رابط Google Maps Embed',
         ];
-    }
-
-    protected function failedValidation(Validator $validator)
-    {
-        throw new HttpResponseException(
-            redirect()->back()
-                ->withInput()
-                ->withErrors($validator)
-        );
     }
 }

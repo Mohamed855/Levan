@@ -367,8 +367,10 @@ function setFieldError(form, fieldName, message) {
         if (
             fieldName.startsWith("data.properties.") ||
             fieldName.startsWith("data[properties]") ||
-            /^attachments\.(deed|valuation|representative_authority)/.test(fieldName) ||
-            /^attachments\[(deed|valuation|representative_authority)\]/.test(fieldName) ||
+            /^attachments\.valuation/.test(fieldName) ||
+            /^attachments\[valuation\]/.test(fieldName) ||
+            fieldName.startsWith("board_images_before.") ||
+            fieldName.startsWith("board_images_before[") ||
             fieldName.startsWith("results.") ||
             fieldName.startsWith("results[") ||
             fieldName.startsWith("board_images_after.") ||

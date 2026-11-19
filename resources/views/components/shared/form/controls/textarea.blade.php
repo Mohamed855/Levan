@@ -7,13 +7,26 @@
     'required' => false,
     'help' => null,
     'col' => 'col-md-6',
+    'maxlength' => 1000,
 ])
 
 @php
     $fieldId = $id ?: str_replace(['[', ']'], '-', $name);
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
+    $counterId = str_replace(['.', '[', ']'], '-', $fieldId) . '-counter';
     $isRequired = filter_var($required, FILTER_VALIDATE_BOOLEAN);
-    $attributes = $attributes->merge(['aria-required' => $isRequired ? 'true' : 'false']);
+
+    $rawMaxlength = $attributes->get('maxlength', $maxlength);
+    $requestedMaxlength = is_numeric($rawMaxlength) ? (int) $rawMaxlength : 1000;
+    $resolvedMaxlength = $requestedMaxlength > 0 ? min($requestedMaxlength, 1000) : 1000;
+
+    $resolvedValue = old($name, $value);
+    $resolvedValueString = is_scalar($resolvedValue) ? (string) $resolvedValue : '';
+    $initialLength = mb_strlen(str_replace(["\r\n", "\r"], "\n", $resolvedValueString));
+
+    $attributes = $attributes->except('maxlength')->merge([
+        'aria-required' => $isRequired ? 'true' : 'false',
+    ]);
 
     if ($placeholder === null && $label) {
         $cleanedLabel = trim(preg_replace(['/\s*\(?\s*(اختياري|اختباري)\s*\)?\s*/u', '/\s*\*+\s*$/u'], ['', ''], (string) $label));
@@ -26,11 +39,23 @@
     <textarea
         id="{{ $fieldId }}"
         name="{{ $name }}"
+        maxlength="{{ $resolvedMaxlength }}"
         @required($isRequired)
         @if ($placeholder) placeholder="{{ $placeholder }}" @endif
         data-form-control
-        aria-describedby="{{ $errorId }}"
+        data-textarea-counter="{{ $counterId }}"
+        data-textarea-maxlength="{{ $resolvedMaxlength }}"
+        aria-describedby="{{ $errorId }} {{ $counterId }}"
         aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"
         {{ $attributes->class(['form-control', 'is-invalid' => $errors->has($name)]) }}
-    >{{ old($name, $value) }}</textarea>
+    >{{ $resolvedValueString }}</textarea>
+    <div class="d-flex justify-content-end mt-1">
+        <small
+            id="{{ $counterId }}"
+            class="form-text m-0 textarea-char-counter {{ $initialLength >= $resolvedMaxlength ? 'text-danger fw-medium' : 'text-muted' }}"
+            data-textarea-counter-display
+            dir="ltr"
+            aria-live="polite"
+        >{{ $initialLength }}/{{ $resolvedMaxlength }}</small>
+    </div>
 </x-form.layout.field>

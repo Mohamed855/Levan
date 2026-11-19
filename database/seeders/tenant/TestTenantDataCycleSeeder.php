@@ -29,11 +29,11 @@ use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\Properties\PropertyBoundary;
 use App\Models\Tenants\Properties\PropertyOwner;
 use App\Models\Tenants\Properties\PropertyUnit;
+use App\Models\Tenants\Settings\Settings;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Auctions\Reports\AuctionReportDataBuilder;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -66,6 +66,7 @@ class TestTenantDataCycleSeeder extends Seeder
         $this->command?->info('Initializing Test Tenant Data Cycle Seeder for tenant ['.tenant('id').']...');
 
         $this->initUsersAndEntities();
+        $this->ensureTestSettings();
         $this->cleanupExistingData();
 
         $assignments = $this->createAssignments();
@@ -84,6 +85,29 @@ class TestTenantDataCycleSeeder extends Seeder
         $entities = IssuingEntity::all();
         foreach ($entities as $entity) {
             $this->issuingEntities[$entity->name] = $entity->id;
+        }
+    }
+
+    private function ensureTestSettings(): void
+    {
+        $settings = Settings::query()->first();
+        if (! $settings) {
+            return;
+        }
+
+        $updates = [];
+        if (blank($settings->unified_number)) {
+            $updates['unified_number'] = '7001234567';
+        }
+        if (blank($settings->fal_license)) {
+            $updates['fal_license'] = '1200018492';
+        }
+        if (blank($settings->representative_name)) {
+            $updates['representative_name'] = 'مدير النظام';
+        }
+
+        if ($updates !== []) {
+            $settings->update($updates);
         }
     }
 
@@ -862,7 +886,7 @@ class TestTenantDataCycleSeeder extends Seeder
 
         // =========================================================================
         // Auction 1:
-        // واحد لم يتم تقديم طلبه او عمل حملات تسويقية عليه
+        // واحد لم يتم تقديم طلبه او عمل حملات تسويقية عليه (غير مكتمل عمداً)
         // =========================================================================
         $this->command?->info('1. Creating Auction 1: No establishment request, No marketing campaigns...');
         $auc1 = Auction::create([
@@ -884,6 +908,9 @@ class TestTenantDataCycleSeeder extends Seeder
             'platform_url' => 'https://aldar.sa/auctions/najd-1',
             'cover_image' => $this->copyPublicFile(self::LEVAN_ROOT.'/Social Mediea/Design 1-Squere.png', 'demo/auctions/1/cover.png'),
             'report_image' => $this->copyPublicFile(self::LEVAN_ROOT.'/A4-Virtical/Design 3-A4-V.png', 'demo/auctions/1/report.png'),
+            'marketing_data' => [
+                'introduction' => 'تقرير تعريفي أولي لمزاد نجد السكني الأول لبيع أصول سكنية مميزة شمال الرياض.',
+            ],
             'notes' => 'المزاد في مرحلة الإعداد والتجهيز الأولي، لم يتم تقديم طلبه ولم تنطلق حملاته التسويقية بعد.',
             'is_active' => true,
             'created_by' => $this->userId,
@@ -907,16 +934,16 @@ class TestTenantDataCycleSeeder extends Seeder
             'file_name' => 'بروشور_مزاد_نجد_السكني.pdf',
             'file_type' => 'application/pdf',
             'file_size' => Storage::disk('tenant_public')->size($brochure1),
-            'category' => 'auction_doc',
+            'category' => 'marketing',
             'report_section' => 'brochure',
             'display_order' => 1,
             'channels' => ['report'],
-            'report_metadata' => ['kind' => 'document', 'display_name' => 'البروشور التعريفي للمزاد'],
+            'report_metadata' => ['channel' => 'brochure', 'kind' => 'document', 'display_name' => 'البروشور التعريفي للمزاد'],
         ]);
 
         // =========================================================================
         // Auction 2:
-        // واحد لم يتم تقديم طلبه ولكن تم عمل حملات تسويقية عليه
+        // واحد لم يتم تقديم طلبه ولكن تم عمل حملات تسويقية عليه (مكتمل البيانات)
         // =========================================================================
         $this->command?->info('2. Creating Auction 2: No establishment request, Has marketing campaigns...');
         $auc2 = Auction::create([
@@ -938,6 +965,10 @@ class TestTenantDataCycleSeeder extends Seeder
             'platform_url' => 'https://mazad.sa/auctions/durra-capital',
             'cover_image' => $this->copyPublicFile(self::LEVAN_ROOT.'/Social Mediea/Design 2-Squere.png', 'demo/auctions/2/cover.png'),
             'report_image' => $this->copyPublicFile(self::LEVAN_ROOT.'/A4-Virtical/Design 4-A4-V.png', 'demo/auctions/2/report.png'),
+            'marketing_data' => $this->buildMarketingData(['منطقة الرياض'], [
+                'introduction' => 'تستعرض هذه الوثيقة تفاصيل وخطة تسويق مزاد درة العاصمة التجاري للأصول الاستثمارية بمدينة الرياض.',
+                'report_summary' => 'خطة تسويقية متكاملة تستهدف المستثمرين والمطورين العقاريين في منطقة الرياض.',
+            ]),
             'notes' => 'انطلقت الحملة الترويجية للمزاد عبر منصات التواصل، ولم يرفع طلب الإقامة بعد.',
             'is_active' => true,
             'created_by' => $this->userId,
@@ -953,12 +984,15 @@ class TestTenantDataCycleSeeder extends Seeder
             $p->update(['status' => 'assigned_to_auction']);
         }
 
+        $this->seedAuctionDocuments($auc2);
         $this->seedMarketingCampaignsFor($auc2, [
-            'x' => ['reach' => 125000, 'impressions' => 340000, 'engagements' => 18400, 'clicks' => 5200, 'posts' => 12],
-            'snapchat' => ['reach' => 210000, 'impressions' => 480000, 'views' => 195000, 'clicks' => 8400],
-            'tiktok' => ['reach' => 180000, 'views' => 250000, 'engagements' => 14200, 'clicks' => 6100],
-            'whatsapp' => ['messages' => 1500, 'delivered' => 1480, 'clicks' => 890, 'total' => 1500],
-            'google' => ['impressions' => 95000, 'clicks' => 4300],
+            'youtube' => ['views' => 42000, 'subscribers' => 1150, 'watch_hours' => 310, 'video_context' => 'جولة مرئية تعريفية بالأصول التجارية ومميزات المواقع على المحاور الرئيسية.'],
+            'x' => ['views' => 340000, 'posts' => 12, 'x_context' => 'تغطية تفاعلية مستمرة على منصة X تستعرض تفاصيل العقارات وموعد انطلاق المزاد.'],
+            'snapchat' => ['views' => 195000],
+            'tiktok' => ['views' => 250000, 'impressions' => 310000, 'reach' => 180000, 'profile_views' => 9400, 'profile_change' => '+18%', 'reach_change' => '+24%', 'views_change' => '+31%'],
+            'whatsapp' => ['messages' => 1500, 'delivered' => 1460, 'failed' => 25, 'pending' => 15, 'views' => 1180],
+            'google' => ['views' => 95000],
+            'marketing_evidence' => [],
         ]);
 
         // =========================================================================
@@ -985,6 +1019,10 @@ class TestTenantDataCycleSeeder extends Seeder
             'platform_url' => null,
             'cover_image' => $this->copyPublicFile(self::LEVAN_ROOT.'/Social Mediea/Design 3-Squere.png', 'demo/auctions/3/cover.png'),
             'report_image' => $this->copyPublicFile(self::LEVAN_ROOT.'/A4-Virtical/Design 5-A4-V.png', 'demo/auctions/3/report.png'),
+            'marketing_data' => $this->buildMarketingData(['منطقة مكة المكرمة'], [
+                'introduction' => 'تقرير تجهيزي لمزاد أصالة الحجاز العقاري لبيع أصول متعددة الاستخدام بمكة المكرمة.',
+                'report_summary' => 'تم اعتماد طلب الإقامة وتجهيز اللوحات الميدانية تمهيداً لإطلاق الحملات التسويقية.',
+            ]),
             'notes' => 'تم رفع طلب إقامة المزاد واعتماده نظامياً، ولم يتم إطلاق الحملات التسويقية بعد.',
             'is_active' => true,
             'created_by' => $this->userId,
@@ -1000,11 +1038,12 @@ class TestTenantDataCycleSeeder extends Seeder
             $p->update(['status' => 'assigned_to_auction']);
         }
 
+        $this->seedAuctionDocuments($auc3);
         $this->seedEstablishmentRequestFor($auc3, 'EST-2026-003891', true);
 
         // =========================================================================
         // Auction 4:
-        // واحد تم تقديم طلبه و عمل حملات تسويقية عليه ولكن لم يتم اقفاله
+        // واحد تم تقديم طلبه و عمل حملات تسويقية عليه ولكن لم يتم اقفاله (مكتمل)
         // =========================================================================
         $this->command?->info('4. Creating Auction 4: Has establishment request, Has marketing campaigns, Not closed...');
         $auc4 = Auction::create([
@@ -1026,6 +1065,10 @@ class TestTenantDataCycleSeeder extends Seeder
             'platform_url' => 'https://etmam.sa/auctions/east-coast',
             'cover_image' => $this->copyPublicFile(self::LEVAN_ROOT.'/Social Mediea/Design 4-Squere.png', 'demo/auctions/4/cover.png'),
             'report_image' => $this->copyPublicFile(self::LEVAN_ROOT.'/A4-Virtical/Design 6-A4-V.png', 'demo/auctions/4/report.png'),
+            'marketing_data' => $this->buildMarketingData(['المنطقة الشرقية', 'منطقة الرياض'], [
+                'introduction' => 'يستعرض هذا التقرير أعمال التسويق والتجهيز لمزاد واجهة الساحل الشرقي اللوجستي بالدمام.',
+                'report_summary' => 'حملة ترويجية موجهة لشركات اللوجستيات والصناعة مع استكمال اللوحات الميدانية وعقود الوسطاء.',
+            ]),
             'notes' => 'المزاد معتمد رسمياً وحملاته التسويقية نشطة بالكامل وفي فترة المعاينة والمزايدة.',
             'is_active' => true,
             'created_by' => $this->userId,
@@ -1041,13 +1084,16 @@ class TestTenantDataCycleSeeder extends Seeder
             $p->update(['status' => 'assigned_to_auction']);
         }
 
+        $this->seedAuctionDocuments($auc4);
         $this->seedEstablishmentRequestFor($auc4, 'EST-2026-004512', true);
         $this->seedMarketingCampaignsFor($auc4, [
-            'x' => ['reach' => 190000, 'impressions' => 450000, 'engagements' => 22000, 'clicks' => 6800, 'posts' => 15],
-            'snapchat' => ['reach' => 280000, 'impressions' => 620000, 'views' => 280000, 'clicks' => 11000],
-            'tiktok' => ['reach' => 240000, 'views' => 390000, 'engagements' => 19500, 'clicks' => 8400],
-            'whatsapp' => ['messages' => 2200, 'delivered' => 2180, 'clicks' => 1340, 'total' => 2200],
-            'google' => ['impressions' => 140000, 'clicks' => 7600],
+            'youtube' => ['views' => 58000, 'subscribers' => 1420, 'watch_hours' => 420, 'video_context' => 'تغطية جوية وميدانية للمستودعات والأراضي الصناعية بالدمام.'],
+            'x' => ['views' => 450000, 'posts' => 15, 'x_context' => 'حملة إعلانية ممولة على منصة X استهدفت قطاع الإمداد واللوجستيات بالمنطقة الشرقية.'],
+            'snapchat' => ['views' => 280000],
+            'tiktok' => ['views' => 390000, 'impressions' => 460000, 'reach' => 240000, 'profile_views' => 12600, 'profile_change' => '+22%', 'reach_change' => '+29%', 'views_change' => '+35%'],
+            'whatsapp' => ['messages' => 2200, 'delivered' => 2140, 'failed' => 35, 'pending' => 25, 'views' => 1790],
+            'google' => ['views' => 140000],
+            'marketing_evidence' => [],
         ]);
 
         // =========================================================================
@@ -1074,10 +1120,12 @@ class TestTenantDataCycleSeeder extends Seeder
             'platform_url' => 'https://mubasher.sa/auctions/kharj-reef',
             'cover_image' => $this->copyPublicFile(self::LEVAN_ROOT.'/Social Mediea/Design 5-Squere.png', 'demo/auctions/5/cover.png'),
             'report_image' => $this->copyPublicFile(self::LEVAN_ROOT.'/A4-Virtical/Design 7-A4-V.png', 'demo/auctions/5/report.png'),
-            'marketing_data' => [
+            'marketing_data' => $this->buildMarketingData(['منطقة الرياض'], [
+                'introduction' => 'يعرض هذا التقرير نتائج وتفاصيل تسويق مزاد ريف الرياض الزراعي والسكني بمحافظة الخرج.',
+                'report_summary' => 'تم بيع الأصل الأول بنجاح وسط منافسة قوية وجارٍ استكمال إجراءات الأصل الثاني.',
                 'results_narrative' => 'تم ترسية العقار الأول (المزرعة النموذجية) بنجاح وجاري البت في العطاءات المقدمة للعقار الثاني.',
                 'board_removal_date' => Carbon::now()->addDays(3)->toDateString(),
-            ],
+            ]),
             'notes' => 'تم إقفال المزاد جزئياً، تم بيع وترسية العقار الأول وما زال العقار الثاني تحت الإجراء.',
             'is_active' => true,
             'created_by' => $this->userId,
@@ -1108,19 +1156,23 @@ class TestTenantDataCycleSeeder extends Seeder
         ]);
         $propKharj2->update(['status' => 'assigned_to_auction']);
 
+        $this->seedAuctionDocuments($auc5);
         $this->seedEstablishmentRequestFor($auc5, 'EST-2026-005230', true);
+        $this->seedBoardAfterImage($auc5, $propKharj1);
         $this->seedMarketingCampaignsFor($auc5, [
-            'x' => ['reach' => 160000, 'impressions' => 380000, 'engagements' => 19200, 'clicks' => 5400, 'posts' => 10],
-            'snapchat' => ['reach' => 230000, 'impressions' => 510000, 'views' => 210000, 'clicks' => 9200],
-            'tiktok' => ['reach' => 195000, 'views' => 290000, 'engagements' => 16100, 'clicks' => 7100],
-            'whatsapp' => ['messages' => 1800, 'delivered' => 1760, 'clicks' => 1100, 'total' => 1800],
+            'youtube' => ['views' => 36000, 'subscribers' => 980, 'watch_hours' => 245, 'video_context' => 'تصوير جوي للمزارع والمنتجعات الريفية بمحافظة الخرج.'],
+            'x' => ['views' => 380000, 'posts' => 10, 'x_context' => 'تغطية إعلانية متواصلة عبر منصة X أبرزت المزايا الزراعية والمائية للأصول.'],
+            'snapchat' => ['views' => 210000],
+            'tiktok' => ['views' => 290000, 'impressions' => 340000, 'reach' => 195000, 'profile_views' => 8700, 'profile_change' => '+15%', 'reach_change' => '+21%', 'views_change' => '+27%'],
+            'whatsapp' => ['messages' => 1800, 'delivered' => 1740, 'failed' => 40, 'pending' => 20, 'views' => 1410],
+            'google' => ['views' => 82000],
+            'marketing_evidence' => [],
         ]);
 
         // Partial closing record
         AuctionClosing::create([
             'auction_id' => $auc5->id,
             'closing_date' => Carbon::now()->subDays(2)->toDateString(),
-            'approval_number' => 'EST-2026-005230',
             'saved_at' => Carbon::now()->subDays(1),
             'finalized_snapshot' => null,
             'created_by' => $this->userId,
@@ -1129,7 +1181,7 @@ class TestTenantDataCycleSeeder extends Seeder
 
         // =========================================================================
         // Auction 6:
-        // اخيرا واحد تم تقديم طلبه و عمل حملات تسويقية عليه تم اقفاله
+        // اخيرا واحد تم تقديم طلبه و عمل حملات تسويقية عليه تم اقفاله (مكتمل)
         // =========================================================================
         $this->command?->info('6. Creating Auction 6: Has establishment request, Has marketing campaigns, Fully closed...');
         $auc6 = Auction::create([
@@ -1151,10 +1203,12 @@ class TestTenantDataCycleSeeder extends Seeder
             'platform_url' => 'https://aldar.sa/auctions/jewar-alharam',
             'cover_image' => $this->copyPublicFile(self::LEVAN_ROOT.'/Social Mediea/Design 6-Squere.png', 'demo/auctions/6/cover.png'),
             'report_image' => $this->copyPublicFile(self::LEVAN_ROOT.'/A4-Virtical/Design 8-A4-V.png', 'demo/auctions/6/report.png'),
-            'marketing_data' => [
+            'marketing_data' => $this->buildMarketingData(['منطقة مكة المكرمة', 'منطقة الرياض', 'المنطقة الشرقية'], [
+                'introduction' => 'التقرير الختامي الشامل لأعمال التسويق والترسية لمزاد جوار الحرم المكي الشامل.',
+                'report_summary' => 'تحقيق مبيعات تجاوزت 28.95 مليون ريال بفضل حملة تسويقية واسعة وتغطية متعددة القنوات.',
                 'results_narrative' => 'شهد المزاد إقبالاً قياسياً ومنافسة ساخنة أسفرت عن بيع عقارين بقيمة إجمالية تجاوزت 28 مليون ريال بنسبة إنجاز متميزة.',
                 'board_removal_date' => Carbon::now()->subDays(6)->toDateString(),
-            ],
+            ]),
             'notes' => 'تم إقفال المزاد نهائياً واستكمال جميع متطلبات الترسية وإعداد التقارير الختامية.',
             'is_active' => true,
             'created_by' => $this->userId,
@@ -1204,20 +1258,25 @@ class TestTenantDataCycleSeeder extends Seeder
         ]);
         $propMak3->update(['status' => 'available']);
 
+        $this->seedAuctionDocuments($auc6);
         $this->seedEstablishmentRequestFor($auc6, 'EST-2026-006194', true);
+        foreach ([$propMak1, $propMak2, $propMak3] as $prop) {
+            $this->seedBoardAfterImage($auc6, $prop);
+        }
         $this->seedMarketingCampaignsFor($auc6, [
-            'x' => ['reach' => 320000, 'impressions' => 780000, 'engagements' => 42000, 'clicks' => 14800, 'posts' => 24],
-            'snapchat' => ['reach' => 450000, 'impressions' => 980000, 'views' => 490000, 'clicks' => 21000],
-            'tiktok' => ['reach' => 380000, 'views' => 620000, 'engagements' => 31000, 'clicks' => 16500],
-            'whatsapp' => ['messages' => 3500, 'delivered' => 3470, 'clicks' => 2400, 'total' => 3500],
-            'google' => ['impressions' => 220000, 'clicks' => 12400],
+            'youtube' => ['views' => 94000, 'subscribers' => 2850, 'watch_hours' => 740, 'video_context' => 'فيلم تعريفي متكامل للأبراج الفندقية والمجمعات التجارية بجوار الحرم المكي.'],
+            'x' => ['views' => 780000, 'posts' => 24, 'x_context' => 'تغطية موسعة ومستمرة على منصة X جذبت كبار المستثمرين في قطاع الضيافة والعقار.'],
+            'snapchat' => ['views' => 490000],
+            'tiktok' => ['views' => 620000, 'impressions' => 790000, 'reach' => 380000, 'profile_views' => 21500, 'profile_change' => '+32%', 'reach_change' => '+41%', 'views_change' => '+48%'],
+            'whatsapp' => ['messages' => 3500, 'delivered' => 3420, 'failed' => 50, 'pending' => 30, 'views' => 2890],
+            'google' => ['views' => 220000],
+            'marketing_evidence' => [],
         ]);
 
         // Fully finalize closing record
         $closing = AuctionClosing::create([
             'auction_id' => $auc6->id,
             'closing_date' => Carbon::now()->subDays(8)->toDateString(),
-            'approval_number' => 'EST-2026-006194',
             'saved_at' => Carbon::now()->subDays(7),
             'finalized_snapshot' => null,
             'created_by' => $this->userId,
@@ -1233,16 +1292,138 @@ class TestTenantDataCycleSeeder extends Seeder
         }
     }
 
+    /**
+     * @param  list<string>  $regions
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    private function buildMarketingData(array $regions, array $overrides = []): array
+    {
+        return array_replace([
+            'planning_methodology' => 'اعتماد خطة تسويقية متكاملة تبدأ بدراسة السوق وتحليل الفئات المستهدفة وتوزيع الرسائل الترويجية عبر القنوات الرقمية والميدانية.',
+            'city_context' => $regions,
+            'brochure_methodology' => 'إعداد كتيب تسويقي احترافي متوافق مع الهوية البصرية يوضح بيانات الصكوك والمساحات والمواقع الجغرافية بدقة.',
+            'audience_methodology' => 'استهداف المطورين العقاريين والمستثمرين والصناديق العقارية والأفراد المهتمين بالفرص الاستثمارية المميزة.',
+            'messages_methodology' => 'صياغة رسائل تسويقية واضحة تبرز المزايا التنافسية والعوائد المتوقعة وآلية التسجيل والمشاركة في المزاد.',
+            'brochure_context' => 'تم تصميم ونشر الكتيب التسويقي بصيغة رقمية تفاعلية ومشاركته مع قاعدة بيانات المستثمرين والوسطاء.',
+            'brochure_url' => 'https://drive.google.com/file/d/levan-brochure-demo/view',
+            'board_context' => 'تم تصنيع وتركيب لوحات تعريفية واضحة على عين العقار وفق اشتراطات الهوية البصرية المعتمدة.',
+            'board_url' => 'https://drive.google.com/drive/folders/levan-boards-demo',
+            'contract_text' => 'تم إبرام اتفاقيات تسويق ووساطة عقارية رسمية مع وسطاء مرخصين لتوسيع نطاق الوصول إلى المشترين المؤهلين.',
+            'brokers' => [
+                [
+                    'key' => 'broker-1',
+                    'name' => 'مكتب الأفق للوساطة العقارية',
+                ],
+            ],
+            'introduction' => 'تقرير شامل يستعرض تفاصيل المزاد والأعمال التسويقية المنفذة وفق أعلى المعايير المهنية.',
+            'report_summary' => 'ملخص تنفيذي يوثق أبرز محطات المزاد ونتائج الترويج والتواصل مع المستثمرين.',
+        ], $overrides);
+    }
+
+    private function seedAuctionDocuments(Auction $auction): void
+    {
+        $brochurePath = $this->copyPublicFile(
+            self::LEVAN_ROOT.'/نموذج للوحات على عين العقار/العقار 1 مقاس 3ف6.pdf',
+            "demo/auctions/{$auction->id}/brochure.pdf"
+        );
+        AuctionAttachment::create([
+            'auction_id' => $auction->id,
+            'file_path' => $brochurePath,
+            'file_name' => 'بروشور_تسويقي_'.$auction->id.'.pdf',
+            'file_type' => 'application/pdf',
+            'file_size' => Storage::disk('tenant_public')->size($brochurePath),
+            'category' => 'marketing',
+            'report_section' => 'brochure',
+            'display_order' => 1,
+            'channels' => ['report'],
+            'report_metadata' => ['channel' => 'brochure', 'kind' => 'document', 'display_name' => 'بروشور المزاد التسويقي المعتمد'],
+        ]);
+
+        $platformPath = $this->copyPublicFile(
+            self::LEVAN_ROOT.'/Social Mediea/Design 1-Squere.png',
+            "demo/auctions/{$auction->id}/platform.png"
+        );
+        AuctionAttachment::create([
+            'auction_id' => $auction->id,
+            'file_path' => $platformPath,
+            'file_name' => 'منصة_المزاد_'.$auction->id.'.png',
+            'file_type' => 'image/png',
+            'file_size' => Storage::disk('tenant_public')->size($platformPath),
+            'category' => 'marketing',
+            'report_section' => 'platform',
+            'display_order' => 1,
+            'channels' => ['report'],
+            'report_metadata' => ['channel' => 'platform', 'kind' => 'screenshot', 'display_name' => 'إثبات العرض على منصة المزاد'],
+        ]);
+
+        $brokerContractPath = $this->copyPublicFile(
+            self::DEMO_ROOT.'/sample.pdf',
+            "demo/auctions/{$auction->id}/broker-1.pdf"
+        );
+        AuctionAttachment::create([
+            'auction_id' => $auction->id,
+            'file_path' => $brokerContractPath,
+            'file_name' => 'عقد_وسيط_'.$auction->id.'.pdf',
+            'file_type' => 'application/pdf',
+            'file_size' => Storage::disk('tenant_public')->size($brokerContractPath),
+            'category' => 'marketing',
+            'report_section' => 'brokers',
+            'display_order' => 1,
+            'channels' => ['report'],
+            'report_metadata' => [
+                'channel' => 'brokers',
+                'broker_key' => 'broker-1',
+                'display_name' => 'مكتب الأفق للوساطة العقارية',
+                'kind' => 'document',
+            ],
+        ]);
+
+        $docPath = $this->copyPublicFile(
+            self::DEMO_ROOT.'/sample.pdf',
+            "demo/auctions/{$auction->id}/auction-doc.pdf"
+        );
+        AuctionAttachment::create([
+            'auction_id' => $auction->id,
+            'file_path' => $docPath,
+            'file_name' => 'مرفق_المزاد_'.$auction->id.'.pdf',
+            'file_type' => 'application/pdf',
+            'file_size' => Storage::disk('tenant_public')->size($docPath),
+            'category' => 'auction_doc',
+            'report_section' => null,
+            'display_order' => 1,
+            'channels' => ['general'],
+            'report_metadata' => ['kind' => 'document', 'display_name' => 'مستندات المزاد المرفقة'],
+        ]);
+    }
+
+    private function seedBoardAfterImage(Auction $auction, Property $property): void
+    {
+        $path = $this->copyPublicFile(
+            self::LEVAN_ROOT.'/Social Mediea/Design 10-Squere.png',
+            "demo/auctions/{$auction->id}/board-after-{$property->id}.png"
+        );
+        AuctionAttachment::create([
+            'auction_id' => $auction->id,
+            'property_id' => $property->id,
+            'file_path' => $path,
+            'file_name' => 'ازالة_اللوحة_'.$property->property_number.'.png',
+            'file_type' => 'image/png',
+            'file_size' => Storage::disk('tenant_public')->size($path),
+            'category' => 'marketing',
+            'report_section' => 'board_after',
+            'display_order' => 1,
+            'channels' => ['report'],
+            'report_metadata' => [
+                'channel' => 'board_after',
+                'kind' => 'photo',
+                'display_name' => 'توثيق ما بعد إزالة اللوحة - '.$property->name,
+            ],
+        ]);
+    }
+
     private function seedMarketingCampaignsFor(Auction $auction, array $channels): void
     {
-        $platformLabels = [
-            'x' => 'منصة إكس (تويتر)',
-            'snapchat' => 'سناب شات',
-            'tiktok' => 'تيك توك',
-            'whatsapp' => 'واتساب بزنس',
-            'google' => 'إعلانات جوجل',
-        ];
-
         $designs = [
             self::LEVAN_ROOT.'/Social Mediea/Design 7-Squere.png',
             self::LEVAN_ROOT.'/Social Mediea/Design 8-Squere.png',
@@ -1251,26 +1432,69 @@ class TestTenantDataCycleSeeder extends Seeder
             self::LEVAN_ROOT.'/Social Mediea/Design 11-Squere.png',
         ];
 
+        $linkChannels = (array) config('auction-marketing-fields.links', []);
+        $evidenceChannels = (array) config('auction-marketing-fields.evidence', []);
+
+        $marketing = is_array($auction->marketing_data) ? $auction->marketing_data : [];
+        if (empty($marketing['social_context'])) {
+            $marketing['social_context'] = 'حملة رقمية متكاملة عبر منصات التواصل الاجتماعي (X وسناب شات وتيك توك) للوصول إلى أوسع شريحة من المهتمين والمستثمرين.';
+            $auction->update(['marketing_data' => $marketing]);
+        }
+
         $idx = 0;
         foreach ($channels as $channel => $metrics) {
+            if ($channel === 'whatsapp') {
+                $delivered = (int) ($metrics['delivered'] ?? 0);
+                $failed = (int) ($metrics['failed'] ?? 0);
+                $pending = (int) ($metrics['pending'] ?? 0);
+                $metrics['total'] = $delivered + $failed + $pending;
+            }
+
+            $linkRole = match ($channel) {
+                'youtube' => 'video',
+                'marketing_evidence' => 'marketing_evidence',
+                default => null,
+            };
+
+            $url = in_array($channel, $linkChannels, true)
+                ? match ($channel) {
+                    'youtube' => "https://youtube.com/watch?v=levan{$auction->id}",
+                    'marketing_evidence' => "https://drive.google.com/drive/folders/levan-evidence-{$auction->id}",
+                    default => "https://{$channel}.com/levan_auctions/status/{$auction->id}",
+                }
+            : null;
+
             $campaign = MarketingCampaign::create([
                 'auction_id' => $auction->id,
                 'channel' => $channel,
-                'platform_label' => $platformLabels[$channel] ?? $channel,
-                'campaign_date' => $auction->start_date ? $auction->start_date->copy()->subDays(3) : Carbon::now()->subDays(2),
+                'platform_label' => null,
+                'campaign_date' => $channel === 'whatsapp'
+                    ? ($auction->start_date ? $auction->start_date->copy()->subDays(3) : Carbon::now()->subDays(2))
+                    : null,
                 'metrics' => $metrics,
-                'url' => "https://{$channel}.com/levan_auctions/status/{$auction->id}",
-                'link_label' => "رابط حملة {$auction->name} على {$platformLabels[$channel]}",
-                'link_role' => 'marketing_evidence',
+                'url' => $url,
+                'link_label' => null,
+                'link_role' => $linkRole,
                 'created_by' => $this->userId,
             ]);
 
-            // Add evidence attachments
+            if (! in_array($channel, $evidenceChannels, true)) {
+                continue;
+            }
+
             $src = $designs[$idx % count($designs)];
             $idx++;
 
             $tgt = "demo/auctions/{$auction->id}/campaigns/{$channel}.png";
             $path = $this->copyPublicFile($src, $tgt);
+
+            $section = match ($channel) {
+                'youtube' => 'video',
+                'x' => 'x',
+                'whatsapp' => 'whatsapp',
+                'tiktok', 'snapchat' => 'social',
+                default => 'marketing_evidence',
+            };
 
             AuctionAttachment::create([
                 'auction_id' => $auction->id,
@@ -1280,51 +1504,23 @@ class TestTenantDataCycleSeeder extends Seeder
                 'file_type' => 'image/png',
                 'file_size' => Storage::disk('tenant_public')->size($path),
                 'category' => 'marketing',
-                'report_section' => $channel === 'x' ? 'x' : ($channel === 'whatsapp' ? 'whatsapp' : 'social'),
+                'report_section' => $section,
                 'display_order' => 1,
                 'channels' => ['report'],
                 'report_metadata' => [
                     'channel' => $channel,
-                    'kind' => 'artwork',
-                    'display_name' => "تصميم بوست ترويجي ({$platformLabels[$channel]})",
+                    'kind' => 'screenshot',
+                    'display_name' => "إثبات حملة ({$channel})",
                 ],
             ]);
         }
-
-        // Add general brochure & board docs to auction attachments
-        $brochurePath = $this->copyPublicFile(self::LEVAN_ROOT.'/نموذج للوحات على عين العقار/العقار 1 مقاس 3ف6.pdf', "demo/auctions/{$auction->id}/brochure.pdf");
-        AuctionAttachment::create([
-            'auction_id' => $auction->id,
-            'file_path' => $brochurePath,
-            'file_name' => 'بروشور_تسويقي_'.$auction->id.'.pdf',
-            'file_type' => 'application/pdf',
-            'file_size' => Storage::disk('tenant_public')->size($brochurePath),
-            'category' => 'auction_doc',
-            'report_section' => 'brochure',
-            'display_order' => 1,
-            'channels' => ['report'],
-            'report_metadata' => ['kind' => 'document', 'display_name' => 'بروشور المزاد التسويقي المعتمد'],
-        ]);
-
-        $boardPath = $this->copyPublicFile(self::LEVAN_ROOT.'/نموذج للوحات على عين العقار/العقار 6 مقاس 5ف10.pdf', "demo/auctions/{$auction->id}/board_doc.pdf");
-        AuctionAttachment::create([
-            'auction_id' => $auction->id,
-            'file_path' => $boardPath,
-            'file_name' => 'لوحة_عين_العقار_'.$auction->id.'.pdf',
-            'file_type' => 'application/pdf',
-            'file_size' => Storage::disk('tenant_public')->size($boardPath),
-            'category' => 'marketing',
-            'report_section' => 'board_before',
-            'display_order' => 2,
-            'channels' => ['report'],
-            'report_metadata' => ['kind' => 'photo', 'display_name' => 'لوحة المزاد المنفذة على عين العقار'],
-        ]);
     }
 
     private function seedEstablishmentRequestFor(Auction $auction, string $approvalNumber, bool $approved = true): void
     {
         $auction->loadMissing(['properties.owners', 'assignment']);
 
+        $settings = Settings::query()->first();
         $manager = $this->users[1] ?? $this->users[0] ?? null;
         $auctioneer = $this->users[3] ?? $this->users[0] ?? null;
 
@@ -1352,25 +1548,50 @@ class TestTenantDataCycleSeeder extends Seeder
                     'mime' => 'application/pdf',
                 ],
             ],
-            'deed' => [],
             'valuation' => [],
         ];
 
         $propertyRows = [];
         foreach ($auction->properties as $prop) {
-            $deedPath = $this->copyPrivateFile($certPdf, "{$hashDir}/deed_{$prop->id}.pdf");
             $valPath = $this->copyPrivateFile($certPdf, "{$hashDir}/valuation_{$prop->id}.pdf");
 
-            $attachmentsData['deed'][(string) $prop->id] = [
-                'path' => $deedPath,
-                'name' => 'صك_العقار_'.$prop->property_number.'.pdf',
-                'mime' => 'application/pdf',
-            ];
             $attachmentsData['valuation'][(string) $prop->id] = [
                 'path' => $valPath,
                 'name' => 'تقييم_العقار_'.$prop->property_number.'.pdf',
                 'mime' => 'application/pdf',
             ];
+
+            $boardCount = 2;
+            $boardDimensions = '3م × 6م';
+
+            $auction->properties()->updateExistingPivot($prop->id, [
+                'board_data' => json_encode([
+                    'count' => $boardCount,
+                    'dimensions' => $boardDimensions,
+                ], JSON_UNESCAPED_UNICODE),
+            ]);
+
+            $boardBeforePath = $this->copyPublicFile(
+                self::LEVAN_ROOT.'/Social Mediea/Design 11-Squere.png',
+                "demo/auctions/{$auction->id}/board-before-{$prop->id}.png"
+            );
+            AuctionAttachment::create([
+                'auction_id' => $auction->id,
+                'property_id' => $prop->id,
+                'file_path' => $boardBeforePath,
+                'file_name' => 'لوحة_عين_العقار_'.$prop->property_number.'.png',
+                'file_type' => 'image/png',
+                'file_size' => Storage::disk('tenant_public')->size($boardBeforePath),
+                'category' => 'marketing',
+                'report_section' => 'board_before',
+                'display_order' => 1,
+                'channels' => ['report'],
+                'report_metadata' => [
+                    'channel' => 'board_before',
+                    'kind' => 'photo',
+                    'display_name' => 'صورة تركيب اللوحة على عين العقار - '.$prop->name,
+                ],
+            ]);
 
             $propertyRows[] = [
                 'property_id' => $prop->id,
@@ -1392,15 +1613,17 @@ class TestTenantDataCycleSeeder extends Seeder
                 'opening_value' => (string) ($prop->pivot->opening_price ?: $prop->estimated_value * 0.8),
                 'entry_amount' => '50000',
                 'estimated_value' => (string) $prop->estimated_value,
+                'board_count' => $boardCount,
+                'board_dimensions' => $boardDimensions,
             ];
         }
 
         $requestData = [
             'organization' => [
-                'name' => 'شركة لوت للمزادات العقارية',
+                'name' => $settings?->office_name ?: 'شركة لوت للمزادات العقارية',
                 'commercial_registration' => '2222222222',
-                'unified_number' => '7001234567',
-                'fal_license' => '1200018492',
+                'unified_number' => $settings?->unified_number ?: '7001234567',
+                'fal_license' => $settings?->fal_license ?: '1200018492',
             ],
             'manager' => [
                 'name' => $manager?->name ?: 'أحمد السعيد',
@@ -1454,10 +1677,9 @@ class TestTenantDataCycleSeeder extends Seeder
                 'contribution_details' => null,
             ],
             'declaration' => [
-                'representative_name' => 'مدير النظام',
+                'representative_name' => $settings?->representative_name ?: 'مدير النظام',
             ],
             'submission_date' => Carbon::now()->subDays(12)->format('Y/m/d'),
-            'property' => ! empty($propertyRows) ? Arr::except($propertyRows[0], ['property_id']) : [],
             'properties' => $propertyRows,
             'attachments' => $attachmentsData,
             'agents' => [],

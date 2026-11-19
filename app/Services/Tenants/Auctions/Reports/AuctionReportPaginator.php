@@ -129,7 +129,7 @@ final class AuctionReportPaginator
             foreach ($linkCampaigns as $campaign) {
                 $pages[] = $this->page('haram-marketing', ['campaigns' => [$campaign], 'x' => [], 'snapchat' => []]);
             }
-            if (count($pages) === $marketingStart && $linkCampaigns === [] && (! empty($snapshot['marketing']['evidence_url']) || ! empty($snapshot['marketing']['boards_url']))) {
+            if (count($pages) === $marketingStart && $linkCampaigns === [] && (! empty($snapshot['marketing']['evidence_url']) || ! empty($snapshot['marketing']['board_url']) || ! empty($snapshot['marketing']['boards_url']))) {
                 $legacyCount = max(1, $legacyCount);
             }
             if ($legacyCount > 0) {
@@ -143,34 +143,40 @@ final class AuctionReportPaginator
             for ($index = 0; $index < max(count($before), count($after)); $index++) {
                 $pages[] = $this->page('haram-board-before'.($index ? '-continuation' : ''), ['board_before' => $before[$index] ?? [], 'board_after' => $after[$index] ?? []]);
             }
-            $pages = array_merge($pages, $this->campaignMediaPages('haram-brokers', 'brokers', $campaigns, $evidence, 3, fn ($campaign) => ($campaign['platform'] ?? '') === 'brokers'));
+            $brokerPages = $this->campaignMediaPages('haram-brokers', 'brokers', $campaigns, $evidence, 3, fn ($campaign) => ($campaign['platform'] ?? '') === 'brokers');
+            if ($brokerPages === [] && ! empty($snapshot['marketing']['brokers'])) {
+                $brokerPages[] = $this->page('haram-brokers', ['brokers' => [], 'campaigns' => []]);
+            }
+            $pages = array_merge($pages, $brokerPages);
 
             return array_merge($pages, [$this->page('haram-closing')]);
         }
-        if (! empty($snapshot['marketing']['introduction']) || ! empty($snapshot['auction']['description'])) {
+        if (trim((string) ($snapshot['marketing']['introduction'] ?? '')) !== '') {
             $pages[] = $this->page('asir-introduction');
         }
+        if (trim((string) ($snapshot['marketing']['report_summary'] ?? '')) !== '') {
+            $pages[] = $this->page('asir-summary', ['campaigns' => []]);
+        }
         $asirTextPages = [
-            'asir-summary' => ['city_context'],
-            'asir-planning' => ['planning_methodology'],
+            'asir-planning' => ['planning_methodology', 'city_context'],
             'asir-design' => ['brochure_methodology', 'name_context'],
             'asir-promotion' => ['audience_methodology', 'messages_methodology'],
         ];
 
         foreach ($asirTextPages as $pageType => $fields) {
+            $addedFromCampaign = false;
             foreach ($campaigns as $campaign) {
                 if (array_filter(array_intersect_key($campaign, array_flip($fields)), fn ($value) => $value !== null && $value !== '') !== []) {
                     $pages[] = $this->page($pageType, ['campaigns' => [$campaign]]);
+                    $addedFromCampaign = true;
                 }
             }
-            if (array_filter(array_intersect_key($snapshot['marketing'] ?? [], array_flip($fields))) !== []) {
+            if (! $addedFromCampaign && array_filter(array_intersect_key($snapshot['marketing'] ?? [], array_flip($fields)), fn ($value) => is_array($value) ? $value !== [] : trim((string) $value) !== '') !== []) {
                 $pages[] = $this->page($pageType, ['campaigns' => []]);
             }
         }
-        foreach ($campaigns as $campaign) {
-            if (($campaign['platform'] ?? '') !== 'board_before') {
-                continue;
-            }
+        $boardBeforeCampaigns = array_values(array_filter($campaigns, fn ($campaign) => ($campaign['platform'] ?? '') === 'board_before'));
+        foreach ($boardBeforeCampaigns as $campaign) {
             $items = $this->campaignEvidence($evidence, [$campaign], false)['board_before'] ?? [];
             if ($items !== [] || ! empty($campaign['board_context'])) {
                 foreach ($this->boardPages('asir-board-installation', $items, 'board_before') as $page) {
@@ -179,14 +185,18 @@ final class AuctionReportPaginator
                 }
             }
         }
-        $legacyBoards = array_values(array_filter($evidence['board_before'] ?? [], fn ($file) => empty($file['campaign_id'])));
-        if ($legacyBoards !== []) {
-            $pages = array_merge($pages, $this->boardPages('asir-board-installation', $legacyBoards, 'board_before'));
+        $auctionBoards = array_values(array_filter($evidence['board_before'] ?? [], fn ($file) => empty($file['campaign_id'])));
+        if ($auctionBoards !== [] || ($boardBeforeCampaigns === [] && filled($snapshot['marketing']['board_context'] ?? null))) {
+            $pages = array_merge($pages, $this->boardPages('asir-board-installation', $auctionBoards, 'board_before'));
         }
-        $pages = array_merge($pages, $this->campaignMediaPages('asir-brochure', 'brochure', $campaigns, $evidence, 24, fn ($campaign) => ($campaign['platform'] ?? '') === 'brochure' || ($campaign['link_role'] ?? '') === 'brochure'));
-        $platformCampaigns = array_values(array_filter($campaigns, fn ($campaign) => ($campaign['platform'] ?? '') === 'platform'));
-        $pages = array_merge($pages, $this->campaignMediaPages('asir-platform', 'platform', $campaigns, $evidence, 2, fn ($campaign) => ($campaign['platform'] ?? '') === 'platform'));
-        if ($platformCampaigns === [] && empty($evidence['platform']) && ((! empty($snapshot['auction']['platform_name']) && $snapshot['auction']['platform_name'] !== '-') || ! empty($snapshot['auction']['platform_url']))) {
+        $brochurePages = $this->campaignMediaPages('asir-brochure', 'brochure', $campaigns, $evidence, 24, fn ($campaign) => ($campaign['platform'] ?? '') === 'brochure' || ($campaign['link_role'] ?? '') === 'brochure');
+        if ($brochurePages === [] && (filled($snapshot['marketing']['brochure_context'] ?? null) || filled($snapshot['marketing']['brochure_url'] ?? null))) {
+            $brochurePages[] = $this->page('asir-brochure', ['brochure' => [], 'campaigns' => []]);
+        }
+        $pages = array_merge($pages, $brochurePages);
+        $platformPages = $this->campaignMediaPages('asir-platform', 'platform', $campaigns, $evidence, 2, fn ($campaign) => ($campaign['platform'] ?? '') === 'platform');
+        $pages = array_merge($pages, $platformPages);
+        if ($platformPages === [] && (filled($snapshot['auction']['notes'] ?? null) || (! empty($snapshot['auction']['platform_name']) && $snapshot['auction']['platform_name'] !== '-') || ! empty($snapshot['auction']['platform_url']))) {
             $pages[] = $this->page('asir-platform');
         }
         foreach (['youtube' => ['video', 2], 'x' => ['x', 7], 'whatsapp' => ['whatsapp', 1]] as $channel => [$section, $capacity]) {
@@ -196,15 +206,7 @@ final class AuctionReportPaginator
         if (array_filter($evidence['social'] ?? [], fn ($file) => empty($file['campaign_id'])) !== []) {
             $socialGroups[] = [];
         }
-        foreach ($socialGroups as $index => $group) {
-            if (count(array_filter($group, fn ($campaign) => ! empty($campaign['social_context']))) > 1) {
-                foreach ($group as $campaign) {
-                    $socialGroups[] = [$campaign];
-                }
-                unset($socialGroups[$index]);
-            }
-        }
-        foreach ($socialGroups as $index => $group) {
+        foreach ($socialGroups as $group) {
             $items = $this->campaignEvidence($evidence, $group, $group === []);
             $bySlot = [];
             foreach ($items['social'] ?? [] as $file) {
@@ -214,8 +216,8 @@ final class AuctionReportPaginator
                 }
             }
             $hasMetric = count(array_filter($group, fn ($campaign) => ($campaign['views'] ?? $campaign['impressions'] ?? null) !== null)) > 0;
-            $hasDescriptionOrLink = count(array_filter($group, fn ($campaign) => ! empty($campaign['social_context']) || ! empty($campaign['url']))) > 0;
-            if (! $hasMetric && ! $hasDescriptionOrLink && $bySlot === []) {
+            $hasLink = count(array_filter($group, fn ($campaign) => ! empty($campaign['url']))) > 0;
+            if (! $hasMetric && ! $hasLink && $bySlot === []) {
                 continue;
             }
             $count = max([1, ...array_map('count', $bySlot)]);
@@ -229,15 +231,12 @@ final class AuctionReportPaginator
                 $pages[] = $this->page('asir-social', ['campaigns' => $group, 'social' => $social]);
             }
         }
-        $pages = array_merge($pages, $this->campaignMediaPages('asir-brokers', 'brokers', $campaigns, $evidence, 1, fn ($campaign) => ($campaign['platform'] ?? '') === 'brokers'));
-        $googleCampaigns = array_values(array_filter($campaigns, fn ($campaign) => ($campaign['platform'] ?? '') === 'google'));
-        foreach ($googleCampaigns as $campaign) {
-            foreach ($this->boardPages('asir-board-removal', $closed ? ($evidence['board_after'] ?? []) : [], 'board_after') as $page) {
-                $page['payload']['campaigns'] = [$campaign];
-                $pages[] = $page;
-            }
+        $asirBrokerPages = $this->campaignMediaPages('asir-brokers', 'brokers', $campaigns, $evidence, 1, fn ($campaign) => ($campaign['platform'] ?? '') === 'brokers');
+        if ($asirBrokerPages === [] && (filled($snapshot['marketing']['contract_text'] ?? null) || ! empty($snapshot['marketing']['brokers']))) {
+            $asirBrokerPages[] = $this->page('asir-brokers', ['brokers' => [], 'campaigns' => []]);
         }
-        if ($googleCampaigns === [] && $closed && ! empty($evidence['board_after'])) {
+        $pages = array_merge($pages, $asirBrokerPages);
+        if ($closed && ! empty($evidence['board_after'])) {
             $pages = array_merge($pages, $this->boardPages('asir-board-removal', $evidence['board_after'], 'board_after'));
         }
         if ($closed) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Tenants\AuctionEstablishments;
 
 use App\Models\Tenants\Auctions\Auction;
+use App\Models\Tenants\Settings\Settings;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -59,8 +60,6 @@ final class AuctionEstablishmentRequestData
         return [
             'owner_name' => $this->field('المالك / الملاك', 'text', true, [], ['string', 'max:255', 'min:3'], ['maxlength' => '255']),
             'deed_number' => $this->field('رقم الصك / الصحيفة العقارية', 'text', true, [], ['string', 'max:50', 'regex:/^\d+$/'], ['inputmode' => 'numeric', 'pattern' => '[0-9]+', 'data-digits-only' => 'true', 'placeholder' => 'أدخل رقم الصك']),
-            'agent_name' => $this->field('اسم الوكيل', 'text', false, [], ['string', 'max:255'], ['maxlength' => '255']),
-            'agency_number' => $this->field('رقم الوكالة', 'text', false, [], ['string', 'max:50', 'regex:/^\d+$/'], ['inputmode' => 'numeric', 'pattern' => '[0-9]+', 'data-digits-only' => 'true', 'placeholder' => 'أدخل رقم الوكالة']),
             'contract_number' => $this->field('رقم الإسناد', 'text', true, [], ['string', 'max:100'], ['maxlength' => '100', 'placeholder' => 'أدخل رقم الإسناد']),
             'area' => $this->field('المساحة', 'number', true, [], ['numeric', 'gt:0', 'max:999999999'], ['min' => '0.01', 'step' => 'any', 'inputmode' => 'decimal']),
             'type' => $this->field('نوع العقار', 'text', true, [], ['string', 'max:100'], ['maxlength' => '100']),
@@ -71,10 +70,12 @@ final class AuctionEstablishmentRequestData
             'status' => $this->field('الحالة النظامية', 'select', true, ['clear' => 'سليم', 'seized' => 'محجوز', 'mortgaged' => 'مرهون', 'endowed' => 'وقف', 'other' => 'أخرى']),
             'status_other' => $this->field('تفاصيل الحالة الأخرى', 'text', false, [], ['string', 'max:255'], ['maxlength' => '255']),
             'ownership_share' => $this->field('نسبة الملكية المعروضة %', 'number', true, [], ['numeric', 'gt:0', 'max:100'], ['min' => '0.01', 'max' => '100', 'step' => 'any', 'inputmode' => 'decimal']),
-            'disclosure' => $this->field('الإفصاح الخاص بالعقار', 'text', true, [], ['string', 'max:2000']),
+            'disclosure' => $this->field('الإفصاح الخاص بالعقار', 'text', true, [], ['string', 'max:1000']),
             'opening_value' => $this->field('قيمة افتتاح المزاد', 'number', true, [], ['numeric', 'min:0', 'max:999999999999'], ['min' => '0', 'step' => '0.01', 'inputmode' => 'decimal']),
             'entry_amount' => $this->field('مبلغ الدخول', 'number', true, [], ['numeric', 'min:0', 'max:999999999999'], ['min' => '0', 'step' => '0.01', 'inputmode' => 'decimal']),
             'estimated_value' => $this->field('القيمة التقديرية', 'number', true, [], ['numeric', 'min:0', 'max:999999999999'], ['min' => '0', 'step' => '0.01', 'inputmode' => 'decimal']),
+            'board_count' => $this->field('عدد اللوحات', 'number', true, [], ['integer', 'min:1'], ['min' => '1', 'step' => '1', 'inputmode' => 'numeric']),
+            'board_dimensions' => $this->field('مقاس اللوحات', 'text', true, [], ['string', 'max:255'], ['maxlength' => '255']),
         ];
     }
 
@@ -97,8 +98,6 @@ final class AuctionEstablishmentRequestData
         }
         $rules['data.disclosures.disposition_right_other'][] = 'required_if:data.disclosures.disposition_rights.*,other';
         $rules['data.properties.*.status_other'][] = 'required_if:data.properties.*.status,other';
-        $rules['data.properties.*.agency_number'][] = 'required_with:data.properties.*.agent_name';
-        $rules['data.properties.*.agent_name'][] = 'required_with:data.properties.*.agency_number';
         $rules['data.auction.platform'][] = 'required_if:data.auction.method,electronic,hybrid';
         $rules['data.auction.venue'][] = 'required_if:data.auction.method,in_person,hybrid';
 
@@ -112,7 +111,26 @@ final class AuctionEstablishmentRequestData
 
     public function attachmentTypes(): array
     {
-        return ['manager_certificate' => 'شهادة دورة مدير المزاد', 'auctioneer_certificate' => 'شهادة دورة محرّج المزاد', 'deed' => 'وثيقة الملكية', 'valuation' => 'نموذج التقييم العقاري', 'representative_authority' => 'مستند صفة الوكيل / معتمد العقد'];
+        return ['manager_certificate' => 'شهادة دورة مدير المزاد', 'auctioneer_certificate' => 'شهادة دورة محرّج المزاد', 'valuation' => 'نموذج التقييم العقاري'];
+    }
+
+    /** @return array<string, string> */
+    public function missingSettingsFields(): array
+    {
+        $settings = Settings::query()->first();
+        $required = [
+            'unified_number' => 'الرقم الموحد للمنشأة (700)',
+            'fal_license' => 'رخصة فال للمزادات العقارية',
+            'representative_name' => 'اسم الممثل النظامي للمنشأة',
+        ];
+        $missing = [];
+        foreach ($required as $key => $label) {
+            if (blank($settings?->{$key})) {
+                $missing[$key] = $label;
+            }
+        }
+
+        return $missing;
     }
 
     public function attributes(): array
@@ -133,12 +151,11 @@ final class AuctionEstablishmentRequestData
             'attachments' => 'المرفقات',
             'attachments.manager_certificate' => 'شهادة دورة مدير المزاد',
             'attachments.auctioneer_certificate' => 'شهادة دورة محرّج المزاد',
-            'attachments.deed' => 'وثائق الملكية',
-            'attachments.deed.*' => 'وثيقة الملكية',
             'attachments.valuation' => 'نماذج التقييم العقاري',
             'attachments.valuation.*' => 'نموذج التقييم العقاري',
-            'attachments.representative_authority' => 'مستندات صفة الوكيل / معتمد العقد',
-            'attachments.representative_authority.*' => 'مستند صفة الوكيل / معتمد العقد',
+            'board_images_before' => 'صور تركيب اللوحات',
+            'board_images_before.*' => 'صور تركيب اللوحات للعقار',
+            'board_images_before.*.*' => 'صورة تركيب اللوحة',
         ];
 
         foreach ($this->sections() as $sectionKey => $section) {
@@ -182,12 +199,18 @@ final class AuctionEstablishmentRequestData
 
     public function defaults(Auction $auction): array
     {
-        $auction->loadMissing(['properties.owners', 'properties.units', 'properties.assignment', 'assignment', 'establishmentRequest']);
+        $auction->loadMissing(['properties.owners', 'properties.units', 'properties.assignment', 'properties.deedAttachment', 'assignment', 'establishmentRequest']);
         $data = $auction->establishmentRequest?->data ?? [];
         $tenant = app()->bound('centralTenant') ? app('centralTenant') : tenant();
+        $settings = Settings::query()->first();
         $data['organization'] = array_replace($data['organization'] ?? [], [
             'name' => (string) $tenant?->company_name,
             'commercial_registration' => (string) $tenant?->commercial_number,
+            'unified_number' => (string) ($settings?->unified_number ?? ''),
+            'fal_license' => (string) ($settings?->fal_license ?? ''),
+        ]);
+        $data['declaration'] = array_replace($data['declaration'] ?? [], [
+            'representative_name' => (string) ($settings?->representative_name ?? ''),
         ]);
         $data['manager']['name'] ??= $auction->project_manager_name;
         foreach ($this->auctionSource($auction) as $key => $value) {
@@ -207,6 +230,9 @@ final class AuctionEstablishmentRequestData
                 'area' => $property->area,
                 'type' => $property->getRawOriginal('type') ? $property->type_label : null,
                 'usage' => $property->usage_classification ? $property->usage_classification_label : null,
+                'age' => $property->age ?? 0,
+                'status' => $property->legal_status?->value ?? 'clear',
+                'status_other' => $property->legal_status_notes,
                 'city_district' => trim($property->city.' / '.$property->district, ' /'),
                 'agent_name' => $property->agent_name,
                 'agency_number' => $property->agency_number,
@@ -224,6 +250,14 @@ final class AuctionEstablishmentRequestData
                 $row['estimated_value'] = (string) $property->estimated_value;
             } else {
                 $row['estimated_value'] ??= $property->estimated_value;
+            }
+            $boardData = $property->pivot->board_data;
+            if (is_string($boardData)) {
+                $boardData = json_decode($boardData, true) ?: [];
+            }
+            if (is_array($boardData)) {
+                $row['board_count'] ??= isset($boardData['count']) ? (string) $boardData['count'] : null;
+                $row['board_dimensions'] ??= isset($boardData['dimensions']) ? (string) $boardData['dimensions'] : null;
             }
 
             return $row;
@@ -247,6 +281,9 @@ final class AuctionEstablishmentRequestData
         }
         $data['organization']['name'] = $defaults['organization']['name'];
         $data['organization']['commercial_registration'] = $defaults['organization']['commercial_registration'];
+        $data['organization']['unified_number'] = $defaults['organization']['unified_number'];
+        $data['organization']['fal_license'] = $defaults['organization']['fal_license'];
+        $data['declaration']['representative_name'] = $defaults['declaration']['representative_name'];
         if (filled($auction->project_manager_name)) {
             $data['manager']['name'] = $auction->project_manager_name;
         }
@@ -267,6 +304,9 @@ final class AuctionEstablishmentRequestData
                 'area' => $property->area,
                 'type' => $property->getRawOriginal('type') ? $property->type_label : null,
                 'usage' => $property->usage_classification ? $property->usage_classification_label : null,
+                'age' => $property->age ?? 0,
+                'status' => $property->legal_status?->value ?? 'clear',
+                'status_other' => $property->legal_status_notes,
                 'city_district' => trim($property->city.' / '.$property->district, ' /'),
                 'agent_name' => $property->agent_name,
                 'agency_number' => $property->agency_number,
@@ -296,7 +336,6 @@ final class AuctionEstablishmentRequestData
             $data['disclosures'][$key.'_details'] = $hasVal ? $details : '';
         }
         $data['submission_date'] = now()->format('Y/m/d');
-        $data['property'] = Arr::except($data['properties'][0], ['property_id']);
         $data['agents'] = collect($data['properties'])->filter(fn ($row) => filled($row['agent_name'] ?? null))->map(fn ($row) => Arr::only($row, ['property_id', 'owner_name', 'deed_number', 'agent_name', 'agency_number']) + ['name' => $row['agent_name']])->values()->all();
 
         return $data;
@@ -336,8 +375,8 @@ final class AuctionEstablishmentRequestData
                 'textarea',
                 false,
                 [],
-                ['string', 'max:2000'],
-                ['maxlength' => '2000', 'placeholder' => 'تفاصيل حقوق التصرف الأخرى إن وجدت...']
+                ['string', 'max:1000'],
+                ['maxlength' => '1000', 'placeholder' => 'تفاصيل حقوق التصرف الأخرى إن وجدت...']
             ),
         ];
 
@@ -370,8 +409,8 @@ final class AuctionEstablishmentRequestData
                 'textarea',
                 false,
                 [],
-                ['string', 'max:2000'],
-                ['maxlength' => '2000', 'placeholder' => 'اكتب التفاصيل هنا أو اتركه فارغاً...']
+                ['string', 'max:1000'],
+                ['maxlength' => '1000', 'placeholder' => 'اكتب التفاصيل هنا أو اتركه فارغاً...']
             );
             $fieldDef['help'] = $info['help'];
             $fields[$key.'_details'] = $fieldDef;

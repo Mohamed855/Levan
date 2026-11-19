@@ -70,6 +70,8 @@ document.addEventListener("DOMContentLoaded", () => {
             "opening_value",
             "entry_amount",
             "estimated_value",
+            "board_count",
+            "board_dimensions",
         ];
 
         let isComplete = true;
@@ -97,10 +99,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 opening_value: [0, 999999999999],
                 entry_amount: [0, 999999999999],
                 estimated_value: [0, 999999999999],
+                board_count: [1, 100000],
             };
             for (const [field, [min, max]] of Object.entries(numericLimits)) {
                 const value = Number(getVal(field).replace(/,/g, ""));
-                if (!Number.isFinite(value) || value < min || value > max || (field === "age" && !Number.isInteger(value))) {
+                if (!Number.isFinite(value) || value < min || value > max || ((field === "age" || field === "board_count") && !Number.isInteger(value))) {
                     isComplete = false;
                 }
             }
@@ -108,8 +111,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 isComplete = false;
             }
 
+            const openingVal = parseFloat(getVal("opening_value").replace(/,/g, ""));
             const entryVal = parseFloat(getVal("entry_amount").replace(/,/g, ""));
             const estimatedVal = parseFloat(getVal("estimated_value").replace(/,/g, ""));
+            if (!isNaN(entryVal) && !isNaN(openingVal) && entryVal > openingVal) {
+                isComplete = false;
+            }
             if (!isNaN(entryVal) && !isNaN(estimatedVal) && entryVal > estimatedVal) {
                 isComplete = false;
             }
@@ -124,37 +131,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 isComplete = false;
             }
 
-            const agentName = getVal("agent_name");
-            const agencyNum = getVal("agency_number");
-            if ((agentName && !agencyNum) || (!agentName && agencyNum) || (agencyNum && !/^\d+$/.test(agencyNum))) {
-                isComplete = false;
-            }
-
-            // Check required deed attachment
+            // Check required board_before images
             const table = document.getElementById("establishment-properties-table");
             let existingAttachments = {};
             try {
                 existingAttachments = JSON.parse(table?.dataset?.existingAttachments || "{}");
             } catch (_) {}
             const propExisting = existingAttachments[propertyId] || {};
-            const hasExistingDeed = Boolean(propExisting.deed?.url) && !isAttachmentRemoved("deed", propertyId);
-            const stagedDeed = hiddenDataEl.querySelector(`[data-prop-files="${propertyId}"] input[name="attachments[deed][${propertyId}]"]`);
-            if (!hasExistingDeed && !stagedDeed?.files?.length) {
+            const existingBoards = Array.isArray(propExisting.board_before) ? propExisting.board_before : [];
+            const activeExistingBoards = existingBoards.filter(
+                (item) => !form.querySelector(`input[name="remove_board_before_evidence[]"][value="${item.id}"]`),
+            );
+            const stagedBoards = hiddenDataEl.querySelector(`[data-prop-files="${propertyId}"] input[name="board_images_before[${propertyId}][]"]`);
+            if (activeExistingBoards.length === 0 && !stagedBoards?.files?.length) {
                 isComplete = false;
             }
 
             const stagedValuation = hiddenDataEl.querySelector(`input[name="attachments[valuation][${propertyId}]"]`);
-            if (entryVal > 0 && (!propExisting.valuation?.url || isAttachmentRemoved("valuation", propertyId)) && !stagedValuation?.files?.length) {
+            if ((!propExisting.valuation?.url || isAttachmentRemoved("valuation", propertyId)) && !stagedValuation?.files?.length) {
                 isComplete = false;
-            }
-
-            // Check representative authority if agent specified
-            if (agentName) {
-                const hasExistingAuth = Boolean(propExisting.representative_authority?.url) && !isAttachmentRemoved("representative_authority", propertyId);
-                const stagedAuth = hiddenDataEl.querySelector(`[data-prop-files="${propertyId}"] input[name="attachments[representative_authority][${propertyId}]"]`);
-                if (!hasExistingAuth && !stagedAuth?.files?.length) {
-                    isComplete = false;
-                }
             }
         }
 
@@ -382,12 +377,12 @@ document.addEventListener("DOMContentLoaded", () => {
             "status",
             "status_other",
             "ownership_share",
-            "agent_name",
-            "agency_number",
             "opening_value",
             "entry_amount",
             "estimated_value",
             "disclosure",
+            "board_count",
+            "board_dimensions",
         ];
 
         fields.forEach((field) => {
@@ -400,9 +395,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // Dynamic locking for inherited contract number, agent info, and estimated value
+        // Dynamic locking for inherited contract number and estimated value
         const isContractInherited = hiddenContainer.dataset.propInheritedContract === "1";
-        const isAgentInherited = hiddenContainer.dataset.propInheritedAgent === "1";
         const isEstimatedInherited = hiddenContainer.dataset.propInheritedEstimated === "1";
 
         const contractInp = getModalEl("modal_prop_contract_number");
@@ -419,22 +413,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     : "رقم الإسناد أو عقد الوساطة للمزاد";
             }
         }
-
-        const agentNameInp = getModalEl("modal_prop_agent_name");
-        const agencyNumInp = getModalEl("modal_prop_agency_number");
-        [agentNameInp, agencyNumInp].forEach((inp) => {
-            if (inp) {
-                inp.readOnly = isAgentInherited;
-                inp.classList.toggle("bg-light", isAgentInherited);
-                inp.classList.toggle("cursor-not-allowed", isAgentInherited);
-                inp.style.pointerEvents = isAgentInherited ? "none" : "";
-                inp.tabIndex = isAgentInherited ? -1 : 0;
-                const help = inp.parentElement?.querySelector(".form-text");
-                if (help && isAgentInherited) {
-                    help.textContent = "مستورد من بيانات الوكيل المسجل بالعقار";
-                }
-            }
-        });
 
         // Estimated value: locked only if imported from property, editable otherwise
         const estimatedInp = getModalEl("modal_prop_estimated_value");
@@ -481,7 +459,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const propExisting = existingAttachments[propertyId] || {};
 
-        ["deed", "valuation", "representative_authority"].forEach((type) => {
+        ["valuation"].forEach((type) => {
             const fileInp = getModalEl(`modal_file_${type}`);
             if (!fileInp) return;
 
@@ -512,6 +490,54 @@ document.addEventListener("DOMContentLoaded", () => {
                 fileInp.value = "";
             }
         });
+
+        // Setup multiple board_before images in modal
+        const boardFileInp = getModalEl("modal_file_board_before");
+        if (boardFileInp) {
+            const boardController = window.SharedFileUpload?.getController(boardFileInp);
+            const existingBoards = Array.isArray(propExisting.board_before) ? propExisting.board_before : [];
+            const activeBoards = existingBoards.filter(
+                (item) => !form.querySelector(`input[name="remove_board_before_evidence[]"][value="${item.id}"]`),
+            );
+            const stagedBoards = hiddenContainer.querySelector(
+                `[data-prop-files="${propertyId}"] input[name="board_images_before[${propertyId}][]"]`
+            );
+            if (boardController) {
+                boardController.clear();
+                boardFileInp.closest("[data-file-upload-wrapper]")?.querySelectorAll('input[name^="remove_"]').forEach((input) => input.remove());
+                if (activeBoards.length > 0 && typeof boardController.setExistingFiles === "function") {
+                    boardController.setExistingFiles(
+                        activeBoards.map((item) => ({
+                            id: item.id,
+                            name: item.name || "صورة لوحة",
+                            url: item.url,
+                            path: item.url,
+                            removeName: "remove_modal_board_before[]",
+                            removeValue: String(item.id),
+                        })),
+                    );
+                } else if (activeBoards.length > 0 && typeof boardController.setExistingFile === "function") {
+                    boardController.clearExistingFiles();
+                    activeBoards.forEach((item) => {
+                        boardController.setExistingFile({
+                            id: item.id,
+                            name: item.name || "صورة لوحة",
+                            url: item.url,
+                            path: item.url,
+                            removeName: "remove_modal_board_before[]",
+                            removeValue: String(item.id),
+                        });
+                    });
+                } else {
+                    boardController.clearExistingFiles();
+                }
+                if (stagedBoards && stagedBoards.files && stagedBoards.files.length > 0) {
+                    boardController.setFiles(Array.from(stagedBoards.files));
+                }
+            } else {
+                boardFileInp.value = "";
+            }
+        }
 
         if (propModalInstance) {
             propModalInstance.show();
@@ -563,11 +589,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            // Match attachments.{type}.{propId} or attachments[{type}][{propId}]
-            const attachMatch = key.match(/^attachments\.(deed|valuation|representative_authority)\.(\d+)$/) ||
-                                key.match(/^attachments\[(deed|valuation|representative_authority)\]\[(\d+)\]$/);
+            // Match attachments.{type}.{propId} or board_images_before.{propId}
+            const attachMatch = key.match(/^attachments\.(valuation)\.(\d+)$/) ||
+                                key.match(/^attachments\[(valuation)\]\[(\d+)\]$/) ||
+                                key.match(/^(board_images_before)\.(\d+)(?:\.\d+)?$/);
             if (attachMatch) {
-                const type = attachMatch[1];
+                const type = attachMatch[1] === "board_images_before" ? "board_before" : attachMatch[1];
                 const propId = attachMatch[2];
                 const row = form.querySelector(`.establishment-property-row[data-property-id="${propId}"]`);
                 if (row) {
@@ -688,6 +715,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 error = "قيمة افتتاح المزاد مطلوبة.";
             } else if (isNaN(Number(cleanOpening)) || Number(cleanOpening) < 0) {
                 error = "قيمة افتتاح المزاد يجب أن تكون رقماً غير سالب.";
+            } else {
+                const entryInp = getModalEl("modal_prop_entry_amount");
+                const entryVal = (entryInp?.value || "").trim().replace(/,/g, "");
+                if (entryVal && !isNaN(Number(entryVal))) {
+                    if (Number(entryVal) > Number(cleanOpening)) {
+                        if (entryInp) setModalFieldError(entryInp, "مبلغ الدخول لا يمكن أن يكون أكبر من قيمة افتتاح المزاد.");
+                    } else if (entryInp && entryInp.classList.contains("is-invalid")) {
+                        const currentErr = entryInp.closest("[data-form-field]")?.querySelector("[data-form-error]")?.textContent || "";
+                        if (currentErr.includes("قيمة افتتاح المزاد")) {
+                            clearModalFieldError(entryInp);
+                            validateEstablishmentModalField(entryInp);
+                        }
+                    }
+                }
             }
         } else if (id === "modal_prop_entry_amount") {
             const cleanEntry = val.replace(/,/g, "");
@@ -696,8 +737,11 @@ document.addEventListener("DOMContentLoaded", () => {
             } else if (isNaN(Number(cleanEntry)) || Number(cleanEntry) < 0) {
                 error = "مبلغ الدخول يجب أن يكون رقماً غير سالب.";
             } else {
+                const openingVal = (getModalEl("modal_prop_opening_value")?.value || "").trim().replace(/,/g, "");
                 const estimatedVal = (getModalEl("modal_prop_estimated_value")?.value || "").trim().replace(/,/g, "");
-                if (estimatedVal && !isNaN(Number(estimatedVal)) && Number(cleanEntry) > Number(estimatedVal)) {
+                if (openingVal && !isNaN(Number(openingVal)) && Number(cleanEntry) > Number(openingVal)) {
+                    error = "مبلغ الدخول لا يمكن أن يكون أكبر من قيمة افتتاح المزاد.";
+                } else if (estimatedVal && !isNaN(Number(estimatedVal)) && Number(cleanEntry) > Number(estimatedVal)) {
                     error = "مبلغ الدخول لا يمكن أن يكون أكبر من القيمة التقديرية.";
                 }
             }
@@ -717,6 +761,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         const currentErr = entryInp.closest("[data-form-field]")?.querySelector("[data-form-error]")?.textContent || "";
                         if (currentErr.includes("القيمة التقديرية")) {
                             clearModalFieldError(entryInp);
+                            validateEstablishmentModalField(entryInp);
                         }
                     }
                 }
@@ -725,17 +770,15 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!val) {
                 error = "الإفصاح الخاص بالعقار مطلوب.";
             }
-        } else if (id === "modal_prop_agent_name") {
-            const agencyNum = getModalEl("modal_prop_agency_number")?.value?.trim();
-            if (agencyNum && !val) {
-                error = "اسم الوكيل مطلوب عند كتابة رقم الوكالة.";
+        } else if (id === "modal_prop_board_count") {
+            if (!val) {
+                error = "عدد اللوحات مطلوب.";
+            } else if (isNaN(Number(val)) || !Number.isInteger(Number(val)) || Number(val) < 1) {
+                error = "عدد اللوحات يجب أن يكون عدداً صحيحاً أكبر من أو يساوي 1.";
             }
-        } else if (id === "modal_prop_agency_number") {
-            const agentName = getModalEl("modal_prop_agent_name")?.value?.trim();
-            if (agentName && !val) {
-                error = "رقم الوكالة مطلوب عند كتابة اسم الوكيل.";
-            } else if (val && !/^\d+$/.test(val)) {
-                error = "رقم الوكالة يجب أن يحتوي على أرقام فقط.";
+        } else if (id === "modal_prop_board_dimensions") {
+            if (!val) {
+                error = "مقاس اللوحات مطلوب.";
             }
         }
 
@@ -784,20 +827,7 @@ document.addEventListener("DOMContentLoaded", () => {
         validateEstablishmentModalField(this);
     });
 
-    $(document).on("input change blur focusout", "#modal_prop_agent_name, #modal_prop_agency_number", function () {
-        const agentName = getModalEl("modal_prop_agent_name")?.value?.trim();
-        const agencyNum = getModalEl("modal_prop_agency_number")?.value?.trim();
-        if (!agentName && !agencyNum) {
-            clearModalFieldError(getModalEl("modal_prop_agent_name"));
-            clearModalFieldError(getModalEl("modal_prop_agency_number"));
-            clearModalFieldError(getModalEl("modal_file_representative_authority"));
-        } else {
-            if (agentName) validateEstablishmentModalField(getModalEl("modal_prop_agent_name"));
-            if (agencyNum) validateEstablishmentModalField(getModalEl("modal_prop_agency_number"));
-        }
-    });
-
-    $(document).on("change", "#modal_file_deed, #modal_file_valuation, #modal_file_representative_authority", function () {
+    $(document).on("change", "#modal_file_board_before, #modal_file_valuation", function () {
         if (this.files && this.files.length > 0) {
             clearModalFieldError(this);
         }
@@ -843,8 +873,16 @@ document.addEventListener("DOMContentLoaded", () => {
         validate(getModalEl("modal_prop_opening_value"));
         validate(getModalEl("modal_prop_entry_amount"));
         validate(getModalEl("modal_prop_estimated_value"));
+        const cleanOpeningAmount = (getModalEl("modal_prop_opening_value")?.value || "").replace(/,/g, "");
         const cleanEntryAmount = (getModalEl("modal_prop_entry_amount")?.value || "").replace(/,/g, "");
         const cleanEstimatedAmount = (getModalEl("modal_prop_estimated_value")?.value || "").replace(/,/g, "");
+        if (cleanEntryAmount && cleanOpeningAmount && !isNaN(Number(cleanEntryAmount)) && !isNaN(Number(cleanOpeningAmount))) {
+            if (Number(cleanEntryAmount) > Number(cleanOpeningAmount)) {
+                setModalFieldError(getModalEl("modal_prop_entry_amount"), "مبلغ الدخول لا يمكن أن يكون أكبر من قيمة افتتاح المزاد.");
+                hasError = true;
+                if (!firstInvalid) firstInvalid = getModalEl("modal_prop_entry_amount");
+            }
+        }
         if (cleanEntryAmount && cleanEstimatedAmount && !isNaN(Number(cleanEntryAmount)) && !isNaN(Number(cleanEstimatedAmount))) {
             if (Number(cleanEntryAmount) > Number(cleanEstimatedAmount)) {
                 setModalFieldError(getModalEl("modal_prop_entry_amount"), "مبلغ الدخول لا يمكن أن يكون أكبر من القيمة التقديرية.");
@@ -853,47 +891,29 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         validate(getModalEl("modal_prop_disclosure"));
+        validate(getModalEl("modal_prop_board_count"));
+        validate(getModalEl("modal_prop_board_dimensions"));
 
-        const agentName = getModalEl("modal_prop_agent_name")?.value?.trim();
-        const agencyNum = getModalEl("modal_prop_agency_number")?.value?.trim();
-        if (agentName || agencyNum) {
-            validate(getModalEl("modal_prop_agent_name"));
-            validate(getModalEl("modal_prop_agency_number"));
-        }
-
-        // Validate required deed attachment
-        const deedInput = getModalEl("modal_file_deed");
-        const deedController = window.SharedFileUpload?.getController(deedInput);
-        const hasExistingDeed = hasModalExistingFile(deedInput);
-        const hasSelectedDeed = (deedInput && deedInput.files && deedInput.files.length > 0) || (deedController && deedController.getFiles().length > 0);
-        const isDeedPresent = hasExistingDeed || hasSelectedDeed;
-
-        if (!isDeedPresent) {
-            setModalFieldError(deedInput, "وثيقة الملكية (الصك الإلكتروني) مطلوبة لكل عقار.");
+        // Validate required board_before images
+        const boardInput = getModalEl("modal_file_board_before");
+        const boardController = window.SharedFileUpload?.getController(boardInput);
+        const hasExistingBoard = hasModalExistingFile(boardInput);
+        const hasSelectedBoard = (boardInput && boardInput.files && boardInput.files.length > 0) || (boardController && boardController.getFiles().length > 0);
+        if (!hasExistingBoard && !hasSelectedBoard) {
+            setModalFieldError(boardInput, "صور تركيب اللوحات مطلوبة لكل عقار.");
             hasError = true;
-            if (!firstInvalid) firstInvalid = deedInput;
+            if (!firstInvalid) firstInvalid = boardInput;
         }
 
+        // Validate required valuation document (always required since entry_amount is required)
         const valuationInput = getModalEl("modal_file_valuation");
-        if (Number(cleanEntryAmount) > 0 && !hasModalExistingFile(valuationInput) && !valuationInput?.files?.length) {
-            setModalFieldError(valuationInput, "نموذج التقييم العقاري مطلوب عند وجود مبلغ دخول.");
+        const valuationController = window.SharedFileUpload?.getController(valuationInput);
+        const hasExistingValuation = hasModalExistingFile(valuationInput);
+        const hasSelectedValuation = (valuationInput && valuationInput.files && valuationInput.files.length > 0) || (valuationController && valuationController.getFiles().length > 0);
+        if (!hasExistingValuation && !hasSelectedValuation) {
+            setModalFieldError(valuationInput, "نموذج التقييم العقاري مطلوب لكل عقار.");
             hasError = true;
             if (!firstInvalid) firstInvalid = valuationInput;
-        }
-
-        // Validate agent representative authority if agent specified
-        if (agentName) {
-            const authInput = getModalEl("modal_file_representative_authority");
-            const authController = window.SharedFileUpload?.getController(authInput);
-            const hasExistingAuth = hasModalExistingFile(authInput);
-            const hasSelectedAuth = (authInput && authInput.files && authInput.files.length > 0) || (authController && authController.getFiles().length > 0);
-            const isAuthPresent = hasExistingAuth || hasSelectedAuth;
-
-            if (!isAuthPresent) {
-                setModalFieldError(authInput, "مستند التفويض أو الوكالة مطلوب عند وجود وكيل مسجل.");
-                hasError = true;
-                if (!firstInvalid) firstInvalid = authInput;
-            }
         }
 
         // Strict halt: NEVER save and NEVER close modal if any validation error exists
@@ -926,12 +946,12 @@ document.addEventListener("DOMContentLoaded", () => {
             "status",
             "status_other",
             "ownership_share",
-            "agent_name",
-            "agency_number",
             "opening_value",
             "entry_amount",
             "estimated_value",
             "disclosure",
+            "board_count",
+            "board_dimensions",
         ];
 
         fields.forEach((field) => {
@@ -949,7 +969,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Stage files with DataTransfer into data-prop-files container
         const filesContainer = hiddenContainer.querySelector(`[data-prop-files="${propertyId}"]`);
         if (filesContainer) {
-            ["deed", "valuation", "representative_authority"].forEach((type) => {
+            ["valuation"].forEach((type) => {
                 const modalFileInp = getModalEl(`modal_file_${type}`);
                 const existingStaged = filesContainer.querySelector(`input[name="attachments[${type}][${propertyId}]"]`);
                 const controller = window.SharedFileUpload?.getController(modalFileInp);
@@ -970,6 +990,38 @@ document.addEventListener("DOMContentLoaded", () => {
                     existingStaged.value = "";
                 }
             });
+
+            // Stage multiple board_before images & sync removals
+            const modalBoardInp = getModalEl("modal_file_board_before");
+            const existingStagedBoards = filesContainer.querySelector(`input[name="board_images_before[${propertyId}][]"]`);
+            const boardCtrl = window.SharedFileUpload?.getController(modalBoardInp);
+            if (modalBoardInp) {
+                modalBoardInp
+                    .closest("[data-file-upload-wrapper]")
+                    ?.querySelectorAll('input[name="remove_modal_board_before[]"]')
+                    .forEach((removedInput) => {
+                        const val = removedInput.value;
+                        if (val && !form.querySelector(`input[name="remove_board_before_evidence[]"][value="${val}"]`)) {
+                            const hiddenRemove = document.createElement("input");
+                            hiddenRemove.type = "hidden";
+                            hiddenRemove.name = "remove_board_before_evidence[]";
+                            hiddenRemove.value = val;
+                            form.appendChild(hiddenRemove);
+                        }
+                    });
+                const selectedBoardFiles = modalBoardInp.files && modalBoardInp.files.length > 0
+                    ? Array.from(modalBoardInp.files)
+                    : (boardCtrl ? boardCtrl.getFiles() : []);
+                if (existingStagedBoards) {
+                    if (selectedBoardFiles.length > 0 && window.DataTransfer) {
+                        const dt = new DataTransfer();
+                        selectedBoardFiles.forEach((f) => dt.items.add(f));
+                        existingStagedBoards.files = dt.files;
+                    } else {
+                        existingStagedBoards.value = "";
+                    }
+                }
+            }
         }
 
         // Update row display
@@ -1298,6 +1350,8 @@ document.addEventListener("DOMContentLoaded", () => {
                                 "modal_prop_entry_amount",
                                 "modal_prop_estimated_value",
                                 "modal_prop_disclosure",
+                                "modal_prop_board_count",
+                                "modal_prop_board_dimensions",
                             ];
                             let firstErr = null;
                             modalFieldsToCheck.forEach((fid) => {
@@ -1306,15 +1360,23 @@ document.addEventListener("DOMContentLoaded", () => {
                                     firstErr = inp;
                                 }
                             });
-                            // Check deed file
-                            const deedInput = getModalEl("modal_file_deed");
-                            const deedController = window.SharedFileUpload?.getController(deedInput);
-                            const hasExistingDeed = hasModalExistingFile(deedInput);
-                            const hasSelectedDeed = (deedInput && deedInput.files && deedInput.files.length > 0) || (deedController && deedController.getFiles().length > 0);
-                            const isDeedPresent = hasExistingDeed || hasSelectedDeed;
-                            if (!isDeedPresent && deedInput) {
-                                setModalFieldError(deedInput, "وثيقة الملكية (الصك الإلكتروني) مطلوبة لكل عقار.");
-                                if (!firstErr) firstErr = deedInput;
+                            // Check board_before images
+                            const boardInput = getModalEl("modal_file_board_before");
+                            const boardController = window.SharedFileUpload?.getController(boardInput);
+                            const hasExistingBoard = hasModalExistingFile(boardInput);
+                            const hasSelectedBoard = (boardInput && boardInput.files && boardInput.files.length > 0) || (boardController && boardController.getFiles().length > 0);
+                            if (!hasExistingBoard && !hasSelectedBoard && boardInput) {
+                                setModalFieldError(boardInput, "صور تركيب اللوحات مطلوبة لكل عقار.");
+                                if (!firstErr) firstErr = boardInput;
+                            }
+                            // Check required valuation document
+                            const valuationInput = getModalEl("modal_file_valuation");
+                            const valuationController = window.SharedFileUpload?.getController(valuationInput);
+                            const hasExistingValuation = hasModalExistingFile(valuationInput);
+                            const hasSelectedValuation = (valuationInput && valuationInput.files && valuationInput.files.length > 0) || (valuationController && valuationController.getFiles().length > 0);
+                            if (!hasExistingValuation && !hasSelectedValuation && valuationInput) {
+                                setModalFieldError(valuationInput, "نموذج التقييم العقاري مطلوب لكل عقار.");
+                                if (!firstErr) firstErr = valuationInput;
                             }
                             if (firstErr) {
                                 setTimeout(() => {

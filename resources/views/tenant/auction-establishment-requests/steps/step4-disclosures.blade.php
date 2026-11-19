@@ -5,7 +5,7 @@
     @foreach ($sections['declaration']['fields'] as $key => $field)
         @include('tenant.auction-establishment-requests.field', [
             'path' => 'declaration.' . $key,
-            'readonly' => false,
+            'readonly' => $key === 'representative_name',
         ])
     @endforeach
 

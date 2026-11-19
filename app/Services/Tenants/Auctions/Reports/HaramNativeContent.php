@@ -58,7 +58,7 @@ final class HaramNativeContent
             if ($metrics === [] && $images === [] && $url === null) {
                 continue;
             }
-            $summaryKey = isset($metrics['impressions']) ? 'impressions' : (isset($metrics['views']) ? 'views' : null);
+            $summaryKey = isset($metrics['views']) ? 'views' : (isset($metrics['impressions']) ? 'impressions' : null);
             $channels[$channel] = [
                 'label' => $label, 'metrics' => $metrics, 'images' => $images, 'url' => $url,
                 'summary_key' => $summaryKey,

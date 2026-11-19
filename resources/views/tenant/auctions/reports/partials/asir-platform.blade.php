@@ -3,13 +3,13 @@
     @if (($content['values']['platform_context'] ?? '') !== '')
         <section data-asir-section><p class="asir-context" data-asir-paragraph data-report-field="platform_context">{{ $content['values']['platform_context'] }}</p></section>
     @endif
-    <section class="asir-platform-card" data-asir-section>
+    <section class="asir-platform-card" data-asir-section data-asir-gap-min="35">
         @include('tenant.auctions.reports.partials.asir-thumbnail', ['image' => $content['image_items'][0] ?? null])
         <div class="asir-platform-details">
             <div class="asir-platform-count"><span>عدد المنتجات</span><strong>{{ $content['values']['property_count'] }}</strong></div>
             <div><small data-report-field="duration">{{ $content['values']['duration'] }}</small><p data-report-field="date_range">{{ $content['values']['date_range'] }}</p><p>{{ $content['values']['end_time_short'] }}</p></div>
             <div class="asir-platform-bottom">
-                <strong class="asir-platform-status">{{ $content['values']['status'] }}</strong>
+                <strong class="asir-platform-status {{ $content['status_badge_class'] }}">{{ $content['values']['status'] }}</strong>
                 @if ($content['company_logo'])<img src="{{ $content['company_logo'] }}" alt="" data-report-branding="company_logo">@endif
             </div>
         </div>
@@ -22,6 +22,6 @@
         </div></section>
     @endif
     @if (!empty($content['destinations']['platform']))
-        <section class="asir-link-section" data-asir-section>@include('tenant.auctions.reports.partials.asir-link', ['url' => $content['destinations']['platform'], 'role' => 'platform', 'label' => $content['values']['platform_url']])</section>
+        <section class="asir-link-section" data-asir-section data-asir-gap-min="6">@include('tenant.auctions.reports.partials.asir-link', ['url' => $content['destinations']['platform'], 'role' => 'platform', 'label' => $content['values']['platform_url']])</section>
     @endif
 </main>

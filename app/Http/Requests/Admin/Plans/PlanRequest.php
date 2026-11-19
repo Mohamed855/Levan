@@ -7,7 +7,6 @@ namespace App\Http\Requests\Admin\Plans;
 use App\Enums\Admin\Plans\PlanColor;
 use App\Enums\Admin\Plans\PlanLimitsMode;
 use App\Enums\Admin\Plans\PlanType;
-use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Models\Admin\Plans\Plan;
 use Illuminate\Validation\Rule;
@@ -34,10 +33,14 @@ class PlanRequest extends WizardFormRequest
         }
 
         $limitsMode = (string) $this->input('limits_mode', 'limited');
+        $rawYearlyPrice = $this->input('yearly_price');
 
         $mergeData = [
             'code' => $code,
             'limits_mode' => $limitsMode,
+            'yearly_price' => ($rawYearlyPrice !== null && trim((string) $rawYearlyPrice) !== '')
+                ? (float) $rawYearlyPrice
+                : null,
         ];
 
         // Plan code cannot be edited after creation
@@ -47,9 +50,6 @@ class PlanRequest extends WizardFormRequest
 
         // If editing a plan that already has subscriptions, lock down critical contract columns
         if ($plan instanceof Plan && $plan->hasSubscriptions()) {
-            $mergeData['subscription_billing_cycle'] = $plan->subscription_billing_cycle instanceof SubscriptionBillingCycle
-                ? $plan->subscription_billing_cycle->value
-                : (string) $plan->subscription_billing_cycle;
             $mergeData['limits_mode'] = $plan->limits_mode instanceof PlanLimitsMode
                 ? $plan->limits_mode->value
                 : (string) $plan->limits_mode;
@@ -83,7 +83,6 @@ class PlanRequest extends WizardFormRequest
         $planId = $plan instanceof Plan ? $plan->id : (is_numeric($plan) ? (int) $plan : null);
 
         $limitsMode = (string) $this->input('limits_mode', 'limited');
-        $billingCycle = (string) $this->input('subscription_billing_cycle', 'monthly');
 
         $rules = [
             'name' => ['required', 'string', 'max:255'],
@@ -98,10 +97,10 @@ class PlanRequest extends WizardFormRequest
             'color' => ['required', 'string', Rule::in(PlanColor::values())],
             'description' => ['nullable', 'string', 'max:1000'],
             'price' => ['required', 'numeric', 'min:0'],
+            'yearly_price' => ['required', 'numeric', 'min:0'],
             'discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'subscription_billing_cycle' => ['required', 'string', Rule::in(SubscriptionBillingCycle::values())],
             'available_from' => ['nullable', 'date'],
-            'admin_notes' => ['nullable', 'string', 'max:2000'],
+            'admin_notes' => ['nullable', 'string', 'max:1000'],
             'is_active' => ['required', 'boolean'],
             'limits_mode' => ['required', 'string', Rule::in(PlanLimitsMode::values())],
             'features' => ['required', 'array', 'min:1'],
@@ -144,9 +143,9 @@ class PlanRequest extends WizardFormRequest
             'plan_type' => 'نوع الباقة',
             'color' => 'لون الباقة المميز',
             'description' => 'وصف الباقة',
-            'price' => 'سعر الدورة الأساسية (ر.س)',
+            'price' => 'السعر الشهري (ر.س)',
+            'yearly_price' => 'السعر السنوي (ر.س)',
             'discount_percentage' => 'نسبة الخصم (%)',
-            'subscription_billing_cycle' => 'دورة الفوترة الأساسية',
             'available_from' => 'تاريخ بدء الإتاحة',
             'admin_notes' => 'ملاحظات إدارية',
             'is_active' => 'حالة تفعيل الباقة',
@@ -178,9 +177,13 @@ class PlanRequest extends WizardFormRequest
             'color.required' => 'لون الباقة مطلوب.',
             'color.in' => 'لون الباقة المحدد غير صالح.',
 
-            'price.required' => 'سعر الدورة الأساسية للباقة مطلوب.',
-            'price.numeric' => 'السعر يجب أن يكون رقماً.',
-            'price.min' => 'السعر يجب ألا يقل عن 0.',
+            'price.required' => 'السعر الشهري للباقة مطلوب.',
+            'price.numeric' => 'السعر الشهري يجب أن يكون رقماً.',
+            'price.min' => 'السعر الشهري يجب ألا يقل عن 0.',
+
+            'yearly_price.required' => 'السعر السنوي للباقة مطلوب.',
+            'yearly_price.numeric' => 'السعر السنوي يجب أن يكون رقماً.',
+            'yearly_price.min' => 'السعر السنوي يجب ألا يقل عن 0.',
 
             'extra_user_license_price.required' => 'سعر ترخيص المستخدم الإضافي مطلوب للباقة المحدودة.',
             'extra_user_license_price.numeric' => 'سعر ترخيص المستخدم الإضافي يجب أن يكون رقماً.',
@@ -189,9 +192,6 @@ class PlanRequest extends WizardFormRequest
             'discount_percentage.numeric' => 'نسبة الخصم يجب أن تكون رقماً.',
             'discount_percentage.min' => 'نسبة الخصم لا يمكن أن تقل عن 0%.',
             'discount_percentage.max' => 'نسبة الخصم لا يمكن أن تزيد عن 100%.',
-
-            'subscription_billing_cycle.required' => 'دورة الفوترة مطلوبة.',
-            'subscription_billing_cycle.in' => 'دورة الفوترة المحددة غير صالحة.',
 
             'limits_mode.required' => 'وضع الحدود مطلوب.',
             'limits_mode.in' => 'وضع الحدود المحدد غير صالح.',

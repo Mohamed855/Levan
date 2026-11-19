@@ -4,7 +4,7 @@
     @foreach ($sections['organization']['fields'] as $key => $field)
         @include('tenant.auction-establishment-requests.field', [
             'path' => 'organization.' . $key,
-            'readonly' => in_array($key, ['name', 'commercial_registration']),
+            'readonly' => in_array($key, ['name', 'commercial_registration', 'unified_number', 'fal_license'], true),
         ])
     @endforeach
 

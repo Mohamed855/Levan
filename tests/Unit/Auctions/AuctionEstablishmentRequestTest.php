@@ -7,9 +7,11 @@ namespace Tests\Unit\Auctions;
 use App\DataTables\Tenants\AuctionEstablishments\AuctionEstablishmentRequestsDataTable;
 use App\Http\Requests\Tenants\AuctionEstablishments\ApproveAuctionEstablishmentRequest;
 use App\Http\Requests\Tenants\AuctionEstablishments\SaveAuctionEstablishmentRequest;
+use App\Http\Requests\Tenants\Properties\StorePropertyRequest;
 use App\Models\Tenants\AuctionEstablishments\AuctionEstablishmentRequest;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\UserMangment\User\User as TenantUser;
+use App\Services\Tenants\AuctionEstablishments\AuctionEstablishmentRequestData;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
@@ -278,6 +280,90 @@ final class AuctionEstablishmentRequestTest extends TestCase
             'مبلغ الدخول لا يمكن أن يكون أكبر من القيمة التقديرية للعقار.',
             $validator->errors()->first('data.properties.0.entry_amount')
         );
+    }
+
+    public function test_entry_amount_cannot_exceed_opening_value(): void
+    {
+        $request = new SaveAuctionEstablishmentRequest;
+        $request->merge([
+            'data' => [
+                'properties' => [
+                    [
+                        'opening_value' => '300,000',
+                        'entry_amount' => '350,000',
+                        'estimated_value' => '500,000',
+                    ],
+                ],
+            ],
+        ]);
+
+        $validator = Validator::make($request->all(), []);
+        foreach ($request->after() as $afterHook) {
+            $validator->after($afterHook);
+        }
+
+        self::assertTrue($validator->fails());
+        self::assertTrue($validator->errors()->has('data.properties.0.entry_amount'));
+        self::assertSame(
+            'مبلغ الدخول لا يمكن أن يكون أكبر من قيمة افتتاح المزاد.',
+            $validator->errors()->first('data.properties.0.entry_amount')
+        );
+    }
+
+    public function test_valuation_is_required_per_property_in_establishment_request(): void
+    {
+        $request = new SaveAuctionEstablishmentRequest;
+        $request->merge([
+            'data' => [
+                'properties' => [
+                    [
+                        'property_id' => 42,
+                        'opening_value' => '300,000',
+                        'entry_amount' => '50,000',
+                        'estimated_value' => '500,000',
+                    ],
+                ],
+            ],
+        ]);
+
+        $validator = Validator::make($request->all(), []);
+        foreach ($request->after() as $afterHook) {
+            $validator->after($afterHook);
+        }
+
+        self::assertTrue($validator->fails());
+        self::assertTrue($validator->errors()->has('attachments.valuation.42'));
+    }
+
+    public function test_agent_fields_and_representative_authority_are_removed_from_establishment_request_inputs(): void
+    {
+        $schema = new AuctionEstablishmentRequestData;
+
+        self::assertArrayNotHasKey('agent_name', $schema->propertyFields());
+        self::assertArrayNotHasKey('agency_number', $schema->propertyFields());
+        self::assertArrayNotHasKey('representative_authority', $schema->attachmentTypes());
+    }
+
+    public function test_property_agency_document_is_required_only_when_agent_data_is_entered(): void
+    {
+        $requestWithAgent = new StorePropertyRequest;
+        $requestWithAgent->merge([
+            'agent_name' => 'وكيل المالك',
+            'agency_number' => '45123456',
+        ]);
+        $rulesWithAgent = $requestWithAgent->rules();
+        $validatorWithAgent = Validator::make($requestWithAgent->all(), [
+            'agency_document' => $rulesWithAgent['agency_document'],
+        ]);
+        self::assertTrue($validatorWithAgent->fails());
+        self::assertTrue($validatorWithAgent->errors()->has('agency_document'));
+
+        $requestWithoutAgent = new StorePropertyRequest;
+        $rulesWithoutAgent = $requestWithoutAgent->rules();
+        $validatorWithoutAgent = Validator::make([], [
+            'agency_document' => $rulesWithoutAgent['agency_document'],
+        ]);
+        self::assertFalse($validatorWithoutAgent->fails());
     }
 
     public function test_certificates_are_required_when_not_previously_saved(): void

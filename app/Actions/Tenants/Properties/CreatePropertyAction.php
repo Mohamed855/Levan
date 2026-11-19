@@ -36,7 +36,7 @@ final class CreatePropertyAction
                     PropertyAttachmentCategory::CADASTRAL_PLAN->value => isset($data['cadastral_plan']) ? [$data['cadastral_plan']] : [],
                     PropertyAttachmentCategory::BUILDING_PERMIT->value => isset($data['building_permit']) ? [$data['building_permit']] : [],
                     PropertyAttachmentCategory::COORDINATES_STATEMENT->value => isset($data['coordinates_statement']) ? [$data['coordinates_statement']] : [],
-                    PropertyAttachmentCategory::ASSIGNMENT_LETTER_IMAGE->value => isset($data['assignment_letter_image']) ? [$data['assignment_letter_image']] : [],
+                    PropertyAttachmentCategory::AGENCY_DOCUMENT->value => isset($data['agency_document']) ? [$data['agency_document']] : [],
                     PropertyAttachmentCategory::ADDITIONAL_DOCUMENT->value => $data['additional_documents'] ?? [],
                     PropertyAttachmentCategory::GALLERY_IMAGE->value => $data['property_images'] ?? [],
                 ];
@@ -54,7 +54,7 @@ final class CreatePropertyAction
                     $data['cadastral_plan'],
                     $data['building_permit'],
                     $data['coordinates_statement'],
-                    $data['assignment_letter_image'],
+                    $data['agency_document'],
                     $data['additional_documents'],
                     $data['property_images'],
                     $data['main_image'],
@@ -191,6 +191,7 @@ final class CreatePropertyAction
                             PropertyAttachmentCategory::DEED_DOCUMENT->value => 'properties/deeds',
                             PropertyAttachmentCategory::CADASTRAL_PLAN->value => 'properties/plans',
                             PropertyAttachmentCategory::COORDINATES_STATEMENT->value => 'properties/coordinates',
+                            PropertyAttachmentCategory::AGENCY_DOCUMENT->value => 'properties/agency-documents',
                             PropertyAttachmentCategory::GALLERY_IMAGE->value => 'properties/gallery',
                             default => 'properties/documents',
                         };

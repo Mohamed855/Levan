@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Tenants\Tickets;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class TicketReplyRequest extends FormRequest
+class TicketReplyRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {

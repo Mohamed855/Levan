@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Auctions;
 
+use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Services\Tenants\Auctions\Reports\AsirNativeContent;
 use App\Services\Tenants\Auctions\Reports\AuctionReportRenderer;
 use DOMDocument;
@@ -12,6 +13,68 @@ use Tests\TestCase;
 
 final class AsirNativeContentTest extends TestCase
 {
+    public function test_current_broker_names_stay_with_their_own_direct_files_and_all_name_only_rows_survive(): void
+    {
+        $snapshot = (require __DIR__.'/../../Fixtures/AuctionReports/asir-complete.php')();
+        $snapshot['marketing']['brokers'][] = ['key' => 'demo-3', 'name' => 'الوسيط الثالث'];
+        $third = $snapshot['evidence']['brokers'][0];
+        $third['id'] = 1803;
+        $third['display_name'] = 'الوسيط الثالث';
+        $snapshot['evidence']['brokers'][] = $third;
+        $xpath = $this->document($snapshot);
+        $pages = $xpath->query('//*[@data-page-type="asir-brokers"]');
+        self::assertCount(3, $pages);
+        foreach ($pages as $index => $page) {
+            $names = $xpath->query('.//*[contains(@class,"asir-broker-name")]//p', $page);
+            self::assertCount(1, $names);
+            self::assertSame($snapshot['marketing']['brokers'][$index]['name'], $names->item(0)->textContent);
+        }
+        $snapshot['evidence']['brokers'] = [];
+        $xpath = $this->document($snapshot);
+        self::assertCount(3, $xpath->query('//*[@data-page-type="asir-brokers"]//*[contains(@class,"asir-broker-name")]//p'));
+    }
+
+    public function test_platform_status_uses_the_same_badge_class_as_the_system_auction_status(): void
+    {
+        foreach (AuctionStatus::cases() as $status) {
+            $snapshot = (require __DIR__.'/../../Fixtures/AuctionReports/asir-native.php')('populated');
+            $snapshot['auction']['status'] = $status->value;
+            $xpath = $this->document($snapshot);
+            $badge = $xpath->query('//*[contains(@class,"asir-platform-status")]')->item(0);
+            self::assertNotNull($badge);
+            self::assertContains($status->badgeClass(), explode(' ', $badge->getAttribute('class')));
+        }
+    }
+
+    public function test_summary_uses_only_the_auction_summary_and_never_campaign_geography(): void
+    {
+        $snapshot = (require __DIR__.'/../../Fixtures/AuctionReports/asir-native.php')('sparse');
+        $snapshot['marketing']['campaigns'] = [['id' => 19, 'platform' => 'planning', 'city_context' => 'نطاق الحملة وليس الملخص']];
+        self::assertSame(0, $this->document($snapshot)->query('//*[@data-page-type="asir-summary"]')->length);
+        $snapshot['marketing']['report_summary'] = 'ملخص مستقل <script>نص آمن</script>';
+        $xpath = $this->document($snapshot);
+        self::assertSame(1, $xpath->query('//*[@data-page-type="asir-summary"]')->length);
+        self::assertSame($snapshot['marketing']['report_summary'], $xpath->query('//*[@data-report-field="report_summary"]')->item(0)->textContent);
+        self::assertSame(0, $xpath->query('//*[@data-page-type="asir-summary"]//script')->length);
+    }
+
+    public function test_result_boxes_and_rows_match_only_the_saved_sold_and_unsold_properties(): void
+    {
+        foreach ([0, 1, 2, 4] as $sold) {
+            $snapshot = (require __DIR__.'/../../Fixtures/AuctionReports/asir-native.php')('populated');
+            $snapshot['properties'] = array_slice($snapshot['properties'], 0, 5);
+            foreach ($snapshot['properties'] as $index => &$property) {
+                $property['result_status'] = $index < $sold ? 'sold' : 'unsold';
+            }
+            unset($property);
+            $snapshot['totals']['sold_count'] = $sold;
+            $snapshot['totals']['unsold_count'] = 5 - $sold;
+            $xpath = $this->document($snapshot);
+            self::assertSame($sold, $xpath->query('//*[@data-asir-property]')->length);
+            self::assertSame(5 - $sold, $xpath->query('//table[@data-asir-table="unsold"]/tbody/tr')->length);
+        }
+    }
+
     public function test_empty_narrative_fields_do_not_restore_template_copy_or_binder_defaults(): void
     {
         foreach ([3, 4, 5, 6] as $index) {
@@ -29,7 +92,7 @@ final class AsirNativeContentTest extends TestCase
             $snapshot = (require __DIR__.'/../../Fixtures/AuctionReports/asir-native.php')('populated');
             $snapshot['cycle_version'] = $version;
             $snapshot['marketing'] = [
-                'city_context' => 'النطاق الجغرافي المسجل فقط',
+                'report_summary' => 'ملخص التقرير المسجل فقط',
                 'planning_methodology' => 'خطة المستخدم فقط',
                 'brochure_methodology' => 'تصميم المستخدم فقط',
                 'audience_methodology' => 'الفئة المسجلة فقط',
@@ -89,7 +152,8 @@ final class AsirNativeContentTest extends TestCase
         $snapshot = require __DIR__.'/../../Fixtures/AuctionReports/asir.php';
         $snapshot['cycle_version'] = 1;
         $snapshot['closing_saved'] = false;
-        $snapshot['auction']['description'] = '<script>alert(1)</script>';
+        $snapshot['auction']['description'] = 'INTERNAL_ONLY_DESCRIPTION';
+        $snapshot['marketing']['introduction'] = '<script>alert(1)</script>';
         $snapshot['auction']['platform_name'] = '';
         $snapshot['marketing']['campaigns'] = [['id' => 1, 'platform' => 'x', 'views' => 0, 'url' => 'javascript:alert(2)']];
         $xpath = $this->document($snapshot);
@@ -99,6 +163,7 @@ final class AsirNativeContentTest extends TestCase
         self::assertGreaterThan(0, $xpath->query('//*[@data-report-field="x_views" and text()="0"]')->length);
         self::assertSame(0, $xpath->query('//*[@data-asir-channel="snapchat" or @data-asir-channel="tiktok"]')->length);
         self::assertStringContainsString('<script>alert(1)</script>', $xpath->query('//*[@data-report-field="introduction"]')->item(0)->textContent);
+        self::assertStringNotContainsString('INTERNAL_ONLY_DESCRIPTION', $xpath->document->saveHTML());
     }
 
     public function test_native_evidence_and_links_preserve_metadata(): void

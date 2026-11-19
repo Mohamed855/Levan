@@ -10,7 +10,7 @@
 @section('page-script')
     <script>
         window.paymentData = {
-            total: {{ $plan->price_after_discount }},
+            total: {{ $planCyclePrice ?? $plan->priceForCycle($billingCycle ?? 'monthly', true) }},
         };
     </script>
     @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/shared/payment/apply-coupon.js'])
@@ -26,6 +26,7 @@
                 @csrf
                 <input type="hidden" name="coupon_code" id="coupon_code_hidden" data-validation-skip>
                 <input type="hidden" name="discount_amount" id="discount_amount_hidden" data-validation-skip>
+                <input type="hidden" name="billing_cycle" value="{{ $billingCycle ?? 'monthly' }}" data-validation-skip>
 
                 <div class="row g-2">
                     <div class="col-lg-8">
@@ -67,10 +68,10 @@
                                 <div class="p-3 rounded text-center mb-6 text-price">
                                     <div class="d-flex justify-content-between">
                                         <div class="fw-bold">
-                                            {{ $plan->name }}
+                                            {{ $plan->name }} ({{ $billingCycleLabel ?? 'شهرياً' }})
                                         </div>
                                         <h6 class="mb-0 text-primary" id="total-display">
-                                            {{ number_format($plan->price_after_discount, 2) }}
+                                            {{ number_format($planCyclePrice ?? $plan->price_after_discount, 2) }}
                                             <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>
                                         </h6>
                                     </div>

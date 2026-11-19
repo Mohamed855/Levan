@@ -7,13 +7,13 @@ namespace App\Http\Controllers\Admin\Clients;
 use App\DataTables\Admin\Clients\ClientsDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
-use App\Http\Requests\Admin\Clients\StoreClientRequest;
-use App\Http\Requests\Admin\Clients\UpdateClientRequest;
 use App\Http\Requests\Admin\Clients\CheckAdminEmailUniqueRequest;
 use App\Http\Requests\Admin\Clients\CheckAdminPhoneUniqueRequest;
 use App\Http\Requests\Admin\Clients\CheckCommercialNumberUniqueRequest;
 use App\Http\Requests\Admin\Clients\CheckCompanyNameUniqueRequest;
 use App\Http\Requests\Admin\Clients\CheckTaxNumberUniqueRequest;
+use App\Http\Requests\Admin\Clients\StoreClientRequest;
+use App\Http\Requests\Admin\Clients\UpdateClientRequest;
 use App\Models\Admin\City;
 use App\Models\Admin\Client;
 use App\Models\Admin\Plans\Plan;
@@ -211,8 +211,10 @@ class ClientController extends Controller
             'id' => $plan->id,
             'code' => $plan->code,
             'duration_type' => $plan->subscription_duration_type,
-            'billing_cycle' => $plan->subscription_billing_cycle,
             'price' => $plan->price_after_discount,
+            'monthly_price' => $plan->price_after_discount,
+            'yearly_price' => $plan->yearly_price_after_discount,
+            'has_yearly_price' => $plan->hasYearlyPrice(),
             'total_users' => $plan->included_users,
             'limits' => [
                 'users' => $plan->included_users,

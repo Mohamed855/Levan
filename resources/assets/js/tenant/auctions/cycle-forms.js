@@ -345,7 +345,6 @@ const mountCycleForm = () => {
     };
 
     const fieldToModalId = {
-        opening_price: "modal_opening_price",
         participants_count: "modal_participants_count",
         bids_count: "modal_bids_count",
         status: "modal_result_status",
@@ -530,17 +529,7 @@ const mountCycleForm = () => {
 
         let error = null;
 
-        if (id === "modal_opening_price") {
-            const cleanOpening = val.replace(/,/g, "");
-            if (!cleanOpening) {
-                error = "سعر الافتتاح مطلوب ويجب أن يكون رقمًا غير سالب.";
-            } else if (
-                isNaN(Number(cleanOpening)) ||
-                Number(cleanOpening) < 0
-            ) {
-                error = "سعر الافتتاح يجب أن يكون رقمًا غير سالب.";
-            }
-        } else if (id === "modal_participants_count") {
+        if (id === "modal_participants_count") {
             if (!val) {
                 error = "عدد المشاركين مطلوب ويجب أن يكون رقمًا غير سالب.";
             } else if (isNaN(Number(val)) || Number(val) < 0) {
@@ -709,12 +698,6 @@ const mountCycleForm = () => {
                 };
 
                 setField(
-                    "modal_opening_price",
-                    localData.opening_price !== undefined
-                        ? localData.opening_price
-                        : data.opening_price,
-                );
-                setField(
                     "modal_participants_count",
                     localData.participants_count !== undefined
                         ? localData.participants_count
@@ -872,7 +855,6 @@ const mountCycleForm = () => {
                         populateModal({
                             name: name,
                             property_number: num,
-                            opening_price: "",
                             participants_count: "",
                             bids_count: "",
                             result_status: "",
@@ -964,7 +946,6 @@ const mountCycleForm = () => {
         let firstInvalidInput = null;
 
         const fieldsToCheck = [
-            document.getElementById("modal_opening_price"),
             document.getElementById("modal_participants_count"),
             document.getElementById("modal_bids_count"),
             document.getElementById("modal_result_status"),
@@ -1001,9 +982,6 @@ const mountCycleForm = () => {
             return;
         }
 
-        const openingPrice = (
-            document.getElementById("modal_opening_price")?.value?.trim() || ""
-        ).replace(/,/g, "");
         const participantsCount =
             document
                 .getElementById("modal_participants_count")
@@ -1050,7 +1028,6 @@ const mountCycleForm = () => {
             };
 
             setHidden("status", status);
-            setHidden("opening_price", openingPrice);
             setHidden("participants_count", participantsCount);
             setHidden("bids_count", bidsCount);
             setHidden("buyer_name", status === "sold" ? buyerName : "");
@@ -1132,15 +1109,6 @@ const mountCycleForm = () => {
 
             row.classList.toggle("table-success-subtle", status === "sold");
             row.classList.toggle("table-danger-subtle", status === "unsold");
-
-            const openingCell = row.querySelector(
-                `[data-opening-cell="${propId}"]`,
-            );
-            if (openingCell && openingPrice) {
-                openingCell.innerHTML =
-                    Number(openingPrice).toLocaleString() +
-                    ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>';
-            }
         }
 
         updateClosingStats();
@@ -1170,6 +1138,29 @@ const mountCycleForm = () => {
 
     const handleDraftRestored = (event) => {
         const data = event?.detail?.data || {};
+        const draftFiles = event?.detail?.files || {};
+
+        // 0. Ensure hidden closing board_images_after[propId][] inputs exist for failed-validation file recovery
+        if (draftFiles.board_images_after && typeof draftFiles.board_images_after === "object") {
+            let createdClosingInputs = false;
+            Object.keys(draftFiles.board_images_after).forEach((propId) => {
+                const filesContainer = form.querySelector(`[data-prop-files="${propId}"]`);
+                if (!filesContainer) return;
+                if (!filesContainer.querySelector(`input[type="file"][name="board_images_after[${propId}][]"]`)) {
+                    const hiddenFileInput = document.createElement("input");
+                    hiddenFileInput.type = "file";
+                    hiddenFileInput.multiple = true;
+                    hiddenFileInput.id = `board_images_after_${propId}`;
+                    hiddenFileInput.name = `board_images_after[${propId}][]`;
+                    hiddenFileInput.classList.add("d-none");
+                    filesContainer.replaceChildren(hiddenFileInput);
+                    createdClosingInputs = true;
+                }
+            });
+            if (createdClosingInputs && typeof event?.detail?.waitUntil === "function") {
+                event.detail.waitUntil(Promise.resolve());
+            }
+        }
 
         // 1. If draft has auction_id, set it and populate properties
         const auctionId =
@@ -1436,9 +1427,6 @@ const mountCycleForm = () => {
                         "";
 
                     if (status === "sold" || status === "unsold") {
-                        const openingPrice = propEl
-                            .querySelector('[data-field="opening_price"]')
-                            ?.value?.trim();
                         const participantsCount = propEl
                             .querySelector('[data-field="participants_count"]')
                             ?.value?.trim();
@@ -1454,13 +1442,6 @@ const mountCycleForm = () => {
                         let reason = "";
 
                         if (
-                            !openingPrice ||
-                            isNaN(Number(openingPrice)) ||
-                            Number(openingPrice) < 0
-                        ) {
-                            isValid = false;
-                            reason = "سعر الافتتاح مطلوب";
-                        } else if (
                             !participantsCount ||
                             isNaN(Number(participantsCount)) ||
                             Number(participantsCount) < 0

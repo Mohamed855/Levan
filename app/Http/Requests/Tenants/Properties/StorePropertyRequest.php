@@ -6,6 +6,7 @@ namespace App\Http\Requests\Tenants\Properties;
 
 use App\Enums\Tenants\Properties\PropertyBoundaryDirection;
 use App\Enums\Tenants\Properties\PropertyBoundaryType;
+use App\Enums\Tenants\Properties\PropertyLegalStatus;
 use App\Enums\Tenants\Properties\PropertyOwnershipType;
 use App\Enums\Tenants\Properties\PropertyType;
 use App\Enums\Tenants\Properties\PropertyUnitStatus;
@@ -57,9 +58,10 @@ class StorePropertyRequest extends WizardFormRequest
             'type' => ['required', Rule::enum(PropertyType::class)],
             'usage_classification' => ['required', Rule::enum(PropertyUsageClassification::class)],
             'area' => ['required', 'numeric', 'min:0.01'],
+            'age' => ['required', 'integer', 'min:0', 'max:200'],
             'estimated_value' => ['required', 'numeric', 'min:0', 'max:9999999999999.99', 'decimal:0,2'],
             'is_active' => ['nullable', 'boolean'],
-            'short_description' => ['required', 'string', 'max:500'],
+            'short_description' => ['required', 'string', 'max:1000'],
 
             // Step 2: الموقع والحدود
             'city' => ['required', 'string', 'max:100'],
@@ -124,7 +126,6 @@ class StorePropertyRequest extends WizardFormRequest
             'boundaries.*.length' => ['required', 'numeric', 'min:0'],
 
             // Step 3: الملكية والتفاصيل
-            'assignment_letter_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             'property_number' => [
                 'required',
                 'string',
@@ -135,6 +136,8 @@ class StorePropertyRequest extends WizardFormRequest
             'deed_date' => ['required', 'date'],
             'issuing_authority' => ['required', 'string', 'max:255'],
             'ownership_type' => ['required', Rule::enum(PropertyOwnershipType::class)],
+            'legal_status' => ['required', Rule::enum(PropertyLegalStatus::class)],
+            'legal_status_notes' => ['nullable', 'string', 'max:255', 'required_if:legal_status,other'],
             'owners' => ['required', 'array', 'min:1'],
             'owners.*.owner_name' => ['required', 'string', 'max:255'],
             'owners.*.national_id_or_cr' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
@@ -154,6 +157,13 @@ class StorePropertyRequest extends WizardFormRequest
             'cadastral_plan' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
             'building_permit' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
             'coordinates_statement' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'agency_document' => [
+                Rule::requiredIf(fn (): bool => $this->hasAgentData()),
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:10240',
+            ],
             'additional_documents' => ['nullable', 'array'],
             'additional_documents.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
             'main_image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
@@ -174,8 +184,12 @@ class StorePropertyRequest extends WizardFormRequest
             'usage_classification.required' => 'تصنيف الاستخدام مطلوب.',
             'area.required' => 'المساحة مطلوبة.',
             'area.numeric' => 'المساحة يجب أن تكون رقماً.',
+            'age.required' => 'عمر العقار مطلوب.',
+            'age.integer' => 'عمر العقار يجب أن يكون رقماً صحيحاً.',
+            'age.min' => 'عمر العقار لا يمكن أن يكون سالباً.',
+            'age.max' => 'عمر العقار يجب ألا يتجاوز 200 سنة.',
             'short_description.required' => 'الوصف المختصر للعقار مطلوب.',
-            'short_description.max' => 'الوصف المختصر يجب ألا يتجاوز 500 حرف.',
+            'short_description.max' => 'الوصف المختصر يجب ألا يتجاوز 1000 حرف.',
 
             // Step 2
             'city.required' => 'المدينة مطلوبة.',
@@ -205,18 +219,23 @@ class StorePropertyRequest extends WizardFormRequest
             'deed_date.required' => 'تاريخ الصك مطلوب.',
             'issuing_authority.required' => 'جهة إصدار الصك مطلوبة.',
             'ownership_type.required' => 'نوع الملكية مطلوب.',
+            'legal_status.required' => 'الحالة النظامية للعقار مطلوبة.',
+            'legal_status_notes.required_if' => 'تفاصيل الحالة النظامية مطلوبة عند اختيار أخرى.',
+            'legal_status_notes.max' => 'تفاصيل الحالة النظامية يجب ألا تتجاوز 255 حرف.',
             'owners.required' => 'يجب إدخال مالك واحد على الأقل.',
             'owners.min' => 'يجب إدخال مالك واحد على الأقل.',
             'owners.*.owner_name.required' => 'اسم المالك مطلوب.',
             'owners.*.national_id_or_cr.required' => 'رقم الهوية أو السجل التجاري مطلوب.',
-            'assignment_letter_image.image' => 'صورة الإسناد يجب أن تكون صورة صالحة.',
-            'assignment_letter_image.max' => 'حجم صورة الإسناد يجب ألا يتجاوز 10 ميجابايت.',
 
             // Step 4
             'deed_document.required' => 'صك الملكية مطلوب.',
             'deed_document.file' => 'صك الملكية يجب أن يكون ملفاً صالحاً (PDF أو صورة).',
             'cadastral_plan.required' => 'مخطط العقار مطلوب.',
             'coordinates_statement.required' => 'كشف الإحداثيات مطلوب.',
+            'agency_document.required' => 'مستند التفويض أو الوكالة مطلوب عند إدخال بيانات الوكيل أو رقم الوكالة.',
+            'agency_document.file' => 'مستند التفويض أو الوكالة يجب أن يكون ملفاً صالحاً (PDF أو صورة).',
+            'agency_document.mimes' => 'مستند التفويض أو الوكالة يجب أن يكون بصيغة PDF أو JPG أو PNG.',
+            'agency_document.max' => 'حجم مستند التفويض أو الوكالة يجب ألا يتجاوز 10 ميجابايت.',
             'main_image.required' => 'الصورة الرئيسية للعقار مطلوبة.',
             'main_image.image' => 'الصورة الرئيسية يجب أن تكون صورة صالحة.',
             'main_image.max' => 'حجم الصورة الرئيسية يجب ألا يتجاوز 10 ميجابايت.',
@@ -236,6 +255,9 @@ class StorePropertyRequest extends WizardFormRequest
             'type' => 'نوع العقار',
             'usage_classification' => 'تصنيف الاستخدام',
             'area' => 'المساحة (م²)',
+            'age' => 'عمر العقار',
+            'legal_status' => 'الحالة النظامية',
+            'legal_status_notes' => 'تفاصيل الحالة النظامية',
             'estimated_value' => 'القيمة التقديرية',
             'is_active' => 'حالة العقار',
             'short_description' => 'وصف العقار',
@@ -286,8 +308,16 @@ class StorePropertyRequest extends WizardFormRequest
             'main_image' => 'الصورة الرئيسية للعقار',
             'property_images' => 'صور إضافية للمعرض',
             'property_images.*' => 'صور إضافية للمعرض',
-            'assignment_letter_image' => 'صورة الإسناد',
+            'agency_document' => 'مستند التفويض أو الوكالة',
             'notes' => 'ملاحظات إضافية',
         ];
+    }
+
+    private function hasAgentData(): bool
+    {
+        return filled($this->input('agent_name'))
+            || filled($this->input('agent_national_id'))
+            || filled($this->input('agency_number'))
+            || filled($this->input('agency_date'));
     }
 }

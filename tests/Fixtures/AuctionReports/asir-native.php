@@ -40,6 +40,8 @@ return static function (string $scenario): array {
     $snapshot['cycle_version'] = 1;
     $snapshot['closing_saved'] = true;
     $snapshot['marketing'] = array_replace($snapshot['marketing'], [
+        'introduction' => 'مقدمة التقرير المسجلة للمزاد.',
+        'report_summary' => 'ملخص التقرير المستقل: نتائج المزاد والأعمال التسويقية المسجلة.',
         'city_context' => 'المملكة ومنطقة عسير.', 'planning_methodology' => 'دراسة الفئات المستهدفة ووسائل الوصول إليها وواقع السوق العقاري.',
         'name_context' => 'إعداد الهوية البصرية للمزاد.', 'brochure_methodology' => 'تصميم الملف التعريفي للعقارات.',
         'audience_methodology' => 'التواصل مع المهتمين بالعقارات.', 'messages_methodology' => 'إعداد الرسائل التعريفية والتذكيرية.',

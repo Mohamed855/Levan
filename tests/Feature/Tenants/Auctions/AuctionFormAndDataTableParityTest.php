@@ -29,7 +29,7 @@ class AuctionFormAndDataTableParityTest extends TestCase
         $this->assertSame('الجهة المسندة', $issuingEntityCol['title'] ?? null);
     }
 
-    public function test_auction_shared_form_partial_exists_and_contains_seven_steps(): void
+    public function test_auction_shared_form_partial_exists_and_contains_unified_steps(): void
     {
         $partialPath = resource_path('views/tenant/auctions/partials/_form.blade.php');
         $this->assertFileExists($partialPath);
@@ -38,9 +38,8 @@ class AuctionFormAndDataTableParityTest extends TestCase
         $this->assertStringContainsString('step-basic-info', $content);
         $this->assertStringContainsString('step-assignment', $content);
         $this->assertStringContainsString('step-properties', $content);
+        $this->assertStringContainsString('step-marketing', $content);
         $this->assertStringContainsString('step-reports-attachments', $content);
-        $this->assertStringContainsString('step-results-boards', $content);
-        $this->assertStringContainsString('step-campaigns', $content);
         $this->assertStringContainsString('step-review', $content);
     }
 
@@ -152,7 +151,7 @@ class AuctionFormAndDataTableParityTest extends TestCase
         tenancy()->initialize('test');
         try {
             $user = \App\Models\Tenants\UserMangment\User\User::where('email', 'demo@lot.com')->first();
-            $auction = Auction::first();
+            $auction = Auction::whereDoesntHave('closing')->first() ?? Auction::first();
             $this->assertNotNull($auction);
 
             $response = $this->actingAs($user, 'tenant')->get("http://test.localhost/auctions/{$auction->id}/edit");

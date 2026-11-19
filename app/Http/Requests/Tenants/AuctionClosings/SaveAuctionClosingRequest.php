@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Tenants\AuctionClosings;
 
+use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Models\Tenants\Auctions\Auction;
 use App\Services\Tenants\Auctions\Reports\AuctionReportInputCapacity;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
-final class SaveAuctionClosingRequest extends FormRequest
+final class SaveAuctionClosingRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
@@ -37,8 +37,7 @@ final class SaveAuctionClosingRequest extends FormRequest
 
         return [
             'closing_date' => $closingDateRules,
-            'approval_number' => ['prohibited'],
-            'results_narrative' => ['required', 'string', 'max:10000'],
+            'results_narrative' => ['required', 'string', 'max:1000'],
             'board_removal_date' => ['required', 'date', 'after_or_equal:closing_date'],
             'board_images_after' => ['nullable', 'array'],
             'board_images_after.*' => ['nullable', 'array', 'max:50'],
@@ -49,9 +48,8 @@ final class SaveAuctionClosingRequest extends FormRequest
             'results.*.status' => ['nullable', Rule::in(['sold', 'unsold', 'pending', ''])],
             'results.*.buyer_name' => ['nullable', 'required_if:results.*.status,sold', 'string', 'max:255'],
             'results.*.sale_price' => ['nullable', 'required_if:results.*.status,sold', 'numeric', 'min:0'],
-            'results.*.unsold_reason' => ['nullable', 'required_if:results.*.status,unsold', 'string', 'max:2000'],
-            'results.*.result_notes' => ['nullable', 'required_if:results.*.status,sold,unsold', 'string', 'max:2000'],
-            'results.*.opening_price' => ['nullable', 'required_if:results.*.status,sold,unsold', 'numeric', 'min:0'],
+            'results.*.unsold_reason' => ['nullable', 'required_if:results.*.status,unsold', 'string', 'max:1000'],
+            'results.*.result_notes' => ['nullable', 'required_if:results.*.status,sold,unsold', 'string', 'max:1000'],
             'results.*.participants_count' => ['nullable', 'required_if:results.*.status,sold,unsold', 'integer', 'min:0'],
             'results.*.bids_count' => ['nullable', 'required_if:results.*.status,sold,unsold', 'integer', 'min:0'],
         ];
@@ -61,7 +59,6 @@ final class SaveAuctionClosingRequest extends FormRequest
     {
         return [
             'closing_date' => 'تاريخ الإقفال',
-            'approval_number' => 'رقم الموافقة',
             'results_narrative' => 'تفاصيل نتائج المزاد',
             'board_removal_date' => 'تاريخ فك اللوحات',
             'board_images_after' => 'صور فك اللوحات',
@@ -75,7 +72,6 @@ final class SaveAuctionClosingRequest extends FormRequest
             'results.*.sale_price' => 'قيمة الترسية',
             'results.*.unsold_reason' => 'سبب عدم البيع',
             'results.*.result_notes' => 'ملاحظات النتيجة',
-            'results.*.opening_price' => 'سعر الافتتاح',
             'results.*.participants_count' => 'عدد المشاركين',
             'results.*.bids_count' => 'عدد المزايدات',
         ];
@@ -100,8 +96,6 @@ final class SaveAuctionClosingRequest extends FormRequest
             'results.*.sale_price.min' => 'قيمة الترسية يجب أن تكون أكبر من أو تساوي صفر.',
             'results.*.unsold_reason.required_if' => 'سبب عدم البيع مطلوب عندما تكون نتيجة العقار غير مباع.',
             'results.*.result_notes.required_if' => 'حقل ملاحظات النتيجة مطلوب للعقار المحدد نتيجته.',
-            'results.*.opening_price.required_if' => 'سعر الافتتاح مطلوب للعقار المحدد نتيجته.',
-            'results.*.opening_price.min' => 'سعر الافتتاح يجب أن يكون رقماً غير سالب.',
             'results.*.participants_count.required_if' => 'عدد المشاركين مطلوب للعقار المحدد نتيجته.',
             'results.*.participants_count.min' => 'عدد المشاركين يجب أن يكون رقماً غير سالب.',
             'results.*.bids_count.required_if' => 'عدد المزايدات مطلوب للعقار المحدد نتيجته.',
@@ -167,7 +161,6 @@ final class SaveAuctionClosingRequest extends FormRequest
                 }
 
                 $hasNotes = filled($result['result_notes'] ?? null);
-                $hasOpening = isset($result['opening_price']) && is_numeric($result['opening_price']) && (float) $result['opening_price'] >= 0;
                 $hasParticipants = isset($result['participants_count']) && is_numeric($result['participants_count']) && (int) $result['participants_count'] >= 0;
                 $hasBids = isset($result['bids_count']) && is_numeric($result['bids_count']) && (int) $result['bids_count'] >= 0;
 
@@ -181,7 +174,7 @@ final class SaveAuctionClosingRequest extends FormRequest
                     $hasStatusDetails = filled($result['unsold_reason'] ?? null);
                 }
 
-                if ($hasImages && $hasNotes && $hasOpening && $hasParticipants && $hasBids && $hasStatusDetails) {
+                if ($hasImages && $hasNotes && $hasParticipants && $hasBids && $hasStatusDetails) {
                     $completedCount++;
                 }
             }

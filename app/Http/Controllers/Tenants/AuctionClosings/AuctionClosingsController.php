@@ -32,7 +32,7 @@ final class AuctionClosingsController extends Controller
         app(AuctionReportLock::class)->assertClosingAllowed($auction);
         abort_unless(auth('tenant')->user()->can($auction->closing ? 'auction_closings.edit' : 'auction_closings.create'), 403);
 
-        return view('tenant.auction-closings.edit', ['auction' => $auction->load(['properties', 'closing', 'attachments' => fn ($query) => $query->where('report_section', 'board_after')])]);
+        return view('tenant.auction-closings.edit', ['auction' => $auction->load(['properties', 'closing', 'establishmentRequest', 'attachments' => fn ($query) => $query->where('report_section', 'board_after')])]);
     }
 
     public function update(SaveAuctionClosingRequest $request, Auction $auction, SaveAuctionClosingAction $action)
@@ -52,6 +52,12 @@ final class AuctionClosingsController extends Controller
             ->where('property_id', $property->id)
             ->get();
 
+        $establishmentProp = collect($auction->establishmentRequest?->data['properties'] ?? [])
+            ->firstWhere('property_id', $property->id);
+        $openingValue = is_array($establishmentProp) && filled($establishmentProp['opening_value'] ?? null)
+            ? (string) $establishmentProp['opening_value']
+            : ($pivot->opening_price !== null ? (string) $pivot->opening_price : '');
+
         return response()->json([
             'id' => $property->id,
             'name' => $property->name,
@@ -61,7 +67,7 @@ final class AuctionClosingsController extends Controller
             'district' => $property->district,
             'area' => $property->area,
             'estimated_value' => $property->estimated_value,
-            'opening_price' => $pivot->opening_price !== null ? (string) $pivot->opening_price : '',
+            'opening_price' => $openingValue,
             'participants_count' => $pivot->participants_count !== null ? (string) $pivot->participants_count : '',
             'bids_count' => $pivot->bids_count !== null ? (string) $pivot->bids_count : '',
             'result_status' => $pivot->result_status === 'pending' ? '' : (string) ($pivot->result_status ?? ''),

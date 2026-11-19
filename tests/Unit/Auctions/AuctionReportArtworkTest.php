@@ -190,12 +190,32 @@ final class AuctionReportArtworkTest extends TestCase
         self::assertNotNull($node, 'Tall evidence must remain fully visible by default.');
         self::assertSame('xMidYMid meet', $node->getAttribute('preserveAspectRatio'));
         $document->loadXML($artwork->render('asir', 0, [], [], ['report_image' => [1 => ['uri' => $uri, 'fit' => 'cover', 'focal_y' => 100]]], 1));
-        $bgRect = (new DOMXPath($document))->query('//*[@clip-path="url(#report_1_p0_clip_12)"]/*[local-name()="rect"]')->item(0);
+        $bgRect = (new DOMXPath($document))->query('//*[@clip-path="url(#report_1_p0_clip_12)"]//*[local-name()="rect" and @fill="transparent"]')->item(0);
         self::assertNotNull($bgRect);
         self::assertSame('transparent', $bgRect->getAttribute('fill'));
         $node = (new DOMXPath($document))->query('//*[@data-report-cover="report_image:1"]')->item(0);
-        self::assertNotNull($node, 'A replacement landscape needs its own clean frame, not the old skyline mask.');
+        self::assertNotNull($node, 'Replacement photos must retain their focal cropping inside the cover frame.');
         self::assertLessThan(0, (float) $node->getAttribute('y'));
         self::assertEqualsWithDelta(841.89, (float) $node->getAttribute('y') + (float) $node->getAttribute('height'), .01);
+    }
+
+    public function test_asir_front_photo_preserves_the_reference_mask_for_default_and_uploaded_images(): void
+    {
+        $artwork = new AuctionReportArtwork(dirname(__DIR__, 3).'/resources/auction-reports');
+        $image = imagecreatetruecolor(346, 1107);
+        ob_start();
+        imagepng($image);
+        $uploaded = 'data:image/png;base64,'.base64_encode(ob_get_clean());
+        imagedestroy($image);
+        foreach ([$artwork->defaultReportImage(), $uploaded] as $uri) {
+            $document = new DOMDocument;
+            $document->loadXML($artwork->render('asir', 0, [], [], ['report_image' => [1 => ['uri' => $uri]]], 4, overrides: ['cover_decoration' => true]));
+            $xpath = new DOMXPath($document);
+            $node = $xpath->query('//*[@data-report-cover="report_image:1"]')->item(0);
+            self::assertNotNull($node);
+            self::assertSame($uri, $node->getAttributeNS('http://www.w3.org/1999/xlink', 'href'));
+            self::assertSame(1, $xpath->query('ancestor::*[@mask="url(#report_4_p0_mask_13)"]', $node)->length);
+            self::assertSame(1, $xpath->query('//*[@id="report_4_p0_mask_13"]')->length);
+        }
     }
 }

@@ -59,7 +59,8 @@ class SubscriptionManager
     {
         return Tenancy::central(function () use ($tenant, $plan, $paidAmount, $subscriptionStatus, $subscriptionPeriodStatus, $trialEndDate, $options) {
             return DB::connection('mysql')->transaction(function () use ($tenant, $plan, $paidAmount, $subscriptionStatus, $subscriptionPeriodStatus, $trialEndDate, $options) {
-                $billingCycle = $options['billing_cycle'] ?? $plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle ?: 'monthly';
+                $rawCycle = $options['billing_cycle'] ?? 'monthly';
+                $billingCycle = ($rawCycle === 'yearly' && $plan->hasYearlyPrice()) ? 'yearly' : ($rawCycle === 'yearly' ? 'monthly' : ($rawCycle ?: 'monthly'));
                 $startDate = isset($options['start_date']) ? Carbon::parse($options['start_date']) : now();
                 $endDate = isset($options['end_date']) ? Carbon::parse($options['end_date']) : ($trialEndDate ? Carbon::parse($trialEndDate) : $this->calculatePeriodEndForPlan($startDate, $plan, $billingCycle));
 
@@ -95,22 +96,23 @@ class SubscriptionManager
     }
 
     // التجديد
-    public function renewSubscription(Tenant $tenant, float $paidAmount)
+    public function renewSubscription(Tenant $tenant, float $paidAmount, ?string $billingCycle = null)
     {
-        return Tenancy::central(function () use ($tenant, $paidAmount) {
-            return DB::connection('mysql')->transaction(function () use ($tenant, $paidAmount) {
+        return Tenancy::central(function () use ($tenant, $paidAmount, $billingCycle) {
+            return DB::connection('mysql')->transaction(function () use ($tenant, $paidAmount, $billingCycle) {
                 $subscription = Subscription::where('tenant_id', $tenant->id)->latest('id')->lockForUpdate()->firstOrFail();
 
                 $anchorStart = $this->computeNextPeriodStart($subscription);
                 $isDueNow = now()->greaterThanOrEqualTo($anchorStart);
                 $newStart = $anchorStart->copy();
-                $billingCycle = $subscription->billing_cycle?->value ?? (string) $subscription->billing_cycle;
-                $newEnd = $this->calculatePeriodEndForPlan($newStart, $subscription->plan, $billingCycle);
+                $targetCycle = $billingCycle ?? ($subscription->billing_cycle?->value ?? (string) $subscription->billing_cycle ?: 'monthly');
+                $newEnd = $this->calculatePeriodEndForPlan($newStart, $subscription->plan, $targetCycle);
 
                 //  تحديث الاشتراك
                 $subscription->update([
                     'status' => SubscriptionStatus::ACTIVE,
                     'price' => $paidAmount,
+                    'billing_cycle' => $targetCycle,
                     'next_payment_date' => $newEnd,
                     'ends_at' => $newEnd,
                 ]);
@@ -288,13 +290,13 @@ class SubscriptionManager
         return $startDate->copy()->addYear();
     }
 
-    private function calculatePeriodEndForPlan(Carbon $startDate, Plan $plan, ?string $billingCycle = null): Carbon
+    private function calculatePeriodEndForPlan(Carbon $startDate, ?Plan $plan, ?string $billingCycle = null): Carbon
     {
-        if ($plan->isTrial()) {
+        if ($plan?->isTrial()) {
             return $startDate->copy()->addDays((int) config('trial.days', 7));
         }
 
-        $cycle = $billingCycle ?? $plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle;
+        $cycle = $billingCycle ?: 'monthly';
 
         return match ($cycle) {
             'yearly' => $startDate->copy()->addYear(),

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Admin\Clients;
 
 use App\Http\Requests\Concerns\WizardFormRequest;
+use App\Models\Admin\Plans\Plan;
 use App\Rules\SystemEmailAvailable;
 use App\Rules\SystemPhoneAvailable;
 
@@ -59,6 +60,19 @@ class StoreClientRequest extends WizardFormRequest
 
             // Step 3: Subscription
             'plan_id' => ['required', 'exists:plans,id'],
+            'billing_cycle' => [
+                'nullable',
+                'string',
+                Rule::in(['monthly', 'yearly']),
+                function ($attribute, $value, $fail) {
+                    if ($value === 'yearly' && $this->input('plan_id')) {
+                        $plan = Plan::find($this->input('plan_id'));
+                        if ($plan && ! $plan->hasYearlyPrice()) {
+                            $fail('الباقة المحددة لا تدعم دورة الفوترة السنوية.');
+                        }
+                    }
+                },
+            ],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'activate_immediately' => ['nullable', 'boolean'],

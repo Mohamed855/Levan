@@ -2,13 +2,12 @@
     $is_edit = $is_edit ?? false;
     $auction = $auction ?? null;
     $steps = [
-        ['id' => 'step-basic-info', 'title' => 'البيانات الأساسية والإسناد'],
-        ['id' => 'step-assignment', 'title' => 'المنصة والمشروع'],
-        ['id' => 'step-properties', 'title' => 'العقارات المرتبطة'],
-        ['id' => 'step-reports-attachments', 'title' => 'التقارير والمرفقات'],
-        // ['id' => 'step-results-boards', 'title' => 'النتائج واللوحات'],
-        // ['id' => 'step-campaigns', 'title' => 'الحملات التسويقية'],
-        ['id' => 'step-review', 'title' => 'المراجعة والإرسال'],
+        ['id' => 'step-basic-info', 'title' => 'الأساسيات'],
+        ['id' => 'step-assignment', 'title' => 'المنصة والأموال'],
+        ['id' => 'step-properties', 'title' => 'العقارات'],
+        ['id' => 'step-marketing', 'title' => 'التسويق'],
+        ['id' => 'step-reports-attachments', 'title' => 'المرفقات والإفصاحات'],
+        ['id' => 'step-review', 'title' => 'المراجعة'],
     ];
 @endphp
 
@@ -27,7 +26,7 @@
             @method('PUT')
         @endif
 
-        {{-- الخطوة 1: البيانات الأساسية والإسناد --}}
+        {{-- الخطوة 1: الأساسيات --}}
         <x-form.wizard.step id="step-basic-info" :fields="[
             'name',
             'description',
@@ -41,6 +40,7 @@
             'category',
             'city',
             'expected_properties_count',
+            'auctioneer',
         ]">
             @include('tenant.auctions.partials.steps.step1-basic-info', ['auction' => $auction])
 
@@ -55,8 +55,16 @@
             </x-form.wizard.actions>
         </x-form.wizard.step>
 
-        {{-- الخطوة 2: المنصة وإدارة المشروع --}}
-        <x-form.wizard.step id="step-assignment" :fields="['platform_entity_id', 'platform_url', 'project_manager_name', 'notes']">
+        {{-- الخطوة 2: المنصة والأموال --}}
+        <x-form.wizard.step id="step-assignment" :fields="[
+            'platform_entity_id',
+            'platform_url',
+            'project_manager_name',
+            'award_period',
+            'venue',
+            'funds',
+            'notes',
+        ]">
             @include('tenant.auctions.partials.steps.step2-assignment', ['auction' => $auction])
 
             <x-form.wizard.actions>
@@ -70,8 +78,8 @@
             </x-form.wizard.actions>
         </x-form.wizard.step>
 
-        {{-- الخطوة 3: العقارات المرتبطة --}}
-        <x-form.wizard.step id="step-properties" :fields="['property_ids']">
+        {{-- الخطوة 3: العقارات --}}
+        <x-form.wizard.step id="step-properties" :fields="['property_ids', 'properties_data']">
             @include('tenant.auctions.partials.steps.step3-properties', ['auction' => $auction])
 
             <x-form.wizard.actions>
@@ -85,8 +93,47 @@
             </x-form.wizard.actions>
         </x-form.wizard.step>
 
-        {{-- الخطوة 4: التقارير والمرفقات --}}
-        <x-form.wizard.step id="step-reports-attachments" :fields="['marketing.introduction', 'report_image', 'cover_image', 'attachments']">
+        {{-- الخطوة 4: التسويق --}}
+        <x-form.wizard.step id="step-marketing" :fields="[
+            'marketing.city_context',
+            'marketing.planning_methodology',
+            'marketing.brochure_methodology',
+            'marketing.audience_methodology',
+            'marketing.messages_methodology',
+            'marketing.brochure_url',
+            'marketing.brochure_context',
+            'brochure_evidence',
+            'platform_evidence',
+            'marketing.board_url',
+            'marketing.board_context',
+            'marketing.contract_text',
+            'marketing.brokers',
+            'broker_evidence',
+            'channels',
+            'campaigns',
+        ]">
+            @include('tenant.auctions.partials.steps.step4-marketing', ['auction' => $auction])
+
+            <x-form.wizard.actions>
+                <x-form.wizard.previous-button />
+                <div class="d-flex gap-2">
+                    @if (!$is_edit)
+                        <x-form.wizard.draft-button />
+                    @endif
+                    <x-form.wizard.next-button />
+                </div>
+            </x-form.wizard.actions>
+        </x-form.wizard.step>
+
+        {{-- الخطوة 5: المرفقات والإفصاحات --}}
+        <x-form.wizard.step id="step-reports-attachments" :fields="[
+            'marketing.introduction',
+            'marketing.report_summary',
+            'report_image',
+            'cover_image',
+            'attachments',
+            'disclosures',
+        ]">
             @include('tenant.auctions.partials.steps.step4-reports-attachments', ['auction' => $auction])
 
             <x-form.wizard.actions>
@@ -100,7 +147,7 @@
             </x-form.wizard.actions>
         </x-form.wizard.step>
 
-        {{-- الخطوة 5: المراجعة --}}
+        {{-- الخطوة 6: المراجعة --}}
         <x-form.wizard.step id="step-review" :fields="[]">
             @include('tenant.auctions.partials.steps.step7-review', ['auction' => $auction])
 

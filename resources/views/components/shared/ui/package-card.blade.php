@@ -4,6 +4,7 @@
     'actionUrl' => null,
     'actionLabel' => 'اطلب الآن',
     'isPopular' => false,
+    'billingCycle' => 'monthly',
 ])
 
 @php
@@ -23,15 +24,21 @@
     $planTypeValue = old('plan_type', $plan?->plan_type?->value ?? ($plan?->plan_type ?? ''));
     $planType = \App\Enums\Admin\Plans\PlanType::tryFrom($planTypeValue)?->label() ?? 'باقة مخصصة';
     $description = old('description', $plan?->description ?? 'أضف وصفاً واضحاً يشرح قيمة الباقة لعملائك.');
-    $price = (float) old('price', $plan?->price ?? 0);
     $discount = (float) old('discount_percentage', $plan?->discount_percentage ?? 0);
-    $finalPrice = max(0, $price - ($price * $discount) / 100);
-    $billingCycleValue = old(
-        'subscription_billing_cycle',
-        $plan?->subscription_billing_cycle?->value ?? ($plan?->subscription_billing_cycle ?? ''),
-    );
-    $billingCycle =
-        \App\Enums\Admin\Subscriptions\SubscriptionBillingCycle::tryFrom($billingCycleValue)?->label() ?? 'شهرياً';
+
+    $isYearly = $billingCycle === 'yearly';
+    $billingCycleLabel = $isYearly ? 'سنوياً' : 'شهرياً';
+
+    if ($plan) {
+        $price = (float) ($plan->priceForCycle($billingCycle, false) ?? 0.0);
+        $finalPrice = (float) ($plan->priceForCycle($billingCycle, true) ?? 0.0);
+    } else {
+        $monthlyPrice = (float) old('price', 0);
+        $yearlyPrice = old('yearly_price') !== null && old('yearly_price') !== '' ? (float) old('yearly_price') : null;
+        $price = $isYearly ? (float) ($yearlyPrice ?? 0.0) : $monthlyPrice;
+        $finalPrice = max(0, $price - ($price * $discount) / 100);
+    }
+
     $limitsMode = old('limits_mode', $plan?->limits_mode?->value ?? ($plan?->limits_mode ?? 'limited'));
     $isUnlimited = $limitsMode === 'unlimited' || $plan?->isUnlimited();
     $features = array_values(
@@ -71,15 +78,17 @@
     </header>
 
     <section class="package-card__price" aria-label="السعر">
-        <span class="package-card__discount" data-plan-field="discount" @if ($discount <= 0) hidden @endif>
-            وفر <span data-plan-field="discount-value">{{ $discount }}</span>%
-        </span>
+        <div class="d-flex align-items-center gap-1 justify-content-center flex-wrap">
+            <span class="package-card__discount" data-plan-field="discount" @if ($discount <= 0) hidden @endif>
+                وفر <span data-plan-field="discount-value">{{ $discount }}</span>%
+            </span>
+        </div>
         <div class="package-card__price-line">
             <span class="package-card__price-value"
                 data-plan-field="final-price">{{ number_format($finalPrice, 2) }}</span>
             <span class="package-card__currency"><span class="icon-saudi_riyal icon-saudi_riyal--dark"></span></span>
         </div>
-        <span class="package-card__price-note" data-plan-field="billing-cycle">{{ $billingCycle }}</span>
+        <span class="package-card__price-note" data-plan-field="billing-cycle">{{ $billingCycleLabel }}</span>
         <span class="package-card__original-price" data-plan-field="original-price"
             @if ($discount <= 0) hidden @endif>
             {{ number_format($price, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>

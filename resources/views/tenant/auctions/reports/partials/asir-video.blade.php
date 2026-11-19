@@ -7,7 +7,7 @@
         <section class="asir-video-views" data-asir-section><span>عدد المشاهدات :</span> <bdi data-report-field="youtube_views">{{ $content['channels']['youtube']['metrics']['views']['value'] }}</bdi></section>
     @endif
     @if ($content['image_items'] !== [] || $content['legacy'])
-        <section class="asir-video-hero" data-asir-section>
+        <section class="asir-video-hero" data-asir-section data-asir-gap-min="10">
             @include('tenant.auctions.reports.partials.asir-thumbnail', ['image' => $content['image_items'][0] ?? null])
             <img class="asir-video-badge" src="{{ $content['youtube_icon'] }}" alt="YouTube">
         </section>
@@ -25,6 +25,6 @@
         </section>
     @endif
     @if (!empty($content['destinations']['video']))
-        <section class="asir-link-section" data-asir-section>@include('tenant.auctions.reports.partials.asir-link', ['url' => $content['destinations']['video'], 'role' => 'video', 'label' => 'رابط فيديو المزاد'])</section>
+        <section class="asir-link-section" data-asir-section data-asir-gap-min="6">@include('tenant.auctions.reports.partials.asir-link', ['url' => $content['destinations']['video'], 'role' => 'video', 'label' => 'رابط فيديو المزاد'])</section>
     @endif
 </main>

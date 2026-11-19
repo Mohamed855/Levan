@@ -27,6 +27,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 
 class SubscriptionController extends Controller
@@ -62,6 +63,26 @@ class SubscriptionController extends Controller
         $paymentStep = $isCurrentPlan && isset($verification['verified_at']);
         $isEditing = $isCurrentPlan && (bool) ($verification['is_editing'] ?? false);
 
+        $requestedCycle = request()->query('cycle');
+        if ($isCurrentPlan && is_array($verification) && ! empty($verification['billing_cycle'])) {
+            $billingCycle = $requestedCycle ?: $verification['billing_cycle'];
+        } else {
+            $billingCycle = $requestedCycle ?: 'monthly';
+        }
+
+        if ($billingCycle === 'yearly' && ! $plan->hasYearlyPrice()) {
+            $billingCycle = 'monthly';
+        }
+        $billingCycle = in_array($billingCycle, ['monthly', 'yearly'], true) ? $billingCycle : 'monthly';
+        $billingCycleLabel = $billingCycle === 'yearly' ? 'سنوياً' : 'شهرياً';
+
+        if ($isCurrentPlan && is_array($verification) && ($verification['billing_cycle'] ?? null) !== $billingCycle) {
+            $verification['billing_cycle'] = $billingCycle;
+            request()->session()->put('checkout_verification', $verification);
+        }
+
+        $planCyclePrice = (float) $plan->priceForCycle($billingCycle, true);
+
         if ($isEditing) {
             $checkoutData = collect($verification)->except(['plan_id', 'expires_at', 'otp_hash', 'verified_at', 'billing_password_hash', 'is_editing'])->all();
         } elseif ($otpStep) {
@@ -78,10 +99,10 @@ class SubscriptionController extends Controller
         // استرجاع الكوبون المطبق من الجلسة وحساب الخصم تلقائياً
         $couponCode = $verification['coupon_code'] ?? request()->session()->get('checkout_coupon_code') ?? old('coupon_code');
         $appliedCoupon = null;
-        $finalTotal = (float) $plan->price_after_discount;
+        $finalTotal = $planCyclePrice;
 
         if (! empty($couponCode)) {
-            $couponResult = $this->couponService->processCoupon($couponCode, (float) $plan->price_after_discount);
+            $couponResult = $this->couponService->processCoupon($couponCode, $planCyclePrice);
             if (! isset($couponResult['error']) && ! empty($couponResult['coupon_id'])) {
                 $appliedCoupon = $couponResult;
                 $finalTotal = (float) $couponResult['final_total'];
@@ -97,7 +118,7 @@ class SubscriptionController extends Controller
         $taxAmount = round($finalTotal * $taxRate, 2);
         $priceWithoutTax = round($finalTotal - $taxAmount, 2);
 
-        return view('web.checkout', compact('plan', 'priceWithoutTax', 'taxAmount', 'banks', 'cities', 'otpStep', 'paymentStep', 'checkoutData', 'verification', 'appliedCoupon', 'finalTotal', 'resendCount', 'maxResends'));
+        return view('web.checkout', compact('plan', 'billingCycle', 'billingCycleLabel', 'planCyclePrice', 'priceWithoutTax', 'taxAmount', 'banks', 'cities', 'otpStep', 'paymentStep', 'checkoutData', 'verification', 'appliedCoupon', 'finalTotal', 'resendCount', 'maxResends'));
     }
 
     //  Checkout store
@@ -108,6 +129,13 @@ class SubscriptionController extends Controller
         }
 
         $checkout = $request->validated();
+        $cycle = $checkout['billing_cycle'] ?? $request->query('cycle', 'monthly');
+        if ($cycle === 'yearly' && ! $plan->hasYearlyPrice()) {
+            $cycle = 'monthly';
+        }
+        $checkout['billing_cycle'] = in_array($cycle, ['monthly', 'yearly'], true) ? $cycle : 'monthly';
+        $planCyclePrice = (float) $plan->priceForCycle($checkout['billing_cycle'], true);
+
         $autoPassword = TenantPasswordGenerator::generate();
         $checkout['billing_password_hash'] = Hash::make($autoPassword);
         $checkout['plain_password'] = $autoPassword;
@@ -118,7 +146,7 @@ class SubscriptionController extends Controller
         $checkout['resend_count'] = 0;
         $couponCode = $checkout['coupon_code'] ?? $request->session()->get('checkout_coupon_code');
         if (! empty($couponCode)) {
-            $couponResult = $this->couponService->processCoupon($couponCode, (float) $plan->price_after_discount);
+            $couponResult = $this->couponService->processCoupon($couponCode, $planCyclePrice);
             if (! isset($couponResult['error']) && ! empty($couponResult['coupon_id'])) {
                 $checkout['coupon_code'] = $couponCode;
             } else {
@@ -131,7 +159,7 @@ class SubscriptionController extends Controller
         $checkout['otp_hash'] = $this->otpService->issue($checkout['billing_email']);
         $request->session()->put('checkout_verification', $checkout);
 
-        return redirect()->route('site.plans.checkout', $plan);
+        return redirect()->route('site.plans.checkout', ['plan' => $plan, 'cycle' => $checkout['billing_cycle']]);
     }
 
     public function resendOtp(Request $request, Plan $plan)
@@ -193,7 +221,9 @@ class SubscriptionController extends Controller
         $checkout['expires_at'] = now()->addHour()->timestamp;
         request()->session()->put('checkout_verification', $checkout);
 
-        return redirect()->route('site.plans.checkout', $plan)->withInput($safeInput);
+        $cycle = $checkout['billing_cycle'] ?? 'monthly';
+
+        return redirect()->route('site.plans.checkout', ['plan' => $plan, 'cycle' => $cycle])->withInput($safeInput);
     }
 
     public function verifyOtp(VerifyCheckoutOtpRequest $request, Plan $plan)
@@ -216,7 +246,7 @@ class SubscriptionController extends Controller
 
         $request->session()->put('checkout_verification', $updated);
 
-        return redirect()->route('site.plans.checkout', $plan);
+        return redirect()->route('site.plans.checkout', ['plan' => $plan, 'cycle' => $updated['billing_cycle'] ?? 'monthly']);
     }
 
     public function completeCheckout(CompleteCheckoutPaymentRequest $request, Plan $plan)
@@ -339,14 +369,21 @@ class SubscriptionController extends Controller
             $passwordHash = Hash::make($plainPassword);
         }
 
+        $billingCycle = $request->input('billing_cycle', 'monthly');
+        if ($billingCycle === 'yearly' && ! $plan->hasYearlyPrice()) {
+            $billingCycle = 'monthly';
+        }
+        $originalAmount = (float) $plan->priceForCycle($billingCycle, true);
+
         return $this->billingService->createPendingBill(
             amount: $couponData['final_total'],
             paymentMethod: $request->payment_method === 'bank_transfer' ? PaymentMethod::BANK_TRANSFER : PaymentMethod::ONLINE,
-            originalAmount: $plan->price_after_discount,
+            originalAmount: $originalAmount,
             type: BillType::NEW_SUBSCRIPTION,
             couponData: $couponData,
             metadata: [
                 'plan_id' => $plan->id,
+                'billing_cycle' => $billingCycle,
                 'billing_name' => $request->billing_name,
                 'billing_email' => $request->billing_email,
                 'billing_phone' => $request->billing_phone,
@@ -363,6 +400,32 @@ class SubscriptionController extends Controller
         );
     }
 
+    public function receiptPreview(Plan $plan)
+    {
+        $verification = request()->session()->get('checkout_verification');
+        abort_unless(
+            is_array($verification) && (int) ($verification['plan_id'] ?? 0) === (int) $plan->getKey(),
+            404,
+        );
+
+        $preserved = request()->session()->get(CompleteCheckoutPaymentRequest::SESSION_RECEIPT_KEY);
+        $path = is_array($preserved) ? (string) ($preserved['path'] ?? '') : '';
+        abort_unless(
+            $path !== '' && str_starts_with($path, 'checkout-draft-receipts/') && Storage::disk('local')->exists($path),
+            404,
+        );
+
+        $mime = Storage::disk('local')->mimeType($path) ?: 'application/octet-stream';
+        $inline = in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'], true);
+
+        return Storage::disk('local')->response(
+            $path,
+            (string) ($preserved['name'] ?? basename($path)),
+            ['Content-Type' => $mime, 'Cache-Control' => 'private, no-store, max-age=0', 'X-Content-Type-Options' => 'nosniff'],
+            $inline ? 'inline' : 'attachment',
+        );
+    }
+
     private function handleBankTransfer(Request $request, Bill $bill): void
     {
         $receipt = request()->file('transfer_receipt') ?? $request->file('transfer_receipt');
@@ -373,12 +436,26 @@ class SubscriptionController extends Controller
         );
     }
 
+    private function clearPreservedCheckoutReceipt(): void
+    {
+        $preserved = request()->session()->pull(CompleteCheckoutPaymentRequest::SESSION_RECEIPT_KEY);
+        if (is_array($preserved) && ! empty($preserved['path']) && str_starts_with((string) $preserved['path'], 'checkout-draft-receipts/')) {
+            Storage::disk('local')->delete((string) $preserved['path']);
+        }
+    }
+
     private function createPaymentFromVerifiedCheckout(array $checkout, Plan $plan)
     {
         try {
-            $couponData = $this->couponService->processCoupon($checkout['coupon_code'] ?? null, $plan->price_after_discount);
+            $billingCycle = $checkout['billing_cycle'] ?? 'monthly';
+            if ($billingCycle === 'yearly' && ! $plan->hasYearlyPrice()) {
+                $billingCycle = 'monthly';
+            }
+            $planCyclePrice = (float) $plan->priceForCycle($billingCycle, true);
+
+            $couponData = $this->couponService->processCoupon($checkout['coupon_code'] ?? null, $planCyclePrice);
             if (isset($couponData['error'])) {
-                return redirect()->route('site.plans.checkout', $plan)->with('error', $couponData['error']);
+                return redirect()->route('site.plans.checkout', ['plan' => $plan, 'cycle' => $billingCycle])->with('error', $couponData['error']);
             }
 
             $request = Request::create('/', 'POST', $checkout);
@@ -390,6 +467,7 @@ class SubscriptionController extends Controller
 
             if (($checkout['payment_method'] ?? null) === 'bank_transfer') {
                 $this->handleBankTransfer($request, $pendingBill);
+                $this->clearPreservedCheckoutReceipt();
                 request()->session()->forget(['checkout_verification', 'checkout_coupon_code']);
 
                 return redirect()->route('site.index')->with('success', 'تم استلام طلبك بنجاح.');
@@ -401,11 +479,11 @@ class SubscriptionController extends Controller
 
             return $moyasarView;
         } catch (PaymentInitiationException $e) {
-            return redirect()->route('site.plans.checkout', $plan)->with('error', $e->getMessage());
+            return redirect()->route('site.plans.checkout', ['plan' => $plan, 'cycle' => $checkout['billing_cycle'] ?? 'monthly'])->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             report($e);
 
-            return redirect()->route('site.plans.checkout', $plan)->with('error', 'حدث خطأ غير متوقع.');
+            return redirect()->route('site.plans.checkout', ['plan' => $plan, 'cycle' => $checkout['billing_cycle'] ?? 'monthly'])->with('error', 'حدث خطأ غير متوقع.');
         }
     }
 
@@ -442,11 +520,13 @@ class SubscriptionController extends Controller
             throw $e;
         }
 
+        $cycleLabel = ($bill->metadata['billing_cycle'] ?? 'monthly') === 'yearly' ? 'سنوياً' : 'شهرياً';
+
         return view('web.moyasar-checkout', [
             'amountInHalala' => $amountInHalala,
             'bill' => $bill,
             'callbackUrl' => route('site.plans.checkout.callback', ['bill' => $bill->bill_number]),
-            'description' => 'اشتراك في '.$plan->name,
+            'description' => 'اشتراك في '.$plan->name.' ('.$cycleLabel.')',
             'mode' => $mode,
             'plan' => $plan,
             'publishableKey' => $publishableKey,

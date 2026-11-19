@@ -6,6 +6,7 @@ namespace App\Models\Tenants\Properties;
 
 use App\Enums\Tenants\Properties\PropertyAttachmentCategory;
 use App\Enums\Tenants\Properties\PropertyDataStatus;
+use App\Enums\Tenants\Properties\PropertyLegalStatus;
 use App\Enums\Tenants\Properties\PropertyOwnershipType;
 use App\Enums\Tenants\Properties\PropertyType;
 use App\Enums\Tenants\Properties\PropertyUsageClassification;
@@ -45,10 +46,13 @@ class Property extends Model
         'boundary_geojson',
         'aerial_image',
         'area',
+        'age',
         'deed_number',
         'deed_date',
         'issuing_authority',
         'ownership_type',
+        'legal_status',
+        'legal_status_notes',
         'agent_name',
         'agent_national_id',
         'agency_number',
@@ -64,6 +68,7 @@ class Property extends Model
 
     protected $casts = [
         'area' => 'decimal:2',
+        'age' => 'integer',
         'estimated_value' => 'decimal:2',
         'latitude' => 'decimal:7',
         'longitude' => 'decimal:7',
@@ -73,6 +78,7 @@ class Property extends Model
         'agency_date' => 'date',
         'usage_classification' => PropertyUsageClassification::class,
         'ownership_type' => PropertyOwnershipType::class,
+        'legal_status' => PropertyLegalStatus::class,
         'data_status' => PropertyDataStatus::class,
     ];
 
@@ -187,10 +193,10 @@ class Property extends Model
             ->where('category', PropertyAttachmentCategory::GALLERY_IMAGE->value);
     }
 
-    public function assignmentLetterAttachment(): MorphOne
+    public function agencyDocumentAttachment(): MorphOne
     {
         return $this->morphOne(Attachment::class, 'attachable')
-            ->where('category', PropertyAttachmentCategory::ASSIGNMENT_LETTER_IMAGE->value);
+            ->where('category', PropertyAttachmentCategory::AGENCY_DOCUMENT->value);
     }
 
     public function getIsLinkedAttribute(): bool
@@ -287,6 +293,13 @@ class Property extends Model
             'sold' => 'تم البيع',
             default => 'متاح',
         };
+    }
+
+    public function getLegalStatusLabelAttribute(): ?string
+    {
+        return $this->legal_status instanceof PropertyLegalStatus
+            ? $this->legal_status->label()
+            : null;
     }
 
     public function getMainImageUrlAttribute(): string

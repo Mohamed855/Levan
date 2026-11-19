@@ -15,8 +15,8 @@ trait AuctionReportDetailRules
         $rules = [
             'property_results.*.board_count' => ['nullable', 'integer', 'min:0'],
             'property_results.*.board_dimensions' => ['nullable', 'string', 'max:100'],
-            'marketing.introduction' => ['nullable', 'string', 'max:10000'],
-            'marketing.results_narrative' => ['nullable', 'string', 'max:10000'],
+            'marketing.introduction' => ['nullable', 'string', 'max:1000'],
+            'marketing.results_narrative' => ['nullable', 'string', 'max:1000'],
             'marketing.contacts' => ['nullable', 'array:phone,unified_phone,social'],
             'marketing.contacts.phone' => ['nullable', 'string', 'max:30', 'regex:/^[+\p{N} ()-]+$/u'],
             'marketing.contacts.unified_phone' => ['nullable', 'string', 'max:30', 'regex:/^[+\p{N} ()-]+$/u'],

@@ -616,9 +616,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     "محسوب تلقائياً حسب دورة الفوترة للباقة";
             if (startDateInput.value) {
                 const d = new Date(startDateInput.value + "T00:00:00");
+                const cycle = (form.querySelector('[name="billing_cycle"]')?.value || (plan.has_yearly_price ? "yearly" : "monthly")).toLowerCase();
                 if (plan.code === "trial_7_days") {
                     d.setDate(d.getDate() + 7);
-                } else if (plan.subscription_billing_cycle === "monthly") {
+                } else if (cycle === "monthly") {
                     d.setMonth(d.getMonth() + 1);
                 } else {
                     d.setFullYear(d.getFullYear() + 1);

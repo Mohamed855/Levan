@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Shared\Wizard;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Http\Requests\Shared\Wizard\DiscardWizardDraftRequest;
 use App\Http\Requests\Shared\Wizard\RemoveWizardDraftFileRequest;
 use App\Http\Requests\Shared\Wizard\StoreWizardDraftRequest;
 use App\Http\Requests\Shared\Wizard\ValidateWizardStepRequest;
-use App\Services\Shared\Wizard\WizardDraftService;
 use App\Services\Shared\Wizard\WizardDraftContext;
+use App\Services\Shared\Wizard\WizardDraftService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,6 +20,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Route as RouteFacade;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Validator as ValidationValidator;
+use ReflectionMethod;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -92,6 +95,7 @@ class WizardDraftController extends Controller
 
         $mime = Storage::disk('local')->mimeType($file['path']) ?: 'application/octet-stream';
         $inline = in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'], true);
+
         return Storage::disk('local')->response(
             $file['path'],
             $file['name'] ?? basename($file['path']),
@@ -123,12 +127,13 @@ class WizardDraftController extends Controller
             return $this->passesAuthorization();
         })->call($formRequest);
         abort_unless($authorized, 403);
-        if ($formRequest instanceof \App\Http\Requests\Concerns\WizardFormRequest) {
+        if ($formRequest instanceof WizardFormRequest) {
             $formRequest->mergeWizardDraftIfPresent();
         }
         $this->prepareForValidation($formRequest);
 
-        $rules = $this->rulesForFields($formRequest->rules(), $request->validated('fields'));
+        $requestedFields = $request->validated('fields');
+        $rules = $this->rulesForFields($formRequest->rules(), $requestedFields);
         $validator = Validator::make(
             $this->validationData($formRequest),
             $rules,
@@ -136,11 +141,16 @@ class WizardDraftController extends Controller
             method_exists($formRequest, 'attributes') ? $formRequest->attributes() : [],
         );
 
+        $this->applyCustomValidatorHooks($formRequest, $validator);
+
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ], 422);
+            $filteredErrors = $this->errorsForFields($validator->errors()->getMessages(), $requestedFields);
+            if ($filteredErrors !== []) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $filteredErrors,
+                ], 422);
+            }
         }
 
         return response()->json(['success' => true]);
@@ -232,33 +242,86 @@ class WizardDraftController extends Controller
         })->call($request);
     }
 
-    private function rulesForFields(array $rules, array $fields): array
+    private function applyCustomValidatorHooks(FormRequest $formRequest, ValidationValidator $validator): void
     {
-        $normalizedFields = array_map(
+        if (method_exists($formRequest, 'withValidator')) {
+            (function (ValidationValidator $validator): void {
+                $this->withValidator($validator);
+            })->call($formRequest, $validator);
+        }
+
+        if (method_exists($formRequest, 'after')) {
+            $reflection = new ReflectionMethod($formRequest, 'after');
+            if ($reflection->getNumberOfRequiredParameters() === 0) {
+                $afterCallbacks = (function (): array {
+                    return $this->after();
+                })->call($formRequest);
+
+                if ($afterCallbacks !== []) {
+                    $validator->after($afterCallbacks);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param  array<int, string>  $fields
+     * @return list<string>
+     */
+    private function normalizeFields(array $fields): array
+    {
+        return array_values(array_map(
             static fn (string $field): string => trim(str_replace(['[', ']'], ['.', ''], $field), '.'),
             $fields,
-        );
+        ));
+    }
+
+    /**
+     * @param  list<string>  $normalizedFields
+     */
+    private function matchesRequestedFields(string $key, array $normalizedFields): bool
+    {
+        foreach ($normalizedFields as $field) {
+            $keyParts = explode('.', $key);
+            $fieldParts = explode('.', $field);
+            $matches = true;
+            for ($index = 0; $index < min(count($keyParts), count($fieldParts)); $index++) {
+                if ($keyParts[$index] !== '*' && $fieldParts[$index] !== '*' && $keyParts[$index] !== $fieldParts[$index]) {
+                    $matches = false;
+                    break;
+                }
+            }
+            if ($matches) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function rulesForFields(array $rules, array $fields): array
+    {
+        $normalizedFields = $this->normalizeFields($fields);
 
         return array_filter(
             $rules,
-            function (string $ruleKey) use ($normalizedFields): bool {
-                foreach ($normalizedFields as $field) {
-                    $ruleParts = explode('.', $ruleKey);
-                    $fieldParts = explode('.', $field);
-                    $matches = true;
-                    for ($index = 0; $index < min(count($ruleParts), count($fieldParts)); $index++) {
-                        if ($ruleParts[$index] !== '*' && $fieldParts[$index] !== '*' && $ruleParts[$index] !== $fieldParts[$index]) {
-                            $matches = false;
-                            break;
-                        }
-                    }
-                    if ($matches) {
-                        return true;
-                    }
-                }
+            fn (string $ruleKey): bool => $this->matchesRequestedFields($ruleKey, $normalizedFields),
+            ARRAY_FILTER_USE_KEY,
+        );
+    }
 
-                return false;
-            },
+    /**
+     * @param  array<string, array<int, string>>  $errors
+     * @param  array<int, string>  $fields
+     * @return array<string, array<int, string>>
+     */
+    private function errorsForFields(array $errors, array $fields): array
+    {
+        $normalizedFields = $this->normalizeFields($fields);
+
+        return array_filter(
+            $errors,
+            fn (string $errorKey): bool => $this->matchesRequestedFields($errorKey, $normalizedFields),
             ARRAY_FILTER_USE_KEY,
         );
     }

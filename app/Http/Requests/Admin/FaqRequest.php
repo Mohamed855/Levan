@@ -14,7 +14,7 @@ abstract class FaqRequest extends FormRequest
     {
         return [
             'question' => ['required', 'string', 'max:255'],
-            'answer' => ['required', 'string', 'max:5000'],
+            'answer' => ['required', 'string', 'max:1000'],
             'is_active' => ['nullable', 'boolean'],
         ];
     }
@@ -27,7 +27,7 @@ abstract class FaqRequest extends FormRequest
             'question.max' => 'يجب ألا يزيد السؤال عن 255 حرفًا.',
             'answer.required' => 'يرجى إدخال الإجابة.',
             'answer.string' => 'يجب أن تكون الإجابة نصًا.',
-            'answer.max' => 'يجب ألا تزيد الإجابة عن 5000 حرف.',
+            'answer.max' => 'يجب ألا تزيد الإجابة عن 1000 حرف.',
             'is_active.boolean' => 'حالة التفعيل غير صالحة.',
         ];
     }

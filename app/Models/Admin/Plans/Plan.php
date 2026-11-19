@@ -31,6 +31,7 @@ class Plan extends Model
         'color',
         'description',
         'price',
+        'yearly_price',
         'extra_user_license_price',
         'discount_percentage',
         'limits_mode',
@@ -41,7 +42,6 @@ class Plan extends Model
         'features',
         'is_active',
         'sort_order',
-        'subscription_billing_cycle',
         'subscription_duration_type',
         'available_from',
         'admin_notes',
@@ -51,6 +51,7 @@ class Plan extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'yearly_price' => 'decimal:2',
         'extra_user_license_price' => 'decimal:2',
         'discount_percentage' => 'float',
         'included_users' => 'integer',
@@ -64,7 +65,6 @@ class Plan extends Model
         'plan_type' => PlanType::class,
         'limits_mode' => PlanLimitsMode::class,
         'color' => PlanColor::class,
-        'subscription_billing_cycle' => SubscriptionBillingCycle::class,
     ];
 
     protected static function booted(): void
@@ -99,7 +99,8 @@ class Plan extends Model
             'plan_type' => 'نوع الباقة',
             'color' => 'اللون',
             'description' => 'الوصف',
-            'price' => 'السعر الأساسي',
+            'price' => 'السعر الشهري',
+            'yearly_price' => 'السعر السنوي',
             'extra_user_license_price' => 'سعر ترخيص المستخدم الإضافي',
             'discount_percentage' => 'نسبة الخصم',
             'limits_mode' => 'وضع الحدود',
@@ -107,7 +108,6 @@ class Plan extends Model
             'properties_limit' => 'حد العقارات',
             'storage_quota_gb' => 'حصة التخزين (جيجابايت)',
             'active_auctions_limit' => 'حد المزادات النشطة',
-            'subscription_billing_cycle' => 'دورة الفوترة',
             'available_from' => 'تاريخ الإتاحة',
             'admin_notes' => 'ملاحظات إدارية',
             'features' => 'المميزات',
@@ -179,6 +179,51 @@ class Plan extends Model
         return max(0.0, round($price - $discountAmount, 2));
     }
 
+    public function getYearlyPriceAfterDiscountAttribute(): ?float
+    {
+        if ($this->yearly_price === null) {
+            return null;
+        }
+
+        $discount = (float) ($this->discount_percentage ?? 0);
+        $yearlyPrice = (float) $this->yearly_price;
+
+        if ($discount <= 0) {
+            return $yearlyPrice;
+        }
+
+        $discountAmount = ($yearlyPrice * $discount) / 100;
+
+        return max(0.0, round($yearlyPrice - $discountAmount, 2));
+    }
+
+    public function hasYearlyPrice(): bool
+    {
+        return $this->yearly_price !== null;
+    }
+
+    public function supportsBillingCycle(string|SubscriptionBillingCycle $cycle): bool
+    {
+        $value = $cycle instanceof SubscriptionBillingCycle ? $cycle->value : (string) $cycle;
+
+        if ($value === SubscriptionBillingCycle::YEARLY->value) {
+            return $this->hasYearlyPrice();
+        }
+
+        return true;
+    }
+
+    public function priceForCycle(string|SubscriptionBillingCycle $cycle, bool $afterDiscount = true): ?float
+    {
+        $value = $cycle instanceof SubscriptionBillingCycle ? $cycle->value : (string) $cycle;
+
+        if ($value === SubscriptionBillingCycle::YEARLY->value) {
+            return $afterDiscount ? $this->yearly_price_after_discount : ($this->yearly_price !== null ? (float) $this->yearly_price : null);
+        }
+
+        return $afterDiscount ? $this->price_after_discount : (float) $this->price;
+    }
+
     public function getFeaturesAttribute($value): array
     {
         if (is_null($value)) {
@@ -236,9 +281,19 @@ class Plan extends Model
         return $this->subscriptions()->exists();
     }
 
+    public const TRIAL_CODE = 'trial_7_days';
+
     public function isTrial(): bool
     {
-        return $this->code === 'trial_7_days';
+        return $this->code === self::TRIAL_CODE;
+    }
+
+    public function scopeNotTrial(Builder $query): Builder
+    {
+        return $query->where(function (Builder $q) {
+            $q->where('code', '!=', self::TRIAL_CODE)
+                ->orWhereNull('code');
+        });
     }
 
     /*
@@ -266,17 +321,28 @@ class Plan extends Model
 
     public function scopePubliclyAvailable(Builder $query): Builder
     {
-        return $query->selectable()->where(function (Builder $q) {
-            $q->where('code', '!=', 'trial_7_days')
-                ->orWhereNull('code');
-        });
+        return $query->selectable()->notTrial();
     }
 
     public function scopeByBillingCycle(Builder $query, string|SubscriptionBillingCycle $cycle): Builder
     {
-        $value = $cycle instanceof SubscriptionBillingCycle ? $cycle->value : $cycle;
+        $value = $cycle instanceof SubscriptionBillingCycle ? $cycle->value : (string) $cycle;
 
-        return $query->where('subscription_billing_cycle', $value);
+        if ($value === SubscriptionBillingCycle::YEARLY->value) {
+            return $query->whereNotNull('yearly_price');
+        }
+
+        return $query;
+    }
+
+    public function scopeWithYearlyOption(Builder $query): Builder
+    {
+        return $query->whereNotNull('yearly_price');
+    }
+
+    public function scopeMonthlyOnly(Builder $query): Builder
+    {
+        return $query->whereNull('yearly_price');
     }
 
     public function scopeByPlanType(Builder $query, string|PlanType $type): Builder

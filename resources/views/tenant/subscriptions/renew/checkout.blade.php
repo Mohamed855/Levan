@@ -8,7 +8,7 @@
 @section('page-script')
     <script>
         window.paymentData = {
-            total: {{ $renewalPrice ?? ($plan->price_after_discount > 0 ? $plan->price_after_discount : $plan->price) }},
+            total: {{ $renewalPrice }},
         };
     </script>
 
@@ -23,6 +23,7 @@
             @csrf
             <input type="hidden" name="coupon_code" id="coupon_code_hidden" data-validation-skip>
             <input type="hidden" name="discount_amount" id="discount_amount_hidden" data-validation-skip>
+            <input type="hidden" name="billing_cycle" value="{{ $billingCycle }}" data-validation-skip>
 
             <div class="row g-2">
 
@@ -39,6 +40,29 @@
 
                         <div class="border-1 border-light border-dashed mb-2"></div>
                         <div class="card-body">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold mb-2">دورة التجديد</label>
+                                @if ($plan->hasYearlyPrice())
+                                    <div class="row g-2">
+                                        <div class="col-sm-6">
+                                            <a href="{{ tenant_route_name('subscriptions.renew.checkout', ['cycle' => 'monthly']) }}"
+                                                class="btn w-100 {{ $billingCycle === 'monthly' ? 'btn-primary' : 'btn-outline-primary' }}">
+                                                <i class="ti ti-calendar me-1"></i> شهرياً ({{ number_format($monthlyPrice, 2) }} ر.س)
+                                            </a>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <a href="{{ tenant_route_name('subscriptions.renew.checkout', ['cycle' => 'yearly']) }}"
+                                                class="btn w-100 {{ $billingCycle === 'yearly' ? 'btn-primary' : 'btn-outline-primary' }}">
+                                                <i class="ti ti-calendar-event me-1"></i> سنوياً ({{ number_format($yearlyPrice, 2) }} ر.س)
+                                            </a>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="alert alert-secondary py-2 mb-0">
+                                        <i class="ti ti-calendar me-1"></i> هذه الباقة تدعم التجديد الشهري فقط ({{ number_format($renewalPrice, 2) }} ر.س).
+                                    </div>
+                                @endif
+                            </div>
 
                             <div class="alert alert-primary mb-0 d-flex align-items-start gap-3" role="status">
                                 <i class="ti ti-shield-lock fs-4"></i>
@@ -67,10 +91,10 @@
                             <div class="p-3 rounded text-center mb-6 text-price">
                                 <div class="d-flex justify-content-between">
                                     <div class="fw-bold">
-                                        {{ $plan->name }}
+                                        {{ $plan->name }} ({{ $billingCycleLabel }})
                                     </div>
                                     <h6 class="mb-0 text-primary" id="total-display">
-                                        {{ number_format($renewalPrice ?? ($plan->price_after_discount > 0 ? $plan->price_after_discount : $plan->price), 2) }}
+                                        {{ number_format($renewalPrice, 2) }}
                                         <span class="icon-saudi_riyal icon-saudi_riyal--dark mx-2"></span>
                                     </h6>
                                 </div>

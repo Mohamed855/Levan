@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Tenants\MarketingCampaigns;
 
+use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Models\Tenants\Auctions\Auction;
 use App\Services\Tenants\Auctions\Reports\AuctionReportInputCapacity;
 use App\Services\Tenants\Auctions\Reports\AuctionReportLinks;
-use App\Services\Tenants\MarketingCampaigns\MarketingCampaignBrokers;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
 
-final class SaveMarketingCampaignRequest extends FormRequest
+final class SaveMarketingCampaignRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
@@ -24,13 +22,12 @@ final class SaveMarketingCampaignRequest extends FormRequest
 
     public function rules(): array
     {
-        $auctionId = $this->input('auction_id');
-
-        // Check if batch payload (campaigns array) is submitted
+        // Batch payload (campaigns array)
         if ($this->has('channels') || $this->has('campaigns')) {
             $channels = (array) $this->input('channels', []);
             $rules = [
                 'auction_id' => ['required', 'integer', Rule::exists('auctions', 'id')->whereNull('deleted_at')],
+                'social_context' => ['required', 'string', 'max:1000'],
                 'channels' => ['required', 'array', 'min:1'],
                 'channels.*' => ['required', 'string', Rule::in(array_keys(config('auction-marketing-campaigns')))],
                 'campaigns' => ['required', 'array'],
@@ -64,35 +61,16 @@ final class SaveMarketingCampaignRequest extends FormRequest
                 $rules["{$prefix}.remove_evidence"] = ['nullable', 'array'];
                 $rules["{$prefix}.remove_evidence.*"] = ['integer', 'distinct'];
 
-                if ($channel === 'brokers') {
-                    $rules = array_replace($rules, $this->brokerRules($prefix.'.metrics'));
-
-                    continue;
-                }
-
                 if ($metrics !== []) {
                     $rules["{$prefix}.metrics"] = ['required', 'array'];
                     foreach ($metrics as $metric) {
                         $metricKey = "{$prefix}.metrics.{$metric}";
                         if (array_key_exists($metric, config('auction-marketing-fields.text'))) {
-                            $rules[$metricKey] = ['required', 'string', 'max:10000'];
-
-                            continue;
-                        }
-                        if ($metric === 'property_id') {
-                            $rules[$metricKey] = [
-                                'required',
-                                'integer',
-                                Rule::exists('auction_properties', 'property_id')
-                                    ->where('auction_id', is_scalar($auctionId) ? $auctionId : 0),
-                            ];
+                            $rules[$metricKey] = ['required', 'string', 'max:1000'];
 
                             continue;
                         }
                         $rules[$metricKey] = ['required', in_array($metric, config('auction-report-inputs.integer_metrics')) ? 'integer' : 'numeric'];
-                        if ($metric === 'board_count') {
-                            $rules[$metricKey] = ['required', 'integer'];
-                        }
                         if (! in_array($metric, config('auction-report-inputs.signed_metrics'))) {
                             $rules[$metricKey][] = 'min:0';
                         }
@@ -103,11 +81,12 @@ final class SaveMarketingCampaignRequest extends FormRequest
             return $rules;
         }
 
-        // Backwards compatibility for single campaign payload
+        // Single campaign payload
         $channel = $this->input('channel');
         $metrics = is_string($channel) ? config('auction-marketing-campaigns.'.$channel, []) : [];
         $rules = [
             'auction_id' => ['required', 'integer', Rule::exists('auctions', 'id')->whereNull('deleted_at')],
+            'social_context' => ['nullable', 'string', 'max:1000'],
             'channel' => ['required', Rule::in(array_keys(config('auction-marketing-campaigns')))],
             'campaign_date' => ['exclude_unless:channel,whatsapp', 'required', 'date'],
             'metrics' => [$metrics !== [] ? 'required' : 'prohibited', Rule::array($metrics)],
@@ -118,29 +97,13 @@ final class SaveMarketingCampaignRequest extends FormRequest
             'remove_evidence.*' => ['integer', 'distinct'],
         ];
 
-        if ($channel === 'brokers') {
-            return array_replace($rules, $this->brokerRules('metrics'));
-        }
-
         foreach ($metrics as $metric) {
             if (array_key_exists($metric, config('auction-marketing-fields.text'))) {
-                $rules['metrics.'.$metric] = ['required', 'string', 'max:10000'];
-
-                continue;
-            }
-            if ($metric === 'property_id') {
-                $rules['metrics.property_id'] = [
-                    'required',
-                    'integer',
-                    Rule::exists('auction_properties', 'property_id')->where('auction_id', is_scalar($auctionId) ? $auctionId : 0),
-                ];
+                $rules['metrics.'.$metric] = ['required', 'string', 'max:1000'];
 
                 continue;
             }
             $rules['metrics.'.$metric] = ['required', in_array($metric, config('auction-report-inputs.integer_metrics')) ? 'integer' : 'numeric'];
-            if ($metric === 'board_count') {
-                $rules['metrics.'.$metric] = ['required', 'integer'];
-            }
             if (! in_array($metric, config('auction-report-inputs.signed_metrics'))) {
                 $rules['metrics.'.$metric][] = 'min:0';
             }
@@ -152,32 +115,9 @@ final class SaveMarketingCampaignRequest extends FormRequest
         return $rules;
     }
 
-    private function brokerRules(string $prefix): array
-    {
-        if (! $this->has($prefix.'.brokers')) {
-            return [
-                $prefix => ['required', 'array:display_name,broker_second_name,contract_text'],
-                $prefix.'.display_name' => ['required', 'string', 'max:10000'],
-                $prefix.'.broker_second_name' => ['nullable', 'string', 'max:10000'],
-                $prefix.'.contract_text' => ['required', 'string', 'max:10000'],
-            ];
-        }
-
-        return [
-            $prefix => ['required', 'array:brokers,contract_text'],
-            $prefix.'.contract_text' => ['required', 'string', 'max:10000'],
-            $prefix.'.brokers' => ['required', 'array', 'min:1', 'max:50'],
-            $prefix.'.brokers.*' => ['required', 'array:key,name,evidence_id'],
-            $prefix.'.brokers.*.key' => ['required', 'string', 'regex:/^[a-zA-Z0-9_-]{1,80}$/', 'distinct'],
-            $prefix.'.brokers.*.name' => ['required', 'string', 'max:200'],
-            $prefix.'.brokers.*.evidence_id' => ['nullable', 'integer', 'distinct'],
-        ];
-    }
-
     public function attributes(): array
     {
         $metricLabels = [
-            'property_id' => 'العقار',
             'views' => 'عدد المشاهدات',
             'reach' => 'الوصول',
             'impressions' => 'مرات الظهور',
@@ -188,17 +128,10 @@ final class SaveMarketingCampaignRequest extends FormRequest
             'delivered' => 'المسلّمة',
             'failed' => 'الفاشلة',
             'pending' => 'قيد الإرسال',
-            'total' => 'الإجمالي',
             'profile_views' => 'مشاهدات الملف التعريفي',
             'profile_change' => 'نسبة تغير الملف التعريفي',
             'reach_change' => 'نسبة تغير الوصول',
             'views_change' => 'نسبة تغير المشاهدات',
-            'board_count' => 'عدد اللوحات',
-            'board_dimensions' => 'مقاس اللوحات',
-            'board_context' => 'تفاصيل تركيب اللوحات',
-            'display_name' => 'اسم الوسيط',
-            'broker_second_name' => 'اسم الوسيط الثاني',
-            'contract_text' => 'نص التعاقد مع الوسيط',
         ];
 
         $textFields = config('auction-marketing-fields.text', []);
@@ -210,6 +143,7 @@ final class SaveMarketingCampaignRequest extends FormRequest
 
         $attributes = [
             'auction_id' => 'المزاد',
+            'social_context' => 'تفاصيل حملات التواصل',
             'channels' => 'أنواع الحملات',
             'channels.*' => 'نوع الحملة',
             'channel' => 'نوع الحملة',
@@ -254,6 +188,11 @@ final class SaveMarketingCampaignRequest extends FormRequest
                 return;
             }
 
+            $socialContext = $this->input('social_context');
+            if (is_string($socialContext) && trim($socialContext) !== '' && ! app(AuctionReportInputCapacity::class)->fits('social_context', $socialContext)) {
+                $validator->errors()->add('social_context', 'النص أطول من المساحة المتاحة في التقرير. اختصر النص ثم احفظ.');
+            }
+
             // Batch mode validation
             if ($this->has('channels') || $this->has('campaigns')) {
                 $channels = (array) $this->input('channels', []);
@@ -274,17 +213,9 @@ final class SaveMarketingCampaignRequest extends FormRequest
                         }
                     }
 
-                    unset($values['property_id']);
                     $hasMetric = count(array_filter($values, static fn ($v) => $v !== null && $v !== '')) > 0;
                     $hasFiles = $this->hasFile("campaigns.{$channel}.evidence");
                     $existingCampaign = $auction?->marketingCampaigns()->where('channel', $channel)->first();
-                    if ($channel === 'brokers' && isset($values['brokers'])) {
-                        try {
-                            app(MarketingCampaignBrokers::class)->plan($existingCampaign, $values['brokers'], $this->file('campaigns.brokers.evidence', []), 'campaigns.brokers.metrics.brokers');
-                        } catch (ValidationException $error) {
-                            $validator->errors()->merge($error->errors());
-                        }
-                    }
                     $removeList = (array) ($channelData['remove_evidence'] ?? []);
                     $hasExistingEvidence = $existingCampaign && $existingCampaign->evidence()->whereNotIn('id', $removeList)->exists();
                     $hasEvidence = in_array($channel, config('auction-marketing-fields.evidence'), true) && ($hasFiles || $hasExistingEvidence);
@@ -297,17 +228,6 @@ final class SaveMarketingCampaignRequest extends FormRequest
 
                     if (! $hasMetric && ! $hasUrl && ! $hasEvidence && $channel !== 'marketing_evidence') {
                         $validator->errors()->add("campaigns.{$channel}.metrics", 'أدخل بيانات الحملة أو رابطها أو أرفق دليلًا واحدًا على الأقل.');
-                    }
-
-                    if ($channel === 'whatsapp') {
-                        $waValues = (array) ($channelData['metrics'] ?? []);
-                        $keys = ['total', 'delivered', 'failed', 'pending'];
-                        $presentKeys = array_keys(array_filter($waValues, fn ($v) => $v !== null && $v !== ''));
-                        if (count(array_intersect($keys, $presentKeys)) === 4) {
-                            if ((float) $waValues['total'] !== (float) $waValues['delivered'] + (float) $waValues['failed'] + (float) $waValues['pending']) {
-                                $validator->errors()->add("campaigns.{$channel}.metrics.total", 'الإجمالي يجب أن يساوي المسلّم والفاشل وقيد الإرسال.');
-                            }
-                        }
                     }
                 }
 
@@ -322,17 +242,8 @@ final class SaveMarketingCampaignRequest extends FormRequest
                     $validator->errors()->add('metrics.'.$field, 'النص أطول من المساحة المتاحة في التقرير. اختصر النص ثم احفظ.');
                 }
             }
-            unset($values['property_id']);
             $hasMetric = count(array_filter($values, static fn ($value) => $value !== null && $value !== '')) > 0;
             $campaign = $this->route('campaign');
-            if ($channel === 'brokers' && isset($values['brokers'])) {
-                $campaign ??= Auction::find($this->input('auction_id'))?->marketingCampaigns()->where('channel', 'brokers')->first();
-                try {
-                    app(MarketingCampaignBrokers::class)->plan($campaign, $values['brokers'], $this->file('evidence', []));
-                } catch (ValidationException $error) {
-                    $validator->errors()->merge($error->errors());
-                }
-            }
             $hasEvidence = in_array($channel, config('auction-marketing-fields.evidence'), true) && ($this->hasFile('evidence') || ($campaign && $campaign->evidence()->whereNotIn('id', (array) $this->input('remove_evidence', []))->exists()));
             $hasUrl = in_array($channel, config('auction-marketing-fields.links'), true) && $this->filled('url');
             if ($hasUrl && app(AuctionReportLinks::class)->safeUrl($this->input('url')) === null) {
@@ -340,12 +251,6 @@ final class SaveMarketingCampaignRequest extends FormRequest
             }
             if (! $hasMetric && ! $hasUrl && ! $hasEvidence) {
                 $validator->errors()->add('metrics', 'أدخل بيانات الحملة أو رابطها أو أرفق دليلًا واحدًا على الأقل.');
-            }
-            if ($this->input('channel') === 'whatsapp') {
-                $values = (array) $this->input('metrics', []);
-                if (count(array_intersect(['total', 'delivered', 'failed', 'pending'], array_keys(array_filter($values, fn ($v) => $v !== null && $v !== '')))) === 4 && (float) $values['total'] !== (float) $values['delivered'] + (float) $values['failed'] + (float) $values['pending']) {
-                    $validator->errors()->add('metrics.total', 'الإجمالي يجب أن يساوي المسلّم والفاشل وقيد الإرسال.');
-                }
             }
         }];
     }

@@ -40,8 +40,9 @@ class TenantSubscriptionRenewalFeatureTest extends TestCase
         Tenancy::central(function () {
             $subscription = Subscription::where('tenant_id', 'test')->latest('id')->first();
             $plan = $subscription->plan;
-            $this->originalCycle = $plan->subscription_billing_cycle instanceof SubscriptionBillingCycle ? $plan->subscription_billing_cycle->value : (string) $plan->subscription_billing_cycle;
+            $this->originalCycle = $subscription->billing_cycle instanceof SubscriptionBillingCycle ? $subscription->billing_cycle->value : (string) $subscription->billing_cycle;
             $this->originalPrice = (float) $plan->price;
+            $this->originalYearlyRenewalPrice = $plan->yearly_price !== null ? (float) $plan->yearly_price : null;
             $this->originalDiscount = (float) $plan->discount_percentage;
         });
     }
@@ -50,9 +51,12 @@ class TenantSubscriptionRenewalFeatureTest extends TestCase
     {
         Tenancy::central(function () {
             $subscription = Subscription::where('tenant_id', 'test')->latest('id')->first();
+            $subscription->update([
+                'billing_cycle' => $this->originalCycle,
+            ]);
             $subscription->plan->update([
-                'subscription_billing_cycle' => $this->originalCycle,
                 'price' => $this->originalPrice,
+                'yearly_price' => $this->originalYearlyRenewalPrice,
                 'discount_percentage' => $this->originalDiscount,
             ]);
         });
@@ -68,15 +72,17 @@ class TenantSubscriptionRenewalFeatureTest extends TestCase
     {
         Tenancy::central(function () {
             $subscription = Subscription::where('tenant_id', 'test')->latest('id')->first();
+            $subscription->update([
+                'billing_cycle' => SubscriptionBillingCycle::MONTHLY->value,
+            ]);
             $subscription->plan->update([
-                'subscription_billing_cycle' => SubscriptionBillingCycle::MONTHLY->value,
                 'price' => 500,
                 'discount_percentage' => 10,
             ]);
         });
 
         $response = $this->actingAs($this->owner, 'tenant')
-            ->get($this->tenantUrl('subscriptions/renew'));
+            ->get($this->tenantUrl('subscriptions/renew?cycle=monthly'));
 
         $response->assertOk();
         $response->assertSee('450.00');
@@ -86,15 +92,18 @@ class TenantSubscriptionRenewalFeatureTest extends TestCase
     {
         Tenancy::central(function () {
             $subscription = Subscription::where('tenant_id', 'test')->latest('id')->first();
+            $subscription->update([
+                'billing_cycle' => SubscriptionBillingCycle::YEARLY->value,
+            ]);
             $subscription->plan->update([
-                'subscription_billing_cycle' => SubscriptionBillingCycle::YEARLY->value,
-                'price' => 5000,
+                'price' => 500,
+                'yearly_price' => 5000,
                 'discount_percentage' => 15,
             ]);
         });
 
         $response = $this->actingAs($this->owner, 'tenant')
-            ->get($this->tenantUrl('subscriptions/renew'));
+            ->get($this->tenantUrl('subscriptions/renew?cycle=yearly'));
 
         $response->assertOk();
         $response->assertSee('4,250.00');
@@ -104,8 +113,8 @@ class TenantSubscriptionRenewalFeatureTest extends TestCase
     {
         Tenancy::central(function () {
             $subscription = Subscription::where('tenant_id', 'test')->latest('id')->firstOrFail();
-            $subscription->plan->update([
-                'subscription_billing_cycle' => SubscriptionBillingCycle::MONTHLY->value,
+            $subscription->update([
+                'billing_cycle' => SubscriptionBillingCycle::MONTHLY->value,
             ]);
 
             // Set current period to end 20 days in the future
@@ -114,6 +123,11 @@ class TenantSubscriptionRenewalFeatureTest extends TestCase
                 'ends_at' => $currentPeriodEnd,
                 'next_payment_date' => $currentPeriodEnd,
             ]);
+
+            // Clean up any extra periods left from previous manual runs
+            SubscriptionPeriod::where('subscription_id', $subscription->id)
+                ->where('is_current', false)
+                ->forceDelete();
 
             $activePeriod = $subscription->currentPeriod;
             if ($activePeriod) {

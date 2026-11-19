@@ -14,6 +14,7 @@ use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
 use App\Services\Shared\Bills\BillService;
 use App\Services\Shared\Subscription\SubscriptionService;
+use App\Support\Security\TenantPasswordGenerator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -40,7 +41,8 @@ class SubscriptionManagementService
                 if ($plan->isTrial()) {
                     $endsAt = $startsAt->copy()->addDays((int) config('trial.days', 7));
                 } else {
-                    $endsAt = $plan->subscription_billing_cycle === 'monthly'
+                    $cycle = $data['billing_cycle'] ?? $subscription->billing_cycle?->value ?? ($plan->hasYearlyPrice() ? 'yearly' : 'monthly');
+                    $endsAt = $cycle === 'monthly'
                         ? $startsAt->copy()->addMonth()
                         : $startsAt->copy()->addYear();
                 }
@@ -201,7 +203,7 @@ class SubscriptionManagementService
 
     public function create(array $data): Tenant
     {
-        $autoPassword = ! empty($data['password']) ? $data['password'] : \App\Support\Security\TenantPasswordGenerator::generate();
+        $autoPassword = ! empty($data['password']) ? $data['password'] : TenantPasswordGenerator::generate();
         $data['password'] = $autoPassword;
 
         $metadata = [

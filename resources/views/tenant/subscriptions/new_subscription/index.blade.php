@@ -98,11 +98,17 @@
                                 @endforeach
                             </ul>
 
-                            <div class="d-grid mt-3">
-                                <a href="{{ tenant_route_name('subscribe.checkout', $plan->id) }}"
+                            <div class="d-grid gap-2 mt-3">
+                                <a href="{{ tenant_route_name('subscribe.checkout', ['plan' => $plan->id, 'cycle' => 'monthly']) }}"
                                     class="btn btn-primary py-2 fw-bold">
-                                    اشترك الآن
+                                    اشترك شهرياً ({{ number_format($plan->price_after_discount) }} ر.س)
                                 </a>
+                                @if ($plan->hasYearlyPrice())
+                                    <a href="{{ tenant_route_name('subscribe.checkout', ['plan' => $plan->id, 'cycle' => 'yearly']) }}"
+                                        class="btn btn-outline-primary py-2 fw-bold">
+                                        اشترك سنوياً ({{ number_format($plan->yearly_price_after_discount) }} ر.س)
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>

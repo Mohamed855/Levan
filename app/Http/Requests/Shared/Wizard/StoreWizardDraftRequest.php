@@ -38,7 +38,7 @@ class StoreWizardDraftRequest extends AuthenticatedWizardDraftRequest
             ],
             'tenant.property-create' => [
                 'main_image' => 'الصورة الرئيسية للعقار', 'deed_document' => 'صك الملكية', 'cadastral_plan' => 'مخطط العقار',
-                'coordinates_statement' => 'كشف الإحداثيات', 'building_permit' => 'رخصة البناء', 'assignment_letter_image' => 'صورة الإسناد',
+                'coordinates_statement' => 'كشف الإحداثيات', 'building_permit' => 'رخصة البناء', 'agency_document' => 'مستند التفويض أو الوكالة',
                 'property_images' => 'صور إضافية للمعرض', 'property_images.*' => 'صور إضافية للمعرض',
                 'additional_documents' => 'مستندات إضافية', 'additional_documents.*' => 'مستندات إضافية',
             ],
@@ -62,9 +62,8 @@ class StoreWizardDraftRequest extends AuthenticatedWizardDraftRequest
                 'attachments.*' => 'المرفقات',
                 'attachments.manager_certificate' => 'شهادة دورة مدير المزاد',
                 'attachments.auctioneer_certificate' => 'شهادة دورة محرّج المزاد',
-                'attachments.deed.*' => 'وثيقة الملكية',
                 'attachments.valuation.*' => 'نموذج التقييم العقاري',
-                'attachments.representative_authority.*' => 'مستند صفة الوكيل / معتمد العقد',
+                'board_images_before.*.*' => 'صور تركيب اللوحات',
             ],
             default => [],
         };

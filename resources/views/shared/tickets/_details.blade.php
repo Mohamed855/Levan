@@ -383,8 +383,10 @@
                 @if ($canReply)
                     <form id="ticket-reply-form" action="{{ $replyAction }}" method="POST"
                         enctype="multipart/form-data"
+                        data-draft-resource-key="{{ parse_url($replyAction, PHP_URL_PATH) }}"
                         @if (!$isAdmin) novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}" @endif>
                         @csrf
+                        <input type="hidden" name="_wizard_resource_key" value="{{ parse_url($replyAction, PHP_URL_PATH) }}">
                         <div class="mb-3">
                             <div @if (!$isAdmin) data-form-field data-field-name="message" @endif>
                                 <label class="form-label fw-bold" for="replyMessage">الرسالة:</label>

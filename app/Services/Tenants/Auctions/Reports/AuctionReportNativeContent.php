@@ -23,9 +23,12 @@ final class AuctionReportNativeContent
         foreach (array_keys(config('auction-marketing-fields.text')) as $role) {
             if (array_key_exists($role, $content['values'])) {
                 $value = $snapshot['marketing'][$role] ?? '';
+                if (is_array($value)) {
+                    $value = implode('، ', array_values(array_filter(array_map(static fn (mixed $v): string => trim((string) $v), $value), static fn (string $v): bool => $v !== '')));
+                }
                 $recorded = [];
                 foreach ($campaigns as $campaign) {
-                    if (array_key_exists($role, $campaign)) {
+                    if (array_key_exists($role, $campaign) && ! is_array($campaign[$role])) {
                         $recorded[] = $campaign[$role];
                     }
                 }
@@ -33,6 +36,18 @@ final class AuctionReportNativeContent
                     $value = implode("\n", array_filter($recorded, fn ($text) => $text !== null && $text !== ''));
                 }
                 $content['values'][$role] = (string) $value;
+            }
+        }
+        if (array_key_exists('platform_context', $content['values'])) {
+            $content['values']['platform_context'] = (string) ($snapshot['auction']['notes'] ?? '');
+        }
+        $auctionBrokers = is_array($snapshot['marketing']['brokers'] ?? null) ? array_values($snapshot['marketing']['brokers']) : [];
+        if ($auctionBrokers !== []) {
+            foreach (range(1, 3) as $slot) {
+                $name = $auctionBrokers[$slot - 1]['name'] ?? null;
+                if (filled($name) && array_key_exists('broker_'.$slot, $content['values']) && blank($content['values']['broker_'.$slot])) {
+                    $content['values']['broker_'.$slot] = (string) $name;
+                }
             }
         }
         foreach ($campaigns as $campaign) {

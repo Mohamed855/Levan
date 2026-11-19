@@ -44,7 +44,7 @@ class UpdateClientRequest extends FormRequest
         return [
             'company_name' => ['required', 'string', 'max:255'],
             'commercial_number' => ['required', 'string', 'digits:10', 'regex:/^\d{10}$/'],
-            'tax_number' => ['required', 'string', 'digits:15', 'regex:/^3\d{13}3$/'],
+            'tax_number' => ['nullable', 'string', 'digits:15', 'regex:/^3\d{13}3$/'],
             'city_id' => ['required', 'exists:cities,id'],
             'address' => ['required', 'string', 'max:1000'],
             'primary_contact_name' => ['nullable', 'string', 'max:255'],

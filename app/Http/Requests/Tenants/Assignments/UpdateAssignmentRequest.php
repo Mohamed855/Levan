@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Tenants\Assignments;
 
+use App\Enums\Tenants\Assignments\AssignmentAttachmentCategory;
 use App\Enums\Tenants\Assignments\AssignmentCategory;
 use App\Http\Requests\Concerns\WizardFormRequest;
+use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Assignments\IssuingEntity;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class UpdateAssignmentRequest extends WizardFormRequest
 {
@@ -105,24 +108,24 @@ class UpdateAssignmentRequest extends WizardFormRequest
         ];
     }
 
-    public function withValidator(\Illuminate\Validation\Validator $validator): void
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function (\Illuminate\Validation\Validator $validator): void {
+        $validator->after(function (Validator $validator): void {
             $removedGeneralIds = array_values(array_unique(array_map('intval', (array) $this->input('remove_general_documents', []))));
             if ($removedGeneralIds === [] || $this->hasFile('general_documents')) {
                 return;
             }
 
             $assignmentParam = $this->route('assignment');
-            $assignment = $assignmentParam instanceof \App\Models\Tenants\Assignments\Assignment
+            $assignment = $assignmentParam instanceof Assignment
                 ? $assignmentParam
-                : \App\Models\Tenants\Assignments\Assignment::query()->find($assignmentParam);
+                : Assignment::query()->find($assignmentParam);
             if (! $assignment) {
                 return;
             }
 
             $remaining = $assignment->attachments()
-                ->where('category', \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::GENERAL_DOCUMENT->value)
+                ->where('category', AssignmentAttachmentCategory::GENERAL_DOCUMENT->value)
                 ->whereNotIn('id', $removedGeneralIds)
                 ->count();
 

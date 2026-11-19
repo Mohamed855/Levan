@@ -302,16 +302,27 @@ document.addEventListener("DOMContentLoaded", function () {
             },
         );
 
+        const cycleSelect = document.getElementById("billing_cycle");
+        if (cycleSelect) {
+            const yearlyOption = cycleSelect.querySelector('option[value="yearly"]');
+            if (yearlyOption) {
+                yearlyOption.disabled = !plan.has_yearly_price;
+            }
+            if (!plan.has_yearly_price && cycleSelect.value === "yearly") {
+                cycleSelect.value = "monthly";
+                if (window.jQuery) {
+                    $(cycleSelect).trigger("change");
+                }
+            }
+        }
+
         const monthsField = document.getElementById("period_months");
         if (monthsField) {
             if (plan.is_trial || plan.code === "trial_7_days") {
                 monthsField.value = "1";
             } else {
-                const defaultCycleMonths =
-                    plan.subscription_billing_cycle === "yearly"
-                        ? 12
-                        : 1;
-                monthsField.value = String(defaultCycleMonths);
+                const currentCycle = cycleSelect ? cycleSelect.value : (plan.has_yearly_price ? "yearly" : "monthly");
+                monthsField.value = currentCycle === "yearly" ? "12" : "1";
             }
         }
 
@@ -394,16 +405,18 @@ document.addEventListener("DOMContentLoaded", function () {
             let calculatedBase = 0;
 
             if (!isTrial) {
-                const unitPrice = parseFloat(
-                    plan.price_after_discount || plan.price || 0,
-                );
-                const cycleMonths =
-                    plan.subscription_billing_cycle === "yearly"
-                        ? 12
-                        : 1;
-                calculatedBase = +(unitPrice * (months / cycleMonths)).toFixed(
-                    2,
-                );
+                const cycle = document.getElementById("billing_cycle")?.value || "monthly";
+                if (cycle === "yearly" && plan.has_yearly_price) {
+                    const yearlyUnit = parseFloat(
+                        plan.yearly_price_after_discount || plan.yearly_price || 0,
+                    );
+                    calculatedBase = +(yearlyUnit * (months / 12)).toFixed(2);
+                } else {
+                    const monthlyUnit = parseFloat(
+                        plan.price_after_discount || plan.price || 0,
+                    );
+                    calculatedBase = +(monthlyUnit * (months / 1)).toFixed(2);
+                }
             }
 
             const discountVal = isTrial
@@ -431,6 +444,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 "sub_review-final-total",
                 formatNumber(finalTotal) + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>',
             );
+        }
+    }
+
+    const cycleSelect = document.getElementById("billing_cycle");
+    if (cycleSelect) {
+        const onCycleChange = function () {
+            const planId = planSelect?.value;
+            const plan = plansData.find((p) => String(p.id) === String(planId));
+            const monthsField = document.getElementById("period_months");
+            if (monthsField && plan && !plan.is_trial) {
+                monthsField.value = this.value === "yearly" ? "12" : "1";
+            }
+            clearCouponState();
+            recalculateDatesAndPricing();
+            updateReviewSummary();
+        };
+        if (window.jQuery) {
+            $(cycleSelect).on("change", onCycleChange);
+        } else {
+            cycleSelect.addEventListener("change", onCycleChange);
         }
     }
 
@@ -513,6 +546,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     },
                     body: JSON.stringify({
                         plan_id: planId,
+                        billing_cycle: document.getElementById("billing_cycle")?.value || "monthly",
                         period_months: months,
                         coupon_code: code,
                     }),
@@ -651,6 +685,9 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("end_date")?.value ||
             document.getElementById("sub_end_date")?.value
         );
+        const cycleVal = document.getElementById("billing_cycle")?.value;
+        setElemText("sub_review-billing-cycle", cycleVal === "yearly" ? "سنوياً" : "شهرياً");
+
         setElemText("sub_review-start-date", sDateVal);
         setElemText("sub_review-end-date", eDateVal);
 

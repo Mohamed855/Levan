@@ -18,7 +18,7 @@ class StoreContactRequest extends FormRequest
         return [
             'customer_name' => ['required', 'string', 'min:3', 'max:100'],
             'customer_email' => ['required', 'email'],
-            'message' => ['required', 'string', 'min:10'],
+            'message' => ['required', 'string', 'min:10', 'max:1000'],
             // 'g-recaptcha-response' => ['required', 'string'],
         ];
     }

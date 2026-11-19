@@ -57,9 +57,7 @@ class SubscriptionDataTable extends AbstractDataTable
 
         // Filter: billing cycle
         if (request()->filled('billing_cycle')) {
-            $query->whereHas('plan', function ($q) {
-                $q->where('subscription_billing_cycle', request('billing_cycle'));
-            });
+            $query->where('subscriptions.billing_cycle', request('billing_cycle'));
         }
 
         // Filter: start date & end date

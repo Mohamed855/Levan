@@ -6,6 +6,7 @@ namespace App\Http\Requests\Admin\Subscriptions;
 
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Http\Requests\Concerns\WizardFormRequest;
+use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Tenants\Tenant;
 use Illuminate\Validation\Rule;
 
@@ -31,6 +32,19 @@ class StoreSubscriptionRequest extends WizardFormRequest
                 },
             ],
             'plan_id' => ['required', 'exists:plans,id'],
+            'billing_cycle' => [
+                'nullable',
+                'string',
+                Rule::in(['monthly', 'yearly']),
+                function ($attribute, $value, $fail) {
+                    if ($value === 'yearly' && $this->input('plan_id')) {
+                        $plan = Plan::find($this->input('plan_id'));
+                        if ($plan && ! $plan->hasYearlyPrice()) {
+                            $fail('الباقة المحددة لا تدعم دورة الفوترة السنوية.');
+                        }
+                    }
+                },
+            ],
             'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'period_months' => ['nullable', 'integer', 'min:1', 'max:120'],
@@ -82,7 +96,7 @@ class StoreSubscriptionRequest extends WizardFormRequest
     public function attributes(): array
     {
         return [
-            'company_id' => 'الشركة المستفيدة', 'plan_id' => 'الباقة المطلوبة', 'start_date' => 'تاريخ بداية الاشتراك',
+            'company_id' => 'الشركة المستفيدة', 'plan_id' => 'الباقة المطلوبة', 'billing_cycle' => 'دورة الفوترة', 'start_date' => 'تاريخ بداية الاشتراك',
             'end_date' => 'تاريخ نهاية الاشتراك', 'period_months' => 'مدة الاشتراك (بالشهور)', 'coupon_code' => 'كود كوبون الخصم',
             'payment_method' => 'طريقة الدفع', 'payment_status' => 'حالة الدفع الآن', 'payment_type' => 'نوع الدفع',
             'transaction_id' => 'رقم العملية / الحوالة البنكية', 'payment_proof' => 'إثبات الدفع',

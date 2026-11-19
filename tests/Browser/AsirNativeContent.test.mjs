@@ -24,6 +24,233 @@ async function render(scenario, callback, beforeLayout = null) {
     } finally { await browser.close(); }
 }
 
+test('board photo numbers retain two digits and continue across installation and removal pages', async () => {
+    await render('current', async page => {
+        for (const family of ['asir-board-installation', 'asir-board-removal']) {
+            const numbers = await page.$$eval(`[data-page-type^="${family}"] .asir-board-number`, nodes => nodes.map(node => node.textContent.trim()));
+            assert.deepEqual(numbers, ['٠١','٠٢','٠٣','٠٤','٠٥','٠٦','٠٧','٠٨','٠٩','١٠','١١','١٢','١٣']);
+        }
+    });
+});
+
+test('link buttons keep the individual reference dimensions with complete normal and long labels', async () => {
+    const longLabel='رابط المزاد على '+'W'.repeat(255);
+    for (const long of [false, true]) {
+        await render('current', async page => {
+            const buttons = await page.$$eval('.asir-link', nodes => nodes.map(node => {
+                const box = node.getBoundingClientRect(), text = node.querySelector('span');
+                const css = getComputedStyle(node);
+                return {role:node.dataset.linkRole, width:box.width*.75,height:box.height*.75,font:parseFloat(css.fontSize)*.75,href:node.href,
+                    label:node.textContent,inside:text && text.scrollWidth <= text.clientWidth+1 && text.getBoundingClientRect().height <= node.clientHeight-parseFloat(css.paddingTop)-parseFloat(css.paddingBottom)+1};
+            }));
+            for (const [role,width,height,font] of [['brochure',144.443,41.761,15.158],['platform',312.261,66.522,18.109],['video',215.766,66.522,24.145]]) {
+                const button=buttons.find(button=>button.role===role);
+                assert.ok(button);
+                assert.ok(Math.abs(button.width-width)<.2 && Math.abs(button.height-height)<.2,`${role}: ${button.width}×${button.height}`);
+                if(!long)assert.ok(Math.abs(button.font-font)<.01,`${role}: reference font ${font}pt, actual ${button.font}pt.`);
+                assert.equal(button.inside,true,`${role}: keep the complete label inside the source button.`);
+                assert.ok(button.href.startsWith('https://example.com/'));
+                if(long && role==='platform')assert.equal(button.label,longLabel);
+            }
+        },long ? page=>page.evaluate(label=>{
+            const node=document.querySelector('.asir-link[data-link-role="platform"]');
+            (node.querySelector('span')??node).textContent=label;
+        },longLabel) : null);
+    }
+});
+
+test('marketing methodology fills one shared page and continues only when its combined text needs more space', async () => {
+    for (const repetitions of [1, 120]) {
+        const fields = ['planning_methodology', 'city_context', 'brochure_methodology', 'audience_methodology', 'messages_methodology'];
+        const texts = fields.map((field, index) => `تفاصيل منهجية التسويق المسجلة ${index + 1}. `.repeat(repetitions));
+        await render('current', async page => {
+            const result = await page.evaluate(fields => {
+                const sheets = [...document.querySelectorAll('[data-page-type="asir-planning"],[data-page-type="asir-design"],[data-page-type="asir-promotion"],[data-page-type="asir-planning-continuation"],[data-page-type="asir-design-continuation"],[data-page-type="asir-promotion-continuation"]')];
+                return {
+                    texts: fields.map(field => sheets.flatMap(sheet => [...sheet.querySelectorAll(`[data-report-field="${field}"]`)].map(node => node.textContent)).join('')),
+                    headings: sheets.flatMap(sheet => [...sheet.querySelectorAll('.asir-methodology-heading')].map(node => node.textContent)),
+                    sheets: sheets.map(sheet => {
+                        const frame = sheet.getBoundingClientRect();
+                        const sections = [...sheet.querySelectorAll('[data-asir-section]')];
+                        return { bottom: (sections.at(-1).getBoundingClientRect().bottom-frame.top)*.75,
+                            panel: [getComputedStyle(sheet,'::after').top,getComputedStyle(sheet,'::after').bottom,getComputedStyle(sheet,'::after').width] };
+                    }),
+                };
+            }, fields);
+            assert.deepEqual(result.texts, texts);
+            assert.deepEqual([...new Set(result.headings)], ['التخطيط والاستعداد', 'الإعداد والتصميم', 'النشر والترويج']);
+            if (repetitions === 1) assert.equal(result.sheets.length, 1, 'Short methodology sections must share the same page.');
+            else {
+                assert.ok(result.sheets.length > 1);
+                assert.ok(result.sheets.slice(0,-1).every(sheet => sheet.bottom >= 780), 'Fill the available page height before continuing.');
+            }
+            assert.ok(result.sheets.every(sheet => sheet.bottom <= 826));
+            assert.ok(result.sheets.every(sheet => JSON.stringify(sheet.panel) === JSON.stringify(result.sheets[0].panel)));
+        }, page => page.evaluate(({fields,texts}) => {
+            fields.forEach((field,index) => {document.querySelector(`[data-report-field="${field}"]`).textContent=texts[index];});
+        }, {fields,texts}));
+    }
+});
+
+test('board evidence pages do not print Google or video viewing statistics', async () => {
+    await render('current', async page => {
+        const boards = await page.$$eval('[data-page-type^="asir-board-"]', sheets => sheets.map(sheet => ({
+            metrics: sheet.querySelectorAll('[data-asir-channel="google"],[data-report-field="google_views"]').length,
+            text: sheet.textContent,
+        })));
+        assert.ok(boards.length > 0);
+        assert.ok(boards.every(sheet => sheet.metrics === 0 && !sheet.text.includes('عدد مشاهدات الفيديو')));
+    });
+});
+
+test('platform status backgrounds match the system theme for every auction status', async () => {
+    await render('populated', async page => {
+        const theme = readFileSync('resources/assets/vendor/scss/_custom-variables/_bootstrap-extended.scss', 'utf8');
+        for (const name of ['warning', 'success', 'secondary']) {
+            const hex = theme.match(new RegExp(`\\$${name}:\\s*(#[0-9a-f]+)`, 'i'))[1];
+            const expected = hex.slice(1).match(/../g).map(value => parseInt(value,16));
+            const color = await page.$eval('.asir-platform-status', (badge,name) => {
+                badge.className = `asir-platform-status bg-${name}`;
+                return getComputedStyle(badge).backgroundColor.match(/\d+/g).slice(0,3).map(Number);
+            }, name);
+            assert.deepEqual(color, expected, name);
+        }
+    });
+});
+
+test('portrait evidence keeps transparent letterboxing in the printed PDF', async () => {
+    const portrait = 'data:image/svg+xml;base64,' + Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="100"><rect width="40" height="100" fill="#e00000"/></svg>').toString('base64');
+    await render('populated', async page => {
+        const points = await page.evaluate(() => ['.asir-board-image img','.asir-brochure-image img','.asir-thumbnail-image img','.asir-x-grid img','.asir-whatsapp-grid img','.asir-social-image img','.asir-broker-image img','.asir-video-evidence img'].map(selector => {
+            const image = document.querySelector(selector);
+            const sheet = image.closest('.auction-print-page');
+            const bounds = sheet.getBoundingClientRect(), rect = image.getBoundingClientRect();
+            return {selector, page:[...document.querySelectorAll('.auction-print-page')].indexOf(sheet)+1, x:(rect.left-bounds.left)*.75+3, y:(rect.top-bounds.top+rect.height/2)*.75};
+        }));
+        const pdf = await getDocument({data:new Uint8Array(await page.pdf({preferCSSPageSize:true, printBackground:true}))}).promise;
+        try {
+            for(const point of points){
+                const sheet = await pdf.getPage(point.page), viewport = sheet.getViewport({scale:2});
+                const canvas = createCanvas(Math.ceil(viewport.width),Math.ceil(viewport.height)), context=canvas.getContext('2d');
+                await sheet.render({canvasContext:context,viewport}).promise;
+                const rgb=[...context.getImageData(Math.floor(point.x*2),Math.floor(point.y*2),1,1).data].slice(0,3);
+                assert.ok(!rgb.every(value=>value>245), `${point.selector}: white letterboxing ${rgb}`);
+            }
+        } finally {await pdf.destroy();}
+    }, async page => page.evaluate(portrait => {
+        document.querySelectorAll('[data-report-attachment]').forEach(image => {image.src=portrait;image.style.objectFit='contain';});
+        const extra=document.querySelector('.asir-video-hero [data-report-attachment]').closest('figure').cloneNode(true);
+        extra.className='asir-video-evidence';
+        const image=extra.querySelector('img');image.style.width='100%';image.style.height='100pt';
+        document.querySelector('.asir-video-statistics').append(extra);
+    }, portrait));
+});
+
+test('property table dividers and text stay inside the frame while its header keeps its overhang', async () => {
+    await render('populated', async page => {
+        const box = await page.evaluate(() => {
+            const frame = document.querySelector('.asir-index-table-frame');
+            const table = frame.querySelector('table');
+            const bounds = frame.getBoundingClientRect();
+            const paper = frame.closest('.auction-print-page').getBoundingClientRect();
+            const body = table.tBodies[0].getBoundingClientRect();
+            const heading = table.tHead.getBoundingClientRect();
+            return {
+                textInside: [...table.querySelectorAll('tbody bdi')].every(text => text.getBoundingClientRect().left >= bounds.left - 1 && text.getBoundingClientRect().right <= bounds.right + 1),
+                strip: [(bounds.left - paper.left) * .75 - 9, (body.top - paper.top) * .75 + 3, 5, body.height * .75 - 6],
+                headerStrip: [(bounds.left - paper.left) * .75 - 9, (heading.top - paper.top) * .75 + 3, 5, heading.height * .75 - 6] };
+        });
+        assert.equal(box.textInside, true, 'The complete one- and two-digit property numbers must fit the frame.');
+        const outsideInk = async (region = box.strip) => {
+            const pdf = await getDocument({data:new Uint8Array(await page.pdf({preferCSSPageSize:true, printBackground:true}))}).promise;
+            try {
+                const sheet = await pdf.getPage(2);
+                const viewport = sheet.getViewport({scale:2});
+                const canvas = createCanvas(Math.ceil(viewport.width), Math.ceil(viewport.height));
+                const context = canvas.getContext('2d');
+                await sheet.render({canvasContext:context, viewport}).promise;
+                const pixels = context.getImageData(...region.map(value => Math.floor(value * 2))).data;
+                let count = 0;
+                for (let index=0; index<pixels.length; index+=4) if(pixels[index]<90 && pixels[index+1]<130 && pixels[index+2]<170 && pixels[index+2]>pixels[index]+25) count++;
+                return count;
+            } finally {await pdf.destroy();}
+        };
+        assert.equal(await outsideInk(), 0, 'The PDF must have no blue divider ink outside its frame.');
+        assert.ok(await outsideInk(box.headerStrip) > 100, 'The original blue heading must still extend outside the frame.');
+        await page.$eval('.asir-property-table', table => {table.style.width='calc(100% + 24pt)'; table.style.marginInline='-12pt';});
+        assert.ok(await outsideInk() > 10, 'The original uncontained dividers must be detected by the same PDF check.');
+    });
+});
+
+test('introduction preserves the reference logo and left text column while filling its vertical region', async () => {
+    for (const repetitions of [1, 25, 200]) {
+        const text = 'تفاصيل العقارات والنتائج المسجلة للمزاد. '.repeat(repetitions);
+        await render('populated', async page => {
+            const pages = await page.evaluate(() => [...document.querySelectorAll('[data-page-type^="asir-introduction"]')].map(page => {
+                const frame = page.getBoundingClientRect();
+                const text = page.querySelector('[data-report-field="introduction"]');
+                const bounds = text.getBoundingClientRect();
+                const logo = page.querySelector('.asir-introduction-logo').getBoundingClientRect();
+                return { text: text.textContent, left: (bounds.left - frame.left) * .75, right: (frame.right - bounds.right) * .75,
+                    top: (bounds.top - frame.top) * .75, bottom: (bounds.bottom - frame.top) * .75,
+                    logo:[(logo.left-frame.left)*.75,(logo.top-frame.top)*.75,logo.width*.75,logo.height*.75] };
+            }));
+            assert.equal(pages.map(page => page.text).join(''), text);
+            assert.ok(pages.every(page => Math.abs(page.left-15)<1 && Math.abs(page.right-260.276)<1));
+            for (const sheet of pages) [347.226,27.48,248.05,414.52].forEach((expected,index)=>assert.ok(Math.abs(sheet.logo[index]-expected)<1));
+            if (repetitions <= 25) assert.equal(pages.length, 1);
+            if (repetitions === 1) assert.ok(Math.abs(pages[0].top-337)<1);
+            if (repetitions === 200) {
+                assert.ok(pages.length > 1);
+                assert.ok(pages.slice(0, -1).every(page => page.bottom >= 785));
+                assert.ok(pages.slice(1).every(page => page.top <= 40));
+            }
+        }, page => page.evaluate(text => { document.querySelector('[data-report-field="introduction"]').textContent = text; }, text));
+    }
+});
+
+test('current auction inputs retain complete reference groups without isolated links files or thirteenth board images', async () => {
+    await render('current', async page => {
+        const result=await page.evaluate(()=>({
+            types:[...document.querySelectorAll('.auction-print-page')].map(node=>node.dataset.pageType),
+            video:[...document.querySelectorAll('[data-page-type^="asir-video"]')].map(node=>({images:node.querySelectorAll('[data-report-attachment]').length,links:node.querySelectorAll('[data-link-role="video"]').length})),
+            platform:[...document.querySelectorAll('[data-page-type^="asir-platform"]')].map(node=>({images:node.querySelectorAll('[data-report-attachment]').length,links:node.querySelectorAll('[data-link-role="platform"]').length})),
+            brokers:[...document.querySelectorAll('[data-page-type^="asir-brokers"]')].map(node=>({names:[...node.querySelectorAll('.asir-broker-name p')].map(p=>p.textContent),images:node.querySelectorAll('[data-report-attachment]').length})),
+            boards:[...document.querySelectorAll('[data-page-type^="asir-board-installation"]')].map(node=>node.querySelectorAll('[data-report-attachment]').length),
+            social:document.querySelectorAll('[data-page-type="asir-social"]').length,
+            cards:document.querySelectorAll('.asir-social-card').length,
+            metadataFont:getComputedStyle(document.querySelector('.asir-index-metadata dt')).fontFamily,
+        }));
+        assert.deepEqual(result.video,[{images:1,links:1}]);
+        assert.deepEqual(result.platform,[{images:1,links:1}]);
+        assert.deepEqual(result.brokers,[{names:['مكتب الوسيط الأول — ملف تجريبي'],images:1},{names:['مكتب الوسيط الثاني — ملف تجريبي'],images:1}]);
+        assert.deepEqual(result.boards,[6,7]);
+        assert.equal(result.social,1);assert.equal(result.cards,3);
+        assert.match(result.metadataFont,/IBMReport/);
+    });
+});
+
+test('long current broker text keeps its complete name and document together on the continuation', async () => {
+    const name='W'.repeat(255), contract='تفاصيل عقد الوسيط المسجلة. '.repeat(30);
+    await render('current', async page => {
+        const result=await page.evaluate(()=>({
+            contract:[...document.querySelectorAll('[data-page-type^="asir-brokers"] [data-report-field="contract_text"]')].map(node=>node.textContent),
+            documents:[...document.querySelectorAll('[data-page-type^="asir-brokers"] [data-report-attachment]')].map(image=>{
+                const page=image.closest('.auction-print-page'),frame=page.getBoundingClientRect(),bounds=image.getBoundingClientRect();
+                return {name:page.querySelector('.asir-broker-name p').textContent,height:bounds.height*.75,bottom:(bounds.bottom-frame.top)*.75,fit:image.style.objectFit};
+            }),
+        }));
+        assert.ok(result.contract.join('').includes(contract));
+        assert.equal(result.documents.length,2);
+        assert.equal(result.documents[0].name,name);
+        assert.ok(result.documents.every(image=>image.height>=299 && image.bottom<=826 && image.fit==='contain'));
+    }, async page=>page.evaluate(({name,contract})=>{
+        const first=document.querySelector('[data-page-type="asir-brokers"]');
+        first.querySelector('.asir-broker-name p').textContent=name;
+        first.querySelector('[data-report-field="contract_text"]').textContent=contract;
+    },{name,contract}));
+});
+
 test('Asir tables retain the original open grid, column proportions and interrupted detail frame', async () => {
     await render('populated', async page => {
         const result = await page.evaluate(() => {
@@ -79,7 +306,6 @@ test('every internal Asir page uses native content and every PDF page matches th
             alignments: [...document.querySelectorAll('.asir-table td')].map(cell => ({ align: getComputedStyle(cell).textAlign, padding: parseFloat(getComputedStyle(cell).paddingRight) })),
         }));
         assert.equal(result.graphics, 0);
-        assert.equal(result.count, 21, 'The populated reference keeps the original section/page structure.');
         assert.equal(result.headings, true);
         // X evidence intentionally appears in its campaign and the social summary.
         assert.equal(result.attachments.filter(id => id === '304').length, 1);
@@ -126,7 +352,7 @@ test('long document captions stay visible and fit without cropping text or dupli
             count: document.querySelectorAll('.auction-print-page').length,
         }));
         assert.equal(result.text, caption);
-        assert.equal(result.color, 'rgb(10, 57, 92)');
+        assert.equal(result.color, 'rgb(255, 255, 255)', 'Captions remain readable against the page behind the transparent image frame.');
         assert.equal(result.fit, 'contain');
         assert.deepEqual(result.attachments, attachments);
         const pdf = await getDocument({ data: new Uint8Array(await page.pdf({ preferCSSPageSize: true, printBackground: true })) }).promise;

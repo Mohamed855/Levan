@@ -6,7 +6,6 @@ namespace App\DataTables\Tenants\MarketingCampaigns;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\Auctions\Auction;
-use App\Services\Tenants\Auctions\Reports\AuctionMarketingCompleteness;
 use Illuminate\Support\Facades\DB;
 
 final class MarketingCampaignsDataTable extends AbstractDataTable
@@ -105,15 +104,6 @@ final class MarketingCampaignsDataTable extends AbstractDataTable
                 'className' => 'text-center',
             ],
             [
-                'data' => 'completion_status',
-                'name' => 'completion_status',
-                'title' => 'حالة الاكتمال',
-                'orderable' => false,
-                'searchable' => false,
-                'width' => '110px',
-                'className' => 'text-center',
-            ],
-            [
                 'data' => 'marketing_campaigns_count',
                 'name' => 'marketing_campaigns_count',
                 'title' => 'عدد الحملات',
@@ -191,11 +181,6 @@ final class MarketingCampaignsDataTable extends AbstractDataTable
             ->editColumn('properties_count', function ($row) {
                 return '<span class="badge bg-info">'.(int) $row->properties_count.'</span>';
             })
-            ->addColumn('completion_status', function ($row): string {
-                $status = $row->completion_status;
-
-                return '<span class="badge bg-label-'.$status->color().'">'.e($status->label()).'</span>';
-            })
             ->editColumn('marketing_campaigns_count', function ($row) {
                 $count = $row->marketingCampaigns ? $row->marketingCampaigns->pluck('channel')->filter()->unique()->count() : (int) ($row->marketing_campaigns_count ?? 0);
 
@@ -220,7 +205,6 @@ final class MarketingCampaignsDataTable extends AbstractDataTable
             'start_date',
             'end_date',
             'properties_count',
-            'completion_status',
             'marketing_campaigns_count',
             'evidence_count',
             'actions',
@@ -239,10 +223,6 @@ final class MarketingCampaignsDataTable extends AbstractDataTable
         }
         if (request()->filled('channel')) {
             $query->whereHas('marketingCampaigns', fn ($q) => $q->where('channel', request('channel')));
-        }
-        if (in_array(request()->input('completion_status'), ['complete', 'incomplete'], true)) {
-            $completeIds = app(AuctionMarketingCompleteness::class)->completeAuctionIds();
-            request()->input('completion_status') === 'complete' ? $query->whereIn('auctions.id', $completeIds) : $query->whereNotIn('auctions.id', $completeIds);
         }
         if (request()->filled('created_from')) {
             $query->whereDate('auctions.created_at', '>=', request('created_from'));

@@ -20,8 +20,8 @@ final class AuctionReportLinks
     {
         $marketing = $snapshot['marketing'] ?? [];
         $destinations = ['platform' => $snapshot['auction']['platform_url'] ?? null];
-        foreach (['brochure' => 'brochure_url', 'video' => 'video_url', 'marketing_evidence' => 'evidence_url', 'boards' => 'boards_url'] as $role => $key) {
-            $destinations[$role] = $marketing[$key] ?? null;
+        foreach (['brochure' => 'brochure_url', 'video' => 'video_url', 'marketing_evidence' => 'evidence_url', 'boards' => 'board_url'] as $role => $key) {
+            $destinations[$role] = $marketing[$key] ?? ($role === 'boards' ? ($marketing['boards_url'] ?? null) : null);
         }
         foreach ($marketing['links'] ?? [] as $link) {
             if (isset($link['role']) && $this->safeUrl($link['url'] ?? null) !== null && empty($destinations[$link['role']])) {

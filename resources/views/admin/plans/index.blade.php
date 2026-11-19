@@ -46,8 +46,6 @@
                     :options="$filterOptions['statuses'] ?? []" />
                 <x-filter.select id="filter-plan-type" filterKey="plan_type" label="نوع الباقة"
                     placeholder="اختر نوع الباقة" :options="$filterOptions['plan_types'] ?? []" />
-                <x-filter.select id="filter-billing-cycle" filterKey="subscription_billing_cycle" label="دورة الفوترة"
-                    placeholder="اختر دورة الفوترة" :options="$filterOptions['billing_cycles'] ?? []" />
                 <x-filter.select id="filter-limits-mode" filterKey="limits_mode" label="وضع الحدود"
                     placeholder="اختر وضع الحدود" :options="$filterOptions['limits_modes'] ?? []" />
                 <x-filter.select id="filter-availability" filterKey="availability" label="حالة الإتاحة"

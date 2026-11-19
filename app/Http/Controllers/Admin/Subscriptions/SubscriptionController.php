@@ -150,7 +150,9 @@ class SubscriptionController extends Controller
             'is_trial' => $plan->isTrial(),
             'price' => (float) ($plan->price ?? 0),
             'price_after_discount' => (float) ($plan->price_after_discount ?? $plan->price ?? 0),
-            'subscription_billing_cycle' => $plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle,
+            'yearly_price' => $plan->yearly_price !== null ? (float) $plan->yearly_price : null,
+            'yearly_price_after_discount' => $plan->yearly_price_after_discount,
+            'has_yearly_price' => $plan->hasYearlyPrice(),
             'included_users' => (int) ($plan->included_users ?? 1),
             'properties_limit' => $plan->properties_limit,
             'storage_quota_gb' => $plan->storage_quota_gb,
@@ -259,9 +261,9 @@ class SubscriptionController extends Controller
         return response()->json([
             'id' => $plan->id,
             'code' => $plan->code,
-            'duration_type' => $plan->subscription_duration_type,
-            'billing_cycle' => $plan->subscription_billing_cycle,
-            'price' => $plan->price_after_discount,
+            'price' => (float) $plan->price_after_discount,
+            'yearly_price' => $plan->yearly_price_after_discount,
+            'has_yearly_price' => $plan->hasYearlyPrice(),
             'total_users' => $plan->included_users,
             'limits' => [
                 'users' => $plan->included_users,
@@ -298,13 +300,15 @@ class SubscriptionController extends Controller
     {
         $validated = $request->validate([
             'plan_id' => ['required', 'integer', 'exists:plans,id'],
+            'billing_cycle' => ['nullable', 'string', 'in:monthly,yearly'],
             'period_months' => ['nullable', 'integer', 'min:1', 'max:120'],
             'coupon_code' => ['required', 'string', 'max:50'],
         ]);
 
         $plan = Plan::findOrFail($validated['plan_id']);
         $periodMonths = isset($validated['period_months']) ? (int) $validated['period_months'] : null;
-        $basePrice = $this->subscriptionService->calculatePeriodBasePrice($plan, $periodMonths);
+        $billingCycle = $validated['billing_cycle'] ?? 'monthly';
+        $basePrice = $this->subscriptionService->calculatePeriodBasePrice($plan, $periodMonths, $billingCycle);
 
         if ($plan->isTrial() || $basePrice <= 0) {
             return response()->json([

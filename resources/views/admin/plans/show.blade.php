@@ -63,15 +63,35 @@
                         <ul class="list-unstyled mb-0">
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-currency-riyal text-primary me-2 fs-5"></i>
-                                <span class="fw-bold me-2">السعر الأساسي:</span>
-                                <span>{{ number_format((float) $plan->price, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
+                                <span class="fw-bold me-2">السعر الشهري:</span>
+                                <span>{{ number_format((float) $plan->price, 2) }} <span
+                                        class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-tag text-primary me-2 fs-5"></i>
-                                <span class="fw-bold me-2">السعر بعد الخصم:</span>
+                                <span class="fw-bold me-2">الشهري بعد الخصم:</span>
                                 <span class="text-heading fw-bold">{{ number_format($plan->price_after_discount, 2) }}
                                     <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                             </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="ti ti-calendar text-primary me-2 fs-5"></i>
+                                <span class="fw-bold me-2">السعر السنوي:</span>
+                                @if ($plan->hasYearlyPrice())
+                                    <span>{{ number_format((float) $plan->yearly_price, 2) }} <span
+                                            class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </li>
+                            @if ($plan->hasYearlyPrice())
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="ti ti-discount text-primary me-2 fs-5"></i>
+                                    <span class="fw-bold me-2">السنوي بعد الخصم:</span>
+                                    <span
+                                        class="text-heading fw-bold">{{ number_format($plan->yearly_price_after_discount, 2) }}
+                                        <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
+                                </li>
+                            @endif
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-user text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">المستخدمين:</span>
@@ -80,12 +100,12 @@
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-building text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">حد العقارات:</span>
-                                <span>{{ $plan->isUnlimited() ? 'غير محدود (∞)' : ($plan->properties_limit ?? '-') }}</span>
+                                <span>{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->properties_limit ?? '-' }}</span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-gavel text-primary me-2 fs-5"></i>
                                 <span class="fw-bold me-2">حد المزادات:</span>
-                                <span>{{ $plan->isUnlimited() ? 'غير محدود (∞)' : ($plan->active_auctions_limit ?? '-') }}</span>
+                                <span>{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->active_auctions_limit ?? '-' }}</span>
                             </li>
                             <li class="mb-3 d-flex align-items-center">
                                 <i class="ti ti-server text-primary me-2 fs-5"></i>
@@ -131,8 +151,24 @@
                                         <i class="ti ti-currency-riyal fs-4 text-white"></i>
                                     </div>
                                     <div>
-                                        <small class="text-muted d-block">السعر الأساسي للدورة</small>
-                                        <span class="fw-bold fs-5">{{ number_format((float) $plan->price, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
+                                        <small class="text-muted d-block">السعر الشهري الأساسي</small>
+                                        <span class="fw-bold fs-5">{{ number_format((float) $plan->price, 2) }} <span
+                                                class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <div class="card border shadow-none h-100">
+                                <div class="card-body p-3 d-flex align-items-center">
+                                    <div class="avatar bg-success rounded text-center p-2 me-3">
+                                        <i class="ti ti-tag fs-4 text-white"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">الشهري بعد الخصم</small>
+                                        <span
+                                            class="fw-bold fs-5 text-heading">{{ number_format($plan->price_after_discount, 2) }}
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                                     </div>
                                 </div>
                             </div>
@@ -153,14 +189,17 @@
                         <div class="col-sm-6 col-md-4">
                             <div class="card border shadow-none h-100">
                                 <div class="card-body p-3 d-flex align-items-center">
-                                    <div class="avatar bg-success rounded text-center p-2 me-3">
-                                        <i class="ti ti-tag fs-4 text-white"></i>
+                                    <div class="avatar bg-info rounded text-center p-2 me-3">
+                                        <i class="ti ti-calendar fs-4 text-white"></i>
                                     </div>
                                     <div>
-                                        <small class="text-muted d-block">السعر النهائي</small>
-                                        <span
-                                            class="fw-bold fs-5 text-heading">{{ number_format($plan->price_after_discount, 2) }}
-                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
+                                        <small class="text-muted d-block">السعر السنوي</small>
+                                        @if ($plan->hasYearlyPrice())
+                                            <span class="fw-bold fs-5">{{ number_format((float) $plan->yearly_price, 2) }}
+                                                <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
+                                        @else
+                                            <span class="text-muted fs-6">-</span>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -168,13 +207,32 @@
                         <div class="col-sm-6 col-md-4">
                             <div class="card border shadow-none h-100">
                                 <div class="card-body p-3 d-flex align-items-center">
-                                    <div class="avatar bg-info rounded text-center p-2 me-3">
-                                        <i class="ti ti-calendar-event fs-4 text-white"></i>
+                                    <div class="avatar bg-success rounded text-center p-2 me-3">
+                                        <i class="ti ti-discount fs-4 text-white"></i>
                                     </div>
                                     <div>
-                                        <small class="text-muted d-block">دورة الفوترة</small>
+                                        <small class="text-muted d-block">السنوي بعد الخصم</small>
+                                        @if ($plan->hasYearlyPrice())
+                                            <span
+                                                class="fw-bold fs-5 text-heading">{{ number_format($plan->yearly_price_after_discount, 2) }}
+                                                <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
+                                        @else
+                                            <span class="text-muted fs-6">-</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <div class="card border shadow-none h-100">
+                                <div class="card-body p-3 d-flex align-items-center">
+                                    <div class="avatar bg-label-primary rounded text-center p-2 me-3">
+                                        <i class="ti ti-calendar-event fs-4 text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">خيارات الفوترة</small>
                                         <span
-                                            class="fw-bold fs-5">{{ $plan->subscription_billing_cycle?->label() ?? 'شهرياً' }}</span>
+                                            class="fw-bold fs-6">{{ $plan->hasYearlyPrice() ? 'شهري وسنوي' : '-' }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -187,8 +245,16 @@
                                     </div>
                                     <div>
                                         <small class="text-muted d-block">ترخيص إضافي</small>
-                                        <span
-                                            class="fw-bold fs-5">@if ($plan->hasUnlimitedUsers())غير متاح (مستخدمين غير محدودين)@elseif ($plan->extra_user_license_price){{ number_format((float) $plan->extra_user_license_price, 2) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>@else 0.00 <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>@endif</span>
+                                        <span class="fw-bold fs-5">
+                                            @if ($plan->hasUnlimitedUsers())
+                                                غير متاح (مستخدمين غير محدودين)
+                                            @elseif ($plan->extra_user_license_price)
+                                                {{ number_format((float) $plan->extra_user_license_price, 2) }}
+                                                <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
+                                            @else
+                                                0.00 <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
+                                            @endif
+                                        </span>
                                     </div>
                                 </div>
                             </div>

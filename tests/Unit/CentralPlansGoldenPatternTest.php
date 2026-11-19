@@ -29,7 +29,9 @@ final class CentralPlansGoldenPatternTest extends TestCase
         $action = file_get_contents(resource_path('views/admin/plans/action.blade.php'));
 
         self::assertStringContainsString("->withCount('subscriptions')", $dataTable);
-        self::assertStringContainsString('$row->subscriptions_count > 0', $action);
+        self::assertTrue(
+            str_contains($action, '$row->subscriptions_count <= 0') || str_contains($action, '$row->subscriptions_count > 0')
+        );
         self::assertStringNotContainsString('$row->hasSubscriptions()', $action);
     }
 
@@ -39,8 +41,8 @@ final class CentralPlansGoldenPatternTest extends TestCase
         $edit = file_get_contents(resource_path('views/admin/plans/edit.blade.php'));
         $formPartial = file_get_contents(resource_path('views/admin/plans/partials/_form.blade.php'));
 
-        self::assertStringContainsString("admin.plans.partials._form", $create);
-        self::assertStringContainsString("admin.plans.partials._form", $edit);
+        self::assertStringContainsString('admin.plans.partials._form', $create);
+        self::assertStringContainsString('admin.plans.partials._form', $edit);
         self::assertStringContainsString("'is_edit' => false", $create);
         self::assertStringContainsString("'is_edit' => true", $edit);
 

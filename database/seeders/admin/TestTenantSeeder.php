@@ -55,7 +55,8 @@ class TestTenantSeeder extends Seeder
             [
                 'code' => 'ENTERPRISE',
                 'description' => 'باقة متكاملة لجميع العمليات والتحصيل بدون قيود',
-                'price' => 5000.00,
+                'price' => 500.00,
+                'yearly_price' => 5000.00,
                 'extra_user_license_price' => 150.00,
                 'discount_percentage' => 0,
                 'plan_type' => 'enterprise',
@@ -63,7 +64,6 @@ class TestTenantSeeder extends Seeder
                 'is_active' => true,
                 'included_users' => 10,
                 'subscription_duration_type' => 'limited',
-                'subscription_billing_cycle' => 'yearly',
                 'created_by' => $adminUser?->id ?? 1,
                 'features' => [
                     'عقارات وإسنادات غير محدودة',
@@ -143,6 +143,7 @@ class TestTenantSeeder extends Seeder
             [
                 'plan_id' => $plan->id,
                 'subscription_number' => 'TEST-SUBSCRIPTION',
+                'billing_cycle' => 'yearly',
                 'starts_at' => now()->subMonths(1),
                 'status' => SubscriptionStatus::ACTIVE,
                 'price' => 5000.00,
@@ -212,6 +213,9 @@ class TestTenantSeeder extends Seeder
             ['id' => $settings?->getKey() ?? 1],
             [
                 'office_name' => 'شركة لوت للمزادات العقارية',
+                'unified_number' => filled($settings?->unified_number) ? $settings->unified_number : '7001234567',
+                'fal_license' => filled($settings?->fal_license) ? $settings->fal_license : '1200018492',
+                'representative_name' => filled($settings?->representative_name) ? $settings->representative_name : 'مدير النظام',
                 'logo_text' => 'لوت LOT',
                 'image' => empty($settings?->image) || $settings?->image === 'image/demo-office.jpg'
                     ? 'default-office.png'

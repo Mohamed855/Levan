@@ -12,6 +12,7 @@ use App\Http\Requests\Tenants\Payment\PaymentRequest;
 use App\Http\Requests\Tenants\Subscriptions\LicenseCheckoutRequest;
 use App\Http\Requests\Tenants\Subscriptions\ProcessLicensePaymentRequest;
 use App\Models\Admin\Plans\Plan;
+use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Services\Shared\Bills\BillService;
 use App\Services\Shared\Coupons\CouponService;
@@ -79,12 +80,28 @@ class TenantSubscriptionController extends Controller
         }
         try {
             $plan = $this->getCentralPlan();
-            $renewalPrice = $this->getRenewalPrice($plan);
+            $subscription = $this->subscriptionManager->getTenantSubscription(tenant()->id);
+            $currentCycle = $subscription?->billing_cycle?->value ?? (string) $subscription?->billing_cycle ?: 'monthly';
+
+            $requestedCycle = request()->query('cycle');
+            if ($requestedCycle === 'yearly' && ($plan->hasYearlyPrice() || $currentCycle === 'yearly')) {
+                $billingCycle = 'yearly';
+            } elseif ($requestedCycle === 'monthly') {
+                $billingCycle = 'monthly';
+            } else {
+                $billingCycle = ($currentCycle === 'yearly' && ($plan->hasYearlyPrice() || ($subscription && $subscription->price > 0))) ? 'yearly' : 'monthly';
+            }
+            $billingCycleLabel = $billingCycle === 'yearly' ? 'سنوياً' : 'شهرياً';
+
+            $renewalPrice = $this->getRenewalPrice($plan, $subscription, $billingCycle);
+            $monthlyPrice = (float) $plan->price_after_discount;
+            $yearlyPrice = $plan->hasYearlyPrice() ? (float) $plan->yearly_price_after_discount : (float) ($subscription?->currentPeriod?->price_snapshot ?? $subscription?->price ?? 0);
+
             $taxRate = 0.15;
             $taxAmount = round($renewalPrice * $taxRate, 2);
             $priceWithoutTax = round($renewalPrice - $taxAmount, 2);
 
-            return view('tenant.subscriptions.renew.checkout', compact('plan', 'renewalPrice', 'priceWithoutTax', 'taxAmount'));
+            return view('tenant.subscriptions.renew.checkout', compact('plan', 'subscription', 'billingCycle', 'billingCycleLabel', 'renewalPrice', 'monthlyPrice', 'yearlyPrice', 'priceWithoutTax', 'taxAmount'));
             //
         } catch (\Exception $e) {
             report($e);
@@ -97,7 +114,16 @@ class TenantSubscriptionController extends Controller
     {
         try {
             $plan = $this->getCentralPlan();
-            $renewalPrice = $this->getRenewalPrice($plan);
+            $subscription = $this->subscriptionManager->getTenantSubscription(tenant()->id);
+            $currentCycle = $subscription?->billing_cycle?->value ?? (string) $subscription?->billing_cycle ?: 'monthly';
+
+            $requestedCycle = $request->input('billing_cycle', $currentCycle);
+            if ($requestedCycle === 'yearly' && ! $plan->hasYearlyPrice() && $currentCycle !== 'yearly') {
+                $requestedCycle = 'monthly';
+            }
+            $billingCycle = in_array($requestedCycle, ['monthly', 'yearly'], true) ? $requestedCycle : 'monthly';
+
+            $renewalPrice = $this->getRenewalPrice($plan, $subscription, $billingCycle);
 
             $couponData = $this->couponService->processCoupon($request->input('coupon_code'), $renewalPrice);
 
@@ -108,13 +134,16 @@ class TenantSubscriptionController extends Controller
             $this->moyasarFormConfiguration->getPublishableKey();
             $this->moyasarFormConfiguration->amountInHalala((float) $couponData['final_total']);
 
-            $pendingBill = $this->createPendingBill($plan, $couponData, BillType::RENEWAL, $renewalPrice);
+            $pendingBill = $this->createPendingBill($plan, $couponData, BillType::RENEWAL, $renewalPrice, [
+                'billing_cycle' => $billingCycle,
+                'plan_id' => $plan->id,
+            ]);
 
             return $this->showMoyasarCheckout(
                 $pendingBill,
-                'تجديد الاشتراك في '.$plan->name,
+                'تجديد الاشتراك في '.$plan->name.' ('.($billingCycle === 'yearly' ? 'سنوياً' : 'شهرياً').')',
                 tenant_route_name('subscriptions.renew.callback', ['bill' => $pendingBill->bill_number]),
-                tenant_route_name('subscriptions.renew.checkout'),
+                tenant_route_name('subscriptions.renew.checkout', ['cycle' => $billingCycle]),
             );
         } catch (PaymentInitiationException $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -125,8 +154,16 @@ class TenantSubscriptionController extends Controller
         }
     }
 
-    private function getRenewalPrice(Plan $plan): float
+    private function getRenewalPrice(Plan $plan, ?Subscription $subscription = null, string $billingCycle = 'monthly'): float
     {
+        if ($billingCycle === 'yearly') {
+            if ($plan->hasYearlyPrice()) {
+                return (float) $plan->yearly_price_after_discount;
+            }
+
+            return (float) ($subscription?->currentPeriod?->price_snapshot ?? $subscription?->price ?? 0);
+        }
+
         return (float) ($plan->price_after_discount > 0 ? $plan->price_after_discount : $plan->price);
     }
 

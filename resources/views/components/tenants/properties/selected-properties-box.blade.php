@@ -31,22 +31,25 @@
                             <i class="ti ti-building"></i>
                         </div>
                     @endif
-                    <div class="assignment-property-card__content">
-                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-                            <code class="copyable-code">{{ $prop->property_number ?? '-' }}</code>
+                    <div class="assignment-property-card__content" style="padding-left: 48px;">
+                        <h6 class="mb-0 text-body text-truncate fw-bold" title="{{ $prop->name }}">{{ $prop->name }}</h6>
+                        <div class="d-flex align-items-center gap-1 my-1">
+                            <code class="copyable-code d-inline-flex align-items-center justify-content-center px-2 py-0 m-0" style="height: 22px; line-height: 1; font-size: 0.75rem; vertical-align: middle;">{{ $prop->property_number ?? '-' }}</code>
                             @if (!empty($prop->type_label))
-                                <span class="badge bg-info">{{ $prop->type_label }}</span>
+                                <span class="badge bg-info d-inline-flex align-items-center justify-content-center px-2 py-0 m-0" style="height: 22px; line-height: 1; font-size: 0.75rem; vertical-align: middle;">{{ $prop->type_label }}</span>
                             @endif
                         </div>
-                        <h6 class="mb-1 text-body text-truncate" title="{{ $prop->name }}">{{ $prop->name }}</h6>
                         <p class="mb-0 text-muted small"><i class="ti ti-map-pin me-1"></i>{{ $prop->city ?? '-' }}</p>
                     </div>
-                    <button type="button" class="btn btn-sm remove-property-card-btn"
-                        data-remove-property="{{ $prop->id }}"
-                        data-remove-auction-property="{{ $prop->id }}"
-                        aria-label="إزالة {{ $prop->name }}">
-                        <i class="ti ti-x"></i>
-                    </button>
+                    <div class="assignment-property-card__actions" style="position: absolute; top: 6px; left: 6px; display: flex; align-items: center; gap: 4px; z-index: 2;">
+                        <button type="button" class="btn btn-sm remove-property-card-btn position-static"
+                            data-remove-property="{{ $prop->id }}"
+                            data-remove-auction-property="{{ $prop->id }}"
+                            aria-label="إزالة {{ $prop->name }}"
+                            title="إلغاء التحديد">
+                            <i class="ti ti-x"></i>
+                        </button>
+                    </div>
                 </article>
             @endforeach
         @else

@@ -10,9 +10,9 @@
 @section('page-script')
     <script>
         window.paymentData = {
-            total: {{ $plan->price_after_discount }},
+            total: {{ $planCyclePrice ?? $plan->priceForCycle($billingCycle ?? 'monthly', true) }},
             appliedCoupon: @json($appliedCoupon ?? null),
-            finalTotal: {{ $finalTotal ?? $plan->price_after_discount }},
+            finalTotal: {{ $finalTotal ?? $planCyclePrice ?? $plan->priceForCycle($billingCycle ?? 'monthly', true) }},
         };
     </script>
     @vite(['resources/assets/vendor/libs/jquery/jquery.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/js/shared/form-validation.js', 'resources/assets/js/web/checkout.js', 'resources/assets/js/shared/payment/apply-coupon.js'])
@@ -38,9 +38,9 @@
                     </p>
 
                     <div class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill bg-white/10 my-2">
-                        <span class="text-2xl font-bold text-white">{{ number_format($plan->price_after_discount) }}</span>
+                        <span class="text-2xl font-bold text-white">{{ number_format($planCyclePrice ?? $plan->priceForCycle($billingCycle ?? 'monthly', true)) }}</span>
                         <span class="icon-saudi_riyal"></span>
-                        <span class="text-sm text-white/80">دفعة واحدة</span>
+                        <span class="text-sm text-white/80">/ {{ $billingCycleLabel ?? 'شهرياً' }}</span>
                     </div>
                 </div>
             </div>
@@ -106,6 +106,8 @@
                         </div>
                         <aside class="checkout-summary-col">
                             @include('web.partials.checkout-summary', [
+                                'summaryPrice' => $planCyclePrice ?? $plan->priceForCycle($billingCycle ?? 'monthly', true),
+                                'billingCycleLabel' => $billingCycleLabel ?? 'شهرياً',
                                 'showSubmitButton' => true,
                                 'formId' => 'otp-form',
                                 'submitId' => 'submit-otp-btn',
@@ -168,6 +170,7 @@
                         <input type="hidden" name="coupon_code" id="coupon_code_hidden"
                             value="{{ old('coupon_code', $appliedCoupon['coupon_code'] ?? ($checkoutData['coupon_code'] ?? '')) }}"
                             data-validation-skip>
+                        <input type="hidden" name="billing_cycle" value="{{ $billingCycle ?? 'monthly' }}" data-validation-skip>
                         <input type="hidden" name="bank_id" id="bank_id" data-validation-skip>
 
                         <div class="checkout-grid">
@@ -323,9 +326,22 @@
                                                 </div>
 
                                                 <!-- Receipt Upload Section -->
+                                                @php
+                                                    $preservedCheckoutReceipt = session(\App\Http\Requests\Site\CompleteCheckoutPaymentRequest::SESSION_RECEIPT_KEY);
+                                                    $preservedReceiptValue = is_array($preservedCheckoutReceipt)
+                                                        && !empty($preservedCheckoutReceipt['path'])
+                                                        && \Illuminate\Support\Facades\Storage::disk('local')->exists((string) $preservedCheckoutReceipt['path'])
+                                                        ? [
+                                                            'url' => route('site.plans.checkout.receipt-preview', $plan),
+                                                            'name' => (string) ($preservedCheckoutReceipt['name'] ?? basename((string) $preservedCheckoutReceipt['path'])),
+                                                            'mime' => (string) ($preservedCheckoutReceipt['mime'] ?? ''),
+                                                        ]
+                                                        : null;
+                                                @endphp
                                                 <div class="receipt-upload-box hidden" id="receipt-upload-section">
                                                     <x-form.controls.file name="transfer_receipt" id="transfer_receipt"
                                                         label="إيصال التحويل البنكي" required
+                                                        :value="$preservedReceiptValue"
                                                         accept="image/jpeg,image/jpg,image/png,application/pdf"
                                                         title="انقر أو اسحب إيصال التحويل هنا"
                                                         desc="صيغ JPG · PNG · PDF — أقصى حجم 10 ميجابايت" :max-size="10"
@@ -354,6 +370,8 @@
                             <!-- Order Summary Column -->
                             <div class="checkout-summary-col">
                                 @include('web.partials.checkout-summary', [
+                                    'summaryPrice' => $planCyclePrice ?? $plan->priceForCycle($billingCycle ?? 'monthly', true),
+                                    'billingCycleLabel' => $billingCycleLabel ?? 'شهرياً',
                                     'showSubmitButton' => true,
                                     'showEditLink' => $paymentStep,
                                 ])

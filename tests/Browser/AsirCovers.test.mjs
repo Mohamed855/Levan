@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import puppeteer from 'puppeteer';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
-import { createCanvas } from '@napi-rs/canvas';
+import { createCanvas, loadImage } from '@napi-rs/canvas';
 
 async function render(scenario, callback) {
     execFileSync(process.env.PHP_BINARY || 'php', ['scripts/auction-reports/render-asir-cover-proof.php', scenario], { stdio: 'pipe' });
@@ -21,6 +21,30 @@ async function render(scenario, callback) {
         try { assert.equal(pdf.numPages, count, 'Covers must not add blank/overflow PDF pages.'); } finally { await pdf.destroy(); }
     } finally { await browser.close(); }
 }
+
+test('the printed front cover keeps its original skyline silhouette with default and uploaded photos', async () => {
+    for (const scenario of ['normal', 'photo-portrait', 'photo-wide']) {
+        await render(scenario, async page => {
+            // Use a solid color to distinguish the silhouette from sky pixels.
+            if (scenario === 'normal') await page.evaluate(() => {
+                const canvas=document.createElement('canvas');canvas.width=canvas.height=1;
+                const context=canvas.getContext('2d');context.fillStyle='rgb(230,0,0)';context.fillRect(0,0,1,1);
+                document.querySelector('[data-asir-cover="front"] [data-report-cover="report_image:1"]').setAttributeNS('http://www.w3.org/1999/xlink','href',canvas.toDataURL());
+            });
+            const prefix=`output/pdf/asir-cover-fixes/${scenario}-skyline`;
+            await page.pdf({path:`${prefix}.pdf`,preferCSSPageSize:true,printBackground:true});
+            // PDF.js with the Node canvas backend does not reproduce this soft mask.
+            // Verify the printed pixels with Poppler, as in the visual PDF review.
+            execFileSync(process.env.PDFTOPPM_BINARY || 'pdftoppm',['-f','1','-l','1','-r','144','-singlefile','-png',`${prefix}.pdf`,prefix],{stdio:'pipe'});
+            const image=await loadImage(`${prefix}.png`);
+            const canvas=createCanvas(image.width,image.height),context=canvas.getContext('2d');context.drawImage(image,0,0);
+            const pixel=(x,y)=>[...context.getImageData(x*2,y*2,1,1).data].slice(0,3);
+            assert.deepEqual(pixel(10,540),[255,255,255],`${scenario}: the left sky cutout must expose the white cover.`);
+            assert.deepEqual(pixel(300,540),[230,0,0],`${scenario}: the skyline at the same height must retain the photo.`);
+            assert.deepEqual(pixel(300,610),[230,0,0],`${scenario}: the photo below the skyline must stay visible.`);
+        });
+    }
+});
 
 for (const scenario of ['normal', 'name-99', 'name-255-arabic', 'name-255-latin']) {
     test(`${scenario}: full centered cover titles fit without touching the subtitle`, async () => {

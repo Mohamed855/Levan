@@ -41,13 +41,12 @@ final class MarketingCampaignsController extends Controller
         $auction = $this->resolveAuction($target);
         app(AuctionReportLock::class)->assertEditable($auction);
 
-        $auction->load(['marketingCampaigns.evidence', 'properties']);
+        $auction->load(['marketingCampaigns.evidence']);
 
         return view('tenant.marketing-campaigns.form', [
             'auction' => $auction,
             'is_edit' => true,
             'auctionOptions' => $options->editableAuctions(),
-            'propertyOptions' => $options->campaignPropertyOptions(),
             'existingCampaigns' => $auction->marketingCampaigns->keyBy('channel'),
             'selectedChannels' => $auction->marketingCampaigns->pluck('channel')->all(),
         ]);

@@ -14,6 +14,7 @@ use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\Settings\Settings;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Shared\Bills\BillService;
+use App\Services\Shared\Mail\SystemMailService;
 use App\Services\Shared\Subscription\SubscriptionManager;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -22,20 +23,21 @@ use Illuminate\Support\Facades\Hash;
 class TenantService
 {
     public function __construct(
-        private TenantCreator       $tenantCreator,
-        private TenantInitializer   $tenantInitializer,
+        private TenantCreator $tenantCreator,
+        private TenantInitializer $tenantInitializer,
         private SubscriptionManager $subscriptionManager,
-        private BillService         $billService,
+        private BillService $billService,
     ) {}
+
     // Get tenant statistics
     public function getTenantStatistics(): array
     {
         $baseQuery = Tenant::query();
 
         return [
-            'total'                     => (clone $baseQuery)->count(),
+            'total' => (clone $baseQuery)->count(),
 
-            'with_active_subscription'  => (clone $baseQuery)->whereHas('lastSubscription', function ($q) {
+            'with_active_subscription' => (clone $baseQuery)->whereHas('lastSubscription', function ($q) {
                 $q->where('status', SubscriptionStatus::ACTIVE);
             })->count(),
 
@@ -43,7 +45,7 @@ class TenantService
                 $q->where('status', SubscriptionStatus::EXPIRED);
             })->count(),
 
-            'without_subscription'      => (clone $baseQuery)->whereDoesntHave('lastSubscription')->count(),
+            'without_subscription' => (clone $baseQuery)->whereDoesntHave('lastSubscription')->count(),
         ];
     }
 
@@ -51,12 +53,12 @@ class TenantService
     public function create(array $data)
     {
         $metadata = [
-            'plan_id'                   => $data['plan_id'],
-            'billing_name'              => $data['name'],
-            'billing_email'             => $data['email'],
-            'billing_phone'             => $data['phone'],
-            'billing_password'          => $data['password'],
-            'billing_company_name'      => $data['company_name'],
+            'plan_id' => $data['plan_id'],
+            'billing_name' => $data['name'],
+            'billing_email' => $data['email'],
+            'billing_phone' => $data['phone'],
+            'billing_password' => $data['password'],
+            'billing_company_name' => $data['company_name'],
             'billing_commercial_number' => $data['commercial_number'],
         ];
 
@@ -65,13 +67,16 @@ class TenantService
         [$tenant, $user] = $this->tenantCreator->createTenantEnvironment($metadata);
 
         [$subscriptionStatus, $periodStatus] = $this->resolveSubscriptionStatus($data['payment_type']);
+        $billingCycle = $data['billing_cycle'] ?? 'monthly';
 
         $subscription = $this->subscriptionManager->createSubscription(
             $tenant,
             $plan,
             $this->resolveAmount($data, $plan),
             $subscriptionStatus,
-            $periodStatus
+            $periodStatus,
+            trialEndDate: null,
+            options: ['billing_cycle' => $billingCycle]
         );
 
         //  ربط المستخدم بالاشتراك
@@ -83,7 +88,7 @@ class TenantService
         // إرسال الإيميل
         SendSubscriptionMailJob::dispatch($data['email'], $subscription, 'new')->onQueue('email');
 
-        \App\Services\Shared\Mail\SystemMailService::sendTenantWelcome(
+        SystemMailService::sendTenantWelcome(
             tenant: $tenant,
             loginEmail: $data['email'] ?? $tenant->primary_contact_email,
             source: 'subscription',
@@ -98,9 +103,9 @@ class TenantService
     {
         return DB::transaction(function () use ($tenant, $data) {
             $tenant->update([
-                'company_name'      => $data['company_name']      ?? $tenant->company_name,
+                'company_name' => $data['company_name'] ?? $tenant->company_name,
                 'commercial_number' => $data['commercial_number'] ?? $tenant->commercial_number,
-                'updated_by'        => auth()->id(),
+                'updated_by' => auth()->id(),
             ]);
 
             $this->updateTenantData($tenant, $data);
@@ -117,8 +122,6 @@ class TenantService
         });
     }
 
-
-
     /*
     |============================================================================
     |============================================================================
@@ -129,15 +132,16 @@ class TenantService
     private function resolveSubscriptionStatus(string $paymentType): array
     {
         return match ($paymentType) {
-            'paid'   => [SubscriptionStatus::ACTIVE,     SubscriptionPeriodStatus::ACTIVE],
+            'paid' => [SubscriptionStatus::ACTIVE,     SubscriptionPeriodStatus::ACTIVE],
             'unpaid' => [SubscriptionStatus::SUSPENDED,  SubscriptionPeriodStatus::PENDING_PAYMENT],
-            'trial'  => [SubscriptionStatus::TRIAL,      SubscriptionPeriodStatus::TRIAL],
+            'trial' => [SubscriptionStatus::TRIAL,      SubscriptionPeriodStatus::TRIAL],
         };
     }
 
     private function resolveAmount(array $data, Plan $plan): float
     {
-        $base     = (float) $plan->price_after_discount;
+        $cycle = $data['billing_cycle'] ?? 'monthly';
+        $base = (float) $plan->priceForCycle($cycle, true);
 
         $discount = ($data['has_discount'] ?? 'no') === 'yes'
             ? (float) ($data['discount_value'] ?? 0)
@@ -148,60 +152,64 @@ class TenantService
 
     private function resolvePaymentMethod(array $data): PaymentMethod
     {
-        if ($data['payment_type'] !== 'paid') return PaymentMethod::ADMIN;
+        if ($data['payment_type'] !== 'paid') {
+            return PaymentMethod::ADMIN;
+        }
 
         return match ($data['payment_method'] ?? 'admin') {
             'bank_transfer' => PaymentMethod::BANK_TRANSFER,
-            'online'        => PaymentMethod::ONLINE,
-            'cash'          => PaymentMethod::CASH,
-            default         => PaymentMethod::ADMIN,
+            'online' => PaymentMethod::ONLINE,
+            'cash' => PaymentMethod::CASH,
+            default => PaymentMethod::ADMIN,
         };
     }
 
-
     private function createBill(array $data, Plan $plan, $subscription, Tenant $tenant): void
     {
-        $discount   = ($data['has_discount'] ?? 'no') === 'yes' ? (float)($data['discount_value'] ?? 0) : 0;
+        $discount = ($data['has_discount'] ?? 'no') === 'yes' ? (float) ($data['discount_value'] ?? 0) : 0;
 
         $couponData = [
             'discount_amount' => $discount,
-            'coupon_id'       => null,
-            'coupon_code'     => null,
-            'coupon_value'    => null,
-            'coupon_type'     => null,
+            'coupon_id' => null,
+            'coupon_code' => null,
+            'coupon_value' => null,
+            'coupon_type' => null,
         ];
+
+        $billingCycle = $data['billing_cycle'] ?? 'monthly';
+        $originalAmount = (float) $plan->priceForCycle($billingCycle, true);
 
         $bill = $this->billService->createPendingBill(
             amount: $this->resolveAmount($data, $plan),
             paymentMethod: $this->resolvePaymentMethod($data),
-            originalAmount: (float) $plan->price_after_discount,
+            originalAmount: $originalAmount,
             type: BillType::NEW_SUBSCRIPTION,
             couponData: $couponData,
             metadata: [
-                'plan_id'                   => $plan->id,
-                'billing_name'              => $data['name'],
-                'billing_email'             => $data['email'],
-                'billing_phone'             => $data['phone'],
-                'billing_company_name'      => $data['company_name'],
+                'plan_id' => $plan->id,
+                'billing_cycle' => $billingCycle,
+                'billing_name' => $data['name'],
+                'billing_email' => $data['email'],
+                'billing_phone' => $data['phone'],
+                'billing_company_name' => $data['company_name'],
                 'billing_commercial_number' => $data['commercial_number'],
             ]
         );
 
         match ($data['payment_type']) {
-            'paid'   => $this->handlePaidBill($bill, $tenant, $subscription, $data),
+            'paid' => $this->handlePaidBill($bill, $tenant, $subscription, $data),
             'unpaid' => $bill->update([
-                'tenant_id'       => $tenant->id,
+                'tenant_id' => $tenant->id,
                 'subscription_id' => $subscription->id,
-                'status'          => BillStatus::UNPAID,
+                'status' => BillStatus::UNPAID,
             ]),
-            'trial'  => $bill->update([
-                'tenant_id'       => $tenant->id,
+            'trial' => $bill->update([
+                'tenant_id' => $tenant->id,
                 'subscription_id' => $subscription->id,
-                'status'          => BillStatus::TRIAL,
+                'status' => BillStatus::TRIAL,
             ]),
         };
     }
-
 
     private function handlePaidBill(Bill $bill, Tenant $tenant, $subscription, array $data): void
     {
@@ -222,21 +230,12 @@ class TenantService
             $updateData['settlement_amount'] = $data['discount_value'];
         }
 
-        if (!empty($data['receipt_path'])) {
+        if (! empty($data['receipt_path'])) {
             $updateData['invoice_url'] = $data['receipt_path'];
         }
 
         $bill->update($updateData);
     }
-
-
-
-
-
-
-
-
-
 
     private function updateTenantData(Tenant $tenant, array $data): void
     {
@@ -255,17 +254,17 @@ class TenantService
     {
         $user = User::where('id', '1')->first();
 
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
         $updateData = [
-            'name'  => $data['name'] ?? $user->name,
+            'name' => $data['name'] ?? $user->name,
             'email' => $data['email'] ?? $user->email,
             'phone' => $data['phone'] ?? $user->phone,
         ];
 
-        if (!empty($data['password'])) {
+        if (! empty($data['password'])) {
             $updateData['password'] = Hash::make($data['password']);
         }
 
@@ -276,7 +275,7 @@ class TenantService
     {
         $settings = Settings::first();
 
-        if (!$settings) {
+        if (! $settings) {
             return;
         }
 

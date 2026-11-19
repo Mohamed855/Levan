@@ -7,12 +7,14 @@ namespace Tests\Feature\Tenants\Auctions;
 use App\Actions\Tenants\Auctions\CreateAuctionAction;
 use App\Actions\Tenants\Auctions\UpdateAuctionAction;
 use App\Http\Middleware\Tenancy\CheckSubscription;
+use App\Http\Middleware\Tenancy\EnsureTenantLimitNotExceeded;
 use App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense;
 use App\Http\Requests\Tenants\Auctions\StoreAuctionRequest;
 use App\Http\Requests\Tenants\Auctions\UpdateAuctionRequest;
 use App\Jobs\Tenants\Auctions\GenerateAuctionReportsJob;
 use App\Models\Shared\WizardDraft;
 use App\Models\Tenants\Assignments\Assignment;
+use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
@@ -31,13 +33,14 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
 {
     public function test_draft_restores_report_uploads_and_metadata_through_final_create_then_is_discarded(): void
     {
-        $this->withoutMiddleware([CheckSubscription::class, EnsureUserHasActiveLicense::class]);
+        $this->withoutMiddleware([CheckSubscription::class, EnsureUserHasActiveLicense::class, EnsureTenantLimitNotExceeded::class]);
         Storage::fake('tenant_public');
         Storage::fake('local');
         Bus::fake([GenerateAuctionReportsJob::class]);
         $owner = User::query()->where('email', 'demo@lot.com')->firstOrFail();
         $assignment = $this->assignment('DRAFT');
         $property = $this->property($assignment, 'DRAFT');
+        $platform = IssuingEntity::create(['name' => 'منصة اختبار المسودة', 'is_active' => true]);
         $this->actingAs($owner, 'tenant');
         $resource = '/auctions';
         $first = $this->postJson('http://test.localhost/wizard-drafts', ['resource_key' => $resource, 'step' => 1, 'name' => 'مسودة مزاد'])->assertOk()->json();
@@ -45,7 +48,8 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
         $payload = array_replace($this->validPayload($assignment), [
             'resource_key' => $resource, 'step' => 4, 'name' => $name,
             'property_ids' => [$property->id],
-            'marketing' => ['introduction' => 'مقدمة محفوظة'],
+            'platform_entity_id' => $platform->id,
+            'marketing' => ['introduction' => 'مقدمة محفوظة', 'report_summary' => 'ملخص مستقل محفوظ بالمسودة'],
             'report_image' => UploadedFile::fake()->image('draft-report.png'),
             'attachments' => [UploadedFile::fake()->image('draft-document.png')],
         ]);
@@ -53,14 +57,18 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
         $restored = $this->getJson('http://test.localhost/wizard-drafts?resource_key='.urlencode($resource))->assertOk()->json();
         self::assertSame($first['draft_id'], $restored['draft_id']);
         self::assertSame('مقدمة محفوظة', $restored['data']['marketing']['introduction']);
+        self::assertSame('ملخص مستقل محفوظ بالمسودة', $restored['data']['marketing']['report_summary']);
         self::assertSame('draft-report.png', $restored['files']['report_image']['name']);
         self::assertSame('draft-document.png', $restored['files']['attachments'][0]['name']);
         $response = $this->post('http://test.localhost/auctions', ['_wizard_draft_id' => $first['draft_id'], '_wizard_resource_key' => $resource, 'assignment_id' => $assignment->id, 'property_ids' => [$property->id]]);
         $response->assertSessionHasNoErrors();
+        self::assertNull(session('error'), (string) session('error'));
+        self::assertStringContainsString('/auctions/', $response->headers->get('Location') ?? '');
         $auction = Auction::query()->where('name', $name)->sole();
         $response->assertRedirect('http://test.localhost/auctions/'.$auction->id);
         $snapshot = $auction->latestReportGeneration()->sole()->snapshot;
         self::assertSame('مقدمة محفوظة', $snapshot['marketing']['introduction']);
+        self::assertSame('ملخص مستقل محفوظ بالمسودة', $snapshot['marketing']['report_summary']);
         self::assertSame([], $snapshot['marketing']['campaigns']);
         self::assertNull(WizardDraft::query()->find($first['draft_id']));
     }
@@ -72,20 +80,23 @@ final class AuctionReportWorkflowTest extends TenantAuctionReportTestCase
         $assignment = $this->assignment('AUTO');
         $property = $this->property($assignment, 'AUTO');
         $auction = app(CreateAuctionAction::class)->execute(
-            array_replace($this->validPayload($assignment), ['property_ids' => [$property->id]]),
+            array_replace($this->validPayload($assignment), ['property_ids' => [$property->id], 'marketing' => ['introduction' => 'مقدمة مستقلة', 'report_summary' => 'ملخص الإنشاء']]),
             null, null, [], UploadedFile::fake()->image('auto-report.webp'),
         );
         Bus::assertNotDispatched(GenerateAuctionReportsJob::class);
         $createdGeneration = $auction->latestReportGeneration()->firstOrFail();
         self::assertSame('queued', $createdGeneration->status);
         self::assertSame($auction->name, $createdGeneration->snapshot['auction']['name']);
+        self::assertSame('ملخص الإنشاء', $createdGeneration->snapshot['marketing']['report_summary']);
 
-        $updated = app(UpdateAuctionAction::class)->execute($auction, ['description' => 'تحديث لاختبار الاستخراج التلقائي']);
+        $updated = app(UpdateAuctionAction::class)->execute($auction, ['description' => 'تحديث لاختبار الاستخراج التلقائي', 'marketing' => ['report_summary' => 'ملخص التعديل']]);
         Bus::assertNotDispatched(GenerateAuctionReportsJob::class);
         $updatedGeneration = $updated->latestReportGeneration()->firstOrFail();
         self::assertGreaterThan($createdGeneration->id, $updatedGeneration->id);
         self::assertSame('queued', $updatedGeneration->status);
         self::assertSame('تحديث لاختبار الاستخراج التلقائي', $updatedGeneration->snapshot['auction']['description']);
+        self::assertSame('ملخص التعديل', $updatedGeneration->snapshot['marketing']['report_summary']);
+        self::assertSame('مقدمة مستقلة', $updatedGeneration->snapshot['marketing']['introduction']);
         app(AuctionReportService::class)->startPendingGeneration($updated, (string) tenant('id'));
         Bus::assertDispatchedTimes(GenerateAuctionReportsJob::class, 1);
         self::assertSame(0, $createdGeneration->fresh()->progress);

@@ -522,6 +522,12 @@ final class AuctionReportArtwork
                 foreach ($sources as $source) {
                     $source->setAttribute('visibility', 'hidden');
                 }
+                $target = $container;
+                if (isset($frame['mask'])) {
+                    $target = $document->createElementNS(self::SVG, 'g');
+                    $target->setAttribute('mask', 'url(#report_'.$pageNumber.'_'.$frame['mask'].')');
+                    $container->appendChild($target);
+                }
                 [$left, $top, $right, $bottom] = $frame['box'];
                 $attributes = ['x' => $left, 'y' => $top, 'width' => $right - $left, 'height' => $bottom - $top];
                 foreach (['rect', 'image'] as $tag) {
@@ -547,7 +553,7 @@ final class AuctionReportArtwork
                             $this->coverImage($document, $node, $frame['box'], $item, 'report_'.$pageNumber.'_frame_'.$id.'_'.substr(hash('sha256', json_encode($frame)), 0, 8));
                         }
                     }
-                    $container->appendChild($node);
+                    $target->appendChild($node);
                 }
             }
         }

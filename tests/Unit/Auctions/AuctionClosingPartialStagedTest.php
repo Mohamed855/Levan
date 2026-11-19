@@ -367,6 +367,53 @@ final class AuctionClosingPartialStagedTest extends TestCase
         $this->assertTrue($validator->errors()->has('results.1.unsold_reason'));
     }
 
+    public function test_auction_closing_request_enforces_1000_char_limit_on_textareas(): void
+    {
+        $request = new SaveAuctionClosingRequest;
+        $rules = $request->rules();
+
+        $tooLong = [
+            'closing_date' => '2026-11-12',
+            'board_removal_date' => '2026-11-12',
+            'results_narrative' => str_repeat('أ', 1001),
+            'results' => [
+                1 => [
+                    'status' => 'unsold',
+                    'unsold_reason' => str_repeat('ب', 1001),
+                    'result_notes' => str_repeat('ج', 1001),
+                    'opening_price' => 100000,
+                    'participants_count' => 2,
+                    'bids_count' => 3,
+                ],
+            ],
+        ];
+
+        $validatorTooLong = Validator::make($tooLong, $rules);
+        $this->assertTrue($validatorTooLong->fails());
+        $this->assertTrue($validatorTooLong->errors()->has('results_narrative'));
+        $this->assertTrue($validatorTooLong->errors()->has('results.1.unsold_reason'));
+        $this->assertTrue($validatorTooLong->errors()->has('results.1.result_notes'));
+
+        $atLimit = [
+            'closing_date' => '2026-11-12',
+            'board_removal_date' => '2026-11-12',
+            'results_narrative' => str_repeat('أ', 1000),
+            'results' => [
+                1 => [
+                    'status' => 'unsold',
+                    'unsold_reason' => str_repeat('ب', 1000),
+                    'result_notes' => str_repeat('ج', 1000),
+                    'opening_price' => 100000,
+                    'participants_count' => 2,
+                    'bids_count' => 3,
+                ],
+            ],
+        ];
+
+        $validatorAtLimit = Validator::make($atLimit, $rules);
+        $this->assertFalse($validatorAtLimit->fails());
+    }
+
     public function test_auction_status_only_transitions_to_closed_when_all_properties_have_decided_outcomes(): void
     {
         $auction = $this->makeAuctionWithResults(['sold', null]);

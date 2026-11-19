@@ -7,20 +7,18 @@
             @break
         @endif
     @endforeach
-    @foreach (['broker_1', 'broker_2'] as $role)
-        @if (($content['values'][$role] ?? '') !== '' && $content['values'][$role] !== '-')
-            <section class="asir-broker-name" data-asir-section>
-                @if ($brokerUrl && $role === 'broker_1')<a href="{{ $brokerUrl }}" data-link-role="brokers">@endif
-                <p data-asir-paragraph data-report-field="{{ $role }}">{{ $content['values'][$role] }}</p>
-                @if ($brokerUrl && $role === 'broker_1')</a>@endif
-            </section>
-        @endif
+    @foreach ($content['broker_names'] as $index => $name)
+        <section class="asir-broker-name" data-asir-section @if ($content['image_items'] !== []) data-asir-repeat @endif>
+            @if ($brokerUrl && $index === 0)<a href="{{ $brokerUrl }}" data-link-role="brokers">@endif
+            <p data-asir-paragraph data-report-field="broker_{{ $index + 1 }}">{{ $name }}</p>
+            @if ($brokerUrl && $index === 0)</a>@endif
+        </section>
     @endforeach
     @if (($content['values']['contract_text'] ?? '') !== '')
         <section class="asir-contract" data-asir-section><p data-asir-paragraph data-report-field="contract_text">{{ $content['values']['contract_text'] }}</p></section>
     @endif
     @if ($content['image_items'] !== [])
-        <section data-asir-section><div class="asir-broker-grid" data-asir-grid>
+        <section data-asir-section data-asir-gap-min="6"><div class="asir-broker-grid" data-asir-grid>
             @foreach ($content['image_items'] as $image)
                 <div class="asir-broker-document" data-asir-item>
                     @if ($content['company_logo'])<img class="asir-broker-letterhead" src="{{ $content['company_logo'] }}" alt="" aria-hidden="true">@endif

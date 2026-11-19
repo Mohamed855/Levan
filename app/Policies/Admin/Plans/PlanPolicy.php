@@ -26,21 +26,21 @@ class PlanPolicy
 
     public function update(AdminUser $user, Plan $plan): bool
     {
-        return $user->can('plans.edit');
+        return ! $plan->isTrial() && $user->can('plans.edit');
     }
 
     public function delete(AdminUser $user, Plan $plan): bool
     {
-        return $user->can('plans.delete');
+        return ! $plan->isTrial() && $user->can('plans.delete');
     }
 
     public function restore(AdminUser $user, Plan $plan): bool
     {
-        return $user->can('plans.restore');
+        return ! $plan->isTrial() && $user->can('plans.restore');
     }
 
     public function forceDelete(AdminUser $user, Plan $plan): bool
     {
-        return $user->can('plans.force_delete');
+        return ! $plan->isTrial() && $user->can('plans.force_delete');
     }
 }

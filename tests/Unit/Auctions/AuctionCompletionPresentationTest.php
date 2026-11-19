@@ -7,6 +7,7 @@ namespace Tests\Unit\Auctions;
 use App\DataTables\Tenants\Auctions\AuctionsDataTable;
 use App\Enums\Tenants\Auctions\AuctionReportContentStatus;
 use App\Models\Tenants\Auctions\Auction;
+use Illuminate\Database\Eloquent\Collection;
 use Tests\TestCase;
 
 final class AuctionCompletionPresentationTest extends TestCase
@@ -14,8 +15,8 @@ final class AuctionCompletionPresentationTest extends TestCase
     public function test_marketing_completeness_is_a_separate_read_only_auction_attribute(): void
     {
         $auction = new Auction;
-        $auction->setRelation('marketingCampaigns', collect());
-        $auction->setRelation('properties', new \Illuminate\Database\Eloquent\Collection);
+        $auction->setRelation('properties', new Collection);
+        $auction->setRelation('attachments', new Collection);
         $auction->setAttribute('completion_status', 'complete');
         self::assertSame(AuctionReportContentStatus::INCOMPLETE, $auction->completion_status);
     }

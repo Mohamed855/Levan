@@ -34,6 +34,9 @@ class UpdatePlatformSettingsAction
                         $replacedImage = $settings->image;
                         $storedImage = $image->store('image', 'public');
                         $settings->image = $storedImage;
+                    } elseif (! empty($validated['remove_image'])) {
+                        $replacedImage = $settings->image;
+                        $settings->image = null;
                     }
                 }
 
@@ -48,7 +51,7 @@ class UpdatePlatformSettingsAction
             throw $exception;
         }
 
-        if ($storedImage !== null && $replacedImage !== null) {
+        if ($replacedImage !== null && $replacedImage !== $storedImage) {
             Storage::disk('public')->delete($replacedImage);
         }
         Cache::forget('app_settings');

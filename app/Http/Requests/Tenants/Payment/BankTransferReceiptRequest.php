@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests\Tenants\Payment;
 
+use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Services\Tenants\Shared\CentralBillingGateway;
 use Closure;
-use Illuminate\Foundation\Http\FormRequest;
 
-class BankTransferReceiptRequest extends FormRequest
+class BankTransferReceiptRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {

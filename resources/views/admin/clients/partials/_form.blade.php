@@ -14,17 +14,13 @@
     $plansList = $plans ?? collect();
     $companyPlans = $plansList
         ->map(function ($plan) {
-            $cycle =
-                $plan->subscription_billing_cycle instanceof \BackedEnum
-                    ? $plan->subscription_billing_cycle->value
-                    : $plan->subscription_billing_cycle?->value ?? $plan->subscription_billing_cycle;
-
             return [
                 'id' => $plan->id,
                 'code' => $plan->code,
                 'name' => $plan->name,
-                'subscription_duration_type' => $plan->subscription_duration_type,
-                'subscription_billing_cycle' => $cycle ? (string) $cycle : null,
+                'has_yearly_price' => $plan->hasYearlyPrice(),
+                'yearly_price' => $plan->yearly_price !== null ? (float) $plan->yearly_price : null,
+                'price' => (float) $plan->price,
             ];
         })
         ->values();
@@ -138,7 +134,7 @@
         </x-form.wizard.step>
 
         <!-- 3. بيانات الاشتراك -->
-        <x-form.wizard.step id="subscription-step" :fields="$is_edit ? [] : ['plan_id', 'start_date', 'end_date', 'activate_immediately']">
+        <x-form.wizard.step id="subscription-step" :fields="$is_edit ? [] : ['plan_id', 'billing_cycle', 'start_date', 'end_date', 'activate_immediately']">
             @if ($is_edit)
                 @php
                     $selectedPlanId = $subscription?->plan_id;
@@ -176,12 +172,17 @@
                 </div>
             @else
                 <div class="row g-4">
-                    <x-form.controls.select name="plan_id" label="الباقة" :options="$plans" :value="old('plan_id')"
+                    <x-form.controls.select name="plan_id" id="plan_id" label="الباقة" :options="$plans" :value="old('plan_id')"
                         placeholder="اختر الباقة" required col="col-md-6" />
+                    <x-form.controls.select name="billing_cycle" id="billing_cycle" label="دورة الفوترة"
+                        required :options="[
+                            ['value' => 'monthly', 'label' => 'شهرياً'],
+                            ['value' => 'yearly', 'label' => 'سنوياً'],
+                        ]" value="yearly" col="col-md-6" />
                     <x-form.controls.input name="start_date" type="date" label="تاريخ البداية" :value="old('start_date', now()->toDateString())"
                         required col="col-md-6" />
                     <x-form.controls.input name="end_date" type="date" label="تاريخ النهاية" :value="old('end_date')"
-                        help="يُحسب تلقائياً حسب نوع الباقة، ويمكن تعديله عند الحاجة." required col="col-md-6" />
+                        help="يُحسب تلقائياً حسب نوع الباقة ودورة الفوترة، ويمكن تعديله عند الحاجة." required col="col-md-6" />
                     <x-form.controls.checkbox name="activate_immediately" label="تفعيل الاشتراك فوراً"
                         :checked="old('activate_immediately', true)" col="col-12">
                         تفعيل الاشتراك مباشرة ليتمكن العميل من الدخول للنظام فور التسجيل.
@@ -266,6 +267,10 @@
                                     <dt class="col-5 text-muted">الباقة</dt>
                                     <dd class="col-7 fw-semibold" id="review-plan-name">
                                         {{ $subscription?->plan?->name ?? '-' }}</dd>
+                                    @if (!$is_edit)
+                                        <dt class="col-5 text-muted">دورة الفوترة</dt>
+                                        <dd class="col-7 fw-semibold" id="review-billing-cycle">-</dd>
+                                    @endif
                                     <dt class="col-5 text-muted">تاريخ البداية</dt>
                                     <dd class="col-7 fw-semibold" id="review-start-date">
                                         @date($subscription?->starts_at)</dd>

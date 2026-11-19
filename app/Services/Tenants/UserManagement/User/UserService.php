@@ -2,6 +2,7 @@
 
 namespace App\Services\Tenants\UserManagement\User;
 
+use App\Actions\Auth\PersistAuthenticationStateAction;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Shared\Mail\SystemMailService;
 use App\Services\Tenants\Shared\CentralTrialAccessGateway;
@@ -102,7 +103,8 @@ class UserService
         return DB::transaction(function () use ($user, $data) {
             $hasRoleId = array_key_exists('role_id', $data);
             $roleId = $data['role_id'] ?? null;
-            unset($data['role_id'], $data['password'], $data['password_confirmation']);
+            $removeImage = ! empty($data['remove_image']);
+            unset($data['role_id'], $data['password'], $data['password_confirmation'], $data['remove_image']);
 
             if ($hasRoleId && empty($roleId)) {
                 throw new \InvalidArgumentException('لا يمكن ترك المستخدم بدون دور.');
@@ -113,6 +115,13 @@ class UserService
                     $this->deleteImage($user->image);
                 }
                 $data['image'] = $this->handleImageUpload($data['image']);
+            } elseif ($removeImage) {
+                if ($user->image) {
+                    $this->deleteImage($user->image);
+                }
+                $data['image'] = null;
+            } else {
+                unset($data['image']);
             }
 
             $user->update($data);
@@ -173,7 +182,7 @@ class UserService
 
     public function updatePassword(User $user, string $password): void
     {
-        DB::transaction(fn () => app(\App\Actions\Auth\PersistAuthenticationStateAction::class)
+        DB::transaction(fn () => app(PersistAuthenticationStateAction::class)
             ->updatePassword($user, $password, (bool) $user->must_change_password));
     }
 
@@ -232,7 +241,7 @@ class UserService
                 $this->deleteImage($user->image);
             }
 
-            $imagePath = $image instanceof \Illuminate\Http\UploadedFile ? $this->handleImageUpload($image) : null;
+            $imagePath = $image instanceof UploadedFile ? $this->handleImageUpload($image) : null;
             $user->update(['image' => $imagePath]);
 
             return $user->fresh();

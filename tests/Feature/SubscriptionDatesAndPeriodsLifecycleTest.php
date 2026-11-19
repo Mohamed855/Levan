@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Jobs\Admin\ProcessSubscriptionPeriods;
@@ -12,12 +11,12 @@ use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Notifications\NotificationDelivery;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
-use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Shared\Notifications\NotificationDeadlineScanner;
 use App\Services\Shared\Subscription\SubscriptionManager;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 use Tests\Support\TenantAuctionReportTestCase;
 
 class SubscriptionDatesAndPeriodsLifecycleTest extends TenantAuctionReportTestCase
@@ -36,7 +35,7 @@ class SubscriptionDatesAndPeriodsLifecycleTest extends TenantAuctionReportTestCa
             'name' => 'باقة اختبار دورة الحياة',
             'code' => 'TEST-LIFECYCLE-'.uniqid(),
             'price' => 100.00,
-            'subscription_billing_cycle' => SubscriptionBillingCycle::MONTHLY,
+            'yearly_price' => 1000.00,
             'included_users' => 5,
             'properties_limit' => 20,
             'storage_quota_gb' => 10,
@@ -261,11 +260,11 @@ class SubscriptionDatesAndPeriodsLifecycleTest extends TenantAuctionReportTestCa
         self::assertStringContainsString('تحذير عاجل: اشتراك الشركة شارف على الانتهاء', $viewHtml);
 
         // When accessed on a dashboard route, the modal must also be rendered
-        $request = \Illuminate\Http\Request::create('http://test.localhost/dashboard');
-        $route = new \Illuminate\Routing\Route('GET', 'dashboard', fn() => 'ok');
+        $request = Request::create('http://test.localhost/dashboard');
+        $route = new Route('GET', 'dashboard', fn () => 'ok');
         $route->name('tenant.dashboard');
         $route->bind($request);
-        $request->setRouteResolver(fn() => $route);
+        $request->setRouteResolver(fn () => $route);
         app()->instance('request', $request);
 
         $ref = new \ReflectionProperty(app('router'), 'current');
@@ -372,7 +371,7 @@ class SubscriptionDatesAndPeriodsLifecycleTest extends TenantAuctionReportTestCa
 
         // 1. Travel to when Period 1 ends (Period 2 starts)
         $this->travelTo($period1->period_end->copy()->addSecond());
-        (new ProcessSubscriptionPeriods())->handle();
+        (new ProcessSubscriptionPeriods)->handle();
 
         $period1->refresh();
         $period2->refresh();
@@ -392,7 +391,7 @@ class SubscriptionDatesAndPeriodsLifecycleTest extends TenantAuctionReportTestCa
 
         // 2. Travel to when Period 2 ends (Period 3 starts)
         $this->travelTo($period2->period_end->copy()->addSecond());
-        (new ProcessSubscriptionPeriods())->handle();
+        (new ProcessSubscriptionPeriods)->handle();
 
         $period2->refresh();
         $period3->refresh();
@@ -408,7 +407,7 @@ class SubscriptionDatesAndPeriodsLifecycleTest extends TenantAuctionReportTestCa
 
         // 3. Travel to when Period 3 ends (no more queued periods)
         $this->travelTo($period3->period_end->copy()->addSecond());
-        (new ProcessSubscriptionPeriods())->handle();
+        (new ProcessSubscriptionPeriods)->handle();
 
         $period3->refresh();
         $subscription->refresh();

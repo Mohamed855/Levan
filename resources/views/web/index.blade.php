@@ -152,10 +152,10 @@
                     desc="نوفر باقات اشتراك مدروسة وشفافة تمنحك كافة الإمكانات لتوسيع أعمالك وإدارة مزاداتك بأمان." />
 
                 @php
-                    $hasMonthlyPlans = $plans->contains(fn ($p) => ($p->subscription_billing_cycle?->value ?? (string) $p->subscription_billing_cycle) === 'monthly');
-                    $hasYearlyPlans = $plans->contains(fn ($p) => ($p->subscription_billing_cycle?->value ?? (string) $p->subscription_billing_cycle) === 'yearly');
-                    $showSwitcher = ($hasMonthlyPlans && $hasYearlyPlans);
-                    $defaultCycle = $hasMonthlyPlans ? 'monthly' : ($hasYearlyPlans ? 'yearly' : 'monthly');
+                    $hasMonthlyPlans = $plans->isNotEmpty();
+                    $hasYearlyPlans = $plans->contains(fn ($p) => $p->hasYearlyPrice());
+                    $showSwitcher = $hasYearlyPlans;
+                    $defaultCycle = 'monthly';
                 @endphp
 
                 @if ($showSwitcher)
@@ -185,15 +185,24 @@
 
                 <div class="pricing-grid" id="pricing-grid" data-pricing-grid data-active-cycle="{{ $defaultCycle }}">
                     @foreach ($plans as $plan)
-                        @php
-                            $cycleValue = $plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle;
-                            $isHidden = ($showSwitcher && $cycleValue !== $defaultCycle);
-                        @endphp
-                        <div class="pricing-grid__item scroll-revealed {{ $isHidden ? 'is-hidden' : '' }}"
-                            data-billing-cycle="{{ $cycleValue }}">
+                        <div class="pricing-grid__item scroll-revealed {{ $defaultCycle !== 'monthly' ? 'is-hidden' : '' }}"
+                            data-billing-cycle="monthly">
                             <x-ui.package-card
                                 :plan="$plan"
-                                :action-url="route('site.plans.checkout', $plan->id)"
+                                billing-cycle="monthly"
+                                :action-url="route('site.plans.checkout', ['plan' => $plan->id, 'cycle' => 'monthly'])"
+                                :is-popular="$mostRequestedPlanId !== null && (int) $plan->id === (int) $mostRequestedPlanId"
+                            />
+                        </div>
+                    @endforeach
+
+                    @foreach ($plans->filter->hasYearlyPrice() as $plan)
+                        <div class="pricing-grid__item scroll-revealed {{ $defaultCycle !== 'yearly' ? 'is-hidden' : '' }}"
+                            data-billing-cycle="yearly">
+                            <x-ui.package-card
+                                :plan="$plan"
+                                billing-cycle="yearly"
+                                :action-url="route('site.plans.checkout', ['plan' => $plan->id, 'cycle' => 'yearly'])"
                                 :is-popular="$mostRequestedPlanId !== null && (int) $plan->id === (int) $mostRequestedPlanId"
                             />
                         </div>

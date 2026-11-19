@@ -10,7 +10,7 @@ return array (
   ),
   'files' => 
   array (
-    'asir/bindings.php' => '39d4cda8a56fd1e3f0c6c2cdb205c2c0c85bb71380d88155067cd10173a0ac0c',
+    'asir/bindings.php' => 'f7d5c928ad8e75d5dffdb3a283c2ffffc3112be48b322baae616f9f5db557518',
     'asir/company-logo.svg' => '291b06b9f596fe18c94635558bfb9fde57997c30870ff9282599bd19d7cfaeda',
     'asir/cover-company-logo.svg' => '6af4e7bbc1abda787af4c360b6e8f71d2ff94d393dfcb8ecb76b30024bfad7d7',
     'asir/cover-issuing-logo.svg' => '26300dc51be90eae731548e7e60d33d1991db63ef1c89581c234641560ab3eee',
@@ -21,10 +21,10 @@ return array (
     'asir/icon-tiktok.svg' => '0d8ab43d8ab4624d40e79fbe426a66aa7cd915728c36b1985e4b0600bea18b5b',
     'asir/icon-x.svg' => '3bb80208906d9a5a6a5043ec6eebfd9ebc744ee79e5636e8d705d45654df23a7',
     'asir/image-frames.php' => '4870fb4d70da76f5d169c54b1f930adfaa35c7c73b652c828697900ca81b467e',
-    'asir/layout.js' => '30009efa133024c2800e787068cd1fe85c0979dd76a023343a493f2c689b9999',
+    'asir/layout.js' => '3f08add77fe51d3d5944116420a2e78306a2476368b7f19922feeb6aa8afe624',
     'asir/native-broker-pattern.png' => 'bb9c6b236205a484981f37a7074d9d857ec057009aa6b4f409d4b013eeb8f82a',
     'asir/native-broker-watermark.png' => '0b242609d8ada4011f8bf26672e7c7c6da9a2f83c882105d9b901ae325fbf29d',
-    'asir/native-copy.php' => 'ea1bf82b1dc0a16878850d0dca63859c611ab3bf4a6d9cb409fe9a67771ad8fb',
+    'asir/native-copy.php' => '2097fc147886ae1149de96d6dcfafbc0ce7fa2033b0d53ac0196108560d082b8',
     'asir/native-whatsapp-icon.png' => '1909c4978e576426c6fc184d0a53e1a2e0dc45e58f8150b1b995706afbeda49f',
     'asir/native-x-symbol.png' => 'f248df045383821833e1b9d40ed2c79c27389e024c920e66b15b2eca3069512d',
     'asir/page-1.svg' => '8f16b52c3d583adb757d304ed00d3fb675764ff0883daebd5f57404a7d8756cc',

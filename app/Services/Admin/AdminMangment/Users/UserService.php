@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin\AdminMangment\Users;
 
+use App\Actions\Auth\PersistAuthenticationStateAction;
 use App\Enums\Admin\Users\AdminUserStatus;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Services\Shared\Mail\SystemMailService;
@@ -93,19 +94,26 @@ class UserService
         return DB::transaction(function () use ($user, $data) {
             $hasRoleId = array_key_exists('role_id', $data);
             $roleId = $data['role_id'] ?? null;
-            unset($data['role_id'], $data['password'], $data['password_confirmation']);
+            $removeImage = ! empty($data['remove_image']);
+            unset($data['role_id'], $data['password'], $data['password_confirmation'], $data['remove_image']);
 
             if ($hasRoleId && empty($roleId)) {
                 throw new \InvalidArgumentException('لا يمكن ترك المستخدم بدون دور.');
             }
 
-            // Handle image upload
+            // Handle image upload or deferred removal on submit
             if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
-                // Delete old image
                 if ($user->image) {
                     $this->deleteImage($user->image);
                 }
                 $data['image'] = $this->handleImageUpload($data['image']);
+            } elseif ($removeImage) {
+                if ($user->image) {
+                    $this->deleteImage($user->image);
+                }
+                $data['image'] = null;
+            } else {
+                unset($data['image']);
             }
 
             // Update user
@@ -126,7 +134,7 @@ class UserService
 
     public function updatePassword(AdminUser $user, string $password): void
     {
-        DB::transaction(fn () => app(\App\Actions\Auth\PersistAuthenticationStateAction::class)
+        DB::transaction(fn () => app(PersistAuthenticationStateAction::class)
             ->updatePassword($user, $password, (bool) $user->must_change_password));
     }
 

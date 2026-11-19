@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const plans = window.companyPlans || [];
     const planId = form.querySelector('[name="plan_id"]');
+    const cycleSelect = form.querySelector('[name="billing_cycle"]');
     const startDate = form.querySelector('[name="start_date"]');
 
     const formatDate = (date) => {
@@ -73,7 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const cycle = (
-            selectedPlan.subscription_billing_cycle || ""
+            cycleSelect?.value ||
+            "yearly"
         ).toLowerCase();
         const isMonthly = cycle === "monthly";
         const isYearly = cycle === "yearly";
@@ -170,6 +172,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (planDisplayName) {
             setReviewValue("review-plan-name", planDisplayName);
         }
+        if (cycleSelect) {
+            const cycleText = cycleSelect.value === "monthly" ? "شهرياً" : "سنوياً";
+            setReviewValue("review-billing-cycle", cycleText);
+        }
         const formatDisplay = (val) =>
             typeof window.formatSystemDate === "function"
                 ? window.formatSystemDate(val)
@@ -239,9 +245,39 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
-    planId?.addEventListener("change", syncEndDate);
+    const handlePlanChange = () => {
+        const selectedPlan = plans.find(
+            (plan) => String(plan.id) === String(planId?.value),
+        );
+        if (cycleSelect && selectedPlan) {
+            const yearlyOption = cycleSelect.querySelector('option[value="yearly"]');
+            if (yearlyOption) {
+                if (!selectedPlan.has_yearly_price) {
+                    yearlyOption.disabled = true;
+                    if (cycleSelect.value === "yearly") {
+                        cycleSelect.value = "monthly";
+                        if (window.jQuery) {
+                            window.jQuery(cycleSelect).val("monthly").trigger("change");
+                        }
+                    }
+                } else {
+                    yearlyOption.disabled = false;
+                }
+                if (window.jQuery && window.jQuery(cycleSelect).data("select2")) {
+                    window.jQuery(cycleSelect).trigger("change.select2");
+                }
+            }
+        }
+        syncEndDate();
+    };
+
+    planId?.addEventListener("change", handlePlanChange);
     if (window.jQuery && planId) {
-        window.jQuery(planId).on("change", syncEndDate);
+        window.jQuery(planId).on("change", handlePlanChange);
+    }
+    cycleSelect?.addEventListener("change", syncEndDate);
+    if (window.jQuery && cycleSelect) {
+        window.jQuery(cycleSelect).on("change", syncEndDate);
     }
     startDate?.addEventListener("change", syncEndDate);
     startDate?.addEventListener("input", syncEndDate);

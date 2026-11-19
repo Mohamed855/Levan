@@ -17,32 +17,40 @@ use Tests\TestCase;
 
 final class AuctionEstablishmentAttachmentsTest extends TestCase
 {
-    public function test_optional_file_removal_updates_the_snapshot_without_deleting_before_commit(): void
+    public function test_valuation_is_always_required_even_when_entry_amount_is_zero(): void
     {
-        $data = $this->attachmentData();
-        $this->storeAttachments($data, [], ['valuation' => [42 => true]]);
-        self::assertArrayNotHasKey(42, $data['attachments']['valuation']);
-        Storage::disk('tenant_private')->assertExists('valuation.png');
-    }
-
-    public function test_removing_a_required_deed_requires_a_replacement(): void
-    {
-        $data = $this->attachmentData();
+        $data = $this->attachmentData(entryAmount: 0);
         $this->expectException(ValidationException::class);
-        $this->storeAttachments($data, [], ['deed' => [42 => true]]);
+        $this->storeAttachments($data, [], ['valuation' => [42 => true]]);
     }
 
-    public function test_replacement_satisfies_a_removed_required_deed(): void
+    public function test_replacing_valuation_preserves_old_file_on_disk_until_after_commit(): void
     {
-        $data = $this->attachmentData();
-        $this->storeAttachments($data, ['deed' => [42 => UploadedFile::fake()->image('replacement.png')]], ['deed' => [42 => true]]);
-        self::assertSame('replacement.png', $data['attachments']['deed'][42]['name']);
-        Storage::disk('tenant_private')->assertExists($data['attachments']['deed'][42]['path']);
+        $data = $this->attachmentData(entryAmount: 0);
+        $this->storeAttachments($data, ['valuation' => [42 => UploadedFile::fake()->image('new-valuation.png')]], ['valuation' => [42 => true]]);
+        self::assertSame('new-valuation.png', $data['attachments']['valuation'][42]['name']);
+        Storage::disk('tenant_private')->assertExists('valuation.png');
+        Storage::disk('tenant_private')->assertExists($data['attachments']['valuation'][42]['path']);
+    }
+
+    public function test_removing_a_required_valuation_requires_a_replacement(): void
+    {
+        $data = $this->attachmentData(entryAmount: 5000);
+        $this->expectException(ValidationException::class);
+        $this->storeAttachments($data, [], ['valuation' => [42 => true]]);
+    }
+
+    public function test_replacement_satisfies_a_removed_required_valuation(): void
+    {
+        $data = $this->attachmentData(entryAmount: 5000);
+        $this->storeAttachments($data, ['valuation' => [42 => UploadedFile::fake()->image('replacement.png')]], ['valuation' => [42 => true]]);
+        self::assertSame('replacement.png', $data['attachments']['valuation'][42]['name']);
+        Storage::disk('tenant_private')->assertExists($data['attachments']['valuation'][42]['path']);
     }
 
     public function test_removal_cannot_target_another_property(): void
     {
-        $data = $this->attachmentData();
+        $data = $this->attachmentData(entryAmount: 0);
         $this->expectException(ValidationException::class);
         $this->storeAttachments($data, [], ['valuation' => [43 => true]]);
     }
@@ -59,16 +67,16 @@ final class AuctionEstablishmentAttachmentsTest extends TestCase
         self::assertTrue($validator->errors()->has('attachments.manager_certificate'));
     }
 
-    private function attachmentData(): array
+    private function attachmentData(int $entryAmount = 0): array
     {
         Storage::fake('tenant_private');
         $attachments = [];
-        foreach (['manager_certificate', 'auctioneer_certificate', 'deed', 'valuation'] as $type) {
+        foreach (['manager_certificate', 'auctioneer_certificate', 'valuation'] as $type) {
             Storage::disk('tenant_private')->put($type.'.png', 'image');
-            $attachments[$type][in_array($type, ['deed', 'valuation'], true) ? 42 : 0] = ['path' => $type.'.png', 'name' => $type.'.png', 'mime' => 'image/png'];
+            $attachments[$type][$type === 'valuation' ? 42 : 0] = ['path' => $type.'.png', 'name' => $type.'.png', 'mime' => 'image/png'];
         }
 
-        return ['properties' => [['property_id' => 42, 'entry_amount' => 0, 'agent_name' => '']], 'attachments' => $attachments];
+        return ['properties' => [['property_id' => 42, 'entry_amount' => $entryAmount, 'agent_name' => '']], 'attachments' => $attachments];
     }
 
     private function storeAttachments(array &$data, array $uploads, array $removals): void

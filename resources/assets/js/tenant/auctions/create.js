@@ -348,6 +348,51 @@ document.addEventListener("DOMContentLoaded", () => {
         renderReviewFiles();
     }
 
+    function checkPropertyIsComplete(prop) {
+        if (!prop) return false;
+        const propId = String(prop.id);
+        const hiddenEl = form.querySelector(`[data-prop-hidden="${propId}"]`);
+        const opening = prop.opening_value ?? hiddenEl?.querySelector('[data-field="opening_value"]')?.value;
+        const entry = prop.entry_amount ?? hiddenEl?.querySelector('[data-field="entry_amount"]')?.value;
+        const share = prop.ownership_share ?? hiddenEl?.querySelector('[data-field="ownership_share"]')?.value;
+        const disclosure = prop.disclosure ?? hiddenEl?.querySelector('[data-field="disclosure"]')?.value;
+        const dimensions = prop.board_dimensions ?? hiddenEl?.querySelector('[data-field="board_dimensions"]')?.value;
+
+        const hasValuation = Boolean(prop.valuation_file) || Boolean(prop._valFiles && prop._valFiles.length > 0) || Boolean(hiddenEl?.querySelector('[data-prop-files] input[name*="valuation"]')?.files?.length > 0);
+        const hasBoard = (prop.board_before_files && prop.board_before_files.length > 0) || Boolean(prop._boardFiles && prop._boardFiles.length > 0) || Boolean(hiddenEl?.querySelector('[data-prop-files] input[name*="board_before"]')?.files?.length > 0);
+
+        return Boolean(
+            String(opening || "").trim() !== "" &&
+            String(entry || "").trim() !== "" &&
+            String(share || "").trim() !== "" &&
+            String(disclosure || "").trim() !== "" &&
+            String(dimensions || "").trim() !== "" &&
+            hasValuation &&
+            hasBoard
+        );
+    }
+
+    function updatePropertiesCompletionAlert() {
+        const alertEl = document.getElementById("properties-completion-alert");
+        const count = selectedProperties.size;
+        if (count === 0) {
+            alertEl?.classList.remove("d-flex");
+            alertEl?.classList.add("d-none");
+            return true;
+        }
+
+        const incomplete = [...selectedProperties.values()].filter((p) => !checkPropertyIsComplete(p));
+        if (incomplete.length > 0) {
+            alertEl?.classList.remove("d-none");
+            alertEl?.classList.add("d-flex");
+            return false;
+        } else {
+            alertEl?.classList.remove("d-flex");
+            alertEl?.classList.add("d-none");
+            return true;
+        }
+    }
+
     function renderSelectedPropertyCards() {
         const cards = document.getElementById("selected-properties-cards");
         const count = document.getElementById("selected-properties-count");
@@ -356,24 +401,33 @@ document.addEventListener("DOMContentLoaded", () => {
             count.textContent = String(properties.length);
             cards.innerHTML = properties.length
                 ? properties
-                      .map(
-                          (property) => `
-                    <article class="assignment-property-card" data-property-card="${escapeHtml(property.id)}">
+                      .map((property) => {
+                          const isComplete = checkPropertyIsComplete(property);
+                          property.is_complete = isComplete;
+                          return `
+                    <article class="assignment-property-card cursor-pointer border ${isComplete ? 'border-success-subtle' : 'border-warning-subtle'}" data-property-card="${escapeHtml(property.id)}" style="cursor: pointer;" title="انقر لتعديل واستكمال بيانات العقار للمزاد">
                         <img class="assignment-property-card__image" src="${escapeHtml(property.image || propertyImageFallback)}" alt="" onerror="this.onerror=null;this.src='${escapeHtml(propertyImageFallback)}';">
-                        <div class="assignment-property-card__content">
-                            <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-                                <code class="copyable-code">${escapeHtml(property.number || "-")}</code>
-                                ${property.type ? `<span class="badge bg-info">${escapeHtml(property.type)}</span>` : ""}
+                        <div class="assignment-property-card__content" style="padding-left: 48px;">
+                            <h6 class="mb-0 text-body text-truncate fw-bold" title="${escapeHtml(property.name)}">${escapeHtml(property.name)}</h6>
+                            <div class="d-flex align-items-center gap-1 my-1">
+                                <code class="copyable-code d-inline-flex align-items-center justify-content-center px-2 py-0 m-0" style="height: 22px; line-height: 1; font-size: 0.75rem; vertical-align: middle;">${escapeHtml(property.number || "-")}</code>
+                                ${property.type ? `<span class="badge bg-info d-inline-flex align-items-center justify-content-center px-2 py-0 m-0" style="height: 22px; line-height: 1; font-size: 0.75rem; vertical-align: middle;">${escapeHtml(property.type)}</span>` : ""}
                             </div>
-                            <h6 class="mb-1 text-body text-truncate" title="${escapeHtml(property.name)}">${escapeHtml(property.name)}</h6>
                             <p class="mb-0 text-muted small"><i class="ti ti-map-pin me-1"></i>${escapeHtml(property.city || "-")}</p>
                         </div>
-                        <button type="button" class="btn btn-sm remove-property-card-btn" data-remove-auction-property="${escapeHtml(property.id)}" aria-label="إزالة ${escapeHtml(property.name)}"><i class="ti ti-x" aria-hidden="true"></i></button>
-                    </article>`,
-                      )
+                        <div class="assignment-property-card__actions" style="position: absolute; top: 6px; left: 6px; display: flex; align-items: center; gap: 4px; z-index: 2;">
+                            ${isComplete 
+                                ? `<span class="badge bg-label-success p-0 d-inline-flex align-items-center justify-content-center rounded-circle" style="width:20px;height:20px;" title="البيانات مكتملة"><i class="ti ti-check" style="font-size: 11px;"></i></span>`
+                                : `<span class="badge bg-label-danger p-0 d-inline-flex align-items-center justify-content-center rounded-circle" style="width:20px;height:20px;" title="البيانات غير مكتملة (اضغط للإكمال)"><i class="ti ti-alert-triangle" style="font-size: 11px;"></i></span>`
+                            }
+                            <button type="button" class="btn btn-sm remove-property-card-btn position-static" data-remove-auction-property="${escapeHtml(property.id)}" aria-label="إزالة ${escapeHtml(property.name)}" title="إلغاء التحديد"><i class="ti ti-x" aria-hidden="true"></i></button>
+                        </div>
+                    </article>`;
+                      })
                       .join("")
                 : '<p class="text-muted mb-0" data-empty>لم يتم اختيار عقارات بعد.</p>';
         }
+        updatePropertiesCompletionAlert();
         renderReviewPropertyCards();
     }
 
@@ -390,11 +444,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 <article class="assignment-property-card" data-property-card="${escapeHtml(property.id)}">
                     <img class="assignment-property-card__image" src="${escapeHtml(property.image || propertyImageFallback)}" alt="" onerror="this.onerror=null;this.src='${escapeHtml(propertyImageFallback)}';">
                     <div class="assignment-property-card__content">
-                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-                            <code class="copyable-code">${escapeHtml(property.number || "-")}</code>
-                            ${property.type ? `<span class="badge bg-info">${escapeHtml(property.type)}</span>` : ""}
+                        <h6 class="mb-0 text-body text-truncate fw-bold" title="${escapeHtml(property.name)}">${escapeHtml(property.name)}</h6>
+                        <div class="d-flex align-items-center gap-1 my-1">
+                            <code class="copyable-code d-inline-flex align-items-center justify-content-center px-2 py-0 m-0" style="height: 22px; line-height: 1; font-size: 0.75rem; vertical-align: middle;">${escapeHtml(property.number || "-")}</code>
+                            ${property.type ? `<span class="badge bg-info d-inline-flex align-items-center justify-content-center px-2 py-0 m-0" style="height: 22px; line-height: 1; font-size: 0.75rem; vertical-align: middle;">${escapeHtml(property.type)}</span>` : ""}
                         </div>
-                        <h6 class="mb-1 text-body text-truncate" title="${escapeHtml(property.name)}">${escapeHtml(property.name)}</h6>
                         <p class="mb-0 text-muted small"><i class="ti ti-map-pin me-1"></i>${escapeHtml(property.city || "-")}</p>
                     </div>
                 </article>`,
@@ -791,21 +845,34 @@ document.addEventListener("DOMContentLoaded", () => {
         let count = 0;
         let totalArea = 0;
         let totalVal = 0;
+        const oldSelected = new Map(selectedProperties);
         selectedProperties.clear();
 
         $(".property-select-check:checked").each(function () {
+            const id = String(this.value);
+            const existing = oldSelected.get(id) || (window.existingAuctionPropertiesData && window.existingAuctionPropertiesData[id]) || {};
             count++;
             totalArea += parseFloat($(this).data("area")) || 0;
             totalVal += parseFloat($(this).data("val")) || 0;
-            selectedProperties.set(String(this.value), {
-                id: String(this.value),
-                number: this.dataset.number || "",
-                name: this.dataset.name || "",
-                type: this.dataset.type || "",
-                city: this.dataset.city || "",
-                image: this.dataset.image || propertyImageFallback,
-                area: parseFloat(this.dataset.area) || 0,
-                val: parseFloat(this.dataset.val) || 0,
+            selectedProperties.set(id, {
+                id,
+                number: this.dataset.number || existing.number || "",
+                name: this.dataset.name || existing.name || "",
+                type: this.dataset.type || existing.type || "",
+                city: this.dataset.city || existing.city || "",
+                image: this.dataset.image || existing.image || propertyImageFallback,
+                area: parseFloat(this.dataset.area) || existing.area || 0,
+                val: parseFloat(this.dataset.val) || existing.estimated_value || existing.val || 0,
+                estimated_value: parseFloat(this.dataset.val) || existing.estimated_value || existing.val || 0,
+                opening_value: existing.opening_value ?? "",
+                entry_amount: existing.entry_amount ?? "",
+                ownership_share: existing.ownership_share ?? "100",
+                disclosure: existing.disclosure ?? "",
+                board_count: existing.board_count ?? "1",
+                board_dimensions: existing.board_dimensions ?? "",
+                valuation_file: existing.valuation_file ?? null,
+                board_before_files: existing.board_before_files ?? [],
+                is_complete: Boolean(existing.is_complete),
             });
         });
 
@@ -822,6 +889,17 @@ document.addEventListener("DOMContentLoaded", () => {
         $("#selected-props-count").text(count);
         $("#selected-props-area").text(totalArea.toLocaleString() + " م²");
         $("#selected-props-val").html(totalVal.toLocaleString() + ' <span class="icon-saudi_riyal icon-saudi_riyal--white ms-1"></span>');
+
+        // Clean up hidden data for deselected properties
+        const currentIds = new Set(selectedProperties.keys());
+        const dataContainer = document.getElementById("auction-properties-data-container");
+        if (dataContainer) {
+            dataContainer.querySelectorAll("[data-prop-hidden]").forEach((el) => {
+                if (!currentIds.has(String(el.dataset.propHidden))) {
+                    el.remove();
+                }
+            });
+        }
 
         // Review step indicators
         $("#review-selected-props-count").text(count + " عقار");
@@ -911,7 +989,287 @@ document.addEventListener("DOMContentLoaded", () => {
         calculateSelectedProperties();
     });
 
-    // Guard against moving to next step without selecting at least 1 property
+    let currentEditingPropertyId = null;
+    let propModalInstance = null;
+
+    function getPropModal() {
+        const modalEl = document.getElementById("auctionPropertyModal");
+        if (!modalEl) return null;
+        if (!propModalInstance && window.bootstrap?.Modal) {
+            propModalInstance = new window.bootstrap.Modal(modalEl);
+        }
+        return propModalInstance;
+    }
+
+    function openAuctionPropertyModal(propertyId) {
+        const prop = selectedProperties.get(String(propertyId));
+        if (!prop) return;
+
+        currentEditingPropertyId = String(propertyId);
+
+        $("#auctionPropertyModalTitle").text(prop.name || "-");
+        $("#auctionPropertyModalNumber").text(prop.number || "-");
+        $("#auctionPropertyModalType").text(prop.type || "-");
+        $("#modal_auction_prop_id").val(prop.id);
+
+        const estVal = Number(prop.estimated_value || 0);
+        $("#modal_auction_estimated_value").val(estVal ? Number(estVal).toLocaleString() : "0");
+
+        $("#modal_auction_opening_value").val(prop.opening_value ?? "");
+        $("#modal_auction_entry_amount").val(prop.entry_amount ?? "");
+        $("#modal_auction_ownership_share").val(prop.ownership_share ?? "100");
+        $("#modal_auction_board_count").val(prop.board_count ?? "1");
+        $("#modal_auction_board_dimensions").val(prop.board_dimensions ?? "");
+        $("#modal_auction_disclosure").val(prop.disclosure ?? "");
+
+        // Reset file upload controls so no previous property files persist
+        const valInput = document.getElementById("modal_file_valuation");
+        const boardInput = document.getElementById("modal_file_board_before");
+        const valCtrl = window.SharedFileUpload ? window.SharedFileUpload.getController(valInput) : null;
+        const boardCtrl = window.SharedFileUpload ? window.SharedFileUpload.getController(boardInput) : null;
+
+        if (valCtrl) {
+            valCtrl.clear();
+            valCtrl.clearExistingFiles();
+        } else if (valInput) {
+            valInput.value = "";
+            valInput.closest("[data-file-upload-wrapper]")?.querySelectorAll("[data-file-preview-container] .file-item")?.forEach((el) => el.remove());
+        }
+
+        if (boardCtrl) {
+            boardCtrl.clear();
+            boardCtrl.clearExistingFiles();
+        } else if (boardInput) {
+            boardInput.value = "";
+            boardInput.closest("[data-file-upload-wrapper]")?.querySelectorAll("[data-file-preview-container] .file-item")?.forEach((el) => el.remove());
+        }
+
+        // Restore THIS property's files only:
+        if (prop._valFiles && prop._valFiles.length > 0) {
+            valCtrl?.addFiles(prop._valFiles);
+        } else if (prop.valuation_file) {
+            const vf = prop.valuation_file;
+            const fileData = typeof vf === "string"
+                ? { name: vf.split("/").pop(), url: vf }
+                : { id: vf.id, name: vf.name || "نموذج التقييم", url: vf.url || vf.path };
+            valCtrl?.setExistingFiles([fileData]);
+        }
+
+        if (prop._boardFiles && prop._boardFiles.length > 0) {
+            boardCtrl?.addFiles(prop._boardFiles);
+        } else if (prop.board_before_files && prop.board_before_files.length > 0) {
+            const list = prop.board_before_files.map((bf) => {
+                if (typeof bf === "string") {
+                    return { name: bf.split("/").pop(), url: bf };
+                }
+                return { id: bf.id, name: bf.name || "صورة لوحة", url: bf.url || bf.path };
+            });
+            boardCtrl?.setExistingFiles(list);
+        }
+
+        getPropModal()?.show();
+    }
+
+    function syncPropertyHiddenData(prop, valFiles = null, boardFiles = null) {
+        const dataContainer = document.getElementById("auction-properties-data-container");
+        if (!dataContainer) return;
+        const propId = String(prop.id);
+        let block = dataContainer.querySelector(`[data-prop-hidden="${propId}"]`);
+        if (!block) {
+            block = document.createElement("div");
+            block.className = "property-hidden-data";
+            block.dataset.propHidden = propId;
+            block.innerHTML = `
+                <input type="hidden" name="properties_data[${propId}][opening_value]" data-field="opening_value">
+                <input type="hidden" name="properties_data[${propId}][entry_amount]" data-field="entry_amount">
+                <input type="hidden" name="properties_data[${propId}][estimated_value]" data-field="estimated_value">
+                <input type="hidden" name="properties_data[${propId}][ownership_share]" data-field="ownership_share">
+                <input type="hidden" name="properties_data[${propId}][disclosure]" data-field="disclosure">
+                <input type="hidden" name="properties_data[${propId}][board_count]" data-field="board_count">
+                <input type="hidden" name="properties_data[${propId}][board_dimensions]" data-field="board_dimensions">
+                <div class="property-file-inputs" data-prop-files="${propId}"></div>
+            `;
+            dataContainer.appendChild(block);
+        }
+
+        const setVal = (field, val) => {
+            let input = block.querySelector(`[data-field="${field}"]`);
+            if (!input) {
+                input = document.createElement("input");
+                input.type = "hidden";
+                input.name = `properties_data[${propId}][${field}]`;
+                input.dataset.field = field;
+                block.appendChild(input);
+            }
+            input.value = val ?? "";
+        };
+
+        setVal("opening_value", prop.opening_value);
+        setVal("entry_amount", prop.entry_amount);
+        setVal("estimated_value", prop.estimated_value);
+        setVal("ownership_share", prop.ownership_share);
+        setVal("disclosure", prop.disclosure);
+        setVal("board_count", prop.board_count);
+        setVal("board_dimensions", prop.board_dimensions);
+
+        const filesWrapper = block.querySelector(`[data-prop-files="${propId}"]`);
+        if (filesWrapper) {
+            if (valFiles && valFiles.length > 0 && typeof DataTransfer !== "undefined") {
+                let existingInput = filesWrapper.querySelector(`input[name="properties_data[${propId}][valuation]"]`);
+                if (!existingInput) {
+                    existingInput = document.createElement("input");
+                    existingInput.type = "file";
+                    existingInput.name = `properties_data[${propId}][valuation]`;
+                    existingInput.style.display = "none";
+                    filesWrapper.appendChild(existingInput);
+                }
+                const dt = new DataTransfer();
+                dt.items.add(valFiles[0]);
+                existingInput.files = dt.files;
+                prop.valuation_file = valFiles[0].name;
+            }
+
+            if (boardFiles && boardFiles.length > 0 && typeof DataTransfer !== "undefined") {
+                let existingInput = filesWrapper.querySelector(`input[name="properties_data[${propId}][board_before][]"]`);
+                if (!existingInput) {
+                    existingInput = document.createElement("input");
+                    existingInput.type = "file";
+                    existingInput.name = `properties_data[${propId}][board_before][]`;
+                    existingInput.multiple = true;
+                    existingInput.style.display = "none";
+                    filesWrapper.appendChild(existingInput);
+                }
+                const dt = new DataTransfer();
+                for (let i = 0; i < boardFiles.length; i++) {
+                    dt.items.add(boardFiles[i]);
+                }
+                existingInput.files = dt.files;
+                prop.board_before_files = Array.from(boardFiles).map((f) => f.name);
+            }
+        }
+    }
+
+    function savePropertyModalData(propertyId) {
+        const prop = selectedProperties.get(String(propertyId));
+        if (!prop) return false;
+
+        const openingVal = $("#modal_auction_opening_value").val().trim();
+        const entryAmt = $("#modal_auction_entry_amount").val().trim();
+        const ownShare = $("#modal_auction_ownership_share").val().trim();
+        const bCount = $("#modal_auction_board_count").val().trim();
+        const bDim = $("#modal_auction_board_dimensions").val().trim();
+        const disc = $("#modal_auction_disclosure").val().trim();
+
+        const valInput = document.getElementById("modal_file_valuation");
+        const boardInput = document.getElementById("modal_file_board_before");
+        const valCtrl = window.SharedFileUpload ? window.SharedFileUpload.getController(valInput) : null;
+        const boardCtrl = window.SharedFileUpload ? window.SharedFileUpload.getController(boardInput) : null;
+
+        if (!openingVal || !entryAmt || !ownShare || !bCount || !bDim || !disc) {
+            if (window.toastr) {
+                window.toastr.error("يرجى تعبئة كافة الحقول المطلوبة للعقار.");
+            }
+            return false;
+        }
+
+        const valWrapper = valInput?.closest("[data-file-upload-wrapper]");
+        const boardWrapper = boardInput?.closest("[data-file-upload-wrapper]");
+
+        const remainingValCards = valWrapper?.querySelectorAll("[data-existing-file-card]") || [];
+        const newChosenValFiles = valCtrl ? valCtrl.getFiles() : (valInput?.files ? Array.from(valInput.files) : []);
+        const hasValuation = remainingValCards.length > 0 || newChosenValFiles.length > 0 || Boolean(prop._valFiles && prop._valFiles.length > 0);
+
+        if (!hasValuation) {
+            if (window.toastr) {
+                window.toastr.error("يرجى إرفاق نموذج التقييم العقاري.");
+            }
+            return false;
+        }
+
+        const remainingBoardCards = boardWrapper?.querySelectorAll("[data-existing-file-card]") || [];
+        const newChosenBoardFiles = boardCtrl ? boardCtrl.getFiles() : (boardInput?.files ? Array.from(boardInput.files) : []);
+        const hasBoard = remainingBoardCards.length > 0 || newChosenBoardFiles.length > 0 || Boolean(prop._boardFiles && prop._boardFiles.length > 0);
+
+        if (!hasBoard) {
+            if (window.toastr) {
+                window.toastr.error("يرجى إرفاق صورة واحدة على الأقل لتركيب اللوحات.");
+            }
+            return false;
+        }
+
+        prop.opening_value = openingVal;
+        prop.entry_amount = entryAmt;
+        prop.ownership_share = ownShare;
+        prop.board_count = bCount;
+        prop.board_dimensions = bDim;
+        prop.disclosure = disc;
+
+        if (newChosenValFiles.length > 0) {
+            prop._valFiles = newChosenValFiles;
+        } else if (remainingValCards.length === 0) {
+            prop.valuation_file = null;
+            prop._valFiles = null;
+        }
+
+        if (newChosenBoardFiles.length > 0) {
+            prop._boardFiles = newChosenBoardFiles;
+        } else if (remainingBoardCards.length === 0) {
+            prop.board_before_files = [];
+            prop._boardFiles = null;
+        }
+
+        prop.is_complete = true;
+
+        syncPropertyHiddenData(prop, prop._valFiles, prop._boardFiles);
+
+        // Reset file upload controllers after saving so modal state is clean
+        valCtrl?.clear();
+        valCtrl?.clearExistingFiles();
+        boardCtrl?.clear();
+        boardCtrl?.clearExistingFiles();
+
+        renderSelectedPropertyCards();
+        updatePropertiesCompletionAlert();
+        updateLivePreview();
+
+        return true;
+    }
+
+    // Card click opens the unified property modal
+    $(document).on("click", "#selected-properties-cards .assignment-property-card", function (e) {
+        if (e.target.closest("[data-remove-auction-property], .remove-property-card-btn")) return;
+        const propId = this.dataset.propertyCard;
+        if (propId) {
+            openAuctionPropertyModal(propId);
+        }
+    });
+
+    // Save button inside modal
+    $("#btn-save-auction-prop-modal").on("click", function () {
+        if (!currentEditingPropertyId) return;
+        const saved = savePropertyModalData(currentEditingPropertyId);
+        if (saved) {
+            getPropModal()?.hide();
+            if (window.toastr) {
+                window.toastr.success("تم حفظ بيانات العقار بنجاح.");
+            }
+        }
+    });
+
+    // Modal hidden cleanup to ensure no cross-property file leaks
+    document.getElementById("auctionPropertyModal")?.addEventListener("hidden.bs.modal", function () {
+        const valInput = document.getElementById("modal_file_valuation");
+        const boardInput = document.getElementById("modal_file_board_before");
+        const valCtrl = window.SharedFileUpload ? window.SharedFileUpload.getController(valInput) : null;
+        const boardCtrl = window.SharedFileUpload ? window.SharedFileUpload.getController(boardInput) : null;
+        valCtrl?.clear();
+        valCtrl?.clearExistingFiles();
+        boardCtrl?.clear();
+        boardCtrl?.clearExistingFiles();
+        currentEditingPropertyId = null;
+    });
+
+    // Guard against moving to next step without selecting at least 1 property and completing its data
     const stepProperties = document.getElementById("step-properties");
     if (stepProperties) {
         const nextBtn = stepProperties.querySelector(
@@ -946,6 +1304,25 @@ document.addEventListener("DOMContentLoaded", () => {
                             window.toastr.error(
                                 "يجب اختيار عقار واحد على الأقل للمزاد.",
                             );
+                        }
+                        return false;
+                    }
+
+                    // Check completeness
+                    const incomplete = [...selectedProperties.values()].filter((p) => !checkPropertyIsComplete(p));
+                    if (incomplete.length > 0) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        updatePropertiesCompletionAlert();
+                        if (window.toastr) {
+                            window.toastr.error(
+                                "برجاء استكمال بيانات العقارات للمتابعة (انقر على بطاقات العقارات لإكمال بياناتها المطلوبة).",
+                            );
+                        }
+                        const alertEl = document.getElementById("properties-completion-alert");
+                        if (alertEl) {
+                            alertEl.scrollIntoView({ behavior: "smooth", block: "center" });
                         }
                         return false;
                     }
@@ -1018,9 +1395,39 @@ document.addEventListener("DOMContentLoaded", () => {
         // Step 3: Properties Review Cards
         renderReviewPropertyCards();
 
-        // Step 4: Reports & Attachments
+        // Step 4: Marketing live preview
+        const cityContextSelect = document.getElementById("marketing_city_context");
+        if (cityContextSelect) {
+            const selectedRegions = Array.from(cityContextSelect.selectedOptions)
+                .map((opt) => opt.textContent.trim())
+                .filter(Boolean);
+            $("#review-city-context").text(
+                selectedRegions.length ? selectedRegions.join("، ") : "—",
+            );
+        }
+        $("#review-planning-methodology").text(
+            form.elements.namedItem("marketing[planning_methodology]")?.value || "—",
+        );
+        $("#review-brochure-url").text(
+            form.elements.namedItem("marketing[brochure_url]")?.value || "—",
+        );
+        $("#review-board-url").text(
+            form.elements.namedItem("marketing[board_url]")?.value || "—",
+        );
+        const brokerNames = Array.from(
+            form.querySelectorAll('#auction-brokers-list [data-auction-broker-row] input[name$="[name]"]'),
+        )
+            .map((input) => input.value.trim())
+            .filter(Boolean);
+        $("#review-brokers-summary").text(
+            brokerNames.length ? brokerNames.join("، ") : "—",
+        );
+
+        // Step 5: Reports & Attachments
         const intro = form.elements.namedItem("marketing[introduction]")?.value;
         $("#review-report-introduction").text(intro || "—");
+        const summary = form.elements.namedItem("marketing[report_summary]")?.value;
+        $("#review-report-summary").text(summary || "—");
 
         const phone = form.elements.namedItem(
             "marketing[contacts][phone]",
@@ -1169,30 +1576,127 @@ document.addEventListener("DOMContentLoaded", () => {
         updateLivePreview,
     );
 
-    // Dynamic campaign addition & Select2 initialization
-    $("#add-campaign-btn").on("click", function () {
-        setTimeout(() => {
-            $(form)
-                .find(".campaign-row select")
-                .each(function () {
-                    if (
-                        !$(this).hasClass("select2-hidden-accessible") &&
-                        window.jQuery &&
-                        $.fn.select2
-                    ) {
-                        $(this).select2({
-                            dir: "rtl",
-                            width: "100%",
-                        });
-                    }
-                });
-            updateLivePreview();
-        }, 50);
-    });
+    // Dynamic Brokers Repeater in Step 4 (same pattern as Property Owners)
+    const brokersCard = form.querySelector("[data-auction-brokers-card]");
+    const brokersList = document.getElementById("auction-brokers-list");
+    const brokerTemplate = document.getElementById("auction-broker-row-template");
+    const addBrokerBtn = document.getElementById("btn-add-auction-broker");
 
-    $(form).on("click", ".remove-campaign", function () {
-        setTimeout(updateLivePreview, 50);
-    });
+    function renumberAuctionBrokers() {
+        if (!brokersList) return;
+        const rows = brokersList.querySelectorAll("[data-auction-broker-row]");
+        rows.forEach((row, index) => {
+            const title = row.querySelector(".broker-number");
+            if (title) {
+                title.textContent = `الوسيط #${index + 1}`;
+            }
+        });
+        let emptyEl = document.getElementById("auction-brokers-empty");
+        if (rows.length === 0) {
+            if (!emptyEl) {
+                emptyEl = document.createElement("p");
+                emptyEl.id = "auction-brokers-empty";
+                emptyEl.className = "text-muted mb-0 text-center py-2";
+                emptyEl.textContent =
+                    'لم تتم إضافة وسطاء بعد. انقر على "إضافة وسيط" لإضافة بيانات وعقد الوسيط.';
+                brokersList.appendChild(emptyEl);
+            }
+        } else if (emptyEl) {
+            emptyEl.remove();
+        }
+    }
+
+    if (addBrokerBtn && brokersCard && brokersList && brokerTemplate) {
+        addBrokerBtn.addEventListener("click", () => {
+            const nextIndex = Number(brokersCard.dataset.nextIndex || "0");
+            brokersCard.dataset.nextIndex = String(nextIndex + 1);
+            const key = `broker-${Date.now()}-${nextIndex}`;
+            const currentCount =
+                brokersList.querySelectorAll("[data-auction-broker-row]").length + 1;
+            const html = brokerTemplate.innerHTML
+                .replaceAll("__INDEX__", String(nextIndex))
+                .replaceAll("__KEY__", key)
+                .replaceAll("__NUM__", String(currentCount));
+            const temp = document.createElement("div");
+            temp.innerHTML = html.trim();
+            const row = temp.firstElementChild;
+            if (row) {
+                brokersList.appendChild(row);
+                window.FileUpload?.initAll?.(row);
+                renumberAuctionBrokers();
+                updateLivePreview();
+            }
+        });
+
+        brokersList.addEventListener("click", (event) => {
+            const removeBtn = event.target.closest(".btn-remove-auction-broker");
+            if (!removeBtn) return;
+            removeBtn.closest("[data-auction-broker-row]")?.remove();
+            renumberAuctionBrokers();
+            updateLivePreview();
+        });
+
+        brokersList.addEventListener("file:removed-existing", (event) => {
+            const row = event.target.closest("[data-auction-broker-row]");
+            const evidenceIdInput = row?.querySelector("[data-broker-evidence-id]");
+            if (evidenceIdInput) {
+                evidenceIdInput.value = "";
+            }
+        });
+    }
+
+    // Dynamic Campaign Channels Multi-Select & Tabs in Step 4
+    const channelsSelect = document.getElementById("campaign-channels-select");
+    const campaignTabsWrapper = document.getElementById("campaign-tabs-wrapper");
+    const campaignTabsEmpty = document.getElementById("campaign-tabs-empty");
+
+    function syncCampaignChannelsUi() {
+        const selected = Array.from(channelsSelect?.selectedOptions || []).map((o) => o.value);
+        if (!campaignTabsWrapper || !campaignTabsEmpty) return;
+
+        if (selected.length === 0) {
+            campaignTabsWrapper.classList.add("d-none");
+            campaignTabsEmpty.classList.remove("d-none");
+        } else {
+            campaignTabsWrapper.classList.remove("d-none");
+            campaignTabsEmpty.classList.add("d-none");
+
+            document.querySelectorAll(".campaign-channel-tab").forEach((tab) => {
+                const ch = tab.dataset.channel;
+                const isSel = selected.includes(ch);
+                tab.classList.toggle("d-none", !isSel);
+            });
+
+            document.querySelectorAll(".campaign-channel-pane").forEach((pane) => {
+                const ch = pane.dataset.channel;
+                const isSel = selected.includes(ch);
+                if (!isSel) {
+                    pane.classList.remove("show", "active");
+                }
+            });
+
+            // Ensure an active visible tab
+            const activeTab = document.querySelector(".campaign-channel-tab:not(.d-none) .nav-link.active");
+            if (!activeTab) {
+                const firstTabBtn = document.querySelector(".campaign-channel-tab:not(.d-none) .nav-link");
+                if (firstTabBtn) {
+                    if (window.bootstrap?.Tab) {
+                        new window.bootstrap.Tab(firstTabBtn).show();
+                    } else {
+                        $(firstTabBtn).tab("show");
+                    }
+                }
+            }
+        }
+    }
+
+    if (channelsSelect) {
+        $(channelsSelect).on("change change.select2 select2:select select2:unselect", function () {
+            syncCampaignChannelsUi();
+            updateLivePreview();
+        });
+        syncCampaignChannelsUi();
+    }
 
     // Quick jump step buttons in Step 7 Review
     document.querySelectorAll("[data-edit-step]").forEach((button) => {

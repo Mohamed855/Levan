@@ -1332,7 +1332,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 { id: "cadastral_plan", label: "مخطط العقار" },
                 { id: "coordinates_statement", label: "كشف الإحداثيات" },
                 { id: "building_permit", label: "رخصة البناء" },
-                { id: "assignment_letter_image", label: "صورة الإسناد" },
+                { id: "agency_document", label: "مستند التفويض أو الوكالة" },
             ];
 
             legalFields.forEach(({ id, label }) => {
@@ -1548,7 +1548,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 { id: "cadastral_plan", label: "مخطط العقار" },
                 { id: "coordinates_statement", label: "كشف الإحداثيات" },
                 { id: "building_permit", label: "رخصة البناء" },
-                { id: "assignment_letter_image", label: "صورة الإسناد" },
+                { id: "agency_document", label: "مستند التفويض أو الوكالة" },
             ];
 
             singleFields.forEach(({ id, label }) => {
@@ -1576,11 +1576,90 @@ document.addEventListener("DOMContentLoaded", () => {
                 getVal("short_description") || "وصف العقار";
     }
 
+    // Dynamic requirement for agency_document based on Step 3 agent/agency fields
+    const syncAgencyDocumentRequirement = () => {
+        const agencyFileInput = form.elements.namedItem("agency_document");
+        if (!agencyFileInput) return;
+
+        const hasAgentData = [
+            "agent_name",
+            "agent_national_id",
+            "agency_number",
+            "agency_date",
+        ].some((fieldName) => {
+            const el = form.elements.namedItem(fieldName);
+            return Boolean(el && String(el.value || "").trim() !== "");
+        });
+
+        const uploadWrapper = agencyFileInput.closest("[data-file-upload-wrapper]");
+        const fieldWrapper = agencyFileInput.closest("[data-form-field]");
+        const hasVisibleExisting = Boolean(
+            uploadWrapper?.querySelector("[data-existing-file-card]:not(.d-none)"),
+        );
+
+        if (uploadWrapper) {
+            uploadWrapper.dataset.wasRequired = hasAgentData ? "true" : "false";
+        }
+
+        const shouldRequireInput = hasAgentData && !hasVisibleExisting;
+        agencyFileInput.required = shouldRequireInput;
+        if (shouldRequireInput) {
+            agencyFileInput.setAttribute("required", "required");
+        } else {
+            agencyFileInput.removeAttribute("required");
+        }
+
+        const labelEl = fieldWrapper?.querySelector("label.form-label");
+        if (labelEl) {
+            let asterisk = labelEl.querySelector("span.text-danger");
+            if (hasAgentData && !asterisk) {
+                asterisk = document.createElement("span");
+                asterisk.className = "text-danger";
+                asterisk.setAttribute("aria-hidden", "true");
+                asterisk.textContent = " *";
+                labelEl.appendChild(asterisk);
+            } else if (!hasAgentData && asterisk) {
+                asterisk.remove();
+            }
+        }
+
+        if (!hasAgentData && fieldWrapper) {
+            fieldWrapper.classList.remove("is-invalid");
+            agencyFileInput.classList.remove("is-invalid");
+            uploadWrapper?.querySelector(".file-upload-area")?.classList.remove("is-invalid");
+            const errEl = fieldWrapper.querySelector("[data-form-error]");
+            if (errEl) {
+                errEl.textContent = "";
+                errEl.hidden = true;
+                errEl.style.display = "none";
+            }
+        }
+    };
+
+    ["agent_name", "agent_national_id", "agency_number", "agency_date"].forEach(
+        (fieldName) => {
+            const el = form.elements.namedItem(fieldName);
+            if (el) {
+                el.addEventListener("input", syncAgencyDocumentRequirement);
+                el.addEventListener("change", syncAgencyDocumentRequirement);
+            }
+        },
+    );
+
     form.addEventListener("change", buildReview);
     form.addEventListener("input", buildReview);
-    form.addEventListener("file:changed", buildReview);
-    form.addEventListener("file:removed", buildReview);
-    form.addEventListener("file:removed-existing", buildReview);
+    form.addEventListener("file:changed", () => {
+        syncAgencyDocumentRequirement();
+        buildReview();
+    });
+    form.addEventListener("file:removed", () => {
+        syncAgencyDocumentRequirement();
+        buildReview();
+    });
+    form.addEventListener("file:removed-existing", () => {
+        syncAgencyDocumentRequirement();
+        buildReview();
+    });
 
     // Jump to step via edit buttons
     document.querySelectorAll("[data-edit-step]").forEach((btn) => {
@@ -1664,9 +1743,11 @@ document.addEventListener("DOMContentLoaded", () => {
             loadImageSrc(aerialImageInput.value, data.boundary_geojson);
         }
 
+        syncAgencyDocumentRequirement();
         buildReview();
     });
 
     // Initial check
+    syncAgencyDocumentRequirement();
     buildReview();
 });

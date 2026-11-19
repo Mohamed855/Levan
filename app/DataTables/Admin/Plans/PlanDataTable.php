@@ -7,7 +7,6 @@ namespace App\DataTables\Admin\Plans;
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Enums\Admin\Plans\PlanColor;
 use App\Enums\Admin\Plans\PlanType;
-use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Models\Admin\Plans\Plan;
 use App\Services\Admin\Plans\PlanService;
 
@@ -24,7 +23,9 @@ class PlanDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        return Plan::query()->withCount('subscriptions');
+        return Plan::query()
+            ->notTrial()
+            ->withCount('subscriptions');
     }
 
     protected function getColumns(): array
@@ -36,12 +37,12 @@ class PlanDataTable extends AbstractDataTable
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم الباقة', 'className' => 'text-center align-middle'],
             ['data' => 'is_most_requested', 'name' => 'is_most_requested', 'title' => 'الأكثر طلباً', 'width' => '95px', 'className' => 'text-center align-middle', 'orderable' => false, 'searchable' => false],
             ['data' => 'plan_type', 'name' => 'plan_type', 'title' => 'النوع', 'className' => 'text-center align-middle'],
-            ['data' => 'price', 'name' => 'price', 'title' => 'السعر', 'className' => 'text-center align-middle'],
-            ['data' => 'duration', 'name' => 'subscription_billing_cycle', 'title' => 'المدة', 'className' => 'text-center align-middle'],
+            ['data' => 'price', 'name' => 'price', 'title' => 'السعر الشهري', 'className' => 'text-center align-middle'],
+            ['data' => 'yearly_price', 'name' => 'yearly_price', 'title' => 'السعر السنوي', 'className' => 'text-center align-middle'],
             ['data' => 'included_users', 'name' => 'included_users', 'title' => 'عدد المستخدمين', 'className' => 'text-center align-middle'],
             ['data' => 'extra_user_license_price', 'name' => 'extra_user_license_price', 'title' => 'سعر المستخدم الإضافي', 'className' => 'text-center align-middle'],
             ['data' => 'limits_summary', 'name' => 'limits_mode', 'title' => 'الحدود التشغيلية', 'className' => 'text-center align-middle'],
-            ['data' => 'is_active', 'name' => 'is_active', 'title' => 'الحالة', 'className' => 'text-center align-middle', 'width' => '90px'],
+            ['data' => 'is_active', 'name' => 'is_active', 'title' => 'التفعيل', 'className' => 'text-center align-middle', 'width' => '90px'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px', 'className' => 'text-center align-middle'],
         ];
     }
@@ -114,14 +115,28 @@ class PlanDataTable extends AbstractDataTable
                 return $priceHtml;
             })
 
-            ->addColumn('duration', function ($row) {
-                $cycle = $row->subscription_billing_cycle instanceof SubscriptionBillingCycle
-                    ? $row->subscription_billing_cycle
-                    : SubscriptionBillingCycle::tryFrom((string) $row->subscription_billing_cycle);
-                $cycleLabel = $row->code === 'trial_7_days' ? '7 أيام' : ($cycle ? $cycle->label() : '-');
-                $cycleColor = $row->code === 'trial_7_days' ? 'secondary' : ($cycle ? $cycle->color() : 'secondary');
+            ->addColumn('yearly_price', function ($row) {
+                if ($row->yearly_price === null) {
+                    return '-';
+                }
 
-                return '<span class="badge bg-label-'.$cycleColor.'">'.e($cycleLabel).'</span>';
+                $finalYearly = number_format($row->yearly_price_after_discount, 2);
+                $originalYearly = number_format((float) $row->yearly_price, 2);
+                $hasDiscount = (float) ($row->discount_percentage ?? 0) > 0;
+
+                $html = '<div class="d-flex flex-column align-items-center">
+                    <div>
+                        <span class="fw-bold text-heading">'.$finalYearly.'</span> <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>';
+                if ($hasDiscount) {
+                    $html .= ' <del class="text-muted small ms-1">'.$originalYearly.'</del>';
+                }
+                $html .= '</div>';
+                if ($hasDiscount) {
+                    $html .= '<span class="badge bg-label-danger mt-1 small">خصم '.(float) $row->discount_percentage.'%</span>';
+                }
+                $html .= '</div>';
+
+                return $html;
             })
 
             ->editColumn('included_users', function ($row) {
@@ -211,7 +226,7 @@ class PlanDataTable extends AbstractDataTable
             'is_most_requested',
             'plan_type',
             'price',
-            'duration',
+            'yearly_price',
             'included_users',
             'extra_user_license_price',
             'limits_summary',
@@ -235,10 +250,6 @@ class PlanDataTable extends AbstractDataTable
 
         if ($request->filled('plan_type')) {
             $query->where('plan_type', $request->plan_type);
-        }
-
-        if ($request->filled('subscription_billing_cycle')) {
-            $query->where('subscription_billing_cycle', $request->subscription_billing_cycle);
         }
 
         if ($request->filled('limits_mode')) {

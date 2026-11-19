@@ -17,16 +17,16 @@ class IssuingEntitySeeder extends Seeder
      * Falls back to the generic placeholder when the file is absent.
      */
     private const ENTITY_FIXTURES = [
-        'مركز الإسناد والتصفية (إنفاذ)'     => 'issuing-entities/infath.png',
-        'محكمة التنفيذ بالرياض'              => 'issuing-entities/courts.png',
-        'محكمة التنفيذ بجدة'                 => 'issuing-entities/courts.png',
-        'محكمة التنفيذ بالدمام'              => 'issuing-entities/courts.png',
-        'محكمة الأحوال الشخصية بالرياض'     => 'issuing-entities/courts.png',
-        'الهيئة العامة لعقارات الدولة'       => 'issuing-entities/rega.png',
-        'وزارة العدل'                        => 'issuing-entities/moj.png',
-        'لجنة الإفلاس'                       => null,   // no official fixture yet
-        'محكمة التنفيذ بمكة المكرمة'         => 'issuing-entities/courts.png',
-        'الهيئة العامة للأوقاف'              => null,   // no official fixture yet
+        'مركز الإسناد والتصفية (إنفاذ)' => 'issuing-entities/infath.png',
+        'محكمة التنفيذ بالرياض' => 'issuing-entities/courts.png',
+        'محكمة التنفيذ بجدة' => 'issuing-entities/courts.png',
+        'محكمة التنفيذ بالدمام' => 'issuing-entities/courts.png',
+        'محكمة الأحوال الشخصية بالرياض' => 'issuing-entities/courts.png',
+        'الهيئة العامة لعقارات الدولة' => 'issuing-entities/spga.png',
+        'وزارة العدل' => 'issuing-entities/moj.png',
+        'لجنة الإفلاس' => 'issuing-entities/bankruptcy.png',
+        'محكمة التنفيذ بمكة المكرمة' => 'issuing-entities/courts.png',
+        'الهيئة العامة للأوقاف' => 'issuing-entities/awqaf.png',
     ];
 
     /**
@@ -35,7 +35,7 @@ class IssuingEntitySeeder extends Seeder
     public function run(): void
     {
         $firstUserId = User::first()?->id;
-        $isTest      = (bool) config('seeding.test_seeders_enabled', false);
+        $isTest = (bool) config('seeding.test_seeders_enabled', false);
 
         $entities = [
             ['name' => 'مركز الإسناد والتصفية (إنفاذ)',     'is_active' => true],
@@ -54,7 +54,7 @@ class IssuingEntitySeeder extends Seeder
             $imageAttributes = [];
 
             if ($isTest) {
-                $fixture   = self::ENTITY_FIXTURES[$entity['name']] ?? null;
+                $fixture = self::ENTITY_FIXTURES[$entity['name']] ?? null;
                 $targetPath = 'issuing-entities/'.md5($entity['name']).'.png';
 
                 $imageAttributes['image'] = $fixture !== null
@@ -65,7 +65,7 @@ class IssuingEntitySeeder extends Seeder
             IssuingEntity::withTrashed()->updateOrCreate(
                 ['name' => $entity['name']],
                 array_merge([
-                    'is_active'  => $entity['is_active'],
+                    'is_active' => $entity['is_active'],
                     'created_by' => $firstUserId,
                     'deleted_at' => null,
                 ], $imageAttributes)

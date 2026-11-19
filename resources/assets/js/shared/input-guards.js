@@ -16,7 +16,8 @@ function isDigitsOnlyInput(input) {
 function isPriceInput(input) {
     return input instanceof HTMLInputElement
         && input.type !== 'hidden'
-        && (input.dataset.priceInput === 'true' || input.dataset.priceInput !== undefined);
+        && input.dataset.priceInput !== undefined
+        && input.dataset.priceInput !== 'false';
 }
 
 function getPhoneFormat(input) {
@@ -80,15 +81,92 @@ function formatPriceValue(value) {
     return integerFormatted;
 }
 
+const nativeInputValueDescriptor = Object.getOwnPropertyDescriptor(
+    HTMLInputElement.prototype,
+    'value',
+);
+
+function getRawInputValue(input) {
+    return nativeInputValueDescriptor?.get
+        ? nativeInputValueDescriptor.get.call(input)
+        : input.value;
+}
+
+function setRawInputValue(input, nextValue) {
+    if (nativeInputValueDescriptor?.set) {
+        nativeInputValueDescriptor.set.call(input, nextValue);
+    } else {
+        input.value = nextValue;
+    }
+}
+
+function formatExistingPriceInput(input) {
+    if (!isPriceInput(input)) {
+        return;
+    }
+
+    const currentValue = getRawInputValue(input);
+    if (currentValue === '') {
+        return;
+    }
+
+    const formatted = formatPriceValue(currentValue);
+    if (currentValue !== formatted) {
+        setRawInputValue(input, formatted);
+    }
+}
+
+function bindPriceInput(input, formatNow = true) {
+    if (!isPriceInput(input)) {
+        return;
+    }
+
+    if (
+        input.dataset.priceInputBound !== 'true'
+        && nativeInputValueDescriptor?.get
+        && nativeInputValueDescriptor?.set
+    ) {
+        input.dataset.priceInputBound = 'true';
+        Object.defineProperty(input, 'value', {
+            configurable: true,
+            enumerable: true,
+            get() {
+                return nativeInputValueDescriptor.get.call(this);
+            },
+            set(nextValue) {
+                const formatted = nextValue === null || nextValue === undefined || nextValue === ''
+                    ? ''
+                    : formatPriceValue(nextValue);
+                nativeInputValueDescriptor.set.call(this, formatted);
+            },
+        });
+    }
+
+    if (formatNow) {
+        formatExistingPriceInput(input);
+    }
+}
+
+function configureExistingPriceInputs(root = document) {
+    if (root instanceof HTMLInputElement) {
+        bindPriceInput(root);
+        return;
+    }
+
+    root.querySelectorAll('input[data-price-input]').forEach((input) => {
+        bindPriceInput(input);
+    });
+}
+
 function handlePriceInput(input) {
-    const raw = input.value;
+    const raw = getRawInputValue(input);
     const cursorPos = input.selectionStart ?? raw.length;
 
     const beforeCursor = raw.slice(0, cursorPos);
     const nonCommasBefore = convertArabicNumerals(beforeCursor).replace(/,/g, '').length;
 
     const formatted = formatPriceValue(raw);
-    input.value = formatted;
+    setRawInputValue(input, formatted);
 
     let newPos = 0;
     let nonCommaCount = 0;
@@ -164,12 +242,144 @@ function sanitizeInput(input) {
     }
 }
 
+const DEFAULT_TEXTAREA_MAX_LENGTH = 1000;
+const nativeTextareaValueDescriptor = Object.getOwnPropertyDescriptor(
+    HTMLTextAreaElement.prototype,
+    'value',
+);
+
+function isCounterTextarea(element) {
+    return element instanceof HTMLTextAreaElement
+        && element.hasAttribute('data-textarea-counter');
+}
+
+function getTextareaMaxLength(textarea) {
+    const attrMax = Number.parseInt(
+        textarea.dataset.textareaMaxlength || textarea.getAttribute('maxlength') || '',
+        10,
+    );
+
+    if (Number.isFinite(attrMax) && attrMax > 0) {
+        return Math.min(attrMax, DEFAULT_TEXTAREA_MAX_LENGTH);
+    }
+
+    return DEFAULT_TEXTAREA_MAX_LENGTH;
+}
+
+function getTextareaCounterDisplay(textarea) {
+    const scopedCounter = textarea
+        .closest('[data-form-field]')
+        ?.querySelector('[data-textarea-counter-display]');
+
+    if (scopedCounter) {
+        return scopedCounter;
+    }
+
+    const counterId = textarea.dataset.textareaCounter;
+    return counterId ? document.getElementById(counterId) : null;
+}
+
+function updateTextareaCounter(textarea, enforceLimit = false) {
+    if (!isCounterTextarea(textarea)) {
+        return;
+    }
+
+    const maxLength = getTextareaMaxLength(textarea);
+    if (textarea.maxLength !== maxLength) {
+        textarea.maxLength = maxLength;
+    }
+
+    let currentValue = nativeTextareaValueDescriptor?.get
+        ? nativeTextareaValueDescriptor.get.call(textarea)
+        : textarea.value;
+
+    if (enforceLimit && currentValue.length > maxLength) {
+        currentValue = currentValue.slice(0, maxLength);
+        if (nativeTextareaValueDescriptor?.set) {
+            nativeTextareaValueDescriptor.set.call(textarea, currentValue);
+        } else {
+            textarea.value = currentValue;
+        }
+    }
+
+    const counter = getTextareaCounterDisplay(textarea);
+    if (!counter) {
+        return;
+    }
+
+    const length = currentValue.length;
+    counter.textContent = `${length}/${maxLength}`;
+    counter.classList.toggle('text-danger', length >= maxLength);
+    counter.classList.toggle('fw-medium', length >= maxLength);
+    counter.classList.toggle('text-muted', length < maxLength);
+}
+
+function bindTextareaCounter(textarea) {
+    if (!isCounterTextarea(textarea)) {
+        return;
+    }
+
+    if (
+        textarea.dataset.textareaCounterBound !== 'true'
+        && nativeTextareaValueDescriptor?.get
+        && nativeTextareaValueDescriptor?.set
+    ) {
+        textarea.dataset.textareaCounterBound = 'true';
+        Object.defineProperty(textarea, 'value', {
+            configurable: true,
+            enumerable: true,
+            get() {
+                return nativeTextareaValueDescriptor.get.call(this);
+            },
+            set(nextValue) {
+                nativeTextareaValueDescriptor.set.call(this, nextValue);
+                updateTextareaCounter(this, false);
+            },
+        });
+    }
+
+    updateTextareaCounter(textarea, false);
+}
+
+function configureExistingTextareas(root = document) {
+    root.querySelectorAll('textarea[data-textarea-counter]').forEach((textarea) => {
+        bindTextareaCounter(textarea);
+    });
+}
+
+let priceObserverInitialized = false;
+
+function observeDynamicPriceInputs() {
+    if (priceObserverInitialized || typeof MutationObserver === 'undefined' || !document.body) {
+        return;
+    }
+
+    priceObserverInitialized = true;
+
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (!(node instanceof Element)) {
+                    return;
+                }
+
+                if (isPriceInput(node)) {
+                    bindPriceInput(node);
+                    return;
+                }
+
+                configureExistingPriceInputs(node);
+            });
+        });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
 function configureExistingInputs() {
     document.querySelectorAll('input').forEach((input) => {
         if (isPriceInput(input)) {
-            if (input.value && !input.value.includes(',')) {
-                input.value = formatPriceValue(input.value);
-            }
+            bindPriceInput(input);
         } else if (isPhoneInput(input)) {
             configurePhoneInput(input);
             sanitizeInput(input);
@@ -177,6 +387,9 @@ function configureExistingInputs() {
             sanitizeInput(input);
         }
     });
+
+    configureExistingTextareas();
+    observeDynamicPriceInputs();
 }
 
 document.addEventListener('keydown', (event) => {
@@ -190,11 +403,13 @@ document.addEventListener('keydown', (event) => {
         if (allowedNavigationKeys.has(event.key)) {
             if (event.key === 'Backspace' && input.selectionStart === input.selectionEnd) {
                 const pos = input.selectionStart;
-                if (pos > 0 && input.value[pos - 1] === ',') {
+                const currentValue = getRawInputValue(input);
+                if (pos > 0 && currentValue[pos - 1] === ',') {
                     event.preventDefault();
-                    const before = input.value.slice(0, pos - 2);
-                    const after = input.value.slice(pos);
-                    input.value = before + after;
+                    const before = currentValue.slice(0, pos - 2);
+                    const after = currentValue.slice(pos);
+                    setRawInputValue(input, before + after);
+                    input.setSelectionRange(before.length, before.length);
                     handlePriceInput(input);
                 }
             }
@@ -232,11 +447,12 @@ document.addEventListener('paste', (event) => {
         event.preventDefault();
         const text = (event.clipboardData || window.clipboardData)?.getData('text') || '';
         const clean = convertArabicNumerals(text).replace(/[^0-9.]/g, '');
-        const start = input.selectionStart ?? input.value.length;
-        const end = input.selectionEnd ?? input.value.length;
-        const current = input.value;
+        const current = getRawInputValue(input);
+        const start = input.selectionStart ?? current.length;
+        const end = input.selectionEnd ?? current.length;
         const nextValue = current.slice(0, start) + clean + current.slice(end);
-        input.value = nextValue;
+        setRawInputValue(input, nextValue);
+        input.setSelectionRange(start + clean.length, start + clean.length);
         handlePriceInput(input);
         input.dispatchEvent(new Event('input', { bubbles: true }));
         input.dispatchEvent(new Event('change', { bubbles: true }));
@@ -266,15 +482,33 @@ document.addEventListener('paste', (event) => {
 document.addEventListener('input', (event) => {
     if (event.target instanceof HTMLInputElement) {
         if (isPriceInput(event.target)) {
+            bindPriceInput(event.target, false);
             handlePriceInput(event.target);
             return;
         }
         sanitizeInput(event.target);
+        return;
+    }
+
+    if (isCounterTextarea(event.target)) {
+        bindTextareaCounter(event.target);
+        updateTextareaCounter(event.target, true);
     }
 });
 
 document.addEventListener('change', (event) => {
     const target = event.target;
+
+    if (isPriceInput(target)) {
+        bindPriceInput(target);
+        return;
+    }
+
+    if (isCounterTextarea(target)) {
+        bindTextareaCounter(target);
+        updateTextareaCounter(target, false);
+        return;
+    }
 
     if (target instanceof HTMLSelectElement && /^phones\[\d+\]\[type\]$/.test(target.name)) {
         const phoneInput = target.form?.querySelector(`[name="${target.name.replace('[type]', '[phone]')}"]`);
@@ -286,21 +520,45 @@ document.addEventListener('change', (event) => {
     }
 });
 
+document.addEventListener('reset', (event) => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement)) return;
+
+    requestAnimationFrame(() => {
+        configureExistingPriceInputs(form);
+        configureExistingTextareas(form);
+    });
+});
+
+document.addEventListener('show.bs.modal', (event) => {
+    if (event.target instanceof Element) {
+        configureExistingPriceInputs(event.target);
+    }
+});
+
+document.addEventListener('shown.bs.modal', (event) => {
+    if (event.target instanceof Element) {
+        configureExistingPriceInputs(event.target);
+        configureExistingTextareas(event.target);
+    }
+});
+
 document.addEventListener('submit', (event) => {
     const form = event.target;
     if (!(form instanceof HTMLFormElement)) return;
 
-    form.querySelectorAll('input[data-price-input="true"]').forEach((input) => {
-        if (input.value) {
-            input.value = input.value.replace(/,/g, '');
+    form.querySelectorAll('input[data-price-input]').forEach((input) => {
+        if (!isPriceInput(input)) return;
+        const raw = getRawInputValue(input);
+        if (raw) {
+            setRawInputValue(input, raw.replace(/,/g, ''));
         }
     });
 
     setTimeout(() => {
-        form.querySelectorAll('input[data-price-input="true"]').forEach((input) => {
-            if (input.value && !input.value.includes(',')) {
-                input.value = formatPriceValue(input.value);
-            }
+        form.querySelectorAll('input[data-price-input]').forEach((input) => {
+            if (!isPriceInput(input)) return;
+            formatExistingPriceInput(input);
         });
     }, 50);
 });

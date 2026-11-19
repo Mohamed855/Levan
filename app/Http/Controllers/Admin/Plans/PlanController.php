@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Admin\Plans;
 use App\DataTables\Admin\Plans\PlanDataTable;
 use App\Enums\Admin\Plans\PlanLimitsMode;
 use App\Enums\Admin\Plans\PlanType;
-use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Plans\PlanReorderRequest;
@@ -49,10 +48,6 @@ class PlanController extends Controller
                     'value' => $case->value,
                     'label' => $case->label(),
                 ], PlanType::cases()),
-                'billing_cycles' => array_map(fn ($case) => [
-                    'value' => $case->value,
-                    'label' => $case->label(),
-                ], SubscriptionBillingCycle::cases()),
                 'limits_modes' => array_map(fn ($case) => [
                     'value' => $case->value,
                     'label' => $case->label(),
@@ -118,8 +113,12 @@ class PlanController extends Controller
         return redirect()->route($this->route.'.index')->with('success', __('plans.success.created'));
     }
 
-    public function edit(Plan $plan): View
+    public function edit(Plan $plan): View|RedirectResponse
     {
+        if ($plan->isTrial()) {
+            return redirect()->route($this->route.'.index')->with('error', 'لا يمكن تعديل باقة التجربة المجانية للنظام.');
+        }
+
         $hasSubscriptions = $this->planService->hasSubscriptions($plan);
 
         return view($this->page.'.edit', compact('plan', 'hasSubscriptions'));
@@ -127,6 +126,10 @@ class PlanController extends Controller
 
     public function update(PlanRequest $request, Plan $plan): RedirectResponse
     {
+        if ($plan->isTrial()) {
+            return redirect()->route($this->route.'.index')->with('error', 'لا يمكن تعديل باقة التجربة المجانية للنظام.');
+        }
+
         $this->planService->update($plan, $request->validated());
 
         return redirect()->route($this->route.'.index')->with('success', __('plans.success.updated'));
@@ -134,6 +137,14 @@ class PlanController extends Controller
 
     public function destroy(AdminAuthenticatedRequest $request, Plan $plan): JsonResponse|RedirectResponse
     {
+        if ($plan->isTrial()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'لا يمكن حذف باقة التجربة المجانية للنظام.'], 422);
+            }
+
+            return redirect()->route($this->route.'.index')->with('error', 'لا يمكن حذف باقة التجربة المجانية للنظام.');
+        }
+
         try {
             $this->planService->delete($plan);
 
@@ -161,6 +172,13 @@ class PlanController extends Controller
 
     public function toggleActive(AdminAuthenticatedRequest $request, Plan $plan): JsonResponse
     {
+        if ($plan->isTrial()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لا يمكن تعديل حالة باقة التجربة المجانية للنظام.',
+            ], 422);
+        }
+
         try {
             $plan = $this->planService->toggleActive($plan);
 

@@ -75,42 +75,19 @@
             @endcan
         @endcanany
 
-        {{-- المزادات والإعلانات --}}
-        @canany(['auctions.view', 'auction_establishment_requests.view', 'marketing_campaigns.view',
-            'auction_closings.view'])
+        {{-- المزادات والتقارير --}}
+        @can('auctions.view')
             <li class="menu-header small">
                 <span class="menu-header-text">المزادات والتقارير</span>
             </li>
 
-            @can('auctions.view')
-                <li class="menu-item @if (Helpers::isActiveRoute('auctions.*')) active @endif">
-                    <a href="{{ tenant_route_name('auctions.index') }}" class="menu-link">
-                        <i class="menu-icon tf-icons ti ti-gavel"></i>
-                        <div>المزادات</div>
-                    </a>
-                </li>
-            @endcan
-
-            @foreach ([['auction_establishment_requests.view', 'auction-establishment-requests', 'ti-file-certificate', 'طلب إقامة مزاد'], ['marketing_campaigns.view', 'marketing-campaigns', 'ti-speakerphone', 'الحملات التسويقية'], ['auction_closings.view', 'auction-closings', 'ti-lock', 'إقفال المزاد']] as [$permission, $resource, $icon, $label])
-                @can($permission)
-                    <li class="menu-item @if (Helpers::isActiveRoute($resource . '.*')) active @endif">
-                        <a href="{{ tenant_route_name($resource . '.index') }}" class="menu-link">
-                            <i class="menu-icon tf-icons ti {{ $icon }}"></i>
-                            <div>{{ $label }}</div>
-                        </a>
-                    </li>
-                @endcan
-            @endforeach
-
-            {{-- @canany(['auctions.view', 'auctions.create'])
-                <li class="menu-item @if (Helpers::isActiveRoute('promotional-advertisements.*')) active @endif">
-                    <a href="{{ tenant_route_name('promotional-advertisements.create') }}" class="menu-link">
-                        <i class="menu-icon tf-icons ti ti-speakerphone"></i>
-                        <div>الإعلانات الترويجية</div>
-                    </a>
-                </li>
-            @endcanany --}}
-        @endcanany
+            <li class="menu-item @if (Helpers::isActiveRoute('auctions.*')) active @endif">
+                <a href="{{ tenant_route_name('auctions.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-gavel"></i>
+                    <div>المزادات</div>
+                </a>
+            </li>
+        @endcan
 
         @can('tickets.view')
             <li class="menu-header small">

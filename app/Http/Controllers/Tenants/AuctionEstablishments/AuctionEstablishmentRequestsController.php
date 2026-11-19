@@ -36,7 +36,14 @@ final class AuctionEstablishmentRequestsController extends Controller
             throw ValidationException::withMessages(['data' => 'لا يمكن تعديل طلب معتمد أو طلب مزاد مقفل.']);
         }
 
-        return view('tenant.auction-establishment-requests.edit', ['auction' => $auction, 'schema' => $schema, 'data' => $schema->defaults($auction)]);
+        $auction->load(['attachments' => fn ($query) => $query->where('report_section', 'board_before')]);
+
+        return view('tenant.auction-establishment-requests.edit', [
+            'auction' => $auction,
+            'schema' => $schema,
+            'data' => $schema->defaults($auction),
+            'missingSettings' => $schema->missingSettingsFields(),
+        ]);
     }
 
     public function update(SaveAuctionEstablishmentRequest $request, Auction $auction, SaveAuctionEstablishmentRequestAction $action)

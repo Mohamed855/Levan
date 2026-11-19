@@ -6,18 +6,19 @@
 
     $existingPropertyAttachments = [];
     foreach ($auction->properties as $prop) {
+        $boardBeforeFiles = $auction->attachments
+            ->where('report_section', 'board_before')
+            ->where('property_id', $prop->id)
+            ->values()
+            ->map(fn ($file): array => [
+                'id' => $file->id,
+                'name' => $file->file_name ?? basename((string) $file->file_path),
+                'url' => tasset($file->file_path),
+                'mime' => str_ends_with(strtolower((string) $file->file_path), '.png') ? 'image/png' : 'image/jpeg',
+            ])
+            ->all();
+
         $existingPropertyAttachments[$prop->id] = [
-            'deed' => isset($data['attachments']['deed'][$prop->id])
-                ? [
-                    'name' => $data['attachments']['deed'][$prop->id]['name'] ?? 'وثيقة الملكية',
-                    'mime' => $data['attachments']['deed'][$prop->id]['mime'] ?? '',
-                    'url' => tenant_route_name('auction-establishment-requests.attachment', [
-                        'auction' => $auction,
-                        'type' => 'deed',
-                        'property' => $prop->id,
-                    ]),
-                ]
-                : null,
             'valuation' => isset($data['attachments']['valuation'][$prop->id])
                 ? [
                     'name' => $data['attachments']['valuation'][$prop->id]['name'] ?? 'نموذج التقييم',
@@ -29,19 +30,7 @@
                     ]),
                 ]
                 : null,
-            'representative_authority' => isset($data['attachments']['representative_authority'][$prop->id])
-                ? [
-                    'name' =>
-                        $data['attachments']['representative_authority'][$prop->id]['name'] ??
-                        'مستند التفويض أو الوكالة',
-                    'mime' => $data['attachments']['representative_authority'][$prop->id]['mime'] ?? '',
-                    'url' => tenant_route_name('auction-establishment-requests.attachment', [
-                        'auction' => $auction,
-                        'type' => 'representative_authority',
-                        'property' => $prop->id,
-                    ]),
-                ]
-                : null,
+            'board_before' => $boardBeforeFiles,
         ];
     }
 @endphp
@@ -177,13 +166,11 @@
             $hasInheritedContract = filled(
                 $propModel?->assignment?->assignment_number ?? $auction->assignment?->assignment_number,
             );
-            $hasInheritedAgent = filled($propModel?->agent_name);
             $hasInheritedEstimated = filled($propModel?->estimated_value);
             $prefix = "data[properties][{$index}]";
         @endphp
         <div class="property-hidden-data" data-prop-hidden="{{ $propId }}" data-prop-index="{{ $index }}"
             data-prop-inherited-contract="{{ $hasInheritedContract ? '1' : '0' }}"
-            data-prop-inherited-agent="{{ $hasInheritedAgent ? '1' : '0' }}"
             data-prop-inherited-estimated="{{ $hasInheritedEstimated ? '1' : '0' }}">
             <input type="hidden" name="{{ $prefix }}[property_id]" value="{{ $propId }}"
                 data-field="property_id">
@@ -193,12 +180,12 @@
                     data-field="{{ $fieldKey }}">
             @endforeach
             <div class="property-file-inputs" data-prop-files="{{ $propId }}">
-                @foreach (['deed', 'valuation', 'representative_authority'] as $type)
-                    <input type="file" name="attachments[{{ $type }}][{{ $propId }}]"
-                        accept=".pdf,.png,.jpg,.jpeg" class="d-none">
-                    <input type="hidden" name="remove_attachments[{{ $type }}][{{ $propId }}]"
-                        value="{{ old('remove_attachments.' . $type . '.' . $propId, '0') }}">
-                @endforeach
+                <input type="file" name="attachments[valuation][{{ $propId }}]"
+                    accept=".pdf,.png,.jpg,.jpeg" class="d-none">
+                <input type="hidden" name="remove_attachments[valuation][{{ $propId }}]"
+                    value="{{ old('remove_attachments.valuation.' . $propId, '0') }}">
+                <input type="file" name="board_images_before[{{ $propId }}][]"
+                    accept=".png,.jpg,.jpeg,.webp" multiple class="d-none">
             </div>
         </div>
     @endforeach

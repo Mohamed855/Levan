@@ -41,6 +41,7 @@ final class ManageBankAction
 
         try {
             $updated = DB::transaction(function () use ($bank, $data, $storedPath): Bank {
+                unset($data['remove_icon']);
                 if ($storedPath) {
                     $data['icon'] = $storedPath;
                 } else {

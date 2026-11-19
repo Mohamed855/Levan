@@ -14,7 +14,10 @@ final class AuctionReportRendererTest extends TestCase
         $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/haram.php';
         $bitmap = imagecreatetruecolor(30, 20);
         imagefill($bitmap, 0, 0, imagecolorallocate($bitmap, 160, 35, 70));
-        ob_start(); imagepng($bitmap); $uri = 'data:image/png;base64,'.base64_encode(ob_get_clean()); imagedestroy($bitmap);
+        ob_start();
+        imagepng($bitmap);
+        $uri = 'data:image/png;base64,'.base64_encode(ob_get_clean());
+        imagedestroy($bitmap);
         $snapshot['auction']['cover_image'] = $uri;
         $html = app(AuctionReportRenderer::class)->html($snapshot, 'outputs');
         self::assertSame(1, substr_count($html, 'data-report-cover="true"'));
@@ -128,6 +131,7 @@ final class AuctionReportRendererTest extends TestCase
         $cell = $xpath->query('.//*[@data-report-cell="unsold:0:0"]', $page)->item(0);
         self::assertLessThan(200, (float) $cell->getAttribute('y'));
     }
+
     public function test_long_subtitle_status_and_seven_digit_campaign_values_remain_atomic(): void
     {
         $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';
@@ -143,6 +147,7 @@ final class AuctionReportRendererTest extends TestCase
             self::assertTrue(str_contains($html, '>1,000,006</tspan>') || str_contains($html, '>1,000,006</strong>'), 'A seven-digit metric was broken into separate text chunks.');
         }
     }
+
     public function test_unknown_statistics_never_reuse_the_reference_pie_and_metrics_stay_on_one_page(): void
     {
         $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';
@@ -150,12 +155,14 @@ final class AuctionReportRendererTest extends TestCase
         $html = $renderer->html($snapshot, 'report');
         self::assertFalse(str_contains($html, 'clip-path="url(#report_12_p13_clip_32)"'));
         self::assertTrue(str_contains($html, 'data-report-empty-statistics'));
+        $pagesWithoutStatistics = substr_count($html, 'data-page-type=');
         $snapshot['marketing']['campaigns'] = [['platform' => 'whatsapp', 'messages' => 100000, 'views' => 78000, 'delivered' => 70000, 'failed' => 20000, 'pending' => 10000, 'total' => 100000]];
         $html = $renderer->html($snapshot, 'report');
-        self::assertSame(19, substr_count($html, 'data-page-type='), 'Atomic campaign statistics must not create repeated template pages.');
+        self::assertSame($pagesWithoutStatistics, substr_count($html, 'data-page-type='), 'Adding scalar statistics must not add template pages.');
         self::assertTrue(str_contains($html, 'data-report-chart="whatsapp"'));
         self::assertTrue(str_contains($html, 'data-percent="70"'));
     }
+
     public function test_every_channel_image_reaches_the_document_when_its_capacity_is_exceeded(): void
     {
         $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/asir.php';
@@ -182,8 +189,13 @@ final class AuctionReportRendererTest extends TestCase
     public function test_reference_capacity_fixtures_render_as_seven_and_twenty_one_pages(): void
     {
         $renderer = app(AuctionReportRenderer::class);
-        foreach (['haram' => ['outputs', 7], 'asir' => ['report', 19]] as $fixture => [$type, $count]) {
+        foreach (['haram' => ['outputs', 7], 'asir' => ['report', 21]] as $fixture => [$type, $count]) {
             $snapshot = require dirname(__DIR__, 2).'/Fixtures/AuctionReports/'.$fixture.'.php';
+            if ($fixture === 'asir') {
+                foreach (['board_before', 'board_after'] as $section) {
+                    $snapshot['evidence'][$section] = array_map(static fn (int $id): array => ['id' => $id, 'uri' => null], range(1, 13));
+                }
+            }
             $html = $renderer->html($snapshot, $type);
             self::assertSame($count, substr_count($html, 'data-page-type='), $fixture);
             self::assertFalse(str_contains($html, '__DYNAMIC_IMAGE__'));

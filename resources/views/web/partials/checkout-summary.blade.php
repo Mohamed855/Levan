@@ -1,6 +1,7 @@
 @php
     $summaryPlanName = $summaryPlanName ?? $plan->name;
     $summaryPrice = $summaryPrice ?? $plan->price_after_discount;
+    $billingCycleLabel = $billingCycleLabel ?? null;
     $showCoupon = $showCoupon ?? true;
     $isTrial = $isTrial ?? false;
 @endphp
@@ -12,7 +13,11 @@
         <div class="summary-plan-badge">
             <span class="plan-name">{{ $summaryPlanName }}</span>
             <span class="plan-price" id="total-display">{{ number_format($summaryPrice, 2) }}
-                <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span></span>
+                <span class="icon-saudi_riyal icon-saudi_riyal--dark"></span>
+                @if (!empty($billingCycleLabel))
+                    <small class="ms-1" style="font-size: 0.75rem; font-weight: normal; opacity: 0.85;">/ {{ $billingCycleLabel }}</small>
+                @endif
+            </span>
         </div>
         @if ($showCoupon)
             <div class="coupon-box">
@@ -34,6 +39,9 @@
                 </div>
                 <div class="summary-row"><span class="row-label">المستخدمون</span><span class="row-value">مستخدم
                         واحد</span></div>
+            @endif
+            @if (!empty($billingCycleLabel))
+                <div class="summary-row"><span class="row-label">دورة الفوترة</span><span class="row-value">{{ $billingCycleLabel }}</span></div>
             @endif
             <div class="summary-row"><span class="row-label">المبلغ قبل الضريبة</span><span class="row-value"
                     id="subtotal-display">{{ number_format($priceWithoutTax, 2) }} <span

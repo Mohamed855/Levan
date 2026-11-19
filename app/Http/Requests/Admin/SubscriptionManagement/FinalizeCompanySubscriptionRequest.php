@@ -25,7 +25,9 @@ class FinalizeCompanySubscriptionRequest extends WizardFormRequest
             'address' => ['required', 'string', 'max:1000'],
             'name' => ['required', 'string', 'min:2', 'max:255'], 'phone' => ['required', 'regex:/^05[0-9]{8}$/'],
             'email' => ['required', 'email', 'max:255'], 'password' => ['required', 'string', Password::defaults(), 'confirmed'],
-            'plan_id' => ['required', 'exists:plans,id'], 'start_date' => ['required', 'date'],
+            'plan_id' => ['required', 'exists:plans,id'],
+            'billing_cycle' => ['nullable', 'string', 'in:monthly,yearly'],
+            'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after:start_date'],
             'total_users' => ['required', 'integer', 'min:1'], 'activate_immediately' => ['required', 'boolean'],
             'payment_type' => ['required', 'in:trial,paid,unpaid'],
@@ -54,9 +56,10 @@ class FinalizeCompanySubscriptionRequest extends WizardFormRequest
                 $validator->errors()->add('end_date', 'تاريخ النهاية مطلوب للباقة غير محددة المدة.');
             }
             if ($plan->subscription_duration_type === 'limited') {
+                $cycle = $this->input('billing_cycle') ?: ($plan->hasYearlyPrice() ? 'yearly' : 'monthly');
                 $expected = $plan->isTrial()
                     ? Carbon::parse($this->start_date)->addDays((int) config('trial.days', 7))->toDateString()
-                    : Carbon::parse($this->start_date)->{'add'.($plan->subscription_billing_cycle === 'monthly' ? 'Month' : 'Year')}()->toDateString();
+                    : Carbon::parse($this->start_date)->{'add'.($cycle === 'monthly' ? 'Month' : 'Year')}()->toDateString();
                 if ($this->filled('end_date') && Carbon::parse($this->end_date)->toDateString() !== $expected) {
                     $validator->errors()->add('end_date', 'تاريخ النهاية لا يطابق مدة الباقة المختارة.');
                 }
@@ -70,7 +73,7 @@ class FinalizeCompanySubscriptionRequest extends WizardFormRequest
             'company_name' => 'اسم الشركة', 'commercial_number' => 'رقم السجل التجاري', 'tax_number' => 'الرقم الضريبي',
             'city_id' => 'المدينة', 'address' => 'العنوان', 'name' => 'اسم المستخدم المسؤول', 'phone' => 'رقم الجوال',
             'email' => 'البريد الإلكتروني', 'password' => 'كلمة المرور', 'password_confirmation' => 'تأكيد كلمة المرور',
-            'plan_id' => 'الباقة', 'start_date' => 'تاريخ البداية', 'end_date' => 'تاريخ النهاية',
+            'plan_id' => 'الباقة', 'billing_cycle' => 'دورة الفوترة', 'start_date' => 'تاريخ البداية', 'end_date' => 'تاريخ النهاية',
             'total_users' => 'إجمالي المستخدمين', 'activate_immediately' => 'التفعيل الفوري', 'payment_type' => 'نوع الدفع',
             'payment_method' => 'طريقة الدفع', 'receipt_upload' => 'إيصال الدفع / الحوالة (مستند)',
             'has_discount' => 'تطبيق الخصم', 'discount_value' => 'قيمة الخصم', 'trial_end_date' => 'تاريخ انتهاء التجربة',

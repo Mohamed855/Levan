@@ -1,5 +1,5 @@
 @php
-    $property = $data['property'] ?? (count($data['properties'] ?? []) === 1 ? $firstProperty : []);
+    $property = $data['property'] ?? $firstProperty;
     $pv = static fn (string $key): string => (string) ($property[$key] ?? '');
 @endphp
 <main class="form-panel property-panel">

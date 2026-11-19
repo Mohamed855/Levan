@@ -27,6 +27,7 @@ Route::name('site.')->group(function () {
             Route::post('verify-email', [SubscriptionController::class, 'verifyOtp'])->name('checkout.verify.store');
             Route::post('resend-otp', [SubscriptionController::class, 'resendOtp'])->middleware('throttle:6,1')->name('checkout.resend');
             Route::post('payment', [SubscriptionController::class, 'completeCheckout'])->defaults('shared_form_validation', true)->name('checkout.payment');
+            Route::get('receipt-preview', [SubscriptionController::class, 'receiptPreview'])->name('checkout.receipt-preview');
         });
         Route::get('checkout/callback', [SubscriptionController::class, 'handlePaymentCallback'])->name('checkout.callback');
         Route::get('checkout/retry/{billNumber}', [SubscriptionController::class, 'retryCheckout'])->middleware('signed')->name('checkout.retry');

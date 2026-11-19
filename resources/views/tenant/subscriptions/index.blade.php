@@ -177,7 +177,7 @@
                             <div class="d-flex flex-column">
                                 <small class="small mb-1">دورة الفوترة</small>
                                 <h6 class="mb-0">
-                                    سنوي
+                                    {{ $subscription_formatted['billing_cycle_label'] ?? 'شهرياً' }}
                                 </h6>
                             </div>
                         </div>

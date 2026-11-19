@@ -16,6 +16,7 @@
                 data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
                 @if (!$is_edit)
                     data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
+                    data-draft-file-url="{{ tenant_route_name('wizard-drafts.file.destroy') }}"
                     data-draft-resource-key="tenant.ticket-create"
                 @endif
             >

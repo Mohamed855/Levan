@@ -34,6 +34,21 @@
 
     <div class="row">
         <div class="col-12 mb-6">
+            @if (!empty($missingSettings))
+                <div class="alert alert-danger d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4" role="alert">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="ti ti-alert-circle fs-3 flex-shrink-0"></i>
+                        <div>
+                            <strong>بيانات المنشأة النظامية غير مكتملة:</strong>
+                            يجب استكمال الحقول التالية في إعدادات النظام قبل تقديم طلب إقامة المزاد:
+                            <strong>{{ implode('، ', $missingSettings) }}</strong>.
+                        </div>
+                    </div>
+                    <a href="{{ tenant_route_name('settings.index') }}" class="btn btn-sm btn-danger">
+                        <i class="ti ti-settings me-1"></i>استكمال من الإعدادات
+                    </a>
+                </div>
+            @endif
             <x-form.wizard.stepper id="wizard-validation" class="mt-2" :steps="$steps">
                 <form id="establishment-request-form"
                     action="{{ tenant_route_name('auction-establishment-requests.update', $auction) }}" method="POST"
@@ -84,7 +99,7 @@
                     </x-form.wizard.step>
 
                     {{-- الخطوة 3: بيانات العقارات --}}
-                    <x-form.wizard.step id="step-establishment-properties" :fields="['data.properties', 'attachments.deed', 'attachments.valuation', 'attachments.representative_authority']">
+                    <x-form.wizard.step id="step-establishment-properties" :fields="['data.properties', 'attachments.valuation', 'board_images_before']">
                         @include('tenant.auction-establishment-requests.steps.step3-properties', [
                             'auction' => $auction,
                             'schema' => $schema,

@@ -90,14 +90,6 @@
                 label="نسبة الملكية المعروضة %" type="number" min="0.01" max="100" step="any"
                 required col="col-md-6" />
 
-            {{-- اسم الوكيل --}}
-            <x-form.controls.input name="modal_prop_agent_name" id="modal_prop_agent_name"
-                label="اسم الوكيل (إن وجد)" col="col-md-6" />
-
-            {{-- رقم الوكالة --}}
-            <x-form.controls.input name="modal_prop_agency_number" id="modal_prop_agency_number"
-                label="رقم الوكالة (إن وجد)" inputmode="numeric" pattern="[0-9]+" col="col-md-6" />
-
             {{-- قيمة افتتاح المزاد --}}
             <x-form.controls.input name="modal_prop_opening_value" id="modal_prop_opening_value"
                 label="قيمة افتتاح المزاد" type="number" min="0" step="0.01" :price="true" required
@@ -116,21 +108,23 @@
             <x-form.controls.textarea name="modal_prop_disclosure" id="modal_prop_disclosure"
                 label="الإفصاح الخاص بالعقار" required col="col-12" rows="2" />
 
-            <div class="col-md-4">
-                <x-form.controls.file name="modal_file_deed" id="modal_file_deed"
-                    label="وثيقة الملكية (الصك الإلكتروني)" accept=".pdf,.png,.jpg,.jpeg" col="col-12" required />
+            {{-- بيانات تركيب اللوحات للعقار --}}
+            <x-form.controls.input name="modal_prop_board_count" id="modal_prop_board_count" label="عدد اللوحات"
+                type="number" min="1" step="1" required col="col-md-6" />
+
+            <x-form.controls.input name="modal_prop_board_dimensions" id="modal_prop_board_dimensions"
+                label="مقاس اللوحات" placeholder="مثال: 3م × 2م" maxlength="255" required col="col-md-6" />
+
+            <div class="col-md-6">
+                <x-form.controls.file name="modal_file_board_before[]" id="modal_file_board_before"
+                    label="صور تركيب اللوحات" multiple accept=".png,.jpg,.jpeg,.webp" col="col-12" required
+                    help="صور تركيب اللوحات على العقار (PNG, JPG, WEBP — حتى 10MB لكل صورة)." />
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <x-form.controls.file name="modal_file_valuation" id="modal_file_valuation"
-                    label="نموذج التقييم العقاري" accept=".pdf,.png,.jpg,.jpeg" col="col-12"
-                    help="مطلوب عند وجود مبلغ دخول." />
-            </div>
-
-            <div class="col-md-4">
-                <x-form.controls.file name="modal_file_representative_authority"
-                    id="modal_file_representative_authority" label="مستند التفويض أو الوكالة"
-                    accept=".pdf,.png,.jpg,.jpeg" col="col-12" help="مطلوب عند وجود وكيل أو معتمد غير المالك." />
+                    label="نموذج التقييم العقاري" accept=".pdf,.png,.jpg,.jpeg" col="col-12" required
+                    help="ملف نموذج التقييم العقاري المعتمد (PDF أو صورة — حتى 10MB)." />
             </div>
         </div>
     </div>

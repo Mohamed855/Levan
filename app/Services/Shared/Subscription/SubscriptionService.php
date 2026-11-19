@@ -14,6 +14,7 @@ use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
 use App\Services\Shared\Bills\BillService;
 use App\Services\Shared\Coupons\CouponService;
+use App\Services\Shared\Mail\SystemMailService;
 use App\Services\Shared\Tenant\TenantCreator;
 use App\Services\Shared\Tenant\TenantInitializer;
 use Illuminate\Support\Facades\Auth;
@@ -23,11 +24,11 @@ use Stancl\Tenancy\Facades\Tenancy;
 class SubscriptionService
 {
     public function __construct(
-        private TenantCreator       $tenantCreator,
-        private TenantInitializer   $tenantInitializer,
+        private TenantCreator $tenantCreator,
+        private TenantInitializer $tenantInitializer,
         private SubscriptionManager $subscriptionManager,
-        private CouponService       $couponService,
-        private BillService         $billService,
+        private CouponService $couponService,
+        private BillService $billService,
     ) {}
 
     // اشتراك جديد عبر بوابة الدفع الإلكتروني
@@ -54,7 +55,8 @@ class SubscriptionService
             }
 
             $plan = Tenancy::central(fn () => Plan::findOrFail($planId));
-            $subscription = $this->subscriptionManager->createSubscription($tenant, $plan, (float) $bill->amount);
+            $billingCycle = $metadata['billing_cycle'] ?? 'monthly';
+            $subscription = $this->subscriptionManager->createSubscription($tenant, $plan, (float) $bill->amount, options: ['billing_cycle' => $billingCycle]);
 
             $this->billService->markAsPaid($bill, $tenant->id, $subscription->id, PaymentMethod::ONLINE, $payment);
             $this->applyCoupon($bill);
@@ -96,8 +98,9 @@ class SubscriptionService
             $metadata = $bill->metadata;
             $tenantId = $metadata['tenant_id'];
 
-            $tenant         = Tenancy::central(fn() => Tenant::findOrFail($tenantId));
-            [$subscription] = $this->subscriptionManager->renewSubscription($tenant, $bill->amount);
+            $tenant = Tenancy::central(fn () => Tenant::findOrFail($tenantId));
+            $billingCycle = $metadata['billing_cycle'] ?? null;
+            [$subscription] = $this->subscriptionManager->renewSubscription($tenant, (float) $bill->amount, $billingCycle);
 
             $this->billService->markAsPaid($bill, $tenant->id, $subscription->id, PaymentMethod::ONLINE, $payment);
 
@@ -111,7 +114,7 @@ class SubscriptionService
 
             Log::error('فشل تجديد الاشتراك', [
                 'bill_number' => $bill->bill_number,
-                'error'       => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
 
             throw new SubscriptionCreationException('حدث خطأ أثناء تجديد الاشتراك.');
@@ -121,12 +124,12 @@ class SubscriptionService
     public function completeLicensePurchase(Bill $bill, array $payment): void
     {
         try {
-            $metadata         = $bill->metadata;
+            $metadata = $bill->metadata;
             $newLicensesCount = (int) ($metadata['new_licenses_count'] ?? 0);
-            $tenantId         = $metadata['tenant_id'];
+            $tenantId = $metadata['tenant_id'];
 
             Log::info($metadata);
-            $tenant       = Tenancy::central(fn() => Tenant::findOrFail($tenantId));
+            $tenant = Tenancy::central(fn () => Tenant::findOrFail($tenantId));
             $subscription = $this->subscriptionManager->upgradeSubscription($tenant, $newLicensesCount);
 
             $this->billService->markAsPaid($bill, $tenant->id, $subscription->id, PaymentMethod::ONLINE, $payment);
@@ -141,7 +144,7 @@ class SubscriptionService
 
             Log::error('فشل شراء التراخيص', [
                 'bill_number' => $bill->bill_number,
-                'error'       => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
 
             throw new SubscriptionCreationException('حدث خطأ أثناء شراء التراخيص.');
@@ -151,8 +154,8 @@ class SubscriptionService
     public function completeUnpaidBill(Bill $bill, array $payment): void
     {
         try {
-            $tenant       = Tenancy::central(fn() => Tenant::findOrFail($bill->tenant_id));
-            $subscription = Tenancy::central(fn() => Subscription::findOrFail($bill->subscription_id));
+            $tenant = Tenancy::central(fn () => Tenant::findOrFail($bill->tenant_id));
+            $subscription = Tenancy::central(fn () => Subscription::findOrFail($bill->subscription_id));
 
             // تفعيل الاشتراك
             $this->subscriptionManager->changeSubscriptionToActive($tenant);
@@ -213,7 +216,6 @@ class SubscriptionService
     //     }
     // }
 
-
     /*
     |============================================================================
     |============================================================================
@@ -223,11 +225,15 @@ class SubscriptionService
     */
     private function applyCoupon(Bill $bill): void
     {
-        if (!$bill->coupon_code) return;
+        if (! $bill->coupon_code) {
+            return;
+        }
 
         $coupon = $this->couponService->findActiveCoupon($bill->coupon_code);
         //
-        if ($coupon) $this->couponService->applyCoupon($coupon);
+        if ($coupon) {
+            $this->couponService->applyCoupon($coupon);
+        }
     }
 
     // For the Site
@@ -247,7 +253,8 @@ class SubscriptionService
             [$tenant, $user] = $this->tenantCreator->createTenantEnvironment($metadata);
 
             //  إنشاء الاشتراك
-            $subscription = $this->subscriptionManager->createSubscription($tenant, $plan, $bill->amount);
+            $billingCycle = $metadata['billing_cycle'] ?? 'monthly';
+            $subscription = $this->subscriptionManager->createSubscription($tenant, $plan, (float) $bill->amount, options: ['billing_cycle' => $billingCycle]);
 
             //  ربط المستخدم بالترخيص
             $this->tenantInitializer->createCoreSeat($tenant, $subscription, $user);
@@ -268,7 +275,7 @@ class SubscriptionService
 
             // إرسال البريد الترحيبي للـ Tenant
             $plainPassword = $metadata['plain_password'] ?? ($metadata['billing_password'] ?? null);
-            \App\Services\Shared\Mail\SystemMailService::sendTenantWelcome(
+            SystemMailService::sendTenantWelcome(
                 tenant: $tenant,
                 loginEmail: $metadata['billing_email'] ?? $tenant->primary_contact_email,
                 source: 'subscription',
@@ -277,7 +284,7 @@ class SubscriptionService
 
             return [
                 'tenant_id' => $tenant->id,
-                'message'   => 'تم إنشاء الاشتراك بنجاح.',
+                'message' => 'تم إنشاء الاشتراك بنجاح.',
             ];
         } catch (SubscriptionCreationException $e) {
             //
@@ -291,9 +298,9 @@ class SubscriptionService
                 $this->billService->cancelBill($bill);
             }
             Log::error('فشل إنشاء الاشتراك', [
-                'bill_number'    => $bill->bill_number,
+                'bill_number' => $bill->bill_number,
                 'payment_method' => $paymentMethod->value,
-                'error'          => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
             throw new SubscriptionCreationException('حدث خطأ أثناء إنشاء الاشتراك.');
         }
@@ -313,10 +320,16 @@ class SubscriptionService
         // Get Plan
         $plan = Plan::findOrFail($bill->metadata['plan_id']);
 
-        [$tenant, $user]  = $this->tenantCreator->createTenantEnvironment($bill->metadata);
+        [$tenant, $user] = $this->tenantCreator->createTenantEnvironment($bill->metadata);
+        $billingCycle = $data['billing_cycle'] ?? ($bill->metadata['billing_cycle'] ?? 'monthly');
         $subscription = $this->subscriptionManager->createSubscription(
-            $tenant, $plan, $bill->amount, $subscriptionStatus, $periodStatus, null,
-            ['start_date' => $data['start_date'] ?? null, 'end_date' => $data['end_date'] ?? null, 'total_users' => $data['total_users'] ?? $plan->included_users]
+            $tenant, $plan, (float) $bill->amount, $subscriptionStatus, $periodStatus, null,
+            [
+                'billing_cycle' => $billingCycle,
+                'start_date' => $data['start_date'] ?? null,
+                'end_date' => $data['end_date'] ?? null,
+                'total_users' => $data['total_users'] ?? $plan->included_users,
+            ]
         );
         //  ربط المستخدم بالترخيص
         $this->tenantInitializer->createCoreSeat($tenant, $subscription, $user);
@@ -328,7 +341,7 @@ class SubscriptionService
         SendSubscriptionMailJob::dispatch($bill->metadata['billing_email'], $subscription, 'new')->onQueue('email');
 
         // إرسال البريد الترحيبي للـ Tenant
-        \App\Services\Shared\Mail\SystemMailService::sendTenantWelcome(
+        SystemMailService::sendTenantWelcome(
             tenant: $tenant,
             loginEmail: $bill->metadata['billing_email'] ?? $tenant->primary_contact_email,
             source: 'superadmin',
@@ -350,9 +363,9 @@ class SubscriptionService
             ]);
         } else {
             $bill->update([
-                'tenant_id'       => $tenant->id,
+                'tenant_id' => $tenant->id,
                 'subscription_id' => $subscription->id,
-                'status'          => BillStatus::UNPAID,
+                'status' => BillStatus::UNPAID,
             ]);
         }
     }

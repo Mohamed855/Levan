@@ -12,10 +12,6 @@
 
     $currentType = old('plan_type', $target?->plan_type?->value ?? ($target?->plan_type ?? ''));
     $currentColor = old('color', $target?->color?->value ?? ($target?->color ?? 'primary'));
-    $currentCycle = old(
-        'subscription_billing_cycle',
-        $target?->subscription_billing_cycle?->value ?? ($target?->subscription_billing_cycle ?? 'monthly'),
-    );
     $currentLimitsMode = old('limits_mode', $target?->limits_mode?->value ?? ($target?->limits_mode ?? 'limited'));
     $currentUsersLimitMode = old(
         'users_limit_mode',
@@ -28,8 +24,8 @@
     <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
         <i class="ti ti-alert-triangle fs-3 me-2"></i>
         <div>
-            <strong>هذه الباقة مرتبطة باشتراكات.</strong> تم قفل دورة الفوترة ووضع الحدود لحماية العقود
-            التاريخية.
+            <strong>هذه الباقة مرتبطة باشتراكات.</strong> تم قفل وضع الحدود لحماية العقود التاريخية، بينما يمكنك تعديل
+            الأسعار أو تفريغ السعر السنوي بحرية.
         </div>
     </div>
 @endif
@@ -143,31 +139,19 @@
         </x-form.wizard.step>
 
         <!-- 2. التسعير والفوترة -->
-        <x-form.wizard.step id="pricing-validation" :fields="['price', 'subscription_billing_cycle', 'discount_percentage']">
+        <x-form.wizard.step id="pricing-validation" :fields="['price', 'yearly_price', 'discount_percentage']">
             <div class="row g-4">
                 <x-form.controls.input type="number" step="0.01" min="0" name="price" id="price"
-                    label="سعر الدورة الأساسية" placeholder="500" :value="old('price', $target?->price)" required col="col-md-6"
-                    :price="true" />
+                    label="السعر الشهري (ر.س)" placeholder="500" :value="old('price', $target?->price)" required col="col-md-4"
+                    :price="true" help="السعر الأساسي للدورة الشهرية (مطلوب)." />
 
-                @if ($is_edit && $hasSubscriptions)
-                    <x-form.controls.select name="subscription_billing_cycle" id="subscription_billing_cycle"
-                        label="دورة الفوترة الأساسية" required :value="$currentCycle" col="col-md-6" :options="array_map(
-                            fn($cycle) => ['value' => $cycle->value, 'label' => $cycle->label()],
-                            \App\Enums\Admin\Subscriptions\SubscriptionBillingCycle::cases(),
-                        )"
-                        disabled help="دورة الفوترة مقفلة لارتباط الباقة باشتراكات قائمة." />
-                    <input type="hidden" name="subscription_billing_cycle" value="{{ $currentCycle }}">
-                @else
-                    <x-form.controls.select name="subscription_billing_cycle" id="subscription_billing_cycle"
-                        label="دورة الفوترة الأساسية" required :value="$currentCycle" col="col-md-6" :options="array_map(
-                            fn($cycle) => ['value' => $cycle->value, 'label' => $cycle->label()],
-                            \App\Enums\Admin\Subscriptions\SubscriptionBillingCycle::cases(),
-                        )" />
-                @endif
+                <x-form.controls.input type="number" step="0.01" min="0" name="yearly_price"
+                    id="yearly_price" label="السعر السنوي (ر.س)" placeholder="5000" :value="old('yearly_price', $target?->yearly_price)" required
+                    col="col-md-4" :price="true" help="السعر الأساسي للدورة السنوية (مطلوب)." />
 
                 <x-form.controls.input type="number" step="0.01" min="0" max="100"
                     name="discount_percentage" id="discount_percentage" label="نسبة الخصم (%)" :value="old('discount_percentage', $target?->discount_percentage ?? 0)"
-                    col="col-md-6" />
+                    col="col-md-4" help="تُطبّق على السعرين الشهري والسنوي." />
             </div>
 
             <x-form.wizard.actions>
@@ -291,9 +275,24 @@
                     <div class="row g-3">
                         <div class="col-lg-6">
                             <div class="card h-100 shadow-none border">
-                                <div class="card-header pb-2">
-                                    <h6 class="mb-0 fw-semibold"><i class="ti ti-eye me-1"></i>معاينة بطاقة
-                                        الباقة</h6>
+                                <div
+                                    class="card-header pb-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                    <h6 class="mb-0 fw-semibold">معاينة بطاقة الباقة</h6>
+                                    <ul class="nav nav-pills card-header-pills" id="preview-cycle-tabs"
+                                        role="tablist">
+                                        <li class="nav-item">
+                                            <button class="nav-link active py-1 px-3 fs-xs" type="button"
+                                                data-preview-cycle="monthly" role="tab" aria-selected="true">
+                                                شهري
+                                            </button>
+                                        </li>
+                                        <li class="nav-item">
+                                            <button class="nav-link py-1 px-3 fs-xs" type="button"
+                                                data-preview-cycle="yearly" role="tab" aria-selected="false">
+                                                سنوي
+                                            </button>
+                                        </li>
+                                    </ul>
                                 </div>
                                 <div class="card-body d-flex align-items-center justify-content-center p-3">
                                     <x-ui.package-card preview />
@@ -345,7 +344,7 @@
                             <x-form.wizard.review-card title="التسعير والفوترة" step="2" col=""
                                 class="h-100 assignment-review__card">
                                 <dl class="row mb-0 small">
-                                    <dt class="col-5 text-muted">السعر الأساسي</dt>
+                                    <dt class="col-5 text-muted">السعر الشهري (الأساسي)</dt>
                                     <dd class="col-7 fw-semibold" id="plan-review-price">
                                         @if ($target?->price)
                                             {{ number_format((float) $target->price, 2) }}
@@ -354,17 +353,32 @@
                                             -
                                         @endif
                                     </dd>
-                                    <dt class="col-5 text-muted">دورة الفوترة الأساسية</dt>
-                                    <dd class="col-7 fw-semibold" id="plan-review-billing-cycle">
-                                        {{ $target?->subscription_billing_cycle?->label() ?? '-' }}</dd>
                                     <dt class="col-5 text-muted">نسبة الخصم</dt>
                                     <dd class="col-7 fw-semibold" id="plan-review-discount">
                                         {{ $target?->discount_percentage ? $target->discount_percentage . '%' : '0%' }}
                                     </dd>
-                                    <dt class="col-5 text-muted">السعر بعد الخصم</dt>
+                                    <dt class="col-5 text-muted">الشهري بعد الخصم</dt>
                                     <dd class="col-7 fw-semibold text-primary" id="plan-review-final-price">
-                                        @if ($target?->final_price)
-                                            {{ number_format((float) $target->final_price, 2) }}
+                                        @if ($target?->price_after_discount)
+                                            {{ number_format((float) $target->price_after_discount, 2) }}
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
+                                        @else
+                                            -
+                                        @endif
+                                    </dd>
+                                    <dt class="col-5 text-muted">السعر السنوي (الأساسي)</dt>
+                                    <dd class="col-7 fw-semibold" id="plan-review-yearly-price">
+                                        @if ($target?->hasYearlyPrice())
+                                            {{ number_format((float) $target->yearly_price, 2) }}
+                                            <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </dd>
+                                    <dt class="col-5 text-muted">السنوي بعد الخصم</dt>
+                                    <dd class="col-7 fw-semibold text-success" id="plan-review-yearly-final-price">
+                                        @if ($target?->hasYearlyPrice())
+                                            {{ number_format((float) $target->yearly_price_after_discount, 2) }}
                                             <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>
                                         @else
                                             -

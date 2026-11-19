@@ -11,6 +11,7 @@
             <form id="{{ $formId }}" action="{{ $action }}" method="POST" enctype="multipart/form-data"
                 autocomplete="off" data-form-validate data-validation-url="{{ $validationUrl }}"
                 @if (!$is_edit && !empty($draftUrl)) data-draft-url="{{ $draftUrl }}"
+                    data-draft-file-url="{{ $draftFileUrl ?? rtrim($draftUrl, '/') . '/file' }}"
                     data-draft-resource-key="{{ $draftResourceKey }}" @endif>
                 @csrf
                 @if ($is_edit)

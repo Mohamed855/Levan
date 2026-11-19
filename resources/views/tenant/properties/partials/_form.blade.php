@@ -14,8 +14,8 @@
     <form id="property-{{ $is_edit ? 'edit' : 'create' }}-form"
         action="{{ $is_edit ? tenant_route_name('properties.update', $property->id) : tenant_route_name('properties.store') }}"
         method="POST" enctype="multipart/form-data" autocomplete="off" data-form-validate
-        @if (!$is_edit) data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
-        data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
+        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
+        @if (!$is_edit) data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
         data-draft-file-url="{{ tenant_route_name('wizard-drafts.file.destroy') }}"
         data-draft-resource-key="tenant.property-create" @endif>
         @csrf
@@ -29,6 +29,7 @@
             'type',
             'usage_classification',
             'area',
+            'age',
             'estimated_value',
             'short_description',
             'aerial_image',
@@ -55,13 +56,15 @@
                                             : $property->usage_classification)
                                         : old('usage_classification')" :enum="\App\Enums\Tenants\Properties\PropertyUsageClassification::class" />
                                 <x-form.controls.input name="area" type="number" step="0.01" label="المساحة (م²)"
-                                    :value="$is_edit ? $property->area : old('area')" placeholder="مثال: 600" required col="col-md-6" />
+                                    :value="$is_edit ? $property->area : old('area')" placeholder="مثال: 600" required col="col-md-4" />
+                                <x-form.controls.input name="age" type="number" step="1" min="0" max="200" label="عمر العقار بالسنوات (صفر للأرض)"
+                                    :value="old('age', $is_edit ? $property->age : 0)" placeholder="0" required col="col-md-4" />
                                 <x-form.controls.input name="estimated_value" type="number" step="0.01"
                                     min="0" max="9999999999999.99" label="القيمة التقديرية" :value="old('estimated_value', $is_edit ? $property->estimated_value : null)"
-                                    required col="col-md-6" :price="true" />
+                                    required col="col-md-4" :price="true" />
                                 <x-form.controls.textarea name="short_description" label="وصف العقار"
                                     placeholder="أدخل وصفاً للعقار..." :value="$is_edit ? $property->short_description : old('short_description')" required col="col-12"
-                                    rows="4" maxlength="500" />
+                                    rows="4" />
                             </div>
                         </div>
                     </div>
@@ -181,7 +184,21 @@
         </x-form.wizard.step>
 
         {{-- الخطوة 3: الملكية والتفاصيل --}}
-        <x-form.wizard.step id="property-ownership-validation" :fields="['property_number', 'deed_number', 'deed_date', 'issuing_authority', 'ownership_type', 'owners']">
+        <x-form.wizard.step id="property-ownership-validation" :fields="[
+            'property_number',
+            'deed_number',
+            'deed_date',
+            'issuing_authority',
+            'ownership_type',
+            'legal_status',
+            'legal_status_notes',
+            'agent_name',
+            'agent_national_id',
+            'agency_number',
+            'agency_date',
+            'owners',
+            'units',
+        ]">
             <div class="row g-4">
                 <x-form.controls.input name="property_number" label="رقم الأصل" :value="$is_edit ? $property->property_number : old('property_number')"
                     placeholder="أدخل رقم الأصل" required col="col-12" maxlength="100" />
@@ -201,6 +218,16 @@
                             ? $property->ownership_type->value
                             : $property->ownership_type)
                         : old('ownership_type')" :enum="\App\Enums\Tenants\Properties\PropertyOwnershipType::class" />
+
+                <x-form.controls.select name="legal_status" label="الحالة النظامية" required col="col-md-6"
+                    :value="$is_edit
+                        ? ($property->legal_status instanceof \BackedEnum
+                            ? $property->legal_status->value
+                            : ($property->legal_status ?? 'clear'))
+                        : old('legal_status', 'clear')" :enum="\App\Enums\Tenants\Properties\PropertyLegalStatus::class" />
+
+                <x-form.controls.input name="legal_status_notes" label="تفاصيل الحالة النظامية الأخرى" placeholder="في حال اختيار أخرى"
+                    :value="$is_edit ? $property->legal_status_notes : old('legal_status_notes')" col="col-12" />
 
                 {{-- بيانات الوكيل --}}
                 <x-form.controls.input name="agent_name" label="اسم الوكيل" placeholder="أدخل اسم الوكيل"
@@ -395,37 +422,44 @@
         </x-form.wizard.step>
 
         {{-- الخطوة 4: الملفات والمستندات --}}
-        <x-form.wizard.step id="property-files-validation" :fields="['main_image', 'deed_document', 'cadastral_plan', 'coordinates_statement', 'building_permit']">
+        @php
+            $hasInitialAgentData =
+                filled(old('agent_name', $is_edit ? $property->agent_name : null)) ||
+                filled(old('agent_national_id', $is_edit ? $property->agent_national_id : null)) ||
+                filled(old('agency_number', $is_edit ? $property->agency_number : null)) ||
+                filled(old('agency_date', $is_edit ? $property->agency_date : null));
+        @endphp
+        <x-form.wizard.step id="property-files-validation" :fields="['main_image', 'deed_document', 'cadastral_plan', 'coordinates_statement', 'building_permit', 'agency_document', 'property_images', 'additional_documents']">
             <div class="row g-4">
-                <x-form.controls.file name="main_image" label="الصورة الرئيسية للعقار" :required="!$is_edit"
+                <x-form.controls.file name="main_image" label="الصورة الرئيسية للعقار" required
                     :value="$is_edit && $property->main_image ? $property->main_image : null" accept="image/jpeg,image/png,image/webp"
                     help="JPG أو PNG أو WebP، بحد أقصى 10MB" col="col-md-6" />
-                <x-form.controls.file name="deed_document" label="صك الملكية" :required="!$is_edit" :value="$is_edit && $property->deedAttachment ? $property->deedAttachment->file_path : null"
+                <x-form.controls.file name="deed_document" label="صك الملكية" required
+                    :value="$is_edit && $property->deedAttachment ? $property->deedAttachment : null"
                     accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
-                <x-form.controls.file name="cadastral_plan" label="مخطط العقار" :required="!$is_edit" :value="$is_edit && $property->cadastralPlanAttachment
-                    ? $property->cadastralPlanAttachment->file_path
-                    : null"
+                <x-form.controls.file name="cadastral_plan" label="مخطط العقار" required
+                    :value="$is_edit && $property->cadastralPlanAttachment ? $property->cadastralPlanAttachment : null"
                     accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
-                <x-form.controls.file name="coordinates_statement" label="كشف الإحداثيات" :required="!$is_edit"
-                    :value="$is_edit && $property->coordinatesAttachment
-                        ? $property->coordinatesAttachment->file_path
-                        : null" accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
+                <x-form.controls.file name="coordinates_statement" label="كشف الإحداثيات" required
+                    :value="$is_edit && $property->coordinatesAttachment ? $property->coordinatesAttachment : null"
+                    accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
                 <x-form.controls.file name="building_permit" label="رخصة البناء" accept=".pdf,image/*"
-                    :value="$is_edit && $property->buildingPermitAttachment
-                        ? $property->buildingPermitAttachment->file_path
-                        : null" help="PDF أو صورة، بحد أقصى 10MB" :required="false" col="col-md-6" />
-                <x-form.controls.file name="assignment_letter_image" label="صورة الإسناد" accept="image/*"
-                    :value="$is_edit && $property->assignmentLetterAttachment
-                        ? $property->assignmentLetterAttachment->file_path
-                        : null" help="صورة فقط بحد أقصى 10MB" :required="false" col="col-md-6" />
+                    :value="$is_edit && $property->buildingPermitAttachment ? $property->buildingPermitAttachment : null"
+                    help="PDF أو صورة، بحد أقصى 10MB" :required="false" col="col-md-6" />
+                <x-form.controls.file name="agency_document" label="مستند التفويض أو الوكالة"
+                    accept=".pdf,.png,.jpg,.jpeg"
+                    :value="$is_edit && $property->agencyDocumentAttachment ? $property->agencyDocumentAttachment : null"
+                    help="PDF أو صورة، بحد أقصى 10MB — مطلوب عند إدخال بيانات الوكيل أو رقم الوكالة."
+                    :required="$hasInitialAgentData" col="col-md-6" />
                 <x-form.controls.file name="property_images[]" label="صور إضافية للمعرض" multiple accept="image/*"
-                    :value="$is_edit && $property->galleryAttachments
-                        ? $property->galleryAttachments->pluck('file_path')->all()
+                    :value="$is_edit && $property->galleryAttachments && $property->galleryAttachments->isNotEmpty()
+                        ? $property->galleryAttachments->values()
                         : null" help="يمكن اختيار عدة صور للمعرض (بحد أقصى 10MB لكل صورة)" :required="false"
                     col="col-md-6" />
-                <x-form.controls.file name="additional_documents[]" label="مستندات إضافية" multiple :value="$is_edit && $property->additionalDocuments
-                    ? $property->additionalDocuments->pluck('file_path')->all()
-                    : null"
+                <x-form.controls.file name="additional_documents[]" label="مستندات إضافية" multiple
+                    :value="$is_edit && $property->additionalDocuments && $property->additionalDocuments->isNotEmpty()
+                        ? $property->additionalDocuments->values()
+                        : null"
                     accept=".pdf,image/*" help="يمكن اختيار عدة ملفات (بحد أقصى 10MB لكل ملف)" :required="false"
                     col="col-md-6" />
 

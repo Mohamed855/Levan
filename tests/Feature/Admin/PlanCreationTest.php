@@ -15,9 +15,16 @@ use Tests\TestCase;
 
 final class PlanCreationTest extends TestCase
 {
+    private array $originalDbConfig = [];
+
+    private string $originalDefaultConnection = '';
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->originalDefaultConnection = (string) config('database.default');
+        $this->originalDbConfig = (array) config('database.connections.mysql');
 
         config([
             'database.default' => 'mysql',
@@ -59,6 +66,7 @@ final class PlanCreationTest extends TestCase
         });
         DB::table('admin_users')->insert(['id' => 1, 'name' => 'Plan administrator']);
         (require database_path('migrations/admin/2026_09_23_000015_create_plans_table.php'))->up();
+        (require database_path('migrations/admin/2026_11_19_072413_refactor_plans_to_unified_monthly_and_yearly_pricing.php'))->up();
 
         $admin = (new AdminUser)->forceFill([
             'id' => 1,
@@ -73,6 +81,11 @@ final class PlanCreationTest extends TestCase
     protected function tearDown(): void
     {
         DB::purge('mysql');
+        config([
+            'database.default' => $this->originalDefaultConnection,
+            'database.connections.mysql' => $this->originalDbConfig,
+        ]);
+        DB::reconnect('mysql');
         parent::tearDown();
     }
 
@@ -144,6 +157,26 @@ final class PlanCreationTest extends TestCase
         self::assertSame('INITIAL_CODE', $plan->code);
     }
 
+    public function test_plan_creation_with_yearly_price(): void
+    {
+        $this->post(route('admin.plans.store'), $this->payload([
+            'price' => '100',
+            'yearly_price' => '1000',
+        ]))->assertRedirect(route('admin.plans.index'))->assertSessionHasNoErrors();
+
+        $plan = Plan::sole();
+        self::assertSame('100.00', $plan->price);
+        self::assertSame('1000.00', $plan->yearly_price);
+        self::assertTrue($plan->hasYearlyPrice());
+    }
+
+    public function test_plan_creation_requires_yearly_price(): void
+    {
+        $this->post(route('admin.plans.store'), $this->payload([
+            'yearly_price' => '',
+        ]))->assertSessionHasErrors(['yearly_price']);
+    }
+
     private function payload(array $overrides = []): array
     {
         return array_replace([
@@ -152,8 +185,8 @@ final class PlanCreationTest extends TestCase
             'plan_type' => 'basic',
             'color' => 'primary',
             'price' => '100',
+            'yearly_price' => '1000',
             'discount_percentage' => '0',
-            'subscription_billing_cycle' => 'monthly',
             'is_active' => '1',
             'limits_mode' => 'limited',
             'included_users' => '5',

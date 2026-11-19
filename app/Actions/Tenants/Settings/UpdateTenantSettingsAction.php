@@ -32,27 +32,31 @@ class UpdateTenantSettingsAction
                     $settings->logo_text = $validated['logo_text'];
                 }
 
-                foreach (['report_phone', 'report_unified_phone', 'report_social'] as $field) {
+                foreach (['unified_number', 'fal_license', 'representative_name', 'report_phone', 'report_unified_phone', 'report_social'] as $field) {
                     if (array_key_exists($field, $validated)) {
                         $settings->{$field} = $validated[$field];
                     }
                 }
 
                 foreach (['image' => $image, 'establishment_signature' => $signature, 'establishment_stamp' => $stamp] as $field => $upload) {
-                    if ($upload === null) {
-                        continue;
-                    }
                     $disk = $field === 'image' ? 'tenant_public' : 'tenant_private';
-                    $directory = $field === 'image' ? 'image' : 'settings/signing-assets';
-                    $path = $upload->store($directory, $disk);
-                    if ($path === false) {
-                        throw new \RuntimeException('Unable to store the settings image.');
+                    if ($upload !== null) {
+                        $directory = $field === 'image' ? 'image' : 'settings/signing-assets';
+                        $path = $upload->store($directory, $disk);
+                        if ($path === false) {
+                            throw new \RuntimeException('Unable to store the settings image.');
+                        }
+                        $storedFiles[] = [$disk, $path];
+                        if ($settings->{$field}) {
+                            $replacedFiles[] = [$disk, $settings->{$field}];
+                        }
+                        $settings->{$field} = $path;
+                    } elseif (! empty($validated['remove_'.$field])) {
+                        if ($settings->{$field}) {
+                            $replacedFiles[] = [$disk, $settings->{$field}];
+                        }
+                        $settings->{$field} = null;
                     }
-                    $storedFiles[] = [$disk, $path];
-                    if ($settings->{$field}) {
-                        $replacedFiles[] = [$disk, $settings->{$field}];
-                    }
-                    $settings->{$field} = $path;
                 }
 
                 if (array_key_exists('operational_regions', $validated)) {

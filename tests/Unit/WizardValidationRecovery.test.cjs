@@ -70,3 +70,43 @@ test('server recovery waits for dynamic property selections before returning to 
     });
     assert.deepEqual(moves, [['42']]);
 });
+
+test('single-step non-stepper forms recover failed-validation files from body dataset without prompt', async () => {
+    const restored = [];
+    const form = {
+        dataset: {},
+        closest: () => null,
+        setAttribute() {}, removeAttribute() {}, dispatchEvent() {},
+    };
+    const restore = source.slice(source.indexOf('async function restoreDraft(form)'), source.indexOf('\nfunction initDrafts(form)'));
+    await vm.runInNewContext(`${restore}\nrestoreDraft(form)`, {
+        form,
+        document: {
+            body: {
+                dataset: {
+                    wizardDraftsUrl: '/tenant/wizard-drafts',
+                    failedDraftId: 'single-step-failed-id',
+                    failedDraftResource: '/tenant/settings',
+                },
+            },
+        },
+        hasVisibleServerErrors: () => false,
+        draftResourceKey: () => '/tenant/settings',
+        fetch: async () => ({
+            ok: true,
+            json: async () => ({
+                draft_id: 'single-step-failed-id',
+                step: 1,
+                data: {},
+                files: { establishment_signature: { name: 'sig.png' } },
+            }),
+        }),
+        window: { confirmActionAsync: () => assert.fail('Single-step failed recovery must not prompt') },
+        addHiddenField() {},
+        restoreDraftFiles: async (_form, files) => restored.push(files.establishment_signature.name),
+        getFormState: () => ({}),
+        showFirstInvalidStep: () => assert.fail('Non-stepper form should not invoke showFirstInvalidStep'),
+        CustomEvent: class { constructor(type, options) { this.type = type; this.detail = options.detail; } },
+    });
+    assert.deepEqual(restored, ['sig.png']);
+});

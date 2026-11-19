@@ -33,6 +33,7 @@
                 method="POST" enctype="multipart/form-data" autocomplete="off" data-form-validate
                 data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
                 @if (!$is_edit) data-draft-url="{{ route('admin.wizard-drafts.store') }}"
+                    data-draft-file-url="{{ route('admin.wizard-drafts.file.destroy') }}"
                     data-draft-resource-key="admin.subscription-create" @endif>
                 @csrf
                 @if ($is_edit)
@@ -140,6 +141,7 @@
                      الخطوة 2: تفاصيل الاشتراك والدفع
                 ═══════════════════════════════════════ --}}
                 <x-form.wizard.step id="step-payment-details" :fields="[
+                    'billing_cycle',
                     'start_date',
                     'end_date',
                     'period_months',
@@ -149,21 +151,29 @@
                     'payment_type',
                     'transaction_id',
                     'receipt_upload',
+                    'admin_notes',
                 ]">
                     <input type="hidden" name="payment_type" id="payment_type" value="paid">
                     <div class="row g-4">
+                        <!-- دورة الفوترة -->
+                        <x-form.controls.select name="billing_cycle" id="billing_cycle" label="دورة الفوترة"
+                            required :options="[
+                                ['value' => 'monthly', 'label' => 'شهرياً'],
+                                ['value' => 'yearly', 'label' => 'سنوياً'],
+                            ]" value="yearly" col="col-md-3" />
+
                         <!-- مدة الاشتراك بالشهور -->
                         <x-form.controls.input type="number" name="period_months" id="period_months"
                             label="مدة الاشتراك (بالشهور)" value="12" min="1" max="120" required
-                            col="col-md-4" help="الافتراضي: 12 شهر (سنة كاملة)" />
+                            col="col-md-3" help="الافتراضي: 12 شهر (سنة) أو 1 شهر" />
 
                         <!-- تاريخ البداية -->
                         <x-form.controls.input type="date" name="start_date" id="start_date"
-                            label="تاريخ بداية الاشتراك" :value="date('Y-m-d')" required col="col-md-4" />
+                            label="تاريخ بداية الاشتراك" :value="date('Y-m-d')" required col="col-md-3" />
 
                         <!-- تاريخ النهاية (محسوب تلقائياً) -->
                         <x-form.controls.input type="date" name="end_date" id="end_date"
-                            label="تاريخ نهاية الاشتراك" :value="date('Y-m-d', strtotime('+1 year'))" required readonly col="col-md-4"
+                            label="تاريخ نهاية الاشتراك" :value="date('Y-m-d', strtotime('+1 year'))" required readonly col="col-md-3"
                             help="يتم حسابه تلقائياً بناءً على المدة والبداية" />
 
                         <!-- كوبون الخصم -->
@@ -307,6 +317,8 @@
                                     <x-form.wizard.review-card title="مدة الاشتراك والمالية" step="2"
                                         col="" class="h-100 assignment-review__card">
                                         <dl class="row mb-0 small">
+                                            <dt class="col-5 text-muted">دورة الفوترة</dt>
+                                            <dd class="col-7 fw-semibold" id="sub_review-billing-cycle">-</dd>
                                             <dt class="col-5 text-muted">تاريخ البداية</dt>
                                             <dd class="col-7 fw-semibold" id="sub_review-start-date">-</dd>
                                             <dt class="col-5 text-muted">تاريخ النهاية</dt>

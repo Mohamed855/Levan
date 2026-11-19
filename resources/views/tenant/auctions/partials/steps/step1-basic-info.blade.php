@@ -46,7 +46,7 @@
     @endif
 
     <x-form.controls.input name="supervising_entity" id="supervising_entity" label="الجهة المشرفة على المزاد"
-        placeholder="مثال: مركز الإسناد والتصفية - إنفاذ" :value="old('supervising_entity', $auction->supervising_entity ?? '')" required col="col-md-6" />
+        placeholder="مثال: مركز الإسناد والتصفية - إنفاذ" :value="old('supervising_entity', $auction->supervising_entity ?? '')" col="col-md-6" />
 
     <x-form.controls.input name="start_date" id="start_date" type="date" label="تاريخ بداية المزاد" :value="old('start_date', $isEdit && $auction->start_date ? $auction->start_date->format('Y-m-d') : '')" required
         col="col-md-6" />
@@ -71,4 +71,29 @@
 
     <x-form.controls.input name="expected_properties_count" id="expected_properties_count" type="number" label="عدد العقارات المتوقع"
         :value="old('expected_properties_count', $auction->expected_properties_count ?? 1)" min="1" required col="col-md-6" />
+
+    {{-- بيانات محرّج المزاد --}}
+    <div class="col-12 border-top pt-3">
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="ti ti-gavel fs-4 text-primary"></i>
+            <h6 class="fw-bold mb-0">بيانات محرّج المزاد</h6>
+        </div>
+        <p class="text-muted small mb-0">بيانات وهوية محرّج المزاد ومعلومات التواصل (متطلب نظامي لطلب الإقامة)</p>
+    </div>
+
+    @php
+        $auctioneerData = old('auctioneer', $isEdit ? ($auction->establishmentRequest?->data['auctioneer'] ?? []) : []);
+    @endphp
+
+    <x-form.controls.input name="auctioneer[name]" id="auctioneer_name" label="اسم محرّج المزاد"
+        placeholder="أدخل الاسم الثلاثي لمحرّج المزاد" :value="$auctioneerData['name'] ?? ''" required col="col-md-6" />
+
+    <x-form.controls.input name="auctioneer[national_id_or_cr]" id="auctioneer_national_id" label="رقم الهوية الوطنية للمحرّج"
+        placeholder="10 أرقام" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" :value="$auctioneerData['national_id_or_cr'] ?? ''" required col="col-md-6" />
+
+    <x-form.controls.input name="auctioneer[mobile]" id="auctioneer_mobile" label="رقم جوال المحرّج"
+        placeholder="05xxxxxxxx" inputmode="tel" maxlength="15" :value="$auctioneerData['mobile'] ?? ''" required col="col-md-6" />
+
+    <x-form.controls.input name="auctioneer[email]" id="auctioneer_email" label="البريد الإلكتروني للمحرّج"
+        placeholder="auctioneer@example.com" type="email" :value="$auctioneerData['email'] ?? ''" required col="col-md-6" />
 </div>

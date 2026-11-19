@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use RuntimeException;
 use Throwable;
 
@@ -36,7 +37,7 @@ final class UpdatePropertyAction
                     PropertyAttachmentCategory::CADASTRAL_PLAN->value => isset($data['cadastral_plan']) ? [$data['cadastral_plan']] : [],
                     PropertyAttachmentCategory::BUILDING_PERMIT->value => isset($data['building_permit']) ? [$data['building_permit']] : [],
                     PropertyAttachmentCategory::COORDINATES_STATEMENT->value => isset($data['coordinates_statement']) ? [$data['coordinates_statement']] : [],
-                    PropertyAttachmentCategory::ASSIGNMENT_LETTER_IMAGE->value => isset($data['assignment_letter_image']) ? [$data['assignment_letter_image']] : [],
+                    PropertyAttachmentCategory::AGENCY_DOCUMENT->value => isset($data['agency_document']) ? [$data['agency_document']] : [],
                     PropertyAttachmentCategory::ADDITIONAL_DOCUMENT->value => $data['additional_documents'] ?? [],
                     PropertyAttachmentCategory::GALLERY_IMAGE->value => $data['property_images'] ?? [],
                 ];
@@ -44,6 +45,14 @@ final class UpdatePropertyAction
                 $mainImageFile = $data['main_image'] ?? null;
                 $aerialImageInput = $data['aerial_image'] ?? null;
                 $originalImageInput = $data['raw_aerial_image'] ?? null;
+                $removeOptionalSingles = [
+                    PropertyAttachmentCategory::BUILDING_PERMIT->value => ! empty($data['remove_building_permit']),
+                    PropertyAttachmentCategory::AGENCY_DOCUMENT->value => ! empty($data['remove_agency_document']),
+                ];
+                $removeMultiCategories = [
+                    PropertyAttachmentCategory::GALLERY_IMAGE->value => array_values(array_unique(array_map('intval', (array) ($data['remove_property_images'] ?? [])))),
+                    PropertyAttachmentCategory::ADDITIONAL_DOCUMENT->value => array_values(array_unique(array_map('intval', (array) ($data['remove_additional_documents'] ?? [])))),
+                ];
 
                 unset(
                     $data['boundaries'],
@@ -53,12 +62,20 @@ final class UpdatePropertyAction
                     $data['cadastral_plan'],
                     $data['building_permit'],
                     $data['coordinates_statement'],
-                    $data['assignment_letter_image'],
+                    $data['agency_document'],
                     $data['additional_documents'],
                     $data['property_images'],
                     $data['main_image'],
                     $data['aerial_image'],
                     $data['raw_aerial_image'],
+                    $data['remove_main_image'],
+                    $data['remove_deed_document'],
+                    $data['remove_cadastral_plan'],
+                    $data['remove_coordinates_statement'],
+                    $data['remove_building_permit'],
+                    $data['remove_agency_document'],
+                    $data['remove_property_images'],
+                    $data['remove_additional_documents'],
                     $data['_wizard_draft_id'],
                     $data['_wizard_resource_key']
                 );
@@ -196,13 +213,56 @@ final class UpdatePropertyAction
                     }
                 }
 
+                // Remove explicitly deleted optional single attachments (when no replacement was uploaded)
+                foreach ($removeOptionalSingles as $category => $shouldRemove) {
+                    $hasReplacement = ! empty(array_filter(
+                        is_array($fileMap[$category] ?? null) ? $fileMap[$category] : [$fileMap[$category] ?? null],
+                        static fn (mixed $item): bool => $item instanceof UploadedFile,
+                    ));
+                    if (! $shouldRemove || $hasReplacement) {
+                        continue;
+                    }
+                    $oldAttachments = $property->attachments()->where('category', $category)->get();
+                    foreach ($oldAttachments as $old) {
+                        if ($old->file_path) {
+                            $pathsToDelete[$old->disk ?: 'tenant_public'][] = $old->file_path;
+                        }
+                        $old->delete();
+                    }
+                }
+
+                // Remove explicitly deleted multi-file attachments with strict ownership check
+                foreach ($removeMultiCategories as $category => $removeIds) {
+                    if ($removeIds === []) {
+                        continue;
+                    }
+                    $toDelete = $property->attachments()
+                        ->where('category', $category)
+                        ->whereKey($removeIds)
+                        ->get();
+                    if ($toDelete->count() !== count($removeIds)) {
+                        $errorKey = $category === PropertyAttachmentCategory::GALLERY_IMAGE->value
+                            ? 'remove_property_images'
+                            : 'remove_additional_documents';
+                        throw ValidationException::withMessages([
+                            $errorKey => 'المرفقات المحددة لا تخص هذا العقار.',
+                        ]);
+                    }
+                    foreach ($toDelete as $old) {
+                        if ($old->file_path) {
+                            $pathsToDelete[$old->disk ?: 'tenant_public'][] = $old->file_path;
+                        }
+                        $old->delete();
+                    }
+                }
+
                 // Attach any new files
                 $singleCategories = [
                     PropertyAttachmentCategory::DEED_DOCUMENT->value,
                     PropertyAttachmentCategory::CADASTRAL_PLAN->value,
                     PropertyAttachmentCategory::BUILDING_PERMIT->value,
                     PropertyAttachmentCategory::COORDINATES_STATEMENT->value,
-                    PropertyAttachmentCategory::ASSIGNMENT_LETTER_IMAGE->value,
+                    PropertyAttachmentCategory::AGENCY_DOCUMENT->value,
                 ];
 
                 foreach ($fileMap as $category => $uploads) {
@@ -229,6 +289,7 @@ final class UpdatePropertyAction
                             PropertyAttachmentCategory::DEED_DOCUMENT->value => 'properties/deeds',
                             PropertyAttachmentCategory::CADASTRAL_PLAN->value => 'properties/plans',
                             PropertyAttachmentCategory::COORDINATES_STATEMENT->value => 'properties/coordinates',
+                            PropertyAttachmentCategory::AGENCY_DOCUMENT->value => 'properties/agency-documents',
                             PropertyAttachmentCategory::GALLERY_IMAGE->value => 'properties/gallery',
                             default => 'properties/documents',
                         };

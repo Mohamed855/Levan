@@ -57,13 +57,21 @@ class NewSubscriptionController extends Controller
     public function checkout(int|string $plan)
     {
         $plan = $this->billingGateway->plan($plan);
-        $this->sessionManagerService->storeSubscriptionData($plan);
+        $cycle = request()->query('cycle', 'monthly');
+        if ($cycle === 'yearly' && ! $plan->hasYearlyPrice()) {
+            $cycle = 'monthly';
+        }
+        $billingCycle = in_array($cycle, ['monthly', 'yearly'], true) ? $cycle : 'monthly';
+        $billingCycleLabel = $billingCycle === 'yearly' ? 'سنوياً' : 'شهرياً';
 
+        $this->sessionManagerService->storeSubscriptionData($plan, $billingCycle);
+
+        $planCyclePrice = (float) $plan->priceForCycle($billingCycle, true);
         $taxRate = 0.15;
-        $taxAmount = round($plan->price_after_discount * $taxRate, 2);
-        $priceWithoutTax = round($plan->price_after_discount - $taxAmount, 2);
+        $taxAmount = round($planCyclePrice * $taxRate, 2);
+        $priceWithoutTax = round($planCyclePrice - $taxAmount, 2);
 
-        return view($this->page.'checkout', compact('plan', 'priceWithoutTax', 'taxAmount'));
+        return view($this->page.'checkout', compact('plan', 'billingCycle', 'billingCycleLabel', 'planCyclePrice', 'priceWithoutTax', 'taxAmount'));
     }
 
     public function checkoutStore(PaymentRequest $request)
@@ -76,7 +84,10 @@ class NewSubscriptionController extends Controller
             }
 
             $plan = $this->getCentralPlan($sessionData['plan_id']);
-            $couponData = $this->couponService->processCoupon($request->input('coupon_code'), $plan->price_after_discount);
+            $billingCycle = $sessionData['billing_cycle'] ?? 'monthly';
+            $planCyclePrice = (float) $plan->priceForCycle($billingCycle, true);
+
+            $couponData = $this->couponService->processCoupon($request->input('coupon_code'), $planCyclePrice);
 
             if (isset($couponData['error'])) {
                 return $this->redirectWithError('subscribe.index', $couponData['error']);
@@ -85,7 +96,7 @@ class NewSubscriptionController extends Controller
             $this->moyasarFormConfiguration->getPublishableKey();
             $this->moyasarFormConfiguration->amountInHalala((float) $couponData['final_total']);
 
-            $pendingBill = $this->createPendingBill($plan, $couponData);
+            $pendingBill = $this->createPendingBill($plan, $couponData, $billingCycle, $planCyclePrice);
 
             return $this->showMoyasarCheckout($pendingBill, $plan);
         } catch (PaymentInitiationException $e) {
@@ -121,20 +132,22 @@ class NewSubscriptionController extends Controller
     |============================================================================
     |============================================================================
     */
-    private function createPendingBill($plan, array $couponData)
+    private function createPendingBill($plan, array $couponData, string $billingCycle = 'monthly', ?float $originalAmount = null)
     {
         $tenant = tenant();
         $user = auth('tenant')->user();
+        $originalPrice = $originalAmount ?? (float) $plan->priceForCycle($billingCycle, true);
 
         return $this->billService->createPendingBill(
             amount: $couponData['final_total'],
             paymentMethod: PaymentMethod::ONLINE,
-            originalAmount: $plan->price_after_discount,
+            originalAmount: $originalPrice,
             type: BillType::NEW_SUBSCRIPTION,
             couponData: $couponData,
             metadata: [
                 'tenant_id' => $tenant->id,
                 'plan_id' => $plan->id,
+                'billing_cycle' => $billingCycle,
                 'billing_name' => $user->name ?? $tenant->primary_contact_name,
                 'billing_email' => $user->email ?? $tenant->primary_contact_email,
                 'billing_phone' => $user->phone ?? $tenant->primary_contact_phone,

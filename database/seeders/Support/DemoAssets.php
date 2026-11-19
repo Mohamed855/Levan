@@ -66,7 +66,7 @@ final class DemoAssets
         $paths = [];
         foreach (PropertyAttachmentCategory::cases() as $category) {
             $isImage = in_array($category, [PropertyAttachmentCategory::MAIN_IMAGE, PropertyAttachmentCategory::GALLERY_IMAGE,
-                PropertyAttachmentCategory::AERIAL_PHOTO, PropertyAttachmentCategory::ASSIGNMENT_LETTER_IMAGE], true);
+                PropertyAttachmentCategory::AERIAL_PHOTO], true);
             $paths[$category->value] = self::attachment($property, $category->value, $isImage);
         }
         $property->update([

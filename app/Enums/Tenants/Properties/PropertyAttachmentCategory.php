@@ -11,7 +11,7 @@ enum PropertyAttachmentCategory: string
     case BUILDING_PERMIT = 'property_building_permit';
     case COORDINATES_STATEMENT = 'property_coordinates';
     case ADDITIONAL_DOCUMENT = 'property_additional_document';
-    case ASSIGNMENT_LETTER_IMAGE = 'assignment_letter_image';
+    case AGENCY_DOCUMENT = 'property_agency_document';
     case MAIN_IMAGE = 'property_main_image';
     case GALLERY_IMAGE = 'property_gallery';
     case AERIAL_PHOTO = 'property_aerial_photo';
@@ -25,7 +25,7 @@ enum PropertyAttachmentCategory: string
             self::BUILDING_PERMIT => 'رخصة البناء',
             self::COORDINATES_STATEMENT => 'كشف الإحداثيات',
             self::ADDITIONAL_DOCUMENT => 'مستند إضافي',
-            self::ASSIGNMENT_LETTER_IMAGE => 'صورة الإسناد',
+            self::AGENCY_DOCUMENT => 'مستند التفويض أو الوكالة',
             self::MAIN_IMAGE => 'الصورة الرئيسية للعقار',
             self::GALLERY_IMAGE => 'صورة العقار',
             self::AERIAL_PHOTO => 'صورة العقار المحددة',

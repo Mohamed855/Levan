@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin\AdminMangment\Users;
 
+use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
-use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateAdminUserProfileImageRequest extends FormRequest
+class UpdateAdminUserProfileImageRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {

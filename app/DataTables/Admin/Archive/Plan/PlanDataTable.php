@@ -19,7 +19,7 @@ class PlanDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        return Plan::onlyTrashed();
+        return Plan::onlyTrashed()->notTrial();
     }
 
     protected function getColumns(): array
@@ -28,9 +28,10 @@ class PlanDataTable extends AbstractDataTable
             ['data' => 'checkbox',  'name' => 'checkbox',   'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
 
             ['data' => 'name',               'name' => 'name',                      'title' => 'اسم الباقة',    'className' => 'text-center'],
-            ['data' => 'price',              'name' => 'price',                     'title' => 'السعر '],
+            ['data' => 'price',              'name' => 'price',                     'title' => 'السعر الشهري'],
+            ['data' => 'yearly_price',       'name' => 'yearly_price',              'title' => 'السعر السنوي'],
             ['data' => 'discount_percentage', 'name' => 'discount_percentage',       'title' => 'نسبة الخصم'],
-            ['data' => 'price_after_discount', 'name' => 'price',                     'title' => 'السعر بعد الخصم'],
+            ['data' => 'price_after_discount', 'name' => 'price',                     'title' => 'الشهري بعد الخصم'],
 
             ['data' => 'included_users',     'name' => 'included_users',            'title' => 'عدد المستخدمين'],
             ['data' => 'extra_user_license_price',     'name' => 'extra_user_license_price',            'title' => 'سعر الترخيص الاضافي'],
@@ -46,7 +47,15 @@ class PlanDataTable extends AbstractDataTable
             ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
 
             ->editColumn('price', function ($row) {
-                return number_format($row->price);
+                return number_format((float) $row->price, 2);
+            })
+
+            ->addColumn('yearly_price', function ($row) {
+                if ($row->yearly_price === null) {
+                    return '-';
+                }
+
+                return number_format((float) $row->yearly_price, 2);
             })
 
             ->editColumn('discount_percentage', function ($row) {
@@ -86,7 +95,7 @@ class PlanDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'name', 'is_active', 'status', 'actions'];
+        return ['checkbox', 'name', 'yearly_price', 'is_active', 'status', 'actions'];
     }
 
     protected function applyCustomFilters($query)

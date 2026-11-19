@@ -8,7 +8,6 @@ use App\DataTables\Admin\Plans\PlanDataTable;
 use App\Enums\Admin\Plans\PlanColor;
 use App\Enums\Admin\Plans\PlanLimitsMode;
 use App\Enums\Admin\Plans\PlanType;
-use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Plans\Plan;
 use Illuminate\Http\JsonResponse;
@@ -36,7 +35,7 @@ class PlanManagementUiFeatureTest extends TestCase
                 'plan_type' => PlanType::PROFESSIONAL->value,
                 'color' => PlanColor::PRIMARY->value,
                 'price' => 1500,
-                'subscription_billing_cycle' => SubscriptionBillingCycle::MONTHLY->value,
+                'yearly_price' => 15000,
                 'is_active' => true,
                 'features' => ['ميزة 1', 'ميزة 2'],
                 'users_limit_mode' => 'unlimited',
@@ -68,7 +67,7 @@ class PlanManagementUiFeatureTest extends TestCase
                 'plan_type' => PlanType::ENTERPRISE->value,
                 'color' => PlanColor::SECONDARY->value,
                 'price' => 2500,
-                'subscription_billing_cycle' => SubscriptionBillingCycle::YEARLY->value,
+                'yearly_price' => 25000,
                 'is_active' => true,
                 'features' => ['ميزة أ', 'ميزة ب'],
                 'users_limit_mode' => 'limited',
@@ -81,6 +80,7 @@ class PlanManagementUiFeatureTest extends TestCase
 
         $plan = Plan::where('code', $code)->firstOrFail();
         $this->assertFalse($plan->hasUnlimitedUsers());
+        $this->assertSame('25000.00', $plan->yearly_price);
         $this->assertSame(8, $plan->included_users);
         $this->assertEquals(75.0, (float) $plan->extra_user_license_price);
         $this->assertTrue($plan->isUnlimited());
@@ -109,7 +109,7 @@ class PlanManagementUiFeatureTest extends TestCase
             $this->assertArrayHasKey('is_most_requested', $firstRow);
             $this->assertArrayHasKey('plan_type', $firstRow);
             $this->assertArrayHasKey('price', $firstRow);
-            $this->assertArrayHasKey('duration', $firstRow);
+            $this->assertArrayHasKey('yearly_price', $firstRow);
             $this->assertArrayHasKey('included_users', $firstRow);
             $this->assertArrayHasKey('extra_user_license_price', $firstRow);
             $this->assertArrayHasKey('limits_summary', $firstRow);

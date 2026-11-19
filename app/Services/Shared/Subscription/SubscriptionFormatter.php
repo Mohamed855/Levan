@@ -2,6 +2,7 @@
 
 namespace App\Services\Shared\Subscription;
 
+use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Subscription\SubscriptionPeriod;
@@ -18,10 +19,24 @@ class SubscriptionFormatter
         $currentPeriod = $subscription->currentPeriod;
         $lastPaidPeriod = $this->getLastPaidPeriod($subscription);
 
-        $renewalPrice = (float) ($subscription->plan?->price_after_discount > 0 ? $subscription->plan->price_after_discount : ($subscription->plan?->price ?? 0));
+        $cycle = $subscription->billing_cycle instanceof SubscriptionBillingCycle
+            ? $subscription->billing_cycle->value
+            : ($subscription->billing_cycle ?: 'monthly');
+
+        if ($cycle === 'yearly') {
+            $renewalPrice = (float) ($subscription->plan?->yearly_price_after_discount
+                ?? ($subscription->plan?->yearly_price
+                    ?? ($currentPeriod?->price_snapshot ?? $subscription->price)));
+        } else {
+            $renewalPrice = (float) ($subscription->plan?->price_after_discount > 0
+                ? $subscription->plan->price_after_discount
+                : ($subscription->plan?->price ?? ($currentPeriod?->price_snapshot ?? $subscription->price)));
+        }
 
         return [
             'plan_name' => $subscription->is_trial && ! $subscription->plan_id ? 'تجربة مجانية — بدون باقة' : ($subscription->plan?->name ?? 'غير محدد'),
+            'billing_cycle' => $cycle,
+            'billing_cycle_label' => $cycle === 'yearly' ? 'سنوياً' : 'شهرياً',
             'status' => $subscription->status->label(),
             'status_color' => $subscription->status->color(),
             // 'paid_period_start'        => $lastPaidPeriod?->period_start?->format('Y/m/d') ?? $currentPeriod?->period_start?->format('Y/m/d'),
@@ -69,6 +84,8 @@ class SubscriptionFormatter
     {
         return [
             'plan_name' => 'غير محدد',
+            'billing_cycle' => 'monthly',
+            'billing_cycle_label' => 'شهرياً',
             'status' => 'غير محدد',
             'status_color' => 'secondary',
             // 'paid_period_start'        => 'غير محدد',

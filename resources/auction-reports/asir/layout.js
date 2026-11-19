@@ -133,6 +133,20 @@
             }
         }
 
+        // Keep each link inside its reference-sized button, including long labels.
+        for (const link of document.querySelectorAll('[data-asir-reference-link]')) {
+            const text = link.querySelector('span');
+            const style = getComputedStyle(link);
+            const availableHeight = link.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+            const fits = () => text.scrollWidth <= text.clientWidth + 1 && text.getBoundingClientRect().height <= availableHeight + .5;
+            let size = parseFloat(style.fontSize) * .75;
+            while (!fits() && size > 6) {
+                size = Math.max(6, size - .25);
+                link.style.fontSize = `${size}pt`;
+            }
+            if (!fits()) throw new Error('An Asir link label exceeds its reference button.');
+        }
+
         // Keep thumbnail names inside the original blue frame at readable sizes.
         // A valid name can still be too long at 8pt; let that full name flow as
         // ordinary content rather than stretching or cropping the thumbnail.
@@ -161,6 +175,27 @@
             name.remove();
         }
 
+        // Keep the original logo panel and text column. Additional lines expand
+        // the text upwards within that column rather than moving the artwork.
+        for (const body of document.querySelectorAll('.asir-introduction-main')) {
+            const paragraph = body.querySelector('[data-asir-paragraph]');
+            if (!paragraph) continue;
+            const scale = body.closest('.auction-print-page').getBoundingClientRect().width / 595.276;
+            const height = paragraph.getBoundingClientRect().height / scale;
+            const lineHeight = parseFloat(getComputedStyle(paragraph).lineHeight) / scale;
+            body.style.paddingBlockStart = `${Math.max(25, 337 - Math.max(0, height - lineHeight) / 2)}pt`;
+        }
+
+        // Methodology subsections share one content flow under their common title.
+        const methodology = [...document.querySelectorAll('.asir-native-narrative')].filter(page => ['4', '5', '6'].includes(page.dataset.asirIndex));
+        if (methodology.length > 1) {
+            const body = methodology[0].querySelector('[data-asir-flow]');
+            for (const page of methodology.slice(1)) {
+                body.append(...page.querySelector('[data-asir-flow]').children);
+                page.remove();
+            }
+        }
+
         // Reassemble only property pages. Campaign/evidence pages keep their own
         // payload context, even when consecutive pages use the same template.
         for (const family of ['asir-index', 'asir-sold-assets', 'asir-unsold-assets']) {
@@ -181,6 +216,7 @@
         for (const original of [...document.querySelectorAll('[data-asir-flow]')]) {
             let page = original.closest('.asir-native-page');
             const family = page.dataset.pageType.replace(/-continuation$/, '');
+            const printableBottom = ['4', '5', '6'].includes(page.dataset.asirIndex) ? 795 : 825;
             const template = page.cloneNode(true);
             template.querySelector('[data-asir-flow]').replaceChildren();
             const sections = [...original.children];
@@ -196,7 +232,24 @@
             body.replaceChildren();
             const fits = node => {
                 const bounds = page.getBoundingClientRect();
-                return node.getBoundingClientRect().bottom <= bounds.top + 825 * bounds.width / 595.276 + .3;
+                return node.getBoundingClientRect().bottom <= bounds.top + printableBottom * bounds.width / 595.276 + .3;
+            };
+            const fitUsingFlexibleGaps = node => {
+                const frame = page.getBoundingClientRect();
+                const scale = frame.width / 595.276;
+                const overflow = () => (node.getBoundingClientRect().bottom - frame.top) / scale - printableBottom;
+                const gaps = [...body.children].reverse().filter(section => section.hasAttribute('data-asir-gap-min')).map(section => ({
+                    section,
+                    current: parseFloat(getComputedStyle(section).marginBlockStart) / scale,
+                    minimum: Number(section.dataset.asirGapMin),
+                })).filter(gap => Number.isFinite(gap.current) && Number.isFinite(gap.minimum) && gap.current > gap.minimum);
+                // Preserve the reference spacing when a new page is inevitable.
+                if (gaps.reduce((sum, gap) => sum + gap.current - gap.minimum, 0) < overflow() + .5) return false;
+                for (const gap of gaps) {
+                    gap.section.style.setProperty('margin-block-start', `${Math.max(gap.minimum, gap.current - overflow() - .5)}pt`, 'important');
+                    if (fits(node)) return true;
+                }
+                return fits(node);
             };
             const nextPage = () => {
                 const next = template.cloneNode(true);
@@ -269,14 +322,19 @@
                     if (fits(part)) continue;
                     if (item.tagName !== 'TR') {
                         const image = item.querySelector('[data-report-attachment]');
-                        if (image && item.querySelector('figcaption')) {
+                        const brokerDocument = item.matches('.asir-broker-document');
+                        if (image && (item.querySelector('figcaption') || brokerDocument)) {
                             const frame = page.getBoundingClientRect();
                             const scale = frame.width / 595.276;
+                            if (brokerDocument && part.hasAttribute('data-asir-gap-min')) {
+                                const gap = parseFloat(getComputedStyle(part).marginBlockStart) / scale;
+                                part.style.setProperty('margin-block-start', `${Math.min(gap, Number(part.dataset.asirGapMin))}pt`, 'important');
+                            }
                             const overflow = part.getBoundingClientRect().bottom - frame.top - 825 * scale;
                             const height = image.getBoundingClientRect().height;
                             // Keep full captions readable. Only unusually tall
                             // figures need a smaller contained image to fit.
-                            const minimum = Math.min(height, 100 * scale);
+                            const minimum = Math.min(height, (brokerDocument ? 300 : 100) * scale);
                             image.style.height = `${Math.max(minimum, height - overflow - 1) / scale}pt`;
                             if (fits(part)) continue;
                         }
@@ -312,7 +370,7 @@
 
             for (const section of sections) {
                 body.append(section);
-                if (fits(section)) continue;
+                if (fits(section) || fitUsingFlexibleGaps(section)) continue;
                 section.remove();
                 if (section.querySelector('[data-asir-table] tbody')) {
                     flowItems(section, '[data-asir-table] tbody');

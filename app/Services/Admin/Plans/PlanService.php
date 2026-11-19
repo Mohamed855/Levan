@@ -46,10 +46,15 @@ class PlanService
             $extraPrice = $includedUsers === null
                 ? null
                 : (isset($data['extra_user_license_price']) && $data['extra_user_license_price'] !== '' ? (float) $data['extra_user_license_price'] : 0.0);
+            $yearlyPrice = (isset($data['yearly_price']) && $data['yearly_price'] !== '' && $data['yearly_price'] !== null)
+                ? (float) $data['yearly_price']
+                : null;
 
             $plan = Plan::create([
                 ...$data,
                 'code' => $code,
+                'price' => (float) ($data['price'] ?? 0),
+                'yearly_price' => $yearlyPrice,
                 'extra_user_license_price' => $extraPrice,
                 'discount_percentage' => $data['discount_percentage'] ?? 0,
                 'limits_mode' => $limitsMode,
@@ -72,6 +77,10 @@ class PlanService
      */
     public function update(Plan $plan, array $data): Plan
     {
+        if ($plan->isTrial()) {
+            throw new \DomainException('لا يمكن تعديل باقة التجربة المجانية للنظام.');
+        }
+
         return DB::transaction(function () use ($plan, $data) {
             $hasSubscriptions = $this->hasSubscriptions($plan);
 
@@ -87,9 +96,9 @@ class PlanService
             // Code is immutable after creation - cannot be modified
             unset($data['code']);
 
-            // If plan has subscriptions, prevent altering critical contract terms
+            // If plan has subscriptions, prevent altering critical operational contract limits
             if ($hasSubscriptions) {
-                unset($data['subscription_billing_cycle'], $data['limits_mode']);
+                unset($data['limits_mode']);
                 $limitsMode = $plan->limits_mode instanceof PlanLimitsMode ? $plan->limits_mode->value : (string) $plan->limits_mode;
             } else {
                 $limitsMode = (string) ($data['limits_mode'] ?? ($plan->limits_mode->value ?? $plan->limits_mode));
@@ -102,6 +111,12 @@ class PlanService
                 'features' => ! empty($features) ? $features : $plan->features,
                 'updated_by' => auth()->id(),
             ];
+
+            if (array_key_exists('yearly_price', $data)) {
+                $updateData['yearly_price'] = ($data['yearly_price'] !== null && $data['yearly_price'] !== '')
+                    ? (float) $data['yearly_price']
+                    : null;
+            }
 
             if (array_key_exists('included_users', $data)) {
                 $updateData['included_users'] = ($data['included_users'] !== null && $data['included_users'] !== '') ? (int) $data['included_users'] : null;
@@ -139,6 +154,10 @@ class PlanService
      */
     public function delete(Plan $plan): bool
     {
+        if ($plan->isTrial()) {
+            throw new \DomainException('لا يمكن حذف باقة التجربة المجانية للنظام.');
+        }
+
         if ($this->hasSubscriptions($plan)) {
             throw new \DomainException(__('plans.errors.cannot_delete_used_plan'));
         }
@@ -158,6 +177,10 @@ class PlanService
      */
     public function forceDelete(Plan $plan): bool
     {
+        if ($plan->isTrial()) {
+            throw new \DomainException('لا يمكن حذف باقة التجربة المجانية للنظام.');
+        }
+
         if ($this->hasSubscriptions($plan)) {
             throw new \DomainException(__('plans.errors.cannot_force_delete_used_plan'));
         }
@@ -175,6 +198,10 @@ class PlanService
      */
     public function toggleActive(Plan $plan): Plan
     {
+        if ($plan->isTrial()) {
+            throw new \DomainException('لا يمكن تعديل حالة باقة التجربة المجانية للنظام.');
+        }
+
         $plan->update([
             'is_active' => ! $plan->is_active,
             'updated_by' => auth()->id(),
@@ -190,13 +217,15 @@ class PlanService
      */
     public function getPlanStatistics(): array
     {
-        $totalPlans = Plan::count();
-        $activePlans = Plan::where('is_active', true)->count();
-        $inactivePlans = Plan::where('is_active', false)->count();
-        $availablePlans = Plan::query()
+        $baseQuery = Plan::notTrial();
+
+        $totalPlans = (clone $baseQuery)->count();
+        $activePlans = (clone $baseQuery)->where('is_active', true)->count();
+        $inactivePlans = (clone $baseQuery)->where('is_active', false)->count();
+        $availablePlans = (clone $baseQuery)
             ->where(fn ($query) => $query->whereNull('available_from')->orWhere('available_from', '<=', now()))
             ->count();
-        $futurePlans = Plan::query()->where('available_from', '>', now())->count();
+        $futurePlans = (clone $baseQuery)->where('available_from', '>', now())->count();
 
         $activeSubscriptions = Subscription::where('status', SubscriptionStatus::ACTIVE->value)->count();
         $expiredSubscriptions = Subscription::whereIn('status', [

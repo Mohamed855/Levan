@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Tenants\Auctions\Reports;
 
+use App\Enums\Tenants\Auctions\AuctionStatus;
+
 final class AsirNativeContent
 {
     public function prepareCover(array $content, array $snapshot): array
@@ -30,6 +32,7 @@ final class AsirNativeContent
     public function prepare(array $content, array $snapshot, array $page): array
     {
         $index = $content['index'];
+        $content['status_badge_class'] = (AuctionStatus::tryFrom((string) ($snapshot['auction']['status'] ?? '')) ?? AuctionStatus::CLOSED)->badgeClass();
         $content['native_template'] = match ($index) {
             1 => 'index', 2 => 'introduction', 3, 4, 5, 6 => 'narrative',
             7, 8, 16, 17 => 'boards', 9 => 'brochure', 10 => 'platform', 11 => 'video',
@@ -72,6 +75,15 @@ final class AsirNativeContent
         $content['board_offset'] = $page['payload']['offset'] ?? 0;
         $content['gallery_items'] = $page['payload'][$content['board_section']] ?? [];
         $content['image_items'] = $page['payload'][$content['native_template']] ?? [];
+        if ($index === 15) {
+            $names = $content['image_items'] !== []
+                ? array_column($content['image_items'], 'display_name')
+                : array_column($snapshot['marketing']['brokers'] ?? [], 'name');
+            if ($names === [] && $content['image_items'] === []) {
+                $names = array_intersect_key($content['values'], array_flip(['broker_1', 'broker_2', 'broker_3']));
+            }
+            $content['broker_names'] = array_values(array_filter($names, static fn ($name): bool => trim((string) $name) !== '' && $name !== '-'));
+        }
 
         return $content;
     }
@@ -98,9 +110,12 @@ final class AsirNativeContent
         $copy ??= require resource_path('auction-reports/asir/native-copy.php');
         $paragraphs = [];
         foreach ($copy[$index] ?? [] as $role) {
-            $recorded = array_column($marketing['campaigns'] ?? [], $role);
-            $value = $recorded === [] ? ($marketing[$role] ?? '') : implode("\n", array_filter($recorded, static fn ($text): bool => $text !== null && $text !== ''));
-            $value = (string) $value;
+            $recorded = in_array($role, ['report_summary', 'city_context'], true) ? [] : array_column($marketing['campaigns'] ?? [], $role);
+            $rawValue = $recorded === [] ? ($marketing[$role] ?? '') : implode("\n", array_filter($recorded, static fn ($text): bool => $text !== null && $text !== ''));
+            if (is_array($rawValue)) {
+                $rawValue = implode('، ', array_values(array_filter(array_map(static fn (mixed $v): string => trim((string) $v), $rawValue), static fn (string $v): bool => $v !== '')));
+            }
+            $value = (string) $rawValue;
             if (trim($value) !== '' && trim($value) !== '-') {
                 $paragraphs[] = ['text' => $value, 'role' => $role];
             }

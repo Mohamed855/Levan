@@ -139,22 +139,56 @@
                 </x-form.wizard.review-card>
             </div>
 
-            {{-- 4. بيانات التقرير --}}
+            {{-- 4. بيانات التسويق --}}
             <div class="col-lg-6">
-                <x-form.wizard.review-card title="بيانات التقرير" step="4" col=""
+                <x-form.wizard.review-card title="التسويق" step="4" col=""
+                    class="h-100 assignment-review__card">
+                    <dl class="row mb-0 small">
+                        <dt class="col-5 text-muted">نطاق الحملة الجغرافي</dt>
+                        <dd class="col-7 fw-semibold text-break" id="review-city-context">
+                            @php
+                                $cityCtx = $marketing['city_context'] ?? [];
+                                $cityCtxDisplay = is_array($cityCtx) ? implode('، ', $cityCtx) : (string) $cityCtx;
+                            @endphp
+                            {{ filled($cityCtxDisplay) ? $cityCtxDisplay : '—' }}</dd>
+                        <dt class="col-5 text-muted">منهجية التخطيط</dt>
+                        <dd class="col-7 fw-semibold text-break" id="review-planning-methodology">
+                            {{ !empty($marketing['planning_methodology']) ? $marketing['planning_methodology'] : '—' }}</dd>
+                        <dt class="col-5 text-muted">رابط الكتيب التسويقي</dt>
+                        <dd class="col-7 fw-semibold text-truncate" id="review-brochure-url">
+                            {{ !empty($marketing['brochure_url']) ? $marketing['brochure_url'] : '—' }}</dd>
+                        <dt class="col-5 text-muted">رابط اللوحات</dt>
+                        <dd class="col-7 fw-semibold text-truncate" id="review-board-url">
+                            {{ !empty($marketing['board_url']) ? $marketing['board_url'] : '—' }}</dd>
+                        <dt class="col-5 text-muted">الوسطاء المشتركون</dt>
+                        <dd class="col-7 fw-semibold text-break" id="review-brokers-summary">
+                            @php
+                                $brokerNames = collect($marketing['brokers'] ?? [])->pluck('name')->filter()->implode('، ');
+                            @endphp
+                            {{ filled($brokerNames) ? $brokerNames : '—' }}</dd>
+                    </dl>
+                </x-form.wizard.review-card>
+            </div>
+
+            {{-- 5. بيانات التقرير --}}
+            <div class="col-lg-6">
+                <x-form.wizard.review-card title="بيانات التقرير" step="5" col=""
                     class="h-100 assignment-review__card">
                     <dl class="row mb-0 small">
                         <dt class="col-5 text-muted">مقدمة التقرير</dt>
                         <dd class="col-7 fw-semibold text-break" id="review-report-introduction">
                             {{ !empty($marketing['introduction']) ? $marketing['introduction'] : '—' }}</dd>
+                        <dt class="col-5 text-muted">ملخص التقرير</dt>
+                        <dd class="col-7 fw-semibold text-break" id="review-report-summary">
+                            {{ !empty($marketing['report_summary']) ? $marketing['report_summary'] : '—' }}</dd>
 
                     </dl>
                 </x-form.wizard.review-card>
             </div>
 
-            {{-- 5. الملفات والمستندات --}}
+            {{-- 6. الملفات والمستندات --}}
             <div class="col-12">
-                <x-form.wizard.review-card title="الملفات والمستندات" step="4" col=""
+                <x-form.wizard.review-card title="الملفات والمستندات" step="5" col=""
                     class="h-100 assignment-review__card">
                     <div class="row g-3">
                         <div class="col-md-6">

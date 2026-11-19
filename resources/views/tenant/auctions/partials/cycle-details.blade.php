@@ -1,12 +1,6 @@
 @can('marketing_campaigns.view')
     @php
         $channelIcons = [
-            'planning' => 'ti ti-clipboard-list text-primary',
-            'promotion' => 'ti ti-speakerphone text-info',
-            'brochure' => 'ti ti-book text-warning',
-            'platform' => 'ti ti-device-laptop text-primary',
-            'board_before' => 'ti ti-ad-2 text-danger',
-            'brokers' => 'ti ti-user text-success',
             'youtube' => 'ti ti-brand-youtube text-danger',
             'x' => 'ti ti-brand-x text-dark',
             'snapchat' => 'ti ti-brand-snapchat text-warning',

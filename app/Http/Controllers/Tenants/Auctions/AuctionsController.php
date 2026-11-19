@@ -72,6 +72,7 @@ class AuctionsController extends Controller
             'assignments' => $assignments,
             'platformEntityOptions' => $this->issuingEntityService->getActiveOptions(),
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'regionOptions' => $this->cityOptionsGateway->regionOptionsByName(),
         ]);
     }
 
@@ -87,6 +88,9 @@ class AuctionsController extends Controller
                 $request->file('marketing_evidence', []),
                 (array) $request->file('board_images_before', []),
                 (array) $request->file('board_images_after', []),
+                (array) $request->file('brochure_evidence', []),
+                (array) $request->file('platform_evidence', []),
+                (array) $request->file('broker_evidence', []),
             );
 
             return redirect()->to(tenant_route_name('auctions.show', $auction->id))
@@ -145,6 +149,7 @@ class AuctionsController extends Controller
             'assignments' => $assignments,
             'properties' => $properties,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'regionOptions' => $this->cityOptionsGateway->regionOptionsByName(),
         ]);
     }
 
@@ -164,6 +169,9 @@ class AuctionsController extends Controller
                 $request->file('marketing_evidence', []),
                 (array) $request->file('board_images_before', []),
                 (array) $request->file('board_images_after', []),
+                (array) $request->file('brochure_evidence', []),
+                (array) $request->file('platform_evidence', []),
+                (array) $request->file('broker_evidence', []),
             );
 
             return redirect()->to(tenant_route_name('auctions.show', $auction->id))

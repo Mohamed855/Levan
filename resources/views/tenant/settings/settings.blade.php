@@ -152,6 +152,19 @@
                                 help="الحد الأقصى لعدد الأحرف: 14." />
 
                             <div class="col-12 mt-4 pt-3 border-top">
+                                <h6 class="fw-bold mb-3">بيانات المنشأة النظامية لطلبات إقامة وإقفال المزادات</h6>
+                                <div class="row g-4 mb-4">
+                                    <x-form.controls.input name="unified_number" label="الرقم الموحد للمنشأة (700)"
+                                        :value="old('unified_number', $settings->unified_number ?? '')" placeholder="700xxxxxxx" maxlength="10"
+                                        inputmode="numeric" pattern="700[0-9]{7}" data-digits-only="true"
+                                        help="يجب أن يبدأ بـ 700 ويتكون من 10 أرقام." col="col-md-4" />
+                                    <x-form.controls.input name="fal_license" label="رخصة فال للمزادات العقارية"
+                                        :value="old('fal_license', $settings->fal_license ?? '')" placeholder="أدخل رقم رخصة فال" maxlength="50"
+                                        inputmode="numeric" pattern="[0-9]+" data-digits-only="true" col="col-md-4" />
+                                    <x-form.controls.input name="representative_name" label="اسم الممثل النظامي للمنشأة"
+                                        :value="old('representative_name', $settings->representative_name ?? '')" placeholder="أدخل اسم الممثل النظامي" maxlength="255"
+                                        col="col-md-4" />
+                                </div>
                                 <div class="row g-4">
                                     @foreach (['signature' => 'توقيع المنشأة', 'stamp' => 'ختم المنشأة'] as $asset => $label)
                                         @php
@@ -171,8 +184,8 @@
                                             :max-size="10" col="col-md-6" />
                                     @endforeach
                                 </div>
-                                <div class="form-text mt-2">تُستخدم الصور الحالية عند توليد نموذج إقامة المزاد أو إقفاله
-                                    مجدداً. حفظ الإعدادات لا يغيّر النماذج السابقة.</div>
+                                <div class="form-text mt-2">تُستخدم بيانات المنشأة والتوقيع والختم عند تقديم طلب إقامة
+                                    المزاد وتوليد النماذج النظامية. حفظ الإعدادات لا يغيّر النماذج السابقة.</div>
                             </div>
                             <div class="col-12 mt-4 pt-3 border-top">
                                 <h6 class="fw-bold mb-3">بيانات التواصل في تقارير المزادات</h6>
