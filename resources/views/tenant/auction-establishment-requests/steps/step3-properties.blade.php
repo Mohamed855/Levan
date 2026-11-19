@@ -10,12 +10,14 @@
             ->where('report_section', 'board_before')
             ->where('property_id', $prop->id)
             ->values()
-            ->map(fn ($file): array => [
-                'id' => $file->id,
-                'name' => $file->file_name ?? basename((string) $file->file_path),
-                'url' => tasset($file->file_path),
-                'mime' => str_ends_with(strtolower((string) $file->file_path), '.png') ? 'image/png' : 'image/jpeg',
-            ])
+            ->map(
+                fn($file): array => [
+                    'id' => $file->id,
+                    'name' => $file->file_name ?? basename((string) $file->file_path),
+                    'url' => tasset($file->file_path),
+                    'mime' => str_ends_with(strtolower((string) $file->file_path), '.png') ? 'image/png' : 'image/jpeg',
+                ],
+            )
             ->all();
 
         $existingPropertyAttachments[$prop->id] = [
@@ -60,7 +62,7 @@
                         / {{ $totalProperties }}</span>
                     <span class="badge bg-info p-2">إجمالي المساحة: {{ number_format($totalArea) }} م²</span>
                     <span class="badge bg-success p-2">إجمالي القيمة: {{ number_format($totalEstimatedValue) }}
-                        <span class="icon-saudi_riyal icon-saudi_riyal--white ms-1"></span></span>
+                        <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span>
                 </div>
             </div>
 
@@ -99,7 +101,7 @@
                                     data-property-type="{{ $property?->type_label ?? '-' }}">
                                     <td class="text-center" onclick="event.stopPropagation();">
                                         <input type="checkbox" class="form-check-input property-complete-check"
-                                             data-property-check="{{ $propertyData['property_id'] }}"
+                                            data-property-check="{{ $propertyData['property_id'] }}"
                                             data-property-index="{{ $index }}" disabled tabindex="-1"
                                             style="pointer-events: none; cursor: default;"
                                             aria-label="اكتمال بيانات {{ $property?->name ?? 'العقار' }}">
@@ -122,7 +124,8 @@
                                         {{ $property?->city ?? '-' }}{{ $property?->district ? ' - ' . $property->district : '' }}
                                     </td>
                                     <td>{{ number_format((float) ($property?->area ?? 0)) }} م²</td>
-                                    <td>{{ number_format((float) ($property?->estimated_value ?? 0)) }} <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></td>
+                                    <td>{{ number_format((float) ($property?->estimated_value ?? 0)) }} <span
+                                            class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></td>
                                     <td class="text-center">
                                         <span class="badge bg-label-warning property-status-badge"
                                             data-property-badge="{{ $propertyData['property_id'] }}">
@@ -180,8 +183,8 @@
                     data-field="{{ $fieldKey }}">
             @endforeach
             <div class="property-file-inputs" data-prop-files="{{ $propId }}">
-                <input type="file" name="attachments[valuation][{{ $propId }}]"
-                    accept=".pdf,.png,.jpg,.jpeg" class="d-none">
+                <input type="file" name="attachments[valuation][{{ $propId }}]" accept=".pdf,.png,.jpg,.jpeg"
+                    class="d-none">
                 <input type="hidden" name="remove_attachments[valuation][{{ $propId }}]"
                     value="{{ old('remove_attachments.valuation.' . $propId, '0') }}">
                 <input type="file" name="board_images_before[{{ $propId }}][]"

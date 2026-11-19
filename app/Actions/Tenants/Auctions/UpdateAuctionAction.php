@@ -535,6 +535,7 @@ final class UpdateAuctionAction
                     $evidenceMetadata,
                 );
                 $this->reportInputs->syncEvidenceMetadata($auction, $retainedEvidenceMetadata);
+                $this->reportInputs->syncBrochureUrl($auction);
 
                 return $auction->fresh(['properties', 'attachments', 'assignment']);
             });

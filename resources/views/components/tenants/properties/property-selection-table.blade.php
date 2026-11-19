@@ -20,9 +20,11 @@
             </div>
             @if ($showStats)
                 <div class="d-flex flex-wrap gap-2 text-start">
-                    <span class="badge bg-primary p-2">المحددة: <span id="selected-props-count">{{ $initialCount }}</span></span>
+                    <span class="badge bg-primary p-2">المحددة: <span
+                            id="selected-props-count">{{ $initialCount }}</span></span>
                     <span class="badge bg-info p-2">إجمالي المساحة: <span id="selected-props-area">0 م²</span></span>
-                    <span class="badge bg-success p-2">إجمالي القيمة: <span id="selected-props-val">0 <span class="icon-saudi_riyal icon-saudi_riyal--white ms-1"></span></span></span>
+                    <span class="badge bg-success p-2">إجمالي القيمة: <span id="selected-props-val">0 <span
+                                class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span></span></span>
                 </div>
             @endif
         </div>
@@ -41,7 +43,8 @@
                     <thead>
                         <tr>
                             <th style="width: 2.5rem;" class="text-center">
-                                <input type="checkbox" id="select-all-properties" class="form-check-input" aria-label="تحديد الكل">
+                                <input type="checkbox" id="select-all-properties" class="form-check-input"
+                                    aria-label="تحديد الكل">
                             </th>
                             <th style="width: 100px;">رقم الأصل</th>
                             <th style="width: 60px;" class="text-center">الصورة</th>

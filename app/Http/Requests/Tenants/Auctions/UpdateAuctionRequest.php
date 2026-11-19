@@ -269,7 +269,7 @@ class UpdateAuctionRequest extends WizardFormRequest
             'marketing.audience_methodology' => ['nullable', 'string', 'max:1000'],
             'marketing.messages_methodology' => ['nullable', 'string', 'max:1000'],
             'marketing.brochure_context' => ['nullable', 'string', 'max:1000'],
-            'marketing.brochure_url' => ['nullable', 'url:https', 'max:2048'],
+            'marketing.brochure_url' => ['exclude'],
             'marketing.board_context' => ['nullable', 'string', 'max:1000'],
             'marketing.board_url' => ['nullable', 'url:https', 'max:2048'],
             'marketing.contract_text' => ['nullable', 'string', 'max:1000'],
@@ -346,7 +346,7 @@ class UpdateAuctionRequest extends WizardFormRequest
             }
 
             $links = app(AuctionReportLinks::class);
-            foreach (['brochure_url', 'board_url'] as $urlField) {
+            foreach (['board_url'] as $urlField) {
                 $url = $marketing[$urlField] ?? null;
                 if (is_string($url) && trim($url) !== '' && $links->safeUrl($url) === null) {
                     $validator->errors()->add('marketing.'.$urlField, 'أدخل رابط HTTPS صالحًا دون بيانات دخول.');

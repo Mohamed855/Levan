@@ -10,10 +10,28 @@ use App\Models\Tenants\Properties\Property;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 final class AuctionReportInputService
 {
+    public function syncBrochureUrl(Auction $auction): void
+    {
+        $brochure = $auction->attachments()->where('report_section', 'brochure')->orderBy('display_order')->orderBy('id')->first();
+        $marketing = $auction->marketing_data ?? [];
+        $marketing['brochure_url'] = $brochure ? url(Storage::disk('tenant_public')->url($brochure->file_path)) : null;
+        $auction->update(['marketing_data' => $marketing]);
+    }
+
+    public function syncBrochureUrl(Auction $auction): void
+    {
+        $brochure = $auction->attachments()->where('report_section', 'brochure')->orderBy('display_order')->orderBy('id')->first();
+        $marketing = $auction->marketing_data ?? [];
+        $marketing['brochure_url'] = $brochure ? url(Storage::disk('tenant_public')->url($brochure->file_path)) : null;
+        $auction->update(['marketing_data' => $marketing]);
+    }
+
     /** @param array<int|string, mixed> $ids @return list<int> */
     public function validatePropertyIds(array $ids, int $assignmentId): array
     {

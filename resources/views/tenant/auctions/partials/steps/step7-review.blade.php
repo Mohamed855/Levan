@@ -154,7 +154,7 @@
                         <dt class="col-5 text-muted">منهجية التخطيط</dt>
                         <dd class="col-7 fw-semibold text-break" id="review-planning-methodology">
                             {{ !empty($marketing['planning_methodology']) ? $marketing['planning_methodology'] : '—' }}</dd>
-                        <dt class="col-5 text-muted">رابط الكتيب التسويقي</dt>
+                        <dt class="col-5 text-muted">الكتيب التسويقي</dt>
                         <dd class="col-7 fw-semibold text-truncate" id="review-brochure-url">
                             {{ !empty($marketing['brochure_url']) ? $marketing['brochure_url'] : '—' }}</dd>
                         <dt class="col-5 text-muted">رابط اللوحات</dt>

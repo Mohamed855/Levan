@@ -21,25 +21,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initialize selected properties from pre-rendered DOM cards (e.g. in Edit mode)
     if (propertyCards) {
-        propertyCards.querySelectorAll("[data-property-card]").forEach((card) => {
-            const id = String(card.dataset.propertyCard);
-            selectedProperties.set(id, {
-                id,
-                name:
-                    card.querySelector("h6, .text-truncate")?.textContent.trim() ||
-                    "",
-                number: card.querySelector("code")?.textContent.trim() || "",
-                type: card.querySelector(".badge")?.textContent.trim() || "",
-                city:
-                    card
-                        .querySelector(".text-muted")
-                        ?.textContent.replace(/[\n\r]+/g, " ")
-                        .trim() || "",
-                image: card.querySelector("img")?.src || propertyImageFallback,
-                area: 0,
-                val: 0,
+        propertyCards
+            .querySelectorAll("[data-property-card]")
+            .forEach((card) => {
+                const id = String(card.dataset.propertyCard);
+                selectedProperties.set(id, {
+                    id,
+                    name:
+                        card
+                            .querySelector("h6, .text-truncate")
+                            ?.textContent.trim() || "",
+                    number:
+                        card.querySelector("code")?.textContent.trim() || "",
+                    type:
+                        card.querySelector(".badge")?.textContent.trim() || "",
+                    city:
+                        card
+                            .querySelector(".text-muted")
+                            ?.textContent.replace(/[\n\r]+/g, " ")
+                            .trim() || "",
+                    image:
+                        card.querySelector("img")?.src || propertyImageFallback,
+                    area: 0,
+                    val: 0,
+                });
             });
-        });
     }
 
     // Also pick up any pre-rendered hidden inputs in Edit mode
@@ -102,12 +108,21 @@ document.addEventListener("DOMContentLoaded", () => {
                     const wrapper =
                         input?.closest("[data-file-upload-wrapper]") ||
                         input?.parentElement;
-                    const existingCard = wrapper?.querySelector("[data-existing-file-card]");
-                    const existingName = existingCard?.querySelector(".file-item-name")?.textContent?.trim()
-                        || wrapper?.querySelector(".file-item-name")?.textContent?.trim();
-                    const existingImg = existingCard?.querySelector("img.file-item-preview")?.src
-                        || existingCard?.querySelector("a.btn-view-file")?.href
-                        || wrapper?.querySelector("img.file-item-preview")?.src;
+                    const existingCard = wrapper?.querySelector(
+                        "[data-existing-file-card]",
+                    );
+                    const existingName =
+                        existingCard
+                            ?.querySelector(".file-item-name")
+                            ?.textContent?.trim() ||
+                        wrapper
+                            ?.querySelector(".file-item-name")
+                            ?.textContent?.trim();
+                    const existingImg =
+                        existingCard?.querySelector("img.file-item-preview")
+                            ?.src ||
+                        existingCard?.querySelector("a.btn-view-file")?.href ||
+                        wrapper?.querySelector("img.file-item-preview")?.src;
                     if (existingName || existingImg) {
                         coverItems.push({
                             name: existingName || label,
@@ -245,8 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         ?.textContent?.trim();
                     const url =
                         card.querySelector("a.assignment-file-card__action")
-                            ?.href ||
-                        card.querySelector("img")?.src;
+                            ?.href || card.querySelector("img")?.src;
                     if (name) {
                         boardItems.push({
                             name,
@@ -309,8 +323,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         ?.textContent?.trim();
                     const url =
                         card.querySelector("a.assignment-file-card__action")
-                            ?.href ||
-                        card.querySelector("img")?.src;
+                            ?.href || card.querySelector("img")?.src;
                     if (name) {
                         evidenceItems.push({
                             name,
@@ -352,23 +365,47 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!prop) return false;
         const propId = String(prop.id);
         const hiddenEl = form.querySelector(`[data-prop-hidden="${propId}"]`);
-        const opening = prop.opening_value ?? hiddenEl?.querySelector('[data-field="opening_value"]')?.value;
-        const entry = prop.entry_amount ?? hiddenEl?.querySelector('[data-field="entry_amount"]')?.value;
-        const share = prop.ownership_share ?? hiddenEl?.querySelector('[data-field="ownership_share"]')?.value;
-        const disclosure = prop.disclosure ?? hiddenEl?.querySelector('[data-field="disclosure"]')?.value;
-        const dimensions = prop.board_dimensions ?? hiddenEl?.querySelector('[data-field="board_dimensions"]')?.value;
+        const opening =
+            prop.opening_value ??
+            hiddenEl?.querySelector('[data-field="opening_value"]')?.value;
+        const entry =
+            prop.entry_amount ??
+            hiddenEl?.querySelector('[data-field="entry_amount"]')?.value;
+        const share =
+            prop.ownership_share ??
+            hiddenEl?.querySelector('[data-field="ownership_share"]')?.value;
+        const disclosure =
+            prop.disclosure ??
+            hiddenEl?.querySelector('[data-field="disclosure"]')?.value;
+        const dimensions =
+            prop.board_dimensions ??
+            hiddenEl?.querySelector('[data-field="board_dimensions"]')?.value;
 
-        const hasValuation = Boolean(prop.valuation_file) || Boolean(prop._valFiles && prop._valFiles.length > 0) || Boolean(hiddenEl?.querySelector('[data-prop-files] input[name*="valuation"]')?.files?.length > 0);
-        const hasBoard = (prop.board_before_files && prop.board_before_files.length > 0) || Boolean(prop._boardFiles && prop._boardFiles.length > 0) || Boolean(hiddenEl?.querySelector('[data-prop-files] input[name*="board_before"]')?.files?.length > 0);
+        const hasValuation =
+            Boolean(prop.valuation_file) ||
+            Boolean(prop._valFiles && prop._valFiles.length > 0) ||
+            Boolean(
+                hiddenEl?.querySelector(
+                    '[data-prop-files] input[name*="valuation"]',
+                )?.files?.length > 0,
+            );
+        const hasBoard =
+            (prop.board_before_files && prop.board_before_files.length > 0) ||
+            Boolean(prop._boardFiles && prop._boardFiles.length > 0) ||
+            Boolean(
+                hiddenEl?.querySelector(
+                    '[data-prop-files] input[name*="board_before"]',
+                )?.files?.length > 0,
+            );
 
         return Boolean(
             String(opening || "").trim() !== "" &&
-            String(entry || "").trim() !== "" &&
-            String(share || "").trim() !== "" &&
-            String(disclosure || "").trim() !== "" &&
-            String(dimensions || "").trim() !== "" &&
-            hasValuation &&
-            hasBoard
+                String(entry || "").trim() !== "" &&
+                String(share || "").trim() !== "" &&
+                String(disclosure || "").trim() !== "" &&
+                String(dimensions || "").trim() !== "" &&
+                hasValuation &&
+                hasBoard,
         );
     }
 
@@ -381,7 +418,9 @@ document.addEventListener("DOMContentLoaded", () => {
             return true;
         }
 
-        const incomplete = [...selectedProperties.values()].filter((p) => !checkPropertyIsComplete(p));
+        const incomplete = [...selectedProperties.values()].filter(
+            (p) => !checkPropertyIsComplete(p),
+        );
         if (incomplete.length > 0) {
             alertEl?.classList.remove("d-none");
             alertEl?.classList.add("d-flex");
@@ -405,7 +444,7 @@ document.addEventListener("DOMContentLoaded", () => {
                           const isComplete = checkPropertyIsComplete(property);
                           property.is_complete = isComplete;
                           return `
-                    <article class="assignment-property-card cursor-pointer border ${isComplete ? 'border-success-subtle' : 'border-warning-subtle'}" data-property-card="${escapeHtml(property.id)}" style="cursor: pointer;" title="انقر لتعديل واستكمال بيانات العقار للمزاد">
+                    <article class="assignment-property-card cursor-pointer border ${isComplete ? "border-success-subtle" : "border-warning-subtle"}" data-property-card="${escapeHtml(property.id)}" style="cursor: pointer;" title="انقر لتعديل واستكمال بيانات العقار للمزاد">
                         <img class="assignment-property-card__image" src="${escapeHtml(property.image || propertyImageFallback)}" alt="" onerror="this.onerror=null;this.src='${escapeHtml(propertyImageFallback)}';">
                         <div class="assignment-property-card__content" style="padding-left: 48px;">
                             <h6 class="mb-0 text-body text-truncate fw-bold" title="${escapeHtml(property.name)}">${escapeHtml(property.name)}</h6>
@@ -416,9 +455,10 @@ document.addEventListener("DOMContentLoaded", () => {
                             <p class="mb-0 text-muted small"><i class="ti ti-map-pin me-1"></i>${escapeHtml(property.city || "-")}</p>
                         </div>
                         <div class="assignment-property-card__actions" style="position: absolute; top: 6px; left: 6px; display: flex; align-items: center; gap: 4px; z-index: 2;">
-                            ${isComplete 
-                                ? `<span class="badge bg-label-success p-0 d-inline-flex align-items-center justify-content-center rounded-circle" style="width:20px;height:20px;" title="البيانات مكتملة"><i class="ti ti-check" style="font-size: 11px;"></i></span>`
-                                : `<span class="badge bg-label-danger p-0 d-inline-flex align-items-center justify-content-center rounded-circle" style="width:20px;height:20px;" title="البيانات غير مكتملة (اضغط للإكمال)"><i class="ti ti-alert-triangle" style="font-size: 11px;"></i></span>`
+                            ${
+                                isComplete
+                                    ? `<span class="badge bg-label-success p-0 d-inline-flex align-items-center justify-content-center rounded-circle" style="width:20px;height:20px;" title="البيانات مكتملة"><i class="ti ti-check" style="font-size: 11px;"></i></span>`
+                                    : `<span class="badge bg-label-danger p-0 d-inline-flex align-items-center justify-content-center rounded-circle" style="width:20px;height:20px;" title="البيانات غير مكتملة (اضغط للإكمال)"><i class="ti ti-alert-triangle" style="font-size: 11px;"></i></span>`
                             }
                             <button type="button" class="btn btn-sm remove-property-card-btn position-static" data-remove-auction-property="${escapeHtml(property.id)}" aria-label="إزالة ${escapeHtml(property.name)}" title="إلغاء التحديد"><i class="ti ti-x" aria-hidden="true"></i></button>
                         </div>
@@ -540,7 +580,11 @@ document.addEventListener("DOMContentLoaded", () => {
         $select.find("option").each(function () {
             const value = String($(this).val() || "");
             const label = $(this).text().trim();
-            if (value && (value.trim().toLowerCase() === target.toLowerCase() || label === target)) {
+            if (
+                value &&
+                (value.trim().toLowerCase() === target.toLowerCase() ||
+                    label === target)
+            ) {
                 found = value;
                 return false;
             }
@@ -607,7 +651,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         typeof window.formatSystemDate === "function"
                             ? window.formatSystemDate(val)
                             : val || "-";
-                    const asgStartDate = formatDisplay(res.assignment.start_date);
+                    const asgStartDate = formatDisplay(
+                        res.assignment.start_date,
+                    );
                     const asgEndDate = formatDisplay(res.assignment.end_date);
                     const asgDatesText =
                         res.assignment.start_date || res.assignment.end_date
@@ -616,7 +662,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     $("#asg-summary-dates").text(asgDatesText);
                     $("#selected-assignment-card").removeClass("d-none");
 
-                    const preserveValues = form.id === "auction-edit-form" || isInitialLoad;
+                    const preserveValues =
+                        form.id === "auction-edit-form" || isInitialLoad;
 
                     // Step 1: Link main city, category, times, etc.
                     if (!preserveValues) {
@@ -625,7 +672,10 @@ document.addEventListener("DOMContentLoaded", () => {
                             syncSelectValue("#city", res.assignment.city);
                         }
                         if (res.assignment.category) {
-                            syncSelectValue("#category", res.assignment.category);
+                            syncSelectValue(
+                                "#category",
+                                res.assignment.category,
+                            );
                         }
                         // Default start_time: 00:00 and end_time: 23:59
                         $("#start_time")
@@ -636,14 +686,16 @@ document.addEventListener("DOMContentLoaded", () => {
                             .val("23:59")
                             .trigger("input")
                             .trigger("change");
-
                     } else {
                         // In edit mode: only fill if empty
                         if (!$("#city").val() && res.assignment.city) {
                             syncSelectValue("#city", res.assignment.city);
                         }
                         if (!$("#category").val() && res.assignment.category) {
-                            syncSelectValue("#category", res.assignment.category);
+                            syncSelectValue(
+                                "#category",
+                                res.assignment.category,
+                            );
                         }
                         if (!$("#start_time").val()) {
                             $("#start_time")
@@ -674,7 +726,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
 
                     // Auto-fill dates and constrain min/max based on assignment
-                    $("#start_date, #end_date").removeAttr("min").removeAttr("max");
+                    $("#start_date, #end_date")
+                        .removeAttr("min")
+                        .removeAttr("max");
                     if (!preserveValues) {
                         $("#start_date").val(res.assignment.start_date || "");
                         $("#end_date").val(res.assignment.end_date || "");
@@ -707,7 +761,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         ? res.properties.length
                         : 0;
                     if (
-                        (!preserveValues || !$("#expected_properties_count").val()) &&
+                        (!preserveValues ||
+                            !$("#expected_properties_count").val()) &&
                         propCount > 0
                     ) {
                         $("#expected_properties_count")
@@ -850,7 +905,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         $(".property-select-check:checked").each(function () {
             const id = String(this.value);
-            const existing = oldSelected.get(id) || (window.existingAuctionPropertiesData && window.existingAuctionPropertiesData[id]) || {};
+            const existing =
+                oldSelected.get(id) ||
+                (window.existingAuctionPropertiesData &&
+                    window.existingAuctionPropertiesData[id]) ||
+                {};
             count++;
             totalArea += parseFloat($(this).data("area")) || 0;
             totalVal += parseFloat($(this).data("val")) || 0;
@@ -860,10 +919,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 name: this.dataset.name || existing.name || "",
                 type: this.dataset.type || existing.type || "",
                 city: this.dataset.city || existing.city || "",
-                image: this.dataset.image || existing.image || propertyImageFallback,
+                image:
+                    this.dataset.image ||
+                    existing.image ||
+                    propertyImageFallback,
                 area: parseFloat(this.dataset.area) || existing.area || 0,
-                val: parseFloat(this.dataset.val) || existing.estimated_value || existing.val || 0,
-                estimated_value: parseFloat(this.dataset.val) || existing.estimated_value || existing.val || 0,
+                val:
+                    parseFloat(this.dataset.val) ||
+                    existing.estimated_value ||
+                    existing.val ||
+                    0,
+                estimated_value:
+                    parseFloat(this.dataset.val) ||
+                    existing.estimated_value ||
+                    existing.val ||
+                    0,
                 opening_value: existing.opening_value ?? "",
                 entry_amount: existing.entry_amount ?? "",
                 ownership_share: existing.ownership_share ?? "100",
@@ -888,17 +958,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
         $("#selected-props-count").text(count);
         $("#selected-props-area").text(totalArea.toLocaleString() + " م²");
-        $("#selected-props-val").html(totalVal.toLocaleString() + ' <span class="icon-saudi_riyal icon-saudi_riyal--white ms-1"></span>');
+        $("#selected-props-val").html(
+            totalVal.toLocaleString() +
+                ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>',
+        );
 
         // Clean up hidden data for deselected properties
         const currentIds = new Set(selectedProperties.keys());
-        const dataContainer = document.getElementById("auction-properties-data-container");
+        const dataContainer = document.getElementById(
+            "auction-properties-data-container",
+        );
         if (dataContainer) {
-            dataContainer.querySelectorAll("[data-prop-hidden]").forEach((el) => {
-                if (!currentIds.has(String(el.dataset.propHidden))) {
-                    el.remove();
-                }
-            });
+            dataContainer
+                .querySelectorAll("[data-prop-hidden]")
+                .forEach((el) => {
+                    if (!currentIds.has(String(el.dataset.propHidden))) {
+                        el.remove();
+                    }
+                });
         }
 
         // Review step indicators
@@ -906,7 +983,10 @@ document.addEventListener("DOMContentLoaded", () => {
         $("#review-selected-props-area").text(
             totalArea.toLocaleString() + " م²",
         );
-        $("#review-selected-props-val").html(totalVal.toLocaleString() + ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>');
+        $("#review-selected-props-val").html(
+            totalVal.toLocaleString() +
+                ' <span class="icon-saudi_riyal icon-saudi_riyal--dark ms-1"></span>',
+        );
         const names = [...selectedProperties.values()]
             .map((p) => p.name)
             .filter(Boolean)
@@ -929,12 +1009,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const stepProps = document.getElementById("step-properties");
-        const propNextBtn = stepProps?.querySelector("[data-wizard-next], .btn-next:not(.btn-submit)");
+        const propNextBtn = stepProps?.querySelector(
+            "[data-wizard-next], .btn-next:not(.btn-submit)",
+        );
         if (propNextBtn) {
             const propertyInputsList = Array.from(
-                form.querySelectorAll('input[name="property_ids[]"], input[name="property_ids"]')
+                form.querySelectorAll(
+                    'input[name="property_ids[]"], input[name="property_ids"]',
+                ),
             ).filter(
-                (input) => input.value && String(input.value).trim() !== "" && String(input.value) !== "0"
+                (input) =>
+                    input.value &&
+                    String(input.value).trim() !== "" &&
+                    String(input.value) !== "0",
             );
             const isEmpty = propertyInputsList.length === 0;
 
@@ -1007,11 +1094,13 @@ document.addEventListener("DOMContentLoaded", () => {
         modalEl.querySelectorAll(".is-invalid").forEach((el) => {
             el.classList.remove("is-invalid");
         });
-        modalEl.querySelectorAll("[data-form-error], .invalid-feedback").forEach((el) => {
-            el.textContent = "";
-            el.hidden = true;
-            el.style.display = "none";
-        });
+        modalEl
+            .querySelectorAll("[data-form-error], .invalid-feedback")
+            .forEach((el) => {
+                el.textContent = "";
+                el.hidden = true;
+                el.style.display = "none";
+            });
     }
 
     function showModalFieldError(fieldId, message) {
@@ -1022,10 +1111,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (inputGroup) {
             inputGroup.classList.add("is-invalid");
         }
-        const fieldWrapper = input.closest("[data-form-field]") || input.parentElement;
+        const fieldWrapper =
+            input.closest("[data-form-field]") || input.parentElement;
         if (fieldWrapper) {
             fieldWrapper.classList.add("is-invalid");
-            let errorEl = fieldWrapper.querySelector("[data-form-error], .invalid-feedback");
+            let errorEl = fieldWrapper.querySelector(
+                "[data-form-error], .invalid-feedback",
+            );
             if (!errorEl) {
                 errorEl = document.createElement("div");
                 errorEl.className = "invalid-feedback d-block";
@@ -1043,15 +1135,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const input = document.getElementById(inputId);
         if (!input) return;
         const uploadWrapper = input.closest("[data-file-upload-wrapper]");
-        const fieldWrapper = input.closest("[data-form-field]") || uploadWrapper || input.parentElement;
+        const fieldWrapper =
+            input.closest("[data-form-field]") ||
+            uploadWrapper ||
+            input.parentElement;
         if (uploadWrapper) {
             uploadWrapper.classList.add("is-invalid");
-            uploadWrapper.querySelector(".file-upload-area")?.classList.add("is-invalid");
+            uploadWrapper
+                .querySelector(".file-upload-area")
+                ?.classList.add("is-invalid");
         }
         input.classList.add("is-invalid");
         if (fieldWrapper) {
             fieldWrapper.classList.add("is-invalid");
-            let errorEl = fieldWrapper.querySelector("[data-form-error], .invalid-feedback");
+            let errorEl = fieldWrapper.querySelector(
+                "[data-form-error], .invalid-feedback",
+            );
             if (!errorEl) {
                 errorEl = document.createElement("div");
                 errorEl.className = "invalid-feedback d-block";
@@ -1078,7 +1177,9 @@ document.addEventListener("DOMContentLoaded", () => {
         $("#modal_auction_prop_id").val(prop.id);
 
         const estVal = Number(prop.estimated_value || 0);
-        $("#modal_auction_estimated_value").val(estVal ? Number(estVal).toLocaleString() : "0");
+        $("#modal_auction_estimated_value").val(
+            estVal ? Number(estVal).toLocaleString() : "0",
+        );
 
         $("#modal_auction_opening_value").val(prop.opening_value ?? "");
         $("#modal_auction_entry_amount").val(prop.entry_amount ?? "");
@@ -1090,15 +1191,22 @@ document.addEventListener("DOMContentLoaded", () => {
         // Reset file upload controls so no previous property files persist
         const valInput = document.getElementById("modal_file_valuation");
         const boardInput = document.getElementById("modal_file_board_before");
-        const valCtrl = window.SharedFileUpload ? window.SharedFileUpload.getController(valInput) : null;
-        const boardCtrl = window.SharedFileUpload ? window.SharedFileUpload.getController(boardInput) : null;
+        const valCtrl = window.SharedFileUpload
+            ? window.SharedFileUpload.getController(valInput)
+            : null;
+        const boardCtrl = window.SharedFileUpload
+            ? window.SharedFileUpload.getController(boardInput)
+            : null;
 
         if (valCtrl) {
             valCtrl.clear();
             valCtrl.clearExistingFiles();
         } else if (valInput) {
             valInput.value = "";
-            valInput.closest("[data-file-upload-wrapper]")?.querySelectorAll("[data-file-preview-container] .file-item")?.forEach((el) => el.remove());
+            valInput
+                .closest("[data-file-upload-wrapper]")
+                ?.querySelectorAll("[data-file-preview-container] .file-item")
+                ?.forEach((el) => el.remove());
         }
 
         if (boardCtrl) {
@@ -1106,7 +1214,10 @@ document.addEventListener("DOMContentLoaded", () => {
             boardCtrl.clearExistingFiles();
         } else if (boardInput) {
             boardInput.value = "";
-            boardInput.closest("[data-file-upload-wrapper]")?.querySelectorAll("[data-file-preview-container] .file-item")?.forEach((el) => el.remove());
+            boardInput
+                .closest("[data-file-upload-wrapper]")
+                ?.querySelectorAll("[data-file-preview-container] .file-item")
+                ?.forEach((el) => el.remove());
         }
 
         // Restore THIS property's files only:
@@ -1114,20 +1225,32 @@ document.addEventListener("DOMContentLoaded", () => {
             valCtrl?.addFiles(prop._valFiles);
         } else if (prop.valuation_file) {
             const vf = prop.valuation_file;
-            const fileData = typeof vf === "string"
-                ? { name: vf.split("/").pop(), url: vf }
-                : { id: vf.id, name: vf.name || "نموذج التقييم", url: vf.url || vf.path };
+            const fileData =
+                typeof vf === "string"
+                    ? { name: vf.split("/").pop(), url: vf }
+                    : {
+                          id: vf.id,
+                          name: vf.name || "نموذج التقييم",
+                          url: vf.url || vf.path,
+                      };
             valCtrl?.setExistingFiles([fileData]);
         }
 
         if (prop._boardFiles && prop._boardFiles.length > 0) {
             boardCtrl?.addFiles(prop._boardFiles);
-        } else if (prop.board_before_files && prop.board_before_files.length > 0) {
+        } else if (
+            prop.board_before_files &&
+            prop.board_before_files.length > 0
+        ) {
             const list = prop.board_before_files.map((bf) => {
                 if (typeof bf === "string") {
                     return { name: bf.split("/").pop(), url: bf };
                 }
-                return { id: bf.id, name: bf.name || "صورة لوحة", url: bf.url || bf.path };
+                return {
+                    id: bf.id,
+                    name: bf.name || "صورة لوحة",
+                    url: bf.url || bf.path,
+                };
             });
             boardCtrl?.setExistingFiles(list);
         }
@@ -1136,10 +1259,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function syncPropertyHiddenData(prop, valFiles = null, boardFiles = null) {
-        const dataContainer = document.getElementById("auction-properties-data-container");
+        const dataContainer = document.getElementById(
+            "auction-properties-data-container",
+        );
         if (!dataContainer) return;
         const propId = String(prop.id);
-        let block = dataContainer.querySelector(`[data-prop-hidden="${propId}"]`);
+        let block = dataContainer.querySelector(
+            `[data-prop-hidden="${propId}"]`,
+        );
         if (!block) {
             block = document.createElement("div");
             block.className = "property-hidden-data";
@@ -1177,10 +1304,18 @@ document.addEventListener("DOMContentLoaded", () => {
         setVal("board_count", prop.board_count);
         setVal("board_dimensions", prop.board_dimensions);
 
-        const filesWrapper = block.querySelector(`[data-prop-files="${propId}"]`);
+        const filesWrapper = block.querySelector(
+            `[data-prop-files="${propId}"]`,
+        );
         if (filesWrapper) {
-            if (valFiles && valFiles.length > 0 && typeof DataTransfer !== "undefined") {
-                let existingInput = filesWrapper.querySelector(`input[name="properties_data[${propId}][valuation]"]`);
+            if (
+                valFiles &&
+                valFiles.length > 0 &&
+                typeof DataTransfer !== "undefined"
+            ) {
+                let existingInput = filesWrapper.querySelector(
+                    `input[name="properties_data[${propId}][valuation]"]`,
+                );
                 if (!existingInput) {
                     existingInput = document.createElement("input");
                     existingInput.type = "file";
@@ -1194,8 +1329,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 prop.valuation_file = valFiles[0].name;
             }
 
-            if (boardFiles && boardFiles.length > 0 && typeof DataTransfer !== "undefined") {
-                let existingInput = filesWrapper.querySelector(`input[name="properties_data[${propId}][board_before][]"]`);
+            if (
+                boardFiles &&
+                boardFiles.length > 0 &&
+                typeof DataTransfer !== "undefined"
+            ) {
+                let existingInput = filesWrapper.querySelector(
+                    `input[name="properties_data[${propId}][board_before][]"]`,
+                );
                 if (!existingInput) {
                     existingInput = document.createElement("input");
                     existingInput.type = "file";
@@ -1209,7 +1350,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     dt.items.add(boardFiles[i]);
                 }
                 existingInput.files = dt.files;
-                prop.board_before_files = Array.from(boardFiles).map((f) => f.name);
+                prop.board_before_files = Array.from(boardFiles).map(
+                    (f) => f.name,
+                );
             }
         }
     }
@@ -1221,7 +1364,9 @@ document.addEventListener("DOMContentLoaded", () => {
         clearModalErrors();
 
         const parseCleanNum = (val) => {
-            const clean = String(val ?? "").replace(/,/g, "").trim();
+            const clean = String(val ?? "")
+                .replace(/,/g, "")
+                .trim();
             return clean === "" ? NaN : Number(clean);
         };
 
@@ -1244,8 +1389,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const valInput = document.getElementById("modal_file_valuation");
         const boardInput = document.getElementById("modal_file_board_before");
-        const valCtrl = window.SharedFileUpload ? window.SharedFileUpload.getController(valInput) : null;
-        const boardCtrl = window.SharedFileUpload ? window.SharedFileUpload.getController(boardInput) : null;
+        const valCtrl = window.SharedFileUpload
+            ? window.SharedFileUpload.getController(valInput)
+            : null;
+        const boardCtrl = window.SharedFileUpload
+            ? window.SharedFileUpload.getController(boardInput)
+            : null;
 
         const valWrapper = valInput?.closest("[data-file-upload-wrapper]");
         const boardWrapper = boardInput?.closest("[data-file-upload-wrapper]");
@@ -1254,84 +1403,153 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 1. Validate opening_value
         if (!openingRaw) {
-            showModalFieldError("modal_auction_opening_value", "قيمة افتتاح المزاد مطلوبة.");
-            hasErrors = true;
-        } else if (isNaN(openingNum) || openingNum < 0) {
-            showModalFieldError("modal_auction_opening_value", "قيمة افتتاح المزاد يجب أن تكون رقماً صالحاً.");
-            hasErrors = true;
-        } else if (!isNaN(estValNum) && estValNum > 0 && openingNum > estValNum) {
             showModalFieldError(
                 "modal_auction_opening_value",
-                `قيمة افتتاح المزاد لا يمكن أن تتجاوز القيمة التقديرية (${estValNum.toLocaleString()} ر.س).`
+                "قيمة افتتاح المزاد مطلوبة.",
+            );
+            hasErrors = true;
+        } else if (isNaN(openingNum) || openingNum < 0) {
+            showModalFieldError(
+                "modal_auction_opening_value",
+                "قيمة افتتاح المزاد يجب أن تكون رقماً صالحاً.",
+            );
+            hasErrors = true;
+        } else if (
+            !isNaN(estValNum) &&
+            estValNum > 0 &&
+            openingNum > estValNum
+        ) {
+            showModalFieldError(
+                "modal_auction_opening_value",
+                `قيمة افتتاح المزاد لا يمكن أن تتجاوز القيمة التقديرية (${estValNum.toLocaleString()} ر.س).`,
             );
             hasErrors = true;
         }
 
         // 2. Validate entry_amount
         if (!entryRaw) {
-            showModalFieldError("modal_auction_entry_amount", "مبلغ الدخول مطلوب.");
+            showModalFieldError(
+                "modal_auction_entry_amount",
+                "مبلغ الدخول مطلوب.",
+            );
             hasErrors = true;
         } else if (isNaN(entryNum) || entryNum < 0) {
-            showModalFieldError("modal_auction_entry_amount", "مبلغ الدخول يجب أن يكون رقماً صالحاً.");
+            showModalFieldError(
+                "modal_auction_entry_amount",
+                "مبلغ الدخول يجب أن يكون رقماً صالحاً.",
+            );
             hasErrors = true;
-        } else if (!isNaN(openingNum) && openingNum >= 0 && entryNum > openingNum) {
-            showModalFieldError("modal_auction_entry_amount", "مبلغ الدخول لا يمكن أن يكون أكبر من قيمة افتتاح المزاد.");
+        } else if (
+            !isNaN(openingNum) &&
+            openingNum >= 0 &&
+            entryNum > openingNum
+        ) {
+            showModalFieldError(
+                "modal_auction_entry_amount",
+                "مبلغ الدخول لا يمكن أن يكون أكبر من قيمة افتتاح المزاد.",
+            );
             hasErrors = true;
         }
 
         // 3. Validate ownership_share
         if (!ownShareRaw) {
-            showModalFieldError("modal_auction_ownership_share", "نسبة الملكية المعروضة مطلوبة.");
+            showModalFieldError(
+                "modal_auction_ownership_share",
+                "نسبة الملكية المعروضة مطلوبة.",
+            );
             hasErrors = true;
-        } else if (isNaN(ownShareNum) || ownShareNum <= 0 || ownShareNum > 100) {
-            showModalFieldError("modal_auction_ownership_share", "نسبة الملكية المعروضة يجب أن تكون بين 0.01% و 100%.");
+        } else if (
+            isNaN(ownShareNum) ||
+            ownShareNum <= 0 ||
+            ownShareNum > 100
+        ) {
+            showModalFieldError(
+                "modal_auction_ownership_share",
+                "نسبة الملكية المعروضة يجب أن تكون بين 0.01% و 100%.",
+            );
             hasErrors = true;
         }
 
         // 4. Validate board_count
         if (!bCountRaw) {
-            showModalFieldError("modal_auction_board_count", "عدد اللوحات مطلوب.");
+            showModalFieldError(
+                "modal_auction_board_count",
+                "عدد اللوحات مطلوب.",
+            );
             hasErrors = true;
         } else if (isNaN(bCountNum) || bCountNum < 1) {
-            showModalFieldError("modal_auction_board_count", "عدد اللوحات يجب أن يكون 1 على الأقل.");
+            showModalFieldError(
+                "modal_auction_board_count",
+                "عدد اللوحات يجب أن يكون 1 على الأقل.",
+            );
             hasErrors = true;
         }
 
         // 5. Validate board_dimensions
         if (!bDim) {
-            showModalFieldError("modal_auction_board_dimensions", "مقاس اللوحات مطلوب.");
+            showModalFieldError(
+                "modal_auction_board_dimensions",
+                "مقاس اللوحات مطلوب.",
+            );
             hasErrors = true;
         }
 
         // 6. Validate disclosure
         if (!disc) {
-            showModalFieldError("modal_auction_disclosure", "الإفصاح الخاص بالعقار مطلوب.");
+            showModalFieldError(
+                "modal_auction_disclosure",
+                "الإفصاح الخاص بالعقار مطلوب.",
+            );
             hasErrors = true;
         }
 
         // 7. Validate valuation file
-        const remainingValCards = valWrapper?.querySelectorAll("[data-existing-file-card]") || [];
-        const newChosenValFiles = valCtrl ? valCtrl.getFiles() : (valInput?.files ? Array.from(valInput.files) : []);
-        const hasValuation = remainingValCards.length > 0 || newChosenValFiles.length > 0 || Boolean(prop._valFiles && prop._valFiles.length > 0);
+        const remainingValCards =
+            valWrapper?.querySelectorAll("[data-existing-file-card]") || [];
+        const newChosenValFiles = valCtrl
+            ? valCtrl.getFiles()
+            : valInput?.files
+              ? Array.from(valInput.files)
+              : [];
+        const hasValuation =
+            remainingValCards.length > 0 ||
+            newChosenValFiles.length > 0 ||
+            Boolean(prop._valFiles && prop._valFiles.length > 0);
 
         if (!hasValuation) {
-            showModalFileError("modal_file_valuation", "يرجى إرفاق نموذج التقييم العقاري المعتمد.");
+            showModalFileError(
+                "modal_file_valuation",
+                "يرجى إرفاق نموذج التقييم العقاري المعتمد.",
+            );
             hasErrors = true;
         }
 
         // 8. Validate board before files
-        const remainingBoardCards = boardWrapper?.querySelectorAll("[data-existing-file-card]") || [];
-        const newChosenBoardFiles = boardCtrl ? boardCtrl.getFiles() : (boardInput?.files ? Array.from(boardInput.files) : []);
-        const hasBoard = remainingBoardCards.length > 0 || newChosenBoardFiles.length > 0 || Boolean(prop._boardFiles && prop._boardFiles.length > 0);
+        const remainingBoardCards =
+            boardWrapper?.querySelectorAll("[data-existing-file-card]") || [];
+        const newChosenBoardFiles = boardCtrl
+            ? boardCtrl.getFiles()
+            : boardInput?.files
+              ? Array.from(boardInput.files)
+              : [];
+        const hasBoard =
+            remainingBoardCards.length > 0 ||
+            newChosenBoardFiles.length > 0 ||
+            Boolean(prop._boardFiles && prop._boardFiles.length > 0);
 
         if (!hasBoard) {
-            showModalFileError("modal_file_board_before", "يرجى إرفاق صورة واحدة على الأقل لتركيب اللوحات.");
+            showModalFileError(
+                "modal_file_board_before",
+                "يرجى إرفاق صورة واحدة على الأقل لتركيب اللوحات.",
+            );
             hasErrors = true;
         }
 
         if (hasErrors) {
             if (window.toastr) {
-                window.toastr.error("يرجى تصحيح الأخطاء الموضحة في بيانات العقار للمتابعة.");
+                window.toastr.error(
+                    "يرجى تصحيح الأخطاء الموضحة في بيانات العقار للمتابعة.",
+                );
             }
             return false;
         }
@@ -1375,47 +1593,71 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Modal input error clearing on user edit
-    $("#auctionPropertyModal").on("input change", "input, select, textarea", function () {
-        this.classList.remove("is-invalid");
-        this.closest(".input-group")?.classList.remove("is-invalid");
-        const wrapper = this.closest("[data-form-field]") || this.parentElement;
-        if (wrapper) {
-            wrapper.classList.remove("is-invalid");
-            const err = wrapper.querySelector("[data-form-error], .invalid-feedback");
-            if (err) {
-                err.textContent = "";
-                err.hidden = true;
-                err.style.display = "none";
+    $("#auctionPropertyModal").on(
+        "input change",
+        "input, select, textarea",
+        function () {
+            this.classList.remove("is-invalid");
+            this.closest(".input-group")?.classList.remove("is-invalid");
+            const wrapper =
+                this.closest("[data-form-field]") || this.parentElement;
+            if (wrapper) {
+                wrapper.classList.remove("is-invalid");
+                const err = wrapper.querySelector(
+                    "[data-form-error], .invalid-feedback",
+                );
+                if (err) {
+                    err.textContent = "";
+                    err.hidden = true;
+                    err.style.display = "none";
+                }
             }
-        }
-    });
+        },
+    );
 
-    $("#auctionPropertyModal").on("file:changed file:removed file:removed-existing", function (e) {
-        const wrapper = e.target.closest("[data-file-upload-wrapper]");
-        const fieldWrapper = e.target.closest("[data-form-field]") || wrapper;
-        if (wrapper) {
-            wrapper.classList.remove("is-invalid");
-            wrapper.querySelector(".file-upload-area")?.classList.remove("is-invalid");
-        }
-        if (fieldWrapper) {
-            fieldWrapper.classList.remove("is-invalid");
-            const err = fieldWrapper.querySelector("[data-form-error], .invalid-feedback");
-            if (err) {
-                err.textContent = "";
-                err.hidden = true;
-                err.style.display = "none";
+    $("#auctionPropertyModal").on(
+        "file:changed file:removed file:removed-existing",
+        function (e) {
+            const wrapper = e.target.closest("[data-file-upload-wrapper]");
+            const fieldWrapper =
+                e.target.closest("[data-form-field]") || wrapper;
+            if (wrapper) {
+                wrapper.classList.remove("is-invalid");
+                wrapper
+                    .querySelector(".file-upload-area")
+                    ?.classList.remove("is-invalid");
             }
-        }
-    });
+            if (fieldWrapper) {
+                fieldWrapper.classList.remove("is-invalid");
+                const err = fieldWrapper.querySelector(
+                    "[data-form-error], .invalid-feedback",
+                );
+                if (err) {
+                    err.textContent = "";
+                    err.hidden = true;
+                    err.style.display = "none";
+                }
+            }
+        },
+    );
 
     // Card click opens the unified property modal
-    $(document).on("click", "#selected-properties-cards .assignment-property-card", function (e) {
-        if (e.target.closest("[data-remove-auction-property], .remove-property-card-btn")) return;
-        const propId = this.dataset.propertyCard;
-        if (propId) {
-            openAuctionPropertyModal(propId);
-        }
-    });
+    $(document).on(
+        "click",
+        "#selected-properties-cards .assignment-property-card",
+        function (e) {
+            if (
+                e.target.closest(
+                    "[data-remove-auction-property], .remove-property-card-btn",
+                )
+            )
+                return;
+            const propId = this.dataset.propertyCard;
+            if (propId) {
+                openAuctionPropertyModal(propId);
+            }
+        },
+    );
 
     // Save button inside modal
     $("#btn-save-auction-prop-modal").on("click", function () {
@@ -1430,18 +1672,26 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Modal hidden cleanup to ensure no cross-property file leaks
-    document.getElementById("auctionPropertyModal")?.addEventListener("hidden.bs.modal", function () {
-        clearModalErrors();
-        const valInput = document.getElementById("modal_file_valuation");
-        const boardInput = document.getElementById("modal_file_board_before");
-        const valCtrl = window.SharedFileUpload ? window.SharedFileUpload.getController(valInput) : null;
-        const boardCtrl = window.SharedFileUpload ? window.SharedFileUpload.getController(boardInput) : null;
-        valCtrl?.clear();
-        valCtrl?.clearExistingFiles();
-        boardCtrl?.clear();
-        boardCtrl?.clearExistingFiles();
-        currentEditingPropertyId = null;
-    });
+    document
+        .getElementById("auctionPropertyModal")
+        ?.addEventListener("hidden.bs.modal", function () {
+            clearModalErrors();
+            const valInput = document.getElementById("modal_file_valuation");
+            const boardInput = document.getElementById(
+                "modal_file_board_before",
+            );
+            const valCtrl = window.SharedFileUpload
+                ? window.SharedFileUpload.getController(valInput)
+                : null;
+            const boardCtrl = window.SharedFileUpload
+                ? window.SharedFileUpload.getController(boardInput)
+                : null;
+            valCtrl?.clear();
+            valCtrl?.clearExistingFiles();
+            boardCtrl?.clear();
+            boardCtrl?.clearExistingFiles();
+            currentEditingPropertyId = null;
+        });
 
     // Guard against moving to next step without selecting at least 1 property and completing its data
     const stepProperties = document.getElementById("step-properties");
@@ -1453,9 +1703,14 @@ document.addEventListener("DOMContentLoaded", () => {
             nextBtn.addEventListener(
                 "click",
                 function (e) {
-                    const inputs = form.querySelectorAll('input[name="property_ids[]"], input[name="property_ids"]');
+                    const inputs = form.querySelectorAll(
+                        'input[name="property_ids[]"], input[name="property_ids"]',
+                    );
                     const hasValid = Array.from(inputs).some(
-                        (input) => input.value && String(input.value).trim() !== "" && String(input.value) !== "0"
+                        (input) =>
+                            input.value &&
+                            String(input.value).trim() !== "" &&
+                            String(input.value) !== "0",
                     );
                     if (!hasValid || selectedProperties.size === 0) {
                         e.preventDefault();
@@ -1483,7 +1738,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
 
                     // Check completeness
-                    const incomplete = [...selectedProperties.values()].filter((p) => !checkPropertyIsComplete(p));
+                    const incomplete = [...selectedProperties.values()].filter(
+                        (p) => !checkPropertyIsComplete(p),
+                    );
                     if (incomplete.length > 0) {
                         e.preventDefault();
                         e.stopPropagation();
@@ -1494,9 +1751,14 @@ document.addEventListener("DOMContentLoaded", () => {
                                 "برجاء استكمال بيانات العقارات للمتابعة (انقر على بطاقات العقارات لإكمال بياناتها المطلوبة).",
                             );
                         }
-                        const alertEl = document.getElementById("properties-completion-alert");
+                        const alertEl = document.getElementById(
+                            "properties-completion-alert",
+                        );
                         if (alertEl) {
-                            alertEl.scrollIntoView({ behavior: "smooth", block: "center" });
+                            alertEl.scrollIntoView({
+                                behavior: "smooth",
+                                block: "center",
+                            });
                         }
                         return false;
                     }
@@ -1570,9 +1832,13 @@ document.addEventListener("DOMContentLoaded", () => {
         renderReviewPropertyCards();
 
         // Step 4: Marketing live preview
-        const cityContextSelect = document.getElementById("marketing_city_context");
+        const cityContextSelect = document.getElementById(
+            "marketing_city_context",
+        );
         if (cityContextSelect) {
-            const selectedRegions = Array.from(cityContextSelect.selectedOptions)
+            const selectedRegions = Array.from(
+                cityContextSelect.selectedOptions,
+            )
                 .map((opt) => opt.textContent.trim())
                 .filter(Boolean);
             $("#review-city-context").text(
@@ -1580,7 +1846,8 @@ document.addEventListener("DOMContentLoaded", () => {
             );
         }
         $("#review-planning-methodology").text(
-            form.elements.namedItem("marketing[planning_methodology]")?.value || "—",
+            form.elements.namedItem("marketing[planning_methodology]")?.value ||
+                "—",
         );
         $("#review-brochure-url").text(
             form.elements.namedItem("marketing[brochure_url]")?.value || "—",
@@ -1589,7 +1856,9 @@ document.addEventListener("DOMContentLoaded", () => {
             form.elements.namedItem("marketing[board_url]")?.value || "—",
         );
         const brokerNames = Array.from(
-            form.querySelectorAll('#auction-brokers-list [data-auction-broker-row] input[name$="[name]"]'),
+            form.querySelectorAll(
+                '#auction-brokers-list [data-auction-broker-row] input[name$="[name]"]',
+            ),
         )
             .map((input) => input.value.trim())
             .filter(Boolean);
@@ -1600,7 +1869,9 @@ document.addEventListener("DOMContentLoaded", () => {
         // Step 5: Reports & Attachments
         const intro = form.elements.namedItem("marketing[introduction]")?.value;
         $("#review-report-introduction").text(intro || "—");
-        const summary = form.elements.namedItem("marketing[report_summary]")?.value;
+        const summary = form.elements.namedItem(
+            "marketing[report_summary]",
+        )?.value;
         $("#review-report-summary").text(summary || "—");
 
         const phone = form.elements.namedItem(
@@ -1753,7 +2024,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Dynamic Brokers Repeater in Step 4 (same pattern as Property Owners)
     const brokersCard = form.querySelector("[data-auction-brokers-card]");
     const brokersList = document.getElementById("auction-brokers-list");
-    const brokerTemplate = document.getElementById("auction-broker-row-template");
+    const brokerTemplate = document.getElementById(
+        "auction-broker-row-template",
+    );
     const addBrokerBtn = document.getElementById("btn-add-auction-broker");
 
     function renumberAuctionBrokers() {
@@ -1786,7 +2059,8 @@ document.addEventListener("DOMContentLoaded", () => {
             brokersCard.dataset.nextIndex = String(nextIndex + 1);
             const key = `broker-${Date.now()}-${nextIndex}`;
             const currentCount =
-                brokersList.querySelectorAll("[data-auction-broker-row]").length + 1;
+                brokersList.querySelectorAll("[data-auction-broker-row]")
+                    .length + 1;
             const html = brokerTemplate.innerHTML
                 .replaceAll("__INDEX__", String(nextIndex))
                 .replaceAll("__KEY__", key)
@@ -1803,7 +2077,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         brokersList.addEventListener("click", (event) => {
-            const removeBtn = event.target.closest(".btn-remove-auction-broker");
+            const removeBtn = event.target.closest(
+                ".btn-remove-auction-broker",
+            );
             if (!removeBtn) return;
             removeBtn.closest("[data-auction-broker-row]")?.remove();
             renumberAuctionBrokers();
@@ -1812,7 +2088,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         brokersList.addEventListener("file:removed-existing", (event) => {
             const row = event.target.closest("[data-auction-broker-row]");
-            const evidenceIdInput = row?.querySelector("[data-broker-evidence-id]");
+            const evidenceIdInput = row?.querySelector(
+                "[data-broker-evidence-id]",
+            );
             if (evidenceIdInput) {
                 evidenceIdInput.value = "";
             }
@@ -1821,11 +2099,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Dynamic Campaign Channels Multi-Select & Tabs in Step 4
     const channelsSelect = document.getElementById("campaign-channels-select");
-    const campaignTabsWrapper = document.getElementById("campaign-tabs-wrapper");
+    const campaignTabsWrapper = document.getElementById(
+        "campaign-tabs-wrapper",
+    );
     const campaignTabsEmpty = document.getElementById("campaign-tabs-empty");
 
     function syncCampaignChannelsUi() {
-        const selected = Array.from(channelsSelect?.selectedOptions || []).map((o) => o.value);
+        const selected = Array.from(channelsSelect?.selectedOptions || []).map(
+            (o) => o.value,
+        );
         if (!campaignTabsWrapper || !campaignTabsEmpty) return;
 
         if (selected.length === 0) {
@@ -1835,24 +2117,32 @@ document.addEventListener("DOMContentLoaded", () => {
             campaignTabsWrapper.classList.remove("d-none");
             campaignTabsEmpty.classList.add("d-none");
 
-            document.querySelectorAll(".campaign-channel-tab").forEach((tab) => {
-                const ch = tab.dataset.channel;
-                const isSel = selected.includes(ch);
-                tab.classList.toggle("d-none", !isSel);
-            });
+            document
+                .querySelectorAll(".campaign-channel-tab")
+                .forEach((tab) => {
+                    const ch = tab.dataset.channel;
+                    const isSel = selected.includes(ch);
+                    tab.classList.toggle("d-none", !isSel);
+                });
 
-            document.querySelectorAll(".campaign-channel-pane").forEach((pane) => {
-                const ch = pane.dataset.channel;
-                const isSel = selected.includes(ch);
-                if (!isSel) {
-                    pane.classList.remove("show", "active");
-                }
-            });
+            document
+                .querySelectorAll(".campaign-channel-pane")
+                .forEach((pane) => {
+                    const ch = pane.dataset.channel;
+                    const isSel = selected.includes(ch);
+                    if (!isSel) {
+                        pane.classList.remove("show", "active");
+                    }
+                });
 
             // Ensure an active visible tab
-            const activeTab = document.querySelector(".campaign-channel-tab:not(.d-none) .nav-link.active");
+            const activeTab = document.querySelector(
+                ".campaign-channel-tab:not(.d-none) .nav-link.active",
+            );
             if (!activeTab) {
-                const firstTabBtn = document.querySelector(".campaign-channel-tab:not(.d-none) .nav-link");
+                const firstTabBtn = document.querySelector(
+                    ".campaign-channel-tab:not(.d-none) .nav-link",
+                );
                 if (firstTabBtn) {
                     if (window.bootstrap?.Tab) {
                         new window.bootstrap.Tab(firstTabBtn).show();
@@ -1865,10 +2155,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (channelsSelect) {
-        $(channelsSelect).on("change change.select2 select2:select select2:unselect", function () {
-            syncCampaignChannelsUi();
-            updateLivePreview();
-        });
+        $(channelsSelect).on(
+            "change change.select2 select2:select select2:unselect",
+            function () {
+                syncCampaignChannelsUi();
+                updateLivePreview();
+            },
+        );
         syncCampaignChannelsUi();
     }
 

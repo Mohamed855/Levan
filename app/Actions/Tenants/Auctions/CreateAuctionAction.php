@@ -407,6 +407,8 @@ final class CreateAuctionAction
                     $evidenceMetadata,
                 );
 
+                $this->reportInputs->syncBrochureUrl($auction);
+
                 return $auction->load(['properties', 'attachments', 'assignment']);
             });
         } catch (Throwable $e) {

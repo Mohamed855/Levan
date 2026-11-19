@@ -102,16 +102,12 @@
         <h6 class="fw-bold mb-3"><i class="ti ti-book me-1 text-primary"></i>كتيب المزاد ومرفقات المنصة</h6>
     </div>
 
-    <x-form.controls.input name="marketing[brochure_url]" id="marketing_brochure_url" type="url"
-        label="رابط كتيب المزاد الإلكتروني" placeholder="https://example.com/brochure.pdf" :value="$marketing['brochure_url'] ?? null"
-        col="col-md-6" />
-
     <x-form.controls.input name="marketing[brochure_context]" id="marketing_brochure_context"
         label="سياق كتيب المزاد" placeholder="تفاصيل توزيع ونشر الكتيب..." :value="$marketing['brochure_context'] ?? null" col="col-md-6" />
 
     <div class="col-md-6">
         <x-form.controls.file name="brochure_evidence[]" id="brochure_evidence" label="إثباتات الكتيب ونماذج التصفح"
-            multiple :value="$existingBrochureEvidence" accept=".pdf,.png,.jpg,.jpeg,.webp" help="صور أو PDF، حتى 10MB لكل ملف"
+            multiple :value="$existingBrochureEvidence" accept=".pdf,.png,.jpg,.jpeg,.webp" help="صور أو PDF، حتى 10MB لكل ملف. يُحدَّد رابط الكتيب تلقائيًا من أول مرفق عند الحفظ."
             col="col-12" />
     </div>
 
