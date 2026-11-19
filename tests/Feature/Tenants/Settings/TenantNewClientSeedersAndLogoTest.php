@@ -94,7 +94,7 @@ class TenantNewClientSeedersAndLogoTest extends TestCase
         $this->seed(IssuingEntitySeeder::class);
 
         $entities = IssuingEntity::all();
-        $this->assertGreaterThanOrEqual(10, $entities->count());
+        $this->assertGreaterThanOrEqual(5, $entities->count());
 
         foreach ($entities as $entity) {
             $this->assertNotNull($entity->image, "Issuing entity [{$entity->name}] must have an image.");

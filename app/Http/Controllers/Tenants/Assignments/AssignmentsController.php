@@ -291,7 +291,7 @@ class AssignmentsController extends Controller
                 return $prop;
             });
 
-        $city = $assignment->city;
+        $city = $assignment->city[0] ?? null;
         if (empty($city)) {
             $city = $assignment->properties()->whereNotNull('city')->where('city', '!=', '')->value('city');
         }

@@ -43,8 +43,8 @@
                             <div class="row g-4">
                                 <x-form.controls.input name="name" label="اسم العقار" placeholder="مثال: فيلا النخيل"
                                     required :value="$is_edit ? $property->name : old('name')" col="col-12" />
-                                <x-form.controls.select name="type" id="property-type" label="نوع العقار" required col="col-md-6"
-                                    :value="$is_edit
+                                <x-form.controls.select name="type" id="property-type" label="نوع العقار" required
+                                    col="col-md-6" :value="$is_edit
                                         ? ($property->type instanceof \BackedEnum
                                             ? $property->type->value
                                             : $property->type)
@@ -55,11 +55,13 @@
                                             ? $property->type->value
                                             : $property->type)
                                         : old('type');
-                                    $isLand = $currentPropType === 'land' || $currentPropType === \App\Enums\Tenants\Properties\PropertyType::LAND->value;
+                                    $isLand =
+                                        $currentPropType === 'land' ||
+                                        $currentPropType === \App\Enums\Tenants\Properties\PropertyType::LAND->value;
                                 @endphp
-                                <x-form.controls.input name="age" id="property-age" type="number" step="1" min="0"
-                                    max="200" label="عمر العقار بالسنوات" :value="old('age', $is_edit ? $property->age : null)" placeholder="0"
-                                    :required="!$isLand" col="col-md-6" wrapperId="property-age-wrapper"
+                                <x-form.controls.input name="age" id="property-age" type="number" step="1"
+                                    min="0" max="200" label="عمر العقار بالسنوات" :value="old('age', $is_edit ? $property->age : null)"
+                                    placeholder="0" :required="!$isLand" col="col-md-6" wrapperId="property-age-wrapper"
                                     :wrapperStyle="$isLand ? 'display: none;' : ''" :disabled="$isLand" />
                                 <x-form.controls.select name="usage_classification" label="تصنيف الاستخدام" required
                                     col="col-md-6" :value="$is_edit
@@ -229,8 +231,8 @@
                             : $property->ownership_type)
                         : old('ownership_type')" :enum="\App\Enums\Tenants\Properties\PropertyOwnershipType::class" />
 
-                <x-form.controls.select name="legal_status" id="property-legal-status" label="الحالة النظامية" required col="col-md-6"
-                    :value="$is_edit
+                <x-form.controls.select name="legal_status" id="property-legal-status" label="الحالة النظامية"
+                    required col="col-md-6" :value="$is_edit
                         ? ($property->legal_status instanceof \BackedEnum
                             ? $property->legal_status->value
                             : $property->legal_status ?? 'clear')
@@ -242,13 +244,15 @@
                             ? $property->legal_status->value
                             : $property->legal_status ?? 'clear')
                         : old('legal_status', 'clear');
-                    $isOtherLegalStatus = $currentLegalStatus === 'other' || $currentLegalStatus === \App\Enums\Tenants\Properties\PropertyLegalStatus::OTHER->value;
+                    $isOtherLegalStatus =
+                        $currentLegalStatus === 'other' ||
+                        $currentLegalStatus === \App\Enums\Tenants\Properties\PropertyLegalStatus::OTHER->value;
                 @endphp
 
-                <x-form.controls.input name="legal_status_notes" id="property-legal-status-notes" label="تفاصيل الحالة النظامية الأخرى"
-                    placeholder="أدخل تفاصيل الحالة النظامية..." :value="$is_edit ? $property->legal_status_notes : old('legal_status_notes')" col="col-12"
-                    wrapperId="property-legal-status-notes-wrapper" :wrapperStyle="$isOtherLegalStatus ? '' : 'display: none;'"
-                    :required="$isOtherLegalStatus" :disabled="!$isOtherLegalStatus" />
+                <x-form.controls.input name="legal_status_notes" id="property-legal-status-notes"
+                    label="تفاصيل الحالة النظامية الأخرى" placeholder="أدخل تفاصيل الحالة النظامية..."
+                    :value="$is_edit ? $property->legal_status_notes : old('legal_status_notes')" col="col-12" wrapperId="property-legal-status-notes-wrapper"
+                    :wrapperStyle="$isOtherLegalStatus ? '' : 'display: none;'" :required="$isOtherLegalStatus" :disabled="!$isOtherLegalStatus" />
 
                 {{-- بيانات الوكيل --}}
                 <x-form.controls.input name="agent_name" label="اسم الوكيل" placeholder="أدخل اسم الوكيل"
@@ -470,16 +474,17 @@
                     accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
                 <x-form.controls.file name="coordinates_statement" label="كشف الإحداثيات" required :value="$is_edit && $property->coordinatesAttachment ? $property->coordinatesAttachment : null"
                     accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
-                <x-form.controls.file name="building_permit" label="رخصة البناء" accept=".pdf,image/*"
-                    :value="$is_edit && $property->buildingPermitAttachment
-                        ? $property->buildingPermitAttachment
-                        : null" help="PDF أو صورة، بحد أقصى 10MB" :required="false" col="col-md-6" />
                 <x-form.controls.file name="agency_document" label="مستند التفويض أو الوكالة"
                     accept=".pdf,.png,.jpg,.jpeg" :value="$is_edit && $property->agencyDocumentAttachment
                         ? $property->agencyDocumentAttachment
                         : null"
                     help="PDF أو صورة، بحد أقصى 10MB — مطلوب عند إدخال بيانات الوكيل أو رقم الوكالة."
                     :required="$hasInitialAgentData" col="col-md-6" />
+                <x-form.controls.file name="building_permit" label="رخصة البناء" accept=".pdf,image/*"
+                    :value="$is_edit && $property->buildingPermitAttachment
+                        ? $property->buildingPermitAttachment
+                        : null" help="PDF أو صورة، بحد أقصى 10MB" :required="false" col="col-md-6" />
+
                 <x-form.controls.file name="property_images[]" label="صور إضافية للمعرض" multiple accept="image/*"
                     :value="$is_edit && $property->galleryAttachments && $property->galleryAttachments->isNotEmpty()
                         ? $property->galleryAttachments->values()

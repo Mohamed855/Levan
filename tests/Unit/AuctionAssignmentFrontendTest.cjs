@@ -60,7 +60,7 @@ function mount({ edit = false, values = {} } = {}) {
     $.ajax = (request) => { requests.push(request); };
     const form = { id: edit ? 'auction-edit-form' : 'wizard-validation-form', dataset: { assignmentPropertiesUrl: '/admin/assignments/:id/properties' } };
     const context = vm.createContext({
-        $, form,
+        $, form, window: {},
         selectedProperties: new Map(), restoredPropertyIds: [], propertyImageFallback: '/fallback.svg',
         encodeURIComponent, escapeHtml: (value) => String(value ?? '').replaceAll('<', '&lt;').replaceAll('"', '&quot;'),
         calculateSelectedProperties: () => { calculations++; }, updateLivePreview() {}, syncTimeConstraints() {},

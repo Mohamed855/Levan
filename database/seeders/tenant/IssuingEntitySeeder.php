@@ -17,16 +17,10 @@ class IssuingEntitySeeder extends Seeder
      */
     private const ENTITY_FIXTURES = [
         'مركز الإسناد والتصفية (إنفاذ)' => 'issuing-entities/infath.png',
-        'محكمة التنفيذ بالرياض' => 'issuing-entities/courts.png',
-        'محكمة التنفيذ بجدة' => 'issuing-entities/courts.png',
-        'محكمة التنفيذ بالدمام' => 'issuing-entities/courts.png',
-        'محكمة الأحوال الشخصية بالرياض' => 'issuing-entities/courts.png',
         'الهيئة العامة لعقارات الدولة' => 'issuing-entities/spga.png',
         'وزارة العدل' => 'issuing-entities/moj.png',
         'لجنة الإفلاس' => 'issuing-entities/bankruptcy.png',
-        'محكمة التنفيذ بمكة المكرمة' => 'issuing-entities/courts.png',
         'الهيئة العامة للأوقاف' => 'issuing-entities/awqaf.png',
-        'كتابة العدل الأولى' => 'issuing-entities/moj.png',
     ];
 
     /**
@@ -36,48 +30,23 @@ class IssuingEntitySeeder extends Seeder
     {
         $firstUserId = User::first()?->id;
 
-        $entities = [
-            ['name' => 'مركز الإسناد والتصفية (إنفاذ)',     'is_active' => true],
-            ['name' => 'محكمة التنفيذ بالرياض',              'is_active' => true],
-            ['name' => 'محكمة التنفيذ بجدة',                 'is_active' => true],
-            ['name' => 'محكمة التنفيذ بالدمام',              'is_active' => true],
-            ['name' => 'محكمة الأحوال الشخصية بالرياض',     'is_active' => true],
-            ['name' => 'الهيئة العامة لعقارات الدولة',       'is_active' => true],
-            ['name' => 'وزارة العدل',                        'is_active' => true],
-            ['name' => 'لجنة الإفلاس',                       'is_active' => true],
-            ['name' => 'محكمة التنفيذ بمكة المكرمة',         'is_active' => true],
-            ['name' => 'الهيئة العامة للأوقاف',              'is_active' => true],
-        ];
-
-        foreach ($entities as $entity) {
+        foreach (self::ENTITY_FIXTURES as $name => $fixture) {
             $imageAttributes = [];
-            $fixture = self::ENTITY_FIXTURES[$entity['name']] ?? null;
-
-            if ($fixture !== null) {
-                $targetPath = 'issuing-entities/'.md5($entity['name']).'.png';
-                $storedPath = DemoAssets::namedImage($fixture, $targetPath);
-                if ($storedPath !== null) {
-                    $imageAttributes['image'] = $storedPath;
-                }
+            $targetPath = 'issuing-entities/'.md5($name).'.png';
+            $storedPath = DemoAssets::namedImage($fixture, $targetPath);
+            if ($storedPath !== null) {
+                $imageAttributes['image'] = $storedPath;
             }
 
             IssuingEntity::withTrashed()->updateOrCreate(
-                ['name' => $entity['name']],
+                ['name' => $name],
                 array_merge([
-                    'is_active' => $entity['is_active'],
+                    'is_active' => true,
                     'created_by' => $firstUserId,
                     'deleted_at' => null,
                 ], $imageAttributes)
             );
         }
 
-        $notary = IssuingEntity::withTrashed()->where('name', 'كتابة العدل الأولى')->first();
-        if ($notary && empty($notary->image)) {
-            $notaryPath = 'issuing-entities/'.md5('كتابة العدل الأولى').'.png';
-            $notaryStored = DemoAssets::namedImage(self::ENTITY_FIXTURES['كتابة العدل الأولى'], $notaryPath);
-            if ($notaryStored !== null) {
-                $notary->update(['image' => $notaryStored]);
-            }
-        }
     }
 }
