@@ -74,6 +74,9 @@ final class AuctionRegulatoryFormsController extends Controller
             default => abort(404),
         };
         Gate::authorize($permission.'.'.$ability);
+        if ($type === 'establishment') {
+            return;
+        }
         $request = $auction->establishmentRequest;
         abort_unless($request?->exists && is_array($request->data) && ! empty($request->data), 404);
         if ($type === 'closing') {

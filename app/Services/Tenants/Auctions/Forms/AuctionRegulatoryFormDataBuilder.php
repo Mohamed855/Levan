@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Tenants\Auctions\Forms;
 
 use App\Models\Tenants\Auctions\Auction;
+use App\Services\Tenants\AuctionEstablishments\AuctionEstablishmentRequestData;
 use App\Services\Tenants\Settings\EstablishmentSigningAssets;
 use DomainException;
 use InvalidArgumentException;
@@ -15,11 +16,33 @@ final class AuctionRegulatoryFormDataBuilder
     {
         $this->assertType($type);
         $request = $auction->establishmentRequest;
-        if (! $request?->exists || ! is_array($request->data) || $request->data === []) {
+        $hasSavedRequest = $request?->exists && is_array($request->data) && $request->data !== [];
+        if ($type !== 'establishment' && ! $hasSavedRequest) {
             throw new DomainException('يجب حفظ طلب إقامة المزاد أولاً.');
         }
 
-        $data = $request->data;
+        $data = $hasSavedRequest ? $request->data : app(AuctionEstablishmentRequestData::class)->defaults($auction);
+        if (! $hasSavedRequest) {
+            foreach ($data['properties'] as &$row) {
+                $pivot = $auction->properties->firstWhere('id', $row['property_id'])?->pivot;
+                $row['entry_amount'] ??= $pivot?->entry_amount;
+                $row['ownership_share'] ??= $pivot?->ownership_share;
+                $row['disclosure'] ??= $pivot?->disclosure;
+            }
+            unset($row);
+            $data['submission_date'] = now()->format('Y/m/d');
+        }
+        $paymentAliases = ['bank_transfer' => 'transfer', 'wire' => 'transfer', 'certified_cheque' => 'cheque', 'sadad' => 'other', 'pos' => 'other'];
+        foreach (['receipt', 'refund'] as $payment) {
+            $method = $data['funds'][$payment.'_method'] ?? null;
+            if (! is_string($method) || ! isset($paymentAliases[$method])) {
+                continue;
+            }
+            $data['funds'][$payment.'_method'] = $paymentAliases[$method];
+            if (in_array($method, ['sadad', 'pos'], true) && blank($data['funds'][$payment.'_other'] ?? null)) {
+                $data['funds'][$payment.'_other'] = $method === 'sadad' ? 'سداد' : 'نقاط بيع (مدى)';
+            }
+        }
         unset($data['signing_assets']);
         $signingAssets = app(EstablishmentSigningAssets::class)->snapshot();
         if ($signingAssets !== []) {

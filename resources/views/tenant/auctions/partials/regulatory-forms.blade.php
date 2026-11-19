@@ -26,14 +26,10 @@
         $disabledAlert = null;
 
         if ($formType === 'establishment') {
-            if ($savedRequest?->exists && is_array($savedRequest->data) && !empty($savedRequest->data)) {
-                $isActionable = true;
-            } else {
-                $disabledAlert = 'يرجى إكمال طلب إقامة المزاد لتوليد النموذج.';
-            }
+            $isActionable = true;
         } elseif ($formType === 'closing') {
             if (!$savedRequest?->isApproved()) {
-                $disabledAlert = 'يرجى اعتماد طلب إقامة المزاد أولاً لتتمكن من إقفال المزاد وتوليد النموذج.';
+                $disabledAlert = 'يلزم اعتماد طلب إقامة المزاد أولاً لتتمكن من إقفال المزاد وتوليد النموذج.';
             } elseif (!$auction->isClosed() || !$auction->closing?->saved_at) {
                 $disabledAlert = 'برجاء إكمال الإقفال لتوليد النموذج.';
             } else {
@@ -325,7 +321,8 @@
                     return false;
                 }
 
-                function startPolling(timeoutLimit, isManualRetry = false, pollImmediately = true, expectedGenerationId = null) {
+                function startPolling(timeoutLimit, isManualRetry = false, pollImmediately = true,
+                    expectedGenerationId = null) {
                     stopPolling();
                     setProcessingUI();
                     const startTime = Date.now();
@@ -367,7 +364,8 @@
                             }
                             const state = await response.json();
                             if (!pollInterval || version !== pollingVersion) return;
-                            if (expectedGenerationId && state.generation_id && Number(state.generation_id) < Number(expectedGenerationId)) return;
+                            if (expectedGenerationId && state.generation_id && Number(state
+                                    .generation_id) < Number(expectedGenerationId)) return;
                             failures = 0;
 
                             const pending = render(state, timeoutReported);

@@ -2112,7 +2112,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const row = temp.firstElementChild;
             if (row) {
                 brokersList.appendChild(row);
-                window.FileUpload?.initAll?.(row);
+                window.SharedFileUpload?.initAll?.(row);
                 renumberAuctionBrokers();
                 updateLivePreview();
             }

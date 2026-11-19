@@ -14,6 +14,7 @@ use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\AuctionEstablishments\AuctionEstablishmentRequestData;
 use App\Services\Tenants\Auctions\AuctionBrokersManager;
 use App\Services\Tenants\Auctions\AuctionReportInputService;
+use App\Services\Tenants\Auctions\Forms\AuctionRegulatoryFormService;
 use App\Services\Tenants\Auctions\Reports\AuctionReportLock;
 use App\Services\Tenants\Auctions\Reports\AuctionReportService;
 use Carbon\Carbon;
@@ -561,6 +562,7 @@ final class UpdateAuctionAction
         }
 
         if (tenancy()->initialized && tenant('id')) {
+            app(AuctionRegulatoryFormService::class)->requestGeneration($updated, 'establishment');
             $this->reportService->requestGeneration($updated, (string) tenant('id'));
         }
 

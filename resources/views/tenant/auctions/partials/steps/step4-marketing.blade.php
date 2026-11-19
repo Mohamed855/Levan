@@ -132,7 +132,7 @@
 
     {{-- 4. المسوقون والوسطاء --}}
     <div class="col-12 border-top pt-3">
-        <div class="card border mb-0">
+        <div class="card border mb-0" data-auction-brokers-card data-next-index="{{ count($brokerRows) }}">
             <div class="card-header d-flex justify-content-between align-items-center py-3 bg-light-subtle">
                 <h6 class="card-title mb-0 fw-bold"><i class="ti ti-users me-1 text-primary"></i>المسوقون والوسطاء العقاريون</h6>
                 <button type="button" class="btn btn-sm btn-primary" id="btn-add-auction-broker">

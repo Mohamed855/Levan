@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Tests\Feature\Tenants\Auctions;
 
 use App\Http\Controllers\Tenants\Auctions\AuctionRegulatoryFormsController;
+use App\Jobs\Tenants\Auctions\GenerateAuctionRegulatoryFormJob;
 use App\Models\Tenants\AuctionClosings\AuctionClosing;
 use App\Models\Tenants\AuctionEstablishments\AuctionEstablishmentRequest;
 use App\Models\Tenants\Auctions\AuctionFormGeneration;
 use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Tenants\Auctions\Forms\AuctionRegulatoryForms;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
@@ -20,6 +24,22 @@ use Tests\Support\TenantAuctionReportTestCase;
 final class AuctionRegulatoryFormsAccessTest extends TenantAuctionReportTestCase
 {
     use AuctionReportCycleFixtures;
+
+    public function test_manual_generation_uses_saved_auction_data_without_requiring_a_separate_request(): void
+    {
+        Queue::fake();
+        Cache::put('auction_reports_worker_spawn_lock', 1, 60);
+        $this->allow('auction_establishment_requests.regenerate');
+        $auction = $this->cycleAuction();
+        $response = app(AuctionRegulatoryFormsController::class)->retry($auction, 'establishment');
+        self::assertSame(202, $response->getStatusCode());
+        self::assertSame('queued', $response->getData(true)['status']);
+        self::assertSame(5, $response->getData(true)['progress']);
+        $generation = AuctionFormGeneration::where('auction_id', $auction->id)->where('type', 'establishment')->sole();
+        self::assertSame($auction->name, $generation->snapshot['auction']['name']);
+        self::assertNotEmpty(app(AuctionRegulatoryForms::class)->html($generation->snapshot, 'establishment'));
+        Queue::assertPushed(GenerateAuctionRegulatoryFormJob::class, 1);
+    }
 
     private function allow(string $permission): void
     {
@@ -88,12 +108,12 @@ final class AuctionRegulatoryFormsAccessTest extends TenantAuctionReportTestCase
         $this->allow('auction_closings.view');
         $auction = $this->cycleAuction();
         $empty = view('tenant.auctions.partials.regulatory-forms', ['auction' => $auction])->render();
-        self::assertStringNotContainsString('data-regulatory-form="establishment"', $empty);
-        self::assertStringNotContainsString('data-regulatory-form="closing"', $empty);
+        self::assertStringContainsString('data-regulatory-form="establishment" data-actionable="1"', $empty);
+        self::assertStringContainsString('data-regulatory-form="closing" data-actionable="0"', $empty);
         $request = AuctionEstablishmentRequest::create(['auction_id' => $auction->id, 'data' => ['auction' => ['name' => 'Saved']], 'submitted_at' => now()]);
         $pending = view('tenant.auctions.partials.regulatory-forms', ['auction' => $auction->fresh()])->render();
         self::assertStringContainsString('data-regulatory-form="establishment"', $pending);
-        self::assertStringNotContainsString('data-regulatory-form="closing"', $pending);
+        self::assertStringContainsString('data-regulatory-form="closing" data-actionable="0"', $pending);
         $request->forceFill(['approved_at' => now(), 'approval_number' => '000187'])->save();
         AuctionClosing::create(['auction_id' => $auction->id, 'closing_date' => now(), 'saved_at' => now()]);
         $approved = view('tenant.auctions.partials.regulatory-forms', ['auction' => $auction->fresh()])->render();
@@ -103,8 +123,8 @@ final class AuctionRegulatoryFormsAccessTest extends TenantAuctionReportTestCase
 
     public function test_both_forms_can_be_manually_regenerated_after_all_properties_are_sold(): void
     {
-        \Illuminate\Support\Facades\Queue::fake();
-        \Illuminate\Support\Facades\Cache::put('auction_reports_worker_spawn_lock', 1, 60);
+        Queue::fake();
+        Cache::put('auction_reports_worker_spawn_lock', 1, 60);
         foreach (['auction_establishment_requests.regenerate', 'auction_closings.regenerate'] as $permission) {
             $this->allow($permission);
         }
@@ -123,6 +143,6 @@ final class AuctionRegulatoryFormsAccessTest extends TenantAuctionReportTestCase
             self::assertSame('queued', $response->getData(true)['status']);
             self::assertSame(5, $response->getData(true)['progress']);
         }
-        \Illuminate\Support\Facades\Queue::assertPushed(\App\Jobs\Tenants\Auctions\GenerateAuctionRegulatoryFormJob::class, 2);
+        Queue::assertPushed(GenerateAuctionRegulatoryFormJob::class, 2);
     }
 }

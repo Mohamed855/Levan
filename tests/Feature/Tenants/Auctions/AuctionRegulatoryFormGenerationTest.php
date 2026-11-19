@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedById;
 use Tests\Support\AuctionReportCycleFixtures;
 use Tests\Support\TenantAuctionReportTestCase;
 
@@ -71,12 +72,14 @@ final class AuctionRegulatoryFormGenerationTest extends TenantAuctionReportTestC
         self::assertSame(['auction' => ['name' => 'Original saved name']], $generation->fresh()->snapshot);
     }
 
-    public function test_auction_without_saved_request_cannot_create_establishment_generation(): void
+    public function test_auction_without_separate_request_generates_from_saved_auction_data(): void
     {
         Queue::fake();
         $auction = $this->cycleAuction();
-        self::assertNull(app(AuctionRegulatoryFormService::class)->requestGeneration($auction, 'establishment'));
-        self::assertSame(0, AuctionFormGeneration::where('auction_id', $auction->id)->count());
+        $generation = app(AuctionRegulatoryFormService::class)->requestGeneration($auction, 'establishment');
+        self::assertNotNull($generation);
+        self::assertSame($auction->name, $generation->snapshot['auction']['name']);
+        self::assertSame(1, AuctionFormGeneration::where('auction_id', $auction->id)->count());
         Queue::assertNothingPushed();
     }
 
@@ -157,7 +160,7 @@ final class AuctionRegulatoryFormGenerationTest extends TenantAuctionReportTestC
             (new GenerateAuctionRegulatoryFormJob('missing-regulatory-form-tenant', 1, 1, (string) Str::uuid()))
                 ->handle(app(AuctionRegulatoryForms::class), $this->renderer());
             self::fail('Unknown tenants must be rejected.');
-        } catch (\Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedById) {
+        } catch (TenantCouldNotBeIdentifiedById) {
             self::assertTrue(tenancy()->initialized);
             self::assertSame($previous, (string) tenant('id'));
         }

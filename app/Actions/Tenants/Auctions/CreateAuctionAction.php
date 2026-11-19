@@ -14,6 +14,7 @@ use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\AuctionEstablishments\AuctionEstablishmentRequestData;
 use App\Services\Tenants\Auctions\AuctionBrokersManager;
 use App\Services\Tenants\Auctions\AuctionReportInputService;
+use App\Services\Tenants\Auctions\Forms\AuctionRegulatoryFormService;
 use App\Services\Tenants\Auctions\Reports\AuctionReportService;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
@@ -422,6 +423,7 @@ final class CreateAuctionAction
         }
 
         if (tenancy()->initialized && tenant('id')) {
+            app(AuctionRegulatoryFormService::class)->requestGeneration($auction, 'establishment');
             $this->reportService->requestGeneration($auction, (string) tenant('id'));
         }
 

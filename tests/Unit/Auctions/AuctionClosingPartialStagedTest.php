@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -112,7 +113,7 @@ final class AuctionClosingPartialStagedTest extends TestCase
         $auction->start_date = '2026-11-10';
         $auction->end_date = '2026-11-20';
 
-        $route = new \Illuminate\Routing\Route('PUT', 'auction-closings/{auction}', []);
+        $route = new Route('PUT', 'auction-closings/{auction}', []);
         $route->bind(request());
         $route->setParameter('auction', $auction);
 
@@ -450,13 +451,19 @@ final class AuctionClosingPartialStagedTest extends TestCase
         $auction->setRelation('establishmentRequest', null);
         $auction->setRelation('closing', null);
 
-        // 1. Missing establishment request: both cards rendered, establishment disabled with save alert
+        // 1. Legacy auction without a separate request: establishment can be generated directly.
         $html = view('tenant.auctions.partials.regulatory-forms', ['auction' => $auction])->render();
         $this->assertStringContainsString('data-regulatory-form="establishment"', $html);
         $this->assertStringContainsString('data-regulatory-form="closing"', $html);
         $this->assertStringContainsString('data-actionable="0"', $html);
-        $this->assertStringContainsString('يرجى إكمال طلب إقامة المزاد لتوليد النموذج.', $html);
-        $this->assertStringContainsString('يرجى اعتماد طلب إقامة المزاد أولاً لتتمكن من إقفال المزاد وتوليد النموذج.', $html);
+        $this->assertStringNotContainsString('يرجى إكمال طلب إقامة المزاد لتوليد النموذج.', $html);
+        $this->assertStringNotContainsString('أعد حفظ بيانات المزاد', $html);
+        $this->assertStringContainsString('data-regulatory-form="establishment" data-actionable="1"', $html);
+        $document = new \DOMDocument;
+        @$document->loadHTML('<?xml encoding="UTF-8">'.$html);
+        $button = (new \DOMXPath($document))->query('//*[@data-regulatory-form="establishment"]//button[@data-form-retry]')->item(0);
+        $this->assertFalse($button->hasAttribute('disabled'));
+        $this->assertStringContainsString('يلزم اعتماد طلب إقامة المزاد أولاً لتتمكن من إقفال المزاد وتوليد النموذج.', $html);
 
         // 2. Unapproved establishment request: establishment is actionable, closing disabled with approval alert
         $pendingRequest = new class extends Model
@@ -472,8 +479,7 @@ final class AuctionClosingPartialStagedTest extends TestCase
         $auction->setRelation('establishmentRequest', $pendingRequest);
 
         $html2 = view('tenant.auctions.partials.regulatory-forms', ['auction' => $auction])->render();
-        $this->assertStringContainsString('data-regulatory-form="establishment"', $html2);
-        $this->assertStringContainsString('يرجى اعتماد طلب إقامة المزاد أولاً لتتمكن من إقفال المزاد وتوليد النموذج.', $html2);
+        $this->assertStringContainsString('يلزم اعتماد طلب إقامة المزاد أولاً لتتمكن من إقفال المزاد وتوليد النموذج.', $html2);
 
         // 3. Approved request, but closing not complete: closing card has 'برجاء إكمال الإقفال لتوليد النموذج.' alert
         $approvedRequest = new class extends Model
