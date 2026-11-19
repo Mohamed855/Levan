@@ -13,7 +13,7 @@ final class AuctionReportBranding
     {
         $settings = Settings::query()->first();
 
-        return ['company_name' => $settings?->office_name, 'company_logo' => $this->image($settings?->image), 'contacts' => ['phone' => $settings?->report_phone, 'unified_phone' => $settings?->report_unified_phone, 'social' => $settings?->report_social]];
+        return ['company_name' => $settings?->office_name, 'company_logo' => $this->image($settings?->image) ?? $this->platformIcon(), 'contacts' => ['phone' => $settings?->report_phone, 'unified_phone' => $settings?->report_unified_phone, 'social' => $settings?->report_social]];
     }
 
     public function apply(array $snapshot): array
@@ -33,5 +33,10 @@ final class AuctionReportBranding
         $disk = Storage::disk('tenant_public');
 
         return 'data:'.($disk->mimeType($path) ?: 'image/png').';base64,'.base64_encode($disk->get($path));
+    }
+
+    public function platformIcon(): string
+    {
+        return 'data:image/png;base64,'.base64_encode(file_get_contents(public_path('static/brand/logos/lot/trans-icon.png')));
     }
 }

@@ -1,7 +1,6 @@
 <div class="d-flex justify-content-center gap-2">
-    <button type="button" class="btn btn-icon btn-label-info js-sub-periods-btn"
-        data-url="{{ route('admin.subscriptions.periods', $row->id) }}"
-        data-number="{{ $row->subscription_number }}"
+    <button type="button" class="btn btn-icon btn-label-primary js-sub-periods-btn"
+        data-url="{{ route('admin.subscriptions.periods', $row->id) }}" data-number="{{ $row->subscription_number }}"
         title="عرض فترات وسجل الاشتراك">
         <i class="ti ti-timeline"></i>
     </button>

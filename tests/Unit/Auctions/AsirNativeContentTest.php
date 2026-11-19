@@ -131,6 +131,14 @@ final class AsirNativeContentTest extends TestCase
         return new DOMXPath($document);
     }
 
+    public function test_null_company_logo_uses_platform_icon_in_report(): void
+    {
+        $snapshot = require __DIR__.'/../../Fixtures/AuctionReports/asir.php';
+        $snapshot['branding'] = ['company_logo' => null, 'issuing_entity_logo' => null];
+        $html = app(AuctionReportRenderer::class)->html($snapshot, 'report');
+        self::assertStringContainsString('data:image/png;base64,'.base64_encode(file_get_contents(public_path('static/brand/logos/lot/trans-icon.png'))), $html);
+    }
+
     public function test_internal_pages_are_html_and_both_covers_keep_their_artwork(): void
     {
         $snapshot = require __DIR__.'/../../Fixtures/AuctionReports/asir.php';

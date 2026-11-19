@@ -68,8 +68,7 @@
         </x-slot:table>
     </x-data-table.page>
 
-    {{-- Modal: عرض فترات وسجل الاشتراك --}}
-    <x-bootstrap.modal id="subPeriodsModal" title="فترات وسجل الاشتراك" icon="ti-timeline" size="modal-lg">
+    <x-bootstrap.modal id="subPeriodsModal" title="فترات وسجل الاشتراك" icon="ti-timeline" size="xl">
         <div class="mb-3 d-flex justify-content-between align-items-center">
             <div>
                 <span class="text-muted small">رقم الاشتراك:</span>

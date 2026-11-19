@@ -113,7 +113,7 @@ class TenantNewClientSeedersAndLogoTest extends TestCase
         $this->assertStringContainsString('IssuingEntitySeeder::class', $content);
     }
 
-    public function test_tenant_logo_renders_nothing_when_settings_image_is_null(): void
+    public function test_tenant_logo_renders_platform_icon_when_settings_image_is_null(): void
     {
         Settings::query()->delete();
         Cache::flush();
@@ -127,7 +127,8 @@ class TenantNewClientSeedersAndLogoTest extends TestCase
 
         $html = Blade::render('<x-partials.tenant-logo :height="32" />');
 
-        $this->assertStringNotContainsString('<img', $html);
+        $this->assertStringContainsString('<img', $html);
+        $this->assertStringContainsString('src="'.asset('static/brand/logos/lot/trans-icon.png').'"', $html);
         $this->assertStringNotContainsString('logo-light.svg', $html);
         $this->assertStringNotContainsString('logo.svg', $html);
     }

@@ -89,6 +89,7 @@ class BillsController extends Controller
         abort_unless($bill, 404, 'الفاتورة غير موجودة.');
 
         $settings = $this->billingGateway->platformSettings();
+        $platformLogoUrl = $settings->logo_url;
 
         $vatRate = 0.15;
         $vatAmount = round($bill->original_amount * $vatRate, 2);
@@ -99,6 +100,7 @@ class BillsController extends Controller
 
         return view('admin.bills.print', compact(
             'settings',
+            'platformLogoUrl',
             'bill',
             'vatRate',
             'vatAmount',

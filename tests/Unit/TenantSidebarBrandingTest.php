@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Http\Requests\Tenants\Settings\MainSettingsRequest;
+use Illuminate\Support\Facades\Blade;
 use Tests\TestCase;
 
 final class TenantSidebarBrandingTest extends TestCase
@@ -26,13 +27,11 @@ final class TenantSidebarBrandingTest extends TestCase
         $this->assertStringContainsString("config('app.name')", $content);
     }
 
-    public function test_tenant_logo_component_checks_settings_and_does_not_render_general_logo_by_default(): void
+    public function test_tenant_logo_component_preserves_an_explicit_logo(): void
     {
-        $content = file_get_contents(resource_path('views/components/partials/tenant-logo.blade.php'));
-
-        $this->assertStringContainsString("SettingsHelper::get('image')", $content);
-        $this->assertStringContainsString('tasset($logoImage', $content);
-        $this->assertStringNotContainsString('logo-light.svg', $content);
+        $html = Blade::render('<x-partials.tenant-logo logo-path="https://example.test/client-logo.png" :height="32" />');
+        $this->assertStringContainsString('src="https://example.test/client-logo.png"', $html);
+        $this->assertStringContainsString('height="32"', $html);
     }
 
     public function test_main_settings_request_allows_webp_images(): void

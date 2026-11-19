@@ -4,13 +4,20 @@
 
 @section('content')
 
+    @php
+        $platformLogoUrl = $platformLogoUrl ?? ($settings->logo_url ?? asset('static/brand/logos/lot/trans-profile.png'));
+    @endphp
+
     <div class="invoice-wrapper">
 
         {{-- ── Header ── --}}
         <div class="inv-header">
 
-            {{-- : بيانات الشركة --}}
+            {{-- : بيانات الشركة والشعار --}}
             <div class="company-block">
+                <div class="company-logo-wrapper">
+                    <img src="{{ $platformLogoUrl }}" alt="{{ $settings->office_name ?? 'شعار المنصة' }}" class="company-logo" onerror="this.onerror=null; this.src='{{ asset('static/brand/logos/lot/trans-profile.png') }}';">
+                </div>
                 <div class="company-name">{{ $settings->office_name }}</div>
                 <div class="company-details">
                     @if ($settings->office_address ?? false)
@@ -24,6 +31,10 @@
                     @if ($settings->commercial_register ?? false)
                         <span class="c-label">س.ت</span>
                         <span class="c-value">{{ $settings->commercial_register }}</span>
+                    @endif
+                    @if ($settings->tax_number ?? false)
+                        <span class="c-label">الرقم الضريبي</span>
+                        <span class="c-value">{{ $settings->tax_number }}</span>
                     @endif
                     @if ($settings->email ?? false)
                         <span class="c-label">البريد الالكتروني</span>
@@ -152,17 +163,34 @@
 
         {{-- ── Action buttons (hidden on print) ── --}}
         <div class="inv-actions no-print">
-            <button type="button" onclick="window.print()" class="btn-inv-primary"><i class="ti ti-printer me-1"></i>طباعة الفاتورة</button>
+            <button type="button" id="btn-print-invoice" class="btn-inv-primary"><i class="ti ti-printer me-1"></i>طباعة الفاتورة</button>
             <a href="{{ $backUrl ?? route('admin.bills.show', $bill->id) }}" class="btn-inv-outline"><i class="ti ti-arrow-right me-1"></i>رجوع</a>
         </div>
 
     </div>
 
     <script>
-        window.addEventListener('load', function() {
-            setTimeout(function() {
+        (function () {
+            function triggerPrint() {
+                window.focus();
                 window.print();
-            }, 300);
-        });
+            }
+
+            const printBtn = document.getElementById('btn-print-invoice');
+            if (printBtn) {
+                printBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    triggerPrint();
+                });
+            }
+
+            if (document.readyState === 'complete') {
+                setTimeout(triggerPrint, 350);
+            } else {
+                window.addEventListener('load', function () {
+                    setTimeout(triggerPrint, 350);
+                });
+            }
+        })();
     </script>
 @endsection

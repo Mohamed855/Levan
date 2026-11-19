@@ -27,8 +27,9 @@ class BillService
         $priceWithoutTax = round($bill->original_amount - $vatAmount, 2);
         $discount = max(0.0, (float) $bill->discount_amount);
         $settings = Settings::firstOrFail();
+        $platformLogoUrl = $settings->logo_url;
 
-        return compact('bill', 'vatRate', 'vatAmount', 'priceWithoutTax', 'discount', 'settings');
+        return compact('bill', 'vatRate', 'vatAmount', 'priceWithoutTax', 'discount', 'settings', 'platformLogoUrl');
     }
 
     // فاتورة مبدئية

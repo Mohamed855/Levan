@@ -52,8 +52,8 @@ class Settings extends Model
             $normalized = substr($normalized, 8);
         }
 
-        if (Storage::disk('public')->exists($normalized) || file_exists(public_path('storage/' . $normalized))) {
-            return asset('storage/' . $normalized);
+        if (Storage::disk('public')->exists($normalized) || file_exists(public_path('storage/'.$normalized))) {
+            return asset('storage/'.$normalized);
         }
 
         return asset('static/brand/logos/lot/trans-profile.png');

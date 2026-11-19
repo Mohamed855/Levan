@@ -26,6 +26,10 @@ final class AuctionReportRenderer
             throw new InvalidArgumentException('Unsupported auction report type.');
         }
 
+        if (array_key_exists('branding', $snapshot) && blank($snapshot['branding']['company_logo'] ?? null)) {
+            $snapshot['branding']['company_logo'] = (new AuctionReportBranding)->platformIcon();
+        }
+
         $design = $type === 'outputs' ? 'haram' : 'asir';
         if ($type === 'report' && empty($snapshot['auction']['report_image'])) {
             $snapshot['auction']['report_image'] = $this->artwork->defaultReportImage();

@@ -30,6 +30,14 @@ final class HaramReportPresentationTest extends TestCase
         return new DOMXPath($document);
     }
 
+    public function test_null_company_logo_uses_platform_icon_in_outputs(): void
+    {
+        $snapshot = $this->snapshot();
+        $snapshot['branding'] = ['company_logo' => null, 'issuing_entity_logo' => null];
+        $html = app(AuctionReportRenderer::class)->html($snapshot, 'outputs');
+        self::assertStringContainsString('data:image/png;base64,'.base64_encode(file_get_contents(public_path('static/brand/logos/lot/trans-icon.png'))), $html);
+    }
+
     public function test_cover_uses_native_rtl_cards_and_separate_contact_icons(): void
     {
         $snapshot = $this->snapshot();

@@ -72,6 +72,19 @@ body {
 .company-block {
     min-width: 220px;
 
+    .company-logo-wrapper {
+        margin-bottom: 12px;
+    }
+
+    .company-logo {
+        max-height: 52px;
+        max-width: 220px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        display: block;
+    }
+
     .company-name {
         font-size: 1.25rem;
         font-weight: 700;
@@ -322,6 +335,13 @@ body {
         margin: 0;
         border: none;
         padding: 1cm 1.4cm;
+    }
+
+    .company-logo {
+        max-height: 48px;
+        max-width: 200px;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
 
     @page {

@@ -7,7 +7,10 @@ namespace Tests\Feature\Tenants\Auctions;
 use App\Actions\Tenants\Settings\UpdateTenantSettingsAction;
 use App\Models\Tenants\Assignments\IssuingEntity;
 use App\Models\Tenants\Settings\Settings;
+use App\Services\Tenants\Auctions\Reports\AuctionReportBranding;
 use App\Services\Tenants\Auctions\Reports\AuctionReportDataBuilder;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Tests\Support\AuctionReportCycleFixtures;
 use Tests\Support\TenantAuctionReportTestCase;
@@ -34,5 +37,23 @@ final class AuctionReportCompanySourcesTest extends TenantAuctionReportTestCase
         self::assertStringContainsString(base64_encode('entity-bytes'), $snapshot['branding']['issuing_entity_logo']);
         self::assertArrayNotHasKey('office_name', $snapshot['branding']);
         self::assertSame([], $snapshot['evidence']);
+        Cache::forget('app_settings_'.tenant('id'));
+        $html = Blade::render('<x-partials.tenant-logo :height="32" />');
+        self::assertStringContainsString('company.png', $html);
+        self::assertStringNotContainsString('src="'.asset('static/brand/logos/lot/trans-icon.png').'"', $html);
+    }
+
+    public function test_missing_customer_logo_uses_platform_icon_in_sidebar_and_report_branding(): void
+    {
+        Storage::fake('tenant_public');
+        $settings = Settings::firstOrCreate([], ['office_name' => 'شركة العميل']);
+        $icon = 'data:image/png;base64,'.base64_encode(file_get_contents(public_path('static/brand/logos/lot/trans-icon.png')));
+        foreach ([null, '', 'settings/missing.png', 'default-office.png', 'image/demo-office.jpg'] as $path) {
+            $settings->update(['image' => $path]);
+            Cache::forget('app_settings_'.tenant('id'));
+            $html = Blade::render('<x-partials.tenant-logo :height="32" />');
+            self::assertStringContainsString('src="'.asset('static/brand/logos/lot/trans-icon.png').'"', $html);
+            self::assertSame($icon, app(AuctionReportBranding::class)->current()['company_logo']);
+        }
     }
 }
